@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+#
+# debian/rules for logo package
+
+p=logo
+
+build:
+	$(checkdir)
+	./configure
+	$(MAKE) LIBLOC=/usr/lib/logo CFLAGS=-O2
+	touch build
+
+clean:
+	$(checkdir)
+	-rm -f build
+	-rm *.o libloc.c
+	-rm -rf *~ debian/tmp debian/*~ debian/files*
+
+binary-indep: checkroot build
+# None
+	@echo 'No architecture independend package components.'; false
+
+binary binary-arch: checkroot build
+	$(checkdir)
+	-rm -rf debian/tmp
+	install -d debian/tmp debian/tmp/DEBIAN
+	install -d debian/tmp/usr/doc/$(p)
+	install -d debian/tmp/usr/bin debian/tmp/usr/lib/logo
+	install -d debian/tmp/usr/lib/logo/helpfiles
+	install -d debian/tmp/usr/lib/logo/logolib
+	install -d debian/tmp/usr/lib/logo/csls
+	install -s logo debian/tmp/usr/bin/.
+	cp -r helpfiles/* debian/tmp/usr/lib/logo/helpfiles/.
+	cp -r logolib/* debian/tmp/usr/lib/logo/logolib/.
+	cp -r csls/* debian/tmp/usr/lib/logo/csls/.
+	install -d debian/tmp/usr/man/man1
+	install logo.1 debian/tmp/usr/man/man1/.
+	gzip -9v debian/tmp/usr/man/man1/*
+	cp debian/{copyright,changelog} debian/tmp/usr/doc/$(p)/.
+	gzip -9v debian/tmp/usr/doc/$(p)/changelog
+	dpkg-shlibdeps $(p)
+	dpkg-gencontrol
+	chown -R root.root debian/tmp
+	chmod -R g-ws debian/tmp
+	dpkg --build debian/tmp ..
+
+define checkdir
+	test -f $(p).h -a -f debian/rules
+endef
+
+checkroot:
+	$(checkdir)
+	test root =  "`whoami`"
+
+.PHONY: binary binary-arch binary-indep clean checkroot
+

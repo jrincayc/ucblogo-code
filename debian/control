@@ -1,0 +1,24 @@
+Source: ucblogo
+Section: misc
+Priority: optional
+Maintainer: Dale Scheetz <dwarf@polaris.net>
+Standards-Version: 2.1.0.0
+
+Package: ucblogo
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: a programming language useful in teaching modular techniques.
+ This is the UC Berkley implimentation of logo which provides the following
+ additional features to the standard logo:
+ .
+ - Random-access arrays.
+ - Variable number of inputs to user-defined procedures.
+ - Mutators for list structure (dangerous).
+ - Pause on error, and other improvements to error handling.
+ - Comments and continuation lines; formatting is preserved when
+   procedure definitions are saved or edited.
+ - Terrapin-style tokenization (e.g., [2+3] is a list with one member)
+   but LCSI-style syntax (no special forms except TO).  The best of
+   both worlds.
+ - First-class instruction and expression templates.
+ - Macros.

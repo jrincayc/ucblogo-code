@@ -41,7 +41,7 @@ makehelp:	makehelp.c
 	$(CC) -o makehelp makehelp.c
 
 clean:
-	rm *.o libloc.c
+	-rm *.o libloc.c
 
 ship:
 	rm config.h config.cache config.log config.status
