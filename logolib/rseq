@@ -1,0 +1,5 @@
+to rseq :a :b :n
+output map [[x] :a + :x * (:b - :a) / (:n - 1)] iseq 0 :n - 1
+end
+
+bury "rseq

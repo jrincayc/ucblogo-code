@@ -6,7 +6,7 @@ TRANSFER endtest template inbasket			(library procedure)
 	initially the empty list.  After each evaluation of the
 	template, the resulting value becomes the new outbasket.
 
-	In the template, the symbol ?IN represents the current element
+	In the template, the symbol ?IN represents the current member
 	from the inbasket; the symbol ?OUT represents the entire
 	current outbasket.  Other slot symbols should not be used.
 

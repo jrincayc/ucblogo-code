@@ -7,5 +7,5 @@
 	primitives into infinite loops; unexpected changes to other data
 	structures that share storage with the list being modified; Logo
 	crashes and coredumps if the butfirst of a list is not itself a list;
-	and the permanent loss of memory if a circular structure is released.
+	and the loss of memory if a circular structure is released.
 

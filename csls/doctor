@@ -1,512 +1,627 @@
-TO #GATHER :SEN
-IF EMPTYP :SEN [OP :SEN]
-IF NOT TRY.PRED [OP :SEN]
-MAKE :SPECIAL.VAR LPUT FIRST :SEN THING :SPECIAL.VAR
-OP #GATHER BF :SEN
-END
+to doctor
+local [text sentence stuff a b c rules keywords memory]
+make "memory []
+print [Hello, I am the doctor. What can I do for you?]
+print [Please end your remarks with an empty line.]
+print []
+loop
+end
 
-TO #TEST :SEN
-IF MATCH BF :PAT :SEN [OP "TRUE]
-IF EMPTYP THING :SPECIAL.VAR [OP "FALSE]
-OP #TEST2 FPUT LAST THING :SPECIAL.VAR :SEN
-END
+;; Controlling the conversation
 
-TO #TEST2 :SEN
-MAKE :SPECIAL.VAR BL THING :SPECIAL.VAR
-OP #TEST :SEN
-END
+to loop
+make "text tokenize getstuff []
+make "sentence getsentence :text
+analyze :sentence :keywords
+print []
+loop
+end
 
-TO &TEST :TF
-IF EMPTYP THING :SPECIAL.VAR [OP "FALSE]
-OP :TF
-END
+;; Reading and preparing the input
 
-TO @TEST :SEN
-IF @TRY.PRED [IF MATCH BF :PAT :SEN [OP "TRUE]]
-IF EMPTYP THING :SPECIAL.VAR [OP "FALSE]
-OP @TEST2 FPUT LAST THING :SPECIAL.VAR :SEN
-END
+to getstuff :stuff
+localmake "line readlist
+if emptyp :line [output :stuff]
+output getstuff sentence :stuff :line
+end
 
-TO @TEST2 :SEN
-MAKE :SPECIAL.VAR BL THING :SPECIAL.VAR
-OP @TEST :SEN
-END
+to tokenize :text
+output map.se [tokenword ? "] :text
+end
 
-TO @TRY.PRED
-IF LISTP :SPECIAL.PRED [OP MATCH :SPECIAL.PRED THING :SPECIAL.VAR]
-OP RUN LIST :SPECIAL.PRED THING :SPECIAL.VAR
-END
+to tokenword :word :out
+if emptyp :word [output :out]
+if memberp first :word [, " ] [output tokenword butfirst :word :out]
+if memberp first :word [. ? ! |;|] [output sentence :out ".]
+output tokenword butfirst :word word :out first :word
+end
 
-TO ADDPUNCT :STUFF :CHAR
-IF WORDP :STUFF [OUTPUT WORD :STUFF :CHAR]
-IF EMPTYP :STUFF [OUTPUT :CHAR]
-OUTPUT SE BL :STUFF WORD LAST :STUFF :CHAR
-END
+to getsentence :text
+make "keywords []
+output getsentence1 decapitalize :text []
+end
 
-TO ALWAYS :X
-OP "TRUE
-END
+to getsentence1 :text :out
+if emptyp :text [output :out]
+if equalp first :text ". ~
+   [ifelse emptyp :keywords ~
+           [output getsentence1 decapitalize butfirst :text []] [output :out]]
+checkpriority first :text
+output getsentence1 butfirst :text sentence :out translate first :text
+end
 
-TO ANALYZE :SENTENCE :KEYWORDS
-LOCAL [RULES KEYWORD]
-IF EMPTYP :KEYWORDS [NORULES STOP]
-MAKE "KEYWORD FIRST :KEYWORDS
-MAKE "RULES GPROP :KEYWORD "RULES
-IF WORDP FIRST :RULES ~
-   [MAKE "KEYWORD FIRST :RULES MAKE "RULES GPROP :KEYWORD "RULES]
-CHECKRULES :KEYWORD :RULES
-END
+to decapitalize :text
+if emptyp :text [output []]
+output fput lowercase first :text butfirst :text
+end
 
-TO ANYOF :SEN
-OP ANYOF1 :SEN :IN.LIST
-END
+to checkpriority :word
+localmake "priority gprop :word "priority
+if emptyp :priority [stop]
+if emptyp :keywords [make "keywords ( list :word ) stop]
+ifelse :priority > ( gprop first :keywords "priority ) ~
+       [make "keywords fput :word :keywords] ~
+       [make "keywords lput :word :keywords]
+end
 
-TO ANYOF1 :SEN :PATS
-IF EMPTYP :PATS [OP "FALSE]
-IF MATCH FIRST :PATS :SEN [OP "TRUE]
-OP ANYOF1 :SEN BF :PATS
-END
+to translate :word
+localmake "new gprop :word "translation
+output ifelse emptyp :new [:word] [:new]
+end
 
-TO BELIEFP :WORD
-OUTPUT NOT EMPTYP GPROP :WORD "BELIEF
-END
+;; Choosing the rule and replying
 
-TO CHECKPRIORITY :WORD
-LOCAL "PRIORITY
-MAKE "PRIORITY GPROP :WORD "PRIORITY
-IF EMPTYP :PRIORITY [STOP]
-IF EMPTYP :KEYWORDS [MAKE "KEYWORDS ( LIST :WORD ) STOP]
-IFELSE :PRIORITY > ( GPROP FIRST :KEYWORDS "PRIORITY ) ~
-       [MAKE "KEYWORDS FPUT :WORD :KEYWORDS] ~
-       [MAKE "KEYWORDS LPUT :WORD :KEYWORDS]
-END
+to analyze :sentence :keywords
+local [rules keyword]
+if emptyp :keywords [norules stop]
+make "keyword first :keywords
+make "rules gprop :keyword "rules
+if wordp first :rules ~
+   [make "keyword first :rules make "rules gprop :keyword "rules]
+checkrules :keyword :rules
+end
 
-TO CHECKRULES :KEYWORD :RULES
-IF NOT MATCH FIRST :RULES :SENTENCE ~
-   [CHECKRULES :KEYWORD BF BF :RULES STOP]
-DORULE FIRST BF :RULES
-END
+to checkrules :keyword :rules
+if not match first :rules :sentence ~
+   [checkrules :keyword butfirst butfirst :rules stop]
+dorule first butfirst :rules
+end
 
-TO DOCTOR
-LOCAL [TEXT SENTENCE STUFF A B C RULES KEYWORDS]
-MAKE "MEMORY []
-PR [HELLO, I AM THE DOCTOR. WHAT CAN I DO FOR YOU?]
-PR [PLEASE END YOUR REMARKS WITH AN EMPTY LINE.]
-PR []
-LOOP
-END
+to dorule :rule
+localmake "print first gprop :keyword :rule
+pprop :keyword :rule lput :print butfirst gprop :keyword :rule
+if equalp :print "newkey [analyze :sentence butfirst :keywords stop]
+if wordp :print [checkrules :print gprop :print "rules stop]
+if equalp first :print "pre ~
+   [analyze reconstruct first butfirst :print butfirst butfirst :print stop]
+print capitalize reconstruct :print
+memory :keyword :sentence
+end
 
-TO DORULE :RULE
-LOCAL "PRINT
-MAKE "PRINT FIRST GPROP :KEYWORD :RULE
-PPROP :KEYWORD :RULE LPUT :PRINT BF GPROP :KEYWORD :RULE
-IF EQUALP :PRINT "NEWKEY [ANALYZE :SENTENCE BF :KEYWORDS STOP]
-IF WORDP :PRINT [CHECKRULES :PRINT GPROP :PRINT "RULES STOP]
-IF EQUALP FIRST :PRINT "PRE ~
-   [ANALYZE RECONSTRUCT FIRST BF :PRINT BF BF :PRINT STOP]
-PRINT RECONSTRUCT :PRINT
-MEMORY :KEYWORD :SENTENCE
-END
+to reconstruct :sentence
+if emptyp :sentence [output []]
+if not equalp ": first first :sentence ~
+   [output fput first :sentence reconstruct butfirst :sentence]
+output sentence reword first :sentence reconstruct butfirst :sentence
+end
 
-TO FAMILYP :WORD
-OUTPUT NOT EMPTYP GPROP :WORD "FAMILY
-END
+to reword :word
+if memberp last :word [. ? ,] [output addpunct reword butlast :word last :word]
+output thing butfirst :word
+end
 
-TO GETSENTENCE :TEXT
-MAKE "KEYWORDS []
-OUTPUT GETSENTENCE1 :TEXT []
-END
+to addpunct :stuff :char
+if wordp :stuff [output word :stuff :char]
+if emptyp :stuff [output :char]
+output sentence butlast :stuff word last :stuff :char
+end
 
-TO GETSENTENCE1 :TEXT :OUT
-IF EMPTYP :TEXT [OUTPUT :OUT]
-IF EQUALP FIRST :TEXT ". ~
-   [IFELSE EMPTYP :KEYWORDS ~
-           [OUTPUT GETSENTENCE1 BF :TEXT []] [OUTPUT :OUT]]
-CHECKPRIORITY FIRST :TEXT
-OUTPUT GETSENTENCE1 BF :TEXT SE :OUT TRANSLATE FIRST :TEXT
-END
+to capitalize :text
+if emptyp :text [output []]
+output fput (word uppercase first first :text butfirst first :text) butfirst :text
+end
 
-TO GETSTUFF :STUFF
-LOCAL "LINE
-MAKE "LINE RL
-IF EMPTYP :LINE [OP :STUFF]
-OP GETSTUFF SE :STUFF :LINE
-END
+to memory :keyword :sentence
+local [rules rule name]
+make "rules gprop :keyword "memr
+if emptyp :rules [stop]
+if not match first :rules :sentence [stop]
+make "name last :rules
+make "rules gprop :keyword :name
+make "rule first :rules
+pprop :keyword :name lput :rule butfirst :rules
+make "memory fput reconstruct :sentence :memory
+end
 
-TO IN :WORD
-OP MEMBERP :WORD :IN.LIST
-END
+to norules
+ifelse :memflag [usememory] [lastresort]
+make "memflag not :memflag
+end
 
-TO LASTRESORT
-PRINT FIRST :LASTRESORT
-MAKE "LASTRESORT LPUT FIRST :LASTRESORT BF :LASTRESORT
-END
+to lastresort
+print first :lastresort
+make "lastresort lput first :lastresort butfirst :lastresort
+end
 
-TO LOOP
-MAKE "TEXT TOKENIZE GETSTUFF []
-MAKE "SENTENCE GETSENTENCE :TEXT
-ANALYZE :SENTENCE :KEYWORDS
-PRINT []
-LOOP
-END
+to usememory
+if emptyp :memory [lastresort stop]
+print capitalize first :memory
+make "memory butfirst :memory
+end
 
-TO MATCH :PAT :SEN
-LOCAL [SPECIAL.VAR SPECIAL.PRED SPECIAL.BUFFER IN.LIST]
-IF OR WORDP :PAT WORDP :SEN [OP "FALSE]
-IF EMPTYP :PAT [OP EMPTYP :SEN]
-IF LISTP FIRST :PAT [OP SPECIAL FPUT "!: :PAT :SEN]
-IF MEMBERP FIRST FIRST :PAT [? # ! & @] [OP SPECIAL :PAT :SEN]
-IF EMPTYP :SEN [OP "FALSE]
-IF EQUALP FIRST :PAT FIRST :SEN [OP MATCH BF :PAT BF :SEN]
-OP "FALSE
-END
+;; Predicates for patterns
 
-TO MATCH!
-IF EMPTYP :SEN [OP "FALSE]
-IF NOT TRY.PRED [OP "FALSE]
-MAKE :SPECIAL.VAR FIRST :SEN
-OP MATCH BF :PAT BF :SEN
-END
+to beliefp :word
+output not emptyp gprop :word "belief
+end
 
-TO MATCH#
-MAKE :SPECIAL.VAR []
-OP #TEST #GATHER :SEN
-END
+to familyp :word
+output not emptyp gprop :word "family
+end
 
-TO MATCH&
-OP &TEST MATCH#
-END
+;; Procedures for adding to the script
 
-TO MATCH?
-MAKE :SPECIAL.VAR []
-IF EMPTYP :SEN [OP MATCH BF :PAT :SEN]
-IF NOT TRY.PRED [OP MATCH BF :PAT :SEN]
-MAKE :SPECIAL.VAR FIRST :SEN
-IF MATCH BF :PAT BF :SEN [OP "TRUE]
-MAKE :SPECIAL.VAR []
-OP MATCH BF :PAT :SEN
-END
+to addrule :word :pattern :results
+localmake "propname gensym
+pprop :word "rules (sentence gprop :word "rules list :pattern :propname)
+pprop :word :propname :results
+end
 
-TO MATCH@
-MAKE :SPECIAL.VAR :SEN
-OP @TEST []
-END
+to addmemr :word :pattern :results
+localmake "propname gensym
+pprop :word "memr (sentence gprop :word "memr list :pattern :propname)
+pprop :word :propname :results
+end
 
-TO MEMORY :KEYWORD :SENTENCE
-LOCAL [RULES RULE NAME]
-MAKE "RULES GPROP :KEYWORD "MEMR
-IF EMPTYP :RULES [STOP]
-IF NOT MATCH FIRST :RULES :SENTENCE [STOP]
-MAKE "NAME LAST :RULES
-MAKE "RULES GPROP :KEYWORD :NAME
-MAKE "RULE FIRST :RULES
-PPROP :KEYWORD :NAME LPUT :RULE BF :RULES
-MAKE "MEMORY FPUT RECONSTRUCT :SENTENCE :MEMORY
-END
+;; data
 
-TO NORULES
-IFELSE :MEMFLAG [USEMEMORY] [LASTRESORT]
-MAKE "MEMFLAG NOT :MEMFLAG
-END
+make "gensym.number 80
 
-TO PARSE.SPECIAL :WORD :VAR
-IF EMPTYP :WORD [OP LIST :VAR "ALWAYS]
-IF EQUALP FIRST :WORD ": [OP LIST :VAR BF :WORD]
-OP PARSE.SPECIAL BF :WORD WORD :VAR FIRST :WORD
-END
+make "lastresort [[I am not sure I understand you fully.] [Please go on.]
+                  [What does that suggest to you?]
+                  [Do you feel strongly about discussing such things?]]
 
-TO QUOTED :THING
-IF LISTP :THING [OP :THING]
-OP WORD "" :THING
-END
+make "memflag "false
 
-TO RECONSTRUCT :SENTENCE
-IF EMPTYP :SENTENCE [OUTPUT []]
-IF NOT EQUALP ": FIRST FIRST :SENTENCE ~
-   [OUTPUT FPUT FIRST :SENTENCE RECONSTRUCT BF :SENTENCE]
-OUTPUT SE REWORD FIRST :SENTENCE RECONSTRUCT BF :SENTENCE
-END
+pprop "alike "priority 10
+pprop "alike "rules [dit]
 
-TO REWORD :WORD
-IF MEMBERP LAST :WORD [. ? ,] [OUTPUT ADDPUNCT REWORD BL :WORD LAST :WORD]
-OUTPUT THING BF :WORD
-END
+pprop "always "priority 1
+pprop "always "rules [[#] g69]
+pprop "always "g69 [[Can you think of a specific example?] [When?]
+                    [What incident are you thinking of?]
+                    [Really, always?] [What if this never happened?]]
 
-TO SET.IN
-MAKE "IN.LIST FIRST BF :PAT
-MAKE "PAT FPUT FIRST :PAT BF BF :PAT
-END
+pprop "am "priority 0
+pprop "am "translation "are
+pprop "am "rules [[# are you #stuff] g18 [#] g19]
+pprop "am "g18 [[Do you believe you are :stuff?] [Would you want to be :stuff?]
+                [You wish I would tell you you are :stuff.]
+                [What would it mean if you were :stuff?] how]
+pprop "am "g19 [[Why do you say "am"?] [I don't understand that.]]
 
-TO SET.SPECIAL :LIST
-MAKE "SPECIAL.VAR FIRST :LIST
-MAKE "SPECIAL.PRED LAST :LIST
-IF EMPTYP :SPECIAL.VAR [MAKE "SPECIAL.VAR "SPECIAL.BUFFER]
-IF MEMBERP :SPECIAL.PRED [IN ANYOF] [SET.IN]
-IF NOT EMPTYP :SPECIAL.PRED [STOP]
-MAKE "SPECIAL.PRED FIRST BF :PAT
-MAKE "PAT FPUT FIRST :PAT BF BF :PAT
-END
+pprop "are "priority 0
+pprop "are "rules [[#a there are #b you #c] g20 [# there are &stuff] g21
+                   [# are I #stuff] g22 [are #] g23 [# are #stuff] g24]
+pprop "are "g20 [[pre [:a there are :b] are]]
+pprop "are "g21 [[What makes you think there are :stuff?]
+                 [Do you usually consider :stuff?]
+                 [Do you wish there were :stuff?]]
+pprop "are "g22 [[Why are you interested in whether I am :stuff or not?]
+                 [Would you prefer if I weren't :stuff?]
+                 [Perhaps I am :stuff in your fantasies.]
+                 [Do you sometimes think I am :stuff?] how]
+pprop "are "g23 [how]
+pprop "are "g24 [[Did you think they might not be :stuff?]
+                 [Would you like it if they were not :stuff?]
+                 [What if they were not :stuff?] [Possibly they are :stuff.]]
 
-TO SPECIAL :PAT :SEN
-SET.SPECIAL PARSE.SPECIAL BF FIRST :PAT "
-OP RUN FPUT WORD "MATCH FIRST FIRST :PAT []
-END
+pprop "ask "priority 0
+pprop "ask "rules [[# you ask #] g77 [# you ! asking #] g78 [# I #] g79 [#] g80]
+pprop "ask "g77 [how]
+pprop "ask "g78 [how]
+pprop "ask "g79 [you]
+pprop "ask "g80 [newkey]
 
-TO TOKENIZE :TEXT
-IF EMPTYP :TEXT [OUTPUT []]
-OUTPUT SE TOKENWORD FIRST :TEXT " TOKENIZE BF :TEXT
-END
+pprop "because "priority 0
+pprop "because "rules [[#] g64]
+pprop "because "g64 [[Is that the real reason?]
+                     [Don't any other reasons come to mind?]
+                     [Does that reason seem to explain anything else?]
+                     [What other reasons might there be?]
+                     [You're not concealing anything from me, are you?]]
 
-TO TOKENWORD :WORD :OUT
-IF EMPTYP :WORD [OUTPUT :OUT]
-IF MEMBERP FIRST :WORD [, " ] [OUTPUT TOKENWORD BF :WORD :OUT]
-IF MEMBERP FIRST :WORD [. ? ! |;|] [OUTPUT SE :OUT ".]
-OUTPUT TOKENWORD BF :WORD WORD :OUT FIRST :WORD
-END
+pprop "believe "belief "true
 
-TO TRANSLATE :WORD
-LOCAL "NEW
-MAKE "NEW GPROP :WORD "TRANSLATION
-OUTPUT IFELSE EMPTYP :NEW [:WORD] [:NEW]
-END
+pprop "bet "belief "true
 
-TO TRY.PRED
-IF LISTP :SPECIAL.PRED [OP MATCH :SPECIAL.PRED FIRST :SEN]
-OP RUN LIST :SPECIAL.PRED QUOTED FIRST :SEN
-END
+pprop "brother "family "true
 
-TO USEMEMORY
-IF EMPTYP :MEMORY [LASTRESORT STOP]
-PRINT FIRST :MEMORY
-MAKE "MEMORY BF :MEMORY
-END
+pprop "can "priority 0
+pprop "can "rules [[# can I #stuff] g58 [# can you #stuff] g59 [#] g60]
+pprop "can "g58 [[You believe I can :stuff, don't you?] how
+                 [You want me to be able to :stuff.]
+                 [Perhaps you would like to be able to :stuff yourself.]]
+pprop "can "g59 [[Whether or not you can :stuff depends more on you than on me.]
+                 [Do you want to be able to :stuff?]
+                 [Perhaps you don't want to :stuff.] how]
+pprop "can "g60 [how newkey]
 
-Make "gensym.number 80
-Make "lastresort [[I AM NOT SURE I UNDERSTAND YOU FULLY.] [PLEASE GO ON.] [WHAT DOES THAT SUGGEST TO YOU?] [DO YOU FEEL STRONGLY ABOUT DISCUSSING SUCH THINGS?]]
-Make "memflag "FALSE
-Pprop "alike "RULES [DIT]
-Pprop "alike "PRIORITY 10
-Pprop "always "g69 [[CAN YOU THINK OF A SPECIFIC EXAMPLE?] [WHEN?] [WHAT INCIDENT ARE YOU THINKING OF?] [REALLY, ALWAYS?] [WHAT IF THIS NEVER HAPPENED?]]
-Pprop "always "RULES [[#] g69]
-Pprop "always "PRIORITY 1
-Pprop "am "g19 [[WHY DO YOU SAY "AM"?] [I DON'T UNDERSTAND THAT.]]
-Pprop "am "g18 [[DO YOU BELIEVE YOU ARE :STUFF?] [WOULD YOU WANT TO BE :STUFF?] [YOU WISH I WOULD TELL YOU YOU ARE :STUFF.] [WHAT WOULD IT MEAN IF YOU WERE :STUFF?] HOW]
-Pprop "am "RULES [[# ARE YOU #STUFF] g18 [#] g19]
-Pprop "am "TRANSLATION "ARE
-Pprop "am "PRIORITY 0
-Pprop "are "g24 [[DID YOU THINK THEY MIGHT NOT BE :STUFF?] [WOULD YOU LIKE IT IF THEY WERE NOT :STUFF?] [WHAT IF THEY WERE NOT :STUFF?] [POSSIBLY THEY ARE :STUFF.]]
-Pprop "are "g23 [HOW]
-Pprop "are "g22 [[WHY ARE YOU INTERESTED IN WHETHER I AM :STUFF OR NOT?] [WOULD YOU PREFER IF I WEREN'T :STUFF?] [PERHAPS I AM :STUFF IN YOUR FANTASIES.] [DO YOU SOMETIMES THINK I AM :STUFF?] HOW]
-Pprop "are "g21 [[WHAT MAKES YOU THINK THERE ARE :STUFF?] [DO YOU USUALLY CONSIDER :STUFF?] [DO YOU WISH THERE WERE :STUFF?]]
-Pprop "are "g20 [[PRE [:A THERE ARE :B] ARE]]
-Pprop "are "RULES [[#A THERE ARE #B YOU #C] g20 [# THERE ARE &STUFF] g21 [# ARE I #STUFF] g22 [ARE #] g23 [# ARE #STUFF] g24]
-Pprop "are "PRIORITY 0
-Pprop "ask "g80 [NEWKEY]
-Pprop "ask "g79 [YOU]
-Pprop "ask "g78 [HOW]
-Pprop "ask "g77 [HOW]
-Pprop "ask "RULES [[# YOU ASK #] g77 [# YOU ! ASKING #] g78 [# I #] g79 [#] g80]
-Pprop "ask "PRIORITY 0
-Pprop "because "g64 [[IS THAT THE REAL REASON?] [DON'T ANY OTHER REASONS COME TO MIND?] [DOES THAT REASON SEEM TO EXPLAIN ANYTHING ELSE?] [WHAT OTHER REASONS MIGHT THERE BE?] [YOU'RE NOT CONCEALING ANYTHING FROM ME, ARE YOU?]]
-Pprop "because "RULES [[#] g64]
-Pprop "because "PRIORITY 0
-Pprop "believe "BELIEF "TRUE
-Pprop "bet "BELIEF "TRUE
-Pprop "brother "FAMILY "TRUE
-Pprop "can "g60 [HOW NEWKEY]
-Pprop "can "g59 [[WHETHER OR NOT YOU CAN "STUFF DEPENDS MORE ON YOU THAN ON ME.] [DO YOU WANT TO BE ABLE TO :STUFF?] [PERHAPS YOU DON'T WANT TO :STUFF.] HOW]
-Pprop "can "g58 [[YOU BELIEVE I CAN :STUFF, DON'T YOU?] HOW [YOU WANT ME TO BE ABLE TO :STUFF.] [PERHAPS YOU WOULD LIKE TO BE ABLE TO :STUFF YOURSELF.]]
-Pprop "can "RULES [[# CAN I #STUFF] g58 [# CAN YOU #STUFF] g59 [#] g60]
-Pprop "can "PRIORITY 0
-Pprop "cant "TRANSLATION "CAN'T
-Pprop "certainly "RULES [YES]
-Pprop "certainly "PRIORITY 0
-Pprop "children "FAMILY "TRUE
-Pprop "computer "g17 [[DO COMPUTERS WORRY YOU?] [WHY DO YOU MENTION COMPUTERS?] [WHAT DO YOU THINK MACHINES HAVE TO DO WITH YOUR PROBLEM?] [DON'T YOU THINK COMPUTERS CAN HELP PEOPLE?] [WHAT ABOUT MACHINES WORRIES YOU?] [WHAT DO YOU THINK ABOUT MACHINES?]]
-Pprop "computer "RULES [[#] g17]
-Pprop "computer "PRIORITY 50
-Pprop "computers "RULES [COMPUTER]
-Pprop "computers "PRIORITY 50
-Pprop "dad "FAMILY "TRUE
-Pprop "dad "TRANSLATION "FATHER
-Pprop "daddy "FAMILY "TRUE
-Pprop "daddy "TRANSLATION "FATHER
-Pprop "deutsch "g15 [[I'M SORRY, I SPEAK ONLY ENGLISH.]]
-Pprop "deutsch "RULES [[#] g15]
-Pprop "deutsch "PRIORITY 0
-Pprop "dit "g72 [[IN WHAT WAY?] [WHAT RESEMBLANCE DO YOU SEE?] [WHAT DOES THAT SIMILARITY SUGGEST TO YOU?] [WHAT OTHER CONNECTIONS DO YOU SEE?] [WHAT DO YOU SUPPOSE THAT RESEMBLANCE MEANS?] [WHAT IS THE CONNECTION, DO YOU SUPPOSE?] [COULD THERE REALLY BE SOME CONNECTION?] HOW]
-Pprop "dit "RULES [[#] g72]
-Pprop "dont "TRANSLATION "DON'T
-Pprop "dream "g9 [[WHAT DOES THAT DREAM SUGGEST TO YOU?] [DO YOU DREAM OFTEN?] [WHAT PERSONS APPEAR IN YOUR DREAMS?] [DON'T YOU BELIEVE THAT DREAM HAS SOMETHING TO DO WITH YOUR PROBLEM?] [DO YOU EVER WISH YOU COULD FLEE FROM REALITY?] NEWKEY]
-Pprop "dream "RULES [[#] g9]
-Pprop "dream "PRIORITY 3
-Pprop "dreamed "g8 [DREAM NEWKEY]
-Pprop "dreamed "g7 [[REALLY :STUFF?] [HAVE YOU EVER FANTASIED :STUFF WHILE YOU WERE AWAKE?] [HAVE YOU DREAMED :STUFF BEFORE?] DREAM NEWKEY]
-Pprop "dreamed "RULES [[# YOU DREAMED #STUFF] g7 [#] g8]
-Pprop "dreamed "PRIORITY 4
-Pprop "dreams "RULES [DREAM]
-Pprop "dreams "PRIORITY 3
-Pprop "dreams "TRANSLATION "DREAM
-Pprop "dreamt "RULES [DREAMED]
-Pprop "dreamt "PRIORITY 4
-Pprop "dreamt "TRANSLATION "DREAMED
-Pprop "espanol "RULES [DEUTSCH]
-Pprop "espanol "PRIORITY 0
-Pprop "everybody "RULES [EVERYONE]
-Pprop "everybody "PRIORITY 2
-Pprop "everyone "g68 [[REALLY, :A?] [SURELY NOT :A.] [CAN YOU THINK OF ANYONE IN PARTICULAR?] [WHO, FOR EXAMPLE?] [YOU ARE THINKING OF A VERY SPECIAL PERSON.] [WHO, MAY I ASK?] [SOMEONE SPECIAL PERHAPS.] [YOU HAVE A PARTICULAR PERSON IN MIND, DON'T YOU?] [WHO DO YOU THINK YOU'RE TALKING ABOUT?] [I SUSPECT YOU'RE EXAGGERATING A LITTLE.]]
-Pprop "everyone "RULES [[# !A:IN [EVERYONE EVERYBODY NOBODY NOONE] #] g68]
-Pprop "everyone "PRIORITY 2
-Pprop "father "FAMILY "TRUE
-Pprop "feel "BELIEF "TRUE
-Pprop "francais "RULES [DEUTSCH]
-Pprop "francais "PRIORITY 0
-Pprop "hello "g16 [[HOW DO YOU DO. PLEASE STATE YOUR PROBLEM.]]
-Pprop "hello "RULES [[#] g16]
-Pprop "hello "PRIORITY 0
-Pprop "how "g63 [[WHY DO YOU ASK?] [DOES THAT QUESTION INTEREST YOU?] [WHAT IS IT YOU REALLY WANT TO KNOW?] [ARE SUCH QUESTIONS MUCH ON YOUR MIND?] [WHAT ANSWER WOULD PLEASE YOU MOST?] [WHAT DO YOU THINK?] [WHAT COMES TO YOUR MIND WHEN YOU ASK THAT?] [HAVE YOU ASKED SUCH QUESTIONS BEFORE?] [HAVE YOU ASKED ANYONE ELSE?]]
-Pprop "how "RULES [[#] g63]
-Pprop "how "PRIORITY 0
-Pprop "husband "FAMILY "TRUE
-Pprop "i "g43 [[YOU SAY :STUFF.] [CAN YOU ELABORATE ON THAT?] [DO YOU SAY :STUFF FOR SOME SPECIAL REASON?] [THAT'S QUITE INTERESTING.]]
-Pprop "i "g42 [[PERHAPS IN YOUR FANTASY WE :STUFF EACH OTHER.] [DO YOU WISH TO :STUFF ME?] [YOU SEEM TO NEED TO :STUFF ME.] [DO YOU :STUFF ANYONE ELSE?]]
-Pprop "i "g41 [[TELL ME MORE ABOUT SUCH FEELINGS.] [DO YOU OFTEN FEEL :STUFF?] [DO YOU ENJOY FEELING :STUFF?] [OF WHAT DOES FEELING :STUFF REMIND YOU?]]
-Pprop "i "g40 [[DON'T YOU REALLY :STUFF?] [WHY DON'T YOU :STUFF?] [DO YOU WISH TO BE ABLE TO :STUFF?] [DOES THAT TROUBLE YOU?]]
-Pprop "i "g39 [[HOW DO YOU KNOW YOU CAN'T :STUFF?] [HAVE YOU TRIED?] [PERHAPS YOU COULD :STUFF NOW.] [DO YOU REALLY WANT TO BE ABLE TO :STUFF?]]
-Pprop "i "g38 [[IS IT BECAUSE YOU ARE :STUFF THAT YOU CAME TO ME?] [HOW LONG HAVE YOU BEEN :STUFF?] [DO YOU BELIEVE IT NORMAL TO BE :STUFF?] [DO YOU ENJOY BEING :STUFF?]]
-Pprop "i "g37 [YOU]
-Pprop "i "g36 [[DO YOU REALLY THINK SO?] [BUT YOU ARE NOT SURE YOU :STUFF.] [DO YOU REALLY DOUBT YOU :STUFF?]]
-Pprop "i "g35 [WAS]
-Pprop "i "g34 [[HOW HAVE I HELPED YOU TO BE :STUFF?] [HAS YOUR TREATMENT MADE YOU :STUFF?] [WHAT MAKES YOU :STUFF JUST NOW?] [CAN YOU EXPLAIN WHY YOU ARE SUDDENLY :STUFF?] [ARE YOU SURE?] [WHAT DO YOU MEAN BY :STUFF?]]
-Pprop "i "g33 [[I'M SORRY TO HEAR YOU ARE :STUFF.] [DO YOU THINK COMING HERE WILL HELP YOU NOT TO BE :STUFF?] [I'M SURE IT'S NOT PLEASANT TO BE :STUFF.] [CAN YOU EXPLAIN WHAT MADE YOU :STUFF?] [PLEASE GO ON.]]
-Pprop "i "g32 [[WHAT WOULD IT MEAN TO YOU IF YOU GOT :STUFF?] [WHY DO YOU WANT :STUFF?] [SUPPOSE YOU GOT :STUFF SOON.] [WHAT IF YOU NEVER GOT :STUFF?] [WHAT WOULD GETTING :STUFF MEAN TO YOU?] [YOU REALLY WANT :STUFF.] [I SUSPECT YOU REALLY DON'T WANT :STUFF.]]
-Pprop "i "RULES [[# YOU !:IN [WANT NEED] #STUFF] g32 [# YOU ARE # !STUFF:IN [SAD UNHAPPY DEPRESSED SICK] #] g33 [# YOU ARE # !STUFF:IN [HAPPY ELATED GLAD BETTER] #] g34 [# YOU WAS #] g35 [# YOU !:BELIEFP YOU #STUFF] g36 [# YOU # !:BELIEFP # I #] g37 [# YOU ARE #STUFF] g38 [# YOU !:IN [CAN'T CANNOT] #STUFF] g39 [# YOU DON'T #STUFF] g40 [# YOU FEEL #STUFF] g41 [# YOU #STUFF I #] g42 [#STUFF] g43]
-Pprop "i "TRANSLATION "YOU
-Pprop "i "PRIORITY 0
-Pprop "i'm "g31 [[PRE [YOU ARE :STUFF] I]]
-Pprop "i'm "RULES [[# YOU'RE #STUFF] g31]
-Pprop "i'm "TRANSLATION "YOU'RE
-Pprop "i'm "PRIORITY 0
-Pprop "if "g6 [[DO YOU THINK IT'S LIKELY THAT :STUFF?] [DO YOU WISH THAT :STUFF?] [WHAT DO YOU THINK ABOUT :STUFF?]]
-Pprop "if "g5 [[PRE [:A IF :B MIGHT HAVE :C] IF]]
-Pprop "if "RULES [[#A IF #B HAD #C] g5 [# IF #STUFF] g6]
-Pprop "if "PRIORITY 3
-Pprop "is "g62 [NEWKEY]
-Pprop "is "g61 [[SUPPOSE :A WERE NOT :B.] [PERHAPS :A REALLY IS :B.] [TELL ME MORE ABOUT :A.]]
-Pprop "is "RULES [[&A IS &B] g61 [#] g62]
-Pprop "is "PRIORITY 0
-Pprop "italiano "RULES [DEUTSCH]
-Pprop "italiano "PRIORITY 0
-Pprop "like "g71 [NEWKEY]
-Pprop "like "g70 [DIT]
-Pprop "like "RULES [[# !:IN [AM IS ARE WAS] # LIKE #] g70 [#] g71]
-Pprop "like "PRIORITY 10
-Pprop "machine "RULES [COMPUTER]
-Pprop "machine "PRIORITY 50
-Pprop "machines "RULES [COMPUTER]
-Pprop "machines "PRIORITY 50
-Pprop "maybe "RULES [PERHAPS]
-Pprop "maybe "PRIORITY 0
-Pprop "me "TRANSLATION "YOU
-Pprop "mom "FAMILY "TRUE
-Pprop "mom "TRANSLATION "MOTHER
-Pprop "mommy "FAMILY "TRUE
-Pprop "mommy "TRANSLATION "MOTHER
-Pprop "mother "FAMILY "TRUE
-Pprop "my "g57 [NEWKEY]
-Pprop "my "g56 [[YOUR :STUFF?] [WHY DO YOU SAY YOUR :STUFF?] [DOES THAT SUGGEST ANYTHING ELSE WHICH BELONGS TO YOU?] [IS IT IMPORTANT TO YOU THAT YOUR :STUFF?]]
-Pprop "my "g55 [[TELL ME MORE ABOUT YOUR FAMILY.] [WHO ELSE IN YOUR FAMILY :B?] [YOUR :A?] [WHAT ELSE COMES TO MIND WHEN YOU THINK OF YOUR :A?]]
-Pprop "my "RULES [[# YOUR # !A:FAMILYP #B] g55 [# YOUR &STUFF] g56 [#] g57]
-Pprop "my "TRANSLATION "YOUR
-Pprop "my "PRIORITY 2
-Pprop "my "g12 [[EARLIER YOU SAID YOUR :STUFF.] [BUT YOUR :STUFF.] [DOES THAT HAVE ANYTHING TO DO WITH YOUR STATEMENT ABOUT :STUFF?]]
-Pprop "my "MEMR [[# YOUR &STUFF] g12]
-Pprop "myself "TRANSLATION "YOURSELF
-Pprop "name "g14 [[I AM NOT INTERESTED IN NAMES.] [I'VE TOLD YOU BEFORE I DON'T CARE ABOUT NAMES\; PLEASE CONTINUE.]]
-Pprop "name "RULES [[#] g14]
-Pprop "name "PRIORITY 15
-Pprop "no "g54 [[ARE YOU SAYING "NO" JUST TO BE NEGATIVE?] [YOU ARE BEING A BIT NEGATIVE.] [WHY NOT?] [WHY "NO"?] NEWKEY]
-Pprop "no "g53 [XXYYZZ [PRE [X NO] NO]]
-Pprop "no "RULES [[NO] g53 [#] g54]
-Pprop "no "PRIORITY 0
-Pprop "nobody "RULES [EVERYONE]
-Pprop "nobody "PRIORITY 2
-Pprop "noone "RULES [EVERYONE]
-Pprop "noone "PRIORITY 2
-Pprop "perhaps "g13 [[YOU DON'T SEEM QUITE CERTAIN.] [WHY THE UNCERTAIN TONE?] [CAN'T YOU BE MORE POSITIVE?] [YOU AREN'T SURE.] [DON'T YOU KNOW?]]
-Pprop "perhaps "RULES [[#] g13]
-Pprop "perhaps "PRIORITY 0
-Pprop "problem "g76 [[EARLIER YOU MENTIONED :STUFF.] [LET'S TALK FURTHER ABOUT :STUFF.] [TELL ME MORE ABOUT :STUFF.] [YOU HAVEN'T MENTIONED :STUFF FOR A WHILE.]]
-Pprop "problem "MEMR [[#STUFF IS YOUR PROBLEM #] g76]
-Pprop "problem "g75 [[PLEASE CONTINUE, THIS MAY BE INTERESTING.] [HAVE YOU ANY OTHER PROBLEMS YOU WISH TO DISCUSS?] [PERHAPS YOU'D RATHER CHANGE THE SUBJECT.] [YOU SEEM A BIT UNEASY.] NEWKEY]
-Pprop "problem "g74 [[YOUR :A :B :C?] [ARE YOU SURE YOUR :A :B :C?] [PERHAPS YOUR REAL :A :B NOT :C.] [YOU THINK YOU HAVE PROBLEMS?]]
-Pprop "problem "g73 [[:A :B YOUR :C.] [ARE YOU SURE :A :B YOUR :C?] [PERHAPS :A :B NOT YOUR REAL :C.] [YOU THINK YOU HAVE PROBLEMS?] [DO YOU OFTEN THINK ABOUT :A?]]
-Pprop "problem "RULES [[#A !B:IN [IS ARE] YOUR !C:IN [PROBLEM PROBLEMS] #] g73 [# YOUR !A:IN [PROBLEM PROBLEMS] !B:IN [IS ARE] #C] g74 [#] g75]
-Pprop "problem "PRIORITY 5
-Pprop "problems "RULES [PROBLEM]
-Pprop "problems "PRIORITY 5
-Pprop "remember "g4 [NEWKEY]
-Pprop "remember "g3 [[DID YOU THINK I WOULD FORGET :STUFF?] [WHY DO YOU THINK I SHOULD RECALL :STUFF NOW?] [WHAT ABOUT :STUFF?] WHAT [YOU MENTIONED :STUFF.]]
-Pprop "remember "g2 [[DO YOU OFTEN THINK OF :STUFF?] [DOES THINKING OF :STUFF BRING ANYTHING ELSE TO MIND?] [WHAT ELSE DO YOU REMEMBER?] [WHY DO YOU REMEMBER :STUFF JUST NOW?] [WHAT IN THE PRESENT SITUATION REMINDS YOU OF :STUFF?]]
-Pprop "remember "RULES [[# YOU REMEMBER #STUFF] g2 [# DO I REMEMBER #STUFF] g3 [#] g4]
-Pprop "remember "PRIORITY 5
-Pprop "same "RULES [DIT]
-Pprop "same "PRIORITY 10
-Pprop "sister "FAMILY "TRUE
-Pprop "sorry "g1 [[PLEASE DON'T APOLOGIZE.] [APOLOGIES ARE NOT NECESSARY.] [WHAT FEELINGS DO YOU HAVE WHEN YOU APOLOGIZE?] [I'VE TOLD YOU THAT APOLOGIES ARE NOT REQUIRED.]]
-Pprop "sorry "RULES [[#] g1]
-Pprop "sorry "PRIORITY 0
-Pprop "svenska "RULES [DEUTSCH]
-Pprop "svenska "PRIORITY 0
-Pprop "think "BELIEF "TRUE
-Pprop "was "g29 [NEWKEY]
-Pprop "was "g28 [[WOULD YOU LIKE TO BELIEVE I WAS :STUFF?] [WHAT SUGGESTS THAT I WAS :STUFF?] [WHAT DO YOU THINK?] [PERHAPS I WAS :STUFF.] [WHAT IF I HAD BEEN :STUFF?]]
-Pprop "was "g27 [[WERE YOU REALLY?] [WHY DO YOU TELL ME YOU WERE :STUFF NOW?] [PERHAPS I ALREADY KNEW YOU WERE :STUFF.]]
-Pprop "was "g26 [[WHAT IF YOU WERE :STUFF?] [DO YOU THINK YOU WERE :STUFF?] [WERE YOU :STUFF?] [WHAT WOULD IT MEAN IF YOU WERE :STUFF?] [WHAT DOES " :STUFF " SUGGEST TO YOU?] HOW]
-Pprop "was "RULES [[# WAS YOU #STUFF] g26 [# YOU WAS #STUFF] g27 [# WAS I #STUFF] g28 [#] g29]
-Pprop "was "PRIORITY 2
-Pprop "we "RULES [I]
-Pprop "we "PRIORITY 0
-Pprop "we "TRANSLATION "YOU
-Pprop "were "RULES [WAS]
-Pprop "were "TRANSLATION "WAS
-Pprop "were "PRIORITY 0
-Pprop "what "g11 [[TELL ME ABOUT :A :B.] [:A :B?] [DO YOU WANT ME TO TELL YOU :A :B?] [REALLY.] [I SEE.] NEWKEY]
-Pprop "what "g10 [HOW]
-Pprop "what "RULES [[!:IN [WHAT WHERE] #] g10 [# !A:IN [WHAT WHERE] #B] g11]
-Pprop "what "PRIORITY 0
-Pprop "where "RULES [HOW]
-Pprop "where "PRIORITY 0
-Pprop "why "g67 [[WHY INDEED?] [WHY "WHY"?] [WHY NOT?] HOW NEWKEY]
-Pprop "why "g66 [[DO YOU THINK YOU SHOULD BE ABLE TO :STUFF?] [DO YOU WANT TO BE ABLE TO :STUFF?] [DO YOU BELIEVE THIS WILL HELP YOU TO :STUFF?] [HAVE YOU ANY IDEA WHY YOU CAN'T :STUFF?] HOW]
-Pprop "why "g65 [[DO YOU BELIEVE I DON'T :STUFF?] [PERHAPS I WILL :STUFF IN GOOD TIME.] [SHOULD YOU :STUFF YOURSELF?] [YOU WANT ME TO :STUFF?] HOW]
-Pprop "why "RULES [[# WHY DON'T I #STUFF] g65 [# WHY CAN'T YOU #STUFF] g66 [#] g67]
-Pprop "why "PRIORITY 0
-Pprop "wife "FAMILY "TRUE
-Pprop "wish "BELIEF "TRUE
-Pprop "wont "TRANSLATION "WON'T
-Pprop "xxyyzz "g50 [[YOU'RE BEING SOMEWHAT SHORT WITH ME.] [YOU DON'T SEEM VERY TALKATIVE TODAY.] [PERHAPS YOU'D RATHER TALK ABOUT SOMETHING ELSE.] [ARE YOU USING MONOSYLLABLES FOR SOME REASON?] NEWKEY]
-Pprop "xxyyzz "RULES [[#] g50]
-Pprop "xxyyzz "PRIORITY 0
-Pprop "yes "g52 [[YOU SEEM QUITE POSITIVE.] [YOU ARE SURE.] [I SEE.] [I UNDERSTAND.] NEWKEY]
-Pprop "yes "g51 [XXYYZZ [PRE [X YES] YES]]
-Pprop "yes "RULES [[YES] g51 [#] g52]
-Pprop "yes "PRIORITY 0
-Pprop "you "g49 [NEWKEY]
-Pprop "you "g48 [[WE WERE DISCUSSING YOU, NOT ME.] [OH, I :STUFF?] [IS THIS REALLY RELEVANT TO YOUR PROBLEM?] [PERHAPS I DO :STUFF.] [ARE YOU GLAD TO KNOW I :STUFF?] [DO YOU :STUFF?] [WHAT ARE YOUR FEELINGS NOW?]]
-Pprop "you "g47 [[WHY DO YOU THINK I :STUFF YOU?] [YOU LIKE TO THINK I :STUFF YOU, DON'T YOU?] [WHAT MAKES YOU THINK I :STUFF YOU?] [REALLY, I :STUFF YOU?] [DO YOU WISH TO BELIEVE I :STUFF YOU?] [SUPPOSE I DID :STUFF YOU. WHAT WOULD THAT MEAN?] [DOES SOMEONE ELSE BELIEVE I :STUFF YOU?]]
-Pprop "you "g46 [[WHAT MAKES YOU THINK I AM :STUFF?] [DOES IT PLEASE YOU TO BELIEVE I AM :STUFF?] [PERHAPS YOU WOULD LIKE TO BE :STUFF.] [DO YOU SOMETIMES WISH YOU WERE :STUFF?]]
-Pprop "you "g45 [NEWKEY]
-Pprop "you "g44 [DIT]
-Pprop "you "RULES [[# I REMIND YOU OF #] g44 [# I ARE # YOU #] g45 [# I # ARE #STUFF] g46 [# I #STUFF YOU] g47 [# I &STUFF] g48 [#] g49]
-Pprop "you "TRANSLATION "I
-Pprop "you "PRIORITY 0
-Pprop "you're "g30 [[PRE [I ARE :STUFF] YOU]]
-Pprop "you're "RULES [[# I'M #STUFF] g30]
-Pprop "you're "TRANSLATION "I'M
-Pprop "you're "PRIORITY 0
-Pprop "your "g25 [[WHY ARE YOU CONCERNED OVER MY :STUFF?] [WHAT ABOUT YOUR OWN :STUFF?] [ARE YOU WORRIED ABOUT SOMEONE ELSE'S :STUFF?] [REALLY, MY :STUFF?]]
-Pprop "your "RULES [[# MY #STUFF] g25]
-Pprop "your "TRANSLATION "MY
-Pprop "your "PRIORITY 0
-Pprop "yourself "TRANSLATION "MYSELF
+pprop "cant "translation "can't
+
+pprop "certainly "priority 0
+pprop "certainly "rules [yes]
+
+pprop "children "family "true
+
+pprop "computer "priority 50
+pprop "computer "rules [[#] g17]
+pprop "computer "g17 [[Do computers worry you?]
+                      [Why do you mention computers?]
+                      [What do you think machines have to do with your problem?]
+                      [Don't you think computers can help people?]
+                      [What about machines worries you?]
+                      [What do you think about machines?]]
+
+pprop "computers "priority 50
+pprop "computers "rules [computer]
+
+pprop "dad "translation "father
+pprop "dad "family "true
+
+pprop "daddy "translation "father
+pprop "daddy "family "true
+
+pprop "deutsch "priority 0
+pprop "deutsch "rules [[#] g15]
+pprop "deutsch "g15 [[I'm sorry, I speak only English.]]
+
+pprop "dit "rules [[#] g72]
+pprop "dit "g72 [[In what way?] [What resemblance do you see?]
+                 [What does that similarity suggest to you?]
+                 [What other connections do you see?]
+                 [What do you suppose that resemblance means?]
+                 [What is the connection, do you suppose?]
+                 [Could there really be some connection?] how]
+
+pprop "dont "translation "don't
+
+pprop "dream "priority 3
+pprop "dream "rules [[#] g9]
+pprop "dream "g9 [[What does that dream suggest to you?] [Do you dream often?]
+                  [What persons appear in your dreams?]
+                  [Don't you believe that dream has something to do
+                   with your problem?]
+                  [Do you ever wish you could flee from reality?] newkey]
+
+pprop "dreamed "priority 4
+pprop "dreamed "rules [[# you dreamed #stuff] g7 [#] g8]
+pprop "dreamed "g7 [[Really :stuff?]
+                    [Have you ever fantasied :stuff while you were awake?]
+                    [Have you dreamed :stuff before?] dream newkey]
+pprop "dreamed "g8 [dream newkey]
+
+pprop "dreams "translation "dream
+pprop "dreams "priority 3
+pprop "dreams "rules [dream]
+
+pprop "dreamt "translation "dreamed
+pprop "dreamt "priority 4
+pprop "dreamt "rules [dreamed]
+
+pprop "espanol "priority 0
+pprop "espanol "rules [deutsch]
+
+pprop "everybody "priority 2
+pprop "everybody "rules [everyone]
+
+pprop "everyone "priority 2
+pprop "everyone "rules [[# !a:in [everyone everybody nobody noone] #] g68]
+pprop "everyone "g68 [[Really, :a?] [Surely not :a.]
+                      [Can you think of anyone in particular?]
+                      [Who, for example?]
+                      [You are thinking of a very special person.]
+                      [Who, may I ask?] [Someone special perhaps.]
+                      [You have a particular person in mind, don't you?]
+                      [Who do you think you're talking about?]
+                      [I suspect you're exaggerating a little.]]
+
+pprop "father "family "true
+
+pprop "feel "belief "true
+
+pprop "francais "priority 0
+pprop "francais "rules [deutsch]
+
+pprop "hello "priority 0
+pprop "hello "rules [[#] g16]
+pprop "hello "g16 [[How do you do. Please state your problem.]]
+
+pprop "how "priority 0
+pprop "how "rules [[#] g63]
+pprop "how "g63 [[Why do you ask?] [Does that question interest you?]
+                 [What is it you really want to know?]
+                 [Are such questions much on your mind?]
+                 [What answer would please you most?] [What do you think?]
+                 [What comes to your mind when you ask that?]
+                 [Have you asked such questions before?]
+                 [Have you asked anyone else?]]
+
+pprop "husband "family "true
+
+pprop "i "priority 0
+pprop "i "translation "you
+pprop "i "rules [[# you !:in [want need] #stuff] g32
+                 [# you are # !stuff:in [sad unhappy depressed sick] #] g33
+                 [# you are # !stuff:in [happy elated glad better] #] g34
+                 [# you was #] g35 [# you !:beliefp you #stuff] g36
+                 [# you # !:beliefp # i #] g37 [# you are #stuff] g38
+                 [# you !:in [can't cannot] #stuff] g39
+                 [# you don't #stuff] g40 [# you feel #stuff] g41
+                 [# you #stuff i #] g42 [#stuff] g43]
+pprop "i "g32 [[What would it mean to you if you got :stuff?]
+               [Why Do you want :stuff?] [Suppose you got :stuff soon.]
+               [What if you never got :stuff?]
+               [What would getting :stuff mean to you?] [You really want :stuff.]
+               [I suspect you really don't want :stuff.]]
+pprop "i "g33 [[I'm sorry to hear you are :stuff.]
+               [Do you think coming here will help you not to be :stuff?]
+               [I'm sure it's not pleasant to be :stuff.]
+               [Can you explain what made you :stuff?] [Please go on.]]
+pprop "i "g34 [[How have I helped you to be :stuff?]
+               [Has your treatment made you :stuff?]
+               [What makes you :stuff just now?]
+               [Can you explain why you are suddenly :stuff?]
+               [Are you sure?] [What do you mean by :stuff?]]
+pprop "i "g35 [was]
+pprop "i "g36 [[Do you really think so?] [But you are not sure you :stuff.]
+               [Do you really doubt you :stuff?]]
+pprop "i "g37 [you]
+pprop "i "g38 [[Is it because you are :stuff that you came to me?]
+               [How long have you been :stuff?]
+               [Do you believe it normal to be :stuff?] [Do you enjoy being :stuff?]]
+pprop "i "g39 [[How do you know you can't :stuff?] [Have you tried?]
+               [Perhaps you could :stuff now.]
+               [Do you really want to be able to :stuff?]]
+pprop "i "g40 [[Don't you really :stuff?] [Why don't you :stuff?]
+               [Do you wish to be able to :stuff?] [Does that trouble you?]]
+pprop "i "g41 [[Tell me more about such feelings.] [Do you often feel :stuff?]
+               [Do you enjoy feeling :stuff?]
+               [Of what does feeling :stuff remind you?]]
+pprop "i "g42 [[Perhaps in your fantasy we :stuff each other.]
+               [Do you wish to :stuff me?] [You seem to need to :stuff me.]
+               [Do you :stuff anyone else?]]
+pprop "i "g43 [[You say :stuff.] [Can you elaborate on that?]
+               [Do you say :stuff for some special reason?]
+               [That's quite interesting.]]
+
+pprop "i'm "priority 0
+pprop "i'm "translation "you're
+pprop "i'm "rules [[# you're #stuff] g31]
+pprop "i'm "g31 [[pre [you are :stuff] I]]
+
+pprop "if "priority 3
+pprop "if "rules [[#a if #b had #c] g5 [# if #stuff] g6]
+pprop "if "g5 [[pre [:a if :b might have :c] if]]
+pprop "if "g6 [[Do you think it's likely that :stuff?] [Do you wish that :stuff?]
+               [What do you think about :stuff?]]
+
+pprop "is "priority 0
+pprop "is "rules [[&a is &b] g61 [#] g62]
+pprop "is "g61 [[Suppose :a were not :b.] [Perhaps :a really is :b.]
+                [Tell me more about :a.]]
+pprop "is "g62 [newkey]
+
+pprop "italiano "priority 0
+pprop "italiano "rules [deutsch]
+
+pprop "like "priority 10
+pprop "like "rules [[# !:in [am is are was] # like #] g70 [#] g71]
+pprop "like "g70 [dit]
+pprop "like "g71 [newkey]
+
+pprop "machine "priority 50
+pprop "machine "rules [computer]
+
+pprop "machines "priority 50
+pprop "machines "rules [computer]
+
+pprop "maybe "priority 0
+pprop "maybe "rules [perhaps]
+
+pprop "me "translation "you
+
+pprop "mom "translation "mother
+pprop "mom "family "true
+
+pprop "mommy "translation "mother
+pprop "mommy "family "true
+
+pprop "mother "family "true
+
+pprop "my "priority 2
+pprop "my "translation "your
+pprop "my "rules [[# your # !a:familyp #b] g55 [# your &stuff] g56 [#] g57]
+pprop "my "g55 [[Tell me more about your family.] [Who else in your family :b?]
+                [Your :a?] [What else comes to mind when you think of your :a?]]
+pprop "my "g56 [[Your :stuff?] [Why do you say your :stuff?]
+                [Does that suggest anything else which belongs to you?]
+                [Is it important to you that your :stuff?]]
+pprop "my "g57 [newkey]
+pprop "my "memr [[# your &stuff] g12]
+pprop "my "g12 [[Earlier you said your :stuff.] [But your :stuff.]
+                [Does that have anything to do with your statement about :stuff?]]
+
+pprop "myself "translation "yourself
+
+pprop "name "priority 15
+pprop "name "rules [[#] g14]
+pprop "name "g14 [[I am not interested in names.]
+                  [I've told you before I don't care about names\; please continue.]]
+
+pprop "no "priority 0
+pprop "no "rules [[no] g53 [#] g54]
+pprop "no "g53 [xxyyzz [pre [x no] no]]
+pprop "no "g54 [[Are you saying "no" just to be negative?]
+                [You are being a bit negative.] [Why not?] [Why "no"?] newkey]
+
+pprop "nobody "priority 2
+pprop "nobody "rules [everyone]
+
+pprop "noone "priority 2
+pprop "noone "rules [everyone]
+
+pprop "perhaps "priority 0
+pprop "perhaps "rules [[#] g13]
+pprop "perhaps "g13 [[You don't seem quite certain.] [Why the uncertain tone?]
+                     [Can't you be more positive?] [You aren't sure.]
+                     [Don't you know?]]
+
+pprop "problem "priority 5
+pprop "problem "rules [[#a !b:in [is are] your !c:in [problem problems] #] g73
+                       [# your !a:in [problem problems] !b:in [is are] #c] g74
+                       [#] g75]
+pprop "problem "g73 [[:a :b your :c.] [Are you sure :a :b your :c?]
+                     [Perhaps :a :b not your real :c.]
+                     [You think you have problems?]
+                     [Do you often think about :a?]]
+pprop "problem "g74 [[Your :a :b :c?] [Are you sure your :a :b :c?]
+                     [Perhaps your real :a :b not :c.] [You think you have problems?]]
+pprop "problem "g75 [[Please continue, this may be interesting.]
+                     [Have you any other problems you wish to discuss?]
+                     [Perhaps you'd rather change the subject.]
+                     [You seem a bit uneasy.] newkey]
+pprop "problem "memr [[#stuff is your problem #] g76]
+pprop "problem "g76 [[Earlier you mentioned :stuff.]
+                     [Let's talk further about :stuff.]
+                     [Tell me more about :stuff.]
+                     [You haven't mentioned :stuff for a while.]]
+
+pprop "problems "priority 5
+pprop "problems "rules [problem]
+
+pprop "remember "priority 5
+pprop "remember "rules [[# you remember #stuff] g2 [# do I remember #stuff] g3 [#] g4]
+pprop "remember "g2 [[Do you often think of :stuff?]
+                     [Does thinking of :stuff bring anything else to mind?]
+                     [What else do you remember?]
+                     [Why do you remember :stuff just now?]
+                     [What in the present situation reminds you of :stuff?]]
+pprop "remember "g3 [[Did you think I would forget :stuff?]
+                     [Why do you think I should recall :stuff now?]
+                     [What about :stuff?] what [You mentioned :stuff.]]
+pprop "remember "g4 [newkey]
+
+pprop "same "priority 10
+pprop "same "rules [dit]
+
+pprop "sister "family "true
+
+pprop "sorry "priority 0
+pprop "sorry "rules [[#] g1]
+pprop "sorry "g1 [[Please don't apologize.] [Apologies are not necessary.]
+                  [What feelings do you have when you apologize?]
+                  [I've told you that apologies are not required.]]
+
+pprop "svenska "priority 0
+pprop "svenska "rules [deutsch]
+
+pprop "think "belief "true
+
+pprop "was "priority 2
+pprop "was "rules [[# was you #stuff] g26 [# you was #stuff] g27
+                   [# was I #stuff] g28 [#] g29]
+pprop "was "g26 [[What if you were :stuff?] [Do you think you were :stuff?]
+                 [Were you :stuff?] [What would it mean if you were :stuff?]
+                 [What does " :stuff " suggest to you?] how]
+pprop "was "g27 [[Were you really?] [Why do you tell me you were :stuff now?]
+                 [Perhaps I already knew you were :stuff.]]
+pprop "was "g28 [[Would you like to believe I was :stuff?]
+                 [What suggests that I was :stuff?] [What do you think?]
+                 [Perhaps I was :stuff.] [What if I had been :stuff?]]
+pprop "was "g29 [newkey]
+
+pprop "we "translation "you
+pprop "we "priority 0
+pprop "we "rules [I]
+
+pprop "were "priority 0
+pprop "were "translation "was
+pprop "were "rules [was]
+
+pprop "what "priority 0
+pprop "what "rules [[!:in [what where] #] g10 [# !a:in [what where] #b] g11]
+pprop "what "g10 [how]
+pprop "what "g11 [[Tell me about :a :b.] [:a :b?] [Do you want me to tell you :a :b?]
+                  [Really.] [I see.] newkey]
+
+pprop "where "priority 0
+pprop "where "rules [how]
+
+pprop "why "priority 0
+pprop "why "rules [[# why don't I #stuff] g65 [# why can't you #stuff] g66 [#] g67]
+pprop "why "g65 [[Do you believe I don't :stuff?]
+                 [Perhaps I will :stuff in good time.]
+                 [Should you :stuff yourself?] [You want me to :stuff?] how]
+pprop "why "g66 [[Do you think you should be able to :stuff?]
+                 [Do you want to be able to :stuff?]
+                 [Do you believe this will help you to :stuff?]
+                 [Have you any idea why you can't :stuff?] how]
+pprop "why "g67 [[Why indeed?] [Why "why"?] [Why not?] how newkey]
+
+pprop "wife "family "true
+
+pprop "wish "belief "true
+
+pprop "wont "translation "won't
+
+pprop "xxyyzz "priority 0
+pprop "xxyyzz "rules [[#] g50]
+pprop "xxyyzz "g50 [[You're being somewhat short with me.]
+                    [You don't seem very talkative today.]
+                    [Perhaps you'd rather talk about something else.]
+                    [Are you using monosyllables for some reason?] newkey]
+
+pprop "yes "priority 0
+pprop "yes "rules [[yes] g51 [#] g52]
+pprop "yes "g51 [xxyyzz [pre [x yes] yes]]
+pprop "yes "g52 [[You seem quite positive.] [You are sure.] [I see.]
+                 [I understand.] newkey]
+
+pprop "you "priority 0
+pprop "you "translation "I
+pprop "you "rules [[# I remind you of #] g44 [# I are # you #] g45
+                   [# I # are #stuff] g46 [# I #stuff you] g47
+                   [# I &stuff] g48 [#] g49]
+pprop "you "g44 [dit]
+pprop "you "g45 [newkey]
+pprop "you "g46 [[What makes you think I am :stuff?]
+                 [Does it please you to believe I am :stuff?]
+                 [Perhaps you would like to be :stuff.]
+                 [Do you sometimes wish you were :stuff?]]
+pprop "you "g47 [[Why do you think I :stuff you?]
+                 [You like to think I :stuff you, don't you?]
+                 [What makes you think I :stuff you?] [Really, I :stuff you?]
+                 [Do you wish to believe I :stuff you?]
+                 [Suppose I did :stuff you. what would that mean?]
+                 [Does someone else believe I :stuff you?]]
+pprop "you "g48 [[We were discussing you, not me.] [Oh, I :stuff?]
+                 [Is this really relevant to your problem?] [Perhaps I do :stuff.]
+                 [Are you glad to know I :stuff?] [Do you :stuff?]
+                 [What are your feelings now?]]
+pprop "you "g49 [newkey]
+
+pprop "you're "priority 0
+pprop "you're "translation "I'm
+pprop "you're "rules [[# I'm #stuff] g30]
+pprop "you're "g30 [[pre [I are :stuff] you]]
+
+pprop "your "priority 0
+pprop "your "translation "my
+pprop "your "rules [[# my #stuff] g25]
+pprop "your "g25 [[Why are you concerned over my :stuff?]
+                  [What about your own :stuff?]
+                  [Are you worried about someone else's :stuff?]
+                  [Really, my :stuff?]]
+
+pprop "yourself "translation "myself

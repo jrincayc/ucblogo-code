@@ -1,4 +1,4 @@
-mkdir logolib
+mkdir -p logolib
 cat << "ENDOFFILE" > logolib/#
 to #
 op :template.number
@@ -6,7 +6,6 @@ end
 
 bury "#
 ENDOFFILE
-chmod a-w logolib/#
 cat << "ENDOFFILE" > logolib/\`
 to ` :backq.list
 if emptyp :backq.list [op []]
@@ -192,26 +191,12 @@ end
 
 bury "edps
 ENDOFFILE
-cat << "ENDOFFILE" > logolib/erall
-to erall
-erase contents
-end
-
-bury "erall
-ENDOFFILE
 cat << "ENDOFFILE" > logolib/ern
 to ern :names
 erase namelist :names
 end
 
 bury "ern
-ENDOFFILE
-cat << "ENDOFFILE" > logolib/erns
-to erns
-erase names
-end
-
-bury "erns
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/erpl
 to erpl :names
@@ -220,19 +205,23 @@ end
 
 bury "erpl
 ENDOFFILE
-cat << "ENDOFFILE" > logolib/erpls
-to erpls
-erase plists
+cat << "ENDOFFILE" > logolib/filep
+to filep :filename
+ignore error
+catch "error [openread :filename close :filename]
+output not emptyp error
 end
 
-bury "erpls
+bury "filep
 ENDOFFILE
-cat << "ENDOFFILE" > logolib/erps
-to erps
-erase procedures
+cat << "ENDOFFILE" > logolib/file\?
+to file? :filename
+ignore error
+catch "error [openread :filename close :filename]
+output not emptyp error
 end
 
-bury "erps
+bury "file?
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/filter
 to filter :filter.template :template.list [:template.number 1] ~
@@ -332,6 +321,19 @@ end
 
 bury "invoke
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/iseq
+to iseq :a :b
+if not (:a > :b) [output iseq1 :a :b]
+output map [[x] -1 * :x] iseq1 (-1 * :a) (-1 * :b)
+end
+
+to iseq1 :a :b
+if :a > :b [output []]
+output fput :a iseq1 :a + 1 :b
+end
+
+bury [iseq iseq1]
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/listtoarray
 to listtoarray :list [:origin 1]
 local "array
@@ -348,6 +350,13 @@ end
 
 bury [listtoarray listtoarray1]
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/localmake
+.macro localmake :name :value
+output (list "local (word "" :name) "apply ""make (list :name :value))
+end
+
+bury "localmake
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/macroexpand
 to macroexpand :expr
 local [name inputlist macro.result]
@@ -355,7 +364,7 @@ make "name first :expr
 make "inputlist bf :expr
 if not macrop :name [(throw "error (se :name [is not a macro.]))]
 define "%%%$%macro.procedure text :name
-make "macro.result apply "%%%$%macro.procedure :inputlist
+make "macro.result run fput "%%%$%macro.procedure :inputlist
 erase "%%%$%macro.procedure
 op :macro.result
 end
@@ -573,6 +582,13 @@ end
 
 bury "reverse
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/rseq
+to rseq :a :b :n
+output map [[x] :a + :x * (:b - :a) / (:n - 1)] iseq 0 :n - 1
+end
+
+bury "rseq
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/savel
 to savel :cont :file [:oldwr writer]
 openwrite :file
@@ -591,7 +607,7 @@ ifelse equalp first bf :pen_data "reverse ~
        [penreverse] ~
        [ifelse equalp first bf :pen_data "erase ~
                [penerase] ~
-               [penpaint]
+               [penpaint]]
 setpensize first bf bf :pen_data
 setpencolor first bf bf bf :pen_data
 setpenpattern first bf bf bf bf :pen_data

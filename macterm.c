@@ -35,26 +35,23 @@ WindowPtr graphics_window, listener_window;
 GrafPtr savePort;
 extern WindowPtr myWindow; /* the editor window */
 FIXNUM pen_color = 7, back_ground = 0;
-extern void save_color();
 
 /************************************************************/
 
-void nop()
-{
+void nop() {
 }
 
 int can_do_color = 0, want_color = 0;
 PaletteHandle the_palette;
 
-void get_can_do_color() {
+void get_can_do_color(void) {
 	long ans;
 
 	if (!Gestalt(gestaltQuickdrawVersion, &ans))
 		can_do_color = (ans != 0);
 }
 
-void init_mac_memory()
-{
+void init_mac_memory(void) {
     unsigned long AZ, AL;
     /* SetApplLimit((Ptr)(GetApplLimit() - 150000L)); MaxApplZone(); */
     
@@ -65,22 +62,11 @@ void init_mac_memory()
     MaxApplZone();
 }
 
-BOOLEAN check_mac_stop()
-{
-/*
-	unsigned long   theStackPointer;
-    unsigned long   AL;
- */
+BOOLEAN check_mac_stop(void) {
     char	    the_key_map[16];
+    static int full = 400;
+    extern void ProcessEvent(void);
 
-/*
-    asm {
-	Move.L  SP,theStackPointer
-    }
-    AL = (unsigned long)(GetApplLimit());
-    AL = AL + 5000;
-    if (theStackPointer < AL || FreeMem() < 3000) {
-*/
     if (FreeMem() < 3000) {
 	err_logo(STACK_OVERFLOW, NIL);
 	return(1);
@@ -95,13 +81,15 @@ BOOLEAN check_mac_stop()
 		    /* comma and command are down */
 	FlushEvents(everyEvent, 0);
 	logo_pause();
-//	return 1;
+    }
+    if (--full == 0) {
+        ProcessEvent();
+        full = 400;
     }
     return(0);
 }
 
-void term_init_mac()
-{
+void term_init_mac(void) {
     MenuHandle menu_handle;
     
 	get_can_do_color();
@@ -130,7 +118,7 @@ void term_init_mac()
     console_options.left+= 10;
     strncpy(console_options.title, "\pBerkeley Logo", 14);
     console = fopenc();
-    lregulartext();
+    lregulartext(NIL);
     cinverse(1,stdout);
     listener_window = FrontWindow();
     
@@ -152,8 +140,7 @@ void term_init_mac()
     se_arr[0] = '\2'; se_arr[1] = '\0';
 }
 
-void mac_gotoxy(int x, int y)
-{
+void mac_gotoxy(int x, int y) {
     if (x_coord < 0) x_coord = 0;
     if (x_coord >= console_options.ncols) x_coord = console_options.ncols - 1;
     if (y_coord < 0) y_coord = 0;
@@ -165,9 +152,7 @@ void mac_gotoxy(int x, int y)
 /* These are primitives that can only exist on the mac and/or are ad hoc
    things Michael invented that we probably don't want to keep around in Berkeley Logo. */
 
-NODE *lsetwindowtitle(arg)
-NODE *arg;
-{
+NODE *lsetwindowtitle(NODE *arg) {
     NODE *name;
     
     name = string_arg(arg);
@@ -178,10 +163,7 @@ NODE *arg;
     return(UNBOUND);
 }
 
-option_helper(var, arg)
-short *var;
-NODE *arg;
-{
+void option_helper(short* var, NODE *arg) {
     NODE *val;
     
     val = integer_arg(arg);
@@ -189,30 +171,22 @@ NODE *arg;
 	*var = (short)getint(val);
 }
 
-NODE *lsettextfont(arg)
-NODE *arg;
-{
+NODE *lsettextfont(NODE *arg) {
     option_helper(&console_options.txFont, arg);
     return(UNBOUND);
 }
 
-NODE *lsettextsize(arg)
-NODE *arg;
-{
+NODE *lsettextsize(NODE *arg) {
     option_helper(&console_options.txSize, arg);
     return(UNBOUND);
 }
 
-NODE *lsettextstyle(arg)
-NODE *arg;
-{
+NODE *lsettextstyle(NODE *arg) {
     option_helper(&console_options.txFace, arg);
     return(UNBOUND);
 }
 
-NODE *lsetwindowsize(args)
-NODE *args;
-{
+NODE *lsetwindowsize(NODE *args) {
     NODE *xnode, *ynode = UNBOUND, *arg;
 
     arg = pos_int_vector_arg(args);
@@ -225,9 +199,7 @@ NODE *args;
     return(UNBOUND);
 }
 
-NODE *lsetwindowxy(args)
-NODE *args;
-{
+NODE *lsetwindowxy(NODE *args) {
     NODE *xnode, *ynode = UNBOUND, *arg;
 
     arg = pos_int_vector_arg(args);
@@ -240,8 +212,7 @@ NODE *args;
     return(UNBOUND);
 }
 
-NODE *lnewconsole()
-{
+NODE *lnewconsole(NODE *args) {
     FILE *c, *old;
     int was_graphics;
     
@@ -257,7 +228,7 @@ NODE *lnewconsole()
     freopenc(c, stdin);
     freopenc(c, stdout);
     freopenc(c, stderr);
-    lcleartext();
+    lcleartext(NIL);
     cinverse(1,stdout);
     
     if (was_graphics) {
@@ -272,16 +243,14 @@ NODE *lnewconsole()
     return(UNBOUND);
 }
 
-NODE *lgraphtext()
-{
+NODE *lgraphtext(NODE *args) {
     freopenc(graphics, stdin);
     freopenc(graphics, stdout);
     freopenc(graphics, stderr);
     return(UNBOUND);
 }
 
-NODE *lregulartext()
-{
+NODE *lregulartext(NODE *args) {
     freopenc(console, stdin);
     freopenc(console, stdout);
     freopenc(console, stderr);
@@ -299,8 +268,7 @@ NODE *lcaninverse(NODE *args) {
 /* These are the machine-specific graphics definitions.  All versions must provide
    a set of functions analogous to these. */
 
-void save_pen(pen_info *p)
-{
+void save_pen(pen_info *p) {
     GetPort(&savePort);
     SetPort(graphics_window);
     GetPenState(&(p->ps));
@@ -310,8 +278,7 @@ void save_pen(pen_info *p)
     SetPort(savePort);
 }
 
-void restore_pen(pen_info *p)
-{
+void restore_pen(pen_info *p) {
     GetPort(&savePort);
     SetPort(graphics_window);
     SetPenState(&(p->ps));
@@ -321,8 +288,7 @@ void restore_pen(pen_info *p)
     SetPort(savePort);
 }
 
-void plain_xor_pen()
-{
+void plain_xor_pen(void) {
     PenNormal();
     PenMode(patXor);
 }
@@ -387,13 +353,11 @@ void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
 	}
 }
 
-void set_pen_pattern(char *pat)
-{
+void set_pen_pattern(char *pat) {
 	PenPat(pat);
 }
 
-void set_list_pen_pattern(NODE *arg)
-{
+void set_list_pen_pattern(NODE *arg) {
     NODE *cur_num, *temp;
     char p_arr[8];
     int count;
@@ -403,13 +367,11 @@ void set_list_pen_pattern(NODE *arg)
 	temp = cnv_node_to_numnode(car(cur_num));
 	p_arr[count] = (char)getint(temp);
 	cur_num = cdr(cur_num);
-	gcref(temp);
     }
     PenPat(p_arr);
 }
 
-void get_pen_pattern(char *pat)
-{
+void get_pen_pattern(char *pat) {
     PenState oil;
     int count;
 
@@ -418,8 +380,7 @@ void get_pen_pattern(char *pat)
 	 *(char *)(pat + count) = oil.pnPat[count];
 }
 
-NODE *Get_node_pen_pattern()
-{
+NODE *Get_node_pen_pattern() {
     PenState oil;
     int count;
 
@@ -435,8 +396,7 @@ NODE *Get_node_pen_pattern()
 		   NIL)))))))));
 }
 
-NODE *Get_node_pen_mode()
-{
+NODE *Get_node_pen_mode() {
     switch(pen_mode) {
 	case patCopy   : return(make_static_strnode("paint"));
 	case patBic    : return(make_static_strnode("erase"));
@@ -445,18 +405,25 @@ NODE *Get_node_pen_mode()
     }
 }
 
-void label(char *s)
-{
+void label(char *s) {
+    short tmode;
+
     GetPort(&savePort);
     SetPort(graphics_window);
     MoveTo(g_round(graphics_window->portRect.right/2.0 + turtle_x),
 	   g_round(graphics_window->portRect.bottom/2.0 - turtle_y));
-    TextFont(monaco); TextSize(9); TextMode(srcOr);
+    switch(pen_mode) {
+	case patCopy   : tmode = srcOr; break;
+	case patBic    : tmode = srcBic; break;
+	case patXor    : tmode = srcXor; break;
+	default	       : tmode = srcCopy; break;    /* can't happen */
+    }
+    TextFont(monaco); TextSize(9); TextMode(tmode);
     DrawString(s);
     SetPort(savePort);
 }
 
-void logofill() {
+void logofill(void) {
 	BitMap mask;
 
 	if (can_do_color) {
@@ -468,6 +435,11 @@ void logofill() {
 		mask.bounds.top = 0;
 		mask.rowBytes = ((mask.bounds.right + 15) / 8) & ~1;
 		mask.baseAddr = malloc(mask.rowBytes * mask.bounds.bottom);
+		if (mask.baseAddr == NULL) {
+		    err_logo(OUT_OF_MEM, NIL);
+		    done_drawing;
+		    return;
+		}
 		SeedCFill(&(graphics_window->portBits), &mask,
 				  &((*(graphics_window->visRgn))->rgnBBox),
 				  &(mask.bounds),
@@ -481,8 +453,7 @@ void logofill() {
 	}
 }
 
-void erase_screen()
-{
+void erase_screen(void) {
     int old_vis;
     
     GetPort(&savePort);
@@ -494,22 +465,20 @@ void erase_screen()
     SetPort(savePort);
 }
 
-void t_screen()
-{
+void t_screen(void) {
     console_options.ncols = 80;
     console_options.nrows = 25;
     console_options.left = 15;
     console_options.top = 55;
     strncpy(console_options.title, "\pBerkeley Logo", 14);
-    lnewconsole();
+    lnewconsole(NIL);
 
     MoveWindow(myWindow, 15, 55, TRUE);
     MySizeWindow(myWindow, 488, 283);
     SelectWindow(listener_window);
 }
 
-void s_screen()
-{
+void s_screen(void) {
     Rect bounds;
     int v;
     
@@ -525,15 +494,14 @@ void s_screen()
     console_options.left = 5;
     console_options.top = v + 6;
     strncpy(console_options.title, "\pBerkeley Logo", 14);
-    lnewconsole();
+    lnewconsole(NIL);
 
     MoveWindow(myWindow, 5, v, TRUE);
     MySizeWindow(myWindow, 488, 80);
     SelectWindow(listener_window);
 }
 
-void f_screen()
-{
+void f_screen(void) {
     Rect bounds;
     int v;
     
@@ -549,15 +517,14 @@ void f_screen()
     console_options.left = 5;
     console_options.top = v + 52;
     strncpy(console_options.title, "\pBerkeley Logo", 14);
-    lnewconsole();
+    lnewconsole(NIL);
 
     MoveWindow(myWindow, 5, v, TRUE);
     MySizeWindow(myWindow, 488, 80);
     SelectWindow(graphics_window);
 }
 
-FIXNUM mickey_x()
-{
+FIXNUM mickey_x(void) {
     Point the_mouse;
     
     GetPort(&savePort);
@@ -568,8 +535,7 @@ FIXNUM mickey_x()
     return((FIXNUM)(the_mouse.h - graphics_window->portRect.right/2));
 }
 
-FIXNUM mickey_y()
-{
+FIXNUM mickey_y(void) {
     Point the_mouse;
     
     GetPort(&savePort);
@@ -581,9 +547,7 @@ FIXNUM mickey_y()
 }
 
 /* see Inside Macintosh vol. 2 pp. 237-241 for pitch values */
-void tone(pitch, duration)
-FIXNUM pitch, duration;
-{
+void tone(FIXNUM pitch, FIXNUM duration) {
     struct { int mode;
 	     int freq;
 	     int amp;
@@ -601,10 +565,7 @@ FIXNUM pitch, duration;
 
 /************************************************************/
 
-void c_to_pascal_string(str, len)
-char *str;
-int len;
-{
+void c_to_pascal_string(char *str, int len) {
     int count = len;
     char prev;
     

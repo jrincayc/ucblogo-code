@@ -1,3 +1,42 @@
+ucblogo (4.1-1.1) unstable; urgency=low
+
+  * Compiled with libc6
+  * Non-maintainer release
+  * Included copyright in /usr/doc/ucblogo (fixes #14868)
+
+ -- Hamish Moffatt <hamish@debian.org>  Tue, 9 Dec 1997  12:18:00 +1100
+
+ucblogo (4.1-1) unstable; urgency=low
+
+  * upgrade to the latest upstream version.
+  * term.c: Fixed a curses bug (#10103).
+  * makefile.in: Omit the version 3.3-1 patch to makefile.in.
+  * rules: Use CFLAGS="-O2 -Wall -g" in build step.
+  * rules: Fix package name p = ucblogo (not logo) which fixes (#6126).
+  * rules: Change s/logo/\$(p)/ where appropriate.  This moves the LIBLOC to
+    /usr/lib/ucblogo where it belongs.
+  * rules: Added usermanual to /usr/doc/ucblogo.
+  * rules: Removed redundant install -d debian/tmp/usr/lib/logo.
+  * rules: Use "$(MAKE) -i clean || $(MAKE) -i -f makefile.in clean"
+    instead of explicitly rm'ing files.
+  * rules: Add "-rm -f makefile config.h config.cache config.log config.status
+    core logo makehelp" to the clean rule to remove the results of ./configure,
+    debian/rules build, and coredumps.
+  * rules: Add debian/substvars to one of the rm lines and simplify it.
+  * rules: Add rm -rf helpfiles since they are built dynamically.
+  * rules: Install logo as ucblogo and make logo a symbolic link to it.  Ditto
+    with the man page.
+  * rules: don't include a copy of the README as the copyright.  Instead include
+    the README as /usr/doc/ucblogo/README.gz and use the Debian standard GNU GPL
+    stub copyright (appropriately modified, of course).
+  * control: Use Section: devel to agree with the Debian ftp archive
+    (probably should be in interpreters??).
+  * control: Fix mispelling of "Berkeley implementation".
+  * control: Reworked the description to be more accurate and useful.
+  * ucblogo.1: Made a reasonable man page!
+
+ -- Chris Fearnley <cjf@netaxs.com>  Thu, 29 May 1997 00:08:51 -0400
+
 ucblogo (3.3-1) unstable; urgency=low
 
   * created Debian package

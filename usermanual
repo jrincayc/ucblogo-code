@@ -20,7 +20,7 @@ This is a program that is still being written.  Many things are missing,
 including adequate documentation.  This manual assumes that you already know
 how to program in Logo, and merely presents the details of this new
 implementation.  Read _Computer_Science_Logo_Style,_Volume_1:_
-_Intermediate_Programming_ by Brian Harvey (MIT Press, 1985) for a tutorial
+_Symbolic_Computing_ by Brian Harvey (MIT Press, 1997) for a tutorial
 on Logo programming with emphasis on symbolic computation.
 
 Here are the special features of this dialect of Logo:
@@ -53,8 +53,22 @@ parallelism, and multimedia.  For those, buy a commercial version.
 ENTERING AND LEAVING LOGO
 =========================
 
-To start Logo, just type the word "logo" to the shell.  To leave Logo, enter
-the command "bye".  If you include one or more filenames on the command line
+The process to start Logo depends on your operating system:
+
+Unix:	 Type the word {\tt logo} to the shell.  (The directory in which
+	 you've installed Logo must be in your path.)
+
+DOS:	 Change directories to the one containing Logo (probably
+	 C:\UCBLOGO).  Then type UCBLOGO for the large memory
+	 version, or BL for the 640K version.
+
+Mac:	 Double-click on the LOGO icon within the "UCB Logo" folder.
+
+Windows: Double-click on the UCBWLOGO icon in the UCBLOGO folder.
+
+To leave Logo, enter the command "bye".
+
+Under Unix or DOS, if you include one or more filenames on the command line
 when starting Logo, those files will be loaded before the interpreter starts
 reading commands from your terminal.  If you load a file that executes some
 program that includes a "bye" command, Logo will run that program and exit.
@@ -63,15 +77,11 @@ shell/batch scripts.  To support this technique, Logo does not print its
 usual welcoming and parting messages if you give file arguments to the logo
 command.
 
-(On the Macintosh, start Logo by double-clicking on its icon.  Leave Logo
-with the "bye" command.  There's no way to give Logo a initialization file
-from the Finder.)
-
 If you type your interrupt character (see table below) Logo will stop what
 it's doing and return to toplevel, as if you did THROW "TOPLEVEL.  If you
 type your quit character Logo will pause as if you did PAUSE.
 
-                        Unix              DOS             Mac
+                        Unix           DOS/Windows          Mac
 
         toplevel    usually ctrl-C       ctrl-Q      command-. (period)
 
@@ -99,7 +109,10 @@ are the special words END, TRUE, and FALSE.  Case of letters is preserved
 in everything you type, however.
 
 Within square brackets, words are delimited only by spaces and square
-brackets.  [2+3] is a list containing one word.
+brackets.  [2+3] is a list containing one word.  Note, however, that the
+Logo primitives that interpret such a list as a Logo instruction or
+expression (RUN, IF, etc.) reparse the list as if it had not been typed
+inside brackets.
 
 After a quotation mark outside square brackets, a word is delimited by
 a space, a square bracket, or a parenthesis.
@@ -109,11 +122,11 @@ by a space, a bracket, a parenthesis, or an infix operator +-*/=<>.  Note
 that words following colons are in this category.  Note that quote and
 colon are not delimiters.
 
-A word consisting of a question mark followed by a number (e.g., ?3),
+A word consisting of a question mark followed by a number (e.g., ?37),
 when runparsed (i.e., where a procedure name is expected), is treated
 as if it were the sequence
 
-	( ? 3 )
+	( ? 37 )
 
 making the number an input to the ? procedure.  (See the discussion of
 templates, below.)  This special treatment does not apply to words read
@@ -174,8 +187,8 @@ bar themselves.
 
 Characters entered between vertical bars are forever special, even if the
 word or list containing them is later reparsed with PARSE or RUNPARSE.
-The same is true of a character typed after a backslash, except that when
-a quoted word containing a backslashed character is runparsed, the backslashed
+Characters typed after a backslash are treated somewhat differently:  When a
+quoted word containing a backslashed character is runparsed, the backslashed
 character loses its special quality and acts thereafter as if typed normally.
 This distinction is important only if you are building a Logo expression out
 of parts, to be RUN later, and want to use parentheses.  For example,
@@ -205,7 +218,7 @@ LIST thing1 thing2
 (LIST thing1 thing2 thing3 ...)
 
 	outputs a list whose members are its inputs, which can be any
-	Logo object (word, list, or array).
+	Logo datum (word, list, or array).
 
 SENTENCE thing1 thing2
 SE thing1 thing2
@@ -228,11 +241,11 @@ LPUT thing list
 ARRAY size
 (ARRAY size origin)
 
-	outputs an array of "size" elements (must be a positive integer),
-	each of which initially is an empty list.  Array elements can be
-	selected with ITEM and changed with SETITEM.  The first element of
-	the array is element number 1 unless an "origin" input (must be an
-	integer) is given, in which case the first element of the array has
+	outputs an array of "size" members (must be a positive integer),
+	each of which initially is an empty list.  Array members can be
+	selected with ITEM and changed with SETITEM.  The first member of
+	the array is member number 1 unless an "origin" input (must be an
+	integer) is given, in which case the first member of the array has
 	that number as its index.  (Typically 0 is used as the origin if
 	anything.)  Arrays are printed by PRINT and friends, and can be
 	typed in, inside curly braces; indicate an origin with {a b c}@0.
@@ -243,19 +256,19 @@ MDARRAY sizelist					(library procedure)
 	outputs a multi-dimensional array.  The first input must be a list
 	of one or more positive integers.  The second input, if present,
 	must be a single integer that applies to every dimension of the array.
-	Ex: (MDARRAY [3 5] 0) outputs a two-dimensional array whose elements
+	Ex: (MDARRAY [3 5] 0) outputs a two-dimensional array whose members
 	range from [0 0] to [2 4].
 
 LISTTOARRAY list					(library procedure)
 (LISTTOARRAY list origin)
 
-	outputs an array of the same size as the input list, whose elements
+	outputs an array of the same size as the input list, whose members
 	are the members of the input list.
 
 ARRAYTOLIST array					(library procedure)
 
-	outputs a list whose members are the elements of the input array.
-	The first member of the output is the first element of the array,
+	outputs a list whose members are the members of the input array.
+	The first member of the output is the first member of the array,
 	regardless of the array's origin.
 
 COMBINE thing1 thing2					(library procedure)
@@ -282,7 +295,7 @@ FIRST thing
 	if the input is a word, outputs the first character of the word.
 	If the input is a list, outputs the first member of the list.
 	If the input is an array, outputs the origin of the array (that
-	is, the INDEX OF the first element of the array).
+	is, the INDEX OF the first member of the array).
 
 FIRSTS list
 
@@ -342,13 +355,13 @@ ITEM index thing
 	if the "thing" is a word, outputs the "index"th character of the
 	word.  If the "thing" is a list, outputs the "index"th member of
 	the list.  If the "thing" is an array, outputs the "index"th
-	element of the array.  "Index" starts at 1 for words and lists;
+	member of the array.  "Index" starts at 1 for words and lists;
 	the starting index of an array is specified when the array is
 	created.
 
 MDITEM indexlist array					(library procedure)
 
-	outputs the element of the multidimensional "array" selected by
+	outputs the member of the multidimensional "array" selected by
 	the list of numbers "indexlist".
 
 PICK list						(library procedure)
@@ -376,13 +389,13 @@ MUTATORS
 
 SETITEM index array value
 
-	command.  Replaces the "index"th element of "array" with the new
+	command.  Replaces the "index"th member of "array" with the new
 	"value".  Ensures that the resulting array is not circular, i.e.,
 	"value" may not be a list or array that contains "array".
 
 MDSETITEM indexlist array value				(library procedure)
 
-	command.  Replaces the element of "array" chosen by "indexlist"
+	command.  Replaces the member of "array" chosen by "indexlist"
 	with the new "value".
 
 .SETFIRST list value
@@ -393,7 +406,7 @@ MDSETITEM indexlist array value				(library procedure)
 	can lead to circular list structures, which will get some Logo
 	primitives into infinite loops; unexpected changes to other data
 	structures that share storage with the list being modified; and
-	the permanent loss of memory if a circular structure is released.
+	the loss of memory if a circular structure is released.
 
 .SETBF list value
 
@@ -404,16 +417,16 @@ MDSETITEM indexlist array value				(library procedure)
 	primitives into infinite loops; unexpected changes to other data
 	structures that share storage with the list being modified; Logo
 	crashes and coredumps if the butfirst of a list is not itself a list;
-	and the permanent loss of memory if a circular structure is released.
+	and the loss of memory if a circular structure is released.
 
 .SETITEM index array value
 
-	command.  Changes the "index"th element of "array" to be "value",
+	command.  Changes the "index"th member of "array" to be "value",
 	like SETITEM, but without checking for circularity.
 	WARNING: Primitives whose names start with a period are DANGEROUS.
 	Their use by non-experts is not recommended.  The use of .SETITEM
 	can lead to circular arrays, which will get some Logo primitives into
-	infinite loops; and the permanent loss of memory if a circular
+	infinite loops; and the loss of memory if a circular
 	structure is released.
 
 PUSH stackname thing					(library procedure)
@@ -478,7 +491,7 @@ thing1 = thing2
 	upper case letter is considered the same as the corresponding lower
 	case letter.  (This is the case by default.)  Two lists are equal if
 	their members are equal.  An array is only equal to itself; two
-	separately created arrays are never equal even if their elements are
+	separately created arrays are never equal even if their members are
 	equal.  (It is important to be able to know if two expressions have
 	the same array as their value because arrays are mutable; if, for
 	example, two variables have the same array as their values then
@@ -495,7 +508,7 @@ BEFORE? word1 word2
 
 .EQ thing1 thing2
 
-	outputs TRUE if its two inputs are the same object, so that applying a
+	outputs TRUE if its two inputs are the same datum, so that applying a
 	mutator to one will change the other as well.  Outputs FALSE otherwise,
 	even if the inputs are equal in value.
 	WARNING: Primitives whose names start with a period are DANGEROUS.
@@ -506,7 +519,7 @@ MEMBERP thing1 thing2
 MEMBER? thing1 thing2
 
 	if "thing2" is a list or an array, outputs TRUE if "thing1" is EQUALP
-	to a member or element of "thing2", FALSE otherwise.  If "thing2" is
+	to a member of "thing2", FALSE otherwise.  If "thing2" is
 	a word, outputs TRUE if "thing1" is a one-character word EQUALP to a
 	character of "thing2", FALSE otherwise.
 
@@ -538,9 +551,9 @@ QUERIES
 COUNT thing
 
 	outputs the number of characters in the input, if the input is a word;
-	outputs the number of members or elements in the input, if it is a list
+	outputs the number of members in the input, if it is a list
 	or an array.  (For an array, this may or may not be the index of the
-	last element, depending on the array's origin.)
+	last member, depending on the array's origin.)
 
 ASCII char
 
@@ -625,17 +638,17 @@ TRANSMITTERS
 Note:  If there is a variable named PRINTDEPTHLIMIT with a nonnegative
 integer value, then complex list and array structures will be printed
 only to the allowed depth.  That is, members of members of... of members
-will be allowed only so far.  The elements or members omitted because
+will be allowed only so far.  The members omitted because
 they are just past the depth limit are indicated by an ellipsis for each
-one, so a too-deep list of two elements will print as [... ...].
+one, so a too-deep list of two members will print as [... ...].
 
 If there is a variable named PRINTWIDTHLIMIT with a nonnegative integer
-value, then only the first so many elements or members of any array or
-list will be printed.  A single ellipsis replaces all missing objects
+value, then only the first so many members of any array or
+list will be printed.  A single ellipsis replaces all missing data
 within the structure.  The width limit also applies to the number of
 characters printed in a word, except that a PRINTWIDTHLIMIT between 0 and 9
 will be treated as if it were 10 when applied to words.  This limit
-applies not only to the top-level printed object but to any substructures
+applies not only to the top-level printed datum but to any substructures
 within it.
 
 PRINT thing
@@ -683,7 +696,7 @@ READLIST
 RL
 
 	reads a line from the read stream (initially the terminal) and
-	outputs that line as a list.  The line is separated into elements as
+	outputs that line as a list.  The line is separated into members as
 	though it were typed in square brackets in an instruction.  If the
 	read stream is a file, and the end of file is reached, READLIST
 	outputs the empty word (not the empty list).  READLIST processes
@@ -883,6 +896,12 @@ EOF?
 	predicate, outputs TRUE if there are no more characters to be
 	read in the read stream file, FALSE otherwise.
 
+FILEP filename
+FILE? filename						(library procedure)
+
+	predicate, outputs TRUE if a file of the specified name exists
+	and can be read, FALSE otherwise.
+
 
 TERMINAL ACCESS
 ---------------
@@ -987,6 +1006,11 @@ num1 / num2
 REMAINDER num1 num2
 
 	outputs the remainder on dividing "num1" by "num2"; both must be
+	integers and the result is an integer with the same sign as num1.
+
+MODULO num1 num2
+
+	outputs the remainder on dividing "num1" by "num2"; both must be
 	integers and the result is an integer with the same sign as num2.
 
 INT num
@@ -1063,6 +1087,25 @@ RADARCTAN num
 
 	The expression 2*(RADARCTAN 0 1) can be used to get the
 	value of pi.
+
+ISEQ from to						(library procedure)
+
+	outputs a list of the integers from FROM to TO, inclusive.
+
+		? show iseq 3 7
+		[3 4 5 6 7]
+		? show iseq 7 3
+		[7 6 5 4 3]
+
+RSEQ from to count					(library procedure)
+
+	outputs a list of COUNT equally spaced rational numbers
+	between FROM and TO, inclusive.
+
+		? show rseq 3 5 9
+		[3 3.25 3.5 3.75 4 4.25 4.5 4.75 5]
+		? show rseq 3 5 5
+		[3 3.5 4 4.5 5]
 
 
 PREDICATES
@@ -1708,7 +1751,7 @@ FULLTEXT procname
 	with TO, EDIT, or LOAD, then the output is a list of words.  Each
 	word represents one entire line of the definition in the form
 	output by READWORD, including extra spaces and continuation lines.
-	The last element of the output represents the END line.  If the
+	The last member of the output represents the END line.  If the
 	procedure was defined with DEFINE, then the output is a list of
 	lists.  If these lists are printed, one per line, the result will
 	look like a definition using TO.  Note: the output from FULLTEXT
@@ -1758,6 +1801,11 @@ LOCAL varnamelist
 	must be assigned a value (e.g., with MAKE) before the procedure
 	attempts to read their value.
 
+LOCALMAKE varname value				(library procedure)
+
+	command.  Makes the named variable local, like LOCAL, and
+	assigns it the given value, like MAKE.
+
 THING varname
 :quoted.varname
 
@@ -1795,11 +1843,11 @@ REMPROP plistname propname
 
 PLIST plistname
 
-	outputs a list whose odd-numbered elements are the names, and
-	whose even-numbered elements are the values, of the properties
+	outputs a list whose odd-numbered members are the names, and
+	whose even-numbered members are the values, of the properties
 	in the property list named "plistname".  The output is a copy
 	of the actual property list; changing properties later will not
-	magically change the list output by PLIST.
+	magically change a list output earlier by PLIST.
 
 
 PREDICATES
@@ -1886,6 +1934,22 @@ accept a single word (taken as a procedure name), a list of words (taken
 as names of procedures), or a list of three lists as described under
 the CONTENTS command above.
 
+NODES
+
+	outputs a list of two numbers.  The first represents the number of
+	nodes of memory currently in use.  The second shows the maximum
+	number of nodes that have been in use at any time since the last
+	invocation of NODES.  (A node is a small block of computer memory
+	as used by Logo.  Each number uses one node.  Each non-numeric
+	word uses one node, plus some non-node memory for the characters
+	in the word.  Each array takes one node, plus some non-node
+	memory, as well as the memory required by its elements.  Each
+	list requires one node per element, as well as the memory within
+	the elements.)  If you want to track the memory use of an
+	algorithm, it is best if you invoke GC at the beginning of each
+	iteration, since otherwise the maximum will include storage that
+	is unused but not yet collected.
+
 
 INSPECTION
 ----------
@@ -1951,22 +2015,22 @@ ER contentslist
 	and property lists named in the input.  Primitive procedures may
 	not be erased unless the variable REDEFP has the value TRUE.
 
-ERALL							(library procedure)
+ERALL
 
 	command.  Erases all unburied procedures, variables, and property
 	lists from the workspace.  Abbreviates ERASE CONTENTS.
 
-ERPS							(library procedure)
+ERPS
 
 	command.  Erases all unburied procedures from the workspace.
 	Abbreviates ERASE PROCEDURES.
 
-ERNS							(library procedure)
+ERNS
 
 	command.  Erases all unburied variables from the workspace.
 	Abbreviates ERASE NAMES.
 
-ERPLS							(library procedure)
+ERPLS
 
 	command.  Erases all unburied property lists from the workspace.
 	Abbreviates ERASE PLISTS.
@@ -2055,6 +2119,10 @@ ED contentslist
 	When you leave the editor, Logo reads the revised definitions
 	and modifies the workspace accordingly.
 
+	If there is an environment variable called TEMP, then Logo uses
+	its value as the directory in which to write the temporary file
+	used for editing.
+
 	Exceptionally, the EDIT command can be used without its default
 	input and without parentheses provided that nothing follows it on
 	the instruction line.
@@ -2130,6 +2198,24 @@ HELP name
 	input and without parentheses provided that nothing follows it on
 	the instruction line.
 
+GC
+(GC anything)
+
+	command.  Runs the garbage collector, reclaiming unused nodes.  Logo
+	does this when necessary anyway, but you may want to use this
+	command to control exactly when Logo does it.  In particular, the
+	numbers output by the NODES operation will not be very meaningful
+	unless garbage has been collected.  Another reason to use GC is that
+	a garbage collection takes a noticeable fraction of a second, and you
+	may want to schedule collections for times before or after some
+	time-critical animation.  If invoked with an argument (of any value),
+	GC runs a full garbage collection, including GCTWA (Garbage Collect
+	Truly Worthless Atoms, which means that it removes from Logo's
+	memory words that used to be procedure or variable names but aren't
+	any more); without an argument, GC does a generational garbage
+	collection, which means that only recently created nodes are
+	examined.  (The latter is usually good enough.)
+
 
 CONTROL STRUCTURES
 ==================
@@ -2160,6 +2246,11 @@ RUNRESULT instructionlist
 REPEAT num instructionlist
 
 	command.  Runs the "instructionlist" repeatedly, "num" times.
+
+REPCOUNT
+
+	outputs the repetition count of the innermost current REPEAT,
+	starting from 1.  If no REPEAT is active, outputs -1.
 
 IF tf instructionlist
 (IF tf instructionlist1 instructionlist2)
@@ -2248,10 +2339,10 @@ THROW tag
 	not output a value.  If THROW is used with two inputs, the second
 	provides an output for the CATCH.
 
-	THROW "TOPLEVEL can be used to terminate all running procedures
-	and interactive pauses, and return to the toplevel instruction
-	prompt.  Typing the system interrupt character (normally ^C)
-	has the same effect.
+	THROW "TOPLEVEL can be used to terminate all running procedures and
+	interactive pauses, and return to the toplevel instruction prompt.
+	Typing the system interrupt character (normally control-C for Unix,
+	control-Q for DOS, or command-period for Mac) has the same effect.
 
 	THROW "ERROR can be used to generate an error condition.  If the
 	error is not caught, it prints a message (THROW "ERROR) with the
@@ -2293,8 +2384,9 @@ PAUSE
 	be entered on the event of an error.  This allows the user to check
 	values of local variables at the time of the error.
 
-	Typing the system quit character (normally ^\) will also enter
-	a pause.
+	Typing the system quit character (normally control-\ for
+	Unix, control-W for DOS, or command-comma for Mac) will also enter a
+	pause.
 
 CONTINUE value
 CO value
@@ -2343,6 +2435,18 @@ BYE
 	(Ordinarily, it should be an error if the expression that's
 	supposed to provide an input to something doesn't have a value.)
 
+GOTO word
+
+	command.  Looks for a TAG command with the same input in the same
+	procedure, and continues running the procedure from the location of
+	that TAG.  It is meaningless to use GOTO outside of a procedure.
+
+TAG quoted.word
+
+	command.  Does nothing.  The input must be a literal word following
+	a quotation mark ("), not the result of a computation.  Tags are
+	used by the GOTO command.
+
 IGNORE value						(library procedure)
 
 	command.  Does nothing.  Used when an expression is evaluated for
@@ -2373,13 +2477,13 @@ FOR forcontrol instructionlist				(library procedure)
 	determine a number, the starting value of the variable; (3) a word
 	or list that will be evaluated to determine a number, the limit value
 	of the variable; (4) an optional word or list that will be evaluated
-	to determine the step size.  If the fourth element is missing, the
+	to determine the step size.  If the fourth member is missing, the
 	step size will be 1 or -1 depending on whether the limit value is
 	greater than or less than the starting value, respectively.
 
 	The second input is an instructionlist.  The effect of FOR is to run
 	that instructionlist repeatedly, assigning a new value to the control
-	variable (the one named by the first element of the forcontrol list)
+	variable (the one named by the first member of the forcontrol list)
 	each time.  First the starting value is assigned to the control
 	variable.  Then the value is compared to the limit value.  FOR is
 	complete when the sign of (current - limit) is the same as the sign
@@ -2476,22 +2580,20 @@ the template "PROC is equivalent to [PROC ?1 ?2 ?3].
 	end
 
 The third form of template is "named-slot" or "lambda" form.  This form is
-indicated by a template list containing more than one element, whose first
-element is itself a list and whose second element is not a list.  The first
-element is taken as a list of names; local variables are created with those
-names and given the available data in order as their values.  The number of
-names must equal the number of available data.  The rest of the template is
-an expression or a sequence of instructions, as in the question mark form.
-This form is needed primarily when one iteration tool must be used within the
-template list of another, and the ? notation would be ambiguous in the inner
-template.  Example:
+indicated by a template list containing more than one member, whose first
+member is itself a list.  The first member is taken as a list of names;
+local variables are created with those names and given the available data
+in order as their values.  The number of names must equal the number of
+available data.  This form is needed primarily when one iteration tool must
+be used within the template list of another, and the ? notation would be
+ambiguous in the inner template.  Example:
 
 	to matmul :m1 :m2 [:tm2 transpose :m2]	; multiply two matrices
 	output map [[row] map [[col] dotprod :row :col] :tm2] :m1
 	end
 
 The fourth form is "procedure text" form, a variant of lambda form.  In this
-form, the template list contains at least two elements, all of which are
+form, the template list contains at least two members, all of which are
 lists.  This is the form used by the DEFINE and TEXT primitives, and APPLY
 accepts it so that the text of a defined procedure can be used as a template.
 
@@ -2551,7 +2653,7 @@ FOREACH data template					(library procedure)
 (FOREACH data1 data2 ... template)
 
 	command.  Evaluates the template list repeatedly, once for each
-	element of the data list.  If more than one data list are given,
+	member of the data list.  If more than one data list are given,
 	each of them must be the same length.  (The data inputs can be
 	words, in which case the template is evaluated once for each
 	character.
@@ -2575,8 +2677,8 @@ MAP template data					(library procedure)
 	outputs a word or list, depending on the type of the data input,
 	of the same length as that data input.  (If more than one data
 	input are given, the output is of the same type as data1.)  Each
-	element of the output is the result of evaluating the template
-	list, filling the slots with the corresponding element(s) of the
+	member of the output is the result of evaluating the template
+	list, filling the slots with the corresponding member(s) of the
 	data input(s).  (All data inputs must be the same length.)  In the
 	case of a word output, the results of the template evaluation must
 	be words, and they are concatenated with WORD.
@@ -2666,7 +2768,7 @@ FIND tftemplate data					(library procedure)
 REDUCE template data					(library procedure)
 
 	outputs the result of applying the template to accumulate the
-	elements of the data input.  The template must be a two-slot
+	members of the data input.  The template must be a two-slot
 	function.  Typically it is an associative function name like "SUM.
 	If the data input has only one constituent (member in a list or
 	character in a word), the output is that consituent.  Otherwise,
@@ -2794,7 +2896,7 @@ TRANSFER endtest template inbasket			(library procedure)
 	initially the empty list.  After each evaluation of the
 	template, the resulting value becomes the new outbasket.
 
-	In the template, the symbol ?IN represents the current element
+	In the template, the symbol ?IN represents the current member
 	from the inbasket; the symbol ?OUT represents the entire
 	current outbasket.  Other slot symbols should not be used.
 
@@ -3016,7 +3118,7 @@ operand, but should be taken as meaning the combination.
 ERROR CODES
 -----------
 
-Here are the numeric codes that appear as the first element of the list
+Here are the numeric codes that appear as the first member of the list
 output by ERROR when an error is caught, with the corresponding messages.
 Some messages may have two different codes depending on whether or not
 the error is recoverable (that is, a substitute value can be provided
@@ -3026,37 +3128,39 @@ so bad that Logo exits immediately.
 
   0	Fatal internal error (can't be caught)
   1	Out of memory
-  2	PROC doesn't like DATUM as input (not recoverable)
-  3	PROC didn't output to PROC
-  4	Not enough inputs to PROC
-  5	PROC doesn't like DATUM as input (recoverable)
-  6	Too much inside ()'s
-  7	You don't say what to do with DATUM
-  8	')' not found
-  9	VAR has no value
- 10	Unexpected ')'
- 11	I don't know how to PROC (recoverable)
- 12	Can't find catch tag for THROWTAG
- 13	PROC is already defined
- 14	Stopped
- 15	Already dribbling
- 16	File system error
- 17	Assuming you mean IFELSE, not IF (warning only)
- 18	VAR shadowed by local in procedure call (warning only)
- 19	Throw "Error
- 20	PROC is a primitive
- 21	Can't use TO inside a procedure
- 22	I don't know how to PROC (not recoverable)
- 23	IFTRUE/IFFALSE without TEST
- 24	Unexpected ']'
- 25	Unexpected '}'
- 26	Couldn't initialize graphics
- 27	Macro returned VALUE instead of a list
- 28	You don't say what to do with VALUE
- 29	Can only use STOP or OUTPUT inside a procedure
- 30	APPLY doesn't like BADTHING as input
- 31	END inside multi-line instruction
- 32	Really out of memory (can't be caught)
+  2	Stack overflow
+  3	Turtle out of bounds
+  4	PROC doesn't like DATUM as input (not recoverable)
+  5	PROC didn't output to PROC
+  6	Not enough inputs to PROC
+  7	PROC doesn't like DATUM as input (recoverable)
+  8	Too much inside ()'s
+  9	You don't say what to do with DATUM
+ 10	')' not found
+ 11	VAR has no value
+ 12	Unexpected ')'
+ 13	I don't know how to PROC (recoverable)
+ 14	Can't find catch tag for THROWTAG
+ 15	PROC is already defined
+ 16	Stopped
+ 17	Already dribbling
+ 18	File system error
+ 19	Assuming you mean IFELSE, not IF (warning only)
+ 20	VAR shadowed by local in procedure call (warning only)
+ 21	Throw "Error
+ 22	PROC is a primitive
+ 23	Can't use TO inside a procedure
+ 24	I don't know how to PROC (not recoverable)
+ 25	IFTRUE/IFFALSE without TEST
+ 26	Unexpected ']'
+ 27	Unexpected '}'
+ 28	Couldn't initialize graphics
+ 29	Macro returned VALUE instead of a list
+ 30	You don't say what to do with VALUE
+ 31	Can only use STOP or OUTPUT inside a procedure
+ 32	APPLY doesn't like BADTHING as input
+ 33	END inside multi-line instruction
+ 34	Really out of memory (can't be caught)
 
 SPECIAL VARIABLES
 =================
@@ -3077,6 +3181,11 @@ ERRACT
 	an instructionlist that will be run in the event of an error.
 	Typically has the value [PAUSE] to allow interactive debugging.
 
+LOADNOISILY
+
+	if TRUE, prints the names of procedures defined when loading
+	from a file (including the temporary file made by EDIT).
+
 PRINTDEPTHLIMIT
 
 	if a nonnegative integer, indicates the maximum depth of sublist
@@ -3084,7 +3193,7 @@ PRINTDEPTHLIMIT
 
 PRINTWIDTHLIMIT
 
-	if a nonnegative integer, indicates the maximum number of elements
+	if a nonnegative integer, indicates the maximum number of members
 	in any one list that will be printed by PRINT, etc.
 
 REDEFP

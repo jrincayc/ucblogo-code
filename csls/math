@@ -1,246 +1,315 @@
-TO CATEGORY :NAME :MEMBERS
-PRINT (LIST "CATEGORY :NAME :MEMBERS)
-IF NOT NAMEP "CATEGORIES [MAKE "CATEGORIES []]
-MAKE "CATEGORIES LPUT :NAME :CATEGORIES
-MAKE :NAME :MEMBERS
-FOREACH :MEMBERS [PPROP ? "CATEGORY :NAME]
-END
+;;; Logic problem inference system
 
-TO CHOOSE :N :R
-OUTPUT (PERMS :N :R)/(FACT :R)
-END
+;; Establish categories
 
-TO CLEAN1 :CATEGORY
-FOREACH THING :CATEGORY [ERPL ?]
-ERN :CATEGORY
-END
+to category :category.name :members
+print (list "category :category.name :members)
+if not namep "categories [make "categories []]
+make "categories lput :category.name :categories
+make :category.name :members
+foreach :members [pprop ? "category :category.name]
+end
 
-TO CLEANUP
-FOREACH :CATEGORIES [CLEAN1 ?]
-ERN "CATEGORIES
-END
+;; Verify and falsify matches
 
-TO COMBS :LIST :HOWMANY
-IF EQUALP :HOWMANY 0 [OP [[]]]
-IF EQUALP :HOWMANY COUNT :LIST [OP (LIST :LIST)]
-OP SE (MAP [FPUT FIRST :LIST ?] COMBS (BF :LIST) (:HOWMANY-1)) ~
-      (COMBS (BF :LIST) :HOWMANY)
-END
+to verify :a :b
+settruth :a :b "true
+end
 
-TO DIFFER :LIST
-PRINT (LIST "DIFFER :LIST)
-FOREACH :LIST [DIFFER1 ? ?REST]
-END
+to falsify :a :b
+settruth :a :b "false
+end
 
-TO DIFFER1 :WHO :THEM
-FOREACH :THEM ~
-        [IF NOT EQUALP (GPROP :WHO "CATEGORY) (GPROP ? "CATEGORY) ~
-            [FALSIFY :WHO ?]]
-END
+to settruth :a :b :truth.value
+if equalp (gprop :a "category) (gprop :b "category) [stop]
+localmake "oldvalue get :a :b
+if equalp :oldvalue :truth.value [stop]
+if equalp :oldvalue (not :truth.value) ~
+   [(throw "error (sentence [inconsistency in settruth]
+                            :a :b :truth.value))]
+print (list :a :b "-> :truth.value)
+store :a :b :truth.value
+settruth1 :a :b :truth.value
+settruth1 :b :a :truth.value
+if not emptyp :oldvalue ~
+   [foreach (filter [equalp first ? :truth.value] :oldvalue)
+            [apply "settruth butfirst ?]]
+end
 
-TO EXPAND :LIST
-IF EMPTYP :LIST [OP []]
-IF NUMBERP FIRST :LIST ~
-   [OP CASCADE (FIRST :LIST) [FPUT FIRST BF :LIST ?] (EXPAND BF BF :LIST)]
-OP FPUT FIRST :LIST EXPAND BF :LIST
-END
+to settruth1 :a :b :truth.value
+apply (word "find not :truth.value) (list :a :b)
+foreach (gprop :a "true) [settruth ? :b :truth.value]
+if :truth.value [foreach (gprop :a "false) [falsify ? :b]
+                 pprop :a (gprop :b "category) :b]
+pprop :a :truth.value (fput :b gprop :a :truth.value)
+end
 
-TO F :N
-IF EQUALP :N 0 [OUTPUT 1]
-OUTPUT CASCADE :N [? + ((CHOOSE :N (#-1)) * F (#-1))] 0
-END
+to findfalse :a :b
+foreach (filter [not equalp get ? :b "true] peers :a) ~
+        [falsify ? :b]
+end
 
-TO FACT :N
-OUTPUT CASCADE :N [# * ?] 1
-END
+to findtrue :a :b
+if equalp (count peers :a) (1+falses :a :b) ~
+   [verify (find [not equalp get ? :b "false] peers :a)
+           :b]
+end
 
-TO FALSES :WHO :WHAT
-OUTPUT COUNT FILTER [EQUALP "FALSE GET ? :WHAT] PEERS :WHO
-END
+to falses :a :b
+output count filter [equalp "false get ? :b] peers :a
+end
 
-TO FALSIFY :WHO :WHAT
-LOCAL "OLDVALUE
-MAKE "OLDVALUE GET :WHO :WHAT
-IF EQUALP :OLDVALUE "FALSE [STOP]
-IF EQUALP :OLDVALUE "TRUE ~
-   [PR (SE [INCONSISTENCY FALSIFYING] :WHO "IS :WHAT) THROW "TOPLEVEL]
-PR (LIST "FALSIFY :WHO :WHAT)
-STORE :WHO :WHAT "FALSE
-IF NOT EMPTYP :OLDVALUE [LINKFALSE :OLDVALUE]
-IF EQUALP (COUNT PEERS :WHO) (1+FALSES :WHO :WHAT) [FINDTRUE :WHO :WHAT]
-IF EQUALP (COUNT PEERS :WHAT) (1+FALSES :WHAT :WHO) [FINDTRUE :WHAT :WHO]
-FOREACH (GPROP :WHO "TRUTH) [MAYBEFALSIFY ? :WHAT]
-FOREACH (GPROP :WHAT "TRUTH) [MAYBEFALSIFY :WHO ?]
-PPROP :WHO "FALSEHOOD (FPUT :WHAT GPROP :WHO "FALSEHOOD)
-PPROP :WHAT "FALSEHOOD (FPUT :WHO GPROP :WHAT "FALSEHOOD)
-END
+to peers :a
+output thing gprop :a "category
+end
 
-TO FINDFALSE :THEM :WHAT
-FOREACH (FILTER [NOT EQUALP GET ? :WHAT "TRUE] :THEM) [FALSIFY ? :WHAT]
-END
+;; Common types of clues
 
-TO FINDTRUE :WHO :WHAT
-VERIFY (FIND [NOT EQUALP "FALSE GET ? :WHAT] PEERS :WHO) :WHAT
-END
+to differ :list
+print (list "differ :list)
+foreach :list [differ1 ? ?rest]
+end
 
-TO GET :A :B
-OUTPUT GETINORDER :A :B :CATEGORIES
-END
+to differ1 :a :them
+foreach :them [falsify :a ?]
+end
 
-TO GETINORDER :A :B :ORDER
-IF EMPTYP :ORDER [PRINT (SE [UNKNOWN OBJECTS] :A :B) THROW "TOPLEVEL]
-IF MEMBERP :A THING FIRST :ORDER [OUTPUT GPROP :A :B]
-IF MEMBERP :B THING FIRST :ORDER [OUTPUT GPROP :B :A]
-OUTPUT GETINORDER :A :B BF :ORDER
-END
+to justbefore :this :that :lineup
+falsify :this :that
+falsify :this last :lineup
+falsify :that first :lineup
+justbefore1 :this :that :lineup
+end
 
-TO LINK :WHO :WHAT1 :WHAT2
-LOCAL "OLDVALUE
-MAKE "OLDVALUE GET :WHO :WHAT1
-IF EMPTYP :OLDVALUE [STORE :WHO :WHAT1 (LIST :WHO :WHAT2) STOP]
-IF EQUALP :OLDVALUE "TRUE [FALSIFY :WHO :WHAT2 STOP]
-IF EQUALP :OLDVALUE "FALSE [VERIFY :WHO :WHAT2 STOP]
-STORE :WHO :WHAT1 (SE :OLDVALUE :WHO :WHAT2)
-END
+to justbefore1 :this :that :slotlist
+if emptyp butfirst :slotlist [stop]
+equiv :this (first :slotlist) :that (first butfirst :slotlist)
+justbefore1 :this :that (butfirst :slotlist)
+end
 
-TO LINKFALSE :LIST
-IF EMPTYP :LIST [STOP]
-VERIFY (FIRST :LIST) (FIRST BF :LIST)
-LINKFALSE BF BF :LIST
-END
+;; Remember conditional linkages
 
-TO LINKTRUE :LIST
-IF EMPTYP :LIST [STOP]
-FALSIFY (FIRST :LIST) (FIRST BF :LIST)
-LINKTRUE BF BF :LIST
-END
+to implies :who1 :what1 :truth1 :who2 :what2 :truth2
+implies1 :who1 :what1 :truth1 :who2 :what2 :truth2
+implies1 :who2 :what2 (not :truth2) :who1 :what1 (not :truth1)
+end
 
-TO LOCK1 :TOTAL :BUTTONS
-LOCAL "PERMS
-MAKE "PERMS PERMS :TOTAL :BUTTONS
-OUTPUT CASCADE (TWOTO (:BUTTONS-1)) [? + LOCK2 :PERMS #-1 1] 0
-END
+to implies1 :who1 :what1 :truth1 :who2 :what2 :truth2
+localmake "old1 get :who1 :what1
+if equalp :old1 :truth1 [settruth :who2 :what2 :truth2  stop]
+if equalp :old1 (not :truth1) [stop]
+if memberp (list :truth1 :who2 :what2 (not :truth2)) :old1 ~
+   [settruth :who1 :what1 (not :truth1)  stop]
+if memberp (list :truth1 :what2 :who2 (not :truth2)) :old1 ~
+   [settruth :who1 :what1 (not :truth1)  stop]
+store :who1 :what1 ~
+      fput (list :truth1 :who2 :what2 :truth2) :old1
+end
 
-TO LOCK2 :PERMS :LINKS :FACTOR
-IF EQUALP :LINKS 0 [OUTPUT :PERMS/(FACT :FACTOR)]
-IF EQUALP (REMAINDER :LINKS 2) 0 [OUTPUT LOCK2 :PERMS/(FACT :FACTOR) :LINKS/2 1]
-OUTPUT LOCK2 :PERMS (:LINKS-1)/2 :FACTOR+1
-END
+to equiv :who1 :what1 :who2 :what2
+implies :who1 :what1 "true :who2 :what2 "true
+implies :who2 :what2 "true :who1 :what1 "true
+end
 
-TO LOCK :BUTTONS
-OUTPUT CASCADE :BUTTONS [? + LOCK1 :BUTTONS #] 1
-END
+to xor :who1 :what1 :who2 :what2
+implies :who1 :what1 "true :who2 :what2 "false
+implies :who1 :what1 "false :who2 :what2 "true
+end
 
-TO MAYBEFALSIFY :WHO :WHAT
-IF NOT EQUALP (GPROP :WHO "CATEGORY) (GPROP :WHAT "CATEGORY) [FALSIFY :WHO :WHAT]
-END
+;; Interface to property list mechanism
 
-TO PEERS :WHO
-OUTPUT THING GPROP :WHO "CATEGORY
-END
+to get :a :b
+output gprop :a :b
+end
 
-TO PERMS :N :R
-IF EQUALP :R 0 [OUTPUT 1]
-OUTPUT :N * PERMS :N-1 :R-1
-END
+to store :a :b :val
+pprop :a :b :val
+pprop :b :a :val
+end
 
-TO PROBLEM
-CATEGORY "FIRST [JANE LARRY OPAL PERRY]
-CATEGORY "LAST [IRVING KING MENDLE NATHAN]
-CATEGORY "AGE [32 38 45 55]
-CATEGORY "JOB [DRAFTER PILOT SERGEANT DRIVER]
-DIFFER [JANE KING LARRY NATHAN]
-SAYS "JANE "IRVING 45
-SAYS "KING "PERRY "DRIVER
-SAYS "LARRY "SERGEANT 45
-SAYS "NATHAN "DRAFTER 38
-DIFFER [MENDLE JANE OPAL NATHAN]
-SAYS "MENDLE "PILOT "LARRY
-SAYS "JANE "PILOT 45
-SAYS "OPAL 55 "DRIVER
-SAYS "NATHAN 38 "DRIVER
-PRINT []
-SOLUTION
-END
+;; Print the solution
 
-TO SAYS :WHO :WHAT1 :WHAT2
-PRINT (LIST "SAYS :WHO :WHAT1 :WHAT2)
-LINK :WHO :WHAT1 :WHAT2
-LINK :WHO :WHAT2 :WHAT1
-END
+to solution
+foreach thing first :categories [solve1 ? butfirst :categories]
+end
 
-TO SIMPLEX :BUTTONS
-OUTPUT 2 * F :BUTTONS
-END
+to solve1 :who :order
+type :who
+foreach :order [type "| |   type gprop :who ?]
+print []
+end
 
-TO SOCKS :LIST
-LOCAL [TOTAL MATCHING]
-MAKE "TOTAL COMBS (EXPAND :LIST) 2
-MAKE "MATCHING FILTER [EQUALP FIRST ? LAST ?] :TOTAL
-PR (SE [THERE ARE] COUNT :TOTAL [POSSIBLE PAIRS OF SOCKS.])
-PR (SE [OF THESE,] COUNT :MATCHING [ARE MATCHING PAIRS.])
-PR SE [PROBABILITY OF MATCH =] ~
-      WORD (100 * (COUNT :MATCHING)/(COUNT :TOTAL)) "%
-END
+;; Get rid of old problem data
 
-TO SOCKTEST
-LOCAL [FIRST SECOND]
-MAKE "FIRST PICK [BROWN BROWN BROWN BROWN BROWN BROWN BLUE BLUE BLUE BLUE]
-MAKE "SECOND ~
-     PICK (IFELSE EQUALP :FIRST "BROWN ~
-                  [[BROWN BROWN BROWN BROWN BROWN BLUE BLUE BLUE BLUE]] ~
-                  [[BROWN BROWN BROWN BROWN BROWN BROWN BLUE BLUE BLUE]])
-OUTPUT EQUALP :FIRST :SECOND
-END
+to cleanup
+if not namep "categories [stop]
+ern :categories
+ern "categories
+erpls
+end
 
-TO SOLUTION
-FOREACH THING FIRST :CATEGORIES [SOLVE1 ? BF :CATEGORIES]
-END
+;; Anita Harnadek's problem
 
-TO SOLVE1 :WHO :ORDER
-TYPE :WHO
-FOREACH :ORDER [TYPE CHAR 32 TYPE GPROP :WHO ?]
-PRINT []
-END
+to cub.reporter
+cleanup
+category "first [Jane Larry Opal Perry]
+category "last [Irving King Mendle Nathan]
+category "age [32 38 45 55]
+category "job [drafter pilot sergeant driver]
+differ [Jane King Larry Nathan]
+says "Jane "Irving 45
+says "King "Perry "driver
+says "Larry "sergeant 45
+says "Nathan "drafter 38
+differ [Mendle Jane Opal Nathan]
+says "Mendle "pilot "Larry
+says "Jane "pilot 45
+says "Opal 55 "driver
+says "Nathan 38 "driver
+print []
+solution
+end
 
-TO STORE :A :B :VAL
-STOREINORDER :A :B :VAL :CATEGORIES
-END
+to says :who :what1 :what2
+print (list "says :who :what1 :what2)
+xor :who :what1 :who :what2
+end
 
-TO STOREINORDER :A :B :VAL :ORDER
-IF EMPTYP :ORDER [PRINT (SE [UNKNOWN OBJECTS] :A :B) THROW "TOPLEVEL]
-IF MEMBERP :A THING FIRST :ORDER [PPROP :A :B :VAL STOP]
-IF MEMBERP :B THING FIRST :ORDER [PPROP :B :A :VAL STOP]
-STOREINORDER :A :B :VAL BF :ORDER
-END
+;; Diane Baldwin's problem
 
-TO T :N :K
-IF EQUALP :K 0 [OUTPUT 1]
-IF EQUALP :N 0 [OUTPUT 0]
-OUTPUT (T :N :K-1)+(T :N-1 :K)
-END
+to foote.family
+cleanup
+category "when [1st 2nd 3rd 4th 5th]
+category "name [Felix Fred Frank Francine Flo]
+category "street [Field Flag Fig Fork Frond]
+category "item [food film flashlight fan fiddle]
+category "position [1 2 3 4 5]
+print [Clue 1]
+justbefore "Flag "2nd :position
+justbefore "2nd "Fred :position
+print [Clue 2]
+male [film Fig 5th]
+print [Clue 3]
+justbefore "flashlight "Fork :position
+justbefore "Fork "1st :position
+female [1st]
+print [Clue 4]
+falsify "5th "Frond
+falsify "5th "fan
+print [Clue 5]
+justbefore "Francine "Frank :position
+justbefore "Francine "Frank :when
+print [Clue 6]
+female [3rd Flag]
+print [Clue 7]
+justbefore "fiddle "Frond :when
+justbefore "Flo "fiddle :when
+print []
+solution
+end
 
-TO TWOTO :POWER
-OUTPUT CASCADE :POWER [2 * ?] 1
-END
+to male :stuff
+differ sentence :stuff [Francine Flo]
+end
 
-TO VERIFY :WHO :WHAT
-LOCAL "OLDVALUE
-MAKE "OLDVALUE GET :WHO :WHAT
-IF EQUALP :OLDVALUE "TRUE [STOP]
-IF EQUALP :OLDVALUE "FALSE ~
-   [PR (SE [INCONSISTENCY VERIFYING] :WHO "IS :WHAT) THROW "TOPLEVEL]
-PR (LIST "VERIFY :WHO :WHAT)
-STORE :WHO :WHAT "TRUE
-PPROP :WHO (GPROP :WHAT "CATEGORY) :WHAT
-PPROP :WHAT (GPROP :WHO "CATEGORY) :WHO
-IF NOT EMPTYP :OLDVALUE [LINKTRUE :OLDVALUE]
-FINDFALSE (PEERS :WHO) :WHAT
-FINDFALSE (PEERS :WHAT) :WHO
-FOREACH (GPROP :WHO "TRUTH) [VERIFY ? :WHAT]
-FOREACH (GPROP :WHAT "TRUTH) [VERIFY :WHO ?]
-FOREACH (GPROP :WHO "FALSEHOOD) [MAYBEFALSIFY ? :WHAT]
-FOREACH (GPROP :WHAT "FALSEHOOD) [MAYBEFALSIFY :WHO ?]
-PPROP :WHO "TRUTH (FPUT :WHAT GPROP :WHO "TRUTH)
-PPROP :WHAT "TRUTH (FPUT :WHO GPROP :WHAT "TRUTH)
-END
+to female :stuff
+differ sentence :stuff [Felix Fred Frank]
+end
+
+;;; Combinatorics toolkit
+
+to combs :list :howmany
+if equalp :howmany 0 [output [[]]]
+if equalp :howmany count :list [output (list :list)]
+output sentence (map [fput first :list ?]
+                     combs (butfirst :list) (:howmany-1)) ~
+      (combs (butfirst :list) :howmany)
+end
+
+to fact :n
+output cascade :n [# * ?] 1
+end
+
+to perms :n :r
+if equalp :r 0 [output 1]
+output :n * perms :n-1 :r-1
+end
+
+to choose :n :r
+output (perms :n :r)/(fact :r)
+end
+
+;; The socks problem
+
+to socks :list
+localmake "total combs (expand :list) 2
+localmake "matching filter [equalp first ? last ?] :total
+print (sentence [there are] count :total [possible pairs of socks.])
+print (sentence [of these,] count :matching [are matching pairs.])
+print sentence [probability of match =] ~
+      word (100 * (count :matching)/(count :total)) "%
+end
+
+to expand :list
+if emptyp :list [output []]
+if numberp first :list ~
+   [output cascade (first :list)
+                   [fput first butfirst :list ?]
+                   (expand butfirst butfirst :list)]
+output fput first :list expand butfirst :list
+end
+
+to socktest
+localmake "first pick [brown brown brown brown brown brown 
+                       blue blue blue blue]
+localmake "second ~
+          pick (ifelse equalp :first "brown ~
+                       [[brown brown brown brown brown
+                         blue blue blue blue]] ~
+                       [[brown brown brown brown brown brown
+                         blue blue blue]])
+output equalp :first :second
+end
+
+;; The Simplex lock problem
+
+to lock :buttons
+output cascade :buttons [? + lock1 :buttons #] 1
+end
+
+to lock1 :total :buttons
+localmake "perms perms :total :buttons
+output cascade (twoto (:buttons-1)) [? + lock2 :perms #-1 1] 0
+end
+
+to lock2 :perms :links :factor
+if equalp :links 0 [output :perms/(fact :factor)]
+if equalp (remainder :links 2) 0 ~
+   [output lock2 :perms/(fact :factor) :links/2 1]
+output lock2 :perms (:links-1)/2 :factor+1
+end
+
+to twoto :power
+output cascade :power [2 * ?] 1
+end
+
+to simplex :buttons
+output 2 * f :buttons
+end
+
+to f :n
+if equalp :n 0 [output 1]
+output cascade :n [? + ((choose :n (#-1)) * f (#-1))] 0
+end
+
+to simp :n
+output round (fact :n)/(power (ln 2) (:n+1))
+end
+
+;; The multinomial expansion problem
+
+to t :n :k
+if equalp :k 0 [output 1]
+if equalp :n 0 [output 0]
+output (t :n :k-1)+(t :n-1 :k)
+end

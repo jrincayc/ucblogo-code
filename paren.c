@@ -22,16 +22,12 @@
 #include "logo.h"
 #include "globals.h"
 
-#define assign(to, from)    to = reref(to, from)
-
 NODE *the_generation;
 
 /* Set the line pointer for a tree.
  */ 
 void make_line(NODE *tree, NODE *line) {
-/*    setobject(tree, line);	BH */
-    setobject(tree, NIL);
-    tree->n_obj = line;
+    setobject(tree, line);
     settype(tree, LINE);
 }
 
@@ -70,7 +66,8 @@ void make_tree_from_body(NODE *body) {
 	    return;
     for (body_ptr = body; body_ptr != NIL; body_ptr = cdr(body_ptr)) {
 	tree = car(body_ptr);
-	assign(this_line, tree);
+	if (tree == NIL) continue;  /* skip blank line */
+	this_line = tree;
 	make_tree(tree);
 	if (is_tree(tree)) {
 	    tree = tree__tree(tree);
@@ -122,7 +119,7 @@ void make_tree(NODE *list) {
  */ 
 NODE *paren_line(NODE *line) {
 
-    NODE *retval = NIL, *save = line;
+    NODE *retval = NIL;
     NODE *paren_expr(NODE **expr, BOOLEAN inparen);
     NODE *paren_infix(NODE *left, NODE **rest, int old_pri, BOOLEAN inparen);
 
@@ -140,7 +137,7 @@ NODE *paren_line(NODE *line) {
  */ 
 NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
-    NODE *first = NIL, *tree = NIL, *proc, *retval, *save = *expr;
+    NODE *first = NIL, *tree = NIL, *proc, *retval;
     NODE **ifnode = (NODE **)NIL;
     NODE *gather_args(NODE *, NODE **, BOOLEAN, NODE **);
     NODE *paren_infix(NODE *, NODE **, int, BOOLEAN);
@@ -149,11 +146,10 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	if (inparen) err_logo(PAREN_MISMATCH, NIL);
 	return *expr;
     }
-    first = valref(car(*expr));
+    first = car(*expr);
     pop(*expr);
     if (nodetype(first) == CASEOBJ && !numberp(first)) {
 	if (first == Left_Paren) {
-	    deref(first);
 	    tree = paren_expr(expr, TRUE);
 	    tree = paren_infix(tree, expr, -1, TRUE);
 	    if (*expr == NIL)
@@ -162,7 +158,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    {
 		int parens;
 
-		err_logo(TOO_MUCH, NIL);	/* throw the rest away */
+		if (NOT_THROWING) err_logo(TOO_MUCH, NIL);	/* throw the rest away */
 		for (parens = 0; *expr; pop(*expr))
 		    if (car(*expr) == Left_Paren)
 			parens++;
@@ -173,12 +169,10 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		pop(*expr);
 	    retval = tree;
 	} else if (first == Right_Paren) {
-	    deref(first);
 	    err_logo(UNEXPECTED_PAREN, NIL);
 	    if (inparen) push(first, *expr);
 	    retval = NIL;
 	} else if (first == Minus_Sign) {
-	    deref(first);
 	    push(Minus_Tight, *expr);
 	    retval = paren_infix(make_intnode((FIXNUM) 0), expr, -1, inparen);
 	} else {	/* it must be a procedure */
@@ -191,9 +185,11 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    proc = procnode__caseobj(first);
 	    if (proc == UNDEFINED && NOT_THROWING) {
 		retval = cons(first, NIL);
-		tree_dk_how = TRUE;
+	    } else if (nodetype(proc) == INFIX && NOT_THROWING) {
+		err_logo(NOT_ENOUGH, first);
+		retval = cons(first, NIL);
 	    } else {
-	/* Kludge follows to turn IF to IFELSE sometimes. */
+		/* Kludge follows to turn IF to IFELSE sometimes. */
 		if (first == If) {
 		    ifnode = &first;
 		}
@@ -202,13 +198,10 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		    retval = cons(first, retval);
 		}
 	    }
-	    deref(first);
 	}
     } else if (is_list(first)) {   /* quoted list */
 	retval = make_quote(first);
-	deref(first);
     } else {
-	unref(first);
 	return first;
     }
     return retval;
@@ -243,9 +236,7 @@ NODE *gather_args(NODE *proc, NODE **args, BOOLEAN inparen, NODE **ifnode) {
  * Set args to immediately after the last expression.
  */ 
 NODE *gather_some_args(int min, int max, NODE **args, BOOLEAN inparen,
-		       NODE **ifnode)
-{
-    int parens;
+		       NODE **ifnode) {
     NODE *paren_infix(NODE *left, NODE **rest, int old_pri, BOOLEAN inparen);
 
     if (*args == NIL || car(*args) == Right_Paren ||
@@ -257,7 +248,7 @@ NODE *gather_some_args(int min, int max, NODE **args, BOOLEAN inparen,
 	    /* if -> ifelse kludge */
 	    NODE *retval;
 	    err_logo(IF_WARNING, NIL);
-	    assign(*ifnode, Ifelse);
+	    *ifnode = Ifelse;
 	    retval = paren_expr(args, FALSE);
 	    retval = paren_infix(retval, args, -1, inparen);
 	    return cons(retval, gather_some_args(min, max, args,
@@ -288,7 +279,7 @@ int priority(NODE *proc_obj) {
 	(proc = procnode__caseobj(proc_obj)) == UNDEFINED ||
 	nodetype(proc) != INFIX)
 	    return 0;
-    return (is_prim(proc) ? getprimpri(proc) : PREFIX_PRIORITY);
+    return getprimpri(proc);
 }
 
 /* Parenthesize an infix expression.  left_arg is the expression on the left
@@ -304,11 +295,9 @@ NODE *paren_infix(NODE *left_arg, NODE **rest, int old_pri, BOOLEAN inparen) {
     if (*rest == NIL || !(pri = priority(infix_proc = car(*rest)))
 		     || pri <= old_pri) 
 	return left_arg;
-    ref(infix_proc);
     pop(*rest);
     retval = paren_expr(rest, inparen);
     retval = paren_infix(retval, rest, pri, inparen);
     retval = cons_list(0,infix_proc, left_arg, retval, END_OF_LIST);
-    deref(infix_proc);
     return paren_infix(retval, rest, old_pri, inparen);
 }

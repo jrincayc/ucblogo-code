@@ -1,7 +1,7 @@
 REDUCE template data					(library procedure)
 
 	outputs the result of applying the template to accumulate the
-	elements of the data input.  The template must be a two-slot
+	members of the data input.  The template must be a two-slot
 	function.  Typically it is an associative function name like "SUM.
 	If the data input has only one constituent (member in a list or
 	character in a word), the output is that consituent.  Otherwise,

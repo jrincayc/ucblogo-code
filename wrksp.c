@@ -19,24 +19,39 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "logo.h"
 #include "globals.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #ifdef ibm
 #include "process.h"
+#endif
+
+#ifdef HAVE_TERMIO_H
+#include <termio.h>
+#else
+#ifdef HAVE_SGTTY_H
+#include <sgtty.h>
+#endif
 #endif
 
 char *editor, *editorname, *tempdir;
 int to_pending = 0;
 
-NODE *make_procnode(NODE *lst, NODE *wrds, short min, short df, short max)
-{
+NODE *make_procnode(NODE *lst, NODE *wrds, int min, int df, int max) {
     return(cons_list(0, lst, wrds, make_intnode((FIXNUM)min),
 		     make_intnode((FIXNUM)df), make_intnode((FIXNUM)max),
 		     END_OF_LIST));
 }
 
-NODE *get_bodywords(NODE *proc, NODE *name)
-{
+NODE *get_bodywords(NODE *proc, NODE *name) {
     NODE *val = bodywords__procnode(proc);
     NODE *head = NIL, *tail = NIL;
 
@@ -74,8 +89,7 @@ NODE *name_arg(NODE *args) {
     return car(args);
 }
 
-NODE *ltext(NODE *args)
-{
+NODE *ltext(NODE *args) {
     NODE *name, *val = UNBOUND;
 
     name = name_arg(args);
@@ -93,8 +107,7 @@ NODE *ltext(NODE *args)
     return UNBOUND;
 }
 
-NODE *lfulltext(NODE *args)
-{
+NODE *lfulltext(NODE *args) {
     NODE *name, *val = UNBOUND;
 
     name = name_arg(args);
@@ -112,9 +125,14 @@ NODE *lfulltext(NODE *args)
     return UNBOUND;
 }
 
-NODE *define_helper(NODE *args, BOOLEAN macro_flag)
-{
-    NODE *name, *val, *arg = NIL;
+BOOLEAN all_lists(NODE *val) {
+    if (val == NIL) return TRUE;
+    if (!is_list(car(val))) return FALSE;
+    return all_lists(cdr(val));
+}
+
+NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
+    NODE *name = NIL, *val = NIL, *arg = NIL;
     int minimum = 0, deflt = 0, maximum = 0, old_default = -1;
     int redef = (compare_node(valnode__caseobj(Redefp),True,TRUE) == 0);
 
@@ -127,12 +145,13 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag)
 		err_logo(IS_PRIM,name);
 		return UNBOUND;
 	    } else if (val != UNDEFINED) {
-		old_default = getint(dfltargs__procnode(val));
+		old_default = (is_prim(val) ? getprimdflt(val) :
+					      getint(dfltargs__procnode(val)));
 	    }
 	}
 	if (NOT_THROWING) {
 	    val = cadr(args);
-	    while ((val == NIL || !is_list(val) || !is_list(car(val))) &&
+	    while ((val == NIL || !is_list(val) || !all_lists(val)) &&
 			    NOT_THROWING) {
 		setcar(cdr(args), err_logo(BAD_DATA, val));
 		val = cadr(args);
@@ -183,19 +202,17 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag)
 	else
 	    clearflag__caseobj(name, PROC_MACRO);
 	if (deflt != old_default && old_default >= 0) {
-	    the_generation = reref(the_generation, cons(NIL, NIL));
+	    the_generation = cons(NIL, NIL);
 	}
     }
     return(UNBOUND);
 }
 
-NODE *ldefine(NODE *args)
-{
+NODE *ldefine(NODE *args) {
     return define_helper(args, FALSE);
 }
 
-NODE *ldefmacro(NODE *args)
-{
+NODE *ldefmacro(NODE *args) {
     return define_helper(args, TRUE);
 }
 
@@ -203,8 +220,7 @@ NODE *anonymous_function(NODE *text) {
     return define_helper(text, -1);
 }
 
-NODE *to_helper(NODE *args, BOOLEAN macro_flag)
-{
+NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
     NODE *arg = NIL, *tnode = NIL, *proc_name, *formals = NIL, *lastnode = NIL,
 	 *body_words, *lastnode2, *body_list;
     int minimum = 0, deflt = 0, maximum = 0, old_default = -1;
@@ -219,7 +235,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag)
 	return(UNBOUND);
     }
 
-    proc_name = car(args);
+    deepend_proc_name = proc_name = car(args);
     args = cdr(args);
 
     if (nodetype(proc_name) != CASEOBJ)
@@ -230,7 +246,8 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag)
     else {
 	NODE *old_proc = procnode__caseobj(proc_name);
 	if (old_proc != UNDEFINED) {
-	    old_default = getint(dfltargs__procnode(old_proc));
+	    old_default = (is_prim(old_proc) ? getprimdflt(old_proc) :
+					      getint(dfltargs__procnode(old_proc)));
 	}
 	while (args != NIL) {
 	    arg = car(args);
@@ -293,30 +310,28 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag)
 	    else
 		clearflag__caseobj(proc_name, PROC_MACRO);
 	    if (deflt != old_default && old_default >= 0) {
-		the_generation = reref(the_generation,
-			   cons(NIL, NIL));
+		the_generation = cons(NIL, NIL);
 	    }
-	    if (loadstream == stdin) {
+	    if (loadstream == stdin ||
+		  compare_node(valnode__caseobj(LoadNoisily),True,TRUE) == 0) {
 		ndprintf(stdout, "%s defined\n", proc_name);
 	    }
 	}
 	to_pending = 0;
     }
+    deepend_proc_name = NIL;
     return(UNBOUND);
 }
 
-NODE *lto(NODE *args)
-{
+NODE *lto(NODE *args) {
     return to_helper(args, FALSE);
 }
 
-NODE *lmacro(NODE *args)
-{
+NODE *lmacro(NODE *args) {
     return to_helper(args, TRUE);
 }
 
-NODE *lmake(NODE *args)
-{
+NODE *lmake(NODE *args) {
     NODE *what;
 
     what = name_arg(args);
@@ -335,8 +350,7 @@ NODE *lmake(NODE *args)
     return(UNBOUND);
 }
 
-NODE *llocal(NODE *args)
-{
+NODE *llocal(NODE *args) {
     NODE *arg = NIL;
     NODE *vsp = var_stack;
 
@@ -364,7 +378,7 @@ NODE *llocal(NODE *args)
 	}
 	if (check_throwing) break;
     }
-    var = reref(var, var_stack);    /* so eval won't undo our work */
+    var = var_stack;    /* so eval won't undo our work */
     return(UNBOUND);
 }
 
@@ -375,13 +389,11 @@ int want_buried = 0;
 typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;
 CNTLSTTYP contents_list_type;
 
-int bck(int flag)
-{
+int bck(int flag) {
     return (want_buried ? !flag : flag);
 }
 
-void contents_map(NODE *sym)
-{
+void contents_map(NODE *sym) {
     switch(contents_list_type) {
 	case c_PROCS:
 	    if (procnode__object(sym) == UNDEFINED ||
@@ -400,28 +412,21 @@ void contents_map(NODE *sym)
     }
     if (cnt_list == NIL) {
 	cnt_list = cons(canonical__object(sym), NIL);
-	cnt_last = vref(cnt_list);
+	cnt_last = cnt_list;
     } else {
 	setcdr(cnt_last, cons(canonical__object(sym), NIL));
 	cnt_last = cdr(cnt_last);
     }
 }
 
-void ms_listlist(NODE *nd)
-{
-    NODE *temp;
-
+void ms_listlist(NODE *nd) {
     while (nd != NIL) {
-	temp = newnode(CONS);
-	car(temp) = car(nd);
-	car(nd) = temp;
-	increfcnt(temp);
+	setcar(nd, cons(car(nd), NIL));
 	nd = cdr(nd);
     }
 }
 
-NODE *merge(NODE *a, NODE *b)
-{
+NODE *merge(NODE *a, NODE *b) {
     NODE *ret, *tail;
 
     if (a == NIL) return(b);
@@ -438,68 +443,53 @@ NODE *merge(NODE *a, NODE *b)
 
     while (a != NIL && b != NIL) {
 	if (compare_node(car(a),car(b),FALSE) < 0) {
-	    cdr(tail) = a;
+	    setcdr(tail, a);
 	    a = cdr(a);
 	} else {
-	    cdr(tail) = b;
+	    setcdr(tail, b);
 	    b = cdr(b);
 	}
 	tail = cdr(tail);
     }
 
-    if (b == NIL) cdr(tail) = a;
-    else cdr(tail) = b;
+    if (b == NIL) setcdr(tail, a);
+    else setcdr(tail, b);
 
     return ret;
 }
 
-NODE *mergepairs(NODE *nd) {
-    NODE *temp;
-
+void mergepairs(NODE *nd) {
     while (nd != NIL && cdr(nd) != NIL) {
-	car(nd) = merge(car(nd), cadr(nd));
-	temp = cdr(nd);
-	cdr(nd) = cddr(nd);
-	car(temp) = cdr(temp) = NIL;
-	gc(temp);
+	setcar(nd, merge(car(nd), cadr(nd)));
+	setcdr(nd, cddr(nd));
 	nd = cdr(nd);
     }
 }
 
-NODE *mergesort(NODE *nd)
-{
-    NODE *ret;
-
+NODE *mergesrt(NODE *nd) {    /* spelled funny to avoid library conflict */
     if (nd == NIL) return(NIL);
     if (cdr(nd) == NIL) return(nd);
     ms_listlist(nd);
     while (cdr(nd) != NIL)
 	mergepairs(nd);
-    ret = car(nd);
-    car(nd) = NIL;
-    gc(nd);
-    return(ret);
+    return car(nd);
 }
 
-NODE *get_contents()
-{
-    deref(cnt_list);
+NODE *get_contents() {
     cnt_list = NIL;
     cnt_last = NIL;
     map_oblist(contents_map);
-    cnt_list = mergesort(cnt_list);
+    cnt_list = mergesrt(cnt_list);
     return(cnt_list);
 }
 
-NODE *lcontents()
-{
+NODE *lcontents(NODE *args) {
     NODE *ret;
 
     want_buried = 0;
 
     contents_list_type = c_PLISTS;
     ret = cons(get_contents(), NIL);
-    ref(ret);
 
     contents_list_type = c_VARS;
     push(get_contents(), ret);
@@ -507,20 +497,17 @@ NODE *lcontents()
     contents_list_type = c_PROCS;
     push(get_contents(), ret);
 
-    deref(cnt_list);
     cnt_list = NIL;
-    return(unref(ret));
+    return(ret);
 }
 
-NODE *lburied()
-{
+NODE *lburied(NODE *args) {
     NODE *ret;
 
     want_buried = 1;
 
     contents_list_type = c_PLISTS;
     ret = cons(get_contents(), NIL);
-    ref(ret);
 
     contents_list_type = c_VARS;
     push(get_contents(), ret);
@@ -528,62 +515,50 @@ NODE *lburied()
     contents_list_type = c_PROCS;
     push(get_contents(), ret);
 
-    deref(cnt_list);
     cnt_list = NIL;
-    return(unref(ret));
+    return(ret);
 }
 
-NODE *lprocedures()
-{
+NODE *lprocedures(NODE *args) {
     NODE *ret;
 
     want_buried = 0;
 
     contents_list_type = c_PROCS;
     ret = get_contents();
-    ref(ret);
-    deref(cnt_list);
     cnt_list = NIL;
-    return(unref(ret));
+    return(ret);
 }
 
-NODE *lnames()
-{
+NODE *lnames(NODE *args) {
     NODE *ret;
 
     want_buried = 0;
 
     contents_list_type = c_VARS;
     ret = cons(NIL, cons(get_contents(), NIL));
-    ref(ret);
-    deref(cnt_list);
     cnt_list = NIL;
-    return(unref(ret));
+    return(ret);
 }
 
-NODE *lplists()
-{
+NODE *lplists(NODE *args) {
     NODE *ret;
 
     want_buried = 0;
 
     contents_list_type = c_PLISTS;
     ret = cons(NIL, cons(NIL, cons(get_contents(), NIL)));
-    ref(ret);
-    deref(cnt_list);
     cnt_list = NIL;
-    return(unref(ret));
+    return(ret);
 }
 
-NODE *one_list(NODE *nd)
-{
+NODE *one_list(NODE *nd) {
     if (!is_list(nd))
 	return(cons(nd,NIL));
     return nd;
 }
 
-void three_lists(NODE *arg, NODE **proclst, NODE **varlst, NODE **plistlst)
-{
+void three_lists(NODE *arg, NODE **proclst, NODE **varlst, NODE **plistlst) {
     if (nodetype(car(arg)) == CONS)
 	arg = car(arg);
 
@@ -611,6 +586,10 @@ char *expand_slash(NODE *wd) {
 	for (cp = getstrptr(wd), i=0, j = len; --j >= 0; )
 		if (getparity(*cp++)) i++;
 	result = malloc(len+i+1);
+	if (result == NULL) {
+	    err_logo(OUT_OF_MEM, NIL);
+	    return 0;
+	}
 	for (cp = getstrptr(wd), cp2 = result, j = len; --j >= 0; ) {
 		if (getparity(*cp)) *cp2++ = '\\';
 		*cp2++ = clearparity(*cp++);
@@ -619,8 +598,7 @@ char *expand_slash(NODE *wd) {
 	return result;
 }
 
-NODE *po_helper(NODE *arg, int just_titles)	/* >0 for POT, <0 for EDIT */
-{
+NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL, *tvar = NIL;
     NODE *plist;
 
@@ -647,9 +625,15 @@ NODE *po_helper(NODE *arg, int just_titles)	/* >0 for POT, <0 for EDIT */
 	    break;
 	} else {
 	    tvar = get_bodywords(tvar,car(proclst));
-	    if (just_titles > 0)
-		print_nobrak(writestream, car(tvar));
-	    else while (tvar != NIL) {
+	    if (just_titles > 0) {
+		if (is_list(car(tvar)))
+			print_nobrak(writestream, car(tvar));
+		else {
+			char *str = expand_slash(car(tvar));
+			ndprintf(writestream, "%t", str);
+			free(str);
+		}
+	    } else while (tvar != NIL) {
 			if (is_list(car(tvar)))
 				print_nobrak(writestream, car(tvar));
 			else {
@@ -711,18 +695,15 @@ NODE *po_helper(NODE *arg, int just_titles)	/* >0 for POT, <0 for EDIT */
     return(UNBOUND);
 }
 
-NODE *lpo(NODE *arg)
-{
+NODE *lpo(NODE *arg) {
     return(po_helper(arg,0));
 }
 
-NODE *lpot(NODE *arg)
-{
+NODE *lpot(NODE *arg) {
     return(po_helper(arg,1));
 }
 
-NODE *lerase(NODE *arg)
-{
+NODE *lerase(NODE *arg) {
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL;
     NODE *nd;
     int redef = (compare_node(valnode__caseobj(Redefp),True,TRUE) == 0);
@@ -730,7 +711,7 @@ NODE *lerase(NODE *arg)
     three_lists(arg, &proclst, &varlst, &plistlst);
 
     if (proclst != NIL)
-	the_generation = reref(the_generation, cons(NIL, NIL));
+	the_generation = cons(NIL, NIL);
 
     while (proclst != NIL) {
 	if (aggregate(car(proclst))) {
@@ -766,8 +747,44 @@ NODE *lerase(NODE *arg)
     return(UNBOUND);
 }
 
-NODE *bury_helper(NODE *arg, int flag)
-{
+NODE *erall_helper(BOOLEAN procs, BOOLEAN vals, BOOLEAN plists) {
+    NODE *nd, *obj;
+    int loop;
+    int redef = (compare_node(valnode__caseobj(Redefp),True,TRUE) == 0);
+
+    for (loop = 0; loop < HASH_LEN ; loop++) {
+	for (nd = hash_table[loop]; nd != NIL; nd = cdr(nd)) {
+	    obj = car(nd);
+	    if (procs && !flag__object(obj, PROC_BURIED) &&
+			(procnode__object(obj) != UNDEFINED) &&
+			(redef || !is_prim(procnode__object(obj))))
+		setprocnode__object(obj, UNDEFINED);
+	    if (vals && !flag__object(obj, VAL_BURIED))
+		setvalnode__object(obj, UNBOUND);
+	    if (plists && !flag__object(obj, PLIST_BURIED))
+		setplist__object(obj, NIL);
+	}
+    }
+    return UNBOUND;
+}
+
+NODE *lerall(NODE *args) {
+    return erall_helper(TRUE, TRUE, TRUE);
+}
+
+NODE *lerps(NODE *args) {
+    return erall_helper(TRUE, FALSE, FALSE);
+}
+
+NODE *lerns(NODE *args) {
+    return erall_helper(FALSE, TRUE, FALSE);
+}
+
+NODE *lerpls(NODE *args) {
+    return erall_helper(FALSE, FALSE, TRUE);
+}
+
+NODE *bury_helper(NODE *arg, int flag) {
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL;
 
     three_lists(arg, &proclst, &varlst, &plistlst);
@@ -806,23 +823,19 @@ NODE *bury_helper(NODE *arg, int flag)
     return(UNBOUND);
 }
 
-NODE *lbury(NODE *arg)
-{
+NODE *lbury(NODE *arg) {
     return bury_helper(arg,PROC_BURIED);
 }
 
-NODE *ltrace(NODE *arg)
-{
+NODE *ltrace(NODE *arg) {
     return bury_helper(arg,PROC_TRACED);
 }
 
-NODE *lstep(NODE *arg)
-{
+NODE *lstep(NODE *arg) {
     return bury_helper(arg,PROC_STEPPED);
 }
 
-NODE *unbury_helper(NODE *arg, int flag)
-{
+NODE *unbury_helper(NODE *arg, int flag) {
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL;
 
     three_lists(arg, &proclst, &varlst, &plistlst);
@@ -861,23 +874,19 @@ NODE *unbury_helper(NODE *arg, int flag)
     return(UNBOUND);
 }
 
-NODE *lunbury(NODE *arg)
-{
+NODE *lunbury(NODE *arg) {
     return unbury_helper(arg,PROC_BURIED);
 }
 
-NODE *luntrace(NODE *arg)
-{
+NODE *luntrace(NODE *arg) {
     return unbury_helper(arg,PROC_TRACED);
 }
 
-NODE *lunstep(NODE *arg)
-{
+NODE *lunstep(NODE *arg) {
     return unbury_helper(arg,PROC_STEPPED);
 }
 
-char *addsep(char *path)
-{
+char *addsep(char *path) {
     static char result[70];
 
     strcpy(result, path);
@@ -885,14 +894,15 @@ char *addsep(char *path)
     return result;
 }
 
-NODE *ledit(NODE *args)
-{
+NODE *ledit(NODE *args) {
     char tmp_filename[50];
     FILE *holdstrm;
 #ifdef unix
+#ifndef HAVE_UNISTD_H
     extern int getpid();
 #endif
-#ifdef ibm
+#endif
+#ifdef __ZTC__
     BOOLEAN was_graphics;
 #endif
     NODE *tmp_line = NIL, *exec_list = NIL;
@@ -901,7 +911,7 @@ NODE *ledit(NODE *args)
 #ifndef unix
     sprintf(tmp_filename, "%stemp.txt", addsep(tempdir));
 #else
-    sprintf(tmp_filename, "%s/logo%d", tempdir, getpid());
+    sprintf(tmp_filename, "%s/logo%d", tempdir, (int)getpid());
 #endif
     if (args != NIL) {
 	holdstrm = writestream;
@@ -917,13 +927,14 @@ NODE *ledit(NODE *args)
 	    return(UNBOUND);
 	}
     }
+    if (stopping_flag == THROWING) return(UNBOUND);
 #ifdef mac
     if (!mac_edit()) return(UNBOUND);
 #else
 #ifdef ibm
+#ifdef __ZTC__
     was_graphics = in_graphics_mode;
     if (in_graphics_mode) t_screen();
-#ifdef __ZTC__
     zflush();
 #endif
     if (spawnlp(P_WAIT, editor, editorname, tmp_filename, NULL)) {
@@ -931,22 +942,30 @@ NODE *ledit(NODE *args)
 		 ("Could not launch the editor"));
 	return(UNBOUND);
     }
+#ifdef __ZTC__
     if (was_graphics) s_screen();
-    else lcleartext();
+    else lcleartext(NIL);
+#endif
+#ifdef WIN32
+    win32_repaint_screen();
+#endif
 #else
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
 	exit(1);
     }
     wait(0);
+#ifdef WIN32
+    win32_repaint_screen();
+#endif
 #endif
 #endif
     holdstrm = loadstream;
-    tmp_line = reref(tmp_line, current_line);
+    tmp_line = current_line;
     loadstream = fopen(tmp_filename, "r");
     if (loadstream != NULL) {
 	while (!feof(loadstream) && NOT_THROWING) {
-	    current_line = reref(current_line, reader(loadstream, ""));
+	    current_line = reader(loadstream, "");
 	    exec_list = parser(current_line, TRUE);
 	    val_status = 0;
 	    if (exec_list != NIL) eval_driver(exec_list);
@@ -957,12 +976,11 @@ NODE *ledit(NODE *args)
 	err_logo(FILE_ERROR,
 	      make_static_strnode("Could not read editor file"));
     loadstream = holdstrm;
-    current_line = reref(current_line, tmp_line);
+    current_line = tmp_line;
     return(UNBOUND);
 }
 
-NODE *lthing(NODE *args)
-{
+NODE *lthing(NODE *args) {
     NODE *val = UNBOUND, *arg;
 
     arg = name_arg(args);
@@ -972,8 +990,7 @@ NODE *lthing(NODE *args)
     return(val);
 }
 
-NODE *lnamep(NODE *args)
-{
+NODE *lnamep(NODE *args) {
     NODE *arg;
 
     arg = name_arg(args);
@@ -982,8 +999,7 @@ NODE *lnamep(NODE *args)
     return UNBOUND;
 }
 
-NODE *lprocedurep(NODE *args)
-{
+NODE *lprocedurep(NODE *args) {
     NODE *arg;
 
     arg = name_arg(args);
@@ -992,9 +1008,8 @@ NODE *lprocedurep(NODE *args)
     return UNBOUND;
 }
 
-NODE *check_proctype(NODE *args, int wanted)
-{
-    NODE *arg,*cell;
+NODE *check_proctype(NODE *args, int wanted) {
+    NODE *arg, *cell = NIL;
     int isprim;
 
     arg = name_arg(args);
@@ -1007,25 +1022,22 @@ NODE *check_proctype(NODE *args, int wanted)
     return(UNBOUND);
 }
 
-NODE *lprimitivep(NODE *args)
-{
+NODE *lprimitivep(NODE *args) {
     return(check_proctype(args,1));
 }
 
-NODE *ldefinedp(NODE *args)
-{
+NODE *ldefinedp(NODE *args) {
     return(check_proctype(args,0));
 }
 
-NODE *lmacrop(NODE *args)
-{
+NODE *lmacrop(NODE *args) {
     return(check_proctype(args,2));
 }
 
-NODE *lcopydef(NODE *args)
-{
+NODE *lcopydef(NODE *args) {
     NODE *arg1, *arg2;
     int redef = (compare_node(valnode__caseobj(Redefp),True,TRUE) == 0);
+    int old_default, new_default;
 
     arg1 = name_arg(args);
     arg2 = name_arg(cdr(args));
@@ -1043,9 +1055,12 @@ NODE *lcopydef(NODE *args)
 	NODE *old_proc = procnode__caseobj(arg1);
 	NODE *new_proc = procnode__caseobj(arg2);
 	if (old_proc != UNDEFINED) {
-	    if (getint(dfltargs__procnode(old_proc)) !=
-			getint(dfltargs__procnode(new_proc))) {
-		the_generation = reref(the_generation, cons(NIL, NIL));
+	    old_default = (is_prim(old_proc) ? getprimdflt(old_proc) :
+		  		          getint(dfltargs__procnode(old_proc)));
+	    new_default = (is_prim(new_proc) ? getprimdflt(new_proc) :
+		  		          getint(dfltargs__procnode(new_proc)));
+	    if (old_default != new_default) {
+		the_generation = cons(NIL, NIL);
 	    }
 	}
 	setprocnode__caseobj(arg1, new_proc);
@@ -1070,25 +1085,28 @@ char *fixhelp(char *ptr, int len) {
     return result;
 }
 
-NODE *lhelp(args)
-NODE *args;
-{
-    NODE *arg;
+NODE *lhelp(NODE *args) {
+    NODE *arg = NIL;
     char buffer[200];
-    char c, *p;
+    char junk[20];
     FILE *fp;
-#ifdef ibm
+    int lines;
+#if defined(ibm) || defined(WIN32)
     int len;
 #endif
 
     if (args == NIL) {
+#ifdef WIN32
+	sprintf(buffer, "%sHELPCONT", addsep(helpfiles));
+#else
 	sprintf(buffer, "%sHELPCONTENTS", addsep(helpfiles));
+#endif
     } else if (is_word(car(args))) {
         arg = llowercase(args);
   	setcar(args, arg);
 	sprintf(buffer, "%s%s", addsep(helpfiles),
 		fixhelp(getstrptr(arg), getstrlen(arg)));
-#ifdef ibm
+#if defined(ibm) || defined(WIN32)
 	if (strlen(buffer) > (len = strlen(addsep(helpfiles))+8)) {
 	    buffer[len+5] = '\0';
 	    buffer[len+4] = buffer[len+3];
@@ -1099,19 +1117,41 @@ NODE *args;
 	}
 #endif
     } else {
-        buffer[0] = 0;
+        err_logo(BAD_DATA_UNREC, car(args));
+	return UNBOUND;
     }
     fp = fopen(buffer, "r");
     if (fp == NULL) {
 	if (args == NIL)
-	    fprintf(writestream, "No help available.\n");
+	    ndprintf(writestream, "No help available.\n");
 	else
 	    ndprintf(writestream, "No help available on %p.\n", arg);
     } else {
+	(void)ltextscreen(NIL);
+	lines = 0;
 	fgets(buffer, 200, fp);
-	while (!feof(fp)) {
+	while (NOT_THROWING && !feof(fp)) {
+	    if (interactive && writestream==stdout && ++lines >= y_max) {
+		ndprintf(writestream,"--more--");
+		input_blocking++;
+#ifndef TIOCSTI
+		if (!setjmp(iblk_buf))
+#endif
+#ifdef __ZTC__
+		    ztc_getcr();
+		    print_char(stdout, '\n');
+#else
+#ifdef WIN32
+		    (void)reader(stdin, "");
+#else
+		    fgets(junk, 19, stdin);
+#endif
+#endif
+		input_blocking = 0;
+		update_coords('\n');
+		lines = 1;
+	    }
 	    ndprintf(writestream, "%t", buffer);
-	/*  fputs(buffer, writestream);	*/
 	    fgets(buffer, 200, fp);
 	}
 	fclose(fp);

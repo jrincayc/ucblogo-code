@@ -1,5 +1,5 @@
 Source: ucblogo
-Section: misc
+Section: devel
 Priority: optional
 Maintainer: Dale Scheetz <dwarf@polaris.net>
 Standards-Version: 2.1.0.0
@@ -7,9 +7,12 @@ Standards-Version: 2.1.0.0
 Package: ucblogo
 Architecture: any
 Depends: ${shlibs:Depends}
-Description: a programming language useful in teaching modular techniques.
- This is the UC Berkley implimentation of logo which provides the following
- additional features to the standard logo:
+Description: a dialect of lisp using turtle graphics famous for teaching kids.
+ This is the UC Berkeley implementation of logo written primarily by
+ Daniel Van Blerkom, Brian Harvey, Michael Katz, and Douglas Orleans.  This
+ version of logo is featured in Brian Harvey's book
+ _Computer_Science_Logo_Style, _Volume_1: _Symbolic_Computing_
+ (ISBN 0-262-58151-5).  This version provides the following special features:
  .
  - Random-access arrays.
  - Variable number of inputs to user-defined procedures.

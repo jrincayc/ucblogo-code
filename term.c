@@ -22,6 +22,10 @@
 #include "logo.h"
 #include "globals.h"
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #ifdef mac
 #include <console.h>
 #endif
@@ -33,6 +37,27 @@
 #include <sgtty.h>
 #endif
 #endif
+
+#undef TRUE
+#undef FALSE
+
+#ifdef HAVE_TERMCAP_H
+#include <termcap.h>
+#else
+#ifdef HAVE_TERMLIB_H
+#include <termlib.h>
+#else
+#ifdef HAVE_CURSES_H
+#include <curses.h>
+#endif
+#endif
+#endif
+
+#undef TRUE
+#undef FALSE
+
+#define FALSE	0
+#define TRUE	1
 
 int x_coord, y_coord, x_max, y_max;
 
@@ -60,34 +85,41 @@ extern char **environ, *tgoto(), *tgetstr();
 
 char *termcap_ptr;
 
-void termcap_putter(char ch)
-{
+int termcap_putter(char ch) {
     *termcap_ptr++ = ch;
+    return 0;
 }
 
 #ifdef unix
-void termcap_getter(char *cap, char *buf)
-{
-    char temp[40];
+void termcap_getter(char *cap, char *buf) {
+    char temp[40];char *str;
     char *temp_ptr = temp;
 
     termcap_ptr = buf;
-    tgetstr(cap,&temp_ptr);
-    tputs(temp,1,termcap_putter);
+    str=tgetstr(cap,&temp_ptr);
+    tputs(str,1,termcap_putter);
 }
 #endif
 
-void term_init()
-{
+void term_init(void) {
+#ifdef unix
     int term_sg;
+#endif
 
+#ifdef WIN32
+    interactive = 1;
+#else
     interactive = isatty(0);
+#endif
+
 #ifdef mac
     term_init_mac();
     return;
 #else
 #ifdef ibm
+#ifndef WIN32
     term_init_ibm();
+#endif /* WIN32 */
 #else
     if (interactive) {
 #ifdef HAVE_TERMIO_H
@@ -129,11 +161,14 @@ void charmode_on() {
     if ((readstream == stdin) && interactive && !tty_charmode) {
 #ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cbreak));
-#else
+#else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cbreak));
-#endif
+#endif /* HAVE_TERMIO_H */
 	tty_charmode++;
     }
+#endif /* unix */
+#ifdef WIN32
+    win32_charmode_on();
 #endif
 }
 
@@ -142,23 +177,29 @@ void charmode_off() {
     if (tty_charmode) {
 #ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cooked));
-#else
+#else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cooked));
-#endif
+#endif /* HAVE_TERMIO_H */
 	tty_charmode = 0;
     }
+#endif /* unix */
+#ifdef WIN32
+    win32_charmode_off();
 #endif
 }
 
-NODE *lcleartext()
-{
+NODE *lcleartext(NODE *args) {
 #ifdef mac
     cgotoxy(x_margin + 1, y_margin + 1, stdout);
     ccleos(stdout);
 #else
 #ifdef ibm
+#ifndef WIN32 /* sowings */
     ibm_clear_text();
     ibm_gotoxy(x_margin, y_margin);
+#else /* WIN32 */
+    win32_clear_text();
+#endif /* WIN32 || !Win32 */
 #else
     printf("%s", cl_arr);
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
@@ -169,14 +210,15 @@ NODE *lcleartext()
     return(UNBOUND);
 }
 
-NODE *lcursor()
-{
+NODE *lcursor(NODE *args) {
     return(cons(make_intnode((FIXNUM)(x_coord-x_margin)),
 		cons(make_intnode((FIXNUM)(y_coord-y_margin)), NIL)));
 }
 
-NODE *lsetcursor(NODE *args)
-{
+NODE *lsetcursor(NODE *args) {
+#ifdef WIN32
+    return (win32_lsetcursor(args));
+#else /* !win32 */
     NODE *arg;
 
     arg = pos_int_vector_arg(args);
@@ -208,23 +250,22 @@ NODE *lsetcursor(NODE *args)
 #endif
     }
     return(UNBOUND);
+#endif /* !win32 (for non-windows version of this code) */
 }
 
-NODE *lsetmargins(NODE *args)
-{
+NODE *lsetmargins(NODE *args) {
     NODE *arg;
 
     arg = pos_int_vector_arg(args);
     if (NOT_THROWING) {
 	x_margin = getint(car(arg));
 	y_margin = getint(cadr(arg));
-	lcleartext();
+	lcleartext(NIL);
     }
     return(UNBOUND);
 }
 
-NODE *lstandout(NODE *args)
-{
+NODE *lstandout(NODE *args) {
     char textbuf[300];
     char fmtbuf[100];
 

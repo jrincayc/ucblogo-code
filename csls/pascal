@@ -1,889 +1,1217 @@
-TO ACOUNT :ARRAY
-OUTPUT COUNT :ARRAY
-END
-
-TO GARRAY :ARRAY :INDEX
-OP ITEM :INDEX+1 :ARRAY
-END
-
-TO PARRAY :ARRAY :INDEX :VALUE
-SETITEM :INDEX+1 :ARRAY :VALUE
-END
-
-TO ARGLIST
-LOCAL [NAMES TYPE VARFLAG]
-MAKE "VARFLAG "FALSE
-IFBE "VAR [MAKE "VARFLAG "TRUE]
-MAKE "NAMES COMMALIST [ID]
-MUSTBE ":
-MAKE "TYPE TOKEN
-IF EQUALP :TYPE "PACKED [MAKE "TYPE TOKEN]
-IFELSE EQUALP :TYPE "ARRAY [MAKE "TYPE ARRAYTYPE] [TYPECHECK :TYPE]
-FOREACH :NAMES [NEWARG ? :TYPE NEWLNAME ? :VARFLAG]
-IFBEELSE "|;| [ARGLIST] [MUSTBE "|)|]
-END
-
-TO ARRAYCOPY :TOTARGET :FROMTARGET
-LOCAL [TO FROM]
-MAKE "TO THING FIRST :TOTARGET
-MAKE "FROM THING FIRST :FROMTARGET
-FOR [I 0 [(ACOUNT :FROM) - 1]] [PARRAY :TO :I GARRAY :FROM :I]
-END
-
-TO ARRAYSIZE :TYPE
-OUTPUT REDUCE "PRODUCT MAP [LAST ?] LAST :TYPE
-END
-
-TO ARRAYTYPE
-LOCAL [RANGES TYPE]
-MUSTBE "|[|
-MAKE "RANGES COMMALIST [RANGE]
-MUSTBE "|]|
-MUSTBE "OF
-MAKE "TYPE TOKEN
-TYPECHECK :TYPE
-OUTPUT LIST :TYPE :RANGES
-END
-
-TO BLOCK
-LOCAL [BLOCKNAME CODEINTO]
-MAKE "BLOCKNAME GENSYM
-DEFINE :BLOCKNAME [[]]
-MAKE "CODEINTO :BLOCKNAME
-BLOCKBODY "END
-OUTPUT (LIST :BLOCKNAME)
-END
-
-TO BLOCKBODY :ENDWORD
-CODE STATEMENT
-IFBEELSE "|;| [BLOCKBODY :ENDWORD] [MUSTBE :ENDWORD]
-END
-
-TO BOOLTOINT :EXPR
-OUTPUT (SE [( IFELSE] :EXPR [[1] [0] )])
-END
-
-TO CHARTOINT :EXPR
-OUTPUT (SE [( ASCII FIRST BF] :EXPR [)] )
-END
-
-TO CHARTOPRINT :CHARVAL
-OUTPUT FIRST BF :CHARVAL
-END
-
-TO CODE :STUFF
-IF EMPTYP :STUFF [STOP]
-DEFINE :CODEINTO LPUT :STUFF TEXT :CODEINTO
-END
-
-TO COMMALIST :TEST [:SOFAR []]
-LOCAL [RESULT TOKEN]
-MAKE "RESULT RUN :TEST
-IF EMPTYP :RESULT [OUTPUT :SOFAR]
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN ", [OUTPUT (COMMALIST :TEST (LPUT :RESULT :SOFAR))]
-MAKE "PEEKTOKEN :TOKEN
-OUTPUT LPUT :RESULT :SOFAR
-END
-
-TO COMPILE :FILE
-LOCAL "ERROR
-IF NAMEP "PEEKCHAR [ERN "PEEKCHAR]
-IF NAMEP "PEEKTOKEN [ERN "PEEKTOKEN]
-OPENREAD :FILE
-SETREAD :FILE
-IGNORE ERROR
-CATCH "ERROR [PROGRAM]
-MAKE "ERROR ERROR
-IF NOT EMPTYP :ERROR ~
-   [IF NOT EQUALP FIRST :ERROR 19 ~
-       [PR FIRST BF :ERROR]]
-SETREAD []
-CLOSE :FILE
-END
-
-TO COPYOFARRAY :TARGET
-LOCAL [TO FROM]
-MAKE "FROM THING FIRST :TARGET
-MAKE "TO ARRAY ACOUNT :FROM
-FOR [I 0 [(ACOUNT :FROM) - 1]] [PARRAY :TO :I GARRAY :FROM :I]
-END
-
-TO FUNCTION
-LOCAL [PROGNAME OLDIDLIST ARGLIST TYPE]
-LOCAL "CODEINTO
-MAKE "PROGNAME TOKEN
-PUSH "IDLIST (LIST :PROGNAME "FUNCTION NEWLNAME :PROGNAME)
-MAKE "OLDIDLIST :IDLIST
-LOCAL "IDLIST
-MAKE "IDLIST :OLDIDLIST
-MAKE "ARGLIST []
-MAKE LNAME :PROGNAME []
-IFBE "|(| [ARGLIST]
-MUSTBE ":
-MAKE "TYPE TOKEN
-TYPECHECK :TYPE
-MAKE LNAME :PROGNAME FPUT :TYPE THING LNAME :PROGNAME
-MUSTBE "|;|
-DEFINE LNAME :PROGNAME (LIST :ARGLIST)
-MAKE "CODEINTO LNAME :PROGNAME
-CODE [LOCAL "RESULT]
-PROGRAM1
-CODE [OUTPUT :RESULT]
-MUSTBE "|;|
-END
-
-TO GETCHAR
-LOCAL "CHAR
-IF NAMEP "PEEKCHAR [MAKE "CHAR :PEEKCHAR ERN "PEEKCHAR OUTPUT :CHAR]
-IF EOFP [OUTPUT CHAR 1]
-OUTPUT RC1
-END
-
-TO GETTYPE :WORD
-LOCAL "RESULT
-MAKE "RESULT LNAME1 :WORD :IDLIST
-IF NOT EMPTYP :RESULT [OUTPUT ITEM 2 :RESULT]
-PRINT SE [UNRECOGNIZED IDENTIFIER] :WORD
-THROW "ERROR
-END
-
-TO ID
-LOCAL "TOKEN
-MAKE "TOKEN TOKEN
-IF LETTERP ASCII FIRST :TOKEN [OUTPUT :TOKEN]
-MAKE "PEEKTOKEN :TOKEN
-OUTPUT []
-END
-
-TO IFBE :WANTED :ACTION
-LOCAL "TOKEN
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN :WANTED [RUN :ACTION STOP]
-MAKE "PEEKTOKEN :TOKEN
-END
-
-TO IFBEELSE :WANTED :ACTION :ELSE
-LOCAL "TOKEN
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN :WANTED [RUN :ACTION STOP]
-MAKE "PEEKTOKEN :TOKEN
-RUN :ELSE
-END
-
-TO LETTERP :CODE
-IF AND (:CODE > 64) (:CODE < 91) [OUTPUT "TRUE]
-OUTPUT AND (:CODE > 96) (:CODE < 123)
-END
-
-TO LINDEX :BOUNDS :INDEX
-OUTPUT LINDEX1 (OFFSET PINTEGER FIRST :INDEX FIRST FIRST :BOUNDS) ~
-               BF :BOUNDS BF :INDEX
-END
-
-TO LINDEX1 :SOFAR :BOUNDS :INDEX
-IF EMPTYP :BOUNDS [OUTPUT :SOFAR]
-OUTPUT LINDEX1 (NEXTINDEX :SOFAR ~
-                          LAST FIRST :BOUNDS ~
-                          PINTEGER FIRST :INDEX ~
-                          FIRST FIRST :BOUNDS) ~
-               BF :BOUNDS BF :INDEX
-END
-
-TO LNAME :WORD
-LOCAL "RESULT
-MAKE "RESULT LNAME1 :WORD :IDLIST
-IF NOT EMPTYP :RESULT [OUTPUT ITEM 3 :RESULT]
-PRINT SE [UNRECOGNIZED IDENTIFIER] :WORD
-THROW "ERROR
-END
-
-TO LNAME1 :WORD :LIST
-IF EMPTYP :LIST [OUTPUT []]
-IF EQUALP :WORD FIRST FIRST :LIST [OUTPUT FIRST :LIST]
-OUTPUT LNAME1 :WORD BF :LIST
-END
-
-TO LPUSH :STACK :STUFF
-MAKE :STACK LPUT :STUFF THING :STACK
-END
-
-TO MULT :A :B
-OUTPUT (SE [( PRODUCT] :A :B [)] )
-END
-
-TO MUSTBE :WANTED
-LOCAL "TOKEN
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN :WANTED [STOP]
-PRINT (SE "EXPECTED :WANTED "GOT :TOKEN)
-THROW "ERROR
-END
-
-TO NEWARG :PNAME :TYPE :LNAME :VARFLAG
-IF RESERVEDP :PNAME [PR SE :PNAME [RESERVED WORD] THROW "ERROR]
-PUSH "IDLIST IFELSE :VARFLAG ~
-                    [(LIST :PNAME "VAR :LNAME :TYPE)] ~
-                    [(LIST :PNAME :TYPE :LNAME)]
-LPUSH "ARGLIST :LNAME
-LPUSH LNAME :PROGNAME IFELSE :VARFLAG [LIST "VAR :TYPE] [:TYPE]
-END
-
-TO NEWLNAME :WORD
-IF MEMBERP :WORD :NAMESUSED [OUTPUT GENSYM]
-IF NAMEP WORD "% :WORD [OUTPUT GENSYM]
-PUSH "NAMESUSED :WORD
-OUTPUT WORD "% :WORD
-END
-
-TO NEWVAR :PNAME :TYPE :LNAME
-IF RESERVEDP :PNAME [PR SE :PNAME [RESERVED WORD] THROW "ERROR]
-PUSH "IDLIST (LIST :PNAME :TYPE :LNAME)
-CODE LIST "LOCAL WORD "" :LNAME
-IF LISTP :TYPE [CODE (LIST "MAKE WORD "" :LNAME "ARRAY ARRAYSIZE :TYPE)]
-END
-
-TO NEXTINDEX :OLD :FACTOR :NEW :OFFSET
-OUTPUT (SE [( SUM] (MULT :OLD :FACTOR) (OFFSET :NEW :OFFSET) [)] )
-END
-
-TO NUMBER :NUM
-LOCAL "CHAR
-MAKE "CHAR GETCHAR
-IF EQUALP :CHAR ". ~
-   [MAKE "CHAR GETCHAR ~
-    IFELSE EQUALP :CHAR ". ~
-           [MAKE "PEEKTOKEN ".. OUTPUT :NUM] ~
-           [MAKE "PEEKCHAR :CHAR OUTPUT NUMBER WORD :NUM ".]]
-IF EQUALP :CHAR "E [OUTPUT NUMBER WORD :NUM TWOCHAR "E [+ -]]
-IF NUMBERP :CHAR [OUTPUT NUMBER WORD :NUM :CHAR]
-MAKE "PEEKCHAR :CHAR
-OUTPUT :NUM
-END
-
-TO NUMTYPE :NUMBER
-IF MEMBERP ". :NUMBER [OUTPUT "REAL]
-IF MEMBERP "E :NUMBER [OUTPUT "REAL]
-OUTPUT "INTEGER
-END
-
-TO OFFSET :A :B
-OUTPUT (SE [( DIFFERENCE] :A :B [)] )
-END
-
-TO OPSETUP
-PPROP "|=| "BINARY [EQUALP 2 [BOOLEAN []] 1]
-PPROP "|<>| "BINARY [[NOT EQUALP] 2 [BOOLEAN []] 1]
-PPROP "|<| "BINARY [LESSP 2 [BOOLEAN []] 1]
-PPROP "|>| "BINARY [GREATERP 2 [BOOLEAN []] 1]
-PPROP "|<=| "BINARY [[NOT GREATERP] 2 [BOOLEAN []] 1]
-PPROP "|>=| "BINARY [[NOT LESSP] 2 [BOOLEAN []] 1]
-PPROP "|+| "BINARY [SUM 2 2]
-PPROP "|-| "BINARY [DIFFERENCE 2 2]
-PPROP "OR "BINARY [OR 2 [BOOLEAN BOOLEAN] 2]
-PPROP "|*| "BINARY [PRODUCT 2 3]
-PPROP "|/| "BINARY [QUOTIENT 2 [REAL []] 3]
-PPROP "DIV "BINARY [[INT QUOTIENT] 2 [INTEGER INTEGER] 3]
-PPROP "MOD "BINARY [REMAINDER 2 [INTEGER INTEGER] 3]
-PPROP "AND "BINARY [AND 2 [BOOLEAN BOOLEAN] 3]
-PPROP "|+| "UNARY [[] 1 4]
-PPROP "|-| "UNARY [MINUS 1 4]
-PPROP "NOT "UNARY [NOT 1 [BOOLEAN BOOLEAN] 4]
-MAKE "IDLIST [[TRUNC FUNCTION INT] ~
-              [ROUND FUNCTION ROUND] [RANDOM FUNCTION RANDOM]]
-MAKE "INT [INTEGER REAL]
-MAKE "ROUND [INTEGER REAL]
-MAKE "RANDOM [INTEGER INTEGER]
-END
-
-TO PARRAYASSIGN :NAME :TYPE :TARGET
-LOCAL [RIGHT RTYPE RLNAME RTARGET]
-MAKE "RIGHT TOKEN
-IF EQUALP FIRST :RIGHT "' [OUTPUT PSTRINGASSIGN :TARGET :TYPE (BL BF :RIGHT)]
-MAKE "RTYPE GETTYPE :RIGHT
-MAKE "RLNAME LNAME :RIGHT
-IFELSE EQUALP :RTYPE "VAR [PVARRIGHT] [MAKE "RTARGET (LIST :RLNAME)]
-IF EQUALP :TYPE :RTYPE [OUTPUT (LIST "ARRAYCOPY :TARGET :RTARGET)]
-PR (SE "ARRAYS :NAME "AND :RIGHT [UNEQUAL TYPES])
-THROW "ERROR
-END
-
-TO PARRAYDATA :PNAME :TYPE :TARGET
-LOCAL "INDEX
-MUSTBE "|[|
-MAKE "INDEX COMMALIST [PEXPR]
-MUSTBE "|]|
-MAKE "INDEX LINDEX LAST :TYPE :INDEX
-MAKE "TYPE FIRST :TYPE
-MAKE "TARGET SE :TARGET :INDEX
-OUTPUT PMAYBECHAR :TYPE (LIST "PTHING :TARGET)
-END
-
-TO PASSIGN
-LOCAL [NAME TYPE INDEX VALUE LNAME TARGET]
-MAKE "NAME TOKEN
-MAKE "INDEX []
-IFBE "|[| [MAKE "INDEX COMMALIST [PEXPR] MUSTBE "|]|]
-MUSTBE "|:=|
-MAKE "LNAME LNAME :NAME
-MAKE "TYPE GETTYPE :NAME
-OUTPUT PASSIGN1
-END
-
-TO PASSIGN1
-IFELSE EQUALP :TYPE "VAR [PVARASSIGN :NAME] [MAKE "TARGET (LIST :LNAME)]
-IF AND (LISTP :TYPE) (EMPTYP :INDEX) [OUTPUT PARRAYASSIGN :NAME :TYPE :TARGET]
-IF LISTP :TYPE [MAKE "INDEX LINDEX LAST :TYPE :INDEX MAKE "TYPE FIRST :TYPE]
-IF NOT EMPTYP :INDEX [MAKE "TARGET SE :TARGET :INDEX]
-MAKE "VALUE PEXPR
-IF EQUALP :TYPE "REAL [MAKE "VALUE PREAL :VALUE]
-IF EQUALP :TYPE "INTEGER [MAKE "VALUE PINTEGER :VALUE]
-IF EQUALP :TYPE "CHAR [MAKE "VALUE PCHAR :VALUE]
-IF EQUALP :TYPE "BOOLEAN [MAKE "VALUE PBOOLEAN :VALUE]
-OUTPUT (SE (LIST "PMAKE :TARGET) :VALUE)
-END
-
-TO PBOOLEAN :EXPR
-IF EQUALP FIRST :EXPR "BOOLEAN [OUTPUT LAST :EXPR]
-PR SE LAST :COND [NOT TRUE OR FALSE]
-THROW "ERROR
-END
-
-TO PCHAR :EXPR
-IF EQUALP FIRST :EXPR "CHAR [OUTPUT LAST :EXPR]
-PR SE LAST :COND [NOT CHARACTER VALUE]
-THROW "ERROR
-END
-
-TO PCHARDATA :TOKEN
-IF NOT EQUALP COUNT :TOKEN 3 [PR SE :TOKEN [NOT SINGLE CHARACTER] THROW "ERROR]
-OUTPUT LIST "CHAR WORD "" :TOKEN
-END
-
-TO PCHECKTYPE :WANT :LEFT :RIGHT
-IF NOT EQUALP :WANT :LEFT [PR (SE :LEFT "ISN'T :WANT) THROW "ERROR]
-IF NOT EQUALP :WANT :RIGHT [PR (SE :RIGHT "ISN'T :WANT) THROW "ERROR]
-END
-
-TO PCLOSE
-WHILE [(LAST FIRST :OPSTACK) > 0] [PPOPOP]
-IGNORE POP "OPSTACK
-MAKE "PARENLEVEL :PARENLEVEL - 1
-END
-
-TO PDATA :TOKEN
-LOCAL [TYPE LNAME TARGET]
-IF EQUALP :TOKEN "TRUE [OUTPUT [BOOLEAN "TRUE]]
-IF EQUALP :TOKEN "FALSE [OUTPUT [BOOLEAN "FALSE]]
-IF EQUALP FIRST :TOKEN "' [OUTPUT PCHARDATA :TOKEN]
-IF NUMBERP :TOKEN [OUTPUT LIST NUMTYPE :TOKEN :TOKEN]
-MAKE "TYPE GETTYPE :TOKEN
-IF EMPTYP :TYPE [PR SE [UNDEFINED SYMBOL] :TOKEN THROW "ERROR]
-MAKE "LNAME LNAME :TOKEN
-IFELSE EQUALP :TYPE "VAR [PVARASSIGN :TOKEN] [MAKE "TARGET (LIST :LNAME)]
-IF EQUALP :TYPE "FUNCTION [OUTPUT PFUNCALL :TOKEN]
-IF LISTP :TYPE [OUTPUT PARRAYDATA :TOKEN :TYPE :TARGET]
-OUTPUT PMAYBECHAR :TYPE LIST "PTHING :TARGET
-END
-
-TO PEXPR
-LOCAL [OPSTACK DATASTACK PARENLEVEL]
-MAKE "OPSTACK [[POPEN 1 0]]
-MAKE "DATASTACK []
-MAKE "PARENLEVEL 0
-OUTPUT PEXPR1
-END
-
-TO PEXPR1
-LOCAL [TOKEN OP]
-MAKE "TOKEN TOKEN
-WHILE [EQUALP :TOKEN "|(|] [POPEN MAKE "TOKEN TOKEN]
-MAKE "OP PGETUNARY :TOKEN
-IF NOT EMPTYP :OP [OUTPUT PEXPROP :OP]
-PUSH "DATASTACK PDATA :TOKEN
-MAKE "TOKEN TOKEN
-WHILE [AND (:PARENLEVEL > 0) (EQUALP :TOKEN "|)| )] [PCLOSE MAKE "TOKEN TOKEN]
-MAKE "OP PGETBINARY :TOKEN
-IF NOT EMPTYP :OP [OUTPUT PEXPROP :OP]
-MAKE "PEEKTOKEN :TOKEN
-PCLOSE
-IF NOT EMPTYP :OPSTACK [PR [TOO MANY OPERATORS] THROW "ERROR]
-IF NOT EMPTYP BF :DATASTACK [PR [TOO MANY OPERANDS] THROW "ERROR]
-OUTPUT POP "DATASTACK
-END
-
-TO PEXPROP :OP
-WHILE [(LAST :OP) < (1 + LAST FIRST :OPSTACK)] [PPOPOP]
-PUSH "OPSTACK :OP
-OUTPUT PEXPR1
-END
-
-TO PFOR
-LOCAL [VAR INIT STEP FINAL ACTION]
-MAKE "VAR TOKEN
-MUSTBE "|:=|
-MAKE "INIT PINTEGER PEXPR
-MAKE "STEP 1
-IFBEELSE "DOWNTO [MAKE "STEP -1] [MUSTBE "TO]
-MAKE "FINAL PINTEGER PEXPR
-MUSTBE "DO
-MAKE "ACTION STATEMENT
-OUTPUT (LIST "FOR (LIST LNAME :VAR :INIT :FINAL :STEP) :ACTION)
-END
-
-TO PFUNCALL :PNAME
-LOCAL [LNAME VARTYPES]
-MAKE "LNAME LNAME :PNAME
-MAKE "VARTYPES THING :LNAME
-IF EMPTYP BF :VARTYPES [OUTPUT LIST FIRST :VARTYPES :LNAME]
-MUSTBE "|(|
-OUTPUT LIST FIRST :VARTYPES FPUT :LNAME PROCARGS BF :VARTYPES
-END
-
-TO PFUNSET
-LOCAL [NAME TYPE INDEX VALUE LNAME TARGET]
-MAKE "NAME TOKEN
-MAKE "INDEX []
-IF NOT EQUALP :NAME :PROGNAME [PR SE [ASSIGN TO WRONG FUNCTION] :NAME THROW "ERROR]
-MUSTBE "|:=|
-MAKE "LNAME "RESULT
-MAKE "TYPE FIRST THING LNAME :NAME
-OUTPUT PASSIGN1
-END
-
-TO PGETBINARY :TOKEN
-OUTPUT GPROP :TOKEN "BINARY
-END
-
-TO PGETUNARY :TOKEN
-OUTPUT GPROP :TOKEN "UNARY
-END
-
-TO PIF
-LOCAL [COND THEN ELSE]
-MAKE "COND PBOOLEAN PEXPR
-MUSTBE "THEN
-MAKE "THEN STATEMENT
-MAKE "ELSE []
-IFBE "ELSE [MAKE "ELSE STATEMENT]
-OUTPUT (SE "IFELSE :COND (LIST :THEN) (LIST :ELSE))
-END
-
-TO PINTEGER :PVAL
-LOCAL "TYPE
-MAKE "TYPE FIRST :PVAL
-IF EQUALP :TYPE "INTEGER [OUTPUT LAST :PVAL]
-IF EQUALP :TYPE "BOOLEAN [OUTPUT BOOLTOINT LAST :PVAL]
-IF EQUALP :TYPE "CHAR [OUTPUT CHARTOINT LAST :PVAL]
-PR SE LAST :PVAL [ISN'T ORDINAL]
-THROW "ERROR
-END
-
-TO PMAKE :TARGET :VALUE
-IFELSE EMPTYP BF :TARGET ~
-       [MAKE FIRST :TARGET :VALUE] ~
-       [PARRAY TARGETVAR FIRST :TARGET RUN BF :TARGET :VALUE]
-END
-
-TO PMAYBECHAR :TYPE :VAL
-IF EQUALP :TYPE "CHAR [OUTPUT LIST "CHAR SE "PVARTOCHAR :VAL]
-OUTPUT LIST :TYPE :VAL
-END
-
-TO PNEWTYPE :OP :LTYPE :RTYPE
-LOCAL "TYPE
-MAKE "TYPE (IFELSE (COUNT :OP) > 3 [ITEM 3 :OP] [[[] []]])
-IF EMPTYP :LTYPE [MAKE "LTYPE :RTYPE]
-IF NOT EMPTYP LAST :TYPE [PCHECKTYPE LAST :TYPE :LTYPE :RTYPE]
-IF AND (EQUALP :LTYPE "REAL) (EQUALP :RTYPE "INTEGER) [MAKE "RTYPE "REAL]
-IF AND (EQUALP :LTYPE "INTEGER) (EQUALP :RTYPE "REAL) [MAKE "LTYPE "REAL]
-IF NOT EQUALP :LTYPE :RTYPE [PR [TYPE CLASH] THROW "ERROR]
-IF EMPTYP LAST :TYPE ~
-   [IF NOT MEMBERP :RTYPE [INTEGER REAL] [PR [NONARITHMETIC TYPE] THROW "ERROR]]
-IF EMPTYP FIRST :TYPE [OUTPUT :RTYPE]
-OUTPUT FIRST :TYPE
-END
-
-TO POPEN
-PUSH "OPSTACK [POPEN 1 0]
-MAKE "PARENLEVEL :PARENLEVEL + 1
-END
-
-TO PPOPOP
-LOCAL [OP FUNCTION ARGS LEFT RIGHT TYPE]
-MAKE "OP POP "OPSTACK
-MAKE "FUNCTION FIRST :OP
-MAKE "ARGS FIRST BF :OP
-MAKE "RIGHT POP "DATASTACK
-MAKE "LEFT (IFELSE EQUALP :ARGS 2 [POP "DATASTACK] [[[] []]])
-MAKE "TYPE PNEWTYPE :OP FIRST :LEFT FIRST :RIGHT
-PUSH "DATASTACK LIST :TYPE (SE [(] :FUNCTION LAST :LEFT LAST :RIGHT [)] )
-END
-
-TO PPROCCALL
-LOCAL [PNAME LNAME VARTYPES]
-MAKE "PNAME TOKEN
-MAKE "LNAME LNAME :PNAME
-MAKE "VARTYPES THING :LNAME
-IF EMPTYP :VARTYPES [OUTPUT (LIST :LNAME)]
-MUSTBE "|(|
-OUTPUT FPUT :LNAME PROCARGS :VARTYPES
-END
-
-TO PREAL :PVAL
-IF EQUALP FIRST :PVAL "REAL [OUTPUT LAST :PVAL]
-OUTPUT PINTEGER :PVAL
-END
-
-TO PREPEAT
-LOCAL [COND BLOCKNAME CODEINTO]
-MAKE "BLOCKNAME GENSYM
-DEFINE :BLOCKNAME [[]]
-MAKE "CODEINTO :BLOCKNAME
-BLOCKBODY "UNTIL
-MAKE "COND PBOOLEAN PEXPR
-OUTPUT (LIST "DO.UNTIL (LIST :BLOCKNAME) :COND)
-END
-
-TO PRINTSIZE :SIZE :STUFF
-IF NOT (:SIZE > COUNT :STUFF) [OUTPUT :STUFF]
-OUTPUT PRINTSIZE :SIZE WORD "| | :STUFF
-END
-
-TO PROCARG :TYPE
-LOCAL "RESULT
-IF EQUALP FIRST :TYPE "VAR [OUTPUT PROCVARARG LAST :TYPE]
-IF LISTP :TYPE [OUTPUT PROCARRAYARG :TYPE]
-MAKE "RESULT PEXPR
-IF EQUALP :TYPE "REAL [MAKE "RESULT PREAL :RESULT]
-IF EQUALP :TYPE "INTEGER [MAKE "RESULT PINTEGER :RESULT]
-IF EQUALP :TYPE "CHAR [MAKE "RESULT PCHAR :RESULT]
-IF EQUALP :TYPE "BOOLEAN [MAKE "RESULT PBOOLEAN :RESULT]
-OUTPUT :RESULT
-END
-
-TO PROCARGS :TYPES
-LOCAL "NEXT
-IF EMPTYP :TYPES [MUSTBE "|)| OUTPUT []]
-MAKE "NEXT PROCARG FIRST :TYPES
-IF NOT EMPTYP BF :TYPES [MUSTBE ",]
-OUTPUT SE :NEXT PROCARGS BF :TYPES
-END
-
-TO PROCARRAYARG :TYPE
-LOCAL [PNAME TYPE LNAME TARGET]
-MAKE "PNAME TOKEN
-MAKE "TYPE GETTYPE :PNAME
-MAKE "LNAME LNAME :PNAME
-IFELSE EQUALP :TYPE "VAR [PVARASSIGN] [MAKE "TARGET (LIST :LNAME)]
-OUTPUT LIST "COPYOFARRAY :TARGET
-END
-
-TO PROCEDURE
-LOCAL [PROGNAME OLDIDLIST CODEINTO ARGLIST]
-MAKE "PROGNAME TOKEN
-PUSH "IDLIST (LIST :PROGNAME "PROCEDURE NEWLNAME :PROGNAME)
-MAKE "OLDIDLIST :IDLIST
-LOCAL "IDLIST
-MAKE "IDLIST :OLDIDLIST
-MAKE "CODEINTO LNAME :PROGNAME
-MAKE "ARGLIST []
-MAKE LNAME :PROGNAME []
-IFBE "|(| [ARGLIST]
-MUSTBE "|;|
-DEFINE LNAME :PROGNAME (LIST :ARGLIST)
-PROGRAM1
-MUSTBE "|;|
-END
-
-TO PROCVARARG :FTYPE
-LOCAL [PNAME TYPE LNAME TARGET]
-MAKE "PNAME TOKEN
-MAKE "TYPE GETTYPE :PNAME
-MAKE "LNAME LNAME :PNAME
-IFELSE EQUALP :TYPE "VAR [PVARASSIGN :PNAME] [MAKE "TARGET (LIST :LNAME)]
-IF AND (LISTP :TYPE) (WORDP :FTYPE) [OUTPUT PROCVARARGARRAY :FTYPE :TYPE :TARGET]
-IF NOT EQUALP :TYPE :FTYPE [PR SE :PNAME [ARG WRONG TYPE] THROW "ERROR]
-OUTPUT (LIST :TARGET)
-END
-
-TO PROCVARARGARRAY :FTYPE :TYPE :TARGET
-IF NOT EQUALP :FTYPE FIRST :TYPE [PR SE :PNAME [ARG WRONG TYPE] THROW "ERROR]
-LOCAL "INDEX
-MUSTBE "|[|
-MAKE "INDEX COMMALIST [PEXPR]
-MUSTBE "|]|
-MAKE "INDEX LINDEX LAST :TYPE :INDEX
-OUTPUT (LIST SE :TARGET :INDEX)
-END
-
-TO PROGRAM
-LOCAL [PROGNAME OLDIDLIST NAMESUSED CODEINTO]
-MAKE "NAMESUSED []
-MUSTBE "PROGRAM
-MAKE "PROGNAME TOKEN
-MUSTBE "|(|
-IGNORE COMMALIST [ID]
-MUSTBE "|)|
-MUSTBE "|;|
-IF NOT NAMEP "IDLIST [OPSETUP]
-MAKE "OLDIDLIST :IDLIST
-LOCAL "IDLIST
-MAKE "IDLIST :OLDIDLIST
-PUSH "IDLIST (LIST :PROGNAME "PROGRAM NEWLNAME :PROGNAME)
-DEFINE LNAME :PROGNAME [[]]
-MAKE "CODEINTO LNAME :PROGNAME
-PROGRAM1
-MUSTBE ".
-END
-
-TO PROGRAM1
-IFBE "VAR [VARPART]
-TRYPROCPART
-MUSTBE "BEGIN
-BLOCKBODY "END
-END
-
-TO PRUN :PROGNAME
-RUN FPUT WORD "% :PROGNAME []
-END
-
-TO PSTRINGASSIGN :TARGET :TYPE :STRING
-IF NOT EQUALP FIRST :TYPE "CHAR [STRINGLOSE]
-IF NOT EMPTYP BF LAST :TYPE [STRINGLOSE]
-IF NOT EQUALP (LAST FIRST LAST :TYPE) (COUNT :STRING) [STRINGLOSE]
-OUTPUT (LIST "STRINGCOPY :TARGET WORD "" :STRING)
-END
-
-TO PTHING :TARGET
-IF EMPTYP BF :TARGET [OUTPUT THING FIRST :TARGET]
-OUTPUT GARRAY TARGETVAR FIRST :TARGET RUN BF :TARGET
-END
-
-TO PUSH :STACK :ITEM
-MAKE :STACK FPUT :ITEM THING :STACK
-END
-
-TO PVARASSIGN :NAME
-LOCAL "ID
-MAKE "ID LNAME1 :NAME :IDLIST
-MAKE "TYPE LAST :ID
-MAKE "TARGET WORD ": :LNAME
-END
-
-TO PVARRIGHT
-LOCAL "ID
-MAKE "ID LNAME1 :RIGHT :IDLIST
-MAKE "RTYPE LAST :ID
-MAKE "RTARGET WORD ": :RLNAME
-END
-
-TO PVARTOCHAR :VALUE
-IF NUMBERP :VALUE [OUTPUT CHAR :VALUE]
-OUTPUT :VALUE
-END
-
-TO PWHILE
-LOCAL [COND ACTION]
-MAKE "COND PBOOLEAN PEXPR
-MUSTBE "DO
-MAKE "ACTION STATEMENT
-OUTPUT (LIST "WHILE :COND :ACTION)
-END
-
-TO PWRITE
-MUSTBE "|(|
-OUTPUT (SE [( TYPE] PWRITE1 [)] )
-END
-
-TO PWRITE1
-LOCAL [RESULT TOKEN]
-MAKE "RESULT PWRITE2
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN "|)| [OUTPUT :RESULT]
-IF NOT EQUALP :TOKEN ", [PR SE [EXPECTED , GOT] :TOKEN THROW "ERROR]
-OUTPUT SE :RESULT PWRITE1
-END
-
-TO PWRITE2
-LOCAL "RESULT
-MAKE "RESULT PWRITE3
-IFBE ": [MAKE "RESULT (SE "PRINTSIZE TOKEN BF BF :RESULT)]
-OUTPUT :RESULT
-END
-
-TO PWRITE3
-LOCAL [TOKEN RESULT]
-MAKE "TOKEN TOKEN
-IF EQUALP FIRST :TOKEN "' [OUTPUT (LIST "PRINTSIZE 1 "FIRST (LIST BL BF :TOKEN))]
-MAKE "PEEKTOKEN :TOKEN
-MAKE "RESULT PEXPR
-IF EQUALP FIRST :RESULT "CHAR [OUTPUT SE [PRINTSIZE 1 CHARTOPRINT] LAST :RESULT]
-IF EQUALP FIRST :RESULT "BOOLEAN [OUTPUT SE [PRINTSIZE 1] LAST :RESULT]
-IF EQUALP FIRST :RESULT "INTEGER [OUTPUT SE [PRINTSIZE 10] LAST :RESULT]
-OUTPUT SE [PRINTSIZE 20] LAST :RESULT
-END
-
-TO PWRITELN
-LOCAL "TOKEN
-MAKE "TOKEN TOKEN
-MAKE "PEEKTOKEN :TOKEN
-IF NOT EQUALP :TOKEN "|(| [OUTPUT [PRINT []]]
-OUTPUT SE PWRITE [PRINT []]
-END
-
-TO RANGE
-LOCAL [FIRST LAST]
-MAKE "FIRST RANGE1
-MUSTBE "..
-MAKE "LAST RANGE1
-IF :FIRST > :LAST ~  
-   [PR (SE [ARRAY BOUNDS NOT INCREASING:] :FIRST ".. :LAST) THROW "ERROR]
-OUTPUT LIST :FIRST (1 + :LAST - :FIRST)
-END
-
-TO RANGE1
-LOCAL "BOUND
-MAKE "BOUND TOKEN
-IF EQUALP FIRST :BOUND "' [OUTPUT ASCII FIRST BF :BOUND]
-IF EQUALP :BOUND "|-| [MAKE "BOUND MINUS TOKEN]
-IF EQUALP :BOUND INT :BOUND [OUTPUT :BOUND]
-PR SE [ARRAY BOUND NOT ORDINAL:] :BOUND
-THROW "ERROR
-END
-
-TO RC1
-LOCAL "RESULT
-MAKE "RESULT RC
-TYPE :RESULT
-OUTPUT :RESULT
-END
-
-TO RESERVEDP :WORD
-OUTPUT MEMBERP :WORD [AND ARRAY BEGIN CASE CONST DIV DO DOWNTO ELSE END ~
-                      FILE FOR FORWARD FUNCTION GOTO IF IN LABEL MOD NIL ~
-                      NOT OF PACKED PROCEDURE PROGRAM RECORD REPEAT SET ~
-                      THEN TO TYPE UNTIL VAR WHILE WITH]
-END
-
-TO SKIPCOMMENT
-IF EQUALP GETCHAR "|}| [STOP]
-SKIPCOMMENT
-END
-
-TO STATEMENT
-LOCAL [TOKEN TYPE]
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN "BEGIN [OUTPUT BLOCK]
-IF EQUALP :TOKEN "FOR [OUTPUT PFOR]
-IF EQUALP :TOKEN "IF [OUTPUT PIF]
-IF EQUALP :TOKEN "WHILE [OUTPUT PWHILE]
-IF EQUALP :TOKEN "REPEAT [OUTPUT PREPEAT]
-IF EQUALP :TOKEN "WRITE [OUTPUT PWRITE]
-IF EQUALP :TOKEN "WRITELN [OUTPUT PWRITELN]
-MAKE "PEEKTOKEN :TOKEN
-IF MEMBERP :TOKEN [|;| END UNTIL] [OUTPUT []]
-MAKE "TYPE GETTYPE :TOKEN
-IF EMPTYP :TYPE [PR SE :TOKEN [CAN'T BEGIN STATEMENT] THROW "ERROR]
-IF EQUALP :TYPE "PROCEDURE [OUTPUT PPROCCALL]
-IF EQUALP :TYPE "FUNCTION [OUTPUT PFUNSET]
-OUTPUT PASSIGN
-END
-
-TO STRING :STRING
-LOCAL "CHAR
-MAKE "CHAR GETCHAR
-IF NOT EQUALP :CHAR "' [OUTPUT STRING WORD :STRING :CHAR]
-MAKE "CHAR GETCHAR
-IF EQUALP :CHAR "' [OUTPUT STRING WORD :STRING :CHAR]
-MAKE "PEEKCHAR :CHAR
-OUTPUT WORD :STRING "'
-END
-
-TO STRINGCOPY :TOTARGET :FROM
-LOCAL [I TO]
-MAKE "TO THING FIRST :TOTARGET
-MAKE "I 0
-FOREACH :FROM [PARRAY :TO :I (WORD "' ? "') MAKE "I :I + 1]
-END
-
-TO STRINGLOSE
-PR SE :NAME [NOT STRING ARRAY OR WRONG SIZE]
-THROW "ERROR
-END
-
-TO TARGETVAR :WORD
-IF EQUALP FIRST :WORD ": [OUTPUT THING THING BF :WORD]
-OUTPUT THING :WORD
-END
-
-TO TOKEN
-LOCAL [TOKEN CHAR]
-IF NAMEP "PEEKTOKEN [MAKE "TOKEN :PEEKTOKEN ERN "PEEKTOKEN OUTPUT :TOKEN]
-MAKE "CHAR GETCHAR
-IF EQUALP :CHAR "|{| [SKIPCOMMENT OUTPUT TOKEN]
-IF EQUALP :CHAR CHAR 32 [OUTPUT TOKEN]
-IF EQUALP :CHAR CHAR 13 [OUTPUT TOKEN]
-IF EQUALP :CHAR CHAR 10 [OUTPUT TOKEN]
-IF EQUALP :CHAR "' [OUTPUT STRING "']
-IF MEMBERP :CHAR [+ - * / = ( , ) |[| |]| |;|] [OUTPUT :CHAR]
-IF EQUALP :CHAR "|<| [OUTPUT TWOCHAR "|<| [= >]]
-IF EQUALP :CHAR "|>| [OUTPUT TWOCHAR "|>| [=]]
-IF EQUALP :CHAR ". [OUTPUT TWOCHAR ". [.]]
-IF EQUALP :CHAR ": [OUTPUT TWOCHAR ": [=]]
-IF NUMBERP :CHAR [OUTPUT NUMBER :CHAR]
-IF LETTERP ASCII :CHAR [OUTPUT TOKEN1 UC :CHAR]
-PR SE [UNRECOGNIZED CHARACTER:] :CHAR
-THROW "ERROR
-END
-
-TO TOKEN1 :TOKEN
-LOCAL "CHAR
-MAKE "CHAR GETCHAR
-IF OR LETTERP ASCII :CHAR NUMBERP :CHAR [OUTPUT TOKEN1 WORD :TOKEN UC :CHAR]
-MAKE "PEEKCHAR :CHAR
-OUTPUT :TOKEN
-END
-
-TO TRYPROCPART
-IFBEELSE "PROCEDURE ~
-         [PROCEDURE TRYPROCPART] ~
-         [IFBE "FUNCTION [FUNCTION TRYPROCPART]]
-END
-
-TO TWOCHAR :OLD :OK
-LOCAL "CHAR
-MAKE "CHAR GETCHAR
-IF MEMBERP :CHAR :OK [OUTPUT WORD :OLD :CHAR]
-MAKE "PEEKCHAR :CHAR
-OUTPUT :OLD
-END
-
-TO TYPECHECK :TYPE
-IF MEMBERP :TYPE [REAL INTEGER CHAR BOOLEAN] [STOP]
-PRINT SE [UNDEFINED TYPE] :TYPE
-THROW "ERROR
-END
-
-TO UC :CHAR
-LOCAL "CODE
-MAKE "CODE ASCII :CHAR
-IF OR (:CODE < 97) (:CODE > 122) [OUTPUT :CHAR]
-OUTPUT CHAR :CODE - 32
-END
-
-TO VARPART
-LOCAL [TOKEN NAMELIST]
-MAKE "TOKEN TOKEN
-MAKE "PEEKTOKEN :TOKEN
-IF RESERVEDP :TOKEN [STOP]
-MAKE "NAMELIST COMMALIST [ID]
-MUSTBE ":
-MAKE "TOKEN TOKEN
-IF EQUALP :TOKEN "PACKED [MAKE "TOKEN TOKEN]
-IFELSE EQUALP :TOKEN "ARRAY [MAKE "TOKEN ARRAYTYPE] [TYPECHECK :TOKEN]
-MUSTBE "|;|
-FOREACH :NAMELIST [NEWVAR ? :TOKEN NEWLNAME ?]
-VARPART
-END
-
+to compile :file
+if namep "peekchar [ern "peekchar]
+if namep "peektoken [ern "peektoken]
+if not namep "idlist [opsetup]
+if not emptyp :file [openread :file]
+setread :file
+ignore error
+catch "error [program]
+localmake "error error
+if not emptyp :error [print first butfirst :error]
+setread []
+if not emptyp :file [close :file]
+end
+
+;; Global setup
+
+to opsetup
+make "numregs 32
+make "memsize 3000
+pprop "|=| "binary [eql 2 [boolean []] 1]
+pprop "|<>| "binary [neq 2 [boolean []] 1]
+pprop "|<| "binary [less 2 [boolean []] 1]
+pprop "|>| "binary [gtr 2 [boolean []] 1]
+pprop "|<=| "binary [leq 2 [boolean []] 1]
+pprop "|>=| "binary [geq 2 [boolean []] 1]
+pprop "|+| "binary [add 2 [[] []] 2]
+pprop "|-| "binary [sub 2 [[] []] 2]
+pprop "or "binary [lor 2 [boolean boolean] 2]
+pprop "|*| "binary [mul 2 [[] []] 3]
+pprop "|/| "binary [quo 2 [real []] 3]
+pprop "div "binary [div 2 [integer integer] 3]
+pprop "mod "binary [rem 2 [integer integer] 3]
+pprop "and "binary [land 2 [boolean boolean] 3]
+pprop "|+| "unary [plus 1 [[] []] 4]
+pprop "|-| "unary [minus 1 [[] []] 4]
+pprop "not "unary [lnot 1 [boolean boolean] 4]
+make "idlist `[[trunc function int [1 ,[framesize.fun+1]]]
+               [round function round [1 ,[framesize.fun+1]]]
+               [random function random [1 ,[framesize.fun+1]]]]
+make "int [integer real]
+make "round [integer real]
+make "random [integer integer]
+end
+
+;; Block structure
+
+to program
+mustbe "program
+localmake "progname token
+ifbe "|(| [ignore commalist [id]  mustbe "|)|]
+mustbe "|;|
+localmake "lexical.depth 0
+localmake "namesused []
+localmake "needint "false
+localmake "needround "false
+localmake "needrandom "false
+localmake "idlist :idlist
+localmake "frame [0 0]
+localmake "id (list :progname "program (newlname :progname) :frame)
+push "idlist :id
+localmake "codeinto word "% :progname
+make :codeinto []
+localmake "framesize framesize.proc
+program1
+mustbe ".
+code [exit]
+foreach [int round random] "plibrary
+make :codeinto reverse thing :codeinto
+end
+
+to program1
+localmake "regsused (array :numregs 0)
+for [i reg.firstfree :numregs-1] [setitem :i :regsused "false]
+ifbe "var [varpart]
+.setfirst butfirst :frame :framesize
+if :lexical.depth = 0 [code (list "add reg.globalptr reg.zero reg.zero)
+                       code (list "add reg.frameptr reg.zero reg.zero)
+                       code (list "addi reg.stackptr reg.zero :framesize)]
+localmake "bodytag gensym
+code (list "jump (word "" :bodytag))
+tryprocpart
+code :bodytag
+mustbe "begin
+blockbody "end
+end
+
+to plibrary :func
+if not thing (word "need :func) [stop]
+code :func
+code (list "rload reg.firstfree (memaddr framesize.fun reg.frameptr))
+code (list (word "s :func) reg.retval reg.firstfree)
+code (list "add reg.stackptr reg.frameptr reg.zero)
+code (list "rload reg.frameptr (memaddr frame.prevframe reg.stackptr))
+code (list "jr reg.retaddr)
+end
+
+;; Variable declarations
+
+to varpart
+local [token namelist type]
+make "token token
+make "peektoken :token
+if reservedp :token [stop]
+vargroup
+foreach :namelist [newvar ? :type]
+mustbe "|;|
+varpart
+end
+
+to vargroup
+make "namelist commalist [id]
+mustbe ":
+ifbe "packed []
+make "type token
+ifelse equalp :type "array [make "type arraytype] [typecheck :type]
+end
+
+to id
+local "token
+make "token token
+if letterp ascii first :token [output :token]
+make "peektoken :token
+output []
+end
+
+to arraytype
+local [ranges type]
+mustbe "|[|
+make "ranges commalist [range]
+mustbe "|]|
+mustbe "of
+make "type token
+typecheck :type
+output list :type :ranges
+end
+
+to range
+local [first last]
+make "first range1
+mustbe "..
+make "last range1
+if :first > :last ~  
+   [(throw "error (sentence [array bounds not increasing:]
+                            :first ".. :last))]
+output list :first (1 + :last - :first)
+end
+
+to range1
+local "bound
+make "bound token
+if equalp first :bound "' [output ascii first butfirst :bound]
+if equalp :bound "|-| [make "bound minus token]
+if equalp :bound int :bound [output :bound]
+(throw "error sentence [array bound not ordinal:] :bound)
+end
+
+to typecheck :type
+if memberp :type [real integer char boolean] [stop]
+(throw "error sentence [undefined type] :type)
+end
+
+to newvar :pname :type
+if reservedp :pname [(throw "error sentence :pname [reserved word])]
+push "idlist (list :pname :type (list :lexical.depth :framesize) "false)
+make "framesize :framesize + ifelse listp :type [arraysize :type] [1]
+end
+
+to arraysize :type
+output reduce "product map [last ?] last :type
+end
+
+;; Procedure and function declarations
+
+to tryprocpart
+ifbeelse "procedure ~
+         [procedure tryprocpart] ~
+         [ifbe "function [function tryprocpart]]
+end
+
+to procedure
+proc1 "procedure framesize.proc
+end
+
+to function
+proc1 "function framesize.fun
+end
+
+to proc1 :proctype :framesize
+localmake "procname token
+localmake "lexical.depth :lexical.depth+1
+localmake "frame (list :lexical.depth 0)
+push "idlist (list :procname :proctype (newlname :procname) :frame)
+localmake "idlist :idlist
+make lname :procname []
+ifbe "|(| [arglist]
+if equalp :proctype "function ~
+   [mustbe ":
+    localmake "type token
+    typecheck :type
+    make lname :procname fput :type thing lname :procname]
+mustbe "|;|
+code lname :procname
+code (list "store reg.retaddr (memaddr frame.retaddr reg.frameptr))
+program1
+if equalp :proctype "function ~
+   [code (list "rload reg.retval (memaddr frame.retval reg.frameptr))]
+code (list "rload reg.retaddr (memaddr frame.retaddr reg.frameptr))
+code (list "add reg.stackptr reg.frameptr reg.zero)
+code (list "rload reg.frameptr (memaddr frame.prevframe reg.stackptr))
+code (list "jr reg.retaddr)
+mustbe "|;|
+end
+
+to arglist
+local [token namelist type varflag]
+make "varflag "false
+ifbe "var [make "varflag "true]
+vargroup
+foreach :namelist [newarg ? :type :varflag]
+ifbeelse "|;| [arglist] [mustbe "|)|]
+end
+
+to newarg :pname :type :varflag
+if reservedp :pname [(throw "error sentence :pname [reserved word])]
+localmake "pointer (list :lexical.depth :framesize)
+push "idlist (list :pname :type :pointer :varflag)
+make "framesize :framesize + ifelse (and listp :type not :varflag) ~
+                                    [arraysize :type] [1]
+queue lname :procname ifelse :varflag [list "var :type] [:type]
+end
+
+;; Statement part
+
+to blockbody :endword
+statement
+ifbeelse "|;| [blockbody :endword] [mustbe :endword]
+end
+
+to statement
+local [token type]
+ifbe "begin [compound stop]
+ifbe "for [pfor stop]
+ifbe "if [pif stop]
+ifbe "while [pwhile stop]
+ifbe "repeat [prepeat stop]
+ifbe "write [pwrite stop]
+ifbe "writeln [pwriteln stop]
+make "token token
+make "peektoken :token
+if memberp :token [|;| end until] [stop]
+make "type gettype :token
+if emptyp :type [(throw "error sentence :token [can't begin statement])]
+if equalp :type "procedure [pproccall stop]
+if equalp :type "function [pfunset stop]
+passign
+end
+
+;; Compound statement
+
+to compound
+blockbody "end
+end
+
+;; Structured statements
+
+to pfor
+local [var init step final looptag endtag testreg]
+make "var token
+mustbe "|:=|
+make "init pinteger pexpr
+make "step 1
+ifbeelse "downto [make "step -1] [mustbe "to]
+make "final pinteger pexpr
+mustbe "do
+make "looptag gensym
+make "endtag gensym
+code :looptag
+localmake "id getid :var
+codestore :init (id.pointer :id) (id.varp :id) 0
+make "testreg newregister
+code (list (ifelse :step<0 ["less] ["gtr]) :testreg :init :final)
+code (list "jumpt :testreg (word "" :endtag))
+regfree :testreg
+statement
+code (list "addi :init :init :step)
+code (list "jump (word "" :looptag))
+code :endtag
+regfree :init
+regfree :final
+end
+
+to prepeat
+local [cond looptag]
+make "looptag gensym
+code :looptag
+blockbody "until
+make "cond pboolean pexpr
+code (list "jumpf :cond (word "" :looptag))
+regfree :cond
+end
+
+to pif
+local [cond elsetag endtag]
+make "cond pboolean pexpr
+make "elsetag gensym
+make "endtag gensym
+mustbe "then
+code (list "jumpf :cond (word "" :elsetag))
+regfree :cond
+statement
+code (list "jump (word "" :endtag))
+code :elsetag
+ifbe "else [statement]
+code :endtag
+end
+
+to pwhile
+local [cond looptag endtag]
+make "looptag gensym
+make "endtag gensym
+code :looptag
+make "cond pboolean pexpr
+code (list "jumpf :cond (word "" :endtag))
+regfree :cond
+mustbe "do
+statement
+code (list "jump (word "" :looptag))
+code :endtag
+end
+
+;; Simple statements: write and writeln
+
+to pwrite
+mustbe "|(|
+pwrite1
+end
+
+to pwrite1
+pwrite2
+ifbe "|)| [stop]
+ifbeelse ", [pwrite1] [(throw "error [missing comma])]
+end
+
+to pwrite2
+localmake "result pwrite3
+ifbe ": [.setfirst (butfirst :result) token]
+code :result
+if not equalp first :result "putstr [regfree last :result]
+end
+
+to pwrite3
+localmake "token token
+if equalp first :token "' ~
+   [output (list "putstr 1 (list butlast butfirst :token))]
+make "peektoken :token
+localmake "result pexpr
+if equalp first :result "char [output (list "putch 1 pchar :result)]
+if equalp first :result "boolean [output (list "puttf 1 pboolean :result)]
+if equalp first :result "integer [output (list "putint 10 pinteger :result)]
+output (list "putreal 20 preal :result)
+end
+
+to pwriteln
+ifbe "|(| [pwrite1]
+code [newline]
+end
+
+;; Simple statements: procedure call
+
+to pproccall
+localmake "pname token
+localmake "id getid :pname
+localmake "lname id.lname :id
+localmake "vartypes thing :lname
+pproccall1 framesize.proc
+end
+
+to pproccall1 :offset
+code (list "store reg.newfp (memaddr frame.save.newfp reg.stackptr))
+code (list "add reg.newfp reg.stackptr reg.zero)
+code (list "addi reg.stackptr reg.stackptr (last id.frame :id))
+code (list "store reg.frameptr (memaddr frame.prevframe reg.newfp))
+localmake "newdepth first id.frame :id
+ifelse :newdepth > :lexical.depth ~
+       [code (list "store reg.frameptr
+                   (memaddr frame.outerframe reg.newfp))] ~
+       [localmake "tempreg newregister
+        code (list "rload :tempreg (memaddr frame.outerframe reg.frameptr))
+        repeat (:lexical.depth - :newdepth)
+               [code (list "rload :tempreg 
+                           (memaddr frame.outerframe :tempreg))]
+        code (list "store :tempreg (memaddr frame.outerframe reg.newfp))
+        regfree :tempreg]
+if not emptyp :vartypes [mustbe "|(|  procargs :vartypes :offset]
+for [i reg.firstfree :numregs-1] ~
+    [if item :i :regsused
+        [code (list "store :i (memaddr frame.regsave+:i reg.frameptr))]]
+code (list "add reg.frameptr reg.newfp reg.zero)
+code (list "rload reg.newfp (memaddr frame.save.newfp reg.frameptr))
+code (list "jal reg.retaddr (word "" :lname))
+for [i reg.firstfree :numregs-1] ~
+    [if item :i :regsused
+        [code (list "rload :i (memaddr frame.regsave+:i reg.frameptr))]]
+end
+
+to procargs :types :offset
+if emptyp :types [mustbe "|)|  stop]
+localmake "next procarg first :types :offset
+if not emptyp butfirst :types [mustbe ",]
+procargs butfirst :types :offset+:next
+end
+
+to procarg :type :offset
+local "result
+if equalp first :type "var [output procvararg last :type]
+if listp :type [output procarrayarg :type]
+make "result check.type :type pexpr
+code (list "store :result (memaddr :offset reg.newfp))
+regfree :result
+output 1
+end
+
+to procvararg :ftype
+local [pname id type index]
+make "pname token
+make "id getid :pname
+make "type id.type :id
+ifelse wordp :ftype ~
+       [setindex "true] ~
+       [make "index 0]
+if not equalp :type :ftype ~
+   [(throw "error sentence :pname [arg wrong type])]
+localmake "target memsetup (id.pointer :id) (id.varp :id) :index
+localmake "tempreg newregister
+code (list "addi :tempreg (last :target) (first :target))
+code (list "store :tempreg (memaddr :offset reg.newfp))
+regfree last :target
+regfree :tempreg
+output 1
+end
+
+to procarrayarg :type
+localmake "pname token
+localmake "id getid :pname
+if not equalp :type (id.type :id) ~
+   [(throw "error (sentence "array :pname [wrong type for arg]))]
+localmake "size arraysize :type
+localmake "rtarget memsetup (id.pointer :id) (id.varp :id) 0
+localmake "pointreg newregister
+code (list "addi :pointreg reg.newfp :offset)
+localmake "ltarget (list 0 :pointreg)
+copyarray
+output :size
+end
+
+;; Simple statements: assignment statement (including function value)
+
+to passign
+local [name id type index value pointer target]
+make "name token
+make "index []
+ifbe "|[| [make "index commalist [pexpr] mustbe "|]|]
+mustbe "|:=|
+make "id getid :name
+make "pointer id.pointer :id
+make "type id.type :id
+passign1
+end
+
+to pfunset
+local [name id type index value pointer target]
+make "name token
+make "index []
+if not equalp :name :procname ~
+   [(throw "error sentence [assign to wrong function] :name)]
+mustbe "|:=|
+make "pointer (list :lexical.depth frame.retval)
+make "type first thing lname :name
+make "id (list :name :type :pointer "false)
+passign1
+end
+
+to passign1
+if and (listp :type) (emptyp :index) [parrayassign :id  stop]
+setindex "false
+make "value check.type :type pexpr
+codestore :value (id.pointer :id) (id.varp :id) :index
+regfree :value
+end
+
+to noimmediate :value
+if equalp exp.mode :value "immediate ~
+   [localmake "reg newregister
+    code (list "addi :reg reg.zero exp.value :value)
+    output (list exp.type :value "register :reg)]
+output :value
+end
+
+to check.type :type :result
+if equalp :type "real [output preal :result]
+if equalp :type "integer [output pinteger :result]
+if equalp :type "char [output pchar :result]
+if equalp :type "boolean [output pboolean :result]
+end
+
+to preal :expr [:pval noimmediate :expr]
+if equalp exp.type :pval "real [output exp.value :pval]
+output pinteger :pval
+end
+
+to pinteger :expr [:pval noimmediate :expr]
+local "type
+make "type exp.type :pval
+if memberp :type [integer boolean char] [output exp.value :pval]
+(throw "error sentence exp.type :pval [isn't ordinal])
+end
+
+to pchar :expr [:pval noimmediate :expr]
+if equalp exp.type :pval "char [output exp.value :pval]
+(throw "error sentence exp.type :pval [not character value])
+end
+
+to pboolean :expr [:pval noimmediate :expr]
+if equalp exp.type :pval "boolean [output exp.value :pval]
+(throw "error sentence exp.type :pval [not true or false])
+end
+
+to parrayassign :id
+localmake "right token
+if equalp first :right "' ~
+   [pstringassign :type (butlast butfirst :right)  stop]
+localmake "rid getid :right
+if not equalp (id.type :id) (id.type :rid) ~
+   [(throw "error (sentence "arrays :name "and :right [unequal types]))]
+localmake "size arraysize id.type :id
+localmake "ltarget memsetup (id.pointer :id) (id.varp :id) 0
+localmake "rtarget memsetup (id.pointer :rid) (id.varp :rid) 0
+copyarray
+end
+
+to pstringassign :type :string
+if not equalp first :type "char [stringlose]
+if not emptyp butfirst last :type [stringlose]
+if not equalp (last first last :type) (count :string) [stringlose]
+localmake "ltarget memsetup (id.pointer :id) (id.varp :id) 0
+pstringassign1 newregister (first :ltarget) (last :ltarget) :string
+regfree last :ltarget
+end
+
+to pstringassign1 :tempreg :offset :reg :string
+if emptyp :string [regfree :tempreg  stop]
+code (list "addi :tempreg reg.zero ascii first :string)
+code (list "store :tempreg (memaddr :offset :reg))
+pstringassign1 :tempreg :offset+1 :reg (butfirst :string)
+end
+
+to stringlose
+(throw "error sentence :name [not string array or wrong size])
+end
+
+;; Multiple array indices to linear index computation
+
+to setindex :parseflag
+ifelse listp :type ~
+       [if :parseflag
+           [mustbe "|[|  make "index commalist [pexpr]  mustbe "|]| ]
+        make "index lindex last :type :index
+        make "type first :type] ~
+       [make "index 0]
+end
+
+to lindex :bounds :index
+output lindex1 (offset pinteger noimmediate first :index
+                       first first :bounds) ~
+               butfirst :bounds butfirst :index
+end
+
+to lindex1 :sofar :bounds :index
+if emptyp :bounds [output :sofar]
+output lindex1 (nextindex :sofar
+                          last first :bounds
+                          pinteger noimmediate first :index
+                          first first :bounds) ~
+               butfirst :bounds butfirst :index
+end
+
+to nextindex :old :factor :new :offset
+code (list "muli :old :old :factor)
+localmake "newreg offset :new :offset
+code (list "add :old :old :newreg)
+regfree :newreg
+output :old
+end
+
+to offset :indexreg :lowbound
+if not equalp :lowbound 0 [code (list "subi :indexreg :indexreg :lowbound)]
+output :indexreg
+end
+
+;; Memory interface: load and store instructions
+
+to codeload :reg :pointer :varflag :index
+localmake "target memsetup :pointer :varflag :index
+code (list "rload :reg targetaddr)
+regfree last :target
+end
+
+to codestore :reg :pointer :varflag :index
+localmake "target memsetup :pointer :varflag :index
+code (list "store :reg targetaddr)
+regfree last :target
+end
+
+to targetaddr
+output memaddr (first :target) (last :target)
+end
+
+to memaddr :offset :index
+output (word :offset "\( :index "\))
+end
+
+to memsetup :pointer :varflag :index
+localmake "depth first :pointer
+localmake "offset last :pointer
+local "newreg
+ifelse equalp :depth 0 ~
+       [make "newreg reg.globalptr] ~
+       [ifelse equalp :depth :lexical.depth
+               [make "newreg reg.frameptr]
+               [make "newreg newregister
+                code (list "rload :newreg
+                           (memaddr frame.outerframe reg.frameptr))
+                repeat (:lexical.depth - :depth) - 1
+                       [code (list "rload :newreg
+                                   (memaddr frame.outerframe :newreg))]]]
+if :varflag ~
+   [ifelse :newreg = reg.frameptr
+           [make "newreg newregister
+            code (list "rload :newreg (memaddr :offset reg.frameptr))]
+           [code (list "rload :newreg (memaddr :offset :newreg))]
+    make "offset 0]
+if not equalp :index 0 ~
+   [code (list "add :index :index :newreg)
+    regfree :newreg
+    make "newreg :index]
+output list :offset :newreg
+end
+
+to copyarray
+localmake "looptag gensym
+localmake "sizereg newregister
+code (list "addi :sizereg reg.zero :size)
+code :looptag
+localmake "tempreg newregister
+code (list "rload :tempreg (memaddr (first :rtarget) (last :rtarget)))
+code (list "store :tempreg (memaddr (first :ltarget) (last :ltarget)))
+code (list "addi (last :rtarget) (last :rtarget) 1)
+code (list "addi (last :ltarget) (last :ltarget) 1)
+code (list "subi :sizereg :sizereg 1)
+code (list "gtr :tempreg :sizereg reg.zero)
+code (list "jumpt :tempreg (word "" :looptag))
+regfree :sizereg
+regfree :tempreg
+regfree last :ltarget
+regfree last :rtarget
+end
+
+;; Expressions
+
+to pexpr
+local [opstack datastack parenlevel]
+make "opstack [[popen 1 0]]
+make "datastack []
+make "parenlevel 0
+output pexpr1
+end
+
+to pexpr1
+local [token op]
+make "token token
+while [equalp :token "|(|] [popen  make "token token]
+make "op pgetunary :token
+if not emptyp :op [output pexprop :op]
+push "datastack pdata :token
+make "token token
+while [and (:parenlevel > 0) (equalp :token "|)| )] ~
+      [pclose  make "token token]
+make "op pgetbinary :token
+if not emptyp :op [output pexprop :op]
+make "peektoken :token
+pclose
+if not emptyp :opstack [(throw "error [too many operators])]
+if not emptyp butfirst :datastack [(throw "error [too many operands])]
+output pop "datastack
+end
+
+to pexprop :op
+while [(op.prec :op) < (1 + op.prec first :opstack)] [ppopop]
+push "opstack :op
+output pexpr1
+end
+
+to popen
+push "opstack [popen 1 0]
+make "parenlevel :parenlevel + 1
+end
+
+to pclose
+while [(op.prec first :opstack) > 0] [ppopop]
+ignore pop "opstack
+make "parenlevel :parenlevel - 1
+end
+
+to pgetunary :token
+output gprop :token "unary
+end
+
+to pgetbinary :token
+output gprop :token "binary
+end
+
+to ppopop
+local [op function args left right type reg]
+make "op pop "opstack
+make "function op.instr :op
+if equalp :function "plus [stop]
+make "args op.nargs :op
+make "right pop "datastack
+make "left (ifelse equalp :args 2 [pop "datastack] [[[] []]])
+make "type pnewtype :op exp.type :left exp.type :right
+if equalp exp.mode :left "immediate ~
+   [localmake "leftreg newregister
+    code (list "addi :leftreg reg.zero exp.value :left)
+    make "left (list exp.type :left "register :leftreg)]
+ifelse equalp exp.mode :left "register ~
+       [make "reg exp.value :left] ~
+       [ifelse equalp exp.mode :right "register
+               [make "reg exp.value :right]
+               [make "reg newregister]]
+if equalp :function "minus ~
+   [make "left (list exp.type :right "register reg.zero)
+    make "function "sub
+    make "args 2]
+if equalp exp.mode :right "immediate ~
+   [make "function word :function "i]
+ifelse equalp :args 2 ~
+       [code (list :function :reg exp.value :left exp.value :right)] ~
+       [code (list :function :reg exp.value :right)]
+if not equalp :reg exp.value :left [regfree exp.value :left]
+if (and (equalp exp.mode :right "register)
+        (not equalp :reg exp.value :right)) ~
+   [regfree exp.value :right]
+push "datastack (list :type "register :reg)
+end
+
+to pnewtype :op :ltype :rtype
+local "type
+make "type op.types :op
+if emptyp :ltype [make "ltype :rtype]
+if not emptyp last :type [pchecktype last :type :ltype :rtype]
+if and (equalp :ltype "real) (equalp :rtype "integer) [make "rtype "real]
+if and (equalp :ltype "integer) (equalp :rtype "real) [make "ltype "real]
+if not equalp :ltype :rtype [(throw "error [type clash])]
+if emptyp last :type ~
+   [if not memberp :rtype [integer real]
+       [(throw "error [nonarithmetic type])]]
+if emptyp first :type [output :rtype]
+output first :type
+end
+
+to pchecktype :want :left :right
+if not equalp :want :left [(throw "error (sentence :left "isn't :want))]
+if not equalp :want :right [(throw "error (sentence :right "isn't :want))]
+end
+
+;; Expression elements
+
+to pdata :token
+if equalp :token "true [output [boolean immediate 1]]
+if equalp :token "false [output [boolean immediate 0]]
+if equalp first :token "' [output pchardata :token]
+if numberp :token [output (list numtype :token "immediate :token)]
+localmake "id getid :token
+if emptyp :id [(throw "error sentence [undefined symbol] :token)]
+localmake "type id.type :id
+if equalp :type "function [output pfuncall :token]
+local "index
+setindex "true
+localmake "reg newregister
+codeload :reg (id.pointer :id) (id.varp :id) :index
+output (list :type "register :reg)
+end
+
+to pchardata :token
+if not equalp count :token 3 ~
+   [(throw "error sentence :token [not single character])]
+output (list "char "immediate ascii first butfirst :token)
+end
+
+to numtype :number
+if memberp ". :number [output "real]
+if memberp "e :number [output "real]
+output "integer
+end
+
+to pfuncall :pname
+localmake "id getid :pname
+localmake "lname id.lname :id
+if namep (word "need :lname) [make (word "need :lname) "true]
+localmake "vartypes thing :lname
+localmake "returntype first :vartypes
+make "vartypes butfirst :vartypes
+pproccall1 framesize.fun
+localmake "reg newregister
+code (list "add :reg reg.retval reg.zero)
+output (list :returntype "register :reg)
+end
+
+;; Parsing assistance
+
+to code :stuff
+if emptyp :stuff [stop]
+push :codeinto :stuff
+end
+
+to commalist :test [:sofar []]
+local [result token]
+make "result run :test
+if emptyp :result [output :sofar]
+ifbe ", [output (commalist :test (lput :result :sofar))]
+output lput :result :sofar
+end
+
+.macro ifbe :wanted :action
+localmake "token token
+if equalp :token :wanted [output :action]
+make "peektoken :token
+output []
+end
+
+.macro ifbeelse :wanted :action :else
+localmake "token token
+if equalp :token :wanted [output :action]
+make "peektoken :token
+output :else
+end
+
+to mustbe :wanted
+localmake "token token
+if equalp :token :wanted [stop]
+(throw "error (sentence "expected :wanted "got :token))
+end
+
+to newregister
+for [i reg.firstfree :numregs-1] ~
+    [if not item :i :regsused [setitem :i :regsused "true  output :i]]
+(throw "error [not enough registers available])
+end
+
+to regfree :reg
+setitem :reg :regsused "false
+end
+
+to reservedp :word
+output memberp :word [and array begin case const div do downto else end ~
+                      file for forward function goto if in label mod nil ~
+                      not of packed procedure program record repeat set ~
+                      then to type until var while with]
+end
+
+;; Lexical analysis
+
+to token
+local [token char]
+if namep "peektoken [make "token :peektoken
+                     ern "peektoken   output :token]
+make "char getchar
+if equalp :char "|{| [skipcomment output token]
+if equalp :char char 32 [output token]
+if equalp :char char 13 [output token]
+if equalp :char char 10 [output token]
+if equalp :char "' [output string "']
+if memberp :char [+ - * / = ( , ) |[| |]| |;|] [output :char]
+if equalp :char "|<| [output twochar "|<| [= >]]
+if equalp :char "|>| [output twochar "|>| [=]]
+if equalp :char ". [output twochar ". [.]]
+if equalp :char ": [output twochar ": [=]]
+if numberp :char [output number :char]
+if letterp ascii :char [output token1 lowercase :char]
+(throw "error sentence [unrecognized character:] :char)
+end
+
+to skipcomment
+if equalp getchar "|}| [stop]
+skipcomment
+end
+
+to string :string
+local "char
+make "char getchar
+if not equalp :char "' [output string word :string :char]
+make "char getchar
+if equalp :char "' [output string word :string :char]
+make "peekchar :char
+output word :string "'
+end
+
+to twochar :old :ok
+localmake "char getchar
+if memberp :char :ok [output word :old :char]
+make "peekchar :char
+output :old
+end
+
+to number :num
+local "char
+make "char getchar
+if equalp :char ". ~
+   [make "char getchar ~
+    ifelse equalp :char ". ~
+           [make "peektoken ".. output :num] ~
+           [make "peekchar :char output number word :num ".]]
+if equalp :char "e [output number word :num twochar "e [+ -]]
+if numberp :char [output number word :num :char]
+make "peekchar :char
+output :num
+end
+
+to token1 :token
+local "char
+make "char getchar
+if or letterp ascii :char numberp :char ~
+   [output token1 word :token lowercase :char]
+make "peekchar :char
+output :token
+end
+
+to letterp :code
+if and (:code > 64) (:code < 91) [output "true]
+output and (:code > 96) (:code < 123)
+end
+
+to getchar
+local "char
+if namep "peekchar [make "char :peekchar  ern "peekchar  output :char]
+if eofp [output char 1]
+output rc1
+end
+
+to rc1
+local "result
+make "result readchar
+type :result
+output :result
+end
+
+;; Data abstraction: ID List
+
+to newlname :word
+if memberp :word :namesused [output gensym]
+if namep word "% :word [output gensym]
+push "namesused :word
+output word "% :word
+end
+
+to lname :word
+local "result
+make "result getid :word
+if not emptyp :result [output item 3 :result]
+(throw "error sentence [unrecognized identifier] :word)
+end
+
+to gettype :word
+local "result
+make "result getid :word
+if not emptyp :result [output item 2 :result]
+(throw "error sentence [unrecognized identifier] :word)
+end
+
+to getid :word [:list :idlist]
+if emptyp :list [output []]
+if equalp :word first first :list [output first :list]
+output (getid :word butfirst :list)
+end
+
+to id.type :id
+output item 2 :id
+end
+
+to id.pointer :id
+output item 3 :id
+end
+
+to id.lname :id
+output item 3 :id
+end
+
+to id.varp :id
+output item 4 :id
+end
+
+to id.frame :id
+output item 4 :id
+end
+
+;; Data abstraction: Frame slots
+
+to frame.retaddr
+output 0
+end
+
+to frame.save.newfp
+output 1
+end
+
+to frame.outerframe
+output 2
+end
+
+to frame.prevframe
+output 3
+end
+
+to frame.regsave
+output 4
+end
+
+to framesize.proc
+output 4+:numregs
+end
+
+to frame.retval
+output 4+:numregs
+end
+
+to framesize.fun
+output 5+:numregs
+end
+
+;; Data abstraction: Operators
+
+to op.instr :op
+output first :op
+end
+
+to op.nargs :op
+output first bf :op
+end
+
+to op.types :op
+output item 3 :op
+end
+
+to op.prec :op
+output last :op
+end
+
+;; Data abstraction: Expressions
+
+to exp.type :exp
+output first :exp
+end
+
+to exp.mode :exp
+output first butfirst :exp
+end
+
+to exp.value :exp
+output last :exp
+end
+
+;; Data abstraction: Registers
+
+to reg.zero
+output 0
+end
+
+to reg.retaddr
+output 1
+end
+
+to reg.stackptr
+output 2
+end
+
+to reg.globalptr
+output 3
+end
+
+to reg.frameptr
+output 4
+end
+
+to reg.newfp
+output 5
+end
+
+to reg.retval
+output 6
+end
+
+to reg.firstfree
+output 7
+end
+
+;; Runtime (machine simulation)
+
+to prun :progname
+localmake "prog thing word "% :progname
+localmake "regs (array :numregs 0)
+local filter "wordp :prog
+foreach :prog [if wordp ? [make ? ?rest]]
+localmake "memory (array :memsize 0)
+setitem 0 :regs 0
+if not procedurep "add [runsetup]
+prun1 :prog
+end
+
+to prun1 :pc
+if emptyp :pc [stop]
+if listp first :pc [run first :pc]
+prun1 butfirst :pc
+end
+
+to rload :reg :offset :index
+setitem :reg :regs (item (item :index :regs)+:offset :memory)
+end
+
+to store :reg :offset :index
+setitem (item :index :regs)+:offset :memory (item :reg :regs)
+end
+
+to runsetup
+foreach [[add sum] [sub difference] [mul product] [quo quotient]
+         [div [int quotient]] [rem remainder] [land product]
+         [lor [tobool lessp 0 sum]] [eql [tobool equalp]]
+         [neq [tobool not equalp]] [less [tobool lessp]]
+         [gtr [tobool greaterp]] [leq [tobool not greaterp]]
+         [geq [tobool not lessp]]] ~
+        [define first ?
+                `[[dest src1 src2]
+                  [setitem :dest :regs ,@[last ?] (item :src1 :regs)
+                                                  (item :src2 :regs)]]
+         define word first ? "i
+                `[[dest src1 immed]
+                  [setitem :dest :regs ,@[last ?] (item :src1 :regs)
+                                                  :immed]]]
+foreach [[lnot [difference 1]] [sint int] [sround round] [srandom random]] ~
+        [define first ?
+                `[[dest src]
+                  [setitem :dest :regs ,@[last ?] (item :src :regs)]]
+         define word first ? "i
+                `[[dest immed]
+                  [setitem :dest :regs ,@[last ?] :immed]]]
+end
+
+to tobool :tf
+output ifelse :tf [1] [0]
+end
+
+to jump :label
+make "pc fput :label thing :label
+end
+
+to jumpt :reg :label
+if (item :reg :regs)=1 [jump :label]
+end
+
+to jumpf :reg :label
+if (item :reg :regs)=0 [jump :label]
+end
+
+to jr :reg
+make "pc item :reg :regs
+end
+
+to jal :reg :label
+setitem :reg :regs :pc
+jump :label
+end
+
+to putch :width :reg
+spaces :width 1
+type char (item :reg :regs)
+end
+
+to putstr :width :string
+spaces :width (count first :string)
+type :string
+end
+
+to puttf :width :bool
+spaces :width 1
+type ifelse (item :bool :regs)=0 ["F] ["T]
+end
+
+to putint :width :reg
+localmake "num (item :reg :regs)
+spaces :width count :num
+type :num
+end
+
+to putreal :width :reg
+putint :width :reg
+end
+
+to spaces :width :count
+if :width > :count [repeat :width - :count [type "| |]]
+end
+
+to newline
+print []
+end
+
+to exit
+make "pc [exit]
+end

@@ -1,312 +1,355 @@
-TO ACCEPT
-LOCAL "OLDPOS
-MAKE "OLDPOS CURSOR
-SETCURSOR [15 1]
-TYPE "ACCEPT
-SETCURSOR :OLDPOS
-END
+;;; Finite State Machine Interpreter (FSM)
 
-TO ACCEPTPART :MACHINE
-OP LAST :MACHINE
-END
+to game :which
+fsm thing word "mach :which
+end
 
-TO ARRANGE :MOVE
-LOCAL [FROM INPUT TO ARROW]
-MAKE "FROM FIRST :MOVE
-MAKE "INPUT FIRST BF :MOVE
-MAKE "TO LAST :MOVE
-MAKESTATE :FROM
-MAKESTATE :TO
-MAKE "ARROW WORD :FROM :INPUT
-IFELSE NAMEP :ARROW [ARRANGE.DUPLICATE :ARROW] [ARRANGE.UNSEEN :ARROW]
-END
+to fsm :machine
+cleartext
+setcursor [0 3]
+localmake "start startpart :machine
+localmake "moves movepart :machine
+localmake "accept acceptpart :machine
+fsm1 :start
+end
 
-TO ARRANGE.DUPLICATE :ARROW
-IF MEMBERP :TO THING :ARROW [STOP]
-MAKE "TROUBLE "TRUE
-MAKE :ARROW MERGE :TO THING :ARROW
-END
+to fsm1 :here
+ifelse memberp :here :accept [accept] [reject]
+fsm1 (fsmnext :here readchar)
+end
 
-TO ARRANGE.UNSEEN :ARROW
-MAKE :FROM FPUT :INPUT THING :FROM
-TEMPMAKE :ARROW SINGLE :TO
-END
+to fsmnext :here :input
+blank
+if memberp :input (list char 13 char 10) ~
+   [print ifelse memberp :here :accept ["| ACCEPT|] ["| REJECT|]
+    output :start]
+type :input
+catch "error [output last find [fsmtest :here :input ?] :moves]
+output -1
+end
 
-TO BLANK
-LOCAL "OLDPOS
-MAKE "OLDPOS CURSOR
-SETCURSOR [15 1]
-TYPE "|      |
-SETCURSOR :OLDPOS
-END
+to fsmtest :here :input :move
+output and (equalp :here arrowtail :move) (memberp :input arrowtext :move)
+end
 
-TO BUILD.STATE :STATE
-OP MAP [LINK :STATE ? (FIRST THING WORD :STATE ?)] THING :STATE
-END
+;; Display machine state
 
-TO DETERMINE :MACHINE
-LOCAL [NEWACCEPT ALLSTATES ALIASES TROUBLE TEMPNAMES NEWMOVES]
-MAKE "NEWACCEPT ACCEPTPART :MACHINE
-MAKE "ALLSTATES []
-MAKE "ALIASES []
-MAKE "TROUBLE "FALSE
-MAKE "TEMPNAMES []
-FOREACH MOVEPART :MACHINE [ARRANGE ?]
-IF NOT :TROUBLE [FOREACH :TEMPNAMES [ERN ?] OP :MACHINE]
-RESOLVE :ALLSTATES
-MAKE "NEWMOVES REBUILD :ALLSTATES
-FOREACH :TEMPNAMES [ERN ?]
-OP LINK (STARTPART :MACHINE) :NEWMOVES :NEWACCEPT
-END
+to accept
+display "accept
+end
 
-TO FSM :MACHINE
-CT
-SETCURSOR [0 3]
-FSM1 FIRST :MACHINE FIRST :MACHINE FIRST BF :MACHINE LAST :MACHINE
-END
+to reject
+display "reject
+end
 
-TO FSM1 :START :HERE :MOVES :ACCEPT
-IFELSE MEMBERP :HERE :ACCEPT [ACCEPT] [REJECT]
-FSM1 :START (FSMNEXT :START :HERE RC :MOVES) :MOVES :ACCEPT
-END
+to blank
+display "|      |
+end
 
-TO FSMNEXT :START :HERE :INPUT :MOVES
-BLANK
-TYPE :INPUT
-IF EQUALP :INPUT CHAR 13 [TYPE CHAR 10  OP :START]
-IF EQUALP :INPUT CHAR 10 [OP :START]
-CATCH "ERROR [OP LAST FIND [FSMTEST :HERE :INPUT ?] :MOVES]
-OP -1
-END
+to display :text
+localmake "oldpos cursor
+setcursor [15 1]
+type :text
+setcursor :oldpos
+end
 
-TO FSMTEST :HERE :INPUT :MOVE
-OP AND (EQUALP :HERE FIRST :MOVE) (EQUALP :INPUT FIRST BF :MOVE)
-END
+;; Data abstraction for machines
 
-TO GAME :WHICH
-FSM THING WORD "MACH :WHICH
-END
+to startpart :machine
+output first :machine
+end
 
-TO GETALIAS :LIST
-CATCH "ERROR [OP FIRST FIND [EQUALP :LIST LAST ?] :ALIASES]
-OP []
-END
+to movepart :machine
+output first bf :machine
+end
 
-TO LINK :ONE :TWO :THREE
-OP (LIST :ONE :TWO :THREE)
-END
+to acceptpart :machine
+output last :machine
+end
 
-TO MACHINE :REGEXP
-LOCAL "NEXTSTATE
-MAKE "NEXTSTATE 0
-OP OPTIMIZE DETERMINE NONDET :REGEXP
-END
+to make.machine :start :moves :accept
+output (list :start :moves :accept)
+end
 
-TO MAKESTATE :STATE
-IF MEMBERP :STATE :ALLSTATES [STOP]
-MAKE "ALLSTATES FPUT :STATE :ALLSTATES
-TEMPMAKE :STATE []
-END
+;; Data abstraction for arrows
 
-TO MANY.MOVES :PARTMOVE :ACCEPT
-FOREACH :ACCEPT [NEWMOVES SINGLE FPUT ? :PARTMOVE]
-END
+to arrowtail :arrow
+output first :arrow
+end
 
-TO MAPND :EXPRS
-OP MAP [NONDET ?] :EXPRS
-END
+to arrowtext :arrow
+output first butfirst :arrow
+end
 
-TO MERGE :NEW :LIST
-IF EMPTYP :LIST [OP FPUT :NEW []]
-IF :NEW < FIRST :LIST [OP FPUT :NEW :LIST]
-OP FPUT FIRST :LIST MERGE :NEW BF :LIST
-END
+to arrowhead :arrow
+output last :arrow
+end
 
-TO MOVEPART :MACHINE
-OP FIRST BF :MACHINE
-END
+to make.arrow :tail :text :head
+output (list :tail :text :head)
+end
 
-TO NDCONCAT :EXPRS
-OP REDUCE "STRING MAPND :EXPRS
-END
+;; Machine descriptions for the guessing game
 
-TO NDLETTER :LETTER
-LOCAL [FROM TO]
-MAKE "FROM NEWSTATE
-MAKE "TO NEWSTATE
-OP LINK :FROM (SINGLE (LINK :FROM :LETTER :TO)) (SINGLE :TO)
-END
+make "mach1 [1 [[1 AB 1]] [1]]
+make "mach2 [1 [[1 ABC 2] [2 ABC 1]] [1]]
+make "mach3 [1 [[1 A 2] [2 B 3] [3 ABC 3]] [3]]
+make "mach4 [1 [[1 A 2] [1 B 3] [1 C 4] [2 A 1] [3 B 1] [4 C 1]] [1]]
+make "mach5 [1 [[1 ABC 2] [2 B 1]] [1]]
+make "mach6 [1 [[1 A 2] [2 AB 2] [2 C 3] [3 AB 2] [3 C 3]] [3]]
+make "mach7 [1 [[1 AB 1] [1 C 2] [2 C 1]] [1]]
+make "mach8 [1 [[1 A 2] [1 BC 1] [2 A 1] [2 BC 2]] [1]]
+make "mach9 [1 [[1 AB 1] [1 C 2] [2 A 3] [2 B 1] [3 A 1]] [1]]
+make "mach10 [1 [[1 A 2] [1 BC 1] [2 A 2] [2 B 3] [2 C 1]
+                 [3 A 2] [3 B 1] [3 C 4] [4 A 2] [4 B 5] [4 C 1]
+                 [5 A 6] [5 BC 1] [6 ABC 6]]
+              [6]]
 
-TO NDMANY :REGEXP
-OP NDMANY1 NONDET :REGEXP
-END
 
-TO NDMANY1 :MACHINE
-LOCAL [START MOVES ACCEPT]
-MAKE "START STARTPART :MACHINE
-MAKE "MOVES MOVEPART :MACHINE
-MAKE "ACCEPT ACCEPTPART :MACHINE
-FOREACH :MOVES [IF EQUALP :START FIRST ? [MANY.MOVES BF ? :ACCEPT]]
-OP LINK :START :MOVES (FPUT :START :ACCEPT)
-END
+;;; Regular Expression to FSM Translation (MACHINE)
 
-TO NDOR :EXPRS
-OP UNION NEWSTATE MAPND :EXPRS
-END
+to machine :regexp
+localmake "nextstate 0
+output optimize determine nondet :regexp
+end
 
-TO NEWACCEPT :NEW
-IF NOT MEMBERP :NEW :ACCEPT [MAKE "ACCEPT SE :NEW :ACCEPT]
-END
+;; First step: make a possibly nondeterministic machine
 
-TO NEWMOVES :NEW
-MAKE "MOVES SE :NEW :MOVES
-END
+to nondet :regexp
+if and (wordp :regexp) (equalp count :regexp 1) [output ndletter :regexp]
+if wordp :regexp [output ndor reduce "sentence :regexp]
+if equalp first :regexp "or [output ndor butfirst :regexp]
+if equalp first :regexp "* [output ndmany last :regexp]
+output ndconcat :regexp
+end
 
-TO NEWSTATE
-MAKE "NEXTSTATE :NEXTSTATE+1
-OP :NEXTSTATE
-END
+;; Alphabet rule
 
-TO NONDET :REGEXP
-IF WORDP :REGEXP [OP NDLETTER :REGEXP]
-IF EQUALP FIRST :REGEXP "OR [OP NDOR BF :REGEXP]
-IF EQUALP FIRST :REGEXP "* [OP NDMANY LAST :REGEXP]
-OP NDCONCAT :REGEXP
-END
+to ndletter :letter
+localmake "from newstate
+localmake "to newstate
+output make.machine :from (list (make.arrow :from :letter :to)) (list :to)
+end
 
-TO OPTIMIZE :MACHINE
-LOCAL [START MOVES ACCEPT GOODSTATES GOODMOVES OLDMOVES]
-MAKE "START STARTPART :MACHINE
-MAKE "MOVES MOVEPART :MACHINE
-MAKE "ACCEPT ACCEPTPART :MACHINE
-MAKE "GOODSTATES SINGLE STARTPART :MACHINE
-MAKE "GOODMOVES []
-DO.UNTIL [MAKE "OLDMOVES :GOODMOVES ~
-          MAKE "MOVES FILTER [OPTIMIZE2 ?] :MOVES] ~
-         [EQUALP :OLDMOVES :GOODMOVES]
-OP LINK :START :GOODMOVES (FILTER [MEMBERP ? :GOODSTATES] :ACCEPT)
-END
+;; Concatenation rule
 
-TO OPTIMIZE2 :MOVE
-IF NOT MEMBERP FIRST :MOVE :GOODSTATES [OP "TRUE]
-MAKE "GOODMOVES FPUT :MOVE :GOODMOVES
-IF NOT MEMBERP LAST :MOVE :GOODSTATES ~
-   [MAKE "GOODSTATES FPUT LAST :MOVE :GOODSTATES]
-OP "FALSE
-END
+to ndconcat :exprs
+output reduce "string (map "nondet :exprs)
+end
 
-TO REBUILD :STATELIST
-OP MAP.SE [BUILD.STATE ?] :STATELIST
-END
+to string :machine1 :machine2
+output (make.machine (startpart :machine1)
+                     (sentence (movepart :machine1)
+                               (splice acceptpart :machine1 :machine2)
+                               (movepart :machine2))
+                     (stringa (acceptpart :machine1)
+                              (startpart :machine2)
+                              (acceptpart :machine2)))
+end
 
-TO REJECT
-LOCAL "OLDPOS
-MAKE "OLDPOS CURSOR
-SETCURSOR [15 1]
-TYPE "REJECT
-SETCURSOR :OLDPOS
-END
+to stringa :accept1 :start2 :accept2
+if memberp :start2 :accept2 [output sentence :accept1 :accept2]
+output :accept2
+end
 
-TO RESOLVE :STATES
-IF EMPTYP :STATES [STOP]
-LOCAL "STATE
-MAKE "STATE FIRST :STATES
-RESOLVE SE (BF :STATES) ~
-           (MAP.SE [RESOLVE.ARROW WORD :STATE ?] THING :STATE)
-END
+;; Alternatives rule
 
-TO RESOLVE.ARROW :ARROW
-LOCAL [DESTINATIONS ALIAS]
-MAKE "DESTINATIONS THING :ARROW
-IF EMPTYP BF :DESTINATIONS [OP []]
-MAKE "ALIAS GETALIAS :DESTINATIONS
-IF NOT EMPTYP :ALIAS [MAKE :ARROW SINGLE :ALIAS OP []]
-MAKE "ALIAS NEWSTATE
-MAKESTATE :ALIAS
-MAKE :ARROW SINGLE :ALIAS
-MAKE "ALIASES FPUT (LIST :ALIAS :DESTINATIONS) :ALIASES
-FOREACH :DESTINATIONS [SETUPALIAS ?]
-OP :ALIAS
-END
+to ndor :exprs
+localmake "newstart newstate
+localmake "machines (map "nondet :exprs)
+localmake "accepts map.se "acceptpart :machines
+output (make.machine :newstart
+                     (sentence map.se "movepart :machines
+                               map.se "or.splice :machines)
+                     ifelse not emptyp find [memberp (startpart ?)
+                                                     (acceptpart ?)]
+                                            :machines
+                            [fput :newstart :accepts]
+                            [:accepts])
+end
 
-TO SETA.INPUT :STATE :INPUT
-FOREACH (THING WORD :STATE :INPUT) [ARRANGE LINK :ALIAS :INPUT ?]
-END
+to or.splice :machine
+output map [newtail ? :newstart] (arrows.from.start :machine)
+end
 
-TO SETUPALIAS :STATE
-IF AND (MEMBERP :STATE :NEWACCEPT) (NOT MEMBERP :ALIAS :NEWACCEPT) ~
-   [MAKE "NEWACCEPT FPUT :ALIAS :NEWACCEPT]
-FOREACH THING :STATE [SETA.INPUT :STATE ?]
-END
+;; Repetition rule
 
-TO SINGLE :THING
-OP (LIST :THING)
-END
+to ndmany :regexp
+localmake "machine nondet :regexp
+output (make.machine (startpart :machine)
+                     sentence (movepart :machine)
+                              (splice (acceptpart :machine) :machine)
+                     fput (startpart :machine) (acceptpart :machine))
+end
 
-TO STARTPART :MACHINE
-OP FIRST :MACHINE
-END
+;; Generate moves from a bunch of given states (:accepts) duplicating
+;; the moves from the start state of some machine (:machine).
+;; Used for concatenation rule to splice two formerly separate machines;
+;; used for repetition rule to "splice" a machine to itself.
 
-TO STRING :MACHINE :OTHERS
-LOCAL [START MOVES ACCEPT OTHERSTART OTHERMOVES OTHERACCEPT]
-MAKE "START STARTPART :MACHINE
-MAKE "MOVES MOVEPART :MACHINE
-MAKE "ACCEPT ACCEPTPART :MACHINE
-MAKE "OTHERSTART STARTPART :OTHERS
-MAKE "OTHERMOVES MOVEPART :OTHERS
-MAKE "OTHERACCEPT ACCEPTPART :OTHERS
-OP LINK :START ~
-        (SE :MOVES ~
-            (STRING.SPLICE :ACCEPT :OTHERSTART :OTHERMOVES) ~
-            :OTHERMOVES) ~
-        (STRINGA :ACCEPT :OTHERSTART :OTHERACCEPT)
-END
+to splice :accepts :machine
+output map.se [copy.to.accepts ?] (arrows.from.start :machine)
+end
 
-TO STRING.COPY :ACCEPT :OTHERSTART :MOVE
-OP IFELSE EQUALP :OTHERSTART FIRST :MOVE [MAP [FPUT ? BF :MOVE] :ACCEPT] [[]]
-END
+to arrows.from.start :machine
+output filter [equalp startpart :machine arrowtail ?] movepart :machine
+end
 
-TO STRING.SPLICE :ACCEPT :OTHERSTART :OTHERMOVES
-OP MAP.SE [STRING.COPY :ACCEPT :OTHERSTART ?] :OTHERMOVES
-END
+to copy.to.accepts :move
+output map [newtail :move ?] :accepts
+end
 
-TO STRINGA :ACCEPT :OTHERSTART :OTHERACCEPT
-IF MEMBERP :OTHERSTART :OTHERACCEPT [OP SE :ACCEPT :OTHERACCEPT]
-OP :OTHERACCEPT
-END
+to newtail :arrow :tail
+output make.arrow :tail (arrowtext :arrow) (arrowhead :arrow)
+end
 
-TO TEMPMAKE :VAR :VAL
-MAKE "TEMPNAMES FPUT :VAR :TEMPNAMES
-MAKE :VAR :VAL
-END
+;; Make a new state number
 
-TO UNION :START :MACHINES
-LOCAL [MOVES ACCEPT]
-MAKE "MOVES []
-MAKE "ACCEPT []
-FOREACH :MACHINES [UNION1 ?]
-OUTPUT LINK :START :MOVES :ACCEPT
-END
+to newstate
+make "nextstate :nextstate+1
+output :nextstate
+end
 
-TO UNION1 :MACHINE
-NEWMOVES MOVEPART :MACHINE
-NEWMOVES MAP [FPUT :START BF ?] ~
-             FILTER [EQUALP (STARTPART :MACHINE) (FIRST ?)] MOVEPART :MACHINE
-NEWACCEPT ACCEPTPART :MACHINE
-IF MEMBERP (STARTPART :MACHINE) (ACCEPTPART :MACHINE) ~
-   [NEWACCEPT :START]
-END
+;; Second step: Turn nondeterministic FSM into a deterministic one
+;; Also eliminates "orphan" (unreachable) states.
 
-MAKE "MACH1 [1 [[1 A 1] [1 B 1]] [1]]
-MAKE "MACH10 [1 [[1 A 1] [1 B 1] [1 C 2] [2 A 3] [2 B 1] [3 A 1]] [1]]
-MAKE "MACH2 [1 [[1 A 2] [1 B 2] [1 C 2] [2 A 1] [2 B 1] [2 C 1]] [1]]
-MAKE "MACH3 [1 [[1 A 2] [2 B 3] [3 A 3] [3 B 3] [3 C 3]] [3]]
-MAKE "MACH4 [1 [[1 A 2] [1 B 3] [1 C 4] [2 A 1] [3 B 1] [4 C 1]] [1]]
-MAKE "MACH5 [1 [[1 A 2] [1 B 2] [1 C 2] [2 B 1]] [1]]
-MAKE "MACH6 [1 [[1 A 2] [2 A 2] [2 B 2] [2 C 3] [3 A 2] [3 B 2] [3 C 3]] [3]]
-MAKE "MACH7 [1 [[1 A 1] [1 B 1] [1 C 2] [2 C 1]] [1]]
-MAKE "MACH8 [1 [[1 A 2] [1 B 1] [1 C 1] [2 A 1] [2 B 2] [2 C 2]] [1]]
-MAKE "MACH9 [1 [[1 A 2] [1 B 1] [1 C 1] [2 A 2] [2 B 3] [2 C 1] [3 A 2] ~
-                [3 B 1] [3 C 4] [4 A 2] [4 B 5] [4 C 1] [5 A 6] [5 B 1] ~
-                [5 C 1] [6 A 6] [6 B 6] [6 C 6]] ~
-             [6]]
+to determine :machine
+localmake "moves movepart :machine
+localmake "accepts acceptpart :machine
+localmake "states []
+localmake "join.state.list []
+localmake "newmoves nd.traverse (startpart :machine)
+output make.machine (startpart :machine) ~
+                    :newmoves ~
+                    filter [memberp ? :states] :accepts
+end
+
+to nd.traverse :state
+if memberp :state :states [output []]
+make "states fput :state :states
+localmake "newmoves (check.nd filter [equalp arrowtail ? :state] :moves)
+output sentence :newmoves map.se "nd.traverse (map "arrowhead :newmoves)
+end
+
+to check.nd :movelist
+if emptyp :movelist [output []]
+localmake "letter arrowtext first :movelist
+localmake "heads sort map "arrowhead ~
+                          filter [equalp :letter arrowtext ?] :movelist
+if emptyp butfirst :heads ~
+   [output fput first :movelist
+                check.nd filter [not equalp :letter arrowtext ?] :movelist]
+localmake "check.heads member :heads :join.state.list
+if not emptyp :check.heads ~
+   [output fput make.arrow :state :letter first butfirst :check.heads ~
+                check.nd filter [not equalp :letter arrowtext ?] :movelist]
+localmake "join.state newstate
+make "join.state.list fput :heads fput :join.state :join.state.list
+make "moves sentence :moves ~
+                     map [make.arrow :join.state arrowtext ? arrowhead ?] ~
+                         filter [memberp arrowtail ? :heads] :moves
+if not emptyp find [memberp ? :accepts] :heads ~
+   [make "accepts sentence :accepts :join.state]
+output fput make.arrow :state :letter :join.state ~
+            check.nd filter [not equalp :letter arrowtext ?] :movelist
+end
+
+to sort :list
+if emptyp :list [output []]
+output insert first :list sort butfirst :list
+end
+
+to insert :value :sorted
+if emptyp :sorted [output (list :value)]
+if :value = first :sorted [output :sorted]
+if :value < first :sorted [output fput :value :sorted]
+output fput first :sorted insert :value butfirst :sorted
+end
+
+;; Third step: Combine redundant states.
+;; Also combines arrows with same head and tail: [1 A 2] [1 B 2] -> [1 AB 2].
+
+to optimize :machine
+localmake "stubarray array :nextstate
+foreach (movepart :machine) "array.save
+localmake "states sort fput (startpart :machine) ~
+                            map "arrowhead movepart :machine
+localmake "start startpart :machine
+foreach reverse :states [optimize.state ? ?rest]
+output (make.machine :start
+                     map.se [fix.arrows ? item ? :stubarray] :states
+                     filter [memberp ? :states] acceptpart :machine)
+end
+
+to array.save :move
+setitem (arrowtail :move) :stubarray ~
+        stub.add (arrow.stub :move) (item (arrowtail :move) :stubarray)
+end
+
+to stub.add :stub :stublist
+if emptyp :stublist [output (list :stub)]
+if (stub.head :stub) < (stub.head first :stublist) ~
+   [output fput :stub :stublist]
+if (stub.head :stub) = (stub.head first :stublist) ~
+   [output fput make.stub letter.join (stub.text :stub)
+                                      (stub.text first :stublist)
+                          stub.head :stub
+                butfirst :stublist]
+output fput first :stublist (stub.add :stub butfirst :stublist)
+end
+
+to letter.join :this :those
+if emptyp :those [output :this]
+if beforep :this first :those [output word :this :those]
+output word (first :those) (letter.join :this butfirst :those)
+end
+
+to optimize.state :state :others
+localmake "candidates filter (ifelse memberp :state acceptpart :machine
+                                     [[memberp ? acceptpart :machine]]
+                                     [[not memberp ? acceptpart :machine]]) ~
+                             :others
+localmake "mymoves item :state :stubarray
+localmake "twin find [equalp (item ? :stubarray) :mymoves] :candidates
+if emptyp :twin [stop]
+make "states remove :state :states
+if equalp :start :state [make "start :twin]
+foreach :states ~
+        [setitem ? :stubarray 
+                 (cascade [emptyp ?2]
+                          [stub.add (change.head :state :twin first ?2) ?1]
+                          filter [not equalp stub.head ? :state] item ? :stubarray
+                          [butfirst ?2]
+                          filter [equalp stub.head ? :state] item ? :stubarray)]
+end
+
+to change.head :from :to :stub
+if not equalp (stub.head :stub) :from [output :stub]
+output list (stub.text :stub) :to
+end
+
+to fix.arrows :state :stublist
+output map [stub.arrow :state ?] :stublist
+end
+
+;; Data abstraction for "stub" arrow (no tail)
+
+to arrow.stub :arrow
+output butfirst :arrow
+end
+
+to make.stub :text :head
+output list :text :head
+end
+
+to stub.text :stub
+output first :stub
+end
+
+to stub.head :stub
+output last :stub
+end
+
+to stub.arrow :tail :stub
+output fput :tail :stub
+end

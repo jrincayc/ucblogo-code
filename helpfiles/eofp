@@ -4,4 +4,3 @@ EOF?
 	predicate, outputs TRUE if there are no more characters to be
 	read in the read stream file, FALSE otherwise.
 
-

@@ -27,9 +27,9 @@
 #include <conio.h>
 #include <disp.h>
 #include <sound.h>
+#include <io.h>
 #include "ztcterm.h"
 
-extern x_margin, y_margin;
 /************************************************************/
 
 unsigned _stack = 8000; /* 5000 for debugging, 65000 for real */
@@ -53,8 +53,8 @@ fg_coord_t texth;
 fg_coord_t MaxX, MaxY;
 int ztc_penwidth = 1, ztc_linepattern = -1;
 fg_box_t ztc_box, ztc_textbox, text_scroll_box, text_last_line_box, clear_box;
-void erase_graphics_top();
-void rgb_init();
+void rgb_init(void);
+int scrunching = FALSE;
 
 fg_line_t the_line;
 fg_coord_t ztc_x, ztc_y;
@@ -78,12 +78,11 @@ void lineto(int x, int y) {
 
 void outtext(char *s) {
     fg_puts((in_erase_mode ? bg_color : turtle_color),
-    	    FG_MODE_SET, ~0, FG_ROT0, ztc_x, MaxY-ztc_y,
+    	    current_write_mode, ~0, FG_ROT0, ztc_x, MaxY-ztc_y,
     	    s, fg.displaybox);
 }
 
-void gr_mode()
-{
+void gr_mode(void) {
     int errorcode;
 
     if (!in_graphics_mode) {
@@ -92,6 +91,7 @@ void gr_mode()
 	errorcode = fg_init();
 	if (have_been_in_graphics_mode) {
 	    in_graphics_mode = TRUE;
+	    if (turtle_shown && !refresh_p) draw_turtle();
 	    redraw_graphics();
 	}
 	else {
@@ -130,8 +130,11 @@ void gr_mode()
 		{
 		    FILE *fp = fopen("scrunch.dat","r");
 		    if (fp != NULL) {
-			fread(&x_scale, sizeof(FLONUM), 1, fp);
-			fread(&y_scale, sizeof(FLONUM), 1, fp);
+		    	scrunching = TRUE;
+			if (filelength(fileno(fp)) > 0) {
+			    fread(&x_scale, sizeof(FLONUM), 1, fp);
+			    fread(&y_scale, sizeof(FLONUM), 1, fp);
+			}
 			fclose(fp);
 		    }
 		}
@@ -146,26 +149,23 @@ void gr_mode()
 		text_scroll_box[FG_Y2] = 3*texth-1;
 		text_scroll_box[FG_Y1] = 0;
 		text_last_line_box[FG_Y2] = texth-1;
-		lclearscreen();
-		lcleartext();
+		lclearscreen(NIL);
+		lcleartext(NIL);
 		in_splitscreen = TRUE;
 	   }
 	}
     }
 }
 
-void nop()
-{
+void nop() {
 }
 
-void init_ibm_memory()
-{
+void init_ibm_memory(void) {
 }
 
 volatile int ctrl_c_count = 0;
 
-BOOLEAN check_ibm_stop()
-{
+BOOLEAN check_ibm_stop(void) {
     int key;
     int __ss *p;
 
@@ -187,28 +187,26 @@ BOOLEAN check_ibm_stop()
     if (key == (4375)) { /* control-w */
 	getch();
 	to_pending = 0;
-	lpause();
+	lpause(NIL);
     }
     return (0);
 }
 
-void term_init_ibm()
-{
+void term_init_ibm(void) {
     disp_open();
     ztc_textcolor = FG_WHITE;
     tty_charmode = 0;
     x_max = 80;
-    y_max = 24;
+    y_max = 25;
     x_coord = y_coord = 0;
     so_arr[0] = '\1'; so_arr[1] = '\0';
     se_arr[0] = '\2'; se_arr[1] = '\0';
 }
 
-void ibm_gotoxy(int x, int y)
-{
+void ibm_gotoxy(int x, int y) {
     if (in_graphics_mode) {
 	if (!in_splitscreen)
-	    lsplitscreen();
+	    lsplitscreen(NIL);
 	if (y >= 4) y = 3;
 	ztc_graph_texty = texth*(3-y);
 	fg_adjustxy(FG_ROT0, x, &ztc_graph_textx,
@@ -219,7 +217,7 @@ void ibm_gotoxy(int x, int y)
     }
 }
 
-void ibm_clear_text() {
+void ibm_clear_text(void) {
     if (in_graphics_mode) {
 	if (in_splitscreen)
 	    erase_graphics_top();
@@ -230,29 +228,26 @@ void ibm_clear_text() {
     }
 }
 
-void ibm_clear_screen()
+void ibm_clear_screen(void)
 {
     fg_fillbox(bg_color, FG_MODE_SET, ~0, clear_box);
 }
 
-void ibm_plain_mode()
-{
+void ibm_plain_mode(void) {
     if (in_graphics_mode)
 	ztc_textcolor = dull;
     else
 	disp_endstand();
 }
 
-void ibm_bold_mode()
-{
+void ibm_bold_mode(void) {
     if (in_graphics_mode)
 	ztc_textcolor = bright;
     else
 	disp_startstand();
 }
 
-void erase_graphics_top()
-{
+void erase_graphics_top(void) {
     fg_fillbox(FG_BLACK, FG_MODE_SET, ~0, ztc_textbox);
     ztc_graph_textx = 0;
     ztc_graph_texty = 3*texth;
@@ -262,9 +257,7 @@ void erase_graphics_top()
 /* These are the machine-specific graphics definitions.  All versions must
    provide a set of functions analogous to these. */
 
-void save_pen(p)
-pen_info *p;
-{
+void save_pen(pen_info *p) {
     p->h = ztc_x;
     p->v = ztc_y;
     p->vis = current_vis;
@@ -274,9 +267,7 @@ pen_info *p;
     p->mode = get_ibm_pen_mode();
 }
 
-void restore_pen(p)
-pen_info *p;
-{
+void restore_pen(pen_info *p) {
     moveto(p->h, p->v);
     current_vis = p->vis;
     ztc_penwidth = p->width;
@@ -300,7 +291,7 @@ struct rgbcolor { int red, green, blue; } the_palette[256] = {
 	{155, 96, 59}, {197, 136, 18}, {100, 162, 64}, {120, 187, 187},
 	{255, 149, 119}, {144, 113, 208}, {255, 163, 0}, {183, 183, 183}};
 
-void rgb_init() {
+void rgb_init(void) {
 	int i,j;
 
 	for (i=0; i<16; i++) {
@@ -315,16 +306,14 @@ void rgb_init() {
 	}
 }
 
-void plain_xor_pen()
-{
+void plain_xor_pen(void) {
     ztc_penwidth = 1;
     turtle_color = hw_color(pen_color)^bg_color;
     current_write_mode = FG_MODE_XOR;
     in_erase_mode = FALSE;
 }
 
-void ztc_set_penc(FIXNUM c)
-{
+void ztc_set_penc(FIXNUM c) {
     draw_turtle();
     pen_color = c;
     turtle_color = hw_color(c) % fg.nsimulcolor;
@@ -336,6 +325,8 @@ void ztc_set_penc(FIXNUM c)
 void ztc_set_bg(FIXNUM c) {
     back_ground = c;
     bg_color = hw_color(c);
+    if (!refresh_p) ibm_clear_screen();
+    if (turtle_shown && !refresh_p) draw_turtle();
     redraw_graphics();
 }
 
@@ -354,22 +345,19 @@ void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
 	*b = the_palette[slot % 256].blue * 256;
 }
 
-void ibm_pen_down()
-{
+void ibm_pen_down(void) {
     current_write_mode = FG_MODE_SET;
     turtle_color = hw_color(pen_color);
     in_erase_mode = FALSE;
 }
 
-void ibm_pen_xor()
-{
+void ibm_pen_xor(void) {
     current_write_mode = FG_MODE_XOR;
     turtle_color = hw_color(pen_color)^bg_color;
     in_erase_mode = FALSE;
 }
 
-void ibm_pen_erase()
-{
+void ibm_pen_erase(void) {
     if (!in_erase_mode) {
 	current_write_mode = FG_MODE_SET;
 	turtle_color = hw_color(pen_color);
@@ -377,16 +365,14 @@ void ibm_pen_erase()
     }
 }
 
-int get_ibm_pen_mode()
-{
+int get_ibm_pen_mode(void) {
     if (in_erase_mode)
 	return 2;
     else
 	return current_write_mode;
 }
 
-void set_ibm_pen_mode(int m)
-{
+void set_ibm_pen_mode(int m) {
     switch (m) {
 	case 2: ibm_pen_erase(); break;
 	case FG_MODE_SET: ibm_pen_down(); break;
@@ -394,37 +380,30 @@ void set_ibm_pen_mode(int m)
     }
 }
 
-int get_ibm_pen_width()
-{
+int get_ibm_pen_width(void) {
     return ztc_penwidth;
 }
 
-void set_pen_pattern(char *pat)
-{
+void set_pen_pattern(char *pat) {
     ztc_linepattern = *(int *)pat;
 }
 
-void set_list_pen_pattern(NODE *arg)
-{
+void set_list_pen_pattern(NODE *arg) {
     NODE *temp;
 
     temp = cnv_node_to_numnode(car(arg));
     ztc_linepattern = getint(temp);
-    gcref(temp);
 }
 
-void get_pen_pattern(char *pat)
-{
+void get_pen_pattern(char *pat) {
     *(int *)pat = ztc_linepattern;
 }
 
-NODE *Get_node_pen_pattern()
-{
-    return(cons(make_intnode(-1)), NIL);
+NODE *Get_node_pen_pattern(void) {
+    return(cons(make_intnode(0-1L), NIL));
 }
 
-NODE *Get_node_pen_mode()
-{
+NODE *Get_node_pen_mode(void) {
     if (in_erase_mode)
 	return(make_static_strnode("erase"));
     if (current_write_mode == FG_MODE_XOR)
@@ -432,42 +411,37 @@ NODE *Get_node_pen_mode()
     return(make_static_strnode("paint"));
 }
 
-void label(char *s)
-{
+void label(char *s) {
     gr_mode();
     moveto(g_round(screen_x_coord), g_round(screen_y_coord));
     outtext(s);
 }
 
-void logofill()
-{
+void logofill(void) {
     fg_fill(ztc_x, MaxY-ztc_y, turtle_color, turtle_color);
 }
 
-void erase_screen()
-{
+void erase_screen(void) {
     ibm_clear_screen();
 }
 
-void t_screen()
-{
+void t_screen(void) {
     if (in_graphics_mode) {
 	fg_term();
 	in_graphics_mode = FALSE;
 	in_splitscreen = FALSE;
-	y_max = 24;
+	y_max = 25;
     }
 }
 
-void s_screen()
-{
+void s_screen(void) {
     int save_vis;
 
     if (in_graphics_mode && !in_splitscreen) {
 	if (turtle_shown && (screen_y_coord > (MaxY - (4*texth+1)))) {
 	    save_vis = current_vis;
 	    current_vis = -1;
-	    lhome();
+	    lhome(NIL);
 	    current_vis = save_vis;
 	}
 	erase_graphics_top();
@@ -481,8 +455,7 @@ void s_screen()
     gr_mode();
 }
 
-void f_screen()
-{
+void f_screen(void) {
     if (in_graphics_mode && in_splitscreen)
 	erase_graphics_top();
     in_splitscreen = FALSE;
@@ -491,54 +464,45 @@ void f_screen()
     gr_mode();
 }
 
-FIXNUM mickey_x()
-{
+FIXNUM mickey_x(void) {
     return 0;
 }
 
-FIXNUM mickey_y()
-{
+FIXNUM mickey_y(void) {
     return 0;
 }
 
-BOOLEAN Button()
-{
+BOOLEAN Button(void) {
     return FALSE;
 }
 
-void tone(pitch, duration)
-FIXNUM pitch, duration;
-{
+void tone(FIXNUM pitch, FIXNUM duration) {
     FIXNUM period = 2400000L/pitch;		/* 200000 */
     FIXNUM cycles = duration * pitch/60;
     if (cycles > 0)
         sound_tone((int)cycles, (int)period, (int)period);
 }
 
-FIXNUM t_height()
-{
+FIXNUM t_height(void) {
     return 18;
 }
 
-FLONUM t_half_bottom()
-{
+FLONUM t_half_bottom(void) {
     return 6.0;
 }
 
-FLONUM t_side()
-{
+FLONUM t_side(void) {
     return 19.0;
 }
 
-void check_scroll(void)
-{
+void check_scroll(void) {
     fg_blit(text_scroll_box, 0, texth, fg.activepage, fg.activepage);
     fg_fillbox(FG_BLACK, FG_MODE_SET, ~0, text_last_line_box);
 }
 
 void ztc_put_char(int ch) {
     if (in_graphics_mode && !in_splitscreen)
-	lsplitscreen();
+	lsplitscreen(NIL);
     if (ch != '\1' && ch != '\2') {
 	if (in_graphics_mode) {
 	    if (ch == '\n') {

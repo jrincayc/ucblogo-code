@@ -2,5 +2,5 @@ LIST thing1 thing2
 (LIST thing1 thing2 thing3 ...)
 
 	outputs a list whose members are its inputs, which can be any
-	Logo object (word, list, or array).
+	Logo datum (word, list, or array).
 

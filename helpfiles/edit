@@ -11,6 +11,10 @@ ED contentslist
 	When you leave the editor, Logo reads the revised definitions
 	and modifies the workspace accordingly.
 
+	If there is an environment variable called TEMP, then Logo uses
+	its value as the directory in which to write the temporary file
+	used for editing.
+
 	Exceptionally, the EDIT command can be used without its default
 	input and without parentheses provided that nothing follows it on
 	the instruction line.

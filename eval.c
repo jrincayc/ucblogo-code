@@ -30,39 +30,28 @@
 #endif
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
-#endif
-
-#define assign(to, from)    (to = reref(to, from))
-#define init(to, from)	    (to = valref(from))
-
 #define save(register)	    push(register, stack)
-#define restore(register)   (assign(register, car(stack)), pop(stack))
+#define restore(register)   (register = car(stack), pop(stack))
 
-#define save2(reg1,reg2)    (push(reg1,stack),setobject(stack,reg2))
-#define restore2(reg1,reg2) (assign(reg2,getobject(stack)), \
-			     assign(reg1,car(stack)), pop(stack))
+#define save2(reg1,reg2)    (push(reg1,stack),stack->n_obj=reg2)
+#define restore2(reg1,reg2) (reg2 = getobject(stack), \
+			     reg1 = car(stack), pop(stack))
 
 /* saving and restoring FIXNUMs rather than NODEs */
 
-#define numsave(register)   numpush(register, &stack)
-#define numrestore(register) (register=(FIXNUM)car(stack), numpop(&stack))
+#define numsave(register)   numpush(register,&numstack)
+#define numrestore(register) (register=(FIXNUM)car(numstack), numstack=cdr(numstack))
 
-#define num2save(reg1,reg2) (numpush(reg1,&stack),stack->n_obj=(NODE *)reg2)
-#define num2restore(reg1,reg2) (reg2=(FIXNUM)getobject(stack), \
-				reg1=(FIXNUM)car(stack), numpop(&stack))
+#define num2save(reg1,reg2) (numpush(reg1,&numstack),numstack->n_obj=(NODE *)reg2)
+#define num2restore(reg1,reg2) (reg2=(FIXNUM)getobject(numstack), \
+				reg1=(FIXNUM)car(numstack), numstack=cdr(numstack))
 
 /* save and restore a FIXNUM (reg1) and a NODE (reg2) */
 
-#define mixsave(reg1,reg2)  (numpush(reg1,&stack),setobject(stack,reg2))
-#define mixrestore(reg1,reg2) deref(reg2); reg2=getobject(stack); \
-			       reg1=(FIXNUM)car(stack); numpop(&stack)
+#define mixsave(reg1,reg2)  (numsave(reg1), save(reg2))
+#define mixrestore(reg1,reg2)	(numrestore(reg1), restore(reg2))
 
 #define newcont(tag)	    (numsave(cont), cont = (FIXNUM)tag)
-
-#define nameis(x,y)	    ((object__caseobj(x)) == (object__caseobj(y)))
 
 /* These variables are all externed in globals.h */
 
@@ -90,50 +79,31 @@ FIXNUM	    val_status;	    /* 0 means no value allowed (body of cmd),
 			       5 means value maybe ok in macro (catch)
 			     */
 FIXNUM	    dont_fix_ift = 0;
+FIXNUM	    user_repcount = -1;
 
 /* These variables are local to this file. */
-static NODE *qm_list = NIL;	/* question mark list */
+NODE *qm_list = NIL;	/* question mark list */
 static int trace_level = 0;	/* indentation level when tracing */
 
 /* These first few functions are externed in globals.h */
 
 void spop(NODE **stack) {
-    NODE *temp = (*stack)->n_cdr;
-
-    if (decrefcnt(*stack) == 0) {
-	(*stack)->n_cdr = NIL;
-	gc(*stack);
-    } else {
-	if (temp != NIL) increfcnt(temp);
-    }
-    *stack = temp;
+    *stack = cdr(*stack);
 }
 
 void spush(NODE *obj, NODE **stack) {
     NODE *temp = newnode(CONS);
 
-    setcar(temp, obj);
+    temp->n_car = obj;
     temp->n_cdr = *stack;
-    ref(temp);
-    *stack = temp;
-}
-
-void numpop(NODE **stack) {
-    NODE *temp = (*stack)->n_cdr;
-
-    (*stack)->n_car = NIL;
-    (*stack)->n_cdr = NIL;
-    (*stack)->n_obj = NIL;
-    deref(*stack);
     *stack = temp;
 }
 
 void numpush(FIXNUM obj, NODE **stack) {
-    NODE *temp = newnode(CONS);
+    NODE *temp = newnode(CONT); /*GC*/
 
     temp->n_car = (NODE *)obj;
     temp->n_cdr = *stack;
-    ref(temp);
     *stack = temp;
 }
 
@@ -194,14 +164,13 @@ int not_local(NODE *name, NODE *sp) {
 NODE *reverse(NODE *list) {
     NODE *ret = NIL, *temp;
 
-    ref(list);
     while (list != NIL) {
 	temp = list;
 	list = cdr(list);
-	temp->n_cdr = ret;
+	setcdr(temp, ret);
 	ret = temp;
     }
-    return unref(ret);
+    return ret;
 }
 
 /* nondestructive append */
@@ -236,25 +205,25 @@ NODE *evaluator(NODE *list, enum labels where) {
 	    *argl   = NIL,  /* evaluated argument list */
 	    *unev   = NIL,  /* list of unevaluated expressions */
 	    *stack  = NIL,  /* register stack */
+	    *numstack = NIL,/* stack whose elements aren't objects */
 	    *parm   = NIL,  /* the current formal */
 	    *catch_tag = NIL,
 	    *arg    = NIL;  /* the current actual */
 
-/* registers that don't get reference counted, so we pretend they're ints */
-FIXNUM	    vsp    = 0,		/* temp ptr into var_stack */
-	    cont   = 0,		/* where to go next */
-	    formals = (FIXNUM)NIL; /* list of formal parameters */
+    NODE    *vsp    = 0,    /* temp ptr into var_stack */
+	    *formals = NIL; /* list of formal parameters */
+    FIXNUM  cont   = 0;	    /* where to go next */
 
-    int i, nargs;
-    BOOLEAN tracing;	    /* are we tracing the current procedure? */
+    int i;
+    BOOLEAN tracing = FALSE; /* are we tracing the current procedure? */
     FIXNUM oldtailcall;	    /* in case of reentrant use of evaluator */
     FIXNUM repcount;	    /* count for repeat */
     FIXNUM old_ift_iff;
-
+	
     oldtailcall = tailcall;
     old_ift_iff = ift_iff_flag;
     save2(var,this_line);
-    assign(var, var_stack);
+    var = var_stack;
     save2(fun,ufun);
     cont = (FIXNUM)all_done;
     numsave((FIXNUM)cont);
@@ -262,26 +231,23 @@ FIXNUM	    vsp    = 0,		/* temp ptr into var_stack */
     goto fetch_cont;
     
 begin_line:
-    ref(list);
-    assign(this_line, list);
+    this_line = list;
     newcont(end_line);
 begin_seq:
     make_tree(list);
     if (!is_tree(list)) {
-	assign(val, UNBOUND);
+	val = UNBOUND;
 	goto fetch_cont;
     }
-    assign(unev, tree__tree(list));
-    assign(val, UNBOUND);
+    unev = tree__tree(list);
+    val = UNBOUND;
     goto eval_sequence;
 
 end_line:
     if (val != UNBOUND) {
 	if (NOT_THROWING) err_logo(DK_WHAT, val);
-	deref(val);
     }
     val = NIL;
-    deref(list);
     goto fetch_cont;
 
 
@@ -292,12 +258,12 @@ tail_eval_dispatch:
 eval_dispatch:
     switch (nodetype(exp)) {
 	case QUOTE:			/* quoted literal */
-	    assign(val, node__quote(exp));
+	    val = node__quote(exp);
 	    goto fetch_cont;
 	case COLON:			/* variable */
-	    assign(val, valnode__colon(exp));
+	    val = valnode__colon(exp);
 	    while (val == UNBOUND && NOT_THROWING)
-		assign(val, err_logo(NO_VALUE, node__colon(exp)));
+		val = err_logo(NO_VALUE, node__colon(exp));
 	    goto fetch_cont;
 	case CONS:			/* procedure application */
 	    if (tailcall == 1 && is_macro(car(exp)) &&
@@ -305,43 +271,43 @@ eval_dispatch:
 		/* tail call to user-defined macro must be treated as non-tail
 		 * because the expression returned by the macro
 		 * remains to be evaluated in the caller's context */
-		assign(unev, NIL);
+		unev = NIL;
 		goto non_tail_eval;
 	    }
-	    assign(fun, car(exp));
+	    fun = car(exp);
 	    if (cdr(exp) != NIL)
 		goto ev_application;
 	    else
 		goto ev_no_args;
 	case ARRAY:			/* array must be copied */
 	    {	NODE **p, **q;
-		assign(val, make_array(getarrdim(exp)));
+		val = make_array(getarrdim(exp));
 		setarrorg(val, getarrorg(exp));
 		for (p = getarrptr(exp), q = getarrptr(val), i=0;
 		     i < getarrdim(exp); i++, p++)
-			    *q++ = vref(*p);
+			    *q++ = *p;
 	    }
 	    goto fetch_cont;
 	default:
-	    assign(val, exp);		/* self-evaluating */
+	    val = exp;		/* self-evaluating */
 	    goto fetch_cont;
     }
 
 ev_no_args:
     /* Evaluate an application of a procedure with no arguments. */
-    assign(argl, NIL);
+    argl = NIL;
     goto apply_dispatch;    /* apply the procedure */
 
 ev_application:
     /* Evaluate an application of a procedure with arguments. */
-    assign(unev, cdr(exp));
-    assign(argl, NIL);
+    unev = cdr(exp);
+    argl = NIL;
     mixsave(tailcall,var);
     num2save(val_status,ift_iff_flag);
     save2(didnt_get_output,didnt_output_name);
 eval_arg_loop:
     if (unev == NIL) goto eval_args_done;
-    assign(exp, car(unev));
+    exp = car(unev);
     if (exp == Not_Enough_Node) {
 	if (NOT_THROWING)
 	    err_logo(NOT_ENOUGH, NIL);
@@ -351,12 +317,11 @@ eval_arg_loop:
     save2(unev,fun);
     save2(ufun,last_ufun);
     save2(this_line,last_line);
-    assign(var, var_stack);
+    var = var_stack;
     tailcall = -1;
     val_status = 1;
-    assign(didnt_get_output,
-	   cons_list(0,fun,ufun,this_line,END_OF_LIST));
-    assign(didnt_output_name, NIL);
+    didnt_get_output = cons_list(0, fun, ufun, this_line, END_OF_LIST);
+    didnt_output_name = NIL;
     newcont(accumulate_arg);
     goto eval_dispatch;	    /* evaluate the current argument */
 
@@ -365,11 +330,11 @@ accumulate_arg:
     reset_args(var);
     restore2(this_line,last_line);
     restore2(ufun,last_ufun);
-    assign(last_call, fun);
+    last_call = fun;
     restore2(unev,fun);
     restore(argl);
     while (NOT_THROWING && val == UNBOUND) {
-	assign(val, err_logo(DIDNT_OUTPUT, NIL));
+	val = err_logo(DIDNT_OUTPUT, NIL);
     }
     push(val, argl);
     pop(unev);
@@ -380,10 +345,10 @@ eval_args_done:
     num2restore(val_status,ift_iff_flag);
     mixrestore(tailcall,var);
     if (stopping_flag == THROWING) {
-	assign(val, UNBOUND);
+	val = UNBOUND;
 	goto fetch_cont;
     }
-    assign(argl, reverse(argl));
+    argl = reverse(argl);
 /* --------------------- APPLY ---------------------------- */
 apply_dispatch:
     /* Load in the procedure's definition and decide whether it's a compound
@@ -400,23 +365,50 @@ apply_dispatch:
 	    untreeify_proc(ufun);
 	}
 	if (NOT_THROWING)
-	    assign(val, err_logo(DK_HOW, fun));
+	    val = err_logo(DK_HOW, fun);
 	else
-	    assign(val, UNBOUND);
+	    val = UNBOUND;
 	goto fetch_cont;
     }
     if (is_list(proc)) goto compound_apply;
     /* primitive_apply */
-    if (NOT_THROWING)
-	assign(val, (*getprimfun(proc))(argl));
-    else
-	assign(val, UNBOUND);
+    if (NOT_THROWING) {
+	if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
+	    for (i = 0; i < trace_level; i++) {
+		print_space(stdout);
+	    }
+	    ndprintf(stdout, "( %s ", fun);
+	    if (argl != NIL) {
+		arg = argl;
+		while (arg != NIL) {
+		    print_node(stdout, maybe_quote(car(arg)));
+		    print_space(stdout);
+		    arg = cdr(arg);
+		}
+	    }
+	    print_char(stdout, ')');
+	    new_line(stdout);
+	}
+	val = (*getprimfun(proc))(argl);
+        if (tracing && NOT_THROWING) {
+	    for (i = 0; i < trace_level; i++) {
+		print_space(stdout);
+	    }
+	    print_node(stdout, fun);
+	    if (val == UNBOUND)
+	        ndprintf(stdout, " stops\n");
+	    else {
+	        ndprintf(stdout, " outputs %s\n", maybe_quote(val));
+	    }
+        }
+    } else
+	val = UNBOUND;
 #define do_case(x) case x: goto x;
 fetch_cont:
     {
 	enum labels x = (enum labels)cont;
-	cont = (FIXNUM)car(stack);
-	numpop(&stack);
+	cont = (FIXNUM)car(numstack);
+	numstack=cdr(numstack);
 	switch (x) {
 	    do_list(do_case)
 	    default: abort();
@@ -430,18 +422,18 @@ compound_apply:
 #ifdef ibm
     check_ibm_stop();
 #endif
-    if (tracing = flag__caseobj(fun, PROC_TRACED)) {
+    if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
 	for (i = 0; i < trace_level; i++) print_space(writestream);
 	trace_level++;
 	ndprintf(writestream, "( %s ", fun);
     }
 /* Bind the actuals to the formals */
 lambda_apply:
-    vsp = (FIXNUM)var_stack;	/* remember where we came in */
-    for (formals = (FIXNUM)formals__procnode(proc);
-    	 formals != (FIXNUM)NIL;
-	 formals = (FIXNUM)cdr((NODE *)formals)) {
-	    parm = car((NODE *)formals);
+    vsp = var_stack;	/* remember where we came in */
+    for (formals = formals__procnode(proc);
+    	 formals != NIL;
+	 formals = cdr(formals)) {
+	    parm = car(formals);
 	    if (nodetype(parm) == INT) break;	/* default # args */
 	    if (argl != NIL) {
 		arg = car(argl);
@@ -452,21 +444,30 @@ lambda_apply:
 	    } else
 		arg = UNBOUND;
 	    if (nodetype(parm) == CASEOBJ) {
-		if (not_local(parm,(NODE *)vsp)) {
+		if (not_local(parm,vsp)) {
 		    push(parm, var_stack);
-		    setobject(var_stack, valnode__caseobj(parm));
+		    var_stack->n_obj = valnode__caseobj(parm);
 		}
 		tell_shadow(parm);
 		setvalnode__caseobj(parm, arg);
 	    } else if (nodetype(parm) == CONS) {
 		/* parm is optional or rest */
-		if (not_local(car(parm),(NODE *)vsp)) {
+		if (not_local(car(parm),vsp)) {
 		    push(car(parm), var_stack);
-		    setobject(var_stack, valnode__caseobj(car(parm)));
+		    var_stack->n_obj = valnode__caseobj(car(parm));
 		}
 		tell_shadow(car(parm));
 		if (cdr(parm) == NIL) {		    /* parm is rest */
 		    setvalnode__caseobj(car(parm), argl);
+		    if (tracing) {
+			if (argl != NIL) pop(argl);
+			while (argl != NIL) {
+			    arg = car(argl);
+			    print_node(writestream, maybe_quote(arg));
+			    print_space(writestream);
+			    pop(argl);
+			}
+		    }
 		    break;
 		}
 		if (arg == UNBOUND) {		    /* use default */
@@ -475,29 +476,29 @@ lambda_apply:
 		    save2(this_line,last_line);
 		    save2(didnt_output_name,didnt_get_output);
 		    num2save(ift_iff_flag,val_status);
-		    assign(var, var_stack);
+		    var = var_stack;
 		    tailcall = -1;
 		    val_status = 1;
-		    mixsave(formals,argl);
-		    numsave(vsp);
-		    assign(list, cdr(parm));
+		    save2(formals,argl);
+		    save(vsp);
+		    list = cdr(parm);
 		    if (NOT_THROWING)
 			make_tree(list);
 		    else
-			assign(list, NIL);
+			list = NIL;
 		    if (!is_tree(list)) {
-			assign(val, UNBOUND);
+			val = UNBOUND;
 			goto set_args_continue;
 		    }
-		    assign(unev, tree__tree(list));
-		    assign(val, UNBOUND);
+		    unev = tree__tree(list);
+		    val = UNBOUND;
 		    newcont(set_args_continue);
 		    goto eval_sequence;
 
 set_args_continue:
-		    numrestore(vsp);
-		    mixrestore(formals,argl);
-		    parm = car((NODE *)formals);
+		    restore(vsp);
+		    restore2(formals,argl);
+		    parm = car(formals);
 		    reset_args(var);
 		    num2restore(ift_iff_flag,val_status);
 		    restore2(didnt_output_name,didnt_get_output);
@@ -511,30 +512,30 @@ set_args_continue:
 	    if (argl != NIL) pop(argl);
     }
     if (check_throwing) {
-	assign(val, UNBOUND);
+	val = UNBOUND;
 	goto fetch_cont;
     }
-    vsp = 0;
-    if (tracing = !is_list(fun) && flag__caseobj(fun, PROC_TRACED)) {
+    vsp = NIL;
+    if ((tracing = !is_list(fun)) && flag__caseobj(fun, PROC_TRACED)) {
 	if (NOT_THROWING) print_char(writestream, ')');
 	new_line(writestream);
 	save(fun);
 	newcont(compound_apply_continue);
     }
-    assign(val, UNBOUND);
-    assign(last_ufun, ufun);
-    if (!is_list(fun)) assign(ufun, fun);
-    assign(last_line, this_line);
-    assign(this_line, NIL);
+    val = UNBOUND;
+    last_ufun = ufun;
+    if (!is_list(fun)) ufun = fun;
+    last_line = this_line;
+    this_line = NIL;
     proc = (is_list(fun) ? anonymous_function(fun) : procnode__caseobj(fun));
-    assign(list, bodylist__procnode(proc));	/* get the body ... */
+    list = bodylist__procnode(proc);	/* get the body ... */
     make_tree_from_body(list);
     if (!is_tree(list)) {
 	goto fetch_cont;
     }
-    assign(unev, tree__tree(list));
+    unev = tree__tree(list);
     if (NOT_THROWING) stopping_flag = RUN;
-    assign(output_node, UNBOUND);
+    output_node = UNBOUND;
     if (val_status == 1) val_status = 2;
     else if (val_status == 5) val_status = 3;
     else val_status = 0;
@@ -546,85 +547,73 @@ eval_sequence:
 	goto fetch_cont;
     }
     if (nodetype(unev) == LINE) {
-	assign(this_line, unparsed__line(unev));
-	if (flag__caseobj(ufun, PROC_STEPPED)) {
-	    char junk[20];
-
+	this_line = unparsed__line(unev);
+	if (ufun != NIL && flag__caseobj(ufun, PROC_STEPPED)) {
 	    if (tracing) {
 		int i = 1;
 		while (i++ < trace_level) print_space(stdout);
 	    }
 	    print_node(stdout, this_line);
-	    ndprintf(stdout, " >>> ");
-	    input_blocking++;
-#ifndef TIOCSTI
-	    if (!setjmp(iblk_buf))
-#endif
-#ifdef __ZTC__
-		ztc_getcr();
-#else
-		fgets(junk, 19, stdin);
-#endif
-	    input_blocking = 0;
-	    update_coords('\n');
+	    (void)reader(stdin, " >>> ");
 	}
     }
-    assign(exp, car(unev));
+    exp = car(unev);
     pop(unev);
     if (exp != NIL &&
-        is_list(exp)  && (is_tailform(procnode__caseobj(car(exp))))) {
-      if (nameis(car(exp),Output) || nameis(car(exp),Op)) {
-	assign(didnt_get_output,
-	       cons_list(0,car(exp),ufun,this_line,END_OF_LIST));
-	assign(didnt_output_name, NIL);
+        is_list(exp) && (is_tailform(procnode__caseobj(car(exp))))) {
+      i = (int)getprimpri(procnode__caseobj(car(exp)));
+      if (i == OUTPUT_PRIORITY) {
+	didnt_get_output = cons_list(0,car(exp),ufun,this_line,END_OF_LIST);
+	didnt_output_name = NIL;
 	if (val_status == 2 || val_status == 3) {
 	    val_status = 1;
-	    assign(exp, cadr(exp));
+	    exp = cadr(exp);
 	    goto tail_eval_dispatch;
 	} else if (ufun == NIL) {
 	    err_logo(AT_TOPLEVEL,car(exp));
-	    assign(val, UNBOUND);
+	    val = UNBOUND;
 	    goto fetch_cont;
 	} else if (val_status < 4) {
 	    val_status = 1;
-	    assign(exp, cadr(exp));
-	    assign(unev, NIL);
+	    exp = cadr(exp);
+	    unev = NIL;
 	    goto non_tail_eval;	    /* compute value then give error */
 	}
-      } else if (nameis(car(exp),Stop)) {
+      } else if (i == STOP_PRIORITY) {
 	if (ufun == NIL) {
 	    err_logo(AT_TOPLEVEL,car(exp));
-	    assign(val, UNBOUND);
+	    val = UNBOUND;
 	    goto fetch_cont;
 	} else if (val_status == 0 || val_status == 3) {
-	    assign(val, UNBOUND);
+	    val = UNBOUND;
 	    goto fetch_cont;
 	} else if (val_status < 4) {
-	    assign(didnt_output_name, fun);
-	    assign(val, UNBOUND);
+	    didnt_output_name = fun;
+	    val = UNBOUND;
 	    goto fetch_cont;
 	}
       } else { /* maybeoutput */
-	assign(exp, cadr(exp));
+	exp = cadr(exp);
 	val_status = 5;
 	goto tail_eval_dispatch;
       }
     }
     if (unev == NIL) {
 	if (val_status == 2 || val_status == 4) {
-	    assign(didnt_output_name, fun);
-	    assign(unev, UNBOUND);
+	    didnt_output_name = fun;
+	    unev = UNBOUND;
 	    goto non_tail_eval;
 	} else {
 	    goto tail_eval_dispatch;
 	}
     }
-    if (car(unev) != NIL &&
-        is_list(car(unev)) && nameis(car(car(unev)),Stop)) {
+    if (car(unev) != NIL && is_list(car(unev)) && 
+		(is_tailform(procnode__caseobj(car(car(unev))))) &&
+		getprimpri(procnode__caseobj(car(car(unev)))) == STOP_PRIORITY) {
 	if ((val_status == 0 || val_status == 3) && ufun != NIL) {
 	    goto tail_eval_dispatch;
 	} else if (val_status < 4) {
-	    assign(didnt_output_name, fun);
+	    didnt_output_name = fun;
 	    goto tail_eval_dispatch;
 	}
     }
@@ -634,7 +623,7 @@ non_tail_eval:
     save2(ufun,last_ufun);
     save2(this_line,last_line);
     save(var);
-    assign(var, var_stack);
+    var = var_stack;
     tailcall = 0;
     newcont(eval_sequence_continue);
     goto eval_dispatch;
@@ -651,22 +640,25 @@ eval_sequence_continue:
 	num2restore(ift_iff_flag,val_status);
     restore2(unev,fun);
     if (stopping_flag == MACRO_RETURN) {
-	if (unev == UNBOUND) assign(unev, NIL);
-	assign(unev, append(val, unev));
-	assign(val, UNBOUND);
+	if (unev == UNBOUND) unev = NIL;
+	if (val != NIL && is_list(val) && (car(val) == Tag))
+	    unev = cdr(val);	/* from goto */
+	else
+	    unev = append(val, unev);
+	val = UNBOUND;
 	stopping_flag = RUN;
 	if (unev == NIL) goto fetch_cont;
     } else if (val_status < 4) {
-	if (STOPPING || RUNNING) assign(output_node, UNBOUND);
+	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {
 	    stopping_flag = RUN;
-	    assign(val, output_node);
-	    if (val != UNBOUND && val_status < 2 && NOT_THROWING) {
-		assign(didnt_output_name,Output);
+	    val = output_node;
+	    if (val != UNBOUND && val_status == 1 && NOT_THROWING) {
+		didnt_output_name = Output;
 		err_logo(DIDNT_OUTPUT,Output);
 	    }
 	    if (val == UNBOUND && val_status == 1 && NOT_THROWING) {
-		assign(didnt_output_name,Stop);
+		didnt_output_name = Stop;
 		err_logo(DIDNT_OUTPUT,Output);
 	    }
 	    goto fetch_cont;
@@ -674,7 +666,7 @@ eval_sequence_continue:
     }
     if (val != UNBOUND) {
 	err_logo((unev == NIL ? DK_WHAT_UP : DK_WHAT), val);
-	assign(val, UNBOUND);
+	val = UNBOUND;
     }
     if (NOT_THROWING && (unev == NIL || unev == UNBOUND)) {
 	if (val_status != 4)  err_logo(DIDNT_OUTPUT,NIL);
@@ -692,9 +684,7 @@ compound_apply_continue:
 	if (val == UNBOUND)
 	    ndprintf(writestream, " stops\n");
 	else {
-	    ref(val);
 	    ndprintf(writestream, " outputs %s\n", maybe_quote(val));
-	    deref(val);
 	}
     }
     goto fetch_cont;
@@ -704,50 +694,54 @@ compound_apply_continue:
 macro_return:
     num2restore(val_status,tailcall);
     while (!is_list(val) && NOT_THROWING) {
-	assign(val,err_logo(ERR_MACRO,val));
+	val = err_logo(ERR_MACRO,val);
     }
     if (NOT_THROWING) {
 	if (is_cont(val)) {
 	    newcont(cont__cont(val));
-	    val->n_car = NIL;
-	    assign(val, val__cont(val));
+	    val = val__cont(val);
 	    goto fetch_cont;
 	}
-macro_reval:
 	if (tailcall == 0) {
 	    make_tree(val);
 	    stopping_flag = MACRO_RETURN;
-	    if (!is_tree(val)) assign(val, NIL);
-	    else assign(val, tree__tree(val));
+	    if (!is_tree(val)) val = NIL;
+	    else val = tree__tree(val);
 	    goto fetch_cont;
 	}
-	assign(list,val);
+	list = val;
 	goto begin_seq;
     }
-    assign(val, UNBOUND);
+    val = UNBOUND;
     goto fetch_cont;
 
 runresult_continuation:
-    assign(list, val);
+    list = val;
     newcont(runresult_followup);
     val_status = 5;
     goto begin_seq;
 
 runresult_followup:
     if (val == UNBOUND) {
-	assign(val, NIL);
+	val = NIL;
     } else {
-	assign(val, cons(val, NIL));
+	val = cons(val, NIL);
     }
     goto fetch_cont;
 
 repeat_continuation:
-    assign(list, cdr(val));
+    list = cdr(val);
     repcount = getint(car(val));
+    user_repcount = 0;
 repeat_again:
-    assign(val, UNBOUND);
-    if (repcount == 0) goto fetch_cont;
-    mixsave(repcount,list);
+    val = UNBOUND;
+    if (repcount == 0) {
+	user_repcount = -1;
+	goto fetch_cont;
+    }
+    user_repcount++;
+    save(list);
+    num2save(repcount,user_repcount);
     num2save(val_status,tailcall);
     val_status = 4;
     newcont(repeat_followup);
@@ -755,17 +749,16 @@ repeat_again:
 
 repeat_followup:
     if (val != UNBOUND && NOT_THROWING) {
-	ref(val);
 	err_logo(DK_WHAT, val);
-	unref(val);
     }
     num2restore(val_status,tailcall);
-    mixrestore(repcount,list);
+    num2restore(repcount,user_repcount);
+    restore(list);
     if (val_status < 4 && tailcall != 0) {
-	if (STOPPING || RUNNING) assign(output_node, UNBOUND);
+	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {
 	    stopping_flag = RUN;
-	    assign(val, output_node);
+	    val = output_node;
 	    if (val != UNBOUND && val_status < 2) {
 		err_logo(DK_WHAT_UP,val);
 	    }
@@ -781,15 +774,16 @@ repeat_followup:
     check_ibm_stop();
 #endif
     if (RUNNING) goto repeat_again;
-    assign(val, UNBOUND);
+    val = UNBOUND;
+    user_repcount = -1;
     goto fetch_cont;
 
 catch_continuation:
-    assign(list, cdr(val));
-    assign(catch_tag, car(val));
+    list = cdr(val);
+    catch_tag = car(val);
     if (compare_node(catch_tag,Error,TRUE) == 0) {
 	push(Erract, var_stack);
-	setobject(var_stack, valnode__caseobj(Erract));
+	var_stack->n_obj = valnode__caseobj(Erract);
 	setvalnode__caseobj(Erract, UNBOUND);
     }
     save(catch_tag);
@@ -804,10 +798,10 @@ catch_followup:
     restore2(didnt_output_name,didnt_get_output);
     restore(catch_tag);
     if (val_status < 4 && tailcall != 0) {
-	if (STOPPING || RUNNING) assign(output_node, UNBOUND);
+	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {
 	    stopping_flag = RUN;
-	    assign(val, output_node);
+	    val = output_node;
 	    if (val != UNBOUND && val_status < 2) {
 		err_logo(DK_WHAT_UP,val);
 	    }
@@ -815,21 +809,48 @@ catch_followup:
     }
     if (stopping_flag == THROWING &&
 	compare_node(throw_node, catch_tag, TRUE) == 0) {
-	    throw_node = reref(throw_node, UNBOUND);
+	    throw_node = UNBOUND;
 	    stopping_flag = RUN;
-	    assign(val, output_node);
+	    val = output_node;
     }
+    goto fetch_cont;
+
+goto_continuation:
+    if (ufun == NIL) {
+	err_logo(AT_TOPLEVEL, Goto);
+	val = UNBOUND;
+	goto fetch_cont;
+    }
+    proc = procnode__caseobj(ufun);
+    list = bodylist__procnode(proc);
+    unev = tree__tree(list);
+    while (unev != NIL) {
+	if (nodetype(unev) == LINE)
+	    this_line = unparsed__line(unev);
+	exp = car(unev);
+	pop(unev);
+	if (is_list (exp) &&
+	        (object__caseobj(car(exp)) == object__caseobj(Tag)) &&
+		(nodetype(cadr(exp)) == QUOTE) &&
+		compare_node(val, node__quote(cadr(exp)), TRUE) == 0) {
+	    val = cons(Tag, unev);
+	    stopping_flag = MACRO_RETURN;
+	    goto fetch_cont;
+	}
+    }
+    err_logo(BAD_DATA_UNREC, val);
+    val = UNBOUND;
     goto fetch_cont;
 
 begin_apply:
     /* This is for lapply. */
-    assign(fun, car(val));
+    fun = car(val);
     while (nodetype(fun) == ARRAY && NOT_THROWING)
-	assign(fun, err_logo(APPLY_BAD_DATA, fun));
-    assign(argl, cadr(val));
-    assign(val, UNBOUND);
+	fun = err_logo(APPLY_BAD_DATA, fun);
+    argl = cadr(val);
+    val = UNBOUND;
     while (!is_list(argl) && NOT_THROWING)
-	assign(argl, err_logo(APPLY_BAD_DATA, argl));
+	argl = err_logo(APPLY_BAD_DATA, argl);
     if (NOT_THROWING && fun != NIL) {
 	if (is_list(fun)) {		    /* template */
 	    if (is_list(car(fun)) && cdr(fun) != NIL) {
@@ -839,27 +860,31 @@ begin_apply:
 		    goto lambda_apply;
 		}
 		/* lambda form */
-		formals = (FIXNUM)car(fun);
+		formals = car(fun);
+		save(var);
 		numsave(tailcall);
 		tailcall = 0;
-		llocal((NODE *)formals);    /* bind the formals locally */
+		llocal(formals);    /* bind the formals locally */
 		numrestore(tailcall);
 		for ( ;
 		     formals && argl && NOT_THROWING;
-		     formals = (FIXNUM)cdr((NODE *)formals),
-		     assign(argl, cdr(argl)))
-			setvalnode__caseobj(car((NODE *)formals), car(argl));
-		assign(val, cdr(fun));
-		goto macro_reval;
+		     formals = cdr(formals),
+		     argl = cdr(argl))
+			setvalnode__caseobj(car(formals), car(argl));
+		list = cdr(fun);
+		save(qm_list);
+		newcont(after_lambda);
+		goto lambda_qm;
 	    } else {		/* question-mark form */
 		save(qm_list);
-		assign(qm_list, argl);
-		assign(list, fun);
+		qm_list = argl;
+		list = fun;
+lambda_qm:
 		make_tree(list);
 		if (list == NIL || !is_tree(list)) {
 		    goto qm_failed;
 		}
-		assign(unev, tree__tree(list));
+		unev = tree__tree(list);
 		save2(didnt_output_name,didnt_get_output);
 		num2save(val_status,tailcall);
 		newcont(qm_continue);
@@ -870,10 +895,10 @@ qm_continue:
 		num2restore(val_status,tailcall);
 		restore2(didnt_output_name,didnt_get_output);
 		if (val_status < 4 && tailcall != 0) {
-		    if (STOPPING || RUNNING) assign(output_node,  UNBOUND);
+		    if (STOPPING || RUNNING) output_node = UNBOUND;
 		    if (stopping_flag == OUTPUT || STOPPING) {
 			stopping_flag = RUN;
-			assign(val, output_node);
+			val = output_node;
 			if (val != UNBOUND && val_status < 2) {
 			    err_logo(DK_WHAT_UP,val);
 			}
@@ -886,7 +911,7 @@ qm_failed:
 	} else {    /* name of procedure to apply */
 	    int min, max, n;
 	    NODE *arg;
-	    assign(fun, intern(fun));
+	    fun = intern(fun);
 	    if (procnode__caseobj(fun) == UNDEFINED && NOT_THROWING &&
 		fun != Null_Word)
 		    silent_load(fun, NULL);    /* try ./<fun>.lg */
@@ -895,7 +920,7 @@ qm_failed:
 		    silent_load(fun, logolib); /* try <logolib>/<fun> */
 	    proc = procnode__caseobj(fun);
 	    while (proc == UNDEFINED && NOT_THROWING) {
-		assign(val, err_logo(DK_HOW_UNREC, fun));
+		val = err_logo(DK_HOW_UNREC, fun);
 	    }
 	    if (NOT_THROWING) {
 		if (nodetype(proc) == CONS) {
@@ -923,12 +948,16 @@ qm_failed:
     }
     goto fetch_cont;
 
+after_lambda:
+    reset_args(var);
+    restore(var);
+    goto fetch_cont;
+
 all_done:
     tailcall = oldtailcall;
     ift_iff_flag = old_ift_iff;
     restore2(fun,ufun);
     reset_args(var);
     restore2(var,this_line);
-    deref(argl);deref(unev);deref(stack);deref(catch_tag);deref(exp);
     return(val);
 }

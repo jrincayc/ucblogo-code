@@ -27,14 +27,14 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(sgtty.h termio.h)
+AC_CHECK_HEADERS(sgtty.h termio.h unistd.h string.h termcap.h termlib.h curses.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 AC_TYPE_SIGNAL
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(usleep srandom sigvec sigsetmask matherr drem irint)
+AC_CHECK_FUNCS(usleep srandom sigvec sigsetmask matherr drem irint memcpy)
 AC_PROG_GCC_TRADITIONAL
 dnl AC_TYPE_SIGNAL
 

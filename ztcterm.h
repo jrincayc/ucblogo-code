@@ -105,7 +105,6 @@ typedef struct { int    h;
 /* definitions from term.c and math.c for ibmterm.c */
 extern int x_coord, y_coord, x_max, y_max, tty_charmode;
 extern char so_arr[], se_arr[];
-extern FLONUM degrad;
 
 /* definitions from ibmterm.c for graphics.c */
 extern void gr_mode();

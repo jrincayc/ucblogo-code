@@ -1,100 +1,79 @@
-TO BIGWORD :LIST
-IF EMPTYP :LIST [OUTPUT "]
-OUTPUT WORD FIRST :LIST BIGWORD BF :LIST
-END
+to playfair :keyword :message
+local [matrix a b c d e f g h i j k l m n o p q r s t u v w x y z]
+setkeyword jtoi lowercase :keyword
+output encode (reduce "word :message)
+end
 
-TO ENCODE :MESSAGE
-IF EMPTYP :MESSAGE [OUTPUT "]
-IF EMPTYP BF :MESSAGE [OUTPUT PAIRCODE FIRST :MESSAGE "Q]
-IF EQUALP (JTOI FIRST :MESSAGE) (JTOI FIRST BF :MESSAGE) ~
-   [OUTPUT WORD (PAIRCODE FIRST :MESSAGE "Q) (ENCODE BF :MESSAGE)]
-OUTPUT WORD (PAIRCODE FIRST :MESSAGE FIRST BF :MESSAGE) ~
-            (ENCODE BF BF :MESSAGE)
-END
+;; Prepare the code array
 
-TO ITOJ :LETTER
-IF EQUALP :LETTER "I [IF EQUALP RANDOM 3 0 [OUTPUT "J]]
-OUTPUT :LETTER
-END
+to setkeyword :word
+make "matrix reorder word :word (remove :word "abcdefghiklmnopqrstuvwxyz)
+make "j :i
+end
 
-TO JTOI :WORD
-IF EMPTYP :WORD [OUTPUT "]
-IF EQUALP FIRST :WORD "J [OUTPUT WORD "I JTOI BF :WORD]
-OUTPUT WORD FIRST :WORD JTOI BF :WORD
-END
+to remove :letters :string
+if emptyp :string [output "]
+if memberp first :string :letters [output remove :letters bf :string]
+output word first :string remove :letters bf :string
+end
 
-TO LETTER :COORDS
-OUTPUT ITOJ ITEM LAST :COORDS (ITEM FIRST :COORDS :MATRIX)
-END
+to reorder :string
+output reorder1 :string (mdarray [5 5]) 1 1
+end
 
-TO LETTERS :ONE :TWO
-OUTPUT WORD LETTER :ONE LETTER :TWO
-END
+to reorder1 :string :array :row :column
+if :row=6 [output :array]
+if :column=6 [output reorder1 :string :array :row+1 1]
+mdsetitem (list :row :column) :array first :string
+make first :string (list :row :column)
+output reorder1 (butfirst :string) :array :row :column+1
+end
 
-TO PAIRCODE :ONE :TWO
-OUTPUT PAIRCODE1 (THING :ONE) (THING :TWO)
-END
+;; Encode the message
 
-TO PAIRCODE1 :ONE :TWO
-LOCAL [A B C D]
-MAKE "A FIRST :ONE
-MAKE "B LAST :ONE
-MAKE "C FIRST :TWO
-MAKE "D LAST :TWO
-IF EQUALP :A :C ~
-   [OUTPUT LETTERS (LIST :A ROTATE (:B+1)) ~
-                   (LIST :A ROTATE (:D+1))]
-IF EQUALP :B :D ~
-   [OUTPUT LETTERS (LIST ROTATE (:A+1) :B)  ~
-                   (LIST ROTATE (:C+1) :B)]
-OUTPUT LETTERS (LIST :A :D) (LIST :C :B)
-END
+to encode :message
+if emptyp :message [output "]
+if emptyp butfirst :message [output paircode first :message "q]
+if equalp (jtoi first :message) (jtoi first butfirst :message) ~
+   [output word (paircode first :message "q) (encode butfirst :message)]
+output word (paircode first :message first butfirst :message) ~
+            (encode butfirst butfirst :message)
+end
 
-TO PLAYFAIR :KEYWORD :MESSAGE
-SETKEYWORD JTOI :KEYWORD
-OUTPUT ENCODE BIGWORD :MESSAGE
-END
+to paircode :one :two
+local [row1 column1 row2 column2]
+make "row1 first thing :one
+make "column1 last thing :one
+make "row2 first thing :two
+make "column2 last thing :two
+if :row1 = :row2 ~
+   [output letters (list :row1 rotate (:column1+1)) ~
+                   (list :row1 rotate (:column2+1))]
+if :column1 = :column2 ~
+   [output letters (list rotate (:row1+1) :column1)  ~
+                   (list rotate (:row2+1) :column1)]
+output letters (list :row1 :column2) (list :row2 :column1)
+end
 
-TO REMOVE :LETTERS :STRING
-IF EMPTYP :STRING [OUTPUT "]
-IF MEMBERP FIRST :STRING :LETTERS [OUTPUT REMOVE :LETTERS BF :STRING]
-OUTPUT WORD FIRST :STRING REMOVE :LETTERS BF :STRING
-END
+to rotate :index
+output ifelse :index = 6 [1] [:index]
+end
 
-TO REORDER :STRING
-OUTPUT REORDER1 :STRING [] [] 5
-END
+to letters :one :two
+output word letter :one letter :two
+end
 
-TO REORDER1 :STRING :ALL :ROW :COUNT
-IF EQUALP :COUNT 0 [OUTPUT REORDER1 :STRING (LPUT :ROW :ALL) [] 5]
-IF EMPTYP :STRING [OUTPUT :ALL]
-OUTPUT REORDER1 (BF :STRING) :ALL (LPUT FIRST :STRING :ROW) ~
-                (:COUNT-1)
-END
+to letter :rowcol
+output itoj mditem :rowcol :matrix
+end
 
-TO ROTATE :INDEX
-OUTPUT IFELSE EQUALP :INDEX 6 [1] [:INDEX]
-END
+;; I and J conversion
 
-TO SETKEYWORD :WORD
-MAKE "MATRIX REORDER WORD :WORD REMOVE :WORD "ABCDEFGHIKLMNOPQRSTUVWXYZ
-SETLETTERS :MATRIX
-MAKE "J :I
-END
+to jtoi :word
+output map [ifelse equalp ? "j ["i] [?]] :word
+end
 
-TO SETLETTERS :MATRIX
-SETLETTERS1 :MATRIX 1
-END
-
-TO SETLETTERS1 :MATRIX :ROW
-IF EMPTYP :MATRIX [STOP]
-SETLETTERS2 (FIRST :MATRIX) :ROW 1
-SETLETTERS1 (BF :MATRIX) (:ROW+1)
-END
-
-TO SETLETTERS2 :LIST :ROW :COL
-IF EMPTYP :LIST [STOP]
-MAKE FIRST :LIST LIST :ROW :COL
-SETLETTERS2 (BF :LIST) :ROW (:COL+1)
-END
-
+to itoj :letter
+if :letter = "i [if (random 3) = 0 [output "j]]
+output :letter
+end

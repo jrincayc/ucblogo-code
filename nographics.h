@@ -91,7 +91,6 @@ typedef struct { int dummy; } pen_info;
 #define prepare_to_draw_turtle nop();
 #define done_drawing_turtle nop();
 
-extern double degrad;
 extern int pw, ph, pc, pm, pv, px, py, bg;
 extern void nop();
 

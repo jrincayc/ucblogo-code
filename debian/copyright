@@ -1,94 +1,27 @@
-BERKELEY LOGO INTERPRETER   Installation guide for Unix systems
+This is the Debian GNU/Linux prepackaged version of ucblogo, an
+implementation of the logo programming language.  ucblogo was primarily
+written by Daniel Van Blerkom, Brian Harvey, Michael Katz, and Douglas
+Orleans.
 
- *	Copyright (C) 1993 by the Regents of the University of California
- *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
- *  
- *      This program is distributed in the hope that it will be useful,
- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
- *  
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+This package was originally put together by Dale Scheetz <dwarf@polaris.net>
+Chris Fearnley <cjf@netaxs.com> made several improvements and upgraded to
+the latest version from sources obtained from:
+  anarres.cs.berkeley.edu.:/pub/ucblogo/ucblogo-4.1.tar.gz
 
-This version of Logo is designed for a machine with adequate memory.  It is
-not likely to be usable as the basis for a 64K microcomputer implementation.
+Modifications for Debian GNU/Linux Copyright (C) 1997 Chris Fearnley.
 
-The interpreter was written primarily by Daniel Van Blerkom, Brian Harvey,
-Michael Katz, and Douglas Orleans.  Thanks to Fred Gilham for the X11 code.
-Send comments by e-mail to bh@cs.berkeley.edu.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
 
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
 
-The Unix distribution includes a shell script called "configure" that
-customizes Logo for your particular version of Unix.  Just type the
-name "configure" at a shell prompt.  The script performs various tests to
-see whether particular libraries, etc., are available.
-
-The configure script writes several files.  The most important are
-
-	makefile		used to compile Logo
-	config.h		header file used by C source files
-
-Note:  It also writes a file "config.cache" in which it remembers the results
-of its tests.  If you copy the Logo source directory to another machine with
-a different version of Unix and try to recompile, you should remove
-config.cache before running configure.
-
-With these files in place you should be able to say "make" to the shell
-and get three results:
-
-	logo			executable Logo interpreter
-	logolib			directory with pseudo-primitives in Logo
-	helpfiles		directory with online documentation
-
-You can move the executable "logo" to wherever you want (e.g., /usr/local).
-Logo assumes that you will leave the directories "logolib" and "helpfiles"
-in the source directory!  If you would rather not keep the source files
-online, and wish to move these subdirectories somewhere else, then instead
-of saying "make" you should say, e.g.,
-
-	make LIBLOC=/usr/local/lib/logo
-
-(If you have already said "make" before reading this, remove libloc.c
-before giving the make command above.)
-
-The distribution also includes the file "usermanual" which is a rather terse
-description of this particular Logo dialect for people who already know how
-to program in Logo.
-
-To install Logo you need merely move the file "logo" to wherever you want it.
-
-The files ztc* and mac* are for toy-computer versions of Logo.  But if you
-are trying to compile for those machines you probably also need some extra
-help beyond what's in here.  You can get complete PC and Mac versions by
-anonymous FTP from anarres.cs.berkeley.edu.
-
-----------
-
-Here are the special features of this dialect of Logo:
-
-	Random-access arrays.
-
-	Variable number of inputs to user-defined procedures.
-
-	Mutators for list structure (dangerous).
-
-	Pause on error, and other improvements to error handling.
-
-	Comments and continuation lines; formatting is preserved when
-	procedure definitions are saved or edited.
-
-	Terrapin-style tokenization (e.g., [2+3] is a list with one member)
-	but LCSI-style syntax (no special forms except TO).  The best of
-	both worlds.
-
-	First-class instruction and expression templates.
-
-	Macros.
-
-----------
+You should have received a copy of the GNU General Public License with
+your Debian GNU/Linux system, in /usr/doc/copyright/GPL, or with the
+Debian GNU/Linux hello source package as the file COPYING.  If not,
+write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge,
+MA 02139, USA.

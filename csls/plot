@@ -1,51 +1,36 @@
-to abs :x
-op ifelse :x<0 [-:x] [:x]
+to plot :inputs
+keyword :inputs [maxharm 5 deltax 2 yscale 75 cycles 1 xrange 230 skip 2]
+localmake "xscale :cycles*180/:xrange
+splitscreen clearscreen hideturtle penup
+setpos list (-:xrange) 0
+pendown
+for [x :deltax [2*:xrange] :deltax] ~
+    [setpos list (xcor+:deltax) (:yscale * series :maxharm)]
 end
 
-TO DRAW :X
-IF XCOR > :XRANGE [STOP]
-SETPOS LIST (XCOR+:DELTAX) (SAFE :YRANGE*FF :MAXHARM)
-DRAW :X+:DELTAX
-END
+;; Compute the Fourier series values
 
-TO F :NUM
-OP (RADSIN :COEFF*:NUM*:X) / :NUM
-END
+to series :harmonic
+if :harmonic < 1 [output 0]
+output (term :harmonic)+(series :harmonic-:skip)
+end
 
-TO FF :NUM
-IF :NUM < 1 [OP 0]
-OP (F :NUM)+(FF :NUM-:SKIP)
-END
+to term :harmonic
+output (sin :xscale * :harmonic * :x) / :harmonic
+end
 
-TO KEYWORD :INPUTS :DEFAULTS
-SETUP.VALUES :DEFAULTS
-IF WORDP :INPUTS [MAKE FIRST :DEFAULTS :INPUTS STOP]
-SETUP.VALUES :INPUTS
-END
+;; Handle keyword inputs
 
-TO PLOT :INPUTS
-KEYWORD :INPUTS [MAXHARM 5 DELTAX 3 YRANGE 75 CYCLES 1 XRANGE 230 SKIP 2]
-MAKE "COEFF :CYCLES*(RADARCTAN -1 0)/:XRANGE
-SS CS HT PU
-SETPOS LIST (-:XRANGE) 0
-PD
-DRAW :DELTAX
-END
+.macro keyword :inputs :defaults
+if or (wordp :inputs) (numberp first :inputs) ~
+   [make "inputs sentence (first :defaults) :inputs]
+output `[local ,[filter [not numberp ?] :defaults]
+         setup.values ,[:defaults]
+         setup.values ,[:inputs]]
+end
 
-TO SAFE :Y
-IF (ABS :Y) < 0.001 [OP 0]
-OP :Y
-END
-
-TO SETUP.SIMPLE :LIST
-MAKE FIRST :DEFAULTS FIRST :LIST
-SETUP.VALUES BF :LIST
-END
-
-TO SETUP.VALUES :LIST
-IF EMPTYP :LIST [STOP]
-IF NUMBERP FIRST :LIST [SETUP.SIMPLE :LIST STOP]
-MAKE FIRST :LIST FIRST BF :LIST
-SETUP.VALUES BF BF :LIST
-END
-
+to setup.values :list
+if emptyp :list [stop]
+make first :list first butfirst :list
+setup.values butfirst butfirst :list
+end

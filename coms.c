@@ -22,6 +22,9 @@
 #include "logo.h"
 #include "globals.h"
 #include <math.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #ifdef ibm
 #include "process.h"
 #endif
@@ -34,9 +37,12 @@
 #include <dos.h>
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
+#ifdef HAVE_TERMIO_H
+#include <termio.h>
+#else
+#ifdef HAVE_SGTTY_H
+#include <sgtty.h>
+#endif
 #endif
 
 FIXNUM ift_iff_flag = -1;
@@ -57,24 +63,21 @@ NODE *make_cont(enum labels cont, NODE *val) {
     return retval;
 }
 
-NODE *loutput(NODE *arg)
-{
+NODE *loutput(NODE *arg) {
     if (NOT_THROWING) {
 	stopping_flag = OUTPUT;
-	output_node = reref(output_node, car(arg));
+	output_node = car(arg);
     }
     return(UNBOUND);
 }
 
-NODE *lstop()
-{
+NODE *lstop(NODE *args) {
     if (NOT_THROWING)
 	stopping_flag = STOP;
     return(UNBOUND);
 }
 
-NODE *lthrow(NODE *arg)
-{
+NODE *lthrow(NODE *arg) {
     if (NOT_THROWING) {
 	if (compare_node(car(arg),Error,TRUE) == 0) {
 	    if (cdr(arg) != NIL)
@@ -83,23 +86,21 @@ NODE *lthrow(NODE *arg)
 		err_logo(USER_ERR, UNBOUND);
 	} else {
 	    stopping_flag = THROWING;
-	    throw_node = reref(throw_node, car(arg));
+	    throw_node = car(arg);
 	    if (cdr(arg) != NIL)
-		output_node = reref(output_node, cadr(arg));
+		output_node = cadr(arg);
 	    else
-		output_node = reref(output_node, UNBOUND);
+		output_node = UNBOUND;
 	}
     }
     return(UNBOUND);
 }
 
-NODE *lcatch(NODE *args)
-{
+NODE *lcatch(NODE *args) {
     return make_cont(catch_continuation, cons(car(args), lrun(cdr(args))));
 }
 
-int torf_arg(NODE *args)
-{
+int torf_arg(NODE *args) {
     NODE *arg = car(args);
 
     while (NOT_THROWING) {
@@ -111,8 +112,15 @@ int torf_arg(NODE *args)
     return -1;
 }
 
-NODE *lnot(NODE *args)
-{
+NODE *lgoto(NODE *args) {
+    return make_cont(goto_continuation, car(args));
+}
+
+NODE *ltag(NODE *args) {
+    return UNBOUND;
+}
+
+NODE *lnot(NODE *args) {
     int arg = torf_arg(args);
 
     if (NOT_THROWING) {
@@ -122,8 +130,7 @@ NODE *lnot(NODE *args)
     return(UNBOUND);
 }
 
-NODE *land(NODE *args)
-{
+NODE *land(NODE *args) {
     int arg;
 
     if (args == NIL) return(True);
@@ -138,8 +145,7 @@ NODE *land(NODE *args)
     else return(UNBOUND);
 }
 
-NODE *lor(NODE *args)
-{
+NODE *lor(NODE *args) {
     int arg;
 
     if (args == NIL) return(False);
@@ -168,8 +174,7 @@ NODE *runnable_arg(NODE *args) {
     return(arg);
 }
 
-NODE *lif(NODE *args)	/* macroized */
-{
+NODE *lif(NODE *args) {	/* macroized */
     NODE *yes;
     int pred;
 
@@ -184,8 +189,7 @@ NODE *lif(NODE *args)	/* macroized */
     return(UNBOUND);
 }
 
-NODE *lifelse(NODE *args)    /* macroized */
-{
+NODE *lifelse(NODE *args) {    /* macroized */
     NODE *yes, *no;
     int pred;
 
@@ -199,28 +203,25 @@ NODE *lifelse(NODE *args)    /* macroized */
     return(UNBOUND);
 }
 
-NODE *lrun(NODE *args)    /* macroized */
-{
+NODE *lrun(NODE *args) {    /* macroized */
     NODE *arg = runnable_arg(args);
 
     if (NOT_THROWING) return(arg);
     return(UNBOUND);
 }
 
-NODE *lrunresult(NODE *args)
-{
+NODE *lrunresult(NODE *args) {
     return make_cont(runresult_continuation, lrun(args));
 }
 
-NODE *pos_int_arg(NODE *args)
-{
+NODE *pos_int_arg(NODE *args) {
     NODE *arg = car(args), *val;
     FIXNUM i;
     FLONUM f;
 
     val = cnv_node_to_numnode(arg);
     while ((nodetype(val) != INT || getint(val) < 0) && NOT_THROWING) {
-	if (nodetype(val) == FLOAT &&
+	if (nodetype(val) == FLOATT &&
 		    fmod((f = getfloat(val)), 1.0) == 0.0 &&
 		    f >= 0.0 && f < (FLONUM)MAXLOGOINT) {
 #if HAVE_IRINT
@@ -228,11 +229,9 @@ NODE *pos_int_arg(NODE *args)
 #else
 	    i = f;
 #endif
-	    gcref(val);
 	    val = make_intnode(i);
 	    break;
 	}
-	gcref(val);
 	setcar(args, err_logo(BAD_DATA, arg));
 	arg = car(args);
 	val = cnv_node_to_numnode(arg);
@@ -242,8 +241,7 @@ NODE *pos_int_arg(NODE *args)
     return UNBOUND;
 }
 
-NODE *lrepeat(NODE *args)
-{
+NODE *lrepeat(NODE *args) {
     NODE *cnt, *torpt, *retval = NIL;
 
     cnt = pos_int_arg(args);
@@ -254,8 +252,11 @@ NODE *lrepeat(NODE *args)
     return(retval);
 }
 
-NODE *lforever(NODE *args)
-{
+NODE *lrepcount(NODE *args) {
+    return make_intnode(user_repcount);
+}
+
+NODE *lforever(NODE *args) {
     NODE *torpt = lrun(args);
 
     if (NOT_THROWING)
@@ -263,8 +264,7 @@ NODE *lforever(NODE *args)
     return NIL;
 }
 
-NODE *ltest(NODE *args)
-{
+NODE *ltest(NODE *args) {
     int arg = torf_arg(args);
 
     if (tailcall != 0) return UNBOUND;
@@ -275,8 +275,7 @@ NODE *ltest(NODE *args)
     return(UNBOUND);
 }
 
-NODE *liftrue(NODE *args)
-{
+NODE *liftrue(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag > 0)
@@ -285,8 +284,7 @@ NODE *liftrue(NODE *args)
 	return(NIL);
 }
 
-NODE *liffalse(NODE *args)
-{
+NODE *liffalse(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag == 0)
@@ -295,51 +293,64 @@ NODE *liffalse(NODE *args)
 	return(NIL);
 }
 
-void prepare_to_exit(BOOLEAN okay)
-{
+void prepare_to_exit(BOOLEAN okay) {
 #ifdef mac
     if (okay) {
 	console_options.pause_atexit = 0;
 	exit(0);
     }
 #endif
+#ifndef WIN32 /* sowings */
 #ifdef ibm
-    ltextscreen();
+    ltextscreen(NIL);
     ibm_plain_mode();
 #ifdef __ZTC__
     zflush();
     controlc_close();
 #endif
 #endif
+#endif /* !WIN32 */
+
 #ifdef unix
+#ifndef HAVE_UNISTD_H
     extern int getpid();
+#endif
     char ef[30];
 
     charmode_off();
-    sprintf(ef, "/tmp/logo%d", getpid());
+    sprintf(ef, "/tmp/logo%d", (int)getpid());
     unlink(ef);
 #endif
 }
 
-NODE *lbye()
-{
+NODE *lbye(NODE *args) {
     prepare_to_exit(TRUE);
     if (ufun != NIL || loadstream != stdin) exit(0);
-    if (isatty(0) && isatty(1)) lcleartext();
-    printf("Thank you for using Logo.\n");
-    printf("Have a nice day.\n");
+#ifndef WIN32
+    if (isatty(0) && isatty(1))
+#endif
+	lcleartext(NIL);
+    ndprintf(stdout, "Thank you for using Logo.\n");
+    ndprintf(stdout, "Have a nice day.\n");
+#ifdef __ZTC__
+    printf("\n");
+#endif
     exit(0);
+    return UNBOUND;	/* not reached, but makes compiler happy */
 }
 
-NODE *lwait(NODE *args)
-{
+NODE *lwait(NODE *args) {
     NODE *num;
     unsigned int n;
 
     num = pos_int_arg(args);
     if (NOT_THROWING) {
+#ifdef WIN32
+      win32_update_text();
+#else
 	fflush(stdout); /* csls v. 1 p. 7 */
-#ifdef __ZTC__
+#endif
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
 	zflush();
 #endif
 	if (getint(num) > 0) {
@@ -351,12 +362,13 @@ NODE *lwait(NODE *args)
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#else
-#ifdef __ZTC__
+#else	/* not unix */
+#if defined(__ZTC__) && !defined(_MSC_VER)
 	    usleep(getint(num) * 16667L);
-#else
+#else	/* not DOS */
 		if (!setjmp(iblk_buf)) {
 			input_blocking++;
+#ifndef _MSC_VER
 			n = ((unsigned int)getint(num)+30) / 60;
 #ifdef mac
 			while (n > 1) {
@@ -366,21 +378,29 @@ NODE *lwait(NODE *args)
 			}
 #endif
 			if (n > 0) sleep(n);
+#else
+			n = (unsigned int)getint(num);
+			while (n > 60) {
+				_sleep(1000);
+				n -= 60;
+				if (check_throwing) n = 0;
+			}
+			if (n > 0) _sleep(n*1000/60);
+#endif
 		}
 		input_blocking = 0;
-#endif
-#endif
+#endif	/* DOS */
+#endif	/* Unix */
 	}
     }
     return(UNBOUND);
 }
 
-NODE *lshell(NODE *args)
-{
+NODE *lshell(NODE *args) {
 #ifdef mac
     printf("Sorry, no shell on the Mac.\n");
     return(UNBOUND);
-#else
+#else    
 #ifdef ibm
     NODE *arg;
     char doscmd[200];
@@ -416,15 +436,19 @@ NODE *lshell(NODE *args)
     x_coord = x_margin;
     y_coord = r.h.dh;
  */
+#ifndef WIN32
     x_coord = x_margin;
     y_coord = y_max;
     ibm_gotoxy(x_coord, y_coord);
+#else
+    win32_repaint_screen();
+#endif
     return(UNBOUND);
 #else
     extern FILE *popen();
     char cmdbuf[300];
     FILE *strm;
-    NODE *head = NIL, *tail, *this;
+    NODE *head = NIL, *tail = NIL, *this;
     BOOLEAN wordmode = FALSE;
     int len;
 
@@ -440,13 +464,12 @@ NODE *lshell(NODE *args)
 	if (cmdbuf[len-1] == '\n')
 	    cmdbuf[--len] = '\0';
 	if (wordmode)
-	    this = make_strnode(cmdbuf, (char *)NULL, len,
+	    this = make_strnode(cmdbuf, (struct string_block *)NULL, len,
 			STRING, strnzcpy);
 	else
 	    this = parser(make_static_strnode(cmdbuf), FALSE);
 	if (head == NIL) {
 	    tail = head = cons(this,NIL);
-	    ref(head);
 	} else {
 	    setcdr(tail, cons(this,NIL));
 	    tail = cdr(tail);
@@ -454,7 +477,7 @@ NODE *lshell(NODE *args)
 	fgets(cmdbuf,300,strm);
     }
     pclose(strm);
-    return(unref(head));
+    return(head);
 #endif
 #endif
 }

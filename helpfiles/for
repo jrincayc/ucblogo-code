@@ -6,13 +6,13 @@ FOR forcontrol instructionlist				(library procedure)
 	determine a number, the starting value of the variable; (3) a word
 	or list that will be evaluated to determine a number, the limit value
 	of the variable; (4) an optional word or list that will be evaluated
-	to determine the step size.  If the fourth element is missing, the
+	to determine the step size.  If the fourth member is missing, the
 	step size will be 1 or -1 depending on whether the limit value is
 	greater than or less than the starting value, respectively.
 
 	The second input is an instructionlist.  The effect of FOR is to run
 	that instructionlist repeatedly, assigning a new value to the control
-	variable (the one named by the first element of the forcontrol list)
+	variable (the one named by the first member of the forcontrol list)
 	each time.  First the starting value is assigned to the control
 	variable.  Then the value is compared to the limit value.  FOR is
 	complete when the sign of (current - limit) is the same as the sign

@@ -27,11 +27,29 @@
 /* Define if you have the usleep function.  */
 #undef HAVE_USLEEP
 
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
 /* Define if you have the <sgtty.h> header file.  */
 #undef HAVE_SGTTY_H
 
 /* Define if you have the <termio.h> header file.  */
 #undef HAVE_TERMIO_H
+  
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+  
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+  
+/* Define if you have the <termcap.h> header file.  */
+#undef HAVE_TERMCAP_H
+  
+/* Define if you have the <termlib.h> header file.  */
+#undef HAVE_TERMLIB_H
+  
+/* Define if you have the <curses.h> header file.  */
+#undef HAVE_CURSES_H
 
 /* Define if you have the BSD library (-lBSD).  */
 #undef HAVE_LIBBSD

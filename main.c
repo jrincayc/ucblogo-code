@@ -19,6 +19,11 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#include <process.h>  /* needed? */
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -40,14 +45,19 @@
 #include <setjmp.h>
 jmp_buf iblk_buf;
 #endif
+ 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #ifdef mac
 #include <console.h>
 #endif
 
 NODE *current_line = NIL;
+NODE **bottom_stack; /*GC*/
 
-unblock_input() {
+void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
 #ifdef mac
@@ -62,12 +72,16 @@ unblock_input() {
     }
 }
 
-#ifdef __ZTC__
+#if defined(__ZTC__) || defined(WIN32)
 void logo_stop(int sig)
 #else
-void logo_stop()
+void logo_stop(void)
 #endif
 {
+    if (inside_gc) {
+	int_during_gc = 1;
+	return;
+    }
     to_pending = 0;
 #if 1   /* was #ifndef unix */
     err_logo(STOP_ERROR,NIL);
@@ -78,105 +92,102 @@ void logo_stop()
 	new_line(stdout);
     }
 #endif
-#ifndef bsd
     signal(SIGINT, logo_stop);
-#endif
     unblock_input();
 }
 
-#ifdef __ZTC__
+#if defined(__ZTC__) || defined(WIN32)
 void logo_pause(int sig)
 #else
-void logo_pause()
+void logo_pause(void)
 #endif
 {
+    if (inside_gc) {
+	int_during_gc = -1;
+	return;
+    }
     to_pending = 0;
 #ifdef bsd
     sigsetmask(0);
 #else
-#ifndef mac
+#if !defined(mac) && !defined(_MSC_VER)
     signal(SIGQUIT, logo_pause);
 #endif
 #endif
-#if 1 /* was #ifndef unix */
-    lpause();
-#else
-    if (ufun != NIL) {
-	lpause();
-    } else {
-	new_line(stdout);
-	unblock_input();
-    }
-#endif
+    lpause(NIL);
 }
 
-#ifdef __ZTC__
-extern volatile int ctrl_c_count;
-
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
 void _far _cdecl do_ctrl_c(void) {
     ctrl_c_count++;
 }
 #endif
 
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     NODE *exec_list = NIL;
-#ifdef MEM_DEBUG
-    extern long int mem_allocated, mem_freed;
+
+#ifdef mac
+    init_mac_memory();
 #endif
+
+    bottom_stack = &exec_list; /*GC*/
 
 #ifdef x_window
     x_window_init(argc, argv);
 #endif
-#ifdef mac
-    init_mac_memory();
-#endif
+    (void)addseg();
     term_init();
-    if (argc < 2) {
-	if (isatty(1)) lcleartext();
-	printf("Welcome to Berkeley Logo version 3.3");
-	new_line(stdout);
-    }
     init();
+
+    math_init();
+
 #ifdef ibm
     signal(SIGINT, SIG_IGN);
-#ifdef __ZTC__
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
     _controlc_handler = do_ctrl_c;
     controlc_open();
 #endif
-#else
+#else /* !ibm */
     signal(SIGINT, logo_stop);
-#endif
+#endif /* ibm */
 #ifdef mac
     signal(SIGQUIT, SIG_IGN);
-#else
+#else /* !mac */
     signal(SIGQUIT, logo_pause);
 #endif
     /* SIGQUITs never happen on the IBM */
+
+    if (argc < 2) {
+#ifndef WIN32
+      if (isatty(1))
+#endif
+      {
+	lcleartext(NIL);
+	ndprintf(stdout,"Welcome to Berkeley Logo version 4.1");
+	new_line(stdout);
+      }
+    }
+
     argv++;
     while (--argc > 0 && NOT_THROWING) {
 	silent_load(NIL,*argv++);
     }
-#ifdef MEM_DEBUG
-    clear_alloced_records();
-#endif
+
     for (;;) {
 	if (NOT_THROWING) {
-#ifdef MEM_DEBUG
-	    fprintf(stderr, "New nodes allocated:\n");
-	    print_alloced_pointers();
-	    printf("alloc=%d, freed=%d, used=%d\n",
-		   mem_allocated, mem_freed, mem_allocated-mem_freed);
-#endif
 	    check_reserve_tank();
-	    current_line = reref(current_line, reader(stdin,"? "));
+	    current_line = reader(stdin,"? ");
 #ifdef __ZTC__
 		(void)feof(stdin);
 		if (!in_graphics_mode)
 		    printf(" \b");
 		fflush(stdout);
 #endif
-	    if (!isatty(0) && feof(stdin)) lbye();
+
+#ifndef WIN32
+	    if (feof(stdin) && !isatty(0)) lbye(NIL);
+#endif
+
 #ifdef __ZTC__
 	    if (feof(stdin)) clearerr(stdin);
 #endif
@@ -204,4 +215,5 @@ main(int argc, char *argv[])
 	}
     }
     prepare_to_exit(TRUE);
+    return 0;
 }

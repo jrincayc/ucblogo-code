@@ -1,63 +1,63 @@
-PROGRAM CARDS(OUTPUT);
- {SHUFFLE A DECK OF CARDS}
+program cards;
+ {Shuffle a deck of cards}
 
-VAR RANKS:ARRAY [0..51] OF INTEGER;
-    SUITS:ARRAY [0..51] OF CHAR;
-    I:INTEGER;
+var ranks:array [0..51] of integer;
+    suits:array [0..51] of char;
+    i:integer;
 
-PROCEDURE SHOWDECK;
- {PRINT THE DECK ARRAYS}
+procedure showdeck;
+ {Print the deck arrays}
 
-   BEGIN {SHOWDECK}
-      FOR I := 0 TO 51 DO
-         BEGIN
-            IF I MOD 13 = 0 THEN WRITELN;
-            WRITE(RANKS[I]:3,SUITS[I]);
-         END;
-      WRITELN;
-      WRITELN
-   END; {SHOWDECK}
+  begin {showdeck}
+    for i := 0 to 51 do
+      begin
+        if i mod 13 = 0 then writeln;
+        write(ranks[i]:3,suits[i]);
+      end;
+    writeln;
+    writeln
+  end; {showdeck}
 
-PROCEDURE DECK;
- {CREATE THE DECK IN ORDER}
+procedure deck;
+ {Create the deck in order}
 
-   VAR I,J:INTEGER;
-       SUITNAMES:PACKED ARRAY [0..3] OF CHAR;
+  var i,j:integer;
+      suitnames:packed array [0..3] of char;
 
-   BEGIN {DECK}
-      SUITNAMES := 'HSDC';
-      FOR I := 0 TO 12 DO
-         FOR J := 0 TO 3 DO
-            BEGIN
-               RANKS[13*J+I] := I+1;
-               SUITS[13*J+I] := SUITNAMES[J]
-            END;
-      WRITELN('THE INITIAL DECK:');
-      SHOWDECK
-   END; {DECK}
+  begin {deck}
+    suitnames := 'HSDC';
+    for i := 0 to 12 do
+      for j := 0 to 3 do
+        begin
+          ranks[13*j+i] := i+1;
+          suits[13*j+i] := suitnames[j]
+        end;
+    writeln('The initial deck:');
+    showdeck
+  end; {deck}
 
-PROCEDURE SHUFFLE;
- {SHUFFLE THE DECK RANDOMLY}
+procedure shuffle;
+ {Shuffle the deck randomly}
 
-   VAR RANK,I,J:INTEGER;
-       SUIT:CHAR;
+  var rank,i,j:integer;
+      suit:char;
 
-   BEGIN {SHUFFLE}
-      FOR I := 51 DOWNTO 1 DO {FOR EACH CARD IN THE DECK}
-         BEGIN
-            J := RANDOM(I+1); {PICK A RANDOM CARD BEFORE IT}
-            RANK := RANKS[I]; {INTERCHANGE RANKS}
-            RANKS[I] := RANKS[J];
-            RANKS[J] := RANK;
-            SUIT := SUITS[I]; {INTERCHANGE SUITS}
-            SUITS[I] := SUITS[J];
-            SUITS[J] := SUIT
-         END;
-      WRITELN('THE SHUFFLED DECK:');
-      SHOWDECK
-   END; {SHUFFLE}
+  begin {shuffle}
+    for i := 51 downto 1 do {For each card in the deck}
+      begin
+        j := random(i+1); {Pick a random card before it}
+        rank := ranks[i]; {Interchange ranks}
+        ranks[i] := ranks[j];
+        ranks[j] := rank;
+        suit := suits[i]; {Interchange suits}
+        suits[i] := suits[j];
+        suits[j] := suit
+      end;
+    writeln('The shuffled deck:');
+    showdeck
+  end; {shuffle}
 
-BEGIN {MAIN PROGRAM}
-   DECK;
-   SHUFFLE
-END.
+begin {main program}
+  deck;
+  shuffle
+end.

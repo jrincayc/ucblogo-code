@@ -1,0 +1,7 @@
+FILEP filename
+FILE? filename						(library procedure)
+
+	predicate, outputs TRUE if a file of the specified name exists
+	and can be read, FALSE otherwise.
+
+
