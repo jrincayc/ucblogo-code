@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 .macro do.while :while.instr :while.cond
 op se :while.instr (list "while :while.cond :while.instr)
 end

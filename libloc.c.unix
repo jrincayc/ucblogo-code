@@ -1,0 +1,4 @@
+char *libloc="/usr/local/lib/logo/logolib";
+char *helploc="/usr/local/lib/logo/helpfiles";
+char *temploc="/tmp";
+char *separator="/";

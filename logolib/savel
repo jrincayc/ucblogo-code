@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to savel :cont :file [:oldwr writer]
 openwrite :file
 setwrite :file

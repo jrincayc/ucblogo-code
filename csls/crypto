@@ -3,7 +3,7 @@ make "text map "uppercase :text
 make "fulltext :text
 make "moretext []
 make "textstack []
-copydef "letterp "namep
+if not procedurep "letterp [copydef "letterp "namep]
 forletters "A "Z "initvars
 make "maxcount 0
 initcount "single

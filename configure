@@ -1646,9 +1646,9 @@ EOF
 fi
 
 echo $ac_n "checking return type of signal handlers""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_type_signal'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
+# if eval "test \"`echo '$''{'ac_cv_type_signal'+set}'`\" = set"; then
+#   echo $ac_n "(cached) $ac_c" 1>&6
+# else
   cat > conftest.$ac_ext <<EOF
 #line 1654 "configure"
 #include "confdefs.h"
@@ -1671,19 +1671,56 @@ EOF
 if { (eval echo configure:1672: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_type_signal=void
+cat >> confdefs.h <<EOF
+#define SIGRET 
+EOF
 else
   rm -rf conftest*
   ac_cv_type_signal=int
+cat >> confdefs.h <<EOF
+#define SIGRET return 0;
+EOF
 fi
 rm -f conftest*
 
-fi
+# fi
 
 echo "$ac_t""$ac_cv_type_signal" 1>&6
 cat >> confdefs.h <<EOF
 #define RETSIGTYPE $ac_cv_type_signal
 EOF
 
+
+echo $ac_n "checking if signal handlers take argument""... $ac_c" 1>&6
+  cat > conftest.$ac_ext <<EOF
+#line 1654 "configure"
+#include "confdefs.h"
+#include <sys/types.h>
+#include <signal.h>
+#ifdef signal
+#undef signal
+#endif
+/* void (*signal (int, RETSIGTYPE (*)(int))); */
+
+int main() { return 0; }
+RETSIGTYPE t(int foo) {
+int i;
+signal(SIGINT,t);
+return 0; }
+EOF
+if { (eval echo configure:1672: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+cat >> confdefs.h <<EOF
+#define SIG_TAKES_ARG
+EOF
+  echo "$ac_t""yes" 1>&6
+else
+  rm -rf conftest*
+cat >> confdefs.h <<EOF
+#undef SIG_TAKES_ARG
+EOF
+  echo "$ac_t""no" 1>&6
+fi
 
 
 for ac_func in usleep srandom sigvec sigsetmask matherr drem irint bcopy memcpy

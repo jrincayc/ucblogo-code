@@ -248,7 +248,7 @@ NODE *lchar(NODE *args) {
 
     arg = pos_int_arg(args);
     if (NOT_THROWING) {
-	c = getint(arg);
+	c = (char)getint(arg);
 	val = make_strnode(&c, (struct string_block *)NULL, 1,
 		       STRING, strnzcpy);
     }
@@ -489,7 +489,7 @@ NODE *integer_arg(NODE *args) {
 #if HAVE_IRINT
 	    i = irint(f);
 #else
-	    i = f;
+	    i = (FIXNUM)f;
 #endif
 	    val = make_intnode(i);
 	    break;
@@ -627,7 +627,7 @@ NODE *l_setitem(NODE *args) {
 
 NODE *larray(NODE *args) {
     NODE *arg;
-    int d, o;
+    FIXNUM d, o;
 
     arg = pos_int_arg(args);
     if (cdr(args) != NIL) o = int_arg(cdr(args));

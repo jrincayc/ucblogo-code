@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to crossmap :cm.template [:cm.lists] 2
 if emptyp bf :cm.lists [op cm1 first :cm.lists 1 []]
 op cm1 :cm.lists 1 []

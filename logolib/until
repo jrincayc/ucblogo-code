@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 .macro until :until.cond :until.instr
 if run :until.cond [op []]
 op se :until.instr (list "until :until.cond :until.instr)

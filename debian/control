@@ -1,8 +1,8 @@
 Source: ucblogo
 Section: devel
 Priority: optional
-Maintainer: Dale Scheetz <dwarf@polaris.net>
-Standards-Version: 2.1.0.0
+Maintainer: Hamish Moffatt <hamish@debian.org>
+Standards-Version: 3.0.0
 
 Package: ucblogo
 Architecture: any

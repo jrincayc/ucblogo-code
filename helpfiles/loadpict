@@ -1,0 +1,7 @@
+LOADPICT filename
+
+	command.  Reads the specified file, which must have been
+	written by a SAVEPICT command, and restores the graphics
+	window and color palette settings to the values stored in
+	the file.  Any drawing previously on the screen is cleared.
+

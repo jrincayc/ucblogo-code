@@ -1,0 +1,9 @@
+SAVEPICT filename
+
+	command.  Writes a file with the specified name containing the
+	state of the graphics window, including any nonstandard color
+	palette settings, in Logo's internal format.  This picture can
+	be restored to the screen using LOADPICT.  The format is not
+	portable between platforms, nor is it readable by other programs.
+	See EPSPICT to export Logo graphics for other programs.
+

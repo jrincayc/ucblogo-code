@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to gensym
 if not namep "gensym.number [make "gensym.number 0]
 make "gensym.number :gensym.number + 1

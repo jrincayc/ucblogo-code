@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 .macro for :for.values :for.instr ~
    [:for.var first :for.values] ~
    [:for.initial run first bf :for.values] ~

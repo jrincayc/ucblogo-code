@@ -955,6 +955,20 @@ SETMARGINS vector
 	inadequate TV monitors that miss the top and left edges of the
 	screen.
 
+SETTEXTCOLOR foreground background
+SETTC foreground background
+
+	command (Windows and DOS extended only).  The inputs are color
+	numbers, as for turtle graphics.  Future printing to the text window
+	will use the specified colors for foreground (the characters
+	printed) and background (the space under those characters).  Using
+	STANDOUT will revert to the default text window colors.  In the
+	DOS extended (ucblogo.exe) version, colors in textscreen mode are
+	limited to numbers 0-7, and the coloring applies only to text
+	printed by the program, not to the echoing of text typed by the
+	user.  Neither limitation applies to the text portion of splitscreen
+	mode, which is actually drawn as graphics internally.
+
 
 ARITHMETIC
 ==========
@@ -1296,24 +1310,24 @@ RT degrees
 
 SETPOS pos
 
-	moves the turtle to an absolute screen position.  The argument
+	moves the turtle to an absolute screen position.  The input
 	is a list of two numbers, the X and Y coordinates.
 
 SETXY xcor ycor
 
 	moves the turtle to an absolute screen position.  The two
-	arguments are numbers, the X and Y coordinates.
+	inputs are numbers, the X and Y coordinates.
 
 SETX xcor
 
 	moves the turtle horizontally from its old position to a new
-	absolute horizontal coordinate.  The argument is the new X
+	absolute horizontal coordinate.  The input is the new X
 	coordinate.
 
 SETY ycor
 
 	moves the turtle vertically from its old position to a new
-	absolute vertical coordinate.  The argument is the new Y
+	absolute vertical coordinate.  The input is the new Y
 	coordinate.
 
 HOME
@@ -1324,7 +1338,7 @@ HOME
 SETHEADING degrees
 SETH degrees
 
-	turns the turtle to a new absolute heading.  The argument is
+	turns the turtle to a new absolute heading.  The input is
 	a number, the heading in degrees clockwise from the positive
 	Y axis.
 
@@ -1358,7 +1372,7 @@ TOWARDS pos
 
 	outputs a number, the heading at which the turtle should be
 	facing so that it would point from its current position to
-	the position given as the argument.
+	the position given as the input.
 
 SCRUNCH
 
@@ -1551,7 +1565,7 @@ SETPALETTE colornumber rgblist
 	sets the actual color corresponding to a given number, if allowed by
 	the hardware and operating system.  Colornumber must be an integer
 	greater than or equal to 8.  (Logo tries to keep the first 8 colors
-	constant.)  The second argument is a list of three nonnegative integers
+	constant.)  The second input is a list of three nonnegative integers
 	less than 64K (65536) specifying the amount of red, green, and blue in
 	the desired color.  The actual color resolution on any screen is
 	probably less than 64K, but Logo scales as needed.
@@ -1614,6 +1628,36 @@ BACKGROUND
 BG
 
 	outputs the graphics background color.
+
+
+SAVING AND LOADING PICTURES
+---------------------------
+
+SAVEPICT filename
+
+	command.  Writes a file with the specified name containing the
+	state of the graphics window, including any nonstandard color
+	palette settings, in Logo's internal format.  This picture can
+	be restored to the screen using LOADPICT.  The format is not
+	portable between platforms, nor is it readable by other programs.
+	See EPSPICT to export Logo graphics for other programs.
+
+LOADPICT filename
+
+	command.  Reads the specified file, which must have been
+	written by a SAVEPICT command, and restores the graphics
+	window and color palette settings to the values stored in
+	the file.  Any drawing previously on the screen is cleared.
+
+EPSPICT filename
+
+	command.  Writes a file with the specified name, containing
+	an Encapsulated Postscript (EPS) representation of the state
+	of the graphics window.  This file can be imported into other
+	programs that understand EPS format.  Restrictions: the
+	drawing cannot use ARC, FILL, PENERASE, or PENREVERSE; any
+	such instructions will be ignored in the translation to
+	Postscript form.
 
 
 
@@ -2111,13 +2155,15 @@ ED contentslist
 (EDIT)
 (ED)
 
-	command.  Edits the definitions of the named items, using your
-	favorite editor as determined by the EDITOR environment variable.
-	If you don't have an EDITOR variable, edits the definitions using
-	jove.  If invoked without an argument, EDIT edits the same
-	temporary file left over from a previous EDIT instruction.
-	When you leave the editor, Logo reads the revised definitions
-	and modifies the workspace accordingly.
+	command.  If invoked with an input, EDIT writes the definitions
+	of the named items into a temporary file and edits that file, using
+	your favorite editor as determined by the EDITOR environment
+	variable.  If you don't have an EDITOR variable, edits the
+	definitions using jove.  If invoked without an input, EDIT edits
+	the same file left over from a previous EDIT or EDITFILE instruction.
+	When you leave the editor, Logo reads the revised definitions and
+	modifies the workspace accordingly.  It is not an error if the
+	input includes names for which there is no previous definition.
 
 	If there is an environment variable called TEMP, then Logo uses
 	its value as the directory in which to write the temporary file
@@ -2126,6 +2172,18 @@ ED contentslist
 	Exceptionally, the EDIT command can be used without its default
 	input and without parentheses provided that nothing follows it on
 	the instruction line.
+
+EDITFILE filename
+
+	command.  Starts the Logo editor, like EDIT, but instead of editing
+	a temporary file it edits the file specified by the input.  When you
+	leave the editor, Logo reads the revised file, as for EDIT.
+	EDITFILE also remembers the filename, so that a subsequent EDIT
+	command with no input will re-edit the same file.
+
+	EDITFILE is intended as an alternative to LOAD and SAVE.  You can
+	maintain a workspace file yourself, controlling the order in which
+	definitions appear, maintaining comments in the file, and so on.
 
 EDALL							(library procedure)
 
@@ -2208,11 +2266,11 @@ GC
 	unless garbage has been collected.  Another reason to use GC is that
 	a garbage collection takes a noticeable fraction of a second, and you
 	may want to schedule collections for times before or after some
-	time-critical animation.  If invoked with an argument (of any value),
+	time-critical animation.  If invoked with an input (of any value),
 	GC runs a full garbage collection, including GCTWA (Garbage Collect
 	Truly Worthless Atoms, which means that it removes from Logo's
 	memory words that used to be procedure or variable names but aren't
-	any more); without an argument, GC does a generational garbage
+	any more); without an input, GC does a generational garbage
 	collection, which means that only recently created nodes are
 	examined.  (The latter is usually good enough.)
 
@@ -2305,6 +2363,7 @@ STOP
 	invoked.  The stopped procedure does not output a value.
 
 OUTPUT value
+OP value
 
 	command.  Ends the running of the procedure in which it appears.
 	That procedure outputs the value "value" to the context in which
@@ -2555,7 +2614,7 @@ in a given evaluation.  Some tools allow for more than one datum to be
 substituted in parallel; in these cases the slots are indicated by ?1 for
 the first datum, ?2 for the second, and so on:
 
-	? show (map [word ?1 ?2 ?1] [a b c] [d e f])
+	? show (map [(word ?1 ?2 ?1)] [a b c] [d e f])
 	[ada beb cfc]
 	?
 
@@ -2617,7 +2676,7 @@ form can be understood as invoking the procedure
 	output :x+3
 	end
 
-with argument 5, but without actually giving the procedure a name.  If
+with input 5, but without actually giving the procedure a name.  If
 the use of OUTPUT were interchanged in these two examples, we'd get errors:
 
 	? print apply [[x] output :x+3] [5]

@@ -1,0 +1,15 @@
+SETTEXTCOLOR foreground background
+SETTC foreground background
+
+	command (Windows and DOS extended only).  The inputs are color
+	numbers, as for turtle graphics.  Future printing to the text window
+	will use the specified colors for foreground (the characters
+	printed) and background (the space under those characters).  Using
+	STANDOUT will revert to the default text window colors.  In the
+	DOS extended (ucblogo.exe) version, colors in textscreen mode are
+	limited to numbers 0-7, and the coloring applies only to text
+	printed by the program, not to the echoing of text typed by the
+	user.  Neither limitation applies to the text portion of splitscreen
+	mode, which is actually drawn as graphics internally.
+
+

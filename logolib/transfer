@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to transfer :transfer.limit :transfer.template :transfer.init
 output cascade.2 (ifelse emptyp :transfer.limit ~
                          [[emptyp ?2]] ~

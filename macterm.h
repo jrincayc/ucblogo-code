@@ -19,7 +19,7 @@
  *
  */
 
-#define GR_SIZE 10000
+#define GR_SIZE 30000
 
 #define prepare_to_draw GetPort(&savePort); SetPort(graphics_window)
 #define done_drawing SetPort(savePort)

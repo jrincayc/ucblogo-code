@@ -2,60 +2,53 @@
 #
 # debian/rules for ucblogo package
 
-p=ucblogo
-
 build:
-	$(checkdir)
+	dh_testdir
 	./configure
-	$(MAKE) LIBLOC=/usr/lib/$(p) CFLAGS="-O2 -Wall -g"
+	$(MAKE) LIBLOC=/usr/share/ucblogo CFLAGS="-O2 -Wall -g"
 	touch build
 
 clean:
-	$(checkdir)
+	dh_testdir
 	$(MAKE) -i clean || $(MAKE) -i -f makefile.in clean
 	-rm -f build
 	-rm -f makefile config.h config.cache config.log config.status \
 		core logo makehelp
 	-rm -rf *~ debian/tmp debian/{*~,files*,substvars}
-	-rm -rf helpfiles
+	# -rm -rf helpfiles
+	dh_clean
 
 binary-indep: checkroot build
 # None
 	@echo 'No architecture independend package components.'; false
 
-binary binary-arch: checkroot build
-	$(checkdir)
-	-rm -rf debian/tmp
-	install -d debian/tmp debian/tmp/DEBIAN
-	install -d debian/tmp/usr/doc/$(p)
-	install -d debian/tmp/usr/bin
-	install -d debian/tmp/usr/lib/$(p)/helpfiles
-	install -d debian/tmp/usr/lib/$(p)/logolib
-	install -d debian/tmp/usr/lib/$(p)/csls
-	install -s logo debian/tmp/usr/bin/$(p)
-	ln -s $(p) debian/tmp/usr/bin/logo
-	cp -r helpfiles/* debian/tmp/usr/lib/$(p)/helpfiles/.
-	cp -r logolib/* debian/tmp/usr/lib/$(p)/logolib/.
-	cp -r csls/* debian/tmp/usr/lib/$(p)/csls/.
-	install -d debian/tmp/usr/man/man1
-	install $(p).1 debian/tmp/usr/man/man1/.
-	gzip -9v debian/tmp/usr/man/man1/*
-	ln -s $(p).1.gz debian/tmp/usr/man/man1/logo.1.gz
-	cp README usermanual debian/changelog debian/copyright debian/tmp/usr/doc/$(p)/.
-	gzip -9v debian/tmp/usr/doc/$(p)/{README,usermanual,changelog}
-	dpkg-shlibdeps logo
-	dpkg-gencontrol
-	chown -R root.root debian/tmp
-	chmod -R g-ws debian/tmp
-	dpkg --build debian/tmp ..
+binary binary-arch: build
+	dh_testdir
+	dh_testroot
+	dh_clean
 
-define checkdir
-	test -f logo.h -a -f debian/rules
-endef
+	dh_installdirs
+	install -s logo debian/tmp/usr/bin/ucblogo
+	ln -s ucblogo debian/tmp/usr/bin/logo
 
-checkroot:
-	$(checkdir)
-	test root =  "`whoami`"
+	cp -r helpfiles/* debian/tmp/usr/share/ucblogo/helpfiles/.
+	cp -r logolib/* debian/tmp/usr/share/ucblogo/logolib/.
+	cp -r csls/* debian/tmp/usr/share/ucblogo/csls/.
+
+	dh_installmanpages
+	ln -s ucblogo.1.gz debian/tmp/usr/share/man/man1/logo.1.gz
+
+	dh_installdocs README usermanual
+	dh_installchangelogs
+
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
 
 .PHONY: binary binary-arch binary-indep clean checkroot
 

@@ -79,7 +79,7 @@ NODE *get_bodywords(NODE *proc, NODE *name) {
 	val = cdr(val);
     }
     setcdr(tail, cons(cons(End, NIL), NIL));
-    setbodywords__procnode(proc,head);
+/*  setbodywords__procnode(proc,head);    */   /* confuses copydef */
     return(head);
 }
 
@@ -177,7 +177,7 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
 		if (cdr(arg) == NIL)
 		    maximum = -1;
 	    } else if (nodetype(arg) == INT &&
-		       getint(arg) <= (unsigned) maximum &&
+		       (unsigned)getint(arg) <= (unsigned) maximum &&
 		       getint(arg) >= minimum) {
 		deflt = getint(arg);
 	    } else if (maximum == minimum) {
@@ -269,7 +269,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		maximum++;
 		deflt++;
 	    } else if (nodetype(arg) == INT && 
-		       getint(arg) <= (unsigned) maximum &&
+		       (unsigned)getint(arg) <= (unsigned) maximum &&
 		       getint(arg) >= minimum) {
 		deflt = getint(arg);
 	    } else {
@@ -291,6 +291,9 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 	to_pending++;    /* for int or quit signal */
 	while (NOT_THROWING && to_pending && (!feof(loadstream))) {
 	    tnode = cons(reader(loadstream, "> "), NIL);
+	    if ((feof(loadstream))) {
+		tnode = cons(make_static_strnode("end"), NIL);
+	    }
 	    setcdr(lastnode2, tnode);
 	    lastnode2 = tnode;
 	    tnode = cons(parser(car(tnode), TRUE), NIL);
@@ -394,20 +397,25 @@ int bck(int flag) {
 }
 
 void contents_map(NODE *sym) {
+    int flag_check = PROC_BURIED;
+
+    if (want_buried) flag_check = want_buried;
     switch(contents_list_type) {
 	case c_PROCS:
 	    if (procnode__object(sym) == UNDEFINED ||
 			is_prim(procnode__object(sym)))
 		return;
-	    if (bck(flag__object(sym,PROC_BURIED))) return;
+	    if (bck(flag__object(sym,flag_check))) return;
 	    break;
 	case c_VARS:
+	    flag_check <<= 1;
 	    if (valnode__object(sym) == UNBOUND) return;
-	    if (bck(flag__object(sym,VAL_BURIED))) return;
+	    if (bck(flag__object(sym,flag_check))) return;
 	    break;
 	case c_PLISTS:
+	    flag_check <<= 2;
 	    if (plist__object(sym) == NIL) return;
-	    if (bck(flag__object(sym,PLIST_BURIED))) return;
+	    if (bck(flag__object(sym,flag_check))) return;
 	    break;
     }
     if (cnt_list == NIL) {
@@ -504,7 +512,43 @@ NODE *lcontents(NODE *args) {
 NODE *lburied(NODE *args) {
     NODE *ret;
 
-    want_buried = 1;
+    want_buried = PROC_BURIED;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_contents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_contents(), ret);
+
+    contents_list_type = c_PROCS;
+    push(get_contents(), ret);
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *ltraced(NODE *args) {
+    NODE *ret;
+
+    want_buried = PROC_TRACED;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_contents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_contents(), ret);
+
+    contents_list_type = c_PROCS;
+    push(get_contents(), ret);
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lstepped(NODE *args) {
+    NODE *ret;
+
+    want_buried = PROC_STEPPED;
 
     contents_list_type = c_PLISTS;
     ret = cons(get_contents(), NIL);
@@ -894,8 +938,19 @@ char *addsep(char *path) {
     return result;
 }
 
+char tmp_filename[500] = "";
+
+NODE *leditfile(NODE *args) {
+    NODE *arg = cnv_node_to_strnode(car(args));
+
+    if (NOT_THROWING) {
+    	noparity_strnzcpy(tmp_filename, getstrptr(arg), getstrlen(arg));
+	return ledit(NIL);
+    } else
+    	return UNBOUND;
+}
+
 NODE *ledit(NODE *args) {
-    char tmp_filename[50];
     FILE *holdstrm;
 #ifdef unix
 #ifndef HAVE_UNISTD_H
@@ -908,11 +963,13 @@ NODE *ledit(NODE *args) {
     NODE *tmp_line = NIL, *exec_list = NIL;
     int sv_val_status = val_status;
 
+    if (tmp_filename[0] == '\0' || args != NIL) {
 #ifndef unix
-    sprintf(tmp_filename, "%stemp.txt", addsep(tempdir));
+	sprintf(tmp_filename, "%stemp.txt", addsep(tempdir));
 #else
-    sprintf(tmp_filename, "%s/logo%d", tempdir, (int)getpid());
+	sprintf(tmp_filename, "%s/logo%d", tempdir, (int)getpid());
 #endif
+    }
     if (args != NIL) {
 	holdstrm = writestream;
 	writestream = fopen(tmp_filename, "w");
@@ -930,13 +987,13 @@ NODE *ledit(NODE *args) {
     if (stopping_flag == THROWING) return(UNBOUND);
 #ifdef mac
     if (!mac_edit()) return(UNBOUND);
-#else
+#else	    /* !mac */
 #ifdef ibm
 #ifdef __ZTC__
     was_graphics = in_graphics_mode;
     if (in_graphics_mode) t_screen();
     zflush();
-#endif
+#endif	/* ztc */
     if (spawnlp(P_WAIT, editor, editorname, tmp_filename, NULL)) {
 	err_logo(FILE_ERROR, make_static_strnode
 		 ("Could not launch the editor"));
@@ -945,21 +1002,18 @@ NODE *ledit(NODE *args) {
 #ifdef __ZTC__
     if (was_graphics) s_screen();
     else lcleartext(NIL);
-#endif
+#endif	/* ztc */
 #ifdef WIN32
     win32_repaint_screen();
 #endif
-#else
+#else	/* !ibm (so unix) */
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
 	exit(1);
     }
     wait(0);
-#ifdef WIN32
-    win32_repaint_screen();
-#endif
-#endif
-#endif
+#endif	/* ibm */
+#endif	/* mac */
     holdstrm = loadstream;
     tmp_line = current_line;
     loadstream = fopen(tmp_filename, "r");
@@ -1037,7 +1091,7 @@ NODE *lmacrop(NODE *args) {
 NODE *lcopydef(NODE *args) {
     NODE *arg1, *arg2;
     int redef = (compare_node(valnode__caseobj(Redefp),True,TRUE) == 0);
-    int old_default, new_default;
+    int old_default = -1, new_default;
 
     arg1 = name_arg(args);
     arg2 = name_arg(cdr(args));
@@ -1057,11 +1111,11 @@ NODE *lcopydef(NODE *args) {
 	if (old_proc != UNDEFINED) {
 	    old_default = (is_prim(old_proc) ? getprimdflt(old_proc) :
 		  		          getint(dfltargs__procnode(old_proc)));
-	    new_default = (is_prim(new_proc) ? getprimdflt(new_proc) :
-		  		          getint(dfltargs__procnode(new_proc)));
-	    if (old_default != new_default) {
-		the_generation = cons(NIL, NIL);
 	    }
+	new_default = (is_prim(new_proc) ? getprimdflt(new_proc) :
+					   getint(dfltargs__procnode(new_proc)));
+	if (old_default != new_default && old_default >= 0) {
+	    the_generation = cons(NIL, NIL);
 	}
 	setprocnode__caseobj(arg1, new_proc);
 	setflag__caseobj(arg1, PROC_BURIED);
@@ -1088,11 +1142,13 @@ char *fixhelp(char *ptr, int len) {
 NODE *lhelp(NODE *args) {
     NODE *arg = NIL;
     char buffer[200];
+#ifndef WIN32
     char junk[20];
+#endif
     FILE *fp;
     int lines;
 #if defined(ibm) || defined(WIN32)
-    int len;
+    size_t len;
 #endif
 
     if (args == NIL) {

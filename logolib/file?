@@ -1,7 +1,9 @@
+;;; -*- logo -*-
+
 to file? :filename
 ignore error
 catch "error [openread :filename close :filename]
-output emptyp error
+output not emptyp error
 end
 
 bury "file?

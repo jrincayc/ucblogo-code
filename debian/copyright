@@ -6,7 +6,7 @@ Orleans.
 This package was originally put together by Dale Scheetz <dwarf@polaris.net>
 Chris Fearnley <cjf@netaxs.com> made several improvements and upgraded to
 the latest version from sources obtained from:
-  anarres.cs.berkeley.edu.:/pub/ucblogo/ucblogo-4.1.tar.gz
+  anarres.cs.berkeley.edu:/pub/ucblogo/ucblogo-4.1.tar.gz
 
 Modifications for Debian GNU/Linux Copyright (C) 1997 Chris Fearnley.
 
@@ -21,7 +21,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 
 You should have received a copy of the GNU General Public License with
-your Debian GNU/Linux system, in /usr/doc/copyright/GPL, or with the
-Debian GNU/Linux hello source package as the file COPYING.  If not,
-write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge,
-MA 02139, USA.
+your Debian GNU/Linux system, in /usr/doc/copyright/GPL.

@@ -72,49 +72,47 @@ void unblock_input(void) {
     }
 }
 
-#if defined(__ZTC__) || defined(WIN32)
-void logo_stop(int sig)
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+RETSIGTYPE logo_stop(int sig)
 #else
-void logo_stop(void)
+#define sig_arg 
+RETSIGTYPE logo_stop()
 #endif
 {
     if (inside_gc) {
 	int_during_gc = 1;
-	return;
-    }
-    to_pending = 0;
-#if 1   /* was #ifndef unix */
-    err_logo(STOP_ERROR,NIL);
-#else
-    if (ufun != NIL) {
-	err_logo(STOP_ERROR,NIL);
     } else {
-	new_line(stdout);
+	to_pending = 0;
+	err_logo(STOP_ERROR,NIL);
+	signal(SIGINT, logo_stop);
+	unblock_input();
     }
-#endif
-    signal(SIGINT, logo_stop);
-    unblock_input();
+    SIGRET
 }
 
-#if defined(__ZTC__) || defined(WIN32)
-void logo_pause(int sig)
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+RETSIGTYPE logo_pause(int sig)
 #else
-void logo_pause(void)
+#define sig_arg 
+RETSIGTYPE logo_pause()
 #endif
 {
     if (inside_gc) {
 	int_during_gc = -1;
-	return;
-    }
-    to_pending = 0;
+    } else {
+	to_pending = 0;
 #ifdef bsd
-    sigsetmask(0);
+	sigsetmask(0);
 #else
 #if !defined(mac) && !defined(_MSC_VER)
-    signal(SIGQUIT, logo_pause);
+	signal(SIGQUIT, logo_pause);
 #endif
 #endif
-    lpause(NIL);
+	lpause(NIL);
+    }
+    SIGRET
 }
 
 #if defined(__ZTC__) && !defined(WIN32) /* sowings */
@@ -125,6 +123,10 @@ void _far _cdecl do_ctrl_c(void) {
 
 int main(int argc, char *argv[]) {
     NODE *exec_list = NIL;
+
+    readstream = stdin;
+    loadstream = stdin;
+    writestream = stdout;
 
 #ifdef mac
     init_mac_memory();
@@ -163,7 +165,7 @@ int main(int argc, char *argv[]) {
 #endif
       {
 	lcleartext(NIL);
-	ndprintf(stdout,"Welcome to Berkeley Logo version 4.1");
+	ndprintf(stdout,"Welcome to Berkeley Logo version 4.6");
 	new_line(stdout);
       }
     }

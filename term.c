@@ -92,11 +92,13 @@ int termcap_putter(char ch) {
 
 #ifdef unix
 void termcap_getter(char *cap, char *buf) {
-    char temp[40];char *str;
+    char temp[40];
+    char *str;
     char *temp_ptr = temp;
 
     termcap_ptr = buf;
     str=tgetstr(cap,&temp_ptr);
+    /* if (str == NULL) str = temp; */
     tputs(str,1,termcap_putter);
 }
 #endif

@@ -1,5 +1,5 @@
 SETXY xcor ycor
 
 	moves the turtle to an absolute screen position.  The two
-	arguments are numbers, the X and Y coordinates.
+	inputs are numbers, the X and Y coordinates.
 

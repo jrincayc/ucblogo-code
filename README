@@ -46,13 +46,17 @@ and get three results:
 	logolib			directory with pseudo-primitives in Logo
 	helpfiles		directory with online documentation
 
-You can move the executable "logo" to wherever you want (e.g., /usr/local).
-Logo assumes that you will leave the directories "logolib" and "helpfiles"
-in the source directory!  If you would rather not keep the source files
-online, and wish to move these subdirectories somewhere else, then instead
+Alternatively, just say "make logo" if you want to preserve the
+included logolib and helpfiles.
+
+Say "make install" to copy the executable and library files to
+/usr/local/bin/logo and /usr/local/lib/logo/*.
+
+Logo assumes that you will install its library in /usr/local/logo!
+If you would rather move these subdirectories somewhere else, then instead
 of saying "make" you should say, e.g.,
 
-	make LIBLOC=/usr/local/lib/logo
+	make LIBLOC=/usr/lib/logo
 
 (If you have already said "make" before reading this, remove libloc.c
 before giving the make command above.)
@@ -61,12 +65,10 @@ The distribution also includes the file "usermanual" which is a rather terse
 description of this particular Logo dialect for people who already know how
 to program in Logo.
 
-To install Logo you need merely move the file "logo" to wherever you want it.
-
-The files ztc* and mac* are for toy-computer versions of Logo.  But if you
-are trying to compile for those machines you probably also need some extra
-help beyond what's in here.  You can get complete PC and Mac versions by
-anonymous FTP from anarres.cs.berkeley.edu.
+The files ztc*, mac*, and win32* are for toy-computer versions of Logo.  But
+if you are trying to compile for those machines you probably also need some
+extra help beyond what's in here.  You can get complete PC and Mac versions
+by anonymous FTP from anarres.cs.berkeley.edu.
 
 ----------
 

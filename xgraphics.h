@@ -18,7 +18,7 @@ void logofill(void);
 #define DEFAULT_HEIGHT           500
 #define DEFAULT_WIDTH            500
 
-#define GR_SIZE         10000
+#define GR_SIZE         60000
 
 #define checkX { \
     if (have_x < 0) real_window_init(); \
@@ -96,10 +96,20 @@ extern void placate_x();
 
 #define set_pen_width(w)         XSetLineAttributes(dpy, draw_gc, w, LineSolid, \
 						    CapProjecting, JoinMiter);\
+				 XSetLineAttributes(dpy, erase_gc, w, LineSolid, \
+						    CapProjecting, JoinMiter);\
+				 XSetLineAttributes(dpy, reverse_gc, w, LineSolid, \
+						    CapProjecting, JoinMiter);\
                                  xgr_pen.pw = w;
+
 #define set_pen_height(h)        XSetLineAttributes(dpy, draw_gc, h, LineSolid, \
 						    CapProjecting, JoinMiter);\
+				 XSetLineAttributes(dpy, erase_gc, h, LineSolid, \
+						    CapProjecting, JoinMiter);\
+				 XSetLineAttributes(dpy, reverse_gc, h, LineSolid, \
+						    CapProjecting, JoinMiter);\
                                  xgr_pen.ph = h;
+
 #define set_pen_x(x)             nop()
 #define set_pen_y(y)             nop()
 #define get_palette(x,y,z,w)	 nop()
@@ -154,9 +164,6 @@ extern pen_info xgr_pen;
 #define full_screen              nop()
 #define split_screen             nop()
 #define text_screen              nop()
-
-#define save_pen(p)              memcpy(((char *)(p)),((char *)(&xgr_pen)),sizeof(pen_info))
-#define restore_pen(p)           memcpy(((char *)(&xgr_pen)),((char *)(p)),sizeof(pen_info))
 
 #define plain_xor_pen()          pen_reverse
 

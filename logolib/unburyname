@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to unburyname :names
 unbury namelist :names
 end

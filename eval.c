@@ -87,18 +87,6 @@ static int trace_level = 0;	/* indentation level when tracing */
 
 /* These first few functions are externed in globals.h */
 
-void spop(NODE **stack) {
-    *stack = cdr(*stack);
-}
-
-void spush(NODE *obj, NODE **stack) {
-    NODE *temp = newnode(CONS);
-
-    temp->n_car = obj;
-    temp->n_cdr = *stack;
-    *stack = temp;
-}
-
 void numpush(FIXNUM obj, NODE **stack) {
     NODE *temp = newnode(CONT); /*GC*/
 
@@ -215,6 +203,7 @@ NODE *evaluator(NODE *list, enum labels where) {
     FIXNUM  cont   = 0;	    /* where to go next */
 
     int i;
+    FIXNUM arridx;
     BOOLEAN tracing = FALSE; /* are we tracing the current procedure? */
     FIXNUM oldtailcall;	    /* in case of reentrant use of evaluator */
     FIXNUM repcount;	    /* count for repeat */
@@ -267,7 +256,8 @@ eval_dispatch:
 	    goto fetch_cont;
 	case CONS:			/* procedure application */
 	    if (tailcall == 1 && is_macro(car(exp)) &&
-				 is_list(procnode__caseobj(car(exp)))) {
+				 (is_list(procnode__caseobj(car(exp)))
+				    || !compare_node(car(exp), Goto, TRUE))) {
 		/* tail call to user-defined macro must be treated as non-tail
 		 * because the expression returned by the macro
 		 * remains to be evaluated in the caller's context */
@@ -283,8 +273,8 @@ eval_dispatch:
 	    {	NODE **p, **q;
 		val = make_array(getarrdim(exp));
 		setarrorg(val, getarrorg(exp));
-		for (p = getarrptr(exp), q = getarrptr(val), i=0;
-		     i < getarrdim(exp); i++, p++)
+		for (p = getarrptr(exp), q = getarrptr(val), arridx=0;
+		     arridx < getarrdim(exp); arridx++, p++)
 			    *q++ = *p;
 	    }
 	    goto fetch_cont;
@@ -313,7 +303,7 @@ eval_arg_loop:
 	    err_logo(NOT_ENOUGH, NIL);
 	goto eval_args_done;
     }
-    save(argl);
+    save2(argl,proc);
     save2(unev,fun);
     save2(ufun,last_ufun);
     save2(this_line,last_line);
@@ -332,7 +322,7 @@ accumulate_arg:
     restore2(ufun,last_ufun);
     last_call = fun;
     restore2(unev,fun);
-    restore(argl);
+    restore2(argl,proc);
     while (NOT_THROWING && val == UNBOUND) {
 	val = err_logo(DIDNT_OUTPUT, NIL);
     }
@@ -362,7 +352,7 @@ apply_dispatch:
     }
     if (proc == UNDEFINED) {
 	if (ufun != NIL) {
-	    untreeify_proc(ufun);
+	    /* untreeify_proc(ufun); */
 	}
 	if (NOT_THROWING)
 	    val = err_logo(DK_HOW, fun);
@@ -471,6 +461,7 @@ lambda_apply:
 		    break;
 		}
 		if (arg == UNBOUND) {		    /* use default */
+		    save(proc);
 		    save2(fun,var);
 		    save2(ufun,last_ufun);
 		    save2(this_line,last_line);
@@ -505,6 +496,7 @@ set_args_continue:
 		    restore2(this_line,last_line);
 		    restore2(ufun,last_ufun);
 		    restore2(fun,var);
+		    restore(proc);
 		    arg = val;
 		}
 		setvalnode__caseobj(car(parm), arg);
@@ -547,7 +539,26 @@ eval_sequence:
 	goto fetch_cont;
     }
     if (nodetype(unev) == LINE) {
-	this_line = unparsed__line(unev);
+	if (the_generation != (generation__line(unev))) {
+	    /* something redefined while we're running */
+	    int linenum = 0;
+	    this_line = tree__tree(bodylist__procnode(proc));
+	    while (this_line != unev) {
+		/* If redef isn't end of line, don't try to fix,
+		   but don't blow up either. (Maybe not called from here.) */
+		if (this_line == NULL) goto nofix;
+		if (nodetype(this_line) == LINE) linenum++;
+		this_line = cdr(this_line);
+	    }
+	    untreeify_proc(proc);
+	    make_tree_from_body(bodylist__procnode(proc));
+	    unev = tree__tree(bodylist__procnode(proc));
+	    while (--linenum >= 0) {
+		do pop(unev);
+		while (unev != NIL && nodetype(unev) != LINE);
+	    }
+	}
+nofix:	this_line = unparsed__line(unev);
 	if (ufun != NIL && flag__caseobj(ufun, PROC_STEPPED)) {
 	    if (tracing) {
 		int i = 1;
@@ -612,7 +623,7 @@ eval_sequence:
 		getprimpri(procnode__caseobj(car(car(unev)))) == STOP_PRIORITY) {
 	if ((val_status == 0 || val_status == 3) && ufun != NIL) {
 	    goto tail_eval_dispatch;
-	} else if (val_status < 4) {
+	} else if (val_status < 4 && ufun != NIL) {
 	    didnt_output_name = fun;
 	    goto tail_eval_dispatch;
 	}
@@ -622,7 +633,7 @@ non_tail_eval:
     num2save(ift_iff_flag,val_status);
     save2(ufun,last_ufun);
     save2(this_line,last_line);
-    save(var);
+    save2(var,proc);
     var = var_stack;
     tailcall = 0;
     newcont(eval_sequence_continue);
@@ -630,7 +641,7 @@ non_tail_eval:
 
 eval_sequence_continue:
     reset_args(var);
-    restore(var);
+    restore2(var,proc);
     restore2(this_line,last_line);
     restore2(ufun,last_ufun);
     if (dont_fix_ift) {
@@ -816,29 +827,31 @@ catch_followup:
     goto fetch_cont;
 
 goto_continuation:
-    if (ufun == NIL) {
-	err_logo(AT_TOPLEVEL, Goto);
-	val = UNBOUND;
-	goto fetch_cont;
-    }
-    proc = procnode__caseobj(ufun);
-    list = bodylist__procnode(proc);
-    unev = tree__tree(list);
-    while (unev != NIL) {
-	if (nodetype(unev) == LINE)
-	    this_line = unparsed__line(unev);
-	exp = car(unev);
-	pop(unev);
-	if (is_list (exp) &&
-	        (object__caseobj(car(exp)) == object__caseobj(Tag)) &&
-		(nodetype(cadr(exp)) == QUOTE) &&
-		compare_node(val, node__quote(cadr(exp)), TRUE) == 0) {
-	    val = cons(Tag, unev);
-	    stopping_flag = MACRO_RETURN;
+    if (NOT_THROWING) {
+	if (ufun == NIL) {
+	    err_logo(AT_TOPLEVEL, Goto);
+	    val = UNBOUND;
 	    goto fetch_cont;
 	}
+	proc = procnode__caseobj(ufun);
+	list = bodylist__procnode(proc);
+	unev = tree__tree(list);
+	while (unev != NIL && !check_throwing) {
+	    if (nodetype(unev) == LINE)
+		this_line = unparsed__line(unev);
+	    exp = car(unev);
+	    pop(unev);
+	    if (is_list (exp) &&
+		    (object__caseobj(car(exp)) == object__caseobj(Tag)) &&
+		    (nodetype(cadr(exp)) == QUOTE) &&
+		    compare_node(val, node__quote(cadr(exp)), TRUE) == 0) {
+		val = cons(Tag, unev);
+		stopping_flag = MACRO_RETURN;
+		goto fetch_cont;
+	    }
+	}
+	err_logo(BAD_DATA_UNREC, val);
     }
-    err_logo(BAD_DATA_UNREC, val);
     val = UNBOUND;
     goto fetch_cont;
 

@@ -18,7 +18,7 @@
 #ifndef _WIN32TRM_H
 
 /* set to 1000 for debugging, should normally be ~10k */
-#define GR_SIZE 10000
+#define GR_SIZE 60000
 
 #define prepare_to_draw win32_prepare_draw()
 #define done_drawing
@@ -161,11 +161,6 @@ extern void save_size(), save_vis();
 
 extern void set_palette(int, unsigned int, unsigned int, unsigned int);
 extern void get_palette(int, unsigned int*, unsigned int*, unsigned int*);
-
-extern int wrap_down(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
-extern int wrap_up(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
-extern int wrap_left(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
-extern int wrap_right(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 
 #define nop() {} 
 

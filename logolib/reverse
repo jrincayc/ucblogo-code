@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to reverse :in [:out ifelse listp :in [[]] ["]]
 if emptyp :in [output :out]
 output (reverse bf :in combine first :in :out)
