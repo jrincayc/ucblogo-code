@@ -1,5 +1,17 @@
-LOADNOISILY
+LOADNOISILY is TRUE.  "to %p\nend\n\n" is what EDIT puts in the
+temporary file if you ask to edit a procedure that isn't already defined.
 
-	if TRUE, prints the names of procedures defined when loading
-	from a file (including the temporary file made by EDIT).
+For documentation, there are two kinds: this manual and the help files.
+The latter are generated automatically from this manual if you have a
+Unix system, so in that case you need only translate this manual,
+maintaining the format.  (The automatic helpfile generator notices
+things like capital letters, tabs, hyphens, and equal signs at the
+beginnings of lines.)  The program makefile.c may require modification
+because a few of the primitive names are special cases (e.g., LOG10 is
+the only name with digits included).
 
+If you don't have Unix tools, you can just translate each helpfile
+individually.  A period in a primitive name is represented as a D in
+the filename; there are no files for question marks because the HELP
+command looks for the file named after the corresponding primitive
+that ends in P.

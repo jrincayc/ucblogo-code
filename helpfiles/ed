@@ -13,6 +13,12 @@ ED contentslist
 	modifies the workspace accordingly.  It is not an error if the
 	input includes names for which there is no previous definition.
 
+	If there is a variable LOADNOISILY whose value is TRUE, then, after
+	leaving the editor, TO commands in the temporary file print "PROCNAME
+	defined" (where PROCNAME is the name of the procedure being defined);
+	if LOADNOISILY is FALSE or undefined, TO commands in the file are
+	carried out silently.
+
 	If there is an environment variable called TEMP, then Logo uses
 	its value as the directory in which to write the temporary file
 	used for editing.

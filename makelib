@@ -1,8 +1,10 @@
 mkdir -p logolib
+cp Messages logolib
 cat << "ENDOFFILE" > logolib/#
 ;;; -*- logo -*-
 
 to #
+if not namep "template.number [op repcount]
 op :template.number
 end
 
@@ -31,15 +33,6 @@ output bf item :which :template.lists
 end
 
 bury "?rest
-ENDOFFILE
-cat << "ENDOFFILE" > logolib/arraytolist
-;;; -*- logo -*-
-
-to arraytolist :array [:dim count :array] [:limit :dim + first :array]
-op cascade :dim [fput item (:limit - #) :array ?] []
-end
-
-bury "arraytolist
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/buryall
 ;;; -*- logo -*-
@@ -416,8 +409,8 @@ ENDOFFILE
 cat << "ENDOFFILE" > logolib/invoke
 ;;; -*- logo -*-
 
-to invoke :function [:inputs] 2
-.maybeoutput apply :function :inputs
+to invoke :invoked.function [:invoke.inputs] 2
+.maybeoutput apply :invoked.function :invoke.inputs
 end
 
 bury "invoke
@@ -436,24 +429,6 @@ output fput :a iseq1 :a + 1 :b
 end
 
 bury [iseq iseq1]
-ENDOFFILE
-cat << "ENDOFFILE" > logolib/listtoarray
-;;; -*- logo -*-
-
-to listtoarray :list [:origin 1]
-local "array
-make "array (array count :list :origin)
-listtoarray1 :list :origin
-output :array
-end
-
-to listtoarray1 :list :index
-if emptyp :list [stop]
-setitem :index :array first :list
-listtoarray1 bf :list :index+1
-end
-
-bury [listtoarray listtoarray1]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/localmake
 ;;; -*- logo -*-

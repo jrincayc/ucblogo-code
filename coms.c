@@ -32,7 +32,7 @@
 #include <console.h>
 #include <Events.h>
 #endif
-#ifdef __ZTC__
+#ifdef __RZTC__
 #include <time.h>
 #include <controlc.h>
 #include <dos.h>
@@ -48,13 +48,15 @@
 
 FIXNUM ift_iff_flag = -1;
 
+NODE *runhelp(NODE *args);
+
 NODE *make_cont(enum labels cont, NODE *val) {
-#ifdef __ZTC__
+#ifdef __RZTC__
     union { enum labels lll;
 	    NODE *ppp;} cast;
 #endif
     NODE *retval = cons(NIL, val);
-#ifdef __ZTC__
+#ifdef __RZTC__
     cast.lll = cont;
     retval->n_car = cast.ppp;
 #else
@@ -82,7 +84,7 @@ NODE *lthrow(NODE *arg) {
     if (NOT_THROWING) {
 	if (compare_node(car(arg),Error,TRUE) == 0) {
 	    if (cdr(arg) != NIL)
-		err_logo(USER_ERR, cadr(arg));
+		err_logo(USER_ERR_MESSAGE, cadr(arg));
 	    else
 		err_logo(USER_ERR, UNBOUND);
 	} else {
@@ -98,7 +100,7 @@ NODE *lthrow(NODE *arg) {
 }
 
 NODE *lcatch(NODE *args) {
-    return make_cont(catch_continuation, cons(car(args), lrun(cdr(args))));
+    return make_cont(catch_continuation, cons(car(args), runhelp(cdr(args))));
 }
 
 int torf_arg(NODE *args) {
@@ -204,15 +206,20 @@ NODE *lifelse(NODE *args) {    /* macroized */
     return(UNBOUND);
 }
 
-NODE *lrun(NODE *args) {    /* macroized */
+NODE *runhelp(NODE *args) {
     NODE *arg = runnable_arg(args);
 
     if (NOT_THROWING) return(arg);
     return(UNBOUND);
 }
 
+NODE *lrun(NODE *args) {    /* macroized */
+/*    return make_cont(run_continuation, runhelp(args)); */
+    return runhelp(args);
+}
+
 NODE *lrunresult(NODE *args) {
-    return make_cont(runresult_continuation, lrun(args));
+    return make_cont(runresult_continuation, runhelp(args));
 }
 
 NODE *pos_int_arg(NODE *args) {
@@ -246,7 +253,7 @@ NODE *lrepeat(NODE *args) {
     NODE *cnt, *torpt, *retval = NIL;
 
     cnt = pos_int_arg(args);
-    torpt = lrun(cdr(args));
+    torpt = runhelp(cdr(args));
     if (NOT_THROWING) {
 	retval = make_cont(repeat_continuation, cons(cnt,torpt));
     }
@@ -258,7 +265,7 @@ NODE *lrepcount(NODE *args) {
 }
 
 NODE *lforever(NODE *args) {
-    NODE *torpt = lrun(args);
+    NODE *torpt = runhelp(args);
 
     if (NOT_THROWING)
     return make_cont(repeat_continuation, cons(make_intnode(-1), torpt));
@@ -280,7 +287,7 @@ NODE *liftrue(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag > 0)
-	return(lrun(args));
+	return(runhelp(args));
     else
 	return(NIL);
 }
@@ -289,7 +296,7 @@ NODE *liffalse(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag == 0)
-	return(lrun(args));
+	return(runhelp(args));
     else
 	return(NIL);
 }
@@ -305,7 +312,7 @@ void prepare_to_exit(BOOLEAN okay) {
 #ifdef ibm
     ltextscreen(NIL);
     ibm_plain_mode();
-#ifdef __ZTC__
+#ifdef __RZTC__
     zflush();
     controlc_close();
 #endif
@@ -331,9 +338,9 @@ NODE *lbye(NODE *args) {
     if (isatty(0) && isatty(1))
 #endif
 	lcleartext(NIL);
-    ndprintf(stdout, "Thank you for using Logo.\n");
-    ndprintf(stdout, "Have a nice day.\n");
-#ifdef __ZTC__
+    ndprintf(stdout, "%t\n", message_texts[THANK_YOU]);
+    ndprintf(stdout, "%t\n", message_texts[NICE_DAY]);
+#ifdef __RZTC__
     printf("\n");
 #endif
     exit(0);
@@ -355,7 +362,7 @@ NODE *lwait(NODE *args) {
 #else
 	fflush(stdout); /* csls v. 1 p. 7 */
 #endif
-#if defined(__ZTC__)
+#if defined(__RZTC__)
 	zflush();
 #endif
 	if (getint(num) > 0) {
@@ -367,7 +374,7 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#elif defined(__ZTC__)
+#elif defined(__RZTC__)
 	    usleep(getint(num) * 16667L);
 #elif defined(mac)
 	    target = getint(num)+TickCount();
@@ -398,7 +405,7 @@ NODE *lwait(NODE *args) {
 
 NODE *lshell(NODE *args) {
 #ifdef mac
-    printf("Sorry, no shell on the Mac.\n");
+    printf("%s\n", message_texts[NOSHELL_MAC]);
     return(UNBOUND);
 #else    
 #ifdef ibm
@@ -412,7 +419,7 @@ NODE *lshell(NODE *args) {
 	arg = car(args);
     }
     if (arg == NIL) {
-	ndprintf(stdout,"Type EXIT to return to Logo.\n");
+	ndprintf(stdout, "%t\n", message_texts[TYPE_EXIT]);
 	if (spawnlp(P_WAIT, "command", "command", NULL))
 	    err_logo(FILE_ERROR,
 	      make_static_strnode

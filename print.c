@@ -24,10 +24,9 @@
 
 int print_stringlen;
 char *print_stringptr;
+int force_printwidth = -1, force_printdepth = -1;
 int x_margin=0, y_margin=0;
 void real_print_node(FILE *, NODE *, int, int);
-
-BOOLEAN print_backslashes = FALSE;
 
 #ifdef mac
 BOOLEAN boldmode = 0;
@@ -37,7 +36,7 @@ void update_coords(char ch) {
     int i;
 
 #ifdef ibm
-#if !defined(__ZTC__) && !defined(_MSC_VER) && !defined(WIN32)
+#if !defined(__RZTC__) && !defined(_MSC_VER) && !defined(WIN32)
     check_scroll();
 #endif
 #endif
@@ -79,7 +78,7 @@ void print_char(FILE *strm, char ch) {
 		ibm_bold_mode();
 	    if (ch == '\2')
 		ibm_plain_mode();
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
 	    ztc_put_char(ch);
 #elif defined(TURBO_C)
 	    if (in_graphics_mode && ibm_screen_top == 0)
@@ -115,18 +114,31 @@ void print_space(FILE *strm) {
 /*VARARGS2*/
 void ndprintf(FILE *strm, char *fmt, ...) {
     va_list ap;
-    NODE *nd;
+    NODE *nd, *ahead_node = UNBOUND, *next_ahead_node = UNBOUND;
     char *cp;
     char ch;
 
     va_start(ap,fmt);
     while ((ch = *fmt++) != '\0') {
 	if (ch == '%') {
+	    ahead_node = next_ahead_node;
+	    next_ahead_node = UNBOUND;
 	    ch = *fmt++;
-	    if (ch == 's')    /* show */
-		print_node(strm,va_arg(ap,NODE *));
-	    else if (ch == 'p') { /* print */
-		nd = va_arg(ap,NODE *);
+	    if (ch == '+') {	/* swap arg order in error message */
+		next_ahead_node = va_arg(ap,NODE *);
+		ch = *fmt++;
+	    }
+	    if (ch == 's') {    /* show */
+		if (ahead_node != UNBOUND) {
+		    nd = ahead_node;
+		    ahead_node = UNBOUND;
+		} else nd = va_arg(ap,NODE *);
+		print_node(strm, nd);
+	    } else if (ch == 'p') {	/* print */
+		if (ahead_node != UNBOUND) {
+		    nd = ahead_node;
+		    ahead_node = UNBOUND;
+		} else nd = va_arg(ap,NODE *);
 		if (is_list(nd))
 		    print_help(strm,nd);
 		else
@@ -138,10 +150,23 @@ void ndprintf(FILE *strm, char *fmt, ...) {
 		print_char(strm,'%');
 		print_char(strm,ch);
 	    }
+	} else if (ch == '\\') {
+	    ch = *fmt++;
+	    if (ch == 'n') {
+		print_char(strm, '\n');
+	    } else {
+		print_char(strm, '\\');
+		print_char(strm, ch);
+	    }
 	} else print_char(strm,ch);
     }
     if (!strm) print_char(strm,'\0');
     va_end(ap);
+    force_printwidth = force_printdepth = -1;
+}
+
+void dbprint(NODE *data) {
+    ndprintf(stdout, "%p\n", data);
 }
 
 void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {
@@ -168,6 +193,8 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     int i;
     char *cp;
     NODETYPES ndty;
+	BOOLEAN print_backslashes = 
+	  (compare_node(valnode__caseobj(Fullprintp), True, TRUE) == 0);
 
     if (depth == 0) {
 	ndprintf(strm, "...");
@@ -209,6 +236,8 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     } else if (ndty == COLON) {
 	print_char(strm, ':');
 	print_node(strm, car(nd));
+	} else if (print_backslashes && (nd == Null_Word)) {
+		ndprintf(strm, "||");
     } else {
 	int wid, dots=0;
 
@@ -254,9 +283,10 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     }
 }
 
-int find_limit(NODE *nd) {
+int find_limit(NODE *nd, int forced) {
     int val = -1;
 
+    if (forced >= 0) return forced;
     if (nd == NIL) return(-1);
     nd = cnv_node_to_numnode(valnode__caseobj(nd));
     if (nodetype(nd) == INT) val = getint(nd);
@@ -264,13 +294,13 @@ int find_limit(NODE *nd) {
 }
 
 void print_help(FILE *strm, NODE *nd) {
-    real_print_help(strm, nd, find_limit(Printdepthlimit),
-		    find_limit(Printwidthlimit));
+    real_print_help(strm, nd, find_limit(Printdepthlimit, force_printdepth),
+		    find_limit(Printwidthlimit, force_printwidth));
 }
 
 void print_node(FILE *strm, NODE *nd) {
-    real_print_node(strm, nd, find_limit(Printdepthlimit),
-		    find_limit(Printwidthlimit));
+    real_print_node(strm, nd, find_limit(Printdepthlimit, force_printdepth),
+		    find_limit(Printwidthlimit, force_printwidth));
 }
 
 void print_nobrak(FILE *strm, NODE *nd) {

@@ -1,6 +1,0 @@
-CASCADE.2 endtest temp1 startval1 temp2 startval2	(library procedure)
-
-	outputs the result of invoking CASCADE with the same inputs.
-	The only difference is that the default number of inputs is
-	five instead of three.
-

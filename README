@@ -16,59 +16,94 @@ BERKELEY LOGO INTERPRETER   Installation guide for Unix systems
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-This version of Logo is designed for a machine with adequate memory.  It is
-not likely to be usable as the basis for a 64K microcomputer implementation.
+This version of Logo is designed for a machine with adequate memory.
+It is not likely to be usable as the basis for a 64K microcomputer
+implementation.
 
-The interpreter was written primarily by Daniel Van Blerkom, Brian Harvey,
-Michael Katz, and Douglas Orleans.  Thanks to Fred Gilham for the X11 code.
+The interpreter was written primarily by Daniel Van Blerkom, Brian
+Harvey, Michael Katz, and Douglas Orleans.  Thanks to Fred Gilham for
+the X11 code.  Emacs logo-mode by Hrvoje Blazevic.
 Send comments by e-mail to bh@cs.berkeley.edu.
 
 
 The Unix distribution includes a shell script called "configure" that
 customizes Logo for your particular version of Unix.  Just type the
-name "configure" at a shell prompt.  The script performs various tests to
-see whether particular libraries, etc., are available.
+name "./configure" at a shell prompt.  The script performs various
+tests to see whether particular libraries, etc., are available.
+
+Logo assumes that you will install it in /usr/local/{bin,lib,info}.
+If you would rather move these subdirectories somewhere else, then
+instead of saying "./configure" you should say, e.g.,
+
+	./configure --prefix=/usr
+
+to install into /usr/{bin,lib,info}, or
+
+	./configure --prefix=/home/users/bh
+
+to install into /home/users/bh/{bin,lib,info}.
+
 
 The configure script writes several files.  The most important are
 
 	makefile		used to compile Logo
 	config.h		header file used by C source files
 
-Note:  It also writes a file "config.cache" in which it remembers the results
-of its tests.  If you copy the Logo source directory to another machine with
-a different version of Unix and try to recompile, you should remove
-config.cache before running configure.
+Note: It also writes a file "config.cache" in which it remembers the
+results of its tests.  If you copy the Logo source directory to
+another machine with a different version of Unix and try to recompile,
+you should remove config.cache before running configure.
 
 With these files in place you should be able to say "make" to the shell
-and get three results:
+and get four results:
 
 	logo			executable Logo interpreter
 	logolib			directory with pseudo-primitives in Logo
 	helpfiles		directory with online documentation
+	emacs			directory with Emacs logo-mode files
+				  and documentation in various formats
 
 Alternatively, just say "make logo" if you want to preserve the
 included logolib and helpfiles.
 
-Say "make install" to copy the executable and library files to
-/usr/local/bin/logo and /usr/local/lib/logo/*.
+The makefile compiles with optimization turned off.  This is necessary
+to avoid mysterious garbage collection failures.  (NOTE: On my HP 712,
+for reasons I don't understand, I had to compile the entire
+interpreter without optimization.  But on other platforms, such as PCs
+running Linux and FreeBSD, it's sufficient merely to un-optimize
+mem.c.  If that works on your machine, you can remove the "-O0" at the
+end of the CFLAGS line at the beginning of the makefile, after running
+configure.)
 
-Logo assumes that you will install its library in /usr/local/logo!
-If you would rather move these subdirectories somewhere else, then instead
-of saying "make" you should say, e.g.,
+The Emacs logo-mode compilation uses gmake.  Some old Linux systems don't
+have the name "gmake" defined (although their "make" is actually gmake),
+but FreeBSD systems can't handle the makefile for logo-mode without gmake
+(which is *not* the same as "make" under FreeBSD).  So you may need to
+install gmake.
 
-	make LIBLOC=/usr/lib/logo
+Say "make install" to install files as follows:
+	/usr/local/bin:			executable files:
+					   logo, install-logo-mode
+	/usr/local/lib/logo/logolib:	Logo library procedures,
+					Messages (texts of error messages)
+	/usr/local/lib/logo/helpfiles:	files printed by Logo's HELP command
+	/usr/local/lib/logo/emacs:	elisp files *.el, *.elc for logo-mode,
+					Logo-mode tutorial (tutorial.lg),
+					an OOP package for Logo (*loops*)
+	/usr/local/lib/logo/docs:	usermanual.{ps,pdf,texi}
+	/usr/local/lib/logo/docs/html:	usermanual.html and other HTML files
+	/usr/local/info:		ucblogo.info (for Emacs help command)
 
-(If you have already said "make" before reading this, remove libloc.c
-before giving the make command above.)
++-----------------------------------------------------------------------------+
+| Each user who wants to use the Emacs logo-mode IDE must first run the shell |
+| command "install-logo-mode".  Thereafter, whenever the user opens a Logo    |
+| source file (filename.lg) with Emacs, logo-mode will automatically start.   |
++-----------------------------------------------------------------------------+
 
-The distribution also includes the file "usermanual" which is a rather terse
-description of this particular Logo dialect for people who already know how
-to program in Logo.
-
-The files ztc*, mac*, and win32* are for toy-computer versions of Logo.  But
-if you are trying to compile for those machines you probably also need some
-extra help beyond what's in here.  You can get complete PC and Mac versions
-by anonymous FTP from anarres.cs.berkeley.edu.
+The files ztc*, mac*, and win32* are for toy-computer versions of
+Logo.  But if you are trying to compile for those machines you
+probably also need some extra help beyond what's in here.  You can get
+complete PC and Mac versions by anonymous FTP from ftp.cs.berkeley.edu.
 
 ----------
 

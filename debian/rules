@@ -2,6 +2,9 @@
 #
 # debian/rules for ucblogo package
 
+DH_COMPAT=3
+export DH_COMPAT
+
 build:
 	dh_testdir
 	./configure
@@ -13,8 +16,8 @@ clean:
 	$(MAKE) -i clean || $(MAKE) -i -f makefile.in clean
 	-rm -f build
 	-rm -f makefile config.h config.cache config.log config.status \
-		core logo makehelp
-	-rm -rf *~ debian/tmp debian/{*~,files*,substvars}
+		core logo makehelp helpfiles/HELPCONTENTS
+	-rm -rf *~ debian/ucblogo debian/{*~,files*,substvars}
 	# -rm -rf helpfiles
 	dh_clean
 
@@ -28,17 +31,23 @@ binary binary-arch: build
 	dh_clean
 
 	dh_installdirs
-	install -s logo debian/tmp/usr/bin/ucblogo
-	ln -s ucblogo debian/tmp/usr/bin/logo
+	# install -s logo debian/ucblogo/usr/bin/ucblogo
+	# cp -r helpfiles/* debian/ucblogo/usr/share/ucblogo/helpfiles/.
+	# cp -r logolib/* debian/ucblogo/usr/share/ucblogo/logolib/.
+	# cp -r csls/* debian/ucblogo/usr/share/ucblogo/csls/.
 
-	cp -r helpfiles/* debian/tmp/usr/share/ucblogo/helpfiles/.
-	cp -r logolib/* debian/tmp/usr/share/ucblogo/logolib/.
-	cp -r csls/* debian/tmp/usr/share/ucblogo/csls/.
+	$(MAKE) install BINDIR=debian/ucblogo/usr/bin LIBLOC=debian/ucblogo/usr/share/ucblogo
+	mv debian/ucblogo/usr/bin/logo debian/ucblogo/usr/bin/ucblogo
+	ln -s ucblogo debian/ucblogo/usr/bin/logo
 
 	dh_installmanpages
-	ln -s ucblogo.1.gz debian/tmp/usr/share/man/man1/logo.1.gz
+	ln -s ucblogo.1.gz debian/ucblogo/usr/share/man/man1/logo.1.gz
 
-	dh_installdocs README usermanual
+	cp emacs/docs/*.pdf debian/ucblogo/usr/share/doc/ucblogo
+	cp emacs/docs/*.html debian/ucblogo/usr/share/doc/ucblogo/html
+
+	dh_installdocs README
+	cp usermanual debian/ucblogo/usr/share/doc/ucblogo/usermanual.txt
 	dh_installchangelogs
 
 	dh_strip

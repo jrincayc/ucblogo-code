@@ -24,6 +24,10 @@ if test $tcap = no; then
    AC_CHECK_LIB(curses, tgetstr,
 		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lcurses" tcap=yes)
 fi
+if test $tcap = no; then
+   AC_CHECK_LIB(ncurses, tgetstr,
+		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lncurses" tcap=yes)
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC

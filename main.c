@@ -35,7 +35,7 @@
 #endif
 #endif
 
-#ifdef __ZTC__
+#ifdef __RZTC__
 #include <signal.h>
 #define SIGQUIT SIGTERM
 #include <controlc.h>
@@ -85,7 +85,10 @@ RETSIGTYPE logo_stop()
     } else {
 	to_pending = 0;
 	err_logo(STOP_ERROR,NIL);
-	signal(SIGINT, logo_stop);
+#ifdef __RZTC__
+	if (!input_blocking)
+#endif
+	  signal(SIGINT, logo_stop);
 	unblock_input();
     }
     SIGRET
@@ -115,7 +118,7 @@ RETSIGTYPE logo_pause()
     SIGRET
 }
 
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
 void _far _cdecl do_ctrl_c(void) {
     ctrl_c_count++;
 }
@@ -124,9 +127,11 @@ void _far _cdecl do_ctrl_c(void) {
 int main(int argc, char *argv[]) {
     NODE *exec_list = NIL;
 
-    readstream = stdin;
-    loadstream = stdin;
-    writestream = stdout;
+#ifdef SYMANTEC_C
+    extern void (*openproc)(void);
+    extern void __open_std(void);
+    openproc = &__open_std;
+#endif
 
 #ifdef mac
     init_mac_memory();
@@ -145,7 +150,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef ibm
     signal(SIGINT, SIG_IGN);
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
     _controlc_handler = do_ctrl_c;
     controlc_open();
 #endif
@@ -165,7 +170,7 @@ int main(int argc, char *argv[]) {
 #endif
       {
 	lcleartext(NIL);
-	ndprintf(stdout,"Welcome to Berkeley Logo version 4.6");
+	ndprintf(stdout, message_texts[WELCOME_TO], "5.1");
 	new_line(stdout);
       }
     }
@@ -179,7 +184,7 @@ int main(int argc, char *argv[]) {
 	if (NOT_THROWING) {
 	    check_reserve_tank();
 	    current_line = reader(stdin,"? ");
-#ifdef __ZTC__
+#ifdef __RZTC__
 		(void)feof(stdin);
 		if (!in_graphics_mode)
 		    printf(" \b");
@@ -190,7 +195,7 @@ int main(int argc, char *argv[]) {
 	    if (feof(stdin) && !isatty(0)) lbye(NIL);
 #endif
 
-#ifdef __ZTC__
+#ifdef __RZTC__
 	    if (feof(stdin)) clearerr(stdin);
 #endif
 	    if (NOT_THROWING) {
@@ -211,8 +216,7 @@ int main(int argc, char *argv[]) {
 	    stopping_flag = RUN;
 	}
 	if (stopping_flag == STOP || stopping_flag == OUTPUT) {
-	    print_node(stdout, make_static_strnode(
-		"You must be in a procedure to use OUTPUT or STOP.\n"));
+	    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);
 	    stopping_flag = RUN;
 	}
     }

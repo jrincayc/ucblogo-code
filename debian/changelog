@@ -1,3 +1,21 @@
+ucblogo (5.1-1) unstable; urgency=low
+
+  * New upstream release (closes: #43852)
+
+ -- Hamish Moffatt <hamish@debian.org>  Sun,  2 Sep 2001 15:15:21 +1000
+
+ucblogo (4.6-5) unstable; urgency=low
+
+  * Fixed formatting of the description in debian/control (closes: #110195)
+
+ -- Hamish Moffatt <hamish@debian.org>  Mon, 27 Aug 2001 08:15:27 +1000
+
+ucblogo (4.6-4) unstable; urgency=low
+
+  * Recompiled with libncurses5 (closes: #102477)
+
+ -- Hamish Moffatt <hamish@debian.org>  Thu, 28 Jun 2001 00:04:12 +1000
+
 ucblogo (4.6-3) unstable; urgency=low
 
   * Fixed maintainer in control file

@@ -42,14 +42,13 @@
 extern int getch(void);
 #endif /* _MSC_VER */
 #endif
-#ifdef __ZTC__
+#ifdef __RZTC__
 #include <disp.h>
 #endif
 
 FILE *readstream;
 FILE *writestream;
 FILE *loadstream;
-
 FILE *dribblestream = NULL;
 int input_blocking = 0;
 NODE *deepend_proc_name = NIL;
@@ -61,7 +60,7 @@ int rd_getc(FILE *strm) {
 #endif
 
 #ifndef WIN32 /* skip this section ... */
-#ifdef __ZTC__
+#ifdef __RZTC__
     if (strm == stdin) zflush();
     c = ztc_getc(strm);
 #else
@@ -72,9 +71,16 @@ int rd_getc(FILE *strm) {
     if (c == 17 && interactive && strm==stdin) { /* control-q */
 	to_pending = 0;
 	err_logo(STOP_ERROR,NIL);
+	if (input_blocking) {
+#ifdef SIG_TAKES_ARG
+	    logo_stop(0);
+#else
+	    logo_stop();
+#endif
+	}
     }
     if (c == 23 && interactive && strm==stdin) { /* control-w */
-#ifndef __ZTC__
+#ifndef __RZTC__
 	getc(strm); /* eat up the return */
 #endif
 
@@ -89,6 +95,7 @@ int rd_getc(FILE *strm) {
 #endif
 #else /* WIN32 */
     if (strm == stdin) {
+	if (winPasteText && !line_avail) winDoPaste();
 	if (!line_avail) {
 	    win32_text_cursor();
 	    while (GetMessage(&msg, NULL, 0, 0)) {
@@ -104,6 +111,7 @@ int rd_getc(FILE *strm) {
 	err_logo(STOP_ERROR,NIL);
 	line_avail = 0;
 	free(read_line);
+	if (input_blocking) logo_stop(0);
 	return('\n');
     }
     if (c == 23 && interactive && strm==stdin) { /* control-w */
@@ -112,9 +120,10 @@ int rd_getc(FILE *strm) {
 	logo_pause(0);
 	return(rd_getc(strm));
     }
-      if (c == '\n')
+      if (c == '\n') {
 	line_avail = 0;
 	free(read_line);
+      }
     }
     else /* reading from a file */
       c = getc(strm);
@@ -129,7 +138,7 @@ int rd_getc(FILE *strm) {
 
 void rd_print_prompt(char *str) {
 #ifdef ibm
-#if defined(__ZTC__) || defined(WIN32)
+#if defined(__RZTC__) || defined(WIN32)
     if (in_graphics_mode && !in_splitscreen)
 #else
 #ifndef _MSC_VER
@@ -146,12 +155,12 @@ void rd_print_prompt(char *str) {
 #endif
 
     ndprintf(stdout,"%t",str);
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
     zflush();
 #endif
 }
 
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
 void zrd_print_prompt(char *str) {
     newline_bugfix();
     rd_print_prompt(str);
@@ -174,17 +183,22 @@ int p_len = MAX_PHYS_LINE;
 
 NODE *reader(FILE *strm, char *prompt) {
     int c = 0, dribbling, vbar = 0, paren = 0;
-    int bracket = 0, brace = 0, p_pos, contin=1, insemi=0;
+    int bracket = 0, brace = 0, p_pos, contin=1, insemi=0, raw=0;
     static char ender[] = "\nEND\n";
     char *phys_line, *lookfor = ender;
     NODETYPES this_type = STRING;
     NODE *ret;
 
-	if (!strcmp(prompt, "RW")) {	/* called by readword */
-		prompt = "";
-		contin = 0;
-	}
-    charmode_off();
+    if (!strcmp(prompt, "RW")) {	/* called by readword */
+	    prompt = "";
+	    contin = 0;
+    }
+    if (!strcmp(prompt, "RAW")) {	/* called by readrawline */
+	    prompt = "";
+	    contin = 0;
+	    raw = 1;
+    }
+charmode_off();
 #ifdef WIN32
     dribbling = 0;
 #else
@@ -216,9 +230,13 @@ NODE *reader(FILE *strm, char *prompt) {
     if (!setjmp(iblk_buf)) {
 #endif
     c = rd_getc(strm);
-    while (c != EOF && (vbar || paren || bracket || brace || c != '\n')) {
+#ifdef mac
+    if (c == '\r') c = '\n';	/* seen in raw mode by keyp, never read */
+#endif
+    while (c != EOF && (vbar || paren || bracket || brace || c != '\n')
+		    && NOT_THROWING) {
 	if (dribbling) rd_putc(c, dribblestream);
-	if (c == '\\' && (c = rd_getc(strm)) != EOF) {
+	if (!raw && c == '\\' && (c = rd_getc(strm)) != EOF) {
 	    if (dribbling) rd_putc(c, dribblestream);
 	    c = setparity(c);
 	    this_type = BACKSLASH_STRING;
@@ -227,11 +245,18 @@ NODE *reader(FILE *strm, char *prompt) {
 	    }
 	}
 	if (c != EOF) into_line(c);
+	if (raw) {
+	    c = rd_getc(strm);
+	    continue;
+	}
 	if (*prompt && (c&0137) == *lookfor) {
 		lookfor++;
 		if (*lookfor == 0) {
+		    if (deepend_proc_name != NIL)
 			err_logo(DEEPEND, deepend_proc_name);
-			break;
+		    else
+			err_logo(DEEPEND_NONAME, NIL);
+		    break;
 		}
 	} else lookfor = ender;
 	if (c == '|') {
@@ -272,7 +297,7 @@ NODE *reader(FILE *strm, char *prompt) {
 #endif
     *phys_line = '\0';
     input_blocking = 0;
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
     fix_cursor();
     if (interactive && strm == stdin) newline_bugfix();
 #endif
@@ -416,7 +441,7 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 /* if this character or the next one will terminate string, make the word */
 	else if (white_space(ch) || **inln == ']' || **inln == '[' ||
 			    **inln == '{' || **inln == '}') {
-		if (windex > 0) {
+		if (windex > 0 || this_type == VBAR_STRING) {
 		    if (broken == FALSE)
 			 tnode = cons(make_strnode(wptr, inhead, windex,
 						   this_type, strnzcpy),

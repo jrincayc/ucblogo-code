@@ -104,6 +104,8 @@ void termcap_getter(char *cap, char *buf) {
 #endif
 
 void term_init(void) {
+  char *emacs; /* emacs change */
+
 #ifdef unix
     int term_sg;
 #endif
@@ -139,9 +141,28 @@ void term_init(void) {
     }
     tty_charmode = 0;
     tgetent(bp, getenv("TERM"));
-    x_max = tgetnum("co");
+
+    /* emacs changes */
+
+    emacs = getenv("EMACS");
+
+    /* check if started from emacs */
+    if (!emacs || *emacs != 't') { /* read from termcap */
+      x_max = tgetnum("co");
+      y_max = tgetnum("li");
+    }
+    else { /* read environment variables */
+      emacs = getenv("COLUMNS");
+      if (!emacs) x_max = 0;
+      else x_max = atoi(emacs);
+      emacs = getenv("LINES");
+      if (!emacs) y_max = 0;
+      else y_max = atoi(emacs);
+    } 
+
+    /* end emacs changes */
+
     if (x_max <= 0) x_max = 80;
-    y_max = tgetnum("li");
     if (y_max <= 0) y_max = 24;
     term_sg = tgetnum("sg");
 
@@ -247,7 +268,7 @@ NODE *lsetcursor(NODE *args) {
 #endif
 #endif
 	fflush(stdout);
-#ifdef __ZTC__
+#ifdef __RZTC__
 	zflush();
 #endif
     }

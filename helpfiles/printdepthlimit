@@ -1,4 +1,4 @@
-PRINTDEPTHLIMIT
+PRINTDEPTHLIMIT						(variable)
 
 	if a nonnegative integer, indicates the maximum depth of sublist
 	structure that will be printed by PRINT, etc.

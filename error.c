@@ -46,23 +46,39 @@ NODE *throw_node = NIL;
 NODE *err_mesg = NIL;
 ERR_TYPES erract_errtype;
 
+char *message_texts[MAX_MESSAGE];
+
 void err_print(void) {
     int save_flag = stopping_flag;
+    int errtype;
+    NODE *errargs, *oldfullp;
     
     if (!err_mesg) return;
 
     stopping_flag = RUN;
-    print_backslashes = TRUE;
+	oldfullp = valnode__caseobj(Fullprintp);
+    setvalnode__caseobj(Fullprintp, True);
 
-    real_print_help(stdout, cadr(err_mesg), 5, 80);
+    errtype = getint(car(err_mesg));
+    errargs = cadr(err_mesg);
+
+    force_printdepth = 5;
+    force_printwidth = 80;
+    if (errargs == NIL)
+	ndprintf(stdout, message_texts[errtype]);
+    else if (cdr(errargs) == NIL)
+	ndprintf(stdout, message_texts[errtype], car(errargs));
+    else
+	ndprintf(stdout, message_texts[errtype], car(errargs), cadr(errargs));
+
     if (car(cddr(err_mesg)) != NIL) {
-	ndprintf(stdout, "  in %s\n%s",car(cddr(err_mesg)),
-		 cadr(cddr(err_mesg)));
+	ndprintf(stdout, message_texts[ERROR_IN], car(cddr(err_mesg)),
+						  cadr(cddr(err_mesg)));
     }
     err_mesg = NIL;
     new_line(stdout);
 
-    print_backslashes = FALSE;
+    setvalnode__caseobj(Fullprintp, oldfullp);
     stopping_flag = save_flag;
 }
 
@@ -73,34 +89,14 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
     switch(error_type) {
 	case FATAL:
 	    prepare_to_exit(FALSE);
-	    ndprintf(stdout,"Logo: Fatal Internal Error.\n");
+	    ndprintf(stdout,"%s\n",message_texts[FATAL]);
 	    exit(1);
 	case OUT_OF_MEM_UNREC:
 	    prepare_to_exit(FALSE);
-	    ndprintf(stdout,"Logo: Out of Memory.\n");
+	    ndprintf(stdout,"%s\n",message_texts[OUT_OF_MEM_UNREC]);
 	    exit(1);
 	case OUT_OF_MEM:
 	    use_reserve_tank();
-	    err_mesg = cons_list(0, make_static_strnode("out of space"),
-				 END_OF_LIST);
-	    break;
-	case STACK_OVERFLOW:
-	    err_mesg = cons_list(0, make_static_strnode("stack overflow"),
-				 END_OF_LIST);
-	    break;
-	case TURTLE_OUT_OF_BOUNDS:
-	    err_mesg = cons_list(0,make_static_strnode("turtle out of bounds"),
-				 END_OF_LIST);
-	    break;
-	case BAD_GRAPH_INIT:
-	    err_mesg = cons_list(0,
-			  make_static_strnode("couldn't initialize graphics"),
-			  END_OF_LIST);
-	    break;
-	case BAD_DATA_UNREC:
-	    err_mesg = cons_list(0, fun,
-		make_static_strnode("doesn\'t like"), error_desc,
-		make_static_strnode("as input"), END_OF_LIST);
 	    break;
 	case DIDNT_OUTPUT:
 	    if (didnt_output_name != NIL) {
@@ -111,160 +107,53 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 		ufun = cadr(didnt_get_output);
 		this_line = cadr(cdr(didnt_get_output));
 	    }
-	    err_mesg = cons_list(0, last_call,
-				 make_static_strnode("didn\'t output to"),
-				 error_desc, END_OF_LIST);
+	    err_mesg = cons_list(0, last_call, error_desc, END_OF_LIST);
 	    recoverable = TRUE;
 	    break;
 	case NOT_ENOUGH:
 	    if (error_desc == NIL)
-		err_mesg = cons_list(0,make_static_strnode("not enough inputs to"),
-				 fun, END_OF_LIST);
+		err_mesg = cons_list(0, fun, END_OF_LIST);
 	    else
-		err_mesg = cons_list(0,make_static_strnode("not enough inputs to"),
-				 error_desc, END_OF_LIST);
+		err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case BAD_DATA:
-	    err_mesg = cons_list(0, fun,
-		make_static_strnode("doesn\'t like"), error_desc,
-		make_static_strnode("as input"), END_OF_LIST);
 	    recoverable = TRUE;
-	    break;
-	case APPLY_BAD_DATA:
-	    err_mesg = cons_list(0, make_static_strnode("APPLY doesn\'t like"),
-				 error_desc,
-				 make_static_strnode("as input"), END_OF_LIST);
-	    recoverable = TRUE;
-	    break;
-	case TOO_MUCH:
-	    err_mesg = cons_list(0,
-				 make_static_strnode("too much inside ()\'s"),
-				 END_OF_LIST);
+	case BAD_DATA_UNREC:
+	    err_mesg = cons_list(0, fun, error_desc, END_OF_LIST);
 	    break;
 	case DK_WHAT_UP:
 	    uplevel = TRUE;
 	case DK_WHAT:
-	    err_mesg = cons_list(0,
-		make_static_strnode("You don\'t say what to do with"),
-		error_desc, END_OF_LIST);
-	    break;
-	case PAREN_MISMATCH:
-	    err_mesg = cons_list(0, make_static_strnode("too many (\'s"),
-				 END_OF_LIST);
-	    break;
-	case NO_VALUE:
-	    err_mesg = cons_list(0, error_desc,
-				 make_static_strnode("has no value"),
-				 END_OF_LIST);
-	    recoverable = TRUE;
-	    break;
-	case UNEXPECTED_PAREN:
-	    err_mesg = cons_list(0, make_static_strnode("unexpected \')\'"),
-				 END_OF_LIST);
-	    break;
-	case UNEXPECTED_BRACKET:
-	    err_mesg = cons_list(0, make_static_strnode("unexpected \']\'"),
-				 END_OF_LIST);
-	    break;
-	case UNEXPECTED_BRACE:
-	    err_mesg = cons_list(0, make_static_strnode("unexpected \'}\'"),
-				 END_OF_LIST);
+	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case DK_HOW:
+	case APPLY_BAD_DATA:
+	case NO_VALUE:
 	    recoverable = TRUE;
 	case DK_HOW_UNREC:
-	    err_mesg = cons_list(0,
-				 make_static_strnode("I don\'t know how  to"),
-				 error_desc, END_OF_LIST);
-	    break;
 	case NO_CATCH_TAG:
-	    err_mesg = cons_list(0,
-			make_static_strnode("Can't find catch tag for"),
-			error_desc, END_OF_LIST);
-	    break;
 	case ALREADY_DEFINED:
-	    err_mesg = cons_list(0, error_desc,
-				 make_static_strnode("is already defined"),
-				 END_OF_LIST);
-	    break;
-	case STOP_ERROR:
-	    err_mesg = cons_list(0, make_static_strnode("Stopping..."),
-				 END_OF_LIST);
-	    break;
-	case ALREADY_DRIBBLING:
-	    err_mesg = cons_list(0, make_static_strnode("Already dribbling"),
-				 END_OF_LIST);
-	    break;
 	case FILE_ERROR:
-	    err_mesg = cons_list(0, make_static_strnode("File system error:"),
-				 error_desc, END_OF_LIST);
-	    break;
-	case IF_WARNING:
-	    err_mesg = cons_list(0,
-		make_static_strnode("Assuming you mean IFELSE, not IF"),
-		END_OF_LIST);
-	    warning = TRUE;
+	case IS_PRIM:
+	case AT_TOPLEVEL:
+	case ERR_MACRO:
+	case DEEPEND:
+	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case SHADOW_WARN:
-	    err_mesg = cons_list(0, error_desc,
-		make_static_strnode("shadowed by local in procedure call"),
-		END_OF_LIST);
+	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
+	case IF_WARNING:
 	    warning = TRUE;
 	    break;
-	case USER_ERR:
-	    if (error_desc == UNBOUND)
-		err_mesg = cons_list(0, make_static_strnode("Throw \"Error"),
-				     END_OF_LIST);
-	    else {
-		uplevel = TRUE;
-		if (is_list(error_desc))
-		    err_mesg = error_desc;
-		else
-		    err_mesg = cons_list(0, error_desc, END_OF_LIST);
-	    }
-	    break;
-	case IS_PRIM:
-	    err_mesg = cons_list(0, error_desc,
-				 make_static_strnode("is a primitive"),
-				 END_OF_LIST);
-	    break;
-	case NOT_INSIDE:
-	    err_mesg = cons_list(0,
-		make_static_strnode("Can't use TO inside a procedure"),
-		END_OF_LIST);
-	    break;
-	case AT_TOPLEVEL:
-	    err_mesg = cons_list(0, make_static_strnode("Can only use"),
-				 error_desc,
-				 make_static_strnode("inside a procedure"),
-				 END_OF_LIST);
+	case USER_ERR_MESSAGE:
+	    uplevel = TRUE;
+	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case NO_TEST:
-	    err_mesg = cons_list(0, fun, make_static_strnode("without TEST"),
-				 END_OF_LIST);
-	    break;
-	case ERR_MACRO:
-	    err_mesg = cons_list(0, make_static_strnode("Macro returned"),
-				 error_desc,
-				 make_static_strnode("instead of a list"),
-				 END_OF_LIST);
-	    break;
-	case DEEPEND:
-	    if (error_desc == NIL) {
-		err_mesg = cons_list(0,
-		   make_static_strnode("END inside multi-line instruction.\n"),
-		   END_OF_LIST);
-	    } else {
-		err_mesg = cons_list(0,
-		   make_static_strnode("END inside multi-line instruction in"),
-		   error_desc,
-		   END_OF_LIST);
-	    }
+	    err_mesg = cons_list(0, fun, END_OF_LIST);
 	    break;
 	default:
-	    prepare_to_exit(FALSE);
-	    ndprintf(stdout,"Unknown error condition - internal error.\n");
-	    exit(1);
+	    err_mesg = NIL;
     }
     didnt_output_name = NIL;
     if (uplevel && ufun != NIL) {
@@ -294,14 +183,20 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	    if (recoverable == TRUE && val != UNBOUND) {
 		return(val);
 	    } else if (recoverable == FALSE && val != UNBOUND) {
-		ndprintf(stdout,"You don't say what to do with %s\n", val);
+		ndprintf(stdout, message_texts[DK_WHAT], val);
+		ndprintf(stdout, "\n");
 		val = UNBOUND;
 		throw_node = Toplevel;
 	    } else {
+		/* if (err_mesg != NIL) */  {	/* is this ever wrong? */
+		    throw_node = Error;
+		    stopping_flag = THROWING;
+		    output_node = UNBOUND;
+		}
 		return(UNBOUND);
 	    }
 	} else {
-	    ndprintf(stdout,"Erract loop\n");
+	    ndprintf(stdout,"%t\n", message_texts[ERRACT_LOOP]);
 	    throw_node = Toplevel;
 	}
     } else {	/* no erract */
@@ -338,7 +233,7 @@ NODE *lpause(NODE *args) {
     if (err_mesg != NIL) err_print();
  /* if (ufun != NIL) */ {
 	uname = ufun;
-	ndprintf(stdout, "Pausing...\n");
+	ndprintf(stdout, "%t\n", message_texts[PAUS_ING]);
 #ifndef TIOCSTI
 	memcpy((char *)(&sav_iblk), (char *)(&iblk_buf), sizeof(jmp_buf));
 #endif
@@ -357,7 +252,7 @@ NODE *lpause(NODE *args) {
 #ifndef WIN32
 	    if (feof(stdin) && !isatty(0)) lbye(NIL);
 #endif
-#ifdef __ZTC__
+#ifdef __RZTC__
 	    if (feof(stdin)) rewind(stdin);
 #endif
 	    val_status = 5;

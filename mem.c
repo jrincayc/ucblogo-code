@@ -22,7 +22,7 @@
 #include "globals.h"
 
 /* #ifdef ibm */
-/* #ifndef __ZTC__ */
+/* #ifndef __RZTC__ */
 /* #include <alloc.h> */
 /* #endif */
 /* #endif */
@@ -33,7 +33,7 @@
 #ifdef THINK_C
 #define GCMAX 8000
 #else
-#ifdef __ZTC__
+#ifdef __RZTC__
 #define GCMAX 4000
 #else
 #define GCMAX 16000
@@ -148,7 +148,7 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
 #pragma options(global_optimizer)
 #endif
 #ifdef WIN32
-#pragma optimize("",on)
+// #pragma optimize("",on)
 #endif
 
 NODETYPES nodetype(NODE *nd) {
@@ -250,7 +250,7 @@ NODE *newnode(NODETYPES type) {
 #pragma options(!honor_register)
 #endif
 #ifdef WIN32
-#pragma optimize("",on)
+// #pragma optimize("",on)
 #endif
 
 NODE *cons(NODE *x, NODE *y) {
@@ -327,8 +327,8 @@ void gc_inc () {
 				(gc_stack_size + GCMAX))) == NULL) {
 
 	    /* no room to increse GC Stack */
-	    ndprintf(stdout,"\nWarning: Not enough memory to run garbage collector.\n");
-	    ndprintf(stdout,"GC disabled - Save important data and exit!\n");
+	    ndprintf(stdout, "\n%t\n", message_texts[CANT_GC]);
+	    ndprintf(stdout, "%t\n", message_texts[EXIT_NOW]);
 
 	    gc_overflow_flag = 1;
 	} else {
@@ -497,10 +497,14 @@ re_mark:
     mark(file_list);
     mark(reader_name);
     mark(writer_name);
+    mark(file_prefix);
 
     mark(the_generation);
     mark(Not_Enough_Node);
     mark(Unbound);
+
+    mark(Listvalue);
+    mark(Dotsvalue);
 
     mark(cnt_list);
     mark(cnt_last);
@@ -524,7 +528,7 @@ re_mark:
 
     if (top_stack < bottom_stack) { /* check direction stack grows */
 	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
-#if defined(THINK_C) || defined(__ZTC__)
+#if defined(THINK_C) || defined(__RZTC__)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
 #else
 	     tmp_ptr++
@@ -536,7 +540,7 @@ re_mark:
 	}
     } else {
 	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
-#if defined(THINK_C) || defined(__ZTC__)
+#if defined(THINK_C) || defined(__RZTC__)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
 #else
 	     tmp_ptr--
@@ -709,7 +713,7 @@ re_mark:
 	    if (free_list == NIL)
 		err_logo(OUT_OF_MEM_UNREC, NIL);
 	}
-#ifdef __ZTC__
+#ifdef __RZTC__
 	(void)addseg();
 #endif
     }

@@ -304,7 +304,83 @@ int get_mouse_y()
   return((screen_height / 2) - x_mouse_y);
 }
 
-
-void logofill() {}
+ 
+void floodfill( XImage *img, int x, int y, unsigned long
+					   oldColor, unsigned long newColor ) 
+{
+	int lastBorder;
+	int leftLimit, rightLimit;
+	int i;
+	if (oldColor == newColor) {
+		/* Nothing to be done */
+		return;
+	}
+	/* Seek left */
+	leftLimit = (-1);
+	for (i = x; (i >= 0); i--) {
+		if (XGetPixel(img, i, y) != oldColor) {
+			break;
+		}
+		XPutPixel(img, i, y, newColor);
+		leftLimit = i;
+	}
+	if (leftLimit == (-1)) {
+		return;
+	}
+	/* Seek right */
+	rightLimit = x;
+	for (i = (x+1); (i < screen_width); i++) {	
+		if (XGetPixel(img, i, y) != oldColor) {
+			break;
+		}
+		XPutPixel(img, i, y, newColor);
+		rightLimit = i;
+	}
+	/* Look at lines above and below and start paints */
+	/* Above */
+	if (y > 0) {
+		lastBorder = 1;
+		for (i = leftLimit; (i <= rightLimit); i++) {
+			int c;
+			c = XGetPixel(img, i, y-1);
+			if (lastBorder) {
+				if (c == oldColor) {	
+					floodfill(img, i, y-1, oldColor, newColor);
+					lastBorder = 0;
+				}
+			} else if (c != oldColor) {
+				lastBorder = 1;
+			}
+		}
+	}
+	/* Below */
+	if (y < screen_height - 1) {
+		lastBorder = 1;
+		for (i = leftLimit; (i <= rightLimit); i++) {
+			int c;
+			c = XGetPixel(img, i, y+1);
+			if (lastBorder) {
+				if (c == oldColor) {
+					floodfill(img, i, y+1, oldColor, newColor);
+					lastBorder = 0;
+				}
+			} else if (c != oldColor) {
+				lastBorder = 1;
+			}
+		}
+	}
+}
+ 
+void logofill() {
+	XImage *img = XGetImage(dpy, win, 0, 0, screen_width, screen_height, -1,
+							ZPixmap );
+	floodfill( img, xgr_pen.xpos, xgr_pen.ypos,
+			   XGetPixel( img, xgr_pen.xpos, xgr_pen.ypos ),
+			   color[xgr_pen.color].pixel );
+	
+	XPutImage( dpy, win, draw_gc, img, 0, 0, 0, 0, screen_width,
+			   screen_height );
+  XDestroyImage( img );
+}
 
 #endif

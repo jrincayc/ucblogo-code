@@ -153,9 +153,11 @@ NODE *binary(NODE *args, char fcn) {
        clobbered during setjmp/longjmp. Especially on Sparc. */
     (void)&imode; (void)&arg; (void)&fval;
 
+/*
     if (fcn == '%' || fcn == 'm')
 	arg = integer_arg(args);
     else
+ */
 	arg = numeric_arg(args);
     args = cdr(args);
     if (stopping_flag == THROWING) return UNBOUND;
@@ -253,9 +255,11 @@ NODE *binary(NODE *args, char fcn) {
       }	    /* end float case */
     }	    /* end monadic */
     while (args != NIL && NOT_THROWING) {
+/*
 	if (fcn == '%' || fcn == 'm')
 	    arg = integer_arg(args);
 	else
+ */
 	    arg = numeric_arg(args);
 	args = cdr(args);
 	if (stopping_flag == THROWING) return UNBOUND;
@@ -280,14 +284,20 @@ NODE *binary(NODE *args, char fcn) {
 	      case '+':
 		if (iarg < 0) {
 		    nval = ival + iarg;
-		    if (nval >= ival)
-			handle_oflo(sig_arg);
-		    else ival = nval;
+		    if (nval >= ival) {
+			imode = FALSE;
+			fcn = '+';
+			fval = (FLONUM)ival;
+			farg = (FLONUM)iarg;
+		    } else ival = nval;
 		} else {
 		    nval = ival + iarg;
-		    if (nval < ival)
-			handle_oflo(sig_arg);
-		    else ival = nval;
+		    if (nval < ival) {
+			imode = FALSE;
+			fcn = '+';
+			fval = (FLONUM)ival;
+			farg = (FLONUM)iarg;
+		    } else ival = nval;
 		}
 		break;
 	      case '/':
@@ -371,6 +381,14 @@ NODE *binary(NODE *args, char fcn) {
 		break;
 	      case 'p':
 		errchk(fval = pow(fval,farg));
+		break;
+	      case '%':
+		errchk(fval = fmod(fval,farg));
+		break;
+	      case 'm':
+		errchk(fval = fmod(fval,farg));
+		if ((fval < 0.0) != (farg < 0.0))
+		    fval += farg;
 		break;
 	      default: /* logical op */
 		if (nodetype(arg) == INT)

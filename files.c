@@ -44,18 +44,34 @@
 #ifdef ibm
 #ifndef _MSC_VER
 #include <bios.h>
-#ifndef __ZTC__
+#ifndef __RZTC__
 #include <alloc.h>
 #endif /* ZTC */
 #endif /* MSC_VER */
 extern int getch(), kbhit();
-#ifdef __ZTC__
+#ifdef __RZTC__
 #include <conio.h>
 #endif
 #endif
 
 NODE *file_list = NULL;
-NODE *reader_name = NIL, *writer_name = NIL;
+NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
+
+NODE *lsetprefix(NODE *args) {
+    NODE *arg;
+
+    if (car(args) == NIL) file_prefix = NIL;
+    else {
+	arg = cnv_node_to_strnode(car(args));
+	if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+	else file_prefix = arg;
+    }
+    return UNBOUND;
+}
+
+NODE *lprefix(NODE *args) {
+    return file_prefix;
+}
 
 FILE *open_file(NODE *arg, char *access) {
     char *fnstr;
@@ -63,12 +79,22 @@ FILE *open_file(NODE *arg, char *access) {
 
     arg = cnv_node_to_strnode(arg);
     if (arg == UNBOUND) return(NULL);
-    fnstr = (char *) malloc((size_t)getstrlen(arg) + 1);
+    if (file_prefix != NIL) {
+	print_stringlen = getstrlen(file_prefix) +
+			    getstrlen(arg) + 2;
+	fnstr = (char *)malloc((size_t)print_stringlen + 1);
+    } else
+	fnstr = (char *) malloc((size_t)getstrlen(arg) + 1);
     if (fnstr == NULL) {
-	err_logo(FILE_ERROR, make_static_strnode("Not enough memory"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[MEM_LOW]));
 	return NULL;
     }
-    noparity_strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
+    if (file_prefix != NIL) {
+	print_stringptr = fnstr;
+	ndprintf((FILE *)NULL, "%p%t%p", file_prefix, separator, arg);
+	*print_stringptr = '\0';
+    } else
+	noparity_strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
     tstrm = fopen(fnstr, access);
     free(fnstr);
     return(tstrm);
@@ -79,7 +105,8 @@ NODE *ldribble(NODE *arg) {
 	err_logo(ALREADY_DRIBBLING, NIL);
     else {
 	dribblestream = open_file(car(arg), "w+");
-	if (dribblestream == NULL) err_logo(FILE_ERROR, NIL);
+	if (dribblestream == NULL) err_logo(FILE_ERROR, 
+			      make_static_strnode(message_texts[CANT_OPEN]));
     }
     return(UNBOUND);
 }
@@ -120,13 +147,13 @@ NODE *lopen(NODE *arg, char *mode) {
 
     arg = car(arg);
     if (find_file(arg, FALSE) != NULL)
-	err_logo(FILE_ERROR, make_static_strnode("File already open"));
+	err_logo(FILE_ERROR,make_static_strnode(message_texts[ALREADY_OPEN]));
     else if ((tmp = open_file(arg, mode)) != NULL) {
 	push(arg, file_list);
 	file_list->n_obj = (NODE *)tmp;
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode("I can't open that file"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
     return(UNBOUND);
 }
 
@@ -154,7 +181,7 @@ NODE *lclose(NODE *arg) {
     FILE *tmp;
 
     if ((tmp = find_file(car(arg), TRUE)) == NULL)
-	err_logo(FILE_ERROR, make_static_strnode("File not open"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
     else
 	fclose(tmp);
     return(UNBOUND);
@@ -172,7 +199,7 @@ NODE *lsetwrite(NODE *arg) {
 	writer_name = car(arg);
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode("File not open"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
     return(UNBOUND);
 }
 
@@ -188,7 +215,7 @@ NODE *lsetread(NODE *arg) {
 	reader_name = car(arg);
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode("File not open"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
     return(UNBOUND);
 }
 
@@ -207,7 +234,7 @@ NODE *lerasefile(NODE *arg) {
     if (arg == UNBOUND) return(UNBOUND);
     fnstr = malloc((size_t)getstrlen(arg) + 1);
     if (fnstr == NULL) {
-	err_logo(FILE_ERROR, make_static_strnode("Not enough memory"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[MEM_LOW]));
 	return UNBOUND;
     }
     strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
@@ -227,7 +254,7 @@ NODE *lsave(NODE *arg) {
 	fclose(writestream);
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode("Could not open file"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
     writestream = tmp;
     return(UNBOUND);
 }
@@ -275,8 +302,12 @@ void silent_load(NODE *arg, char *prefix) {
 	if (prefix == NULL)
 	  strcat(load_path, ".lg");
 #ifdef WIN32
-	else
-	  strcpy(load_path, eight_dot_three(load_path));
+	else if (arg != NIL) {
+	    char *cp;
+	    for (cp = load_path; *cp != '\0'; cp++)
+		if (*cp == '?') *cp = 'Q';
+	}
+	/*  strcpy(load_path, eight_dot_three(load_path));  */
 #endif	
     }
     tmp_stream = loadstream;
@@ -292,7 +323,7 @@ void silent_load(NODE *arg, char *prefix) {
 	fclose(loadstream);
 	runstartup(st);
 	val_status = sv_val_status;
-    } else if (arg == NIL) ndprintf(stdout,"File not found: %t\n", prefix);
+    } else if (arg == NIL) ndprintf(stdout, message_texts[NO_FILE], prefix);
     loadstream = tmp_stream;
     current_line = tmp_line;
 }
@@ -317,7 +348,7 @@ NODE *lload(NODE *arg) {
 	runstartup(st);
 	val_status = sv_val_status;
     } else
-	err_logo(FILE_ERROR, make_static_strnode("Could not open file"));
+	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
     loadstream = tmp;
     current_line = tmp_line;
     return(UNBOUND);
@@ -337,6 +368,16 @@ NODE *lreadword(NODE *args) {
     NODE *val;
 
     val = reader(readstream, "RW");	/* fake prompt flags no auto-continue */
+    if (feof(readstream)) {
+	return(NIL);
+    }
+    return(val);
+}
+
+NODE *lreadrawline(NODE *args) {
+    NODE *val;
+
+    val = reader(readstream, "RAW");	/* fake prompt flags no specials */
     if (feof(readstream)) {
 	return(NIL);
     }
@@ -424,18 +465,18 @@ NODE *lreadchars(NODE *args) {
     {
 	strhead = malloc((size_t)(c + sizeof(FIXNUM) + 1));
 	if (strhead == NULL) {
-	    err_logo(FILE_ERROR, make_static_strnode("Not enough memory"));
+	    err_logo(FILE_ERROR, make_static_strnode(message_texts[MEM_LOW]));
 	    return UNBOUND;
 	}
 	strptr = strhead->str_str;
-	fread(strptr, 1, (size_t)c, readstream);
+	c = (unsigned int)fread(strptr, 1, (size_t)c, readstream);
 	setstrrefcnt(strhead, 0);
     }
     input_blocking = 0;
 #ifndef TIOCSTI
     if (stopping_flag == THROWING) return(UNBOUND);
 #endif
-    if (feof(readstream)) {
+    if (c <= 0) {
 	free(strhead);
 	return(NIL);
     }
@@ -467,7 +508,7 @@ NODE *lkeyp(NODE *args) {
     if (readstream == stdin && interactive) {
 	charmode_on();
 	fflush(stdout);
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
 	zflush();
 #endif
 
@@ -500,7 +541,7 @@ NODE *lkeyp(NODE *args) {
 #ifdef FIONREAD
 	ioctl(0,FIONREAD,(char *)(&nc));
 #else
-	ndprintf(stdout,"Can't KEYP, no FIONREAD on this system\n");
+	ndprintf(stdout, "%t\n", message_texts[NO_FIONREAD]);
 	nc = 1;    /* pretend there's a char so we don't loop */
 #endif
 	if (nc > 0)

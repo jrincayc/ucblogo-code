@@ -2,3 +2,6 @@
 if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/ucblogo ]; then
 	rm -f /usr/doc/ucblogo
 fi
+
+#DEBHELPER#
+

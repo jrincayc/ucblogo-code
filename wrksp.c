@@ -256,22 +256,32 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		make_runparse(arg);
 		arg = parsed__runparse(arg);
 		maximum++;
-		if (nodetype(car(arg)) != COLON) {
-		    err_logo(BAD_DATA_UNREC, arg);
+		if (arg == NIL || !is_word(car(arg))) {
+ 		    err_logo(BAD_DATA_UNREC, arg);
 		    break;
-		} else
+		}
+		if (nodetype(car(arg)) == COLON)
 		    setcar(arg, node__colon(car(arg)));
+		if (nodetype(car(arg)) == QUOTE)
+		    setcar(arg, node__quote(car(arg)));
 		if (cdr(arg) == NIL)
 		    maximum = -1;
-	    } else if (nodetype(arg) == COLON && maximum == minimum) {
-		arg = node__colon(arg);
+	    } else if (nodetype(arg) == INT) {
+		if ((unsigned)getint(arg) <= (unsigned) maximum &&
+		     getint(arg) >= minimum) {
+			deflt = getint(arg);
+		} else {
+		    err_logo(BAD_DATA_UNREC, arg);
+		    break;
+		}
+	    } else if (is_word(arg) && maximum == minimum) {
+		if (nodetype(arg) == COLON)
+		    arg = node__colon(arg);
+		if (nodetype(arg) == QUOTE)
+		    arg = node__quote(arg);
 		minimum++;
 		maximum++;
 		deflt++;
-	    } else if (nodetype(arg) == INT && 
-		       (unsigned)getint(arg) <= (unsigned) maximum &&
-		       getint(arg) >= minimum) {
-		deflt = getint(arg);
 	    } else {
 		err_logo(BAD_DATA_UNREC, arg);
 		break;
@@ -317,7 +327,11 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 	    }
 	    if (loadstream == stdin ||
 		  compare_node(valnode__caseobj(LoadNoisily),True,TRUE) == 0) {
-		ndprintf(stdout, "%s defined\n", proc_name);
+		ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
+	    }
+	    if (loadstream != stdin &&
+		  compare_node(valnode__caseobj(UnburyOnEdit),True,TRUE) == 0) {
+		clearflag__caseobj(proc_name, PROC_BURIED);
 	    }
 	}
 	to_pending = 0;
@@ -343,9 +357,10 @@ NODE *lmake(NODE *args) {
 	setvalnode__caseobj(what, cadr(args));
 	if (flag__caseobj(what, VAL_TRACED)) {
 	    NODE *tvar = maybe_quote(cadr(args));
-	    ndprintf(writestream, "Make %s %s", make_quote(what), tvar);
+	    ndprintf(writestream, message_texts[TRACE_MAKE],
+				  make_quote(what), tvar);
 	    if (ufun != NIL) {
-		ndprintf(writestream, " in %s\n%s", ufun, this_line);
+		ndprintf(writestream,message_texts[ERROR_IN],ufun,this_line);
 	    }
 	    new_line(writestream);
 	}
@@ -356,8 +371,10 @@ NODE *lmake(NODE *args) {
 NODE *llocal(NODE *args) {
     NODE *arg = NIL;
     NODE *vsp = var_stack;
+    NODE *realvar = var;
 
     if (tailcall == 1) return UNBOUND;
+    if (args==NIL) return UNBOUND;
     while (is_list(car(args)) && cdr(args) != NIL && NOT_THROWING)
 	setcar(args, err_logo(BAD_DATA, car(args)));
     if (is_list(car(args)))
@@ -371,10 +388,12 @@ NODE *llocal(NODE *args) {
 	if (NOT_THROWING) {
 	    arg = intern(arg);
 	    setcar(args, arg); /* local [a b] faster next time */
+	    var = upvar;
 	    if (not_local(arg,vsp)) {
 		push(arg, var_stack);
 		setobject(var_stack, valnode__caseobj(arg));
 	    }
+	    var = realvar;
 	    setvalnode__caseobj(arg, UNBOUND);
 	    tell_shadow(arg);
 	    args = cdr(args);
@@ -644,9 +663,10 @@ char *expand_slash(NODE *wd) {
 
 NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL, *tvar = NIL;
-    NODE *plist;
+    NODE *plist, *oldfullp;
 
-    print_backslashes = TRUE;
+	oldfullp = valnode__caseobj(Fullprintp);
+    setvalnode__caseobj(Fullprintp, True);
 
     three_lists(arg, &proclst, &varlst, &plistlst);
 
@@ -659,7 +679,7 @@ NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
 
 	if (tvar == UNDEFINED) {
 	    if (just_titles < 0) {
-		ndprintf(writestream,"to %p\nend\n\n", car(proclst));
+		ndprintf(writestream,message_texts[EMPTY_PROC],car(proclst));
 	    } else {
 		err_logo(DK_HOW_UNREC, car(proclst));
 		break;
@@ -707,8 +727,9 @@ NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
 		break;
 	    }
 	} else {
-	    ndprintf(writestream, "Make %s %s\n",
+	    ndprintf(writestream, message_texts[TRACE_MAKE],
 		     make_quote(car(varlst)), tvar);
+	    new_line(writestream);
 	}
 	varlst = cdr(varlst);
 	if (check_throwing) break;
@@ -721,10 +742,11 @@ NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
 	} else {
 	    plist = plist__caseobj(intern(car(plistlst)));
 	    if (plist != NIL && just_titles > 0) {
-		ndprintf(writestream, "Plist %s = %s\n",
+		ndprintf(writestream, message_texts[POT_PLIST],
 			 maybe_quote(car(plistlst)), plist);
 	    } else while (plist != NIL) {
-		ndprintf(writestream, "Pprop %s %s %s\n",
+		ndprintf(writestream, "%t %s %s %s\n",
+			 message_texts[TRACE_PPROP],
 			 maybe_quote(car(plistlst)),
 			 maybe_quote(car(plist)),
 			 maybe_quote(cadr(plist)));
@@ -735,7 +757,7 @@ NODE *po_helper(NODE *arg, int just_titles) {	/* >0 for POT, <0 for EDIT */
 	if (check_throwing) break;
     }
 
-    print_backslashes = FALSE;
+    setvalnode__caseobj(Fullprintp, oldfullp);
     return(UNBOUND);
 }
 
@@ -828,7 +850,7 @@ NODE *lerpls(NODE *args) {
     return erall_helper(FALSE, FALSE, TRUE);
 }
 
-NODE *bury_helper(NODE *arg, int flag) {
+NODE *bury_helper(NODE *arg, int flag, int setp) {
     NODE *proclst = NIL, *varlst = NIL, *plistlst = NIL;
 
     three_lists(arg, &proclst, &varlst, &plistlst);
@@ -838,7 +860,10 @@ NODE *bury_helper(NODE *arg, int flag) {
 	    err_logo(BAD_DATA_UNREC, car(proclst));
 	    break;
 	}
-	setflag__caseobj(intern(car(proclst)), flag);
+	if (setp)
+	    setflag__caseobj(intern(car(proclst)), flag);
+	else
+	    return torf(flag__caseobj(intern(car(proclst)), flag));
 	proclst = cdr(proclst);
 	if (check_throwing) break;
     }
@@ -849,7 +874,10 @@ NODE *bury_helper(NODE *arg, int flag) {
 	    err_logo(BAD_DATA_UNREC, car(varlst));
 	    break;
 	}
-	setflag__caseobj(intern(car(varlst)), flag);
+	if (setp)
+	    setflag__caseobj(intern(car(varlst)), flag);
+	else
+	    return torf(flag__caseobj(intern(car(varlst)), flag));
 	varlst = cdr(varlst);
 	if (check_throwing) break;
     }
@@ -860,23 +888,39 @@ NODE *bury_helper(NODE *arg, int flag) {
 	    err_logo(BAD_DATA_UNREC, car(plistlst));
 	    break;
 	}
-	setflag__caseobj(intern(car(plistlst)), flag);
+	if (setp)
+	    setflag__caseobj(intern(car(plistlst)), flag);
+	else
+	    return torf(flag__caseobj(intern(car(plistlst)), flag));
 	plistlst = cdr(plistlst);
 	if (check_throwing) break;
     }
+    if (!setp) err_logo(BAD_DATA_UNREC, NIL);
     return(UNBOUND);
 }
 
 NODE *lbury(NODE *arg) {
-    return bury_helper(arg,PROC_BURIED);
+    return bury_helper(arg,PROC_BURIED,TRUE);
 }
 
 NODE *ltrace(NODE *arg) {
-    return bury_helper(arg,PROC_TRACED);
+    return bury_helper(arg,PROC_TRACED,TRUE);
 }
 
 NODE *lstep(NODE *arg) {
-    return bury_helper(arg,PROC_STEPPED);
+    return bury_helper(arg,PROC_STEPPED,TRUE);
+}
+
+NODE *lburiedp(NODE *arg) {
+    return bury_helper(arg,PROC_BURIED,FALSE);
+}
+
+NODE *ltracedp(NODE *arg) {
+    return bury_helper(arg,PROC_TRACED,FALSE);
+}
+
+NODE *lsteppedp(NODE *arg) {
+    return bury_helper(arg,PROC_STEPPED,FALSE);
 }
 
 NODE *unbury_helper(NODE *arg, int flag) {
@@ -957,7 +1001,7 @@ NODE *ledit(NODE *args) {
     extern int getpid();
 #endif
 #endif
-#ifdef __ZTC__
+#ifdef __RZTC__
     BOOLEAN was_graphics;
 #endif
     NODE *tmp_line = NIL, *exec_list = NIL;
@@ -989,7 +1033,7 @@ NODE *ledit(NODE *args) {
     if (!mac_edit()) return(UNBOUND);
 #else	    /* !mac */
 #ifdef ibm
-#ifdef __ZTC__
+#ifdef __RZTC__
     was_graphics = in_graphics_mode;
     if (in_graphics_mode) t_screen();
     zflush();
@@ -999,7 +1043,7 @@ NODE *ledit(NODE *args) {
 		 ("Could not launch the editor"));
 	return(UNBOUND);
     }
-#ifdef __ZTC__
+#ifdef __RZTC__
     if (was_graphics) s_screen();
     else lcleartext(NIL);
 #endif	/* ztc */
@@ -1059,6 +1103,15 @@ NODE *lprocedurep(NODE *args) {
     arg = name_arg(args);
     if (NOT_THROWING) 
 	return torf(procnode__caseobj(intern(arg)) != UNDEFINED);
+    return UNBOUND;
+}
+
+NODE *lplistp(NODE *args) {
+    NODE *arg;
+
+    arg = name_arg(args);
+    if (NOT_THROWING) 
+	return torf(plist__caseobj(intern(arg)) != NIL);
     return UNBOUND;
 }
 
@@ -1147,22 +1200,22 @@ NODE *lhelp(NODE *args) {
 #endif
     FILE *fp;
     int lines;
-#if defined(ibm) || defined(WIN32)
+#ifdef __RZTC__
     size_t len;
 #endif
 
     if (args == NIL) {
-#ifdef WIN32
-	sprintf(buffer, "%sHELPCONT", addsep(helpfiles));
-#else
+// #ifdef WIN32
+//	sprintf(buffer, "%sHELPCONT", addsep(helpfiles));
+// #else
 	sprintf(buffer, "%sHELPCONTENTS", addsep(helpfiles));
-#endif
-    } else if (is_word(car(args))) {
+// #endif
+    } else if (is_word(car(args)) && car(args) != Null_Word) {
         arg = llowercase(args);
   	setcar(args, arg);
 	sprintf(buffer, "%s%s", addsep(helpfiles),
 		fixhelp(getstrptr(arg), getstrlen(arg)));
-#if defined(ibm) || defined(WIN32)
+#ifdef __RZTC__    /* defined(ibm) || defined(WIN32) */
 	if (strlen(buffer) > (len = strlen(addsep(helpfiles))+8)) {
 	    buffer[len+5] = '\0';
 	    buffer[len+4] = buffer[len+3];
@@ -1179,21 +1232,21 @@ NODE *lhelp(NODE *args) {
     fp = fopen(buffer, "r");
     if (fp == NULL) {
 	if (args == NIL)
-	    ndprintf(writestream, "No help available.\n");
+	    ndprintf(writestream, message_texts[NO_HELP]);
 	else
-	    ndprintf(writestream, "No help available on %p.\n", arg);
+	    ndprintf(writestream, message_texts[NO_HELPON], arg);
     } else {
 	(void)ltextscreen(NIL);
 	lines = 0;
 	fgets(buffer, 200, fp);
 	while (NOT_THROWING && !feof(fp)) {
 	    if (interactive && writestream==stdout && ++lines >= y_max) {
-		ndprintf(writestream,"--more--");
+		ndprintf(writestream, message_texts[MORE_HELP]);
 		input_blocking++;
 #ifndef TIOCSTI
 		if (!setjmp(iblk_buf))
 #endif
-#ifdef __ZTC__
+#ifdef __RZTC__
 		    ztc_getcr();
 		    print_char(stdout, '\n');
 #else

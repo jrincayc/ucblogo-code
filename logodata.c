@@ -23,12 +23,12 @@
 #include "globals.h"
 #include <stdarg.h>
 #ifdef ibm
-#if !defined(__ZTC__) && !defined(_MSC_VER)
+#if !defined(__RZTC__) && !defined(_MSC_VER)
 #include <alloc.h>
 #endif
 #endif
 
-char special_chars[] = " \t\n(\?\?\?\?\?\?\?+~)[]-*/=<>\"\\:;|\?";
+char special_chars[] = " \t\n(?????+++~)[]-*/=<>\"\\:;|{}";
 
 #ifdef ecma
 
@@ -39,7 +39,7 @@ char special_chars[] = " \t\n(\?\?\?\?\?\?\?+~)[]-*/=<>\"\\:;|\?";
 
 char ecma_array[128];
 
-int ecma_size = sizeof(special_chars);
+int ecma_size = sizeof(special_chars)-1;
 
 char ecma_set(int ch) {
     ch &= 0377;
@@ -49,15 +49,16 @@ char ecma_set(int ch) {
 
 char ecma_clear(int ch) {
     ch &= 0377;
-    if (ch < ecma_begin || ch >= ecma_begin+sizeof(special_chars)) return(ch);
-    if (ch >= 007 && ch <= 015) return(ch);
+    if (ch < ecma_begin || ch >= ecma_begin+sizeof(special_chars)-1)
+	return(ch);
+    if (ch >= 007 && ch <= 015 && ch != 013) return(ch);
     return(special_chars[ch - ecma_begin]);
 }
 
 int ecma_get(int ch) {
     ch &= 0377;
-    return ((ch >= ecma_begin && ch < ecma_begin+sizeof(special_chars))
-	    && (ch < 007 || ch > 015));
+    return ((ch >= ecma_begin && ch < ecma_begin+sizeof(special_chars)-1)
+	    && (ch < 007 || ch > 015 || ch == 013));
 }
 
 #else
@@ -308,6 +309,7 @@ NODE *make_quote(NODE *qnd) {
 }
 
 NODE *maybe_quote(NODE *nd) {
+    if (nodetype(nd) == CONT) nd = cdr(nd);
     if (nd == UNBOUND || aggregate(nd) || numberp(nd)) return(nd);
     return(make_quote(nd));
 }
@@ -517,10 +519,11 @@ NODE *lpprop(NODE *args) {
     if (NOT_THROWING) {
 	plname = intern(plname);
 	if (flag__caseobj(plname, PLIST_TRACED)) {
-	    ndprintf(writestream, "Pprop %s %s %s", maybe_quote(plname),
+	    ndprintf(writestream, "%t %s %s %s",
+		     message_texts[TRACE_PPROP], maybe_quote(plname),
 		     maybe_quote(pname), maybe_quote(newval));
 	    if (ufun != NIL)
-		ndprintf(writestream, " in %s\n%s", ufun, this_line);
+		ndprintf(writestream,message_texts[ERROR_IN],ufun,this_line);
 	    new_line(writestream);
 	}
 	plist = plist__caseobj(plname);

@@ -1,4 +1,4 @@
-LISTTOARRAY list					(library procedure)
+LISTTOARRAY list
 (LISTTOARRAY list origin)
 
 	outputs an array of the same size as the input list, whose members
