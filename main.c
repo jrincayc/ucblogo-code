@@ -72,6 +72,8 @@ void unblock_input(void) {
     }
 }
 
+extern int in_eval_save;
+
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
 RETSIGTYPE logo_stop(int sig)
@@ -80,9 +82,10 @@ RETSIGTYPE logo_stop(int sig)
 RETSIGTYPE logo_stop()
 #endif
 {
-    if (inside_gc) {
+    if (inside_gc || in_eval_save) {
 	int_during_gc = 1;
     } else {
+	charmode_off();
 	to_pending = 0;
 	err_logo(STOP_ERROR,NIL);
 #ifdef __RZTC__
@@ -102,9 +105,10 @@ RETSIGTYPE logo_pause(int sig)
 RETSIGTYPE logo_pause()
 #endif
 {
-    if (inside_gc) {
+    if (inside_gc || in_eval_save) {
 	int_during_gc = -1;
     } else {
+	charmode_off();
 	to_pending = 0;
 #ifdef bsd
 	sigsetmask(0);
@@ -170,7 +174,7 @@ int main(int argc, char *argv[]) {
 #endif
       {
 	lcleartext(NIL);
-	ndprintf(stdout, message_texts[WELCOME_TO], "5.1");
+	ndprintf(stdout, message_texts[WELCOME_TO], "5.3");
 	new_line(stdout);
       }
     }
@@ -200,23 +204,22 @@ int main(int argc, char *argv[]) {
 #endif
 	    if (NOT_THROWING) {
 		exec_list = parser(current_line, TRUE);
-		val_status = 0;
 		if (exec_list != NIL) eval_driver(exec_list);
 	    }
 	}
 	if (stopping_flag == THROWING) {
-	    if (compare_node(throw_node, Error, TRUE) == 0) {
-		err_print();
-	    } else if (compare_node(throw_node, System, TRUE) == 0)
+	    if (isName(throw_node, Name_error)) {
+		err_print(NULL);
+	    } else if (isName(throw_node, Name_system))
 		break;
-	    else if (compare_node(throw_node, Toplevel, TRUE) != 0) {
+	    else if (!isName(throw_node, Name_toplevel)) {
 		err_logo(NO_CATCH_TAG, throw_node);
-		err_print();
+		err_print(NULL);
 	    }
 	    stopping_flag = RUN;
 	}
 	if (stopping_flag == STOP || stopping_flag == OUTPUT) {
-	    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);
+	/*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
 	    stopping_flag = RUN;
 	}
     }

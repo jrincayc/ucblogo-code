@@ -16,4 +16,3 @@ GC
 	collection, which means that only recently created nodes are
 	examined.  (The latter is usually good enough.)
 
-

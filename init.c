@@ -19,6 +19,11 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 #include <string.h>
@@ -33,13 +38,11 @@ typedef struct priminfo {
     NODE *(*prim) ();
 } PRIMTYPE;
 
-NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,
-     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
+NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
      *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
      *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
-     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,
-     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,
-     *Goto, *Tag;
+     *Unbound, *Not_Enough_Node,
+     *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
 
 PRIMTYPE prims[] = {
@@ -54,6 +57,7 @@ PRIMTYPE prims[] = {
     {".setbf", 2, 2, 2, PREFIX_PRIORITY, l_setbf},
     {".setfirst", 2, 2, 2, PREFIX_PRIORITY, l_setfirst},
     {".setitem", 3, 3, 3, PREFIX_PRIORITY, l_setitem},
+    {".setsegmentsize", 1, 1, 1, PREFIX_PRIORITY, lsetsegsz},
     {"/", 1, 1, 1, PREFIX_PRIORITY + 3, ldivide},
     {"<", 2, 2, 2, PREFIX_PRIORITY + 1, llessp},
     {"=", 2, 2, 2, PREFIX_PRIORITY + 1, lequalp},
@@ -64,6 +68,7 @@ PRIMTYPE prims[] = {
     {"apply", 2, 2, 2, MACRO_PRIORITY, lapply},
     {"arc", 2, 2, 2, PREFIX_PRIORITY, larc},
     {"arctan", 1, 1, 2, PREFIX_PRIORITY, latan},
+    {"arity", 1, 1, 1, PREFIX_PRIORITY, larity},
     {"array", 1, 1, 2, PREFIX_PRIORITY, larray},
     {"arrayp", 1, 1, 1, PREFIX_PRIORITY, larrayp},
     {"arraytolist", 1, 1, 1, PREFIX_PRIORITY, larraytolist},
@@ -148,6 +153,7 @@ PRIMTYPE prims[] = {
     {"fullscreen", 0, 0, 0, PREFIX_PRIORITY, lfullscreen},
     {"fulltext", 1, 1, 1, PREFIX_PRIORITY, lfulltext},
     {"gc", 0, 0, 1, PREFIX_PRIORITY, lgc},
+    {"global", 1, 1, -1, PREFIX_PRIORITY, lglobal},
     {"goto", 1, 1, 1, MACRO_PRIORITY, lgoto},
     {"gprop", 2, 2, 2, PREFIX_PRIORITY, lgprop},
     {"greaterp", 2, 2, 2, PREFIX_PRIORITY, lgreaterp},
@@ -271,7 +277,7 @@ PRIMTYPE prims[] = {
     {"rerandom", 0, 0, 1, PREFIX_PRIORITY, lrerandom},
     {"right", 1, 1, 1, PREFIX_PRIORITY, lright},
     {"rl", 0, 0, 0, PREFIX_PRIORITY, lreadlist},
-    {"round", 1, 1, 1, PREFIX_PRIORITY, lround},
+    {"round", 1, 1, 1, PREFIX_PRIORITY, lroundx},
     {"rt", 1, 1, 1, PREFIX_PRIORITY, lright},
     {"run", 1, 1, 1, MACRO_PRIORITY, lrun},
     {"runparse", 1, 1, 1, PREFIX_PRIORITY, lrunparse},
@@ -279,15 +285,19 @@ PRIMTYPE prims[] = {
     {"rw", 0, 0, 0, PREFIX_PRIORITY, lreadword},
     {"save", 1, 1, 1, PREFIX_PRIORITY, lsave},
     {"savepict", 1, 1, 1, PREFIX_PRIORITY, lsavepict},
+    {"screenmode", 0, 0, 0, PREFIX_PRIORITY, lscreenmode},
     {"scrunch", 0, 0, 0, PREFIX_PRIORITY, lscrunch},
     {"se", 0, 2, -1, PREFIX_PRIORITY, lsentence},
     {"sentence", 0, 2, -1, PREFIX_PRIORITY, lsentence},
     {"setbg", 1, 1, 1, PREFIX_PRIORITY, lsetbackground},
     {"setbackground", 1, 1, 1, PREFIX_PRIORITY, lsetbackground},
     {"setcursor", 1, 1, 1, PREFIX_PRIORITY, lsetcursor},
+    {"seteditor", 1, 1, 1, PREFIX_PRIORITY, lseteditor},
     {"seth", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"setheading", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
+    {"sethelploc", 1, 1, 1, PREFIX_PRIORITY, lsethelploc},
     {"setitem", 3, 3, 3, PREFIX_PRIORITY, lsetitem},
+    {"setlibloc", 1, 1, 1, PREFIX_PRIORITY, lsetlibloc},
     {"setmargins", 1, 1, 1, PREFIX_PRIORITY, lsetmargins},
     {"setpalette", 2, 2, 2, PREFIX_PRIORITY, lsetpalette},
     {"setpc", 1, 1, 1, PREFIX_PRIORITY, lsetpencolor},
@@ -303,6 +313,7 @@ PRIMTYPE prims[] = {
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
 #endif
+    {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
     {"setwrite", 1, 1, 1, PREFIX_PRIORITY, lsetwrite},
     {"setwritepos", 1, 1, 1, PREFIX_PRIORITY, lsetwritepos},
     {"setx", 1, 1, 1, PREFIX_PRIORITY, lsetx},
@@ -341,6 +352,7 @@ PRIMTYPE prims[] = {
     {"tracedp", 1, 1, 1, PREFIX_PRIORITY, ltracedp},
     {"traced?", 1, 1, 1, PREFIX_PRIORITY, ltracedp},
     {"ts", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
+    {"turtlemode", 0, 0, 0, PREFIX_PRIORITY, lturtlemode},
     {"type", 0, 1, -1, PREFIX_PRIORITY, ltype},
     {"unbury", 1, 1, 1, PREFIX_PRIORITY, lunbury},
     {"unstep", 1, 1, 1, PREFIX_PRIORITY, lunstep},
@@ -371,6 +383,8 @@ PRIMTYPE prims[] = {
     {0, 0, 0, 0, 0, 0}
 };
 
+struct wdtrans translations[NUM_WORDS];
+
 NODE *intern_p(NODE *caseobj) {
     NODE *result = intern(caseobj);
     setflag__caseobj(result, PERMANENT);
@@ -379,9 +393,16 @@ NODE *intern_p(NODE *caseobj) {
 
 void init(void) {
     int i = 0;
-    NODE *proc = NIL, *pname = NIL, *cnd = NIL;
+    NODE *iproc = NIL, *pname = NIL, *cnd = NIL;
     FILE *fp;
     char linebuf[100];
+#ifdef WIN32
+    HKEY regKey1, regKey2, regKey3;
+    int got_hklm = 0;
+    char buf[200];
+    unsigned long int bufsiz;
+    char *envp;
+#endif
 
     readstream = stdin;
     writestream = stdout;
@@ -402,95 +423,213 @@ void init(void) {
 	ecma_array[(int)special_chars[i]] = ecma_begin+i;
     i = 0;
 #endif
+
     logolib = getenv("LOGOLIB");
-    if (logolib == NULL) logolib = libloc;
     helpfiles = getenv("LOGOHELP");
-    if (helpfiles == NULL) helpfiles = helploc;
     editor = getenv("EDITOR");
+#ifdef WIN32
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software", 0,
+		     KEY_READ, &regKey1) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(regKey1, "UCB", 0, 
+			 KEY_READ, &regKey2) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(regKey2, "UCBLogo", 0,
+			     KEY_READ, &regKey3) == ERROR_SUCCESS) {
+		got_hklm = 1;
+	/*	logolib = getenv("LOGOLIB"); */
+		if (logolib == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "LOGOLIB", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+					    logolib = malloc(bufsiz);
+					    strcpy(logolib, buf);
+		    }
+		}
+	/*	helpfiles = getenv("LOGOLIB"); */
+		if (helpfiles == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "LOGOHELP", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			helpfiles = malloc(bufsiz);
+			strcpy(helpfiles, buf);
+		    }
+		}
+	/*	editor = getenv("LOGOLIB"); */
+		if (editor == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "EDITOR", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			editor = malloc(bufsiz);
+			strcpy(editor, buf);
+		    }
+		}
+		RegCloseKey(regKey3);
+	    }
+	    RegCloseKey(regKey2);
+	}
+	RegCloseKey(regKey1);
+    }
+    if (!got_hklm && RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0,
+				  KEY_READ, &regKey1) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(regKey1, "UCB", 0, 
+			 KEY_READ, &regKey2) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(regKey2, "UCBLogo", 0,
+			     KEY_READ, &regKey3) == ERROR_SUCCESS) {
+		got_hklm = 1;
+	/*	logolib = getenv("LOGOLIB"); */
+		if (logolib == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "LOGOLIB", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+					    logolib = malloc(bufsiz);
+					    strcpy(logolib, buf);
+		    }
+		}
+	/*	helpfiles = getenv("LOGOLIB"); */
+		if (helpfiles == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "LOGOHELP", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			helpfiles = malloc(bufsiz);
+			strcpy(helpfiles, buf);
+		    }
+		}
+	/*	editor = getenv("LOGOLIB"); */
+		if (editor == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "EDITOR", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			editor = malloc(bufsiz);
+			strcpy(editor, buf);
+		    }
+		}
+		RegCloseKey(regKey3);
+	    }
+	    RegCloseKey(regKey2);
+	}
+	RegCloseKey(regKey1);
+    }
+#endif
+    if (logolib == NULL) logolib = libloc;
+    if (helpfiles == NULL) helpfiles = helploc;
     if (editor == NULL) editor = "jove";
     editorname = strrchr(editor, (int)'/');
+    if (editorname == NULL) editorname = strrchr(editor, (int)'\\');
+#ifdef WIN32
+    if (editorname == NULL) {
+	putenv("DESCRIBE=CMDS.DOC");
+	putenv("JOVERC=JOVE.RC");
+    } else {
+	bufsiz = sprintf(buf, "DESCRIBE=%.*s\\CMDS.DOC", editorname-editor, editor);
+	envp = malloc(bufsiz+1);
+	strcpy(envp, buf);
+	putenv(envp);
+	bufsiz = sprintf(buf, "JOVERC=%.*s\\JOVE.RC", editorname-editor, editor);
+	envp = malloc(bufsiz+1);
+	strcpy(envp, buf);
+	putenv(envp);
+    }
+#endif
+    if (editorname == NULL) editorname = strrchr(editor, (int)':');
     editorname = (editorname ? editorname+1 : editor);
     tempdir = getenv("TEMP");
     if (tempdir == NULL) tempdir = temploc;
     while (prims[i].name) {
 	if (prims[i].priority == MACRO_PRIORITY)
-	    proc = newnode(MACRO);
+	    iproc = newnode(MACRO);
 	else if (prims[i].priority <= TAIL_PRIORITY)
-	    proc = newnode(TAILFORM);
+	    iproc = newnode(TAILFORM);
 	else if ((prims[i].priority & ~4) == (PREFIX_PRIORITY & ~4))
-	    proc = newnode(PRIM); /* incl. -- */
+	    iproc = newnode(PRIM); /* incl. -- */
 	else
-	    proc = newnode(INFIX);
-	setprimpri(proc, prims[i].priority);
-	setprimfun(proc, prims[i].prim);
-	setprimdflt(proc, prims[i].defargs);
-	setprimmax(proc, prims[i].maxargs);
-	setprimmin(proc, prims[i].minargs);
+	    iproc = newnode(INFIX);
+	setprimpri(iproc, prims[i].priority);
+	setprimfun(iproc, prims[i].prim);
+	setprimdflt(iproc, prims[i].defargs);
+	setprimmax(iproc, prims[i].maxargs);
+	setprimmin(iproc, prims[i].minargs);
 	pname = make_static_strnode(prims[i].name);
 	cnd = make_instance(pname, pname);
-	setprocnode__caseobj(cnd, proc);
-	if (nodetype(proc) == MACRO)
+	setprocnode__caseobj(cnd, iproc);
+	if (nodetype(iproc) == MACRO)
 	    setflag__caseobj(cnd, PROC_MACRO);
 	setflag__caseobj(cnd, PERMANENT);
 	i++;
     }
-    True = intern_p(make_static_strnode("true"));
-    False = intern_p(make_static_strnode("false"));
     Left_Paren = intern_p(make_static_strnode("("));
     Right_Paren = intern_p(make_static_strnode(")"));
     Minus_Sign = intern_p(make_static_strnode("-"));
     Minus_Tight = intern_p(make_static_strnode("--"));
     Query = intern_p(make_static_strnode("?"));
     Null_Word = intern_p(make_static_strnode("\0"));
-    To = intern_p(make_static_strnode("to"));
-    Macro = intern_p(make_static_strnode(".macro"));
-    Toplevel = intern_p(make_static_strnode("toplevel"));
-    System = intern_p(make_static_strnode("system"));
-    Error = intern_p(make_static_strnode("error"));
-    End = intern_p(make_static_strnode("end"));
-    If = intern_p(make_static_strnode("if"));
-    Ifelse = intern_p(make_static_strnode("ifelse"));
     Redefp = intern_p(make_static_strnode("redefp"));
     Caseignoredp = intern_p(make_static_strnode("caseignoredp"));
-    setvalnode__caseobj(Caseignoredp, True);
-    setflag__caseobj(Caseignoredp, VAL_BURIED);
     Erract = intern_p(make_static_strnode("erract"));
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
     AllowGetSet = intern_p(make_static_strnode("allowgetset"));
-    setvalnode__caseobj(AllowGetSet, True);
-    setflag__caseobj(AllowGetSet, VAL_BURIED);
     Fullprintp = intern_p(make_static_strnode("fullprintp"));
-    setvalnode__caseobj(Fullprintp, False);
-    setflag__caseobj(Fullprintp, VAL_BURIED);
     UnburyOnEdit = intern_p(make_static_strnode("unburyonedit"));
-    setvalnode__caseobj(UnburyOnEdit, True);
-    setflag__caseobj(UnburyOnEdit, VAL_BURIED);
+    UseAlternateNames = intern_p(make_static_strnode("usealternatenames"));
     Make = intern_p(make_static_strnode("make"));
     Listvalue = cons(intern_p(make_static_strnode("value")),NIL);
     Dotsvalue = make_colon(car(Listvalue));
     Pause = intern_p(make_static_strnode("pause"));
     Startup = intern_p(make_static_strnode("startup"));
-    Output = intern_p(make_static_strnode("output"));
-    Op = intern_p(make_static_strnode("op"));
-    Stop = intern_p(make_static_strnode("stop"));
-    Goto = intern_p(make_static_strnode("goto"));
-    Tag = intern_p(make_static_strnode("Tag"));
     the_generation = cons(NIL, NIL);
     Not_Enough_Node = cons(NIL, NIL);
 
     sprintf(linebuf,"%s%sMessages", logolib, separator);
-    fp = fopen(linebuf, "r");
+    fp = fopen("Messages", "r");
+    if (fp == NULL)
+	fp = fopen(linebuf, "r");
     if (fp == NULL) {
 	printf("Error -- Can't read Messages file.\n");
 	exit(1);
     }
-    for (i=0; i<MAX_MESSAGE; i++) {
-	fgets(linebuf, 99, fp);
+
+    for (i=0; i<(MAX_MESSAGE+NUM_WORDS); i++) {
+	while (fgets(linebuf, 99, fp) != NULL && linebuf[0] == ';') ;
 	linebuf[strlen(linebuf)-1] = '\0';
 	message_texts[i] = (char *) malloc(1+strlen(linebuf));
 	strcpy(message_texts[i], linebuf);
     }
+
     fclose(fp);
+
+#define wd_copy(x) \
+    translations[Name_ ## x].English = intern_p(make_static_strnode(#x)); \
+    translations[Name_ ## x].Alt = \
+	intern_p(make_static_strnode(message_texts[MAX_MESSAGE + Name_ ## x]));
+
+    do_trans(wd_copy);
+
+    translations[Name_macro].English = intern_p(make_static_strnode(".macro"));
+
+#define True translations[Name_true].English
+#define False translations[Name_false].English
+
+    setvalnode__caseobj(Caseignoredp, True);
+    setflag__caseobj(Caseignoredp, VAL_BURIED);
+    setvalnode__caseobj(AllowGetSet, True);
+    setflag__caseobj(AllowGetSet, VAL_BURIED);
+    setvalnode__caseobj(Fullprintp, False);
+    setflag__caseobj(Fullprintp, VAL_BURIED);
+    setvalnode__caseobj(UnburyOnEdit, True);
+    setflag__caseobj(UnburyOnEdit, VAL_BURIED);
+    setvalnode__caseobj(UseAlternateNames, False);
+    setflag__caseobj(UseAlternateNames, VAL_BURIED);
+
+    user_repcount = -1;
+    ift_iff_flag = -1;
+
+    num_saved_nodes = (NODE **)(&(val_status)) - (NODE **)(&(proc));
+    Regs_Node = newnode(STACK);
+    Regs_Node->n_car = (NODE *)&regs;
+
+/*  Uncomment these to print debugging messages right away! */
+/*
+    setvalnode__caseobj(Redefp, True);
+    setflag__caseobj(Redefp, VAL_BURIED);
+ */
 }

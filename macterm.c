@@ -454,15 +454,6 @@ NODE *Get_node_pen_pattern() {
 }
 #endif
 
-NODE *Get_node_pen_mode() {
-    switch(pen_mode) {
-	case patCopy   : return(make_static_strnode("paint"));
-	case patBic    : return(make_static_strnode("erase"));
-	case patXor    : return(make_static_strnode("reverse"));
-	default	       : return(make_static_strnode("unknown"));
-    }
-}
-
 void label(char *s) {
     short tmode;
 

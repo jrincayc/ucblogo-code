@@ -72,6 +72,11 @@ extern NODE *lpprop(NODE *);
 extern NODE *lremprop(NODE *);
 extern NODE *copy_list(NODE *);
 extern NODE *lplist(NODE *);
+extern int isName(NODE *, enum words);
+extern int varTrue(NODE *);
+extern NODE *theName(enum words);
+extern NODE *TrueName(void);
+extern NODE *FalseName(void);
 
 #ifdef ecma
 extern char ecma_array[], special_chars[];
@@ -98,6 +103,7 @@ extern void mark(NODE *);
 extern void gc(BOOLEAN);
 extern NODE *lgc(NODE *);
 extern NODE *lnodes(NODE *);
+extern NODE *lsetsegsz(NODE *);
 extern void fill_reserve_tank(void);
 extern void use_reserve_tank(void);
 extern void check_reserve_tank(void);
@@ -138,7 +144,7 @@ extern NODE *lradcos(NODE *);
 extern NODE *lradatan(NODE *);
 extern NODE *lsqrt(NODE *);
 extern NODE *linteg(NODE *);
-extern NODE *lround(NODE *);
+extern NODE *lroundx(NODE *);
 extern NODE *lexp(NODE *);
 extern NODE *llog10(NODE *);
 extern NODE *lln(NODE *);
@@ -178,15 +184,16 @@ extern NODE *ltype(NODE *);
 extern NODE *lprint(NODE *);
 
 /* init.c */
-extern NODE *True, *False, *Left_Paren, *Right_Paren, *Toplevel, *System, *Error;
-extern NODE *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit;
+extern NODE *Left_Paren, *Right_Paren;
+extern NODE *Redefp, *Caseignoredp, *Erract, *Printdepthlimit;
 extern NODE *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet;
 extern NODE *UnburyOnEdit, *Make, *Listvalue, *Dotsvalue;
-extern NODE *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node;
-extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop;
-extern NODE *Goto, *Tag;
+extern NODE *Unbound, *Not_Enough_Node;
+extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Query;
+extern NODE *UseAlternateNames;
 extern NODE *Null_Word;
 extern void init(void);
+extern struct wdtrans translations[];
 
 /* wrksp.c */
 extern char *editor, *editorname, *tempdir;
@@ -200,6 +207,7 @@ extern NODE *lmacro(NODE *);
 extern NODE *lto(NODE *);
 extern NODE *lmake(NODE *);
 extern NODE *llocal(NODE *);
+extern NODE *lglobal(NODE *);
 extern NODE *cnt_list, *cnt_last;
 extern NODE *lcontents(NODE *);
 extern NODE *lburied(NODE *);
@@ -236,32 +244,34 @@ extern NODE *ldefinedp(NODE *);
 extern NODE *lmacrop(NODE *);
 extern NODE *lcopydef(NODE *);
 extern NODE *lhelp(NODE *);
+extern NODE *larity(NODE *);
 
 /* error.c */
 extern char *message_texts[];
 extern NODE *throw_node;
 extern NODE *err_mesg;
 extern ERR_TYPES erract_errtype;
-extern void err_print(void);
+extern void err_print(char *);
 extern NODE *err_logo(ERR_TYPES, NODE *);
 extern NODE *lerror(NODE *);
 extern NODE *lpause(NODE *);
 extern NODE *lcontinue(NODE *);
 
 /* eval.c */
-extern NODE *fun, *ufun, *last_ufun, *this_line, *last_line, *didnt_get_output;
-extern NODE *var, *upvar, *var_stack;
-extern NODE  *output_node, *last_call, *didnt_output_name;
+extern NODE *var_stack;
+extern NODE *output_node, *output_unode, *last_call;
 extern CTRLTYPE stopping_flag;
 extern char *logolib, *helpfiles;
-extern FIXNUM tailcall, val_status, dont_fix_ift, user_repcount;
-extern NODE *qm_list;
+extern FIXNUM dont_fix_ift;
 extern void eval_driver(NODE *);
-extern NODE *err_eval_driver(NODE *);
+extern NODE *err_eval_driver(NODE *, BOOLEAN);
 extern NODE *lapply(NODE *);
 extern NODE *lqm(NODE *);
 extern void tell_shadow(NODE *);
 extern int not_local(NODE *, NODE *);
+extern int num_saved_nodes;
+extern struct registers regs;
+extern NODE *Regs_Node;
 
 /* lists.c */
 extern NODE *lbutfirst(NODE *);
@@ -304,6 +314,10 @@ extern NODE *l_setbf(NODE *);
 /* files.c */
 extern NODE *file_list;
 extern NODE *reader_name, *writer_name, *file_prefix;
+extern NODE *lseteditor(NODE *);
+extern NODE *lsetlibloc(NODE *);
+extern NODE *lsethelploc(NODE *);
+extern NODE *lsettemploc(NODE *);
 extern NODE *ldribble(NODE *);
 extern NODE *lnodribble(NODE *);
 extern NODE *lopenread(NODE *);
@@ -335,7 +349,6 @@ extern NODE *lwritepos(NODE *);
 extern NODE *lsetwritepos(NODE *);
 
 /* coms.c */
-extern FIXNUM ift_iff_flag;
 extern NODE *make_cont(enum labels, NODE *);
 extern NODE *loutput(NODE *);
 extern NODE *lstop(NODE *);
@@ -447,7 +460,8 @@ extern NODE *lloadpict(NODE *);
 extern NODE *lsavepict(NODE *);
 extern NODE *lepspict(NODE *);
 extern void redraw_graphics(void);
-extern void resize_record(int, int);
+extern NODE *lscreenmode(NODE *);
+extern NODE *lturtlemode(NODE *);
 
 #ifdef mac
 

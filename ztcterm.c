@@ -419,14 +419,6 @@ NODE *Get_node_pen_pattern(void) {
     return(cons(make_intnode(0-1L), NIL));
 }
 
-NODE *Get_node_pen_mode(void) {
-    if (in_erase_mode)
-	return(make_static_strnode("erase"));
-    if (current_write_mode == FG_MODE_XOR)
-	return(make_static_strnode("reverse"));
-    return(make_static_strnode("paint"));
-}
-
 void label(char *s) {
     gr_mode();
     moveto(g_round(screen_x_coord), g_round(screen_y_coord));

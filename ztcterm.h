@@ -88,7 +88,6 @@ typedef struct { int    h;
 #define pen_x ztc_x
 #define pen_y ztc_y
 #define get_node_pen_pattern Get_node_pen_pattern()
-#define get_node_pen_mode Get_node_pen_mode()
 
 #define pen_reverse ibm_pen_xor()
 #define pen_erase ibm_pen_erase()
@@ -117,7 +116,7 @@ extern void set_list_pen_pattern(), get_pen_pattern(), erase_screen();
 extern void label(), logofill();
 extern void t_screen(), s_screen(), f_screen(), tone();
 extern FIXNUM mickey_x(), mickey_y();
-extern NODE *Get_node_pen_pattern(), *Get_node_pen_mode();
+extern NODE *Get_node_pen_pattern();
 extern FIXNUM t_height();
 extern FIXNUM pen_color, back_ground;
 extern FLONUM t_half_bottom(), t_side();
@@ -125,3 +124,7 @@ extern int current_vis, ibm_screen_bottom;
 extern BOOLEAN in_erase_mode;
 extern int ztc_penwidth;
 extern fg_coord_t ztc_x, ztc_y;
+extern void get_palette(int slot,
+			unsigned int *r, unsigned int *g, unsigned int *b);
+extern void set_palette(int slot,
+			unsigned int r, unsigned int g, unsigned int b);

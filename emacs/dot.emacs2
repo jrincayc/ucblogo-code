@@ -1,8 +1,8 @@
 ;;
 ;; Uncomment next 2 if you want to change the default size of Logo window.
 ;; Default is 80 x 24.
-;(setq logo-term-columns 86)
-;(setq logo-term-rows 32)
+;(setq process-term-columns 86)
+;(setq process-term-rows 32)
 ;;
 ;; Next 2 are not important, but I like it this way.
 (setq logo-setcursor-overwrite nil)

@@ -1,5 +1,42 @@
-This is ucblogo.info, produced by makeinfo version 4.0 from
+This is ucblogo.info, produced by makeinfo version 4.0b from
 usermanual.texi.
+
+
+File: ucblogo.info,  Node: DEFINE,  Next: TEXT,  Prev: TO,  Up: PROCEDURE DEFINITION
+
+define
+------
+
+     DEFINE procname text
+
+command.  Defines a procedure with name `procname' and text `text'.  If
+there is already a procedure with the same name, the new definition
+replaces the old one.  The text input must be a list whose members are
+lists.  The first member is a list of inputs; it looks like a TO line
+but without the word TO, without the procedure name, and without the
+colons before input names.  In other words, the members of this first
+sublist are words for the names of required inputs and lists for the
+names of optional or rest inputs.  The remaining sublists of the text
+input make up the body of the procedure, with one sublist for each
+instruction line of the body.  (There is no END line in the text input.)
+It is an error to redefine a primitive procedure unless the variable
+REDEFP has the value TRUE.
+
+*Note REDEFP:: .
+
+
+File: ucblogo.info,  Node: TEXT,  Next: FULLTEXT,  Prev: DEFINE,  Up: PROCEDURE DEFINITION
+
+text
+----
+
+     TEXT procname
+
+outputs the text of the procedure named `procname' in the form expected
+by DEFINE: a list of lists, the first of which describes the inputs to
+the procedure and the rest of which are the lines of its body.  The text
+does not reflect formatting information used when the procedure was
+defined, such as continuation lines and extra spaces.
 
 
 File: ucblogo.info,  Node: FULLTEXT,  Next: COPYDEF,  Prev: TEXT,  Up: PROCEDURE DEFINITION
@@ -57,6 +94,7 @@ Variable Definition
 * LOCAL::
 * LOCALMAKE::
 * THING::
+* GLOBAL::
 
 
 File: ucblogo.info,  Node: MAKE,  Next: NAME,  Prev: VARIABLE DEFINITION,  Up: VARIABLE DEFINITION
@@ -116,7 +154,7 @@ given value, like MAKE.
 *Note LOCAL:: , *Note MAKE:: .
 
 
-File: ucblogo.info,  Node: THING,  Prev: LOCALMAKE,  Up: VARIABLE DEFINITION
+File: ucblogo.info,  Node: THING,  Next: GLOBAL,  Prev: LOCALMAKE,  Up: VARIABLE DEFINITION
 
 thing
 -----
@@ -132,6 +170,24 @@ the combination
      thing "
 
 so that :FOO means THING "FOO.
+
+
+File: ucblogo.info,  Node: GLOBAL,  Prev: THING,  Up: VARIABLE DEFINITION
+
+global
+------
+
+     GLOBAL varname
+     GLOBAL varnamelist
+     (GLOBAL varname1 varname2 ...)
+
+command.  Accepts as inputs one or more words, or a list of words.  A
+global variable is created for each of these words, with that word as
+its name.  The only reason this is necessary is that you might want to
+use the "setter" notation SETXYZ for a variable XYZ that does not
+already have a value; GLOBAL "XYZ makes that legal.  Note: If there is
+currently a local variable of the same name, this command does *not*
+make Logo use the global value instead of the local one.
 
 
 File: ucblogo.info,  Node: PROPERTY LISTS,  Next: WORKSPACE PREDICATES,  Prev: VARIABLE DEFINITION,  Up: WORKSPACE MANAGEMENT
@@ -299,6 +355,7 @@ Workspace Queries
 * PLISTS::
 * NAMELIST::
 * PLLIST::
+* ARITY::
 * NODES::
 
 
@@ -397,7 +454,7 @@ of the name or names given as input.  This is useful in conjunction with
 workspace control procedures that require a contents list as input.
 
 
-File: ucblogo.info,  Node: PLLIST,  Next: NODES,  Prev: NAMELIST,  Up: WORKSPACE QUERIES
+File: ucblogo.info,  Node: PLLIST,  Next: ARITY,  Prev: NAMELIST,  Up: WORKSPACE QUERIES
 
 pllist
 ------
@@ -417,7 +474,20 @@ CONTENTS command above.
 *Note CONTENTS:: .
 
 
-File: ucblogo.info,  Node: NODES,  Prev: PLLIST,  Up: WORKSPACE QUERIES
+File: ucblogo.info,  Node: ARITY,  Next: NODES,  Prev: PLLIST,  Up: WORKSPACE QUERIES
+
+arity
+-----
+
+     ARITY procedurename
+
+outputs a list of three numbers: the minimum, default, and maximum
+number of inputs for the procedure whose name is the input.  It is an
+error if there is no such procedure.  A maximum of -1 means that the
+number of inputs is unlimited.
+
+
+File: ucblogo.info,  Node: NODES,  Prev: ARITY,  Up: WORKSPACE QUERIES
 
 nodes
 -----
@@ -614,7 +684,12 @@ Workspace Control
 * SAVEL::
 * LOAD::
 * HELP::
+* SETEDITOR::
+* SETLIBLOC::
+* SETHELPLOC::
+* SETTEMPLOC::
 * GC::
+* .SETSEGMENTSIZE::
 
 
 File: ucblogo.info,  Node: ERASE,  Next: ERALL,  Prev: WORKSPACE CONTROL,  Up: WORKSPACE CONTROL
@@ -1073,7 +1148,7 @@ are carried out silently.
 *Note STARTUP:: , *Note LOADNOISILY:: .
 
 
-File: ucblogo.info,  Node: HELP,  Next: GC,  Prev: LOAD,  Up: WORKSPACE CONTROL
+File: ucblogo.info,  Node: HELP,  Next: SETEDITOR,  Prev: LOAD,  Up: WORKSPACE CONTROL
 
 help
 ----
@@ -1087,12 +1162,68 @@ primitives about which help is available.  If there is an environment
 variable LOGOHELP, then its value is taken as the directory in which to
 look for help files, instead of the default help directory.
 
+If HELP is called with the name of a defined procedure for which there
+is no help file, it will print the title line of the procedure followed
+by lines from the procedure body that start with semicolon, stopping
+when a non-semicolon line is seen.
+
 Exceptionally, the HELP command can be used without its default input
 and without parentheses provided that nothing follows it on the
 instruction line.
 
 
-File: ucblogo.info,  Node: GC,  Prev: HELP,  Up: WORKSPACE CONTROL
+File: ucblogo.info,  Node: SETEDITOR,  Next: SETLIBLOC,  Prev: HELP,  Up: WORKSPACE CONTROL
+
+seteditor
+---------
+
+     SETEDITOR path
+
+command.  Tells Logo to use the specified program as its editor instead
+of the default editor.  The format of a path depends on your operating
+system.
+
+
+File: ucblogo.info,  Node: SETLIBLOC,  Next: SETHELPLOC,  Prev: SETEDITOR,  Up: WORKSPACE CONTROL
+
+setlibloc
+---------
+
+     SETLIBLOC path
+
+command.  Tells Logo to use the specified directory as its library
+instead of the default.  (Note that many Logo "primitive" procedures
+are actually found in the library, so they may become unavailable if
+your new library does not include them!)  The format of a path depends
+on your operating system.
+
+
+File: ucblogo.info,  Node: SETHELPLOC,  Next: SETTEMPLOC,  Prev: SETLIBLOC,  Up: WORKSPACE CONTROL
+
+sethelploc
+----------
+
+     SETHELPLOC path
+
+command.  Tells Logo to look in the specified directory for the
+information provided by the HELP command, instead of the default
+directory.  The format of a path depends on your operating system.
+
+
+File: ucblogo.info,  Node: SETTEMPLOC,  Next: GC,  Prev: SETHELPLOC,  Up: WORKSPACE CONTROL
+
+settemploc
+----------
+
+     SETTEMPLOC path
+
+command.  Tells Logo to write editor temporary files in the specified
+directory rather than in the default directory.  You must have write
+permission for this directory.  The format of a path depends on your
+operating system.
+
+
+File: ucblogo.info,  Node: GC,  Next: .SETSEGMENTSIZE,  Prev: SETTEMPLOC,  Up: WORKSPACE CONTROL
 
 gc
 --
@@ -1116,6 +1247,22 @@ recently created nodes are examined.  (The latter is usually good
 enough.)
 
 
+File: ucblogo.info,  Node: .SETSEGMENTSIZE,  Prev: GC,  Up: WORKSPACE CONTROL
+
+.setsegmentsize
+---------------
+
+     .SETSEGMENTSIZE num
+
+command.  Sets the number of nodes that Logo allocates from the
+operating system at once to num, which mush be a positive integer.  The
+name is dotted because bad things will happen if you use a number
+that's too small or too large for your computer.  The initial value is
+16,000 for most systems, but is smaller for 68000-based Macs.  Making
+it larger will speed up computations (by reducing the number of garbage
+collections) at the cost of allocating more memory than necessary.
+
+
 File: ucblogo.info,  Node: CONTROL STRUCTURES,  Next: MACROS,  Prev: WORKSPACE MANAGEMENT,  Up: Top
 
 Control Structures
@@ -1137,6 +1284,11 @@ or a word.  In the latter case, the word is parsed into list form before
 it is run.  Thus, RUN READWORD or RUN READLIST will work.  The former
 is slightly preferable because it allows for a continued line (with ~)
 that includes a comment (with ;) on the first line.
+
+A `tf' input must be the word TRUE, the word FALSE, or a list.  If it's
+a list, then it must be a Logo expression, which will be evaluated to
+produce a value that must be TRUE or FALSE.  The comparisons with TRUE
+and FALSE are always case-insensitive.
 
 * Menu:
 
@@ -1169,6 +1321,8 @@ that includes a comment (with ;) on the first line.
 * WHILE::
 * DOdUNTIL::                    DO.UNTIL
 * UNTIL::
+* CASE::
+* COND::
 
 
 File: ucblogo.info,  Node: RUN,  Next: RUNRESULT,  Prev: CONTROL,  Up: CONTROL
@@ -1654,154 +1808,4 @@ evaluated `tfexpression' remains FALSE.  Evaluates the first input
 first, so the `instructionlist' is always run at least once.  The
 `tfexpression' must be an expressionlist whose value when evaluated is
 TRUE or FALSE.
-
-
-File: ucblogo.info,  Node: UNTIL,  Prev: DOdUNTIL,  Up: CONTROL
-
-until
------
-
-     UNTIL tfexpression instructionlist		(library procedure)
-
-command.  Repeatedly evaluates the `instructionlist' as long as the
-evaluated `tfexpression' remains FALSE.  Evaluates the first input
-first, so the `instructionlist' may never be run at all.  The
-`tfexpression' must be an expressionlist whose value when evaluated is
-TRUE or FALSE.
-
-
-File: ucblogo.info,  Node: TEMPLATE-BASED ITERATION,  Prev: CONTROL,  Up: CONTROL STRUCTURES
-
-Template-based Iteration
-========================
-
-The procedures in this section are iteration tools based on the idea of
-a `template.'  This is a generalization of an instruction list or an
-expression list in which `slots' are provided for the tool to insert
-varying data.  Four different forms of template can be used.
-
-The most commonly used form for a template is `explicit-slot' form, or
-`question mark' form.  Example:
-
-     ? show map [? * ?] [2 3 4 5]
-     [4 9 16 25]
-     ?
-
-In this example, the MAP tool evaluated the template [? * ?] repeatedly,
-with each of the members of the data list [2 3 4 5] substituted in turn
-for the question marks.  The same value was used for every question mark
-in a given evaluation.  Some tools allow for more than one datum to be
-substituted in parallel; in these cases the slots are indicated by ?1
-for the first datum, ?2 for the second, and so on:
-
-     ? show (map [(word ?1 ?2 ?1)] [a b c] [d e f])
-     [ada beb cfc]
-     ?
-
-If the template wishes to compute the datum number, the form (? 1) is
-equivalent to ?1, so (? ?1) means the datum whose number is given in
-datum number 1.  Some tools allow additional slot designations, as shown
-in the individual descriptions.
-
-The second form of template is the `named-procedure' form.  If the
-template is a word rather than a list, it is taken as the name of a
-procedure.  That procedure must accept a number of inputs equal to the
-number of parallel data slots provided by the tool; the procedure is
-applied to all of the available data in order.  That is, if data ?1
-through ?3 are available, the template "PROC is equivalent to
-[PROC ?1 ?2 ?3].
-
-     ? show (map "word [a b c] [d e f])
-     [ad be cf]
-     ?
-     
-     to dotprod :a :b	; vector dot product
-     op apply "sum (map "product :a :b)
-     end
-
-The third form of template is `named-slot' or `lambda' form.  This form
-is indicated by a template list containing more than one member, whose
-first member is itself a list.  The first member is taken as a list of
-names; local variables are created with those names and given the
-available data in order as their values.  The number of names must
-equal the number of available data.  This form is needed primarily when
-one iteration tool must be used within the template list of another,
-and the ? notation would be ambiguous in the inner template.  Example:
-
-     to matmul :m1 :m2 [:tm2 transpose :m2]	; multiply two matrices
-     output map [[row] map [[col] dotprod :row :col] :tm2] :m1
-     end
-
-The fourth form is `procedure text' form, a variant of lambda form.  In
-this form, the template list contains at least two members, all of
-which are lists.  This is the form used by the DEFINE and TEXT
-primitives, and APPLY accepts it so that the text of a defined
-procedure can be used as a template.
-
-Note:  The fourth form of template is interpreted differently from the
-others, in that Logo considers it to be an independent defined procedure
-for the purposes of OUTPUT and STOP.  For example, the following two
-instructions are identical:
-
-     ? print apply [[x] :x+3] [5]
-     8
-     ? print apply [[x] [output :x+3]] [5]
-     8
-
-although the first instruction is in named-slot form and the second is
-in procedure-text form.  The named-slot form can be understood as
-telling Logo to evaluate the expression :x+3 in place of the entire
-invocation of apply, with the variable x temporarily given the value 5.
-The procedure-text form can be understood as invoking the procedure
-
-     to foo :x
-     output :x+3
-     end
-
-with input 5, but without actually giving the procedure a name.  If the
-use of OUTPUT were interchanged in these two examples, we'd get errors:
-
-     ? print apply [[x] output :x+3] [5]
-     Can only use output inside a procedure
-     ? print apply [[x] [:x+3]] [5]
-     You don't say what to do with 8
-
-The named-slot form can be used with STOP or OUTPUT inside a procedure,
-to stop the enclosing procedure.
-
-The following iteration tools are extended versions of the ones in
-Appendix B of the book _Computer_Science_Logo_Style,_Volume_3:
-_Advanced_Topics_ by Brian Harvey [MIT Press, 1987].  The extensions
-are primarily to allow for variable numbers of inputs.
-
-* Menu:
-
-* APPLY::
-* INVOKE::
-* FOREACH::
-* MAP::
-* MAPdSE::                      MAP.SE
-* FILTER::
-* FIND::
-* REDUCE::
-* CROSSMAP::
-* CASCADE::
-* CASCADEd2::                   CASCADE.2
-* TRANSFER::
-
-
-File: ucblogo.info,  Node: APPLY,  Next: INVOKE,  Prev: TEMPLATE-BASED ITERATION,  Up: TEMPLATE-BASED ITERATION
-
-apply
------
-
-     APPLY template inputlist
-
-command or operation.  Runs the "template," filling its slots with the
-members of `inputlist.'  The number of members in `inputlist' must be an
-acceptable number of slots for `template.'  It is illegal to apply the
-primitive TO as a template, but anything else is okay.  APPLY outputs
-what `template' outputs, if anything.
-
-*Note TO:: .
 

@@ -1,5 +1,5 @@
 mkdir -p logolib
-cp Messages logolib
+cp Messages* logolib
 cat << "ENDOFFILE" > logolib/#
 ;;; -*- logo -*-
 
@@ -98,6 +98,25 @@ end
 
 bury "cascade.2
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/case
+;;; -*- logo -*-
+
+.macro case :case.value :case.clauses [:caseignoredp "true]
+catch "case.error [output case.helper :case.value :case.clauses]
+(throw "error [Empty CASE clause])
+end
+
+to case.helper :case.value :case.clauses
+if emptyp :case.clauses [output []]
+if emptyp first :case.clauses [throw "case.error]
+if or equalp first first :case.clauses "else ~
+      memberp :case.value first first :case.clauses ~
+   [output butfirst first :case.clauses]
+output case.helper :case.value butfirst :case.clauses
+end
+
+bury [case case.helper]
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/closeall
 ;;; -*- logo -*-
 
@@ -116,6 +135,32 @@ output fput :this :those
 end
 
 bury "combine
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/cond
+;;; -*- logo -*-
+
+.macro cond :cond.clauses
+localmake "cond.result cond.helper :cond.clauses
+if equalp first :cond.result "error [(throw "error last :cond.result)]
+output last :cond.result
+end
+
+to cond.helper :cond.clauses
+if emptyp :cond.clauses [output [[] []]]
+if emptyp first :cond.clauses [output [error [Empty COND clause]]]
+if equalp first first :cond.clauses "else ~
+   [output list [] butfirst first :cond.clauses]
+ignore error
+catch "error [localmake "cond.result run first first :cond.clauses]
+localmake "cond.error error
+if not emptyp :cond.error [output list "error item 2 :cond.error]
+if not memberp :cond.result [true false] ~
+   [output list "error fput :cond.result [not TRUE or FALSE]]
+if :cond.result [output list [] butfirst first :cond.clauses]
+output cond.helper butfirst :cond.clauses
+end
+
+bury [cond cond.helper]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/crossmap
 ;;; -*- logo -*-
@@ -350,7 +395,7 @@ end
 
 to for.done :for.result
 if emptyp :for.result [op [stop]]
-op list "output quoted first :for.result
+op (list "output "first (list first :for.result))
 end
 
 to forstep
@@ -378,7 +423,7 @@ end
 
 to foreach.done :foreach.result
 if emptyp :foreach.result [op [stop]]
-op list "output quoted first :foreach.result
+op (list "output "first (list first :foreach.result))
 end
 
 to ?rest [:which 1]

@@ -19,6 +19,7 @@
  *
  */
 
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 
@@ -53,8 +54,8 @@ void untreeify_body(NODE *body) {
     untreeify(body);
 }
 
-void untreeify_proc(NODE *proc) {
-    untreeify_body(bodylist__procnode(proc));
+void untreeify_proc(NODE *tproc) {
+    untreeify_body(bodylist__procnode(tproc));
 }
 
 /* Treeify a body by appending the trees of the lines.
@@ -151,7 +152,7 @@ int is_setter(NODE *name) {
  */ 
 NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
-    NODE *first = NIL, *tree = NIL, *proc, *retval;
+    NODE *first = NIL, *tree = NIL, *pproc, *retval;
     NODE **ifnode = (NODE **)NIL;
 
     if (*expr == NIL) {
@@ -199,8 +200,8 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    if (procnode__caseobj(first) == UNDEFINED && NOT_THROWING &&
 		first != Null_Word)
 		    silent_load(first, logolib); /* try <logolib>/<first> */
-	    proc = procnode__caseobj(first);
-	    if (proc == UNDEFINED) {
+	    pproc = procnode__caseobj(first);
+	    if (pproc == UNDEFINED) {
 		if (is_setter(first)) {
 		    retval = gather_some_args(0, 1, expr, inparen, ifnode);
 		    if (retval != UNBOUND) {
@@ -210,15 +211,15 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		    retval = cons(first, NIL);
 		    tree_dk_how = TRUE;
 		}
-	    } else if (nodetype(proc) == INFIX && NOT_THROWING) {
+	    } else if (nodetype(pproc) == INFIX && NOT_THROWING) {
 		err_logo(NOT_ENOUGH, first);
 		retval = cons(first, NIL);
 	    } else {
 		/* Kludge follows to turn IF to IFELSE sometimes. */
-		if (first == If) {
+		if (isName(first, Name_if)) {
 		    ifnode = &first;
 		}
-		retval = gather_args(first, proc, expr, inparen, ifnode);
+		retval = gather_args(first, pproc, expr, inparen, ifnode);
 		if (retval != UNBOUND) {
 		    retval = cons(first, retval);
 		}
@@ -235,28 +236,28 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 /* Gather the correct number of arguments to proc into a list.  Set args to
  * immediately after the last arg.
  */ 
-NODE *gather_args(NODE *newfun, NODE *proc, NODE **args, BOOLEAN inparen,
+NODE *gather_args(NODE *newfun, NODE *pproc, NODE **args, BOOLEAN inparen,
 		  NODE **ifnode) {
     int min, max;
     NODE *oldfun, *result;
     
-    if (nodetype(proc) == CONS) {
-	min = (inparen ? getint(minargs__procnode(proc))
-		       : getint(dfltargs__procnode(proc)));
-	max = (inparen ? getint(maxargs__procnode(proc))
-		       : getint(dfltargs__procnode(proc)));
+    if (nodetype(pproc) == CONS) {
+	min = (inparen ? getint(minargs__procnode(pproc))
+		       : getint(dfltargs__procnode(pproc)));
+	max = (inparen ? getint(maxargs__procnode(pproc))
+		       : getint(dfltargs__procnode(pproc)));
     } else { /* primitive */
-	min = (inparen ? getprimmin(proc) : getprimdflt(proc));
+	min = (inparen ? getprimmin(pproc) : getprimdflt(pproc));
 	if (min < 0) {	    /* special form */
 	    oldfun = fun;
 	    fun = newfun;
-	    result = (*getprimfun(proc))(*args);
+	    result = (*getprimfun(pproc))(*args);
 	    fun = oldfun;
 	    return result;
 	}
     /* Kludge follows to allow EDIT and CO without input without paren */ 
-	if (getprimmin(proc) == OK_NO_ARG) min = 0;
-	max = (inparen ? getprimmax(proc) : getprimdflt(proc));
+	if (getprimmin(pproc) == OK_NO_ARG) min = 0;
+	max = (inparen ? getprimmax(pproc) : getprimdflt(pproc));
     }
     return gather_some_args(min, max, args, inparen, ifnode);
 }
@@ -277,7 +278,7 @@ NODE *gather_some_args(int min, int max, NODE **args, BOOLEAN inparen,
 	    /* if -> ifelse kludge */
 	    NODE *retval;
 	    err_logo(IF_WARNING, NIL);
-	    *ifnode = Ifelse;
+	    *ifnode = theName(Name_ifelse);
 	    retval = paren_expr(args, FALSE);
 	    retval = paren_infix(retval, args, -1, inparen);
 	    return cons(retval, gather_some_args(min, max, args,
@@ -301,14 +302,14 @@ NODE *gather_some_args(int min, int max, NODE **args, BOOLEAN inparen,
  */ 
 int priority(NODE *proc_obj) {
 
-    NODE *proc;
+    NODE *pproc;
 
     if (proc_obj == Minus_Tight) return PREFIX_PRIORITY+4;
     if (nodetype(proc_obj) != CASEOBJ ||
-	(proc = procnode__caseobj(proc_obj)) == UNDEFINED ||
-	nodetype(proc) != INFIX)
+	(pproc = procnode__caseobj(proc_obj)) == UNDEFINED ||
+	nodetype(pproc) != INFIX)
 	    return 0;
-    return getprimpri(proc);
+    return getprimpri(pproc);
 }
 
 /* Parenthesize an infix expression.  left_arg is the expression on the left

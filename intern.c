@@ -60,11 +60,11 @@ NODE *make_case(NODE *casestrnd, NODE *obj) {
     return(new_caseobj);
 }
 
-NODE *make_object(NODE *canonical, NODE *proc, NODE *val,
+NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
 		  NODE *plist, NODE *casestrnd) {
     NODE *temp;
 
-    temp = cons_list(0, canonical, proc, val, plist,
+    temp = cons_list(0, canonical, oproc, val, plist,
 		     make_intnode((FIXNUM)0), END_OF_LIST);
     make_case(casestrnd, temp);
     return(temp);

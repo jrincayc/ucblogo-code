@@ -24,6 +24,7 @@ SHELL command
 	input to a DOS command processor but does not collect the result
 	of the command.
 
-	The Macintosh, of course, is not programmable.
+	The Macintosh, of course, is not programmable (unless you are
+	running the Unix version of UCBLogo under OS X).
 
 

@@ -19,6 +19,7 @@
  *
  */
 
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 #include <math.h>
@@ -46,10 +47,6 @@
 #endif
 #endif
 
-FIXNUM ift_iff_flag = -1;
-
-NODE *runhelp(NODE *args);
-
 NODE *make_cont(enum labels cont, NODE *val) {
 #ifdef __RZTC__
     union { enum labels lll;
@@ -68,21 +65,47 @@ NODE *make_cont(enum labels cont, NODE *val) {
 
 NODE *loutput(NODE *arg) {
     if (NOT_THROWING) {
-	stopping_flag = OUTPUT;
-	output_node = car(arg);
+	if (ufun == NIL) {
+	    err_logo(AT_TOPLEVEL, fun);
+	} else if (val_status & OUTPUT_TAIL 
+		 /* This happens if OP seen when val_status & STOP_OK */
+		    || !(val_status & OUTPUT_OK)) {
+			/* This happens on OP OP 3 */
+	    if (didnt_output_name == NIL) didnt_output_name = fun;
+	    if (didnt_get_output == UNBOUND) {
+		didnt_get_output = cons_list(0,theName(Name_output),
+					     ufun,this_line,END_OF_LIST);
+		/* Not quite right; could be .maybeoutput */
+		didnt_output_name = fun;
+	    }
+	    err_logo(DIDNT_OUTPUT, NIL);
+	} else {
+	    stopping_flag = OUTPUT;
+	    output_unode = current_unode;
+	    output_node = car(arg);
+	}
     }
     return(UNBOUND);
 }
 
 NODE *lstop(NODE *args) {
     if (NOT_THROWING)
-	stopping_flag = STOP;
+	if (ufun == NIL)
+	    err_logo(AT_TOPLEVEL, theName(Name_stop));
+	else if (val_status & OUTPUT_TAIL 
+		 || !(val_status & STOP_OK)) {
+	    didnt_output_name = fun;
+	    err_logo(DIDNT_OUTPUT, NIL);
+	} else {
+	    stopping_flag = STOP;
+	    output_unode = current_unode;
+	}
     return(UNBOUND);
 }
 
 NODE *lthrow(NODE *arg) {
     if (NOT_THROWING) {
-	if (compare_node(car(arg),Error,TRUE) == 0) {
+	if (isName(car(arg), Name_error)) {
 	    if (cdr(arg) != NIL)
 		err_logo(USER_ERR_MESSAGE, cadr(arg));
 	    else
@@ -100,17 +123,22 @@ NODE *lthrow(NODE *arg) {
 }
 
 NODE *lcatch(NODE *args) {
-    return make_cont(catch_continuation, cons(car(args), runhelp(cdr(args))));
+    return make_cont(catch_continuation, cons(car(args), lrun(cdr(args))));
 }
+
+extern NODE *evaluator(NODE *list, enum labels where);
 
 int torf_arg(NODE *args) {
     NODE *arg = car(args);
 
     while (NOT_THROWING) {
-	if (compare_node(arg, True, TRUE) == 0) return TRUE;
-	if (compare_node(arg, False, TRUE) == 0) return FALSE;
-	setcar(args, err_logo(BAD_DATA, arg));
-	arg = car(args);
+	if (is_list(arg)) {	/* accept a list and run it */
+	    val_status = VALUE_OK;
+	    arg = evaluator(arg, begin_seq);
+	}
+	if (isName(arg, Name_true)) return TRUE;
+	if (isName(arg, Name_false)) return FALSE;
+	if (NOT_THROWING) arg = err_logo(BAD_DATA, arg);
     }
     return -1;
 }
@@ -127,8 +155,8 @@ NODE *lnot(NODE *args) {
     int arg = torf_arg(args);
 
     if (NOT_THROWING) {
-	if (arg) return(False);
-	else return(True);
+	if (arg) return(FalseName());
+	else return(TrueName());
     }
     return(UNBOUND);
 }
@@ -136,30 +164,30 @@ NODE *lnot(NODE *args) {
 NODE *land(NODE *args) {
     int arg;
 
-    if (args == NIL) return(True);
+    if (args == NIL) return(TrueName());
     while (NOT_THROWING) {
 	arg = torf_arg(args);
 	if (arg == FALSE)
-	    return(False);
+	    return(FalseName());
 	args = cdr(args);
 	if (args == NIL) break;
     }
-    if (NOT_THROWING) return(True);
+    if (NOT_THROWING) return(TrueName());
     else return(UNBOUND);
 }
 
 NODE *lor(NODE *args) {
     int arg;
 
-    if (args == NIL) return(False);
+    if (args == NIL) return(FalseName());
     while (NOT_THROWING) {
 	arg = torf_arg(args);
 	if (arg == TRUE)
-	    return(True);
+	    return(TrueName());
 	args = cdr(args);
 	if (args == NIL) break;
     }
-    if (NOT_THROWING) return(False);
+    if (NOT_THROWING) return(FalseName());
     else return(UNBOUND);
 }
 
@@ -206,20 +234,15 @@ NODE *lifelse(NODE *args) {    /* macroized */
     return(UNBOUND);
 }
 
-NODE *runhelp(NODE *args) {
+NODE *lrun(NODE *args) {    /* macroized */
     NODE *arg = runnable_arg(args);
 
     if (NOT_THROWING) return(arg);
     return(UNBOUND);
 }
 
-NODE *lrun(NODE *args) {    /* macroized */
-/*    return make_cont(run_continuation, runhelp(args)); */
-    return runhelp(args);
-}
-
 NODE *lrunresult(NODE *args) {
-    return make_cont(runresult_continuation, runhelp(args));
+    return make_cont(runresult_continuation, lrun(args));
 }
 
 NODE *pos_int_arg(NODE *args) {
@@ -253,7 +276,7 @@ NODE *lrepeat(NODE *args) {
     NODE *cnt, *torpt, *retval = NIL;
 
     cnt = pos_int_arg(args);
-    torpt = runhelp(cdr(args));
+    torpt = lrun(cdr(args));
     if (NOT_THROWING) {
 	retval = make_cont(repeat_continuation, cons(cnt,torpt));
     }
@@ -265,7 +288,7 @@ NODE *lrepcount(NODE *args) {
 }
 
 NODE *lforever(NODE *args) {
-    NODE *torpt = runhelp(args);
+    NODE *torpt = lrun(args);
 
     if (NOT_THROWING)
     return make_cont(repeat_continuation, cons(make_intnode(-1), torpt));
@@ -277,8 +300,7 @@ NODE *ltest(NODE *args) {
 
     if (tailcall != 0) return UNBOUND;
     if (NOT_THROWING) {
-	ift_iff_flag = arg;
-	dont_fix_ift = 1;
+	dont_fix_ift = arg+1;
     }
     return(UNBOUND);
 }
@@ -287,7 +309,7 @@ NODE *liftrue(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag > 0)
-	return(runhelp(args));
+	return(lrun(args));
     else
 	return(NIL);
 }
@@ -296,7 +318,7 @@ NODE *liffalse(NODE *args) {
     if (ift_iff_flag < 0)
 	return(err_logo(NO_TEST,NIL));
     else if (ift_iff_flag == 0)
-	return(runhelp(args));
+	return(lrun(args));
     else
 	return(NIL);
 }

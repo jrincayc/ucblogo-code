@@ -6,4 +6,3 @@ UNTIL tfexpression instructionlist			(library procedure)
 	"tfexpression" must be an expressionlist whose value when evaluated
 	is TRUE or FALSE.
 
-

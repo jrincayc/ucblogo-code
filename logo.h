@@ -129,11 +129,15 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define MACRO_PRIORITY	3
 #define PREFIX_PRIORITY 4
 
-typedef short NODETYPES;
+typedef long int NODETYPES;
 
-/* Note that some of these values are used twice; they must be
- * distinguishable by the other bits used with them. */
-
+#define NT_LOCAL	(NODETYPES)020000000
+#define NT_STACK	(NODETYPES)010000000
+#define NT_CONT		(NODETYPES)04000000
+#define NT_INFIX	(NODETYPES)02000000
+#define NT_LINE		(NODETYPES)01000000
+#define NT_TAILFORM	(NODETYPES)0400000
+#define NT_MACRO	(NODETYPES)0200000
 #define NT_TREE		(NODETYPES)0100000
 #define NT_EMPTY	(NODETYPES)040000
 #define NT_AGGR		(NODETYPES)020000
@@ -143,17 +147,12 @@ typedef short NODETYPES;
 #define NT_WORD		(NODETYPES)001000
 #define NT_NUMBER	(NODETYPES)000400
 #define NT_FLOAT	(NODETYPES)000200
-#define NT_CONT		(NODETYPES)000200
 #define NT_PRIM		(NODETYPES)000100
-#define NT_INFIX	(NODETYPES)000040
-#define NT_LINE		(NODETYPES)000040
 #define NT_VBAR		(NODETYPES)000040
 #define NT_STRING	(NODETYPES)000020
 #define NT_BACKSL	(NODETYPES)000010
 #define NT_PUNCT	(NODETYPES)000004
-#define NT_TAILFORM	(NODETYPES)000004
 #define NT_COLON	(NODETYPES)000002
-#define NT_MACRO	(NODETYPES)000002
 #define NT_CASEOBJ	(NODETYPES)000001
 
 #define	PNIL		(NODETYPES)(NT_EMPTY|NT_AGGR|NT_LIST)
@@ -176,7 +175,9 @@ typedef short NODETYPES;
 #define ARRAY		(NODETYPES)(NT_AGGR|NT_ARRAY)
 #define LINE		(NODETYPES)(NT_LINE|NT_LIST|NT_AGGR)
 #define CONT		(NODETYPES)(NT_CONT|NT_LIST)
+#define STACK		(NODETYPES)(NT_STACK|NT_LIST)
 #define NTFREE		(NODETYPES)(-1)
+#define LOCALSAVE	(NODETYPES)(CONS|NT_LOCAL)
 
 #define aggregate(nd)	(nodetype(nd) & NT_AGGR)
 #define is_cont(nd)	(nodetype(nd) == CONT)
@@ -199,6 +200,7 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,
 		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,
 		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,
+		BAD_DEFAULT, RUNRES_STOP,
     /* below this point aren't actually error codes, just messages */
 		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,
 		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,
@@ -344,7 +346,16 @@ typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;
 
 struct segment {
 	struct segment *next;
-	struct logo_node nodes[SEG_SIZE];
+	FIXNUM size;
+#ifdef mac
+	struct logo_node nodes[1];
+#else
+#ifdef __RZTC__
+	struct logo_node nodes[1];
+#else
+	struct logo_node nodes[0];
+#endif
+#endif
 };
 
 #define NOT_THROWING            (stopping_flag != THROWING)
@@ -375,11 +386,11 @@ struct segment {
 #define text__procnode(p)	car(p)
 #define formals__procnode(p)    caar(p)
 #define bodylist__procnode(p)   cdar(p)
-#define dfltargs__procnode(p)   cadr(cddr(p))
-#define minargs__procnode(p)    car(cddr(p))
-#define maxargs__procnode(p)    car(cddr(cddr(p)))
 #define bodywords__procnode(p)  cadr(p)
 #define setbodywords__procnode(p,v) setcar(cdr(p),v)
+#define minargs__procnode(p)    car(cddr(p))
+#define dfltargs__procnode(p)   cadr(cddr(p))
+#define maxargs__procnode(p)    car(cddr(cddr(p)))
 
 #define unparsed__runparse(rn)  rn
 #define parsed__runparse(rn)    getobject(rn)
@@ -415,6 +426,8 @@ struct segment {
 #define PLIST_STEPPED	0400
 #define PROC_MACRO	01000
 #define PERMANENT	02000
+#define HAS_GLOBAL_VALUE 04000
+#define IS_LOCAL_VALUE 010000
 
 #define setflag__caseobj(c,f) ((obflags__caseobj(c))->n_int |= (f))
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
@@ -426,19 +439,21 @@ struct segment {
 #define pop(stack)	    stack = cdr(stack)
 
 /* evaluator labels, needed by macros in other files */
+/* (Put the commonly used ones first.) */
 
 #define do_list(x) \
-    x(all_done) \
-    x(begin_line) x(end_line) x(begin_seq) x(begin_apply) \
-    x(eval_sequence_continue) \
+    x(no_reset_args) x(eval_sequence_continue) \
     x(accumulate_arg) x(compound_apply_continue) \
+    x(after_const_arg) x(begin_seq) x(begin_apply) \
     x(set_args_continue) x(macro_return) \
-    x(qm_continue) \
-    x(run_continuation) \
-    x(runresult_continuation) x(runresult_followup) \
     x(repeat_continuation) x(repeat_followup) \
+    x(runresult_continuation) x(runresult_followup) \
     x(catch_continuation) x(catch_followup) x(after_lambda) \
-    x(goto_continuation)
+    x(after_maybeoutput) \
+    x(goto_continuation) \
+    x(begin_line) x(end_line) \
+    x(all_done) \
+    x(fall_off_want_output) x(op_want_stop) x(after_constant)
 
 #define do_enum(x) x,
 
@@ -446,5 +461,89 @@ enum labels {
     do_list(do_enum)
     NUM_TOKENS
 };
+
+/* similarly, names that might be translated in Messages file */
+
+#define do_trans(x) \
+    x(true) x(false) x(end) x(output) x(stop) x(goto) x(tag) \
+    x(if) x(ifelse) x(to) x(macro) x(toplevel) x(system) x(error) x(nothing) \
+    x(textscreen) x(splitscreen) x(fullscreen) x(paint) x(erase) x(reverse) \
+    x(wrap) x(fence) x(window) x(sum) x(difference) x(product) x(quotient) \
+    x(equalp) x(lessp) x(greaterp)
+
+#define wd_enum(x) Name_ ## x,
+
+enum words {
+    do_trans(wd_enum)
+    NUM_WORDS
+};
+
+struct wdtrans {
+    NODE *English;
+    NODE *Alt;
+};
+
+/* evaluator val_status flags, used also in coms.c */
+
+#define VALUE_OK 1	/* [instr instr instr exp] */
+#define NO_VALUE_OK 2	/* [instr instr instr instr] */
+#define OUTPUT_OK 4	/* [instr instr OUTPUT exp instr] */
+#define STOP_OK 8	/* [instr instr STOP instr] */
+#define OUTPUT_TAIL 16	/* not [repeat n [... output ...]] */
+#define STOP_TAIL 32	/* not [repeat n [... stop ...]] */
+
+/* evaluator registers that need saving around evals */
+/* Node pointers must all come before other types.  proc must be first;
+   val_status must be first non-node.  See end of init(). */
+
+struct registers {
+    NODE *r_proc;   /* the procedure definition */
+    NODE *r_argl;   /* evaluated argument list */
+    NODE *r_unev;   /* list of unevaluated expressions */
+    NODE *r_fun;    /* current function name */
+    NODE *r_ufun;   /* current user-defined function name */
+    NODE *r_var;    /* frame pointer into var_stack */
+    NODE *r_vsp;    /* temp ptr into var_stack */
+    NODE *r_qm_list;	/* question mark list */
+    NODE *r_formals;	/* list of formal parameters */
+    NODE *r_last_ufun;	/* the function that called this one */
+    NODE *r_this_line;	/* the current instruction line */
+    NODE *r_last_line;	/* the line that called this one */
+    NODE *r_current_unode;	/* a pair to identify this proc call */
+    NODE *r_didnt_output_name;  /* name of the proc that didn't OP */
+    NODE *r_didnt_get_output;	/* procedure wanting output from EVAL */
+    FIXNUM r_val_status;    /* tells what EVAL_SEQUENCE should do: */
+    FIXNUM r_tailcall;	    /* 0 in sequence, 1 for tail, -1 for arg */
+    FIXNUM r_repcount;	    /* count for repeat */
+    FIXNUM r_user_repcount;
+    FIXNUM r_ift_iff_flag;
+};
+
+/* definitions for evaluator registers */
+
+#ifdef WANT_EVAL_REGS
+#define proc (regs.r_proc)
+#define argl (regs.r_argl)
+#define unev (regs.r_unev)
+#define fun (regs.r_fun)
+#define ufun (regs.r_ufun)
+#define var (regs.r_var)
+#define vsp (regs.r_vsp)
+#define qm_list (regs.r_qm_list)
+#define formals (regs.r_formals)
+#define last_ufun (regs.r_last_ufun)
+#define this_line (regs.r_this_line)
+#define last_line (regs.r_last_line)
+#define current_unode (regs.r_current_unode)
+#define didnt_output_name (regs.r_didnt_output_name)
+#define didnt_get_output (regs.r_didnt_get_output)
+#define val_status (regs.r_val_status)
+#define tailcall (regs.r_tailcall)
+#define repcount (regs.r_repcount)
+#define user_repcount (regs.r_user_repcount)
+#define ift_iff_flag (regs.r_ift_iff_flag)
+
+#define exp expresn
+#endif
 
 #endif /* _LOGO_H */

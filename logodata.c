@@ -19,6 +19,7 @@
  *
  */
 
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 #include <stdarg.h>
@@ -482,7 +483,7 @@ NODE *getprop(NODE *plist, NODE *name, BOOLEAN before)
     NODE *prev = NIL;
     BOOLEAN caseig = FALSE;
 
-    if (compare_node(valnode__caseobj(Caseignoredp), True, TRUE) == 0)
+    if (varTrue(Caseignoredp))
 	caseig = TRUE;
     while (plist != NIL) {
 	if (compare_node(name,car(plist),caseig) == 0) {
@@ -541,7 +542,7 @@ NODE *lremprop(NODE *args) {
     NODE *plname, *pname, *plist, *val = NIL;
     BOOLEAN caseig = FALSE;
 
-    if (compare_node(valnode__caseobj(Caseignoredp), True, TRUE) == 0)
+    if (varTrue(Caseignoredp))
 	caseig = TRUE;
     plname = string_arg(args);
     pname = string_arg(cdr(args));
@@ -588,4 +589,28 @@ NODE *lplist(NODE *args) {
 	    val = copy_list(plist);
     }
     return(val);
+}
+
+/* Boolean foreign language stuff */
+
+int isName(NODE *nod, enum words wd) {
+    return ((compare_node(nod, translations[wd].English, TRUE) == 0) ||
+	    (compare_node(nod, translations[wd].Alt, TRUE) == 0));
+}
+
+int varTrue(NODE *varb) {
+    return isName(valnode__caseobj(varb), Name_true);
+}
+
+NODE *theName(enum words wd) {
+    return(varTrue(UseAlternateNames) ? translations[wd].Alt :
+					translations[wd].English);
+}
+
+NODE *TrueName() {
+    return theName(Name_true);
+}
+
+NODE *FalseName() {
+    return theName(Name_false);
 }

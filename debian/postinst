@@ -1,9 +1,0 @@
-#!/bin/sh -e
-if [ "$1" = "configure" ]; then
-	if [ -d /usr/doc -a ! -e /usr/doc/ucblogo -a -d /usr/share/doc/ucblogo ]; then
-		ln -sf ../share/doc/ucblogo /usr/doc/ucblogo
-	fi
-fi
-
-#DEBHELPER#
-

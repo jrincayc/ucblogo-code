@@ -62,7 +62,7 @@ void update_coords(char ch) {
 }
 
 void print_char(FILE *strm, char ch) {
-    if (strm) {
+    if (strm != NULL) {
 	if (interactive && strm==stdout) {
 #ifdef mac
 	    if (boldmode) {
@@ -193,8 +193,7 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     int i;
     char *cp;
     NODETYPES ndty;
-	BOOLEAN print_backslashes = 
-	  (compare_node(valnode__caseobj(Fullprintp), True, TRUE) == 0);
+    BOOLEAN print_backslashes = (varTrue(Fullprintp));
 
     if (depth == 0) {
 	ndprintf(strm, "...");
@@ -204,9 +203,12 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	print_char(strm,'[');
 	print_char(strm,']');
     } else if (nd == UNBOUND) {
-	ndprintf(strm, "UNBOUND");
+	ndprintf(strm, "%s", theName(Name_nothing));
     } else if ((ndty = nodetype(nd)) & NT_PRIM) {
 	ndprintf(strm, "PRIM");
+    } else if (ndty == CONT) {
+	ndprintf(strm, "[<CONT> %s]", cons(make_intnode((FIXNUM)car(nd)),
+					   cdr(nd)));
     } else if (ndty & NT_LIST) {
 	print_char(strm,'[');
 	real_print_help(strm, nd, depth-1, width);

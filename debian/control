@@ -2,13 +2,13 @@ Source: ucblogo
 Section: devel
 Priority: optional
 Maintainer: Hamish Moffatt <hamish@debian.org>
-Standards-Version: 3.5.0
-Build-Depends: debhelper, libncurses-dev, xlibs-dev
+Standards-Version: 3.5.8
+Build-Depends: debhelper (>= 4), libncurses-dev, xlibs-dev
 
 Package: ucblogo
 Architecture: any
 Depends: ${shlibs:Depends}
-Description: a dialect of lisp using turtle graphics famous for teaching kids.
+Description: a dialect of lisp using turtle graphics famous for teaching kids
  This is the UC Berkeley implementation of logo written primarily by
  Daniel Van Blerkom, Brian Harvey, Michael Katz, and Douglas Orleans.  This
  version of logo is featured in Brian Harvey's book

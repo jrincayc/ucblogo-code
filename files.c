@@ -57,6 +57,47 @@ extern int getch(), kbhit();
 NODE *file_list = NULL;
 NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
 
+char *asciiz(NODE *arg) {
+    char *out = (char *)malloc(getstrlen(arg)+1);
+    return noparity_strnzcpy(out, getstrptr(arg), getstrlen(arg));
+}
+
+NODE *lseteditor(NODE *args) {
+    NODE *arg;
+
+    arg = cnv_node_to_strnode(car(args));
+    if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+    else editor = asciiz(arg);
+    return UNBOUND;
+}
+
+NODE *lsetlibloc(NODE *args) {
+    NODE *arg;
+
+    arg = cnv_node_to_strnode(car(args));
+    if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+    else logolib = asciiz(arg);
+    return UNBOUND;
+}
+
+NODE *lsethelploc(NODE *args) {
+    NODE *arg;
+
+    arg = cnv_node_to_strnode(car(args));
+    if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+    else helpfiles = asciiz(arg);
+    return UNBOUND;
+}
+
+NODE *lsettemploc(NODE *args) {
+    NODE *arg;
+
+    arg = cnv_node_to_strnode(car(args));
+    if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+    else tempdir = asciiz(arg);
+    return UNBOUND;
+}
+
 NODE *lsetprefix(NODE *args) {
     NODE *arg;
 
@@ -187,18 +228,37 @@ NODE *lclose(NODE *arg) {
     return(UNBOUND);
 }
 
+char *write_buf = 0;
+
 NODE *lsetwrite(NODE *arg) {
     FILE *tmp;
 
+    if (writestream == NULL) {
+	/* Any setwrite finishes earlier write to string */
+	*print_stringptr = '\0';
+	writestream = stdout;
+	setcar(cdr(writer_name),
+	       make_strnode(write_buf, NULL, strlen(write_buf), STRING,
+			    strnzcpy));
+	lmake(writer_name);
+	free(write_buf);
+	writer_name = NIL;
+    }
     if (car(arg) == NIL) {
 	writestream = stdout;
 	writer_name = NIL;
-    }
-    else if ((tmp = find_file(car(arg), FALSE)) != NULL) {
+    } else if (is_list(car(arg))) { /* print to string */
+	FIXNUM i = int_arg(cdar(arg));
+	if (NOT_THROWING && i > 0 && cddr(car(arg)) == NIL) {
+	    writestream = NULL;
+	    writer_name = copy_list(car(arg));
+	    print_stringptr = write_buf = (char *)malloc(i);
+	    print_stringlen = i;
+	} else err_logo(BAD_DATA_UNREC, car(arg));
+    } else if ((tmp = find_file(car(arg), FALSE)) != NULL) {
 	writestream = tmp;
 	writer_name = car(arg);
-    }
-    else
+    } else
 	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
     return(UNBOUND);
 }
@@ -264,7 +324,6 @@ void runstartup(NODE *oldst) {
 
     st = valnode__caseobj(Startup);
     if (st != oldst && st != NIL && is_list(st)) {
-	val_status = 0;
 	eval_driver(st);
     }
 }
@@ -274,7 +333,6 @@ void silent_load(NODE *arg, char *prefix) {
     NODE *tmp_line, *exec_list;
     char load_path[200];
     NODE *st = valnode__caseobj(Startup);
-    int sv_val_status = val_status;
 
     /* This procedure is called three ways:
      *    silent_load(NIL,*argv)	loads *argv
@@ -317,12 +375,10 @@ void silent_load(NODE *arg, char *prefix) {
 	while (!(feof(loadstream)) && NOT_THROWING) {
 	    current_line = reader(loadstream, "");
 	    exec_list =parser(current_line, TRUE);
-	    val_status = 0;
 	    if (exec_list != NIL) eval_driver(exec_list);
 	}
 	fclose(loadstream);
 	runstartup(st);
-	val_status = sv_val_status;
     } else if (arg == NIL) ndprintf(stdout, message_texts[NO_FILE], prefix);
     loadstream = tmp_stream;
     current_line = tmp_line;
@@ -332,7 +388,6 @@ NODE *lload(NODE *arg) {
     FILE *tmp;
     NODE *tmp_line, *exec_list;
     NODE *st = valnode__caseobj(Startup);
-    int sv_val_status = val_status;
 
     tmp = loadstream;
     tmp_line = current_line;
@@ -341,12 +396,10 @@ NODE *lload(NODE *arg) {
 	while (!(feof(loadstream)) && NOT_THROWING) {
 	    current_line = reader(loadstream, "");
 	    exec_list = parser(current_line, TRUE);
-	    val_status = 0;
 	    if (exec_list != NIL) eval_driver(exec_list);
 	}
 	fclose(loadstream);
 	runstartup(st);
-	val_status = sv_val_status;
     } else
 	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
     loadstream = tmp;
@@ -489,10 +542,10 @@ NODE *leofp(NODE *args) {
     int c;
 
     c = getc(readstream);
-    if (c == EOF) return(True);
+    if (c == EOF) return(TrueName());
 
     ungetc(c,readstream);
-    return(False);
+    return(FalseName());
 }
 
 NODE *lkeyp(NODE *args) {
@@ -520,7 +573,7 @@ NODE *lkeyp(NODE *args) {
 	csetmode(C_RAW, stdin);
 	c = ungetc(getc(readstream), readstream);
 	csetmode(C_ECHO, stdin);
-	return(c == EOF ? False : True);
+	return(c == EOF ? FalseName() : TrueName());
 #elif defined(ibm)
 #ifdef WIN32
 	old_mode = char_mode;
@@ -533,9 +586,9 @@ NODE *lkeyp(NODE *args) {
 	    break;
 	}
 	char_mode = old_mode;
-	return ((char_avail /* ||cur_index */ ) ? True : False);
+	return ((char_avail /* ||cur_index */ ) ? TrueName() : FalseName());
 #else
-	return(kbhit() ? True : False);
+	return(kbhit() ? TrueName() : FalseName());
 #endif
 #else
 #ifdef FIONREAD
@@ -545,17 +598,17 @@ NODE *lkeyp(NODE *args) {
 	nc = 1;    /* pretend there's a char so we don't loop */
 #endif
 	if (nc > 0)
-	    return(True);
+	    return(TrueName());
 	else
-	    return(False);
+	    return(FalseName());
 #endif
     }
     c = getc(readstream);
     if (feof(readstream))
-	return(False);
+	return(FalseName());
     else {
 	ungetc(c, readstream);
-	return(True);
+	return(TrueName());
     }
 }
 

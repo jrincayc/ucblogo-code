@@ -19,6 +19,7 @@
  *
  */
 
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 
@@ -46,18 +47,28 @@ NODE *throw_node = NIL;
 NODE *err_mesg = NIL;
 ERR_TYPES erract_errtype;
 
-char *message_texts[MAX_MESSAGE];
+char *message_texts[MAX_MESSAGE+NUM_WORDS];
 
-void err_print(void) {
+void err_print(char *buffer) {
     int save_flag = stopping_flag;
     int errtype;
     NODE *errargs, *oldfullp;
-    
-    if (!err_mesg) return;
+    FILE *fp;
+
+    if (err_mesg == NIL) return;
+
+    if (buffer == NULL) {
+	fp = stdout;
+    } else {
+	if (writestream == NULL) lsetwrite(the_generation); /* setwrite [] */
+	print_stringptr = buffer;
+	print_stringlen = 200;
+	fp = NULL;
+    }
 
     stopping_flag = RUN;
 	oldfullp = valnode__caseobj(Fullprintp);
-    setvalnode__caseobj(Fullprintp, True);
+    setvalnode__caseobj(Fullprintp, TrueName());
 
     errtype = getint(car(err_mesg));
     errargs = cadr(err_mesg);
@@ -65,18 +76,21 @@ void err_print(void) {
     force_printdepth = 5;
     force_printwidth = 80;
     if (errargs == NIL)
-	ndprintf(stdout, message_texts[errtype]);
+	ndprintf(fp, message_texts[errtype]);
     else if (cdr(errargs) == NIL)
-	ndprintf(stdout, message_texts[errtype], car(errargs));
+	ndprintf(fp, message_texts[errtype], car(errargs));
     else
-	ndprintf(stdout, message_texts[errtype], car(errargs), cadr(errargs));
+	ndprintf(fp, message_texts[errtype], car(errargs), cadr(errargs));
 
-    if (car(cddr(err_mesg)) != NIL) {
-	ndprintf(stdout, message_texts[ERROR_IN], car(cddr(err_mesg)),
+    if (car(cddr(err_mesg)) != NIL && buffer == NULL) {
+	ndprintf(fp, message_texts[ERROR_IN], car(cddr(err_mesg)),
 						  cadr(cddr(err_mesg)));
     }
     err_mesg = NIL;
-    new_line(stdout);
+    if (buffer == NULL)
+	new_line(fp);
+    else
+	*print_stringptr = '\0';
 
     setvalnode__caseobj(Fullprintp, oldfullp);
     stopping_flag = save_flag;
@@ -138,6 +152,7 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	case AT_TOPLEVEL:
 	case ERR_MACRO:
 	case DEEPEND:
+	case BAD_DEFAULT:
 	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case SHADOW_WARN:
@@ -166,19 +181,16 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	err_mesg = cons_list(0, err_mesg, NIL, NIL, END_OF_LIST);
     err_mesg = cons(make_intnode((FIXNUM)error_type), err_mesg);
     if (warning) {
-	err_print();
+	err_print(NULL);
 	return(UNBOUND);
     }
     err_act = valnode__caseobj(Erract);
     if (err_act != NIL && err_act != UNDEFINED) {
 	if (error_type != erract_errtype) {
-	    int sv_val_status = val_status;
 
 	    erract_errtype = error_type;
 	    setvalnode__caseobj(Erract, NIL);
-	    val_status = 5;
-	    val = err_eval_driver(err_act);
-	    val_status = sv_val_status;
+	    val = err_eval_driver(err_act, recoverable);
 	    setvalnode__caseobj(Erract, err_act);
 	    if (recoverable == TRUE && val != UNBOUND) {
 		return(val);
@@ -186,10 +198,10 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 		ndprintf(stdout, message_texts[DK_WHAT], val);
 		ndprintf(stdout, "\n");
 		val = UNBOUND;
-		throw_node = Toplevel;
+		throw_node = theName(Name_toplevel);
 	    } else {
 		/* if (err_mesg != NIL) */  {	/* is this ever wrong? */
-		    throw_node = Error;
+		    throw_node = theName(Name_error);
 		    stopping_flag = THROWING;
 		    output_node = UNBOUND;
 		}
@@ -197,10 +209,10 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	    }
 	} else {
 	    ndprintf(stdout,"%t\n", message_texts[ERRACT_LOOP]);
-	    throw_node = Toplevel;
+	    throw_node = theName(Name_toplevel);
 	}
     } else {	/* no erract */
-	throw_node = Error;
+	throw_node = theName(Name_error);
     }
     stopping_flag = THROWING;
     output_node = UNBOUND;
@@ -208,8 +220,14 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 }
 
 NODE *lerror(NODE *args) {
-    NODE *val;
+    NODE *val, *save_err = err_mesg;
+    char buffer[200];
 
+    if (err_mesg == NIL) return NIL;
+    err_print(buffer);
+    err_mesg = save_err;
+    setcar(cdr(err_mesg), make_strnode(buffer, (struct string_block *)NULL,
+				       strlen(buffer), STRING, strnzcpy));
     val = err_mesg;
     err_mesg = NIL;
     return(val);
@@ -225,12 +243,11 @@ void memcpy(char *to, char *from, size_t len) {
 NODE *lpause(NODE *args) {
     NODE *elist = NIL, *val = UNBOUND, *uname = NIL;
     int sav_input_blocking;
-    int sv_val_status;
 #ifndef TIOCSTI
     jmp_buf sav_iblk;
 #endif
 
-    if (err_mesg != NIL) err_print();
+    if (err_mesg != NIL) err_print(NULL);
  /* if (ufun != NIL) */ {
 	uname = ufun;
 	ndprintf(stdout, "%t\n", message_texts[PAUS_ING]);
@@ -243,7 +260,6 @@ NODE *lpause(NODE *args) {
 	csetmode(C_ECHO, stdin);
 	fflush(stdin);
 #endif
-	sv_val_status = val_status;
 	while (RUNNING) {
 	    if (uname != NIL) print_node(stdout, uname);
 	    elist = reader(stdin, "? ");
@@ -255,7 +271,6 @@ NODE *lpause(NODE *args) {
 #ifdef __RZTC__
 	    if (feof(stdin)) rewind(stdin);
 #endif
-	    val_status = 5;
 	    if (elist != NIL) eval_driver(elist);
 	    if (stopping_flag == THROWING) {
 		if (compare_node(throw_node, Pause, TRUE) == 0) {
@@ -267,13 +282,12 @@ NODE *lpause(NODE *args) {
 			   sizeof(jmp_buf));
 #endif
 		    input_blocking = sav_input_blocking;
-		    val_status = sv_val_status;
 			if (uname != NIL) {
 				ufun = uname;
 			}
 		    return(val);
-		} else if (compare_node(throw_node, Error, TRUE) == 0) {
-		    err_print();
+		} else if (isName(throw_node, Name_error)) {
+		    err_print(NULL);
 		    stopping_flag = RUN;
 		}
 	    }
@@ -283,13 +297,12 @@ NODE *lpause(NODE *args) {
 #endif
 	input_blocking = sav_input_blocking;
 	unblock_input();
-	val_status = sv_val_status;
 	if (uname != NIL) {
 		ufun = uname;
 	}
 /*  } else {
 	stopping_flag = THROWING;
-	throw_node = Toplevel;
+	throw_node = theName(Name_toplevel);
  */ }
     return(val);
 }

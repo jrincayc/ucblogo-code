@@ -51,7 +51,7 @@ docs/usermanual.pdf: docs/usermanual.ps docs/usermanual.dvi
 	-cd docs; ps2pdf usermanual.ps
 	-cd docs; dvipdf usermanual.dvi
 
-docs/usermanual_1.html:
+docs/usermanual_1.html: docs/usermanual.texi
 	-cd docs; texi2html -expand tex -split chapter usermanual.texi
 
 clean:

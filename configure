@@ -802,6 +802,10 @@ else
     /usr/X11R5/include        \
     /usr/X11R4/include        \
                               \
+    /usr/X11R6/include/X11    \
+    /usr/X11R5/include/X11    \
+    /usr/X11R4/include/X11    \
+                              \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \

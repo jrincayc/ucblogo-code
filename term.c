@@ -104,9 +104,8 @@ void termcap_getter(char *cap, char *buf) {
 #endif
 
 void term_init(void) {
-  char *emacs; /* emacs change */
-
 #ifdef unix
+    char *emacs; /* emacs change */
     int term_sg;
 #endif
 

@@ -50,6 +50,7 @@ Original written by: Brian Harvey
 * MACROS::                      
 * ERROR PROCESSING::            
 * SPECIAL VARIABLES::           
+* INTERNATIONALIZATION::        
 * INDEX::                       
 @end menu
 
@@ -280,22 +281,22 @@ steps:
 @cindex AllowGetSet
 
 @display
-	1.  If the name is at least four characters long, and the
-	first three characters are the letters SET (upper or lower
-	case), and if the name is followed in the instruction by
-	another value, then Logo will invoke @code{MAKE} with its first
-	input being the name without the SET, and its second input
-	being the following value.
+	1.  If the name is at least four characters long, and the first three
+	characters are the letters SET (upper or lower case), and if the name
+	is followed in the instruction by another value, and if the name
+	without the SET is the name of a variable that already exists, then
+	Logo will invoke @code{MAKE} with its first input being the name without the
+	SET, and its second input being the following value.
 
 	2.  If step 1's conditions are not met, but the name is
 	the name of an accessible variable, then Logo will invoke
 	@code{THING} with that name as input, to find the variable's value.
 @end display
 
-Note one possible disadvantage of the getter/setter notation: a spelling
-error in the name of one of the primitives starting SET (e.g.,
-@code{SETHEADING}) will not be caught as an error, but will instead
-create a new variable.
+Step 1 requires that the variable already exist so that misspellings of names
+of SETxxx primitives (e.g., @code{SETHEADING}) will still be caught, instead of
+silently creating a new variable.  The command @code{GLOBAL} can be used to create
+a variable without giving it a value.
 
 One final point:  The @code{TO} command in Logo has always been a special
 case; the rest of the line starting with TO is not evaluated as
@@ -344,14 +345,14 @@ Double-click on the UCBWLOGO icon in the UCBLOGO folder.
 
 To leave Logo, enter the command @t{bye}.
 
-Under Unix or DOS, if you include one or more filenames on the command line
-when starting Logo, those files will be loaded before the interpreter starts
-reading commands from your terminal.  If you load a file that executes some
-program that includes a @code{bye} command, Logo will run that program and exit.
-You can therefore write stand-alone programs in Logo and run them with
-shell/batch scripts.  To support this technique, Logo does not print its
-usual welcoming and parting messages if you give file arguments to the logo
-command.
+Under Unix, DOS, or Windows, if you include one or more filenames on the
+command line when starting Logo, those files will be loaded before the
+interpreter starts reading commands from your terminal.  If you load a file
+that executes some program that includes a @code{BYE} command, Logo will run that
+program and exit.  You can therefore write standalone programs in Logo and run
+them with shell/batch scripts.  To support this technique, Logo does not print
+its usual welcoming and parting messages if you give file arguments to the
+logo command.
 
 If you type your interrupt character (see table below) Logo will stop what it's doing and return to top-level, as if you did @w{@t{THROW "TOPLEVEL}}.  If you type your quit character Logo will pause as if you did PAUSE.
 
@@ -1656,7 +1657,8 @@ line of the shell output.
 Under DOS, SHELL is a command, not an operation; it sends its input to a
 DOS command processor but does not collect the result of the command.
 
-The Macintosh, of course, is not programmable.
+The Macintosh, of course, is not programmable (unless you are
+running the Unix version of UCBLogo under OS X).
 
 
 @node  FILE ACCESS, TERMINAL ACCESS, RECEIVERS, COMMUNICATION
@@ -1884,12 +1886,18 @@ read stream, so it is possible to alternate between files.
 SETWRITE filename
 @end example
 
-command.  Makes the named file the write stream, used for PRINT, etc.
-The file must already be open with OPENWRITE, OPENAPPEND, or OPENUPDATE.
-If the input is the empty list, then the write stream becomes the
-terminal, as usual.  Changing the write stream does not close the file
-that was previously the write stream, so it is possible to alternate
-between files.
+command.  Makes the named file the write stream, used for PRINT,
+etc.  The file must already be open with OPENWRITE, OPENAPPEND, or
+OPENUPDATE.  If the input is the empty list, then the write stream
+becomes the terminal, as usual.  If the input is a list, then its
+first element must be a variable name, and its second and last
+element must be a positive integer; a buffer of that many
+characters will be allocated, and will become the writestream;
+when another SETWRITE is done, the contents of the buffer (as an
+unparsed word, which may contain newline characters) will become
+the value of the named variable.  Changing the write stream does
+not close the file that was previously the write stream, so it is
+possible to alternate between files.
 
 @xref{PRINT} ,
 @ref{OPENWRITE} ;
@@ -2186,7 +2194,7 @@ num1 - num2
 
 outputs the difference of its inputs.  Minus sign means infix difference
 in ambiguous contexts (when preceded by a complete expression), unless
-it is preceded by a space and followed by a nonspace.
+it is preceded by a space and followed by a nonspace.  (See also MINUS.)
 
 @node  MINUS, PRODUCT, DIFFERENCE, NUMERIC OPERATIONS
 @unnumberedsubsec minus
@@ -2654,10 +2662,20 @@ AND tf1 tf2
 (AND tf1 tf2 tf3 ...)
 @end example
 
-outputs TRUE if all inputs are TRUE, otherwise FALSE.  All inputs must
-be TRUE or FALSE.  (Comparison is case-insensitive regardless of the
-value of CASEIGNOREDP.  That is, @code{true} or @code{True} or @code{TRUE} are all the
-same.)
+outputs TRUE if all inputs are TRUE, otherwise FALSE.  All inputs
+must be TRUE or FALSE.  (Comparison is case-insensitive regardless
+of the value of CASEIGNOREDP.  That is, @code{true} or @code{True} or @code{TRUE}
+are all the same.)  An input can be a list, in which case it is
+taken as an expression to run; that expression must produce a TRUE
+or FALSE value.  List expressions are evaluated from left to right;
+as soon as a FALSE value is found, the remaining inputs are not
+examined.  Example:
+
+@example
+MAKE "RESULT AND [NOT (:X = 0)] [(1 / :X) > .5]
+@end example
+
+to avoid the division by zero if the first part is false.
 
 @xref{CASEIGNOREDP} .
 
@@ -2670,9 +2688,20 @@ OR tf1 tf2
 (OR tf1 tf2 tf3 ...)
 @end example
 
-outputs TRUE if any input is TRUE, otherwise FALSE.  All inputs must be
-TRUE or FALSE.  (Comparison is case-insensitive regardless of the value
-of CASEIGNOREDP.  That is, @code{true} or @code{True} or @code{TRUE} are all the same.)
+outputs TRUE if any input is TRUE, otherwise FALSE.  All inputs
+must be TRUE or FALSE.  (Comparison is case-insensitive regardless
+of the value of CASEIGNOREDP.  That is, @code{true} or @code{True} or @code{TRUE}
+are all the same.)  An input can be a list, in which case it is
+taken as an expression to run; that expression must produce a TRUE
+or FALSE value.  List expressions are evaluated from left to right;
+as soon as a TRUE value is found, the remaining inputs are not
+examined.  Example:
+
+@example
+IF OR :X=0 [some.long.computation] [...]
+@end example
+
+to avoid the long computation if the first condition is met.
 
 @xref{CASEIGNOREDP} .
 
@@ -2684,8 +2713,9 @@ of CASEIGNOREDP.  That is, @code{true} or @code{True} or @code{TRUE} are all the
 NOT tf
 @end example
 
-outputs TRUE if the input is FALSE, and vice versa.
-
+outputs TRUE if the input is FALSE, and vice versa.  The input can be
+a list, in which case it is taken as an expression to run; that
+expression must produce a TRUE or FALSE value.
 
 
 @node   GRAPHICS, WORKSPACE MANAGEMENT, LOGICAL OPERATIONS, Top
@@ -3234,10 +3264,12 @@ faster, but prevents recovery if the window is overlayed.
 
 @menu
 * SHOWNP::                      
+* SCREENMODE::                  
+* TURTLEMODE::                  
 @end menu
 
 
-@node  SHOWNP,  , TURTLE AND WINDOW QUERIES, TURTLE AND WINDOW QUERIES
+@node  SHOWNP, SCREENMODE, TURTLE AND WINDOW QUERIES, TURTLE AND WINDOW QUERIES
 @unnumberedsubsec shownp
 @cindex shownp
 @cindex shown?
@@ -3253,6 +3285,28 @@ hidden.  See SHOWTURTLE and HIDETURTLE.
 @xref{SHOWTURTLE} ,
 @ref{HIDETURTLE} .
 
+
+@node SCREENMODE, TURTLEMODE, SHOWNP, TURTLE AND WINDOW QUERIES
+@unnumberedsubsec screenmode
+@cindex screenmode
+
+@example
+SCREENMODE
+@end example
+
+outputs the word TEXTSCREEN, SPLITSCREEN, or FULLSCREEN depending
+on the current screen mode.
+
+@node TURTLEMODE,  , SCREENMODE, TURTLE AND WINDOW QUERIES
+@unnumberedsubsec turtlemode
+@cindex turtlemode
+
+@example
+TURTLEMODE
+@end example
+
+outputs the word WRAP, FENCE, or WINDOW depending on the current
+turtle mode.
 
 @node  PEN AND BACKGROUND CONTROL, PEN QUERIES, TURTLE AND WINDOW QUERIES, GRAPHICS
 @section Pen and Background Control
@@ -3840,6 +3894,7 @@ This dialect uses "MAKE order," not "NAME order."
 * LOCAL::                       
 * LOCALMAKE::                   
 * THING::                       
+* GLOBAL::                      
 @end menu
 
 @node MAKE, NAME, VARIABLE DEFINITION, VARIABLE DEFINITION
@@ -3902,7 +3957,7 @@ given value, like MAKE.
 @xref{MAKE} .
 
 
-@node THING,  , LOCALMAKE, VARIABLE DEFINITION
+@node THING, GLOBAL, LOCALMAKE, VARIABLE DEFINITION
 @unnumberedsubsec thing
 @cindex thing
 
@@ -3921,6 +3976,25 @@ thing "
 @end example
 
 so that @w{@t{:FOO}} means @w{@t{THING "FOO}}.
+
+@node GLOBAL,  , THING, VARIABLE DEFINITION
+@unnumberedsubsec global
+@cindex global
+
+@example
+GLOBAL varname
+GLOBAL varnamelist
+(GLOBAL varname1 varname2 ...)
+@end example
+
+command.  Accepts as inputs one or more words, or a list of
+words.  A global variable is created for each of these words, with
+that word as its name.  The only reason this is necessary is that
+you might want to use the "setter" notation SETXYZ for a variable
+XYZ that does not already have a value; GLOBAL "XYZ makes that legal.
+Note: If there is currently a local variable of the same name, this
+command does *not* make Logo use the global value instead of the
+local one.
 
 
 @node  PROPERTY LISTS, WORKSPACE PREDICATES, VARIABLE DEFINITION, WORKSPACE MANAGEMENT
@@ -4088,6 +4162,7 @@ rather than giving an error message.)
 * PLISTS::                      
 * NAMELIST::                    
 * PLLIST::                      
+* ARITY::                       
 * NODES::                       
 @end menu
 
@@ -4189,7 +4264,7 @@ outputs a contents list consisting of an empty list followed by a list
 of the name or names given as input.  This is useful in conjunction with
 workspace control procedures that require a contents list as input.
 
-@node PLLIST, NODES, NAMELIST, WORKSPACE QUERIES
+@node PLLIST, ARITY, NAMELIST, WORKSPACE QUERIES
 @unnumberedsubsec pllist
 @cindex pllist
 
@@ -4209,7 +4284,20 @@ CONTENTS command above.
 
 @xref{CONTENTS} .
 
-@node NODES,  , PLLIST, WORKSPACE QUERIES
+@node ARITY, NODES, PLLIST, WORKSPACE QUERIES
+@unnumberedsubsec arity
+@cindex arity
+
+@example
+ARITY procedurename
+@end example
+
+outputs a list of three numbers: the minimum, default, and maximum
+number of inputs for the procedure whose name is the input.  It is an
+error if there is no such procedure.  A maximum of -1 means that the
+number of inputs is unlimited.
+
+@node NODES,  , ARITY, WORKSPACE QUERIES
 @unnumberedsubsec nodes
 @cindex nodes
 
@@ -4410,7 +4498,12 @@ workspace.  Abbreviates @w{@t{POT PROCEDURES}}.
 * SAVEL::                       
 * LOAD::                        
 * HELP::                        
+* SETEDITOR::                   
+* SETLIBLOC::                   
+* SETHELPLOC::                  
+* SETTEMPLOC::                  
 * GC::                          
+* .SETSEGMENTSIZE::             
 @end menu
 
 
@@ -4912,7 +5005,7 @@ commands in the file are carried out silently.
 @xref{STARTUP} ,
 @xref{LOADNOISILY} .
 
-@node HELP, GC, LOAD, WORKSPACE CONTROL
+@node HELP, SETEDITOR, LOAD, WORKSPACE CONTROL
 @unnumberedsubsec help
 @cindex logohelp
 @cindex help
@@ -4928,12 +5021,67 @@ primitives about which help is available.  If there is an environment
 variable @var{LOGOHELP}, then its value is taken as the directory in which to
 look for help files, instead of the default help directory.
 
+If HELP is called with the name of a defined procedure for which there
+is no help file, it will print the title line of the procedure
+followed by lines from the procedure body that start with semicolon,
+stopping when a non-semicolon line is seen.
+
 Exceptionally, the HELP command can be used without its default input
 and without parentheses provided that nothing follows it on the
 instruction line.
 
+@node SETEDITOR, SETLIBLOC, HELP, WORKSPACE CONTROL
+@unnumberedsubsec seteditor
+@cindex seteditor
 
-@node GC,  , HELP, WORKSPACE CONTROL
+@example
+SETEDITOR path
+@end example
+
+command.  Tells Logo to use the specified program as its editor
+instead of the default editor.  The format of a path depends on your
+operating system.
+
+@node SETLIBLOC, SETHELPLOC, SETEDITOR, WORKSPACE CONTROL
+@unnumberedsubsec setlibloc
+@cindex setlibloc
+
+@example
+SETLIBLOC path
+@end example
+
+command.  Tells Logo to use the specified directory as its library
+instead of the default.  (Note that many Logo "primitive" procedures
+are actually found in the library, so they may become unavailable if
+your new library does not include them!)  The format of a path depends
+on your operating system.
+
+@node SETHELPLOC, SETTEMPLOC, SETLIBLOC, WORKSPACE CONTROL
+@unnumberedsubsec sethelploc
+@cindex sethelploc
+
+@example
+SETHELPLOC path
+@end example
+
+command.  Tells Logo to look in the specified directory for the information
+provided by the HELP command, instead of the default directory.
+The format of a path depends on your operating system.
+
+@node SETTEMPLOC, GC, SETHELPLOC, WORKSPACE CONTROL
+@unnumberedsubsec settemploc
+@cindex settemploc
+
+@example
+SETTEMPLOC path
+@end example
+
+command.  Tells Logo to write editor temporary files in the specified
+directory rather than in the default directory.  You must have write
+permission for this directory.  The format of a path depends on your
+operating system.
+
+@node GC, .SETSEGMENTSIZE, SETTEMPLOC, WORKSPACE CONTROL
 @unnumberedsubsec gc
 @cindex gc
 
@@ -4958,6 +5106,24 @@ recently created nodes are examined.  (The latter is usually good
 enough.)
 
 
+@node .SETSEGMENTSIZE,  , GC, WORKSPACE CONTROL
+@unnumberedsubsec .setsegmentsize
+@cindex .setsegmentsize
+
+@example
+.SETSEGMENTSIZE num
+@end example
+
+command.  Sets the number of nodes that Logo allocates from the
+operating system at once to num, which mush be a positive integer.
+The name is dotted because bad things will happen if you use a
+number that's too small or too large for your computer.  The
+initial value is 16,000 for most systems, but is smaller for
+68000-based Macs.  Making it larger will speed up computations
+(by reducing the number of garbage collections) at the cost of
+allocating more memory than necessary.
+
+
 @node   CONTROL STRUCTURES, MACROS, WORKSPACE MANAGEMENT, Top
 @chapter Control Structures
 
@@ -4974,6 +5140,11 @@ Note: in the following descriptions, an @code{instructionlist} can be a list
 or a word.  In the latter case, the word is parsed into list form before
 it is run.  Thus, @t{RUN READWORD} or @t{RUN READLIST} will work.  The former is slightly preferable because it allows for a continued line (with ~) that
 includes a comment (with ;) on the first line.
+
+A @code{tf} input must be the word TRUE, the word FALSE, or a list.  If it's a
+list, then it must be a Logo expression, which will be evaluated to produce
+a value that must be TRUE or FALSE.  The comparisons with TRUE and FALSE
+are always case-insensitive.
 
 @menu
 * RUN::                         
@@ -5005,6 +5176,8 @@ includes a comment (with ;) on the first line.
 * WHILE::                       
 * DOdUNTIL::                    DO.UNTIL
 * UNTIL::                       
+* CASE::                        
+* COND::                        
 @end menu
 
 @node RUN, RUNRESULT, CONTROL, CONTROL
@@ -5532,7 +5705,7 @@ first, so the @code{instructionlist} is always run at least once.  The
 @code{tfexpression} must be an expressionlist whose value when evaluated is
 TRUE or FALSE.
 
-@node UNTIL,  , DOdUNTIL, CONTROL
+@node UNTIL, CASE, DOdUNTIL, CONTROL
 @unnumberedsubsec until
 @cindex until
 
@@ -5553,6 +5726,59 @@ first, so the @code{instructionlist} may never be run at all.  The
 @code{tfexpression} must be an expressionlist whose value when evaluated is
 TRUE or FALSE.
 
+@node CASE, COND, UNTIL, CONTROL
+@unnumberedsubsec case
+@cindex case
+
+@example
+CASE value clauses					(library procedure)
+@end example
+
+command or operation.  The second input is a list of lists (clauses);
+each clause is a list whose first element is either a list of values
+or the word ELSE and whose butfirst is a Logo expression or
+instruction.  CASE examines the clauses in order.  If a clause begins
+with the word ELSE (upper or lower case), then the butfirst of that
+clause is evaluated and CASE outputs its value, if any.  If the first
+input to CASE is a member of the first element of a clause, then the
+butfirst of that clause is evaluated and CASE outputs its value, if
+any.  If neither of these conditions is met, then CASE goes on to the
+next clause.  If no clause is satisfied, CASE does nothing.  Example:
+
+@example
+to vowelp :letter
+output case :letter [ [[a e i o u] "true] [else "false] ]
+end
+@end example
+
+@node COND,  , CASE, CONTROL
+@unnumberedsubsec cond
+@cindex cond
+
+@example
+COND clauses						(library procedure)
+@end example
+
+command or operation.  The input is a list of lists (clauses); each
+clause is a list whose first element is either an expression whose
+value is TRUE or FALSE, or the word ELSE, and whose butfirst is a Logo
+expression or instruction.  COND examines the clauses in order.  If a
+clause begins with the word ELSE (upper or lower case), then the
+butfirst of that clause is evaluated and CASE outputs its value, if
+any.  Otherwise, the first element of the clause is evaluated; the
+resulting value must be TRUE or FALSE.  If it's TRUE, then the
+butfirst of that clause is evaluated and COND outputs its value, if
+any.  If the value is FALSE, then COND goes on to the next clause.  If
+no clause is satisfied, COND does nothing.  Example:
+
+@example
+to evens :numbers	; select even numbers from a list
+cond [ [[emptyp :numbers] []]
+       [[evenp first :numbers]	; assuming EVENP is defined
+        [fput first :numbers evens butfirst :numbers]]
+       [else evens butfirst :numbers] ]
+end
+@end example
 
 @node TEMPLATE-BASED ITERATION,  , CONTROL, CONTROL STRUCTURES
 @section Template-based Iteration
@@ -6338,13 +6564,13 @@ so bad that Logo exits immediately.
 @end display
 
 
-@node   SPECIAL VARIABLES, INDEX, ERROR PROCESSING, Top
+@node   SPECIAL VARIABLES, INTERNATIONALIZATION, ERROR PROCESSING, Top
 @chapter Special Variables
 
 Logo takes special action if any of the following variable names exists.
 They follow the normal scoping rules, so a procedure can locally set one
 of them to limit the scope of its effect.  Initially, no variables exist
-except @var{ALLOWGETSET}, @var{CASEIGNOREDP}, and
+except for @var{ALLOWGETSET}, @var{CASEIGNOREDP}, and
 @var{UNBURYONEDIT}, which are TRUE and buried.
 
 @menu
@@ -6358,6 +6584,7 @@ except @var{ALLOWGETSET}, @var{CASEIGNOREDP}, and
 * REDEFP::                      
 * STARTUP::                     
 * UNBURYONEDIT::                
+* USEALTERNATENAMES::           
 @end menu
 
 @node ALLOWGETSET, CASEIGNOREDP, SPECIAL VARIABLES, SPECIAL VARIABLES
@@ -6487,7 +6714,7 @@ an instructionlist after the loading.
 
 @xref{LOAD} .
 
-@node UNBURYONEDIT,  , STARTUP, SPECIAL VARIABLES
+@node UNBURYONEDIT, USEALTERNATENAMES, STARTUP, SPECIAL VARIABLES
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec unburyonedit
 @cindex unburyonedit
@@ -6504,8 +6731,172 @@ define and bury procedures must do it in that order.
 @xref{LOAD} ,
 @xref{SAVE} .
 
+@node USEALTERNATENAMES,  , UNBURYONEDIT, SPECIAL VARIABLES
+@unnumberedsubsec usealternatenames
+@cindex usealternatenames
 
-@node   INDEX,  , SPECIAL VARIABLES, Top
+@example
+USEALTERNATENAMES					(variable)
+@end example
+
+if TRUE, causes Logo to generate non-English words (from the
+Messages file) instead of TRUE, FALSE, END, etc.
+
+@node INTERNATIONALIZATION, INDEX, SPECIAL VARIABLES, Top
+@chapter Internationalization
+
+Berkeley Logo has limited support for non-English-speaking users.
+Alas, there is no Unicode support, and high-bit-on ASCII codes work in
+some contexts but not others.
+
+If you want to translate Berkeley Logo for use with another language,
+there are three main things you have to do:
+
+@example
+	1. Primitive names
+	2. Error (and other) messages
+	3. Documentation
+@end example
+
+For primitive names, the easiest thing is to provide a startup file that
+defines aliases for the English primitive names, using COPYDEF:
+
+@example
+COPYDEF "AVANT "FORWARD
+@end example
+
+This should take care of it, unless your language's name for one primitive
+is spelled like the English name of a different primitive.  In that case
+you have to turn REDEFP on and be sure to copy the non-conflicting name
+before overwriting the conflicting one!
+
+"Primitives" that are actually in the Logo library, of course, can just
+be replaced or augmented with native-language-named Logo procedures and
+filenames.
+
+Of course Logo programs will still not look like your native language if
+the word order is dramatically different, especially if you don't put
+verbs before their objects.
+
+For error messages, there is a file named Messages in the logolib directory
+with texts of messages, one per line.  You can replace this with a file for
+your own language.  Do not add, delete, or reorder lines; Logo finds messages
+by line number.  The sequences @code{%p}, @code{%s}, and @code{%t} in these messages represent
+variable parts of the message and should not be translated.  (%p @code{PRINT}s
+the variable part, while %s @code{SHOW}s it -- that is, the difference is about
+whether or not brackets are shown surrounding a list.  %t means that the
+variable part is a C text string rather than a Logo object.)  If you want to
+change the order of two variable parts (no reorderable message has more than
+two), you would for example replace the line
+
+@example
+%p doesn't like %s as input
+@end example
+
+with
+
+@example
+%+s is a lousy input to %p
+@end example
+
+The plus sign tells the message printer to reverse the order; you must
+reverse the order of %p and %s, if both are used, to match.  The plus
+sign goes just after the first percent sign in the message, which might
+not be at the beginning of the line.  The sequence @code{\n} in a message
+represents a newline; don't be fooled into thinking that the "n" is part
+of the following word.
+
+Some messages appear twice in the file; this isn't a mistake.  The two
+spaces before "to" in "I don't know how  to" aren't a mistake either.
+The message containing just "%p" is for user-provided error messages
+in THROW "ERROR.  The message "  in %s\n%s" is the part of all error
+messages that indicates where the error occurred if it was inside a
+procedure; you might want to change the word "in" to your language.
+"%s defined\n" is what LOAD prints for each procedure defined if
+the variable LOADNOISILY is TRUE.  "to %p\nend\n\n" is what EDIT puts in the
+temporary file if you ask to edit a procedure that isn't already defined.
+
+Also in the Messages file are lines containing only one word each; the
+first of these is the word "true".  Some of these words are recognized by
+Logo in user input; some are generated by Logo; some are both.  For example,
+the words TRUE and FALSE are recognized as Boolean values by IF and IFELSE,
+and are also generated by Logo as outputs from the primitive predicates
+such as EQUALP.  The word END is recognized as the end of a procedure
+definition, and may be generated when Logo reconstructs a procedure body
+for PO or EDIT.  I've used capital letters in this paragraph for easier
+reading, but the words in the Messages file should be in lower case.
+
+If you replace these with non-English words, Logo will *recognize* both the
+English names and your alternate names.  For example, if you replace the
+word "true" with "vrai" then Logo will understand both of these:
+
+@example
+IF "TRUE [PRINT "YES]
+IF "VRAI [PRINT "YES]
+@end example
+
+The variable UseAlternateNames determines whether Logo will *generate*
+other-language names -- for example, whether predicate functions return
+the other-language alternates for TRUE and FALSE.  This variable is FALSE by
+default, meaning that the English words will be generated.
+
+You might wish to have English-named predicate functions generate English TRUE
+and FALSE, while other-language-named predicates generate the alternate
+words.  This can be done by leaving UseAlternateNames false, and instead of
+defining the other-language predicates with COPYDEF, do it this way:
+
+@example
+to french.boolean :bool
+if equalp :bool "true [output "vrai]
+if equalp :bool "false [output "faux]
+output :bool	; shouldn't happen
+end
+
+to make.french.predicate :french :english :arity
+define :french `[[[inputs] ,[:arity]]
+                 [output french.boolean
+			    apply ,[word "" :english] :inputs]]
+end
+
+? make.french.predicate "egal? "equal? 2
+? pr egal? 3 4
+faux
+? pr egal? 4 4
+vrai
+? pr equal? 3 4
+false
+? pr equal? 4 4
+true
+@end example
+
+The third input to make.french.predicate is the number of inputs that the
+predicate expects.  This solution isn't quite perfect because the infix
+predicates (=, <, >) will still output in English.  If you want them to generate
+alternate-language words, set UseAlternateNames to TRUE instead.
+
+Some of the words in this section of the Messages file are names of Logo
+primitives (OUTPUT, STOP, GOTO, TAG, IF, IFELSE, TO, .MACRO).  To translate
+these names, you must use COPYDEF as described earlier, in addition to
+changing the names in Messages.  You should be consistent in these two steps.
+Don't forget the period in ".macro"!
+
+For documentation, there are two kinds: this manual and the help files.
+The latter are generated automatically from this manual if you have a
+Unix system, so in that case you need only translate this manual,
+maintaining the format.  (The automatic helpfile generator notices
+things like capital letters, tabs, hyphens, and equal signs at the
+beginnings of lines.)  The program makefile.c may require modification
+because a few of the primitive names are special cases (e.g., LOG10 is
+the only name with digits included).
+
+If you don't have Unix tools, you can just translate each helpfile
+individually.  A period in a primitive name is represented as a D in
+the filename; there are no files for question marks because the HELP
+command looks for the file named after the corresponding primitive
+that ends in P.
+
+
+@node   INDEX,  , INTERNATIONALIZATION, Top
 @unnumbered INDEX
 
 @printindex cp

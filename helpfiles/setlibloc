@@ -1,0 +1,8 @@
+SETLIBLOC path
+
+	command.  Tells Logo to use the specified directory as its library
+	instead of the default.  (Note that many Logo "primitive" procedures
+	are actually found in the library, so they may become unavailable if
+	your new library does not include them!)  The format of a path depends
+	on your operating system.
+

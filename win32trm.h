@@ -106,7 +106,6 @@ typedef struct { int    h;
 #define pen_y turtlePen.v
 
 #define get_node_pen_pattern win32_get_node_pen_pattern()
-#define get_node_pen_mode win32_get_node_pen_mode()
 
 #define pen_reverse win32_pen_reverse()
 #define pen_erase win32_pen_erase()
@@ -137,7 +136,7 @@ extern void set_list_pen_pattern(), get_pen_pattern(), erase_screen();
 extern void label(), logofill();
 extern void t_screen(), s_screen(), f_screen(), tone();
 extern FIXNUM mickey_x(), mickey_y();
-extern NODE *win32_get_node_pen_pattern(), *win32_get_node_pen_mode();
+extern NODE *win32_get_node_pen_pattern();
 extern FIXNUM t_height();
 extern FIXNUM pen_color, back_ground;
 extern FLONUM t_half_bottom(), t_side();

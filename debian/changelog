@@ -1,3 +1,11 @@
+ucblogo (5.3-1) unstable; urgency=low
+
+  * New upstream release
+  * Fixed references to documentation location (closes: #186742)
+  * Upgraded to debhelper compat level 4
+
+ -- Hamish Moffatt <hamish@debian.org>  Sun, 30 Mar 2003 11:43:37 +1000
+
 ucblogo (5.1-1) unstable; urgency=low
 
   * New upstream release (closes: #43852)

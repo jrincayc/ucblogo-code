@@ -1,0 +1,17 @@
+;;; -*- logo -*-
+
+.macro case :case.value :case.clauses [:caseignoredp "true]
+catch "case.error [output case.helper :case.value :case.clauses]
+(throw "error [Empty CASE clause])
+end
+
+to case.helper :case.value :case.clauses
+if emptyp :case.clauses [output []]
+if emptyp first :case.clauses [throw "case.error]
+if or equalp first first :case.clauses "else ~
+      memberp :case.value first first :case.clauses ~
+   [output butfirst first :case.clauses]
+output case.helper :case.value butfirst :case.clauses
+end
+
+bury [case case.helper]
