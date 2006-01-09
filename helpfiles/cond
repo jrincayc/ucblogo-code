@@ -13,10 +13,10 @@ COND clauses						(library procedure)
 	no clause is satisfied, COND does nothing.  Example:
 
 		to evens :numbers	; select even numbers from a list
-		cond [ [[emptyp :numbers] []]
-		       [[evenp first :numbers]	; assuming EVENP is defined
-		        [fput first :numbers evens butfirst :numbers]]
-		       [else evens butfirst :numbers] ]
+		op cond [ [[emptyp :numbers] []]
+		          [[evenp first :numbers]  ; assuming EVENP is defined
+		           fput first :numbers evens butfirst :numbers]
+		          [else evens butfirst :numbers] ]
 		end
 
 

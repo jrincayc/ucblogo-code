@@ -15,6 +15,10 @@
 #include "xgraphics.h"
 #include "globals.h"
 
+char *LogoPlatformName="X11";
+
+int clearing_screen = 0;
+
 #ifdef SIGWINCH
 
 #ifdef SIG_TAKES_ARG
@@ -46,7 +50,7 @@ XWMHints xwmh = {
 
 int screen_height = DEFAULT_HEIGHT;
 int screen_width  = DEFAULT_WIDTH;
-int x_mouse_x, x_mouse_y;
+int x_mouse_x, x_mouse_y, x_buttondown=0;
 
 /* We'll use 16 named colors for now (see xgraphics.h).
    The ordering here corresponds to the zero-based argument
@@ -67,7 +71,7 @@ char *colorname[NUMINITCOLORS] = {
   "grey"
 };
 
-XColor color[NUMCOLORS];
+XColor color[NUMCOLORS+2];
 XColor dummy;
 
 void nop() {
@@ -128,10 +132,10 @@ void real_window_init()
 
   for(n = 0; n < NUMINITCOLORS; n++)
     XAllocNamedColor(dpy, DefaultColormap(dpy, screen),
-		     colorname[n], &color[n], &dummy);
+		     colorname[n], &color[n+2], &dummy);
 
     for (n = NUMINITCOLORS; n < NUMCOLORS; n++)
-	color[n] = color[n % NUMINITCOLORS];
+	color[n+2] = color[(n+2) % NUMINITCOLORS];
 
     xgr_pen.color = 7;
 
@@ -151,8 +155,8 @@ void real_window_init()
 
   /* Set up size/position hints. */
   xsh.flags = (PPosition | PSize);
-  xsh.height = screen_height;
-  xsh.width = screen_width;
+  xsh.height = DEFAULT_HEIGHT;
+  xsh.width = DEFAULT_WIDTH;
   xsh.x = (DisplayWidth(dpy, DefaultScreen(dpy)) - xsh.width) / 2;
   xsh.y = (DisplayHeight(dpy, DefaultScreen(dpy)) - xsh.height) / 2;
 
@@ -260,7 +264,7 @@ void placate_x()
   XEvent           event;
   XConfigureEvent *xce;
   XMotionEvent    *xme;
-
+  XButtonEvent    *xbe;
     checkX;
 
   while(XCheckWindowEvent(dpy, win, EVENT_MASK, (XEvent *)&event))
@@ -274,8 +278,8 @@ void placate_x()
       screen_width  = xce->width;
 
       XClearWindow(dpy, win);
-	redraw_graphics();
-      
+      /* if (!clearing_screen) */ redraw_graphics();
+
       break;
 
     case MotionNotify:
@@ -284,7 +288,37 @@ void placate_x()
       x_mouse_x = xme->x;
       x_mouse_y = xme->y;
       break;
+
+    case ButtonPress:
+	xbe = (XButtonEvent *)&event;
+#undef button
+	x_buttondown = xbe->button;
+	mouse_click;
+	break;
+
+    case ButtonRelease:
+	x_buttondown = 0;
+	break;
     }
+}
+
+void check_X11_stop() {
+    static int count=300;
+
+    if (--count == 0) {
+	count = 300;
+	checkX;
+	placate_x();
+    }
+}
+
+int get_button()
+{
+  checkX;
+
+  placate_x();
+
+  return( x_buttondown );
 }
 
 int get_mouse_x()
@@ -378,7 +412,7 @@ void logofill() {
 							ZPixmap );
 	floodfill( img, xgr_pen.xpos, xgr_pen.ypos,
 			   XGetPixel( img, xgr_pen.xpos, xgr_pen.ypos ),
-			   color[xgr_pen.color].pixel );
+			   color[(xgr_pen.color)+2].pixel );
 	
 	XPutImage( dpy, win, draw_gc, img, 0, 0, 0, 0, screen_width,
 			   screen_height );
@@ -387,6 +421,7 @@ void logofill() {
 
 
 void set_palette(int n, unsigned int r, unsigned int g, unsigned int b) {
+    n+=2;
     color[n].red = r;
     color[n].green = g;
     color[n].blue = b;
@@ -395,6 +430,7 @@ void set_palette(int n, unsigned int r, unsigned int g, unsigned int b) {
 }
 
 void get_palette(int n, unsigned int *r, unsigned int *g, unsigned int *b) {
+    n+=2;
     *r = color[n].red;
     *g = color[n].green;
     *b = color[n].blue;

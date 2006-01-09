@@ -1,8 +1,6 @@
 BUILDIR	      = `pwd`
-INFODIR	      = $(prefix)/info
 EMACSDIR      = $(LIBLOC)/emacs
-DOCSDIR	      = $(LIBLOC)/docs
-HTMLDIR	      = $(DOCSDIR)/html
+INFODIR	      = $(prefix)/info
 LOADPATH      = $(subst X,$(EMACSDIR),(setq load-path (cons "\"X\"" load-path)))
 LOGOBIN	      = $(subst X,$(BINDIR),(setq logo-binary-name \"X/logo\"))
 INFOPATH      = $(subst X,$(INFODIR),(setq logo-info-file \"X/ucblogo.info\"))
@@ -33,27 +31,6 @@ install-logo-mode:
 	cat add.user e.user e.check > install-logo-mode
 	chmod u=rwx,go=rx install-logo-mode
 
-docs: docs/usermanual.ps docs/usermanual.pdf docs/usermanual_1.html docs/ucblogo.info
-
-docs/ucblogo.info: docs/usermanual.texi
-	-cd docs; makeinfo usermanual.texi
-
-docs/usermanual.dvi: docs/usermanual.texi
-	-cd docs; tex --interaction batchmode usermanual.texi
-	-cd docs; tex --interaction batchmode usermanual.texi
-	-cd docs; texindex usermanual.cp
-	-cd docs; tex --interaction batchmode usermanual.texi
-
-docs/usermanual.ps: docs/usermanual.dvi
-	-cd docs; dvips -t letter -o usermanual.ps usermanual.dvi
-
-docs/usermanual.pdf: docs/usermanual.ps docs/usermanual.dvi
-	-cd docs; ps2pdf usermanual.ps
-	-cd docs; dvipdf usermanual.dvi
-
-docs/usermanual_1.html: docs/usermanual.texi
-	-cd docs; texi2html -expand tex -split chapter usermanual.texi
-
 clean:
 	-rm -f e.*
 	-rm -f add.user
@@ -61,11 +38,9 @@ clean:
 ship:
 	-rm -f e.*
 	-rm -f add.user install-logo-mode dot.emacs dot.loops *.elc
-	-rm -f docs/*.{aux,cp,cps,dvi,fn,ky,log,pg,toc,tp,vr}
 
 install: all
-	for d in $(INFODIR) $(EMACSDIR) $(DOCSDIR) $(HTMLDIR); do [ -d $$d ] || mkdir -p $$d || exit 1; done
-	cp -f info/* $(INFODIR)/.
+	for d in $(EMACSDIR); do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp -f logo.* $(EMACSDIR)/.
 	cp -f letrec.* $(EMACSDIR)/.
 	cp -f comint*.* $(EMACSDIR)/.
@@ -78,10 +53,3 @@ install: all
 	cp -p install-logo-mode $(BINDIR)/.
 	cp -f edfunc.el $(EMACSDIR)/.
 	cp -f check.lg $(EMACSDIR)/.
-	-cp -f docs/*.info* $(INFODIR)/.
-	-cp -f docs/*.html $(HTMLDIR)/.
-	-cp -f docs/usermanual.ps $(DOCSDIR)/.
-	-cp -f docs/usermanual.pdf $(DOCSDIR)/.
-	-cp -f docs/usermanual.texi $(DOCSDIR)/.
-
-

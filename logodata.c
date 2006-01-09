@@ -277,7 +277,8 @@ NODE *make_strnode(char *strptr, struct string_block *strhead, int len,
     if (len == 0 && Null_Word != NIL) return(Null_Word);
     strnode = newnode(typ);
     if (strhead == NULL) {
-	strhead = (struct string_block *) malloc((size_t)len + sizeof(FIXNUM) + 1);
+	strhead = (struct string_block *) malloc((size_t)len
+						 + sizeof(FIXNUM) + 1);
 	if (strhead == NULL) {
 	    err_logo(OUT_OF_MEM, NIL);
 	    return UNBOUND;
@@ -406,7 +407,7 @@ NODE *cnv_node_to_strnode(NODE *nd) {
 	    return(make_strnode(s, (struct string_block *)NULL,
 				(int)strlen(s), STRING, strnzcpy));
     }
-    /*NOTREACHED*/
+    return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
 NODE *make_static_strnode(char *strptr) {

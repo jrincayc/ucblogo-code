@@ -1,3 +1,10 @@
+ucblogo (5.5-1) unstable; urgency=low
+
+  * New upstream release
+  * Changed build-dep for xlibs-dev to libx11-dev etc (closes: #347100)
+
+ -- Hamish Moffatt <hamish@debian.org>  Mon,  9 Jan 2006 18:37:05 +1100
+
 ucblogo (5.3-1) unstable; urgency=low
 
   * New upstream release
@@ -37,7 +44,7 @@ ucblogo (4.6-2) unstable; urgency=low
   * NMU
   * patch for glibc-2.1; fixes: Bug#32519
 
- -- Hartmut Koptein <koptein@debian.org>  Mo, 15 Feb 1999 00:25:22 +0100
+ -- Hartmut Koptein <koptein@debian.org>  Mon, 15 Feb 1999 00:25:22 +0100
 
 ucblogo (4.6-1) unstable; urgency=low
 
@@ -97,11 +104,4 @@ ucblogo (3.3-1) unstable; urgency=low
   * created Debian package
 
  -- Dale Scheetz <dwarf@polaris.net>  Fri, 13 Sep 1996 18:32:54 -0400
-
-This is the Debian packaging of logo, put together by Dale Scheetz
-<dwarf@polaris.net>
-
-Local variables:
-mode: debian-changelog
-End:
 

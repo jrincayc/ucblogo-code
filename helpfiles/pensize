@@ -1,5 +1,6 @@
 PENSIZE
-PENPATTERN
 
-	output hardware-specific pen information.
+	outputs a list of two positive integers, specifying the horizontal
+	and vertical thickness of the turtle pen.  (In some implementations
+	the two numbers may always be equal.)
 

@@ -15,7 +15,8 @@ void logofill(void);
 #define FONT	"fixed"
 #define NUMCOLORS 512
 #define NUMINITCOLORS 16
-#define EVENT_MASK  (StructureNotifyMask | PointerMotionMask)
+#define EVENT_MASK  (StructureNotifyMask | PointerMotionMask \
+		     | ButtonPressMask | ButtonReleaseMask)
 #define DEFAULT_HEIGHT           500
 #define DEFAULT_WIDTH            500
 
@@ -83,16 +84,16 @@ extern void placate_x();
 
 #define set_pen_color(c)         draw_turtle();\
                                  xgr_pen.color=c%NUMCOLORS;\
-                                 XSetForeground(dpy,draw_gc,color[xgr_pen.color].pixel);\
-                                 XSetForeground(dpy,reverse_gc,color[xgr_pen.color].pixel);\
+                                 XSetForeground(dpy,draw_gc,color[2+xgr_pen.color].pixel);\
+                                 XSetForeground(dpy,reverse_gc,color[2+xgr_pen.color].pixel);\
                                  draw_turtle();
 
 #define set_back_ground(c)       back_ground=c%NUMCOLORS;\
-                                 XSetBackground(dpy,draw_gc,color[back_ground].pixel);\
-                                 XSetBackground(dpy,reverse_gc,color[back_ground].pixel);\
-                                 XSetBackground(dpy,erase_gc,color[back_ground].pixel);\
-                                 XSetForeground(dpy,erase_gc,color[back_ground].pixel);\
-				 XSetWindowBackground(dpy,win,color[back_ground].pixel);\
+                                 XSetBackground(dpy,draw_gc,color[2+back_ground].pixel);\
+                                 XSetBackground(dpy,reverse_gc,color[2+back_ground].pixel);\
+                                 XSetBackground(dpy,erase_gc,color[2+back_ground].pixel);\
+                                 XSetForeground(dpy,erase_gc,color[2+back_ground].pixel);\
+				 XSetWindowBackground(dpy,win,color[2+back_ground].pixel);\
 				 redraw_graphics();
 
 #define set_pen_width(w)         XSetLineAttributes(dpy, draw_gc, w, LineSolid, \
@@ -150,9 +151,7 @@ extern pen_info xgr_pen;
 #define pen_erase                pen_mode=erase_gc
 #define pen_down                 pen_mode=draw_gc
 
-
-/* Hmn, buttons are a problem, aren't they? */
-#define button                   FALSE
+#define button                   get_button()
 #define mouse_x                  get_mouse_x()
 #define mouse_y                  get_mouse_y()
 

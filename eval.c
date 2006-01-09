@@ -148,7 +148,7 @@ NODE *restname, *restline;
 /* These variables are all externed in globals.h */
 
 CTRLTYPE    stopping_flag = RUN;
-char	    *logolib, *helpfiles;
+char	    *logolib, *helpfiles, *csls;
 FIXNUM	    dont_fix_ift = 0;
 
 /* These variables are local to this file. */
@@ -295,41 +295,31 @@ void eval_save() {
     }
     in_eval_save = 0;
     if (int_during_gc != 0) {
-	if (int_during_gc < 0) 
-#ifdef SIG_TAKES_ARG
-	    logo_pause(0);
-#else
-	    logo_pause();
-#endif
-	else 
-#ifdef SIG_TAKES_ARG
-	    logo_stop(0);
-#else
-	    logo_stop();
-#endif
+	delayed_int();
     }
 }
 
 void eval_restore() {
+    int_during_gc = 0;
     in_eval_save = 1;
     memcpy(&regs, car(stack), sizeof(regs));
     pop(stack);
     in_eval_save = 0;
     if (int_during_gc != 0) {
-	if (int_during_gc < 0) 
-#ifdef SIG_TAKES_ARG
-	    logo_pause(0);
-#else
-	    logo_pause();
-#endif
-	else 
-#ifdef SIG_TAKES_ARG
-	    logo_stop(0);
-#else
-	    logo_stop();
-#endif
+	delayed_int();
     }
 }
+
+/*
+ #ifdef OBJECTS
+
+NODE *val_eval_driver(NODE *seq) {
+    val_status = VALUE_OK;
+    return evaluator(seq, begin_seq);
+}
+
+ #endif
+*/
 
 /* An explicit control evaluator, taken almost directly from SICP, section
  * 5.2.  list is a flat list of expressions to evaluate.  where is a label to
@@ -387,7 +377,12 @@ eval_dispatch:
 	    val = /* deep_copy */ (node__quote(exp));
 	    goto fetch_cont;
 	case COLON:			/* variable */
+
+#ifdef OBJECTS
+	    val = varValue(node__colon(exp));
+#else
 	    val = valnode__colon(exp);
+#endif
 	    while (val == UNBOUND && NOT_THROWING)
 		val = err_logo(NO_VALUE, node__colon(exp));
 	    goto fetch_cont;
@@ -403,9 +398,13 @@ eval_dispatch:
 	    }
 	    fun = car(exp);
 	    if (fun == Not_Enough_Node) {
-		err_logo(TOO_MUCH, NIL);
+		err_logo(TOO_MUCH, NIL);    /* When does this happen? */
 		val = UNBOUND;
 		goto fetch_cont;
+	    }
+	    if (flag__caseobj(fun, PROC_SPECFORM)) {
+		argl = cdr(exp);
+		goto apply_dispatch;
 	    }
 	    if (cdr(exp) != NIL)
 		goto ev_application;
@@ -476,7 +475,12 @@ accumulate_arg:
     eval_restore();
     if (stopping_flag == MACRO_RETURN) {
 	if (val == NIL || val == UNBOUND || cdr(val) != NIL) {
-	    if (NOT_THROWING) err_logo(ERR_MACRO, val);
+	    if (NOT_THROWING) {
+		if (tree_dk_how != NIL && tree_dk_how != UNBOUND)
+		    err_logo(DK_HOW_UNREC, tree_dk_how);
+		else
+		    err_logo(ERR_MACRO, val);
+	    }
 	    goto eval_args_done;
 	}
 	exp = car(val);
@@ -743,7 +747,7 @@ set_args_continue:
 	    if (argl != NIL) pop(argl);
     }
     if (argl != NIL) {
-	err_logo(TOO_MUCH, NIL);
+	err_logo(TOO_MUCH, fun);
     }
     if (check_throwing) {
 	val = UNBOUND;
@@ -1222,6 +1226,37 @@ catch_followup:
     }
     goto fetch_cont;
 
+#ifdef OBJECTS
+
+withobject_continuation:
+    save2(didnt_output_name,didnt_get_output);
+    num2save(val_status,tailcall);
+    save2(current_unode,current_object);
+    newcont(withobject_followup);
+    current_object = car(val);
+    newcont(cont__cont(cdr(val)));
+    list = val = val__cont(cdr(val));
+    val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
+    goto fetch_cont;
+
+withobject_followup:
+    restore2(current_unode,current_object);
+    num2restore(val_status,tailcall);
+    restore2(didnt_output_name,didnt_get_output);
+    if (current_unode != output_unode) {
+	if (STOPPING || RUNNING) output_node = UNBOUND;
+	if (stopping_flag == OUTPUT || STOPPING) {
+	    stopping_flag = RUN;
+	    val = output_node;
+	    goto fetch_cont;
+	}
+    }
+    if (NOT_THROWING && val != UNBOUND && !(val_status & VALUE_OK))
+	err_logo(DK_WHAT, val);
+    goto fetch_cont;
+
+#endif /* OBJECTS */
+
 goto_continuation:
     if (NOT_THROWING) {
 	if (ufun == NIL) {
@@ -1349,7 +1384,7 @@ lambda_qm:
 		if (n < min) {
 		    err_logo(NOT_ENOUGH, NIL);
 		} else if (n > max && max >= 0) {
-		    err_logo(TOO_MUCH, NIL);
+		    err_logo(TOO_MUCH, fun);
 		} else {
 		    if (tailcall <= 0) {
 			save(var);

@@ -1,0 +1,6 @@
+SETCSLSLOC path
+
+	command.  Tells Logo to use the specified directory for the CSLSLOAD
+	command, instead of the default directory.  The format of a path
+	depends on your operating system.
+

@@ -4,5 +4,6 @@ char *helploc="helpfile";
 #else
 char *helploc="helpfiles";
 #endif
+char *cslsloc="csls";
 char *temploc="";
 char *separator="\\";

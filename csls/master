@@ -1,0 +1,344 @@
+; [Mastermind game]
+
+cslsload "buttons
+cslsload "streams
+
+to master [:numsquares 4] [:dup.ok "false] [:mysecret "true]
+; Mastermind game program.
+; Program is controlled by mouse clicks or keystrokes.
+if :LogoPlatform = "Windows [maximize.window "true]
+localmake "colors "ROYGBV
+localmake "colornums [[R 4] [O 14] [Y 6] [G 2] [B 1] [V 13]]
+localmake "exact "true
+local [numguesses numcolors column guess gotnum winloop permuting]
+local [perms oldcount newcount guess.exact guess.inexact guess.word]
+catch "quit [forever [
+  catch "master [
+    make "numguesses 0
+    make "numcolors 0
+    make "column 0
+    make "winloop "false
+    initdraw		 ; Clear screen, draw color palette 
+    ifelse :mysecret [
+	ifelse :dup.ok	 ; Choose secret permutation
+	   [make "secret (choose.dup :numsquares :colors)]
+	   [make "secret (choose.nodup :numsquares :colors)]
+        newguess	 ; Display first guess frame
+        action.loop	 ; Read keyboard characters or mouse clicks 
+    ] [
+	catch "win [	 ; User's secret, program has to guess.
+	  ifelse :dup.ok [
+	    make "permuting "false	; Lots of cases with dups okay, so
+	    make "perms (list copies :numsquares "x)
+	    make "newcount 0		; find colors systematically first.
+	    catch "perm [
+	      for [i 1 6] [	; Learn how many red, then orange, etc.
+		make "oldcount :newcount
+		doguess subst :i "x head :perms
+		make "newcount :guess.exact + :guess.inexact
+	    	make "perms flatten stream.map
+		   `[insert ,[:newcount-:oldcount] ,:i ?] :perms
+		make "perms stream.filter
+                          `[okay? ? ,:guess.exact ,:guess.inexact ,:guess.word]
+			  :perms
+		check.consistency :perms
+		if equalp :newcount :numsquares [throw "perm]
+	      ]
+	      check.consistency []	; Tried all colors, user lied.
+	    ]
+	    make "permuting "true
+	  ] [
+	    make "perms perms "123456 :numsquares	; not :dup.ok
+	    make "permuting equalp :numsquares 6
+	  ]
+	  forever [			; common portion
+	    doguess head :perms
+	    if equalp :numsquares :guess.exact + :guess.inexact ~
+	      [make "permuting "true]
+	    make "perms stream.filter
+                          `[okay? ? ,:guess.exact ,:guess.inexact ,:guess.word]
+			  :perms
+	    check.consistency :perms
+	  ]
+	  ; Can't get here; either doguess finds a winner or
+	  ; check.consistency complains.
+	] ; We get here on throw "win from doguess.
+	move [15 12]
+	setpc 7 label "WIN!
+	ct print (sentence [I win in] :numguesses "turns.)
+	make "winloop "true
+	action.loop
+    ]
+]]]
+cs ct setpc 7 st
+end
+
+;;; ================== LOGIC FOR MY GUESSES (USER SECRET) =================
+
+to doguess :guessword
+; Present computer's guess to user and ask about matches.
+newguess				; Draw frame for guess.
+make "guess.word :guessword		; Remember my colors.
+foreach :guessword [apply "putguess item ? :colornums]	; Show colors.
+askexact				; Ask user for exact matches.
+make "gotnum "false
+catch "ready [action.loop]
+ifelse :guess.exact < :numsquares [	; Not all colors are exact.
+  ifelse :permuting [			;   If we know all the colors,
+    make "exact "false			;   compute how many are inexact
+    getnum :numsquares-:guess.exact	;   without asking.
+  ] [
+    askinexact				;   Otherwise, ask for inexact.
+    make "gotnum "false
+    catch "ready [action.loop]
+    if :guess.exact + :guess.inexact > :numsquares ~
+       [check.consistency []]	; Quick error message if too many matches.
+  ]
+] [
+  throw "win				; All colors are exact, we win.
+]
+end
+
+to subst :new :old :word
+; For dups-okay guessing:  Substitute the next trial color for
+; all unknown squares in a partial permutation.
+output map [ifelse equalp ? :old [:new] [?]] :word
+end
+
+to copies :num :letter
+output cascade :num [word ? :letter] "
+end
+
+to insert :num :new :word
+; For dups-okay guessing:  We've learned that there are :NUM instances
+; of color :NEW in the secret combination, so stick that many of them into
+; a still-possible partial permutation, in every possible size=:NUM
+; subset of the unknown slots.
+; The result is a *stream* of possible (partial) permutations.
+if :num=0 [output (list :word)]		; No slots needed, just one result.
+if emptyp :word [output []]		; Not enough slots, no results!
+if equalp first :word "x 		; Else combine results of choosing or ~
+   [op flatten				; not choosing to replace into this X.
+	 stream insert :num-1 :new word :new butfirst :word
+	      `[(list stream.map [word "x ?] insert ,:num ",:new bf ",:word )]]
+output stream.map `[word ",[first :word] ?] insert :num :new butfirst :word
+end
+
+to check.consistency :str
+; If the stream of still-possible permutations is empty, then
+; the user has lied to us.
+if emptyp :str [ct print [Error -- inconsistent answers!]
+		repeat 2 [setbg 4 setbg 0]
+		type [Click or type anything to restart.]
+		waitforclick
+		throw "master]
+end
+
+to perms :word :num
+; Output the stream of permutations of :NUM letters chosen from :WORD.
+if :num=0 [output (list "|| )]
+if emptyp :word [output []]	; Can't happen (would mean :num>count :word).
+output flatten stream.map ~
+   `[[letter] stream.map `[word ,:letter ?]
+                         perms remonce :letter ,:word ,[:num-1]] ~
+   :word
+end
+
+to okay? :perm :guess.exact :guess.inexact :guess.word
+output and (equalp :guess.exact exact :perm :guess.word) ~
+           (equalp :guess.inexact inexact :perm :guess.word)
+end
+
+to askexact
+ct type "|How many EXACT matches? |
+make "exact "true
+end
+
+to askinexact
+ct type "|How many INEXACT matches? |
+make "exact "false
+end
+
+;;; ================== LOGIC FOR USER GUESSES (MY SECRET) =================
+
+to choose.dup :number :colors
+if :number = 0 [output "]
+output word (pick :colors) (choose.nodup :number-1 :colors)
+end 
+ 
+to choose.nodup :number :colors
+if :number = 0 [output "]
+make "color pick :colors
+output word :color (choose.nodup :number-1 remonce :color :colors)
+end
+
+;;;;; ================ Used by both kinds of logic ======================
+ 
+to exact :secret :guess
+if empty? :secret [output 0]
+output ehelp + (exact butfirst :secret butfirst :guess)
+end
+
+to ehelp
+ifelse equal? (first :secret) (first :guess) [output 1] [output 0]
+end 
+
+to inexact :secret :guess
+output (anymatch :secret :guess) - (exact :secret :guess)
+end
+
+to anymatch :secret :guess
+if empty? :secret [output 0]
+if member? first :secret :guess ~
+   [output 1 + anymatch (butfirst :secret) (remonce first :secret :guess)]
+output anymatch butfirst :secret :guess
+end 
+
+to remonce :this :those
+if empty? :those [output "]
+if equal? :this first :those [output butfirst :those]
+output word (first :those) (remonce :this butfirst :those)
+end
+
+;;;;; =================== USER INTERFACE (DRAWING) =======================
+
+to initdraw
+ct init.buttons
+ifelse :mysecret ~
+  [colorchart 6 "ROYGBV [4 14 6 2 1 13] 150
+   setbutton [-240 -30] [25 25] [clear] "false 0 "erase "DEL] ~
+  [numchart 0 150]
+setbutton [-240 -60] [25 25] [if not :winloop [guess]] "true 0 "OK "RET
+setbutton [-240 -90] [25 25] [throw "master] "false 0 [new game] "N
+setbutton [-240 -120] [25 25] [throw "quit] "false 0 "quit "Q
+setbutton [-240 -170] [40 25] [make "mysecret "true  throw "master] ~
+   :mysecret 0 [I guess] []
+setbutton [-240 -200] [40 25] [make "mysecret "false  throw "master] ~
+   (not :mysecret) 0 [Logo guess] []
+caption [-240 206] [65 29] [Number |of colors:|]
+numsquares -170 2 6
+caption [0 206] [65 29] [Duplicates allowed:]
+setbutton [70 210] [25 25] [make "dup.ok "true throw "master] ~
+   :dup.ok 0 "yes []
+setbutton [100 210] [25 25] [make "dup.ok "false throw "master] ~
+   (not :dup.ok) 0 "no []
+end
+
+to numsquares :xcor :num :last
+if :num > :last [stop]
+setbutton (list :xcor 210) [25 25] `[make "numsquares ,:num throw "master] ~
+   (:num = :numsquares) 0 :num []
+numsquares :xcor+30 :num+1 :last
+end
+
+to colorchart :num :names :colors :ycor
+if :num = 0 [stop]
+setbutton (list -240 :ycor) [25 25] ~
+  `[putguess ",[first :names] ,[first :colors]] "false ~
+  (first :colors) [] (first :names)
+colorchart :num-1 bf :names bf :colors :ycor-30
+end
+
+to numchart :num :ycor
+if :num > :numsquares [stop]
+setbutton (list -240 :ycor) [25 25] ~
+  `[if not :winloop [getnum ,:num]] "false 0 :num :num
+numchart :num+1 :ycor-30
+end
+
+to move :start
+; Move the turtle to the given coordinates
+; relative to the lower left corner of the first empty square
+; in the current frame.
+; Depends on :COLUMN (0 or 1 for >14 guesses), :NUMGUESSES, and :NUMCOLORS
+; Note, since :NUMGUESSES starts at 1,
+; first frame is at [-180 170] not [-180 200].
+pu
+setpos (list (-180 + (first :start) + 220*:column + 25*(:numcolors-1))
+	     (200 + (last :start) - 30*(:numguesses - 14*:column)))
+pd
+end 
+
+; -----------------------------------------------
+
+to newguess
+; Called from MASTER for first guess frame,
+; then from GUESS for later guess frames (my secret),
+; or from DOGUESS (user's secret).
+make "numguesses :numguesses+1
+if :numguesses > 14 [make "column 1]
+make "numcolors 1
+move [0 0]
+drawframe
+make "guess "
+end
+
+to drawframe
+setpc 7 seth 0
+repeat :numsquares [square 25 rt 90 fd 25 lt 90]
+end
+
+to square :side
+repeat 4 [fd :side rt 90]
+end
+
+;;;;; =================== USER INTERFACE (READING) =======================
+
+to waitforclick
+; Wait for any key or mouse click, then return, ignoring which/where.
+if buttonp [while [buttonp] []  stop]
+if keyp [ignore rc  stop]
+waitforclick
+end
+
+; ----------- Procedures to carry out user commands ---------------
+
+to getnum :num [:cursor cursor]
+; Called for digit key or mouse click on digit button.
+make ifelse :exact ["guess.exact] ["guess.inexact] :num
+move list ifelse :exact [15] [40] 12
+setpc 7 label :num
+type :num setcursor :cursor
+make "gotnum "true
+end
+
+to putguess :colorletter :colornumber
+; Called from mouse click in color palette;
+;   first input is a letter for :GUESS (e.g. R for red),
+;   second input is a Logo color number for SETPC (e.g. 4 for red).
+if :numcolors < 1 [stop]
+if :numcolors > :numsquares [stop]
+if not :dup.ok [if member? :colorletter :guess [stop]]
+make "guess word :guess :colorletter
+move [10 10]
+setpc :colornumber
+fill
+make "numcolors :numcolors+1
+end
+
+to clear
+; Called by clicking ERASE button
+if :numcolors < 2 [stop]
+make "guess butlast :guess
+make "numcolors :numcolors-1
+move [10 10]
+setpc 0
+fill
+end
+
+to guess
+; Called by clicking GUESS button.
+if not :mysecret [if :gotnum [ct wait 0 throw "ready] stop]
+if not (:numcolors > :numsquares) [stop]
+ifelse equal? :guess :secret [
+    move [15 12]
+    setpc 7 label "WIN!
+    print (sentence [You win in] :numguesses "turns.)
+] [
+    move [15 12]
+    setpc 7 label exact :secret :guess
+    move [40 12]
+    setpc 7 label inexact :secret :guess
+    newguess
+]
+end

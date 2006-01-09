@@ -2,8 +2,8 @@ Source: ucblogo
 Section: devel
 Priority: optional
 Maintainer: Hamish Moffatt <hamish@debian.org>
-Standards-Version: 3.5.8
-Build-Depends: debhelper (>= 4), libncurses-dev, xlibs-dev
+Standards-Version: 3.6.2
+Build-Depends: debhelper (>= 4), libncurses-dev, libx11-dev, libsm-dev, libice-dev
 
 Package: ucblogo
 Architecture: any

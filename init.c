@@ -41,7 +41,11 @@ typedef struct priminfo {
 NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
      *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
      *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
-     *Unbound, *Not_Enough_Node,
+     *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,
+     *LogoLogo,
+#ifdef OBJECTS
+     *askexist,
+#endif
      *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
 
@@ -62,6 +66,9 @@ PRIMTYPE prims[] = {
     {"<", 2, 2, 2, PREFIX_PRIORITY + 1, llessp},
     {"=", 2, 2, 2, PREFIX_PRIORITY + 1, lequalp},
     {">", 2, 2, 2, PREFIX_PRIORITY + 1, lgreaterp},
+    {"<=", 2, 2, 2, PREFIX_PRIORITY + 1, llessequalp},
+    {"<>", 2, 2, 2, PREFIX_PRIORITY + 1, lnotequalp},
+    {">=", 2, 2, 2, PREFIX_PRIORITY + 1, lgreaterequalp},
     {"?", 0, 0, 1, PREFIX_PRIORITY, lqm},
     {"allopen", 0, 0, 0, PREFIX_PRIORITY, lallopen},
     {"and", 0, 2, -1, PREFIX_PRIORITY, land},
@@ -75,6 +82,9 @@ PRIMTYPE prims[] = {
     {"array?", 1, 1, 1, PREFIX_PRIORITY, larrayp},
     {"ascii", 1, 1, 1, PREFIX_PRIORITY, lascii},
     {"ashift", 2, 2, 2, PREFIX_PRIORITY, lashift},
+#ifdef OBJECTS
+    {"ask", 2, 2, 2, MACRO_PRIORITY, lask},
+#endif
     {"back", 1, 1, 1, PREFIX_PRIORITY, lback},
     {"background", 0, 0, 0, PREFIX_PRIORITY, lbackground},
     {"backslashedp", 1, 1, 1, PREFIX_PRIORITY, lbackslashedp},
@@ -97,6 +107,7 @@ PRIMTYPE prims[] = {
     {"butfirst", 1, 1, 1, PREFIX_PRIORITY, lbutfirst},
     {"butfirsts", 1, 1, 1, PREFIX_PRIORITY, lbfs},
     {"butlast", 1, 1, 1, PREFIX_PRIORITY, lbutlast},
+    {"button", 0, 0, 0, PREFIX_PRIORITY, lbutton},
     {"buttonp", 0, 0, 0, PREFIX_PRIORITY, lbuttonp},
     {"button?", 0, 0, 0, PREFIX_PRIORITY, lbuttonp},
     {"bye", 0, 0, 0, PREFIX_PRIORITY, lbye},
@@ -113,6 +124,7 @@ PRIMTYPE prims[] = {
     {"cos", 1, 1, 1, PREFIX_PRIORITY, lcos},
     {"count", 1, 1, 1, PREFIX_PRIORITY, lcount},
     {"cs", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
+    {"cslsload", 1, 1, 1, PREFIX_PRIORITY, lcslsload},
     {"ct", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
     {"cursor", 0, 0, 0, PREFIX_PRIORITY, lcursor},
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
@@ -139,6 +151,9 @@ PRIMTYPE prims[] = {
     {"erpls", 0, 0, 0, PREFIX_PRIORITY, lerpls},
     {"erps", 0, 0, 0, PREFIX_PRIORITY, lerps},
     {"error", 0, 0, 0, PREFIX_PRIORITY, lerror},
+#ifdef OBJECTS
+    {"lexist", 0, 0, 0, PREFIX_PRIORITY, lexist},
+#endif
     {"exp", 1, 1, 1, PREFIX_PRIORITY, lexp},
     {"fd", 1, 1, 1, PREFIX_PRIORITY, lforward},
     {"fence", 0, 0, 0, PREFIX_PRIORITY, lfence},
@@ -158,6 +173,11 @@ PRIMTYPE prims[] = {
     {"gprop", 2, 2, 2, PREFIX_PRIORITY, lgprop},
     {"greaterp", 2, 2, 2, PREFIX_PRIORITY, lgreaterp},
     {"greater?", 2, 2, 2, PREFIX_PRIORITY, lgreaterp},
+    {"greaterequalp", 2, 2, 2, PREFIX_PRIORITY, lgreaterequalp},
+    {"greaterequal?", 2, 2, 2, PREFIX_PRIORITY, lgreaterequalp},
+#ifdef OBJECTS
+    {"have", 1, 1, 1, PREFIX_PRIORITY, lhave},
+#endif
     {"heading", 0, 0, 0, PREFIX_PRIORITY, lheading},
     {"help", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lhelp},
     {"hideturtle", 0, 0, 0, PREFIX_PRIORITY, lhideturtle},
@@ -173,11 +193,16 @@ PRIMTYPE prims[] = {
     {"item", 2, 2, 2, PREFIX_PRIORITY, litem},
     {"keyp", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
     {"key?", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
+#ifdef OBJECTS
+    {"kindof", 1, 1, -1, PREFIX_PRIORITY, lkindof},
+#endif
     {"label", 1, 1, 1, PREFIX_PRIORITY, llabel},
     {"last", 1, 1, 1, PREFIX_PRIORITY, llast},
     {"left", 1, 1, 1, PREFIX_PRIORITY, lleft},
     {"lessp", 2, 2, 2, PREFIX_PRIORITY, llessp},
     {"less?", 2, 2, 2, PREFIX_PRIORITY, llessp},
+    {"lessequalp", 2, 2, 2, PREFIX_PRIORITY, llessequalp},
+    {"lessequal?", 2, 2, 2, PREFIX_PRIORITY, llessequalp},
     {"list", 0, 2, -1, PREFIX_PRIORITY, llist},
     {"listp", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"listtoarray", 1, 1, 2, PREFIX_PRIORITY, llisttoarray},
@@ -187,6 +212,9 @@ PRIMTYPE prims[] = {
     {"loadpict", 1, 1, 1, PREFIX_PRIORITY, lloadpict},
     {"local", 1, 1, -1, PREFIX_PRIORITY, llocal},
     {"log10", 1, 1, 1, PREFIX_PRIORITY, llog10},
+#ifdef OBJECTS
+    {"logo", 0, 0, 0, PREFIX_PRIORITY, llogo},
+#endif
     {"lowercase", 1, 1, 1, PREFIX_PRIORITY, llowercase},
     {"lput", 2, 2, 2, PREFIX_PRIORITY, llput},
     {"lshift", 2, 2, 2, PREFIX_PRIORITY, llshift},
@@ -194,12 +222,21 @@ PRIMTYPE prims[] = {
     {"macrop", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"macro?", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"make", 2, 2, 2, PREFIX_PRIORITY, lmake},
+#if defined(WIN32)
+    {"maximize.window", 1, 1, 1, PREFIX_PRIORITY, maximize},
+#endif
     {"member", 2, 2, 2, PREFIX_PRIORITY, lmember},
     {"memberp", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"member?", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"minus", 1, 1, 1, PREFIX_PRIORITY, lsub},
     {"modulo", 2, 2, 2, PREFIX_PRIORITY, lmodulo},
     {"mousepos", 0, 0, 0, PREFIX_PRIORITY, lmousepos},
+#ifdef OBJECTS
+    {"mynamep", 1, 1, 1, PREFIX_PRIORITY, lmynamep},
+    {"mynames", 0, 0, 0, PREFIX_PRIORITY, lmynames},
+    {"myprocp", 1, 1, 1, PREFIX_PRIORITY, lmyprocp},
+    {"myprocs", 0, 0, 0, PREFIX_PRIORITY, lmyprocs},
+#endif
     {"namep", 1, 1, 1, PREFIX_PRIORITY, lnamep},
     {"name?", 1, 1, 1, PREFIX_PRIORITY, lnamep},
     {"names", 0, 0, 0, PREFIX_PRIORITY, lnames},
@@ -207,8 +244,13 @@ PRIMTYPE prims[] = {
     {"nodribble", 0, 0, 0, PREFIX_PRIORITY, lnodribble},
     {"norefresh", 0, 0, 0, PREFIX_PRIORITY, lnorefresh},
     {"not", 1, 1, 1, PREFIX_PRIORITY, lnot},
+    {"notequalp", 2, 2, 2, PREFIX_PRIORITY, lnotequalp},
+    {"notequal?", 2, 2, 2, PREFIX_PRIORITY, lnotequalp},
     {"numberp", 1, 1, 1, PREFIX_PRIORITY, lnumberp},
     {"number?", 1, 1, 1, PREFIX_PRIORITY, lnumberp},
+#ifdef OBJECTS
+    {"oneof", 1, 1, -1, MACRO_PRIORITY, loneof},
+#endif
     {"op", 1, 1, 1, OUTPUT_PRIORITY, loutput},
     {"openappend", 1, 1, 1, PREFIX_PRIORITY, lopenappend},
     {"openread", 1, 1, 1, PREFIX_PRIORITY, lopenread},
@@ -217,6 +259,9 @@ PRIMTYPE prims[] = {
     {"or", 0, 2, -1, PREFIX_PRIORITY, lor},
     {"output", 1, 1, 1, OUTPUT_PRIORITY, loutput},
     {"palette", 1, 1, 1, PREFIX_PRIORITY, lpalette},
+#ifdef OBJECTS
+    {"parents", 0, 0, 0, PREFIX_PRIORITY, lparents},
+#endif
     {"parse", 1, 1, 1, PREFIX_PRIORITY, lparse},
     {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},	       
     {"pc", 0, 0, 0, PREFIX_PRIORITY, lpencolor},
@@ -247,7 +292,9 @@ PRIMTYPE prims[] = {
     {"prefix", 0, 0, 0, PREFIX_PRIORITY, lprefix},
     {"primitivep", 1, 1, 1, PREFIX_PRIORITY, lprimitivep},
     {"primitive?", 1, 1, 1, PREFIX_PRIORITY, lprimitivep},
+    {"primitives", 0, 0, 0, PREFIX_PRIORITY, lprimitives},
     {"print", 0, 1, -1, PREFIX_PRIORITY, lprint},
+    {"printout", 1, 1, 1, PREFIX_PRIORITY, lpo},
     {"procedurep", 1, 1, 1, PREFIX_PRIORITY, lprocedurep},
     {"procedure?", 1, 1, 1, PREFIX_PRIORITY, lprocedurep},
     {"procedures", 0, 0, 0, PREFIX_PRIORITY, lprocedures},
@@ -258,7 +305,7 @@ PRIMTYPE prims[] = {
     {"radarctan", 1, 1, 2, PREFIX_PRIORITY, lradatan},
     {"radcos", 1, 1, 1, PREFIX_PRIORITY, lradcos},
     {"radsin", 1, 1, 1, PREFIX_PRIORITY, lradsin},
-    {"random", 1, 1, 1, PREFIX_PRIORITY, lrandom},
+    {"random", 1, 1, 2, PREFIX_PRIORITY, lrandom},
     {"rawascii", 1, 1, 1, PREFIX_PRIORITY, lrawascii},
     {"rc", 0, 0, 0, PREFIX_PRIORITY, lreadchar},
     {"rcs", 1, 1, 1, PREFIX_PRIORITY, lreadchars},
@@ -274,6 +321,9 @@ PRIMTYPE prims[] = {
     {"remprop", 2, 2, 2, PREFIX_PRIORITY, lremprop},
     {"repcount", 0, 0, 0, PREFIX_PRIORITY, lrepcount},
     {"repeat", 2, 2, 2, MACRO_PRIORITY, lrepeat},
+#ifdef OBJECTS
+    {"representation", 0, 0, 0, PREFIX_PRIORITY, lrepresentation},
+#endif
     {"rerandom", 0, 0, 1, PREFIX_PRIORITY, lrerandom},
     {"right", 1, 1, 1, PREFIX_PRIORITY, lright},
     {"rl", 0, 0, 0, PREFIX_PRIORITY, lreadlist},
@@ -288,10 +338,14 @@ PRIMTYPE prims[] = {
     {"screenmode", 0, 0, 0, PREFIX_PRIORITY, lscreenmode},
     {"scrunch", 0, 0, 0, PREFIX_PRIORITY, lscrunch},
     {"se", 0, 2, -1, PREFIX_PRIORITY, lsentence},
+#ifdef OBJECTS
+    {"self", 0, 0, 0, PREFIX_PRIORITY, lself},
+#endif
     {"sentence", 0, 2, -1, PREFIX_PRIORITY, lsentence},
     {"setbg", 1, 1, 1, PREFIX_PRIORITY, lsetbackground},
     {"setbackground", 1, 1, 1, PREFIX_PRIORITY, lsetbackground},
     {"setcursor", 1, 1, 1, PREFIX_PRIORITY, lsetcursor},
+    {"setcslsloc", 1, 1, 1, PREFIX_PRIORITY, lsetcslsloc},
     {"seteditor", 1, 1, 1, PREFIX_PRIORITY, lseteditor},
     {"seth", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"setheading", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
@@ -325,6 +379,9 @@ PRIMTYPE prims[] = {
     {"shown?", 0, 0, 0, PREFIX_PRIORITY, lshownp},
     {"showturtle", 0, 0, 0, PREFIX_PRIORITY, lshowturtle},
     {"sin", 1, 1, 1, PREFIX_PRIORITY, lsin},
+#ifdef OBJECTS
+    {"something", 0, 0, 0, PREFIX_PRIORITY, lsomething},
+#endif
     {"splitscreen", 0, 0, 0, PREFIX_PRIORITY, lsplitscreen},
     {"sqrt", 1, 1, 1, PREFIX_PRIORITY, lsqrt},
     {"ss", 0, 0, 0, PREFIX_PRIORITY, lsplitscreen},
@@ -339,6 +396,9 @@ PRIMTYPE prims[] = {
     {"substring?", 2, 2, 2, PREFIX_PRIORITY, lsubstringp},
     {"sum", 0, 2, -1, PREFIX_PRIORITY, ladd},
     {"tag", 1, 1, 1, PREFIX_PRIORITY, ltag},
+#ifdef OBJECTS
+    {"talkto", 1, 1, 1, PREFIX_PRIORITY, ltalkto},
+#endif
     {"test", 1, 1, 1, PREFIX_PRIORITY, ltest},
     {"text", 1, 1, 1, PREFIX_PRIORITY, ltext},
     {"textscreen", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
@@ -426,6 +486,7 @@ void init(void) {
 
     logolib = getenv("LOGOLIB");
     helpfiles = getenv("LOGOHELP");
+    csls = getenv("CSLS");
     editor = getenv("EDITOR");
 #ifdef WIN32
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software", 0,
@@ -444,16 +505,25 @@ void init(void) {
 					    strcpy(logolib, buf);
 		    }
 		}
-	/*	helpfiles = getenv("LOGOLIB"); */
+	/*	helpfiles = getenv("LOGOHELP"); */
 		if (helpfiles == NULL) {
 		    bufsiz=200;
-		    if (RegQueryValueEx(regKey3, "LOGOHELP", NULL,
+		    if (RegQueryValueEx(regKey3, "HELPFILE", NULL,
 					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
 			helpfiles = malloc(bufsiz);
 			strcpy(helpfiles, buf);
 		    }
 		}
-	/*	editor = getenv("LOGOLIB"); */
+	/*	csls = getenv("CSLS"); */
+		if (csls == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "CSLS", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			csls = malloc(bufsiz);
+			strcpy(csls, buf);
+		    }
+		}
+	/*	editor = getenv("EDITOR"); */
 		if (editor == NULL) {
 		    bufsiz=200;
 		    if (RegQueryValueEx(regKey3, "EDITOR", NULL,
@@ -484,16 +554,25 @@ void init(void) {
 					    strcpy(logolib, buf);
 		    }
 		}
-	/*	helpfiles = getenv("LOGOLIB"); */
+	/*	helpfiles = getenv("LOGOHELP"); */
 		if (helpfiles == NULL) {
 		    bufsiz=200;
-		    if (RegQueryValueEx(regKey3, "LOGOHELP", NULL,
+		    if (RegQueryValueEx(regKey3, "HELPFILE", NULL,
 					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
 			helpfiles = malloc(bufsiz);
 			strcpy(helpfiles, buf);
 		    }
 		}
-	/*	editor = getenv("LOGOLIB"); */
+	/*	csls = getenv("CSLS"); */
+		if (csls == NULL) {
+		    bufsiz=200;
+		    if (RegQueryValueEx(regKey3, "CSLS", NULL,
+					NULL, buf, &bufsiz) == ERROR_SUCCESS) {
+			csls = malloc(bufsiz);
+			strcpy(csls, buf);
+		    }
+		}
+	/*	editor = getenv("EDITOR"); */
 		if (editor == NULL) {
 		    bufsiz=200;
 		    if (RegQueryValueEx(regKey3, "EDITOR", NULL,
@@ -511,7 +590,12 @@ void init(void) {
 #endif
     if (logolib == NULL) logolib = libloc;
     if (helpfiles == NULL) helpfiles = helploc;
+    if (csls == NULL) csls = cslsloc;
+#ifdef unix
+    if (editor == NULL) editor = "emacs";
+#else
     if (editor == NULL) editor = "jove";
+#endif
     editorname = strrchr(editor, (int)'/');
     if (editorname == NULL) editorname = strrchr(editor, (int)'\\');
 #ifdef WIN32
@@ -552,6 +636,8 @@ void init(void) {
 	setprocnode__caseobj(cnd, iproc);
 	if (nodetype(iproc) == MACRO)
 	    setflag__caseobj(cnd, PROC_MACRO);
+	if (prims[i].minargs < 0)
+	    setflag__caseobj(cnd, PROC_SPECFORM);
 	setflag__caseobj(cnd, PERMANENT);
 	i++;
     }
@@ -564,6 +650,7 @@ void init(void) {
     Redefp = intern_p(make_static_strnode("redefp"));
     Caseignoredp = intern_p(make_static_strnode("caseignoredp"));
     Erract = intern_p(make_static_strnode("erract"));
+    Buttonact = intern_p(make_static_strnode("buttonact"));
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
@@ -576,6 +663,9 @@ void init(void) {
     Dotsvalue = make_colon(car(Listvalue));
     Pause = intern_p(make_static_strnode("pause"));
     Startup = intern_p(make_static_strnode("startup"));
+    LogoVersion = intern_p(make_static_strnode("logoversion"));
+    LogoPlatform = intern_p(make_static_strnode("logoplatform"));
+    LogoLogo = intern_p(make_static_strnode("logo-logo"));
     the_generation = cons(NIL, NIL);
     Not_Enough_Node = cons(NIL, NIL);
 
@@ -620,12 +710,19 @@ void init(void) {
     setvalnode__caseobj(UseAlternateNames, False);
     setflag__caseobj(UseAlternateNames, VAL_BURIED);
 
+    setvalnode__caseobj(LogoPlatform, make_static_strnode(LogoPlatformName));
+    setflag__caseobj(LogoPlatform, VAL_BURIED);
+
     user_repcount = -1;
     ift_iff_flag = -1;
 
     num_saved_nodes = (NODE **)(&(val_status)) - (NODE **)(&(proc));
     Regs_Node = newnode(STACK);
     Regs_Node->n_car = (NODE *)&regs;
+
+#ifdef OBJECTS
+    obj_init();
+#endif
 
 /*  Uncomment these to print debugging messages right away! */
 /*

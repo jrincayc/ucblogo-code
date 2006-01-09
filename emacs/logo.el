@@ -1,6 +1,6 @@
 ;;; logo.el -- Major mode for editing Logo source code
 
-;; Copyright (C) 1998, 2000, 2001, 2003 by Hrvoje Blazevic 
+;; Copyright (C) 1998, 2000, 2001, 2003, 2004 by Hrvoje Blazevic 
 
 ;; Logo.el is free software distributed under the terms
 ;; of the GNU General Public License, version 2, or (at your option)
@@ -11,11 +11,11 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
-;; This is version 2.9.10 completed on 11th January 2003, with
+;; This is version 3.0 completed on 15th November 2004, with
 ;; bits and pieces lifted from scheme.el and cmuscheme.el .
 
 ;; For more information about logo mode , comments, or bug reports, 
-;; send e-mail to <hrvoje.blazevic@ri.tel.hr>
+;; send e-mail to <hrvoje@despammed.com>
 
 ;;; Commentary:
 
@@ -288,11 +288,16 @@
 (require 'timer)
 (require 'font-lock)
 (require 'letrec)
+(require 'thingatpt)
 
 ;;; code
 
 (and (< emacs-major-version 21)
      (defalias 'mapc 'mapcar))
+
+;; making sure that global .emacs setings do not interfere
+;; with logo-mode  syntax highlighting settings
+(global-font-lock-mode -1)
 
 ;;; ============= Syntax Stuff ==============
 
@@ -360,10 +365,12 @@
 
       ;; Special characters
       (modify-syntax-entry ?, "_  p")
-      (modify-syntax-entry ?\" "_  p")
+;;      (modify-syntax-entry ?\" "_  p")
+      (modify-syntax-entry ?\" "w   ")
 
       ;; Escape character
       (modify-syntax-entry ?\\ "\\   ")))
+
 
 ;;; ================ Abbreviation table ===============
 ;;;
@@ -468,6 +475,8 @@
 (defvar logo-novice-management t "Turn on disabling `dangerous' commands")
 (defvar logo-flash-on-movement t "Turn on parens matching on cursor movement")
 (defvar logo-lazy-lock-mode nil "Use standard font-lock as a default")
+(defvar logo-current-os-system 'undecided-unix
+  "Change this to 'DOS if not working on *nix system")
 
 ;; Pacifying the compiler
 (defvar font-lock-mode-maximum-decoration t)
@@ -531,18 +540,19 @@
 	    (setq font-lock-mode-maximum-decoration t)
 	    (setq font-lock-use-default-fonts nil)
 	    (setq font-lock-use-default-colors nil)
-	    (copy-face 'default 'font-lock-string-face)
-	    (set-face-foreground 'font-lock-string-face "Sienna")
+	    (copy-face 'bold 'font-lock-string-face)
+	    (set-face-foreground 'font-lock-string-face "RosyBrown")
 	    (copy-face 'italic 'font-lock-comment-face)
-	    (set-face-foreground 'font-lock-comment-face "Red")
+	    (set-face-foreground 'font-lock-comment-face "Firebrick")
 	    (copy-face 'bold 'font-lock-function-name-face)
 	    (set-face-foreground 'font-lock-function-name-face "MediumBlue")
 	    (copy-face 'bold 'font-lock-variable-name-face)
 	    (set-face-foreground 'font-lock-variable-name-face "SteelBlue")
 	    (copy-face 'bold 'font-lock-keyword-face)
-	    (set-face-foreground 'font-lock-keyword-face "MidnightBlue")
-	    (copy-face 'default 'font-lock-type-face)
-	    (set-face-foreground 'font-lock-type-face "DarkOliveGreen")
+	    (set-face-foreground 'font-lock-keyword-face "Purple")
+	    ;; used for quoted words -- just being lazy
+	    (copy-face 'bold 'font-lock-type-face)
+	    (set-face-foreground 'font-lock-type-face "MidnightBlue")
 	    (set-face-background 'region "LightCyan3")
 	    (set-face-foreground 'modeline "red")
 	    (set-face-background 'modeline "bisque"))
@@ -621,6 +631,8 @@
 (defvar logo-font-lock-keywords
   (list
    (cons "\\<:\\w+\\>" 'font-lock-variable-name-face)
+   ;; used for quoted words
+   (cons "\\<\"\\w+\\>" 'font-lock-type-face)
    (list logo-defun-lock-define 2 'font-lock-keyword-face 'append)
    (list logo-defun-lock-define 3 'font-lock-function-name-face 'append)
    (list logo-defun-lock-start 1 'font-lock-keyword-face 'append)
@@ -724,13 +736,16 @@ info file.")
   (add-hook 'kill-emacs-hook
 	    (lambda ()
 	      (or (not (file-readable-p logo-temp-file))
-		  (delete-file logo-temp-file))))
+		  (delete-file logo-temp-file))
+	      (or (not (file-readable-p logo-syntax-file))
+		  (delete-file logo-syntax-file))))
   (make-local-hook 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (setq logo-edit-buflist
 		    (delete (buffer-name)
 			    logo-edit-buflist)))))
+
 
 ;;; ================ Key definitions & menus =================
 
@@ -855,6 +870,17 @@ info file.")
   (define-key map [menu-bar logo-edit logo-indent-definition]
     '("Indent Definition" . logo-indent-definition))
 
+  (define-key map [menu-bar logo-edit separator-edit-3]
+    '("--"))
+  (define-key map [menu-bar logo-edit logo-remove-check]
+    '("Remove Syntax Check" . logo-remove-check))
+  (define-key map [menu-bar logo-edit logo-typo-region]
+    '("Syntax Check Region" . logo-typo-region)) 
+  (define-key map [menu-bar logo-edit logo-typo-buffer]
+    '("Syntax Check Buffer" . logo-typo-buffer)) 
+
+
+
   (unwind-protect
       (define-key map [menu-bar mule] (cons "Mule" logo-mode-mule-menu)))
   (unwind-protect
@@ -907,6 +933,43 @@ info file.")
 	     (file-readable-p (concat logo-tutorial-path "tutorial.lg"))       
 	     (equal major-mode 'logo-mode))))
 
+(setplist 'logo-typo-buffer
+	  '(menu-enable
+	    (let ((debug-buf
+		   (get-buffer (file-name-nondirectory logo-debug-file))))
+	      (and (not debug-buf)
+		   *logo-builtin-names*
+		   logo-syntax-highlight
+		   font-lock-fontified
+		   (get-buffer-process logo-buffer)
+		   (not logo-busy-p)))))
+
+(setplist 'logo-typo-region
+	  '(menu-enable
+	    (let ((debug-buf
+		   (get-buffer (file-name-nondirectory logo-debug-file))))
+	      (and (not debug-buf)
+		   *logo-builtin-names*
+		   logo-syntax-highlight
+		   font-lock-fontified
+		   (get-buffer-process logo-buffer)
+		   (not logo-busy-p)
+		   (mark)))))
+
+(setplist 'logo-remove-check
+	  '(menu-enable
+	    (let ((debug-buf
+		   (get-buffer (file-name-nondirectory logo-debug-file))))
+	      (and (not debug-buf)
+		   *logo-builtin-names*
+		   logo-syntax-highlight
+		   font-lock-fontified
+		   (get-buffer-process logo-buffer)
+		   (not logo-busy-p)))))
+
+(setplist 'logo-font-lock-mode
+	  '(menu-enable logo-syntax-highlight))
+
 (setplist 'logo-show-helpcontents
 	  '(menu-enable
 	    (and
@@ -914,15 +977,6 @@ info file.")
 	       (or (not helpcontents)
 		   (not (get-buffer-window helpcontents t))))
 	     (equal major-mode 'logo-mode))))
-
-(setplist 'logo-show-info
-	  '(menu-enable
-	    (and
-	     (let ((info-buf (get-buffer "*info*")))
-	       (or (not info-buf)
-		   (not (get-buffer-window info-buf t))))
-	     (or (equal major-mode 'logo-mode)
-		 (equal major-mode 'inferior-logo-mode)))))
 
 (setplist 'loops-show-info
 	  '(menu-enable
@@ -1025,6 +1079,7 @@ info file.")
 (put 'toggle-to-edit 'menu-enable t)
 (put 'toggle-to-logo 'menu-alias t)
 (put 'toggle-to-edit 'menu-alias t)
+
 
 ;;; ======================= Novice package =======================
 
@@ -1273,8 +1328,9 @@ Help for `procedure' is invoked by clicking mouse-3 on `procedure'
   (add-to-list 'logo-edit-buflist (buffer-name))
   (logo-dabbrev-setup)
   ;; Starting syntax highlighting
-  (and logo-syntax-highlight
-       (logo-font-lock-mode 1)))
+  (if logo-syntax-highlight
+      (logo-font-lock-mode 1)
+    (logo-font-lock-mode -1)))
 
 (defun logo-mode-on (&optional kill)
   "Changing buffer major mode to logo-mode, and inserting mode line."
@@ -1301,6 +1357,304 @@ There must be a better way to do this."
   (interactive)
   (font-lock-mode arg)
   (setq minor-mode-alist (delete '(font-lock-mode nil) minor-mode-alist)))
+
+
+
+;;; ================ Static Syntax Checker ====================
+;;
+;;; ===========================================================
+
+;; I case that word-at-point is not defined
+(defun word-at-point () (thing-at-point 'word))
+
+(defvar *logo-builtin-names* nil)
+(defvar *logo-user-names* nil)
+(defvar logo-names-file "ALL_NAMES")
+
+(defvar logo-skip-word-faces
+  '(font-lock-variable-name-face
+    font-lock-keyword-face
+    font-lock-function-name-face
+    font-lock-comment-face
+    font-lock-string-face))
+
+(defvar logo-syntax-file nil "Temporary file for logo contents output.")
+(if (not logo-syntax-file)
+    (setq logo-syntax-file
+	  (make-temp-name "/tmp/SYNTAX")))
+
+(defvar logo-report-string
+  "to logo.report.bound.procs :file_elisp_code [:copydef \"false] 1
+ ; Part of Emacs logo-mode
+ localmake \"printwidthlimit -1
+ localmake \"wr_elisp_code writer
+ openwrite :file_elisp_code
+ setwrite :file_elisp_code
+ (if :copydef [print sentence first buried procedures] [print procedures])
+ close :file_elisp_code
+ setwrite :wr_elisp_code
+end
+
+bury [[logo.report.bound.procs] [] []]")
+
+(defvar logo-alias-string
+  "to logo.report.aliases :file_elisp_code :ub_list
+ ; Part of Emacs logo-mode
+ localmake \"printwidthlimit -1
+ localmake \"wr_elisp_code writer
+ openwrite :file_elisp_code
+ setwrite :file_elisp_code
+ print remdup filter \"primitivep :ub_list
+ close :file_elisp_code
+ setwrite :wr_elisp_code
+end
+
+bury [[logo.report.aliases] [] []]")
+
+;;; =======================================================
+
+(defun logoize-buffer ()
+  ;; Logo specific word constituents
+  (modify-syntax-entry ?. "w   ")
+  (modify-syntax-entry ?? "w   ")
+  (modify-syntax-entry ?` "w   ")
+  (modify-syntax-entry ?_ "w   ")
+  ;; The rest is to handle names in CSLS match program
+  (modify-syntax-entry ?^ "w   ")
+  (modify-syntax-entry ?# "w   ")
+  (modify-syntax-entry ?@ "w   ")
+  (modify-syntax-entry ?& "w   ")
+  (modify-syntax-entry ?! "w   ")
+  (modify-syntax-entry ?' "w   "))
+
+(defun logo-typo-region (start end)
+  "Sends the contents of region to logo."
+  (interactive "r")
+  (logo-typo-check start end))
+
+(defun logo-typo-buffer ()
+  (interactive)
+  (logo-typo-check (point-min) (point-max)))
+  
+(defun logo-typo-check (start end)
+  "Statically check edit buffer for typos -- only procedure names"
+  (save-excursion
+    (logo-remove-check)
+    (logo-add-nl)
+    (goto-char start)
+    (let ((old-buff (current-buffer))
+	  (copydef (logo-copydefp))
+	  (unknown nil))
+      (set-buffer (get-buffer-create "static-syntax-buf"))
+      ;; Logo specific word constituents
+      (logoize-buffer)
+      ;; reading Logo report file for unburied procedures
+      (logo-send-string
+       (if copydef
+	   (concat "( logo.report.bound.procs \""
+		   logo-syntax-file " \"true )")
+	 (concat "logo.report.bound.procs \"" logo-syntax-file)))
+      (with-timeout
+ 	  (3 (error "Logo did not write to %s file" logo-syntax-file))
+ 	(while (or (not (file-readable-p logo-syntax-file))
+ 		   logo-busy-p)
+ 	  (sleep-for 0.3)))
+      (insert-file-contents logo-syntax-file nil)
+      (setq *logo-user-names* (logo-static-read nil))
+      (kill-buffer "static-syntax-buf")
+      (set-buffer old-buff)
+      ;; check syntax
+      (goto-char start)
+      (logo-static-check end)
+      (if copydef
+	  (let ((aliases (logo-get-aliases unknown)))
+	    (if aliases 
+		(let ((*logo-user-names*
+ 		       (append aliases *logo-user-names*)))
+		  (set-buffer old-buff)
+ 		  (goto-char start)
+		  (logo-remove-check)
+		  (goto-char start)
+ 		  (logo-static-check end))))))))
+	    
+
+(defun logo-remove-check ()
+  (interactive)
+  (save-excursion
+    (let ((overlays (overlays-in (point-min) (point-max))))
+      (mapc '(lambda (x) (delete-overlay x)) overlays))))
+
+  
+(defun logo-static-initialize ()
+  "Initialize variables for syntax checking"
+  (set-buffer (get-buffer-create "static-syntax-buf"))
+  ;; setting up hash-table
+  (setq *logo-builtin-names*
+	(make-hash-table :test 'equal :size 512))
+  ;; reading ALL_NAMES file
+  (let ((standard-names
+	 (concat logo-help-path logo-names-file)))
+    (if (file-readable-p standard-names)
+	(insert-file-contents standard-names nil)
+      ;; not Logo 5.4
+      ;; reading HELPCONTENTS file
+      (insert-file-contents
+       (concat logo-help-path logo-helpcontents) nil)
+      ;; skip title
+      (skip-chars-forward "^\n")
+      (forward-word 1)))
+  ;; making sure map.se 'n such is read
+  ;; Logo specific word constituents
+  (modify-syntax-entry ?. "w   ")
+  (modify-syntax-entry ?? "w   ")
+  (mapc '(lambda (x) (puthash x t *logo-builtin-names*))
+ 	(logo-static-read nil)) 
+  ;; setup for reading user defined procedures and copydefs
+  (logo-send-file
+   nil nil
+   (concat logo-report-string "\n\n" logo-alias-string))
+  ;; cleanup
+  (kill-buffer "static-syntax-buf"))
+
+(defun logo-static-read (names)
+  (while (forward-word 1)
+    (push (word-at-point) names))
+  names)
+
+(defun logo-get-aliases (unknown)
+  (let* ((logo-str (mapconcat '(lambda (x) x) unknown " "))
+	 (alias-str
+	  (car (read-from-string (concat "\"[" logo-str "]\"")))))
+    (logo-send-string
+     (concat "logo.report.aliases \""
+	     logo-syntax-file " " alias-str))
+    (set-buffer (get-buffer-create "static-syntax-buf"))
+    ;; modify syntax to read Logo specific words
+    (logoize-buffer)
+    (with-timeout
+	(3 (error "Logo did not write to %s file" logo-syntax-file))
+      (while (or (not (file-readable-p logo-syntax-file))
+		 logo-busy-p)
+	(sleep-for 0.3)))
+    (insert-file-contents logo-syntax-file nil)
+    (prog1
+	(logo-static-read nil)
+      (kill-buffer "static-syntax-buf"))))
+
+(defun logo-static-check (end)
+  (while (not (>= (point) end))
+    (let ((token (thing-at-point 'word)))
+      (if token
+  	  (let ((face (get-text-property 0 'face token)))
+  	    (if face
+  		(progn
+  		  (if (listp face)
+ 		      (setq face (car face)))
+  		  (if (memq face logo-skip-word-faces)
+		      (forward-word 1)
+		    ;; quoted words
+		    (logo-check-syntax-quoted token)
+		    (forward-word 1)))
+	    ;; unfontified words
+	    (logo-check-syntax-unmarked token)
+	    (forward-word 1)))
+	(forward-word 1)))))
+
+(defun logo-check-syntax-quoted (name)
+  (let*((bound (logo-boundp (substring name 1)))
+	(limits (bounds-of-thing-at-point 'word))
+	(overlay (make-overlay (car limits) (cdr limits))))
+    (if (or bound
+	    (condition-case nil
+		(numberp (car (read-from-string name 1)))
+	      (error t))
+	    (save-excursion
+	      (forward-word -2)
+	      (not (logo-check-for-hof))))
+	(overlay-put overlay 'face '(:foreground "DarkOliveGreen"))
+      (push (substring name 1) unknown)
+      (overlay-put overlay 'face '(:foreground "red")))))
+
+(defun logo-check-for-hof ()
+  (let ((previous (thing-at-point 'word)))
+    (member previous '("apply" "invoke" "map" "map.se" "filter"
+		       "find" "reduce" "crossmap"
+		      "APPLY" "INVOKE" "MAP" "MAP.SE" "FILTER"
+		      "FIND" "REDUCE" "CROSSMAP"))))
+  
+(defun logo-check-syntax-unmarked (name)
+  (let*((bound (logo-boundp name))
+	(limits (bounds-of-thing-at-point 'word))
+	(overlay (make-overlay (car limits) (cdr limits))))
+    (if (or bound
+	    (condition-case nil
+		(numberp (car (read-from-string name)))
+	      (error t)))
+	(overlay-put overlay 'face '(:foreground "DarkOliveGreen"))
+      (let ((in-list (save-excursion (logo-in-list-p))))
+	(push name unknown)
+	(if in-list
+	    (progn
+	      (overlay-put overlay 'face '(:underline "red")))
+	  (overlay-put overlay 'face '(:foreground "red")))))))
+
+(defun logo-boundp (name)
+  (let ((lcase (downcase name)))
+    (and (or (string-equal (upcase lcase) name)
+	     (string-equal lcase name))
+	 (or
+	  (gethash lcase *logo-builtin-names*)
+	  (member lcase *logo-user-names*)))))
+
+(defun logo-copydefp ()
+  (let ((copydef
+	 (re-search-forward
+	  "\\(^[ \t]*\\|[\n \t[(]+\\)copydef[ \t]+" nil t)))
+    (if (and copydef
+	     (logo-in-string/comment-p copydef))
+	(logo-copydefp)
+      copydef)))
+
+(defun logo-in-string/comment-p (pos)
+  (goto-char pos)
+  (let ((face (get-text-property 0 'face (thing-at-point 'word))))
+    (and face
+	 (progn
+	   (if (listp face)
+	       (setq face (car face)))
+	   (memq face
+		 '(font-lock-comment-face
+		   font-lock-string-face))))))
+	
+(defun logo-in-list-p ()
+  "Is this word inside brackets"
+  (save-restriction
+    (condition-case nil
+	(let* ((start (point))
+	       ;; Limit search to the value of logo-unbalanced-distance
+	       ;; characters before the beginning of this word
+	       (search-limit (- start logo-unbalanced-distance)))
+	  (narrow-to-region
+	   (if (< search-limit (point-min))
+	       (point-min)
+	     ;; Make sure that search-limit is not in the middle of a comment
+	     (goto-char search-limit)
+	     (beginning-of-line)
+	     (point))
+	   start)
+	  (goto-char start)
+	  (let ((paren (progn (up-list -1) (following-char))))
+	    (while (char-equal paren ?\()
+	      (up-list -1)
+	      (setq paren (following-char))))
+	  (point))
+      (error nil))))
+
+(defun logo-add-nl ()
+  (goto-char (point-max))
+  (or (bolp)
+      (insert-char ?\n 1)))
+
 
 ;;; ================= Opening new edit frame ===================
 
@@ -1354,7 +1708,10 @@ if user did start Logo. If not, default to other frame."
   (setq logo-buffer nil)
   (setq logo-frames nil)
   (fset 'logo-switch-buffer 'switch-to-buffer)
-  (run-logo))
+  (run-logo)
+  ;; giving enough time to Logo
+  (sleep-for 0.5)
+  (logo-static-initialize))
 
 (defun run-logo-other-frame ()
   "Start process Logo in the second frame."
@@ -1362,7 +1719,10 @@ if user did start Logo. If not, default to other frame."
   (setq logo-buffer nil)
   (setq logo-frames t)
   (fset 'logo-switch-buffer 'pop-to-buffer)
-  (run-logo))
+  (run-logo)
+  ;; giving enough time to Logo
+  (sleep-for 0.5)
+  (logo-static-initialize))
 
 (defmacro logo-popup-frames (pred &rest subexprs)
   "Enable popping frames temporary."
@@ -2149,7 +2509,10 @@ number of bars before the end of string."
 		   "pr []\n"
 		   (or string
 		       (buffer-substring-no-properties start end))
-		   "\n")))
+		   "\n"))
+	;; making sure that Emacs does not use DOS coding
+	;; when writing string to a temporary file
+	(coding-system-for-write logo-current-os-system))
     (condition-case nil
 	(write-region contents t logo-temp-file nil 1)
       (error (error "Check write permission on %s file" logo-temp-file)))
@@ -3111,7 +3474,7 @@ command line back and forth."
 ;;; ===================== Key and menu maps ========================
 
 ;; pacifying compiler with emacs 20.2
-(defvar menu-bar-print-menu)
+;(defvar menu-bar-print-menu)
 
 (defvar inferior-logo-mode-map nil)
 
@@ -3121,11 +3484,15 @@ command line back and forth."
 
   ;; Restoring part of tools menu from global map
   (if (or (< emacs-major-version 20)
-	  (< emacs-minor-version 3))
+	  (and (= emacs-major-version 20)
+	       (< emacs-minor-version 3))
+	  (and (> emacs-major-version 20)
+	       (not (boundp 'menu-bar-print-menu))))
       nil
-    ;; Restore print menu only if version > 20.2
+    ;; Restore print menu only if version > 20.2 and  < 21.3
     (unwind-protect
 	(progn
+	  (prin1 emacs-major-version)
 	  (defvar logo-mode-print-menu (copy-keymap menu-bar-print-menu))
 	  (define-key inferior-logo-mode-map [menu-bar print]
 	    (cons "Print" logo-mode-print-menu)))))
@@ -3497,13 +3864,7 @@ The following commands are available:
     (sit-for .1)
     ;; Making sure that display is set the way Logo expects it!
     ;; Need one more to put 80 in one row
-    (set-frame-size frame
-		    (+ 1 process-term-columns)
-		    (+ 2 process-term-rows
-		       (if (and (fboundp 'tool-bar-mode)
-				tool-bar-mode)
-			   (tool-bar-lines-needed)
-			 0))))
+    (logo-frame-resize frame))
   ;; Overriding any user settings
   (setq transient-mark-mode nil)
   (setq truncate-lines nil)
@@ -3521,9 +3882,17 @@ The following commands are available:
 (defun logo-resize-frame ()
   "Resize the logo inferior buffer frame to requred size."
   (interactive)
-  (set-frame-size (selected-frame)
+  (logo-frame-resize (selected-frame)))
+
+(defun logo-frame-resize (frame)
+  "Resize the logo inferior buffer frame to requred size."
+  (set-frame-size frame
 		  (+ 1 process-term-columns)
-		  (+ 2 process-term-rows)))
+		  (+ 2 process-term-rows
+		     (if (and (fboundp 'tool-bar-mode)
+			      tool-bar-mode)
+			 (tool-bar-lines-needed)
+		       0))))
 
 (defun logo-load-init-file ()
   "Load .loops initialization file into Logo."
@@ -4180,8 +4549,9 @@ and sends the selected contents list to Logo.
 	    (list loops-show-string)))
   (set-syntax-table logo-mode-syntax-table)
   (logo-syntax-colors)
-  (and logo-syntax-highlight
-       (logo-font-lock-mode 1)))
+  (if logo-syntax-highlight
+      (logo-font-lock-mode 1)
+    (logo-font-lock-mode -1)))
 
 (defun loops-start-inspector ()
   "Opening LOOPS Inspector frame." 

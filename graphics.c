@@ -27,7 +27,9 @@
 /*   #include "globals.h"   has been moved further down */
 #include <math.h>
 
-#ifdef mac
+#ifdef HAVE_WX
+#include "wxGraphics.h"
+#elif defined(mac)
 #include "macterm.h"
 #elif defined(WIN32)
 #include "win32trm.h"
@@ -61,6 +63,7 @@
 #define SETPENPATTERN  8
 #define FILLERUP       9
 #define ARC	      10
+#define SETPENRGB     11
 
 /* NOTE: See the files (macterm.c and macterm.h) or (ibmterm.c and ibmterm.h)
    for examples of the functions and macros that this file assumes exist. */
@@ -68,6 +71,7 @@
 #define One (sizeof(int))
 #define Two (2*One)
 #define Three (3*One)
+#define Four (4*One)
 #define Big (sizeof(FLONUM))
 
 #define PENMODE_PAINT	0
@@ -88,6 +92,7 @@ int max_palette_slot = 0;
 
 char record[GR_SIZE];
 FIXNUM record_index = 0;
+int last_recorded = -1;
 pen_info orig_pen;
 
 BOOLEAN refresh_p = TRUE;
@@ -111,6 +116,8 @@ FLONUM cut_error(FLONUM n) {
 
 FIXNUM g_round(FLONUM n) {
     n += (n < 0.0 ? -0.5 : 0.5);
+    if ((n < 0.0 ? -n : n) > MAXLOGOINT)
+	err_logo(TURTLE_OUT_OF_BOUNDS, NIL);
     if (n < 0.0)
 	return((FIXNUM)ceil(n));
     return((FIXNUM)floor(n));
@@ -120,17 +127,22 @@ FIXNUM g_round(FLONUM n) {
 void draw_turtle_helper(void);
 void check_x_high(void);
 void check_x_low(void);
+void forward(FLONUM);
 
 void draw_turtle(void) {
-    unsigned int r=0, g=0, b=0, old_color=pen_color;
+    unsigned int r=0, g=0, b=0;
+    int old_color=pen_color;
+    int save_vis;
 
     if (!turtle_shown) return;
+    turtle_shown = 0;
     get_palette(pen_color, &r, &g, &b);
     if (r==0 && g==0 && b==0) {
-	turtle_shown = 0;
 	set_pen_color(7);
-	turtle_shown = 1;
     }
+    save_vis=pen_vis;
+    pen_vis = -1;
+    forward(-1);
     draw_turtle_helper();
     /* all that follows is for "turtle wrap" effect */
     if ((turtle_y > turtle_top_max - turtle_height) &&
@@ -153,6 +165,8 @@ void draw_turtle(void) {
     check_x_low();
     turtle_shown = 0;
     set_pen_color(old_color);
+    forward(1);
+    set_pen_vis(save_vis);
     turtle_shown = 1;
 }
 
@@ -248,10 +262,12 @@ void save_string(char *, int);
 void save_arc(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 
 void right(FLONUM a) {
+    prepare_to_draw;
     draw_turtle();
     turtle_heading += a;
     turtle_heading = pfmod(turtle_heading,360.0);
     draw_turtle();
+    done_drawing;
 }
 
 NODE *numeric_arg(NODE *args) {
@@ -341,6 +357,8 @@ wraploop:
 
     rx2 = g_round(x2);
     ry2 = g_round(y2);
+    
+    if (check_throwing) return;
 
     if (current_mode == windowmode ||
 	(rx2 >= screen_left && rx2 <= screen_right &&
@@ -563,6 +581,7 @@ NODE *lsetheading(NODE *arg) {
     
     val = numeric_arg(arg);
     if (NOT_THROWING) {
+	prepare_to_draw;
 	draw_turtle();
 	if (nodetype(val) == INT)
 	    turtle_heading = (FLONUM)getint(val);
@@ -570,6 +589,7 @@ NODE *lsetheading(NODE *arg) {
 	    turtle_heading = getfloat(val);
 	turtle_heading = pfmod(turtle_heading,360.0);
 	draw_turtle();
+	done_drawing;
     }
     return(UNBOUND);
 }
@@ -665,17 +685,25 @@ NODE *lscrunch(NODE *args) {
 }
 
 NODE *lhome(NODE *args) {
+    prepare_to_draw;
     out_of_bounds = FALSE;
     setpos_bynumber((FLONUM)0.0, (FLONUM)0.0);
     draw_turtle();
     turtle_heading = 0.0;
     draw_turtle();
+    done_drawing;
     return(UNBOUND);
 }
 
 void cs_helper(int centerp) {    
+#ifdef x_window
+    clearing_screen++;
+#endif
     prepare_to_draw;
     clear_screen;
+#ifdef x_window
+    clearing_screen==0;
+#endif
     if (centerp) {
 	wanna_x = wanna_y = turtle_x = turtle_y = turtle_heading = 0.0;
 	out_of_bounds = FALSE;
@@ -686,6 +714,7 @@ void cs_helper(int centerp) {
     p_info_x(orig_pen) = g_round(screen_x_coord);
     p_info_y(orig_pen) = g_round(screen_y_coord);
     record_index = 0;
+    last_recorded = -1;
     if (turtle_x != 0.0 || turtle_y != 0.0) save_move();
     if (pen_vis != 0) save_vis();
     if (internal_penmode != PENMODE_PAINT) save_mode();
@@ -736,8 +765,8 @@ void setpos_commonpart(FLONUM target_x, FLONUM target_y) {
 		    g_round(screen_y_coord));
 	    save_line();
 	}
-	done_drawing;
 	draw_turtle();
+	done_drawing;
     }
 }
 
@@ -747,6 +776,7 @@ void setpos_bynumber(FLONUM target_x, FLONUM target_y) {
 	draw_turtle();
 	move_to(g_round(screen_x_coord), g_round(screen_y_coord));
 	setpos_commonpart(target_x, target_y);
+	done_drawing;
     }
 }
 
@@ -766,6 +796,7 @@ void setpos_helper(NODE *xnode, NODE *ynode) {
 		((nodetype(ynode) == FLOATT) ? getfloat(ynode) :
 		 (FLONUM)getint(ynode)));
 	setpos_commonpart(target_x, target_y);
+	done_drawing;
     }
 }
 
@@ -810,6 +841,7 @@ NODE *lsety(NODE *args) {
 }
 
 NODE *lwrap(NODE *args) {
+    prepare_to_draw;
     draw_turtle();
     current_mode = wrapmode;
     while (turtle_x > turtle_right_max) {
@@ -826,21 +858,26 @@ NODE *lwrap(NODE *args) {
     }
     move_to(screen_x_coord, screen_y_coord);
     draw_turtle();
+    done_drawing;
     return(UNBOUND);
 }
 
 NODE *lfence(NODE *args) {
     (void)lwrap(args);	    /* get turtle inside the fence */
+    prepare_to_draw;
     draw_turtle();
     current_mode = fencemode;
     draw_turtle();
+    done_drawing;
     return(UNBOUND);
 }
 
 NODE *lwindow(NODE *args) {
+    prepare_to_draw;
     draw_turtle();
     current_mode = windowmode;
     draw_turtle();
+    done_drawing;
     return(UNBOUND);
 }
 
@@ -851,16 +888,19 @@ NODE *lturtlemode(NODE *args) {
 	case fencemode: return(theName(Name_fence));
 	case windowmode: return(theName(Name_window));
     }
+    return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
 NODE *lfill(NODE *args) {
+    prepare_to_draw;
     draw_turtle();
     logofill();
     draw_turtle();
     if (safe_to_save()) {
-	record[record_index] = FILLERUP;
+	last_recorded = record[record_index] = FILLERUP;
 	record_index += One;
     }
+    done_drawing;
     return(UNBOUND);
 }
 
@@ -914,6 +954,7 @@ NODE *lscreenmode(NODE *args) {
 	case SCREEN_SPLIT: return(theName(Name_splitscreen));
 	case SCREEN_FULL: return(theName(Name_fullscreen));
     }
+    return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
 NODE *lpendownp(NODE *args) {
@@ -921,10 +962,12 @@ NODE *lpendownp(NODE *args) {
 }
 
 NODE *lpencolor(NODE *args) {
+    if (pen_color == -1) return lpalette(cons(make_intnode(-1),NIL));
     return(make_intnode((FIXNUM)pen_color));
 }
 
 NODE *lbackground(NODE *args) {
+    if (back_ground == -2) return lpalette(cons(make_intnode(-2),NIL));
     return(make_intnode((FIXNUM)back_ground));
 }
 
@@ -977,13 +1020,19 @@ NODE *lpenmode(NODE *args) {
 	case PENMODE_ERASE: return theName(Name_erase);
 	case PENMODE_REVERSE: return theName(Name_reverse);
     }
+    return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
 NODE *lsetpencolor(NODE *arg) {
-    NODE *val = pos_int_arg(arg);
+    NODE *val;
 
     if (NOT_THROWING) {
 	prepare_to_draw;
+	if (is_list(car(arg))) {
+	    val = make_intnode(-1);
+	    lsetpalette(cons(val,arg));
+	} else
+	    val = pos_int_arg(arg);
 	set_pen_color(getint(val));
 	save_color();
 	done_drawing;
@@ -992,10 +1041,15 @@ NODE *lsetpencolor(NODE *arg) {
 }
 
 NODE *lsetbackground(NODE *arg) {
-    NODE *val = pos_int_arg(arg);
+    NODE *val;
 
     if (NOT_THROWING) {
 	prepare_to_draw;
+	if (is_list(car(arg))) {
+	    val = make_intnode(-2);
+	    lsetpalette(cons(val,arg));
+	} else
+	    val = pos_int_arg(arg);
 	set_back_ground(getint(val));
 	done_drawing;
     }
@@ -1003,16 +1057,21 @@ NODE *lsetbackground(NODE *arg) {
 }
 
 NODE *lsetpalette(NODE *args) {
-	NODE *slot = pos_int_arg(args);
+	NODE *slot = integer_arg(args);
 	NODE *arg = rgb_arg(cdr(args));
 	int slotnum = (int)getint(slot);
 
-	if (NOT_THROWING && (slotnum > 7)) {
+	if (slotnum < -2) {
+	    err_logo(BAD_DATA_UNREC, slot);
+	} else if (NOT_THROWING && ((slotnum > 7) || (slotnum < 0))) {
 		prepare_to_draw;
 		set_palette(slotnum,
 			    (unsigned int)getint(car(arg)),
 			    (unsigned int)getint(cadr(arg)),
 			    (unsigned int)getint(car(cddr(arg))));
+		if (pen_color == slotnum) {
+		    set_pen_color(slotnum);
+		}
 		done_drawing;
 		if (slotnum > max_palette_slot) max_palette_slot = slotnum;
 	}
@@ -1020,16 +1079,17 @@ NODE *lsetpalette(NODE *args) {
 }
 
 NODE *lpalette(NODE *args) {
-	NODE *arg = pos_int_arg(args);
-	unsigned int r=0, g=0, b=0;
+    NODE *arg = integer_arg(args);
+    unsigned int r=0, g=0, b=0;
 
-	if (NOT_THROWING) {
-		get_palette((int)getint(arg), &r, &g, &b);
-		return cons(make_intnode((FIXNUM)r),
-					cons(make_intnode((FIXNUM)g),
-						 cons(make_intnode((FIXNUM)b), NIL)));
-	}
-	return UNBOUND;
+    if (getint(arg) < -2) err_logo(BAD_DATA_UNREC, arg);
+    if (NOT_THROWING) {
+	get_palette((int)getint(arg), &r, &g, &b);
+	return cons(make_intnode((FIXNUM)r),
+			cons(make_intnode((FIXNUM)g),
+				cons(make_intnode((FIXNUM)b), NIL)));
+    }
+    return UNBOUND;
 }
 
 void save_palette(FILE *fp) {
@@ -1054,12 +1114,19 @@ void restore_palette(FILE *fp) {
 }
 
 NODE *lsetpensize(NODE *args) {
-    NODE *arg = pos_int_vector_arg(args);
+    NODE *arg;
 
     if (NOT_THROWING) {
 	prepare_to_draw;
-	set_pen_width((int)getint(car(arg)));
-	set_pen_height((int)getint(cadr(arg)));
+	if (is_list(car(args))) {
+	    arg = pos_int_vector_arg(args);
+	    set_pen_width((int)getint(car(arg)));
+	    set_pen_height((int)getint(cadr(arg)));
+	} else {    /* 5.5 accept single number for [n n] */
+	    arg = pos_int_arg(args);
+	    set_pen_width((int)getint(arg));
+	    set_pen_height((int)getint(arg));
+	}
 	save_size();
 	done_drawing;
     }
@@ -1117,17 +1184,17 @@ NODE *lsetscrunch(NODE *args) {
 }
 
 NODE *lmousepos(NODE *args) {
-#ifdef WIN32 /* sowings */
-    return NIL;
-#else
     return(cons(make_intnode(mouse_x), cons(make_intnode(mouse_y), NIL)));
-#endif
 }
 
 NODE *lbuttonp(NODE *args) {
     if (button)
 	return(TrueName());
     return(FalseName());
+}
+
+NODE *lbutton(NODE *args) {
+    return(make_intnode(button));
 }
 
 NODE *ltone(NODE *args) {
@@ -1243,6 +1310,8 @@ NODE *larc(NODE *arg) {
 
 	/* calculate resolution parameters */
 
+	if (angle > 360.0) angle = 360.0+fmod(angle, 360.0);
+	if (angle < -360.0) angle = -(360.0+fmod(-angle, 360.0));
 	count = fabs(angle*radius/200.0);	/* 4.5 */
 	if (count == 0.0) count = 1.0;
 	delta = angle/count;
@@ -1310,32 +1379,32 @@ void save_lm_helper (void) {
 
 void save_line(void) {
     if (safe_to_save()) {
-	record[record_index] = LINEXY;
+	last_recorded = record[record_index] = LINEXY;
 	save_lm_helper();
     }
 }
 
 void save_move(void) {
     if (safe_to_save()) {
-	if (record_index >= Three && record[record_index - Three] == MOVEXY)
+	if (record_index >= Three && last_recorded == MOVEXY)
 	    record_index -= Three;
-	record[record_index] = MOVEXY;
+	last_recorded = record[record_index] = MOVEXY;
 	save_lm_helper();
     }
 }
 
 void save_vis(void) {
     if (safe_to_save()) {
-	record[record_index] = SETPENVIS;
-	record[record_index + 1] = (char)pen_vis;
+	last_recorded = record[record_index] = SETPENVIS;
+	record[record_index + 1] = pen_vis;
 	record_index += One;
     }
 }
 
 void save_mode(void) {
     if (safe_to_save()) {
-	record[record_index] = SETPENMODE;
-#ifdef x_window
+	last_recorded = record[record_index] = SETPENMODE;
+#if defined(x_window) && !HAVE_WX
 	*(GC *)(record + record_index + One) = pen_mode;
 #else
 	*(int *)(record + record_index + One) = pen_mode;
@@ -1347,16 +1416,27 @@ void save_mode(void) {
 }
 
 void save_color(void) {
+    int r,g,b;
+
     if (safe_to_save()) {
-	record[record_index] = SETPENCOLOR;
-	*(int *)(record + record_index + One) = pen_color;
-	record_index += Two;
+	if (pen_color == -1) {
+	    get_palette(pen_color, &r, &g, &b);
+	    last_recorded = record[record_index] = SETPENRGB;
+	    *(int *)(record + record_index + One) = r;
+	    *(int *)(record + record_index + Two) = g;
+	    *(int *)(record + record_index + Three) = b;
+	    record_index += Four;
+	} else {
+	    last_recorded = record[record_index] = SETPENCOLOR;
+	    *(int *)(record + record_index + One) = pen_color;
+	    record_index += Two;
+	}
     }
 }
 
 void save_size(void) {
     if (safe_to_save()) {
-	record[record_index] = SETPENSIZE;
+	last_recorded = record[record_index] = SETPENSIZE;
 	*(int *)(record + record_index + One) = pen_width;
 	*(int *)(record + record_index + Two) = pen_height;
 	record_index += Three;
@@ -1365,7 +1445,7 @@ void save_size(void) {
 
 void save_pattern(void) {
     if (safe_to_save()) {
-	record[record_index] = SETPENPATTERN;
+	last_recorded = record[record_index] = SETPENPATTERN;
 	get_pen_pattern(&record[record_index + One]);
 	record_index += One+8;
     }
@@ -1375,7 +1455,7 @@ void save_string(char *s, int len) {
     int count;
 
     if (safe_to_save()) {
-	record[record_index] = LABEL;
+	last_recorded = record[record_index] = LABEL;
 	record[record_index + One] = (unsigned char)len;
 	for (count = 0; count <= len; count++)
 	    record[record_index + One+1 + count] = s[count];
@@ -1387,7 +1467,7 @@ void save_string(char *s, int len) {
 void save_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,
 	      FLONUM tx, FLONUM ty, FLONUM angle, FLONUM thead) {
     if (safe_to_save()) {
-	record[record_index] = ARC;
+	last_recorded = record[record_index] = ARC;
 	*(FLONUM *)(record + record_index + Big) = count;
 	*(FLONUM *)(record + record_index + 2 * Big) = ang;
 	*(FLONUM *)(record + record_index + 3 * Big) = radius;
@@ -1426,6 +1506,7 @@ void redraw_graphics(void) {
 	return;
     }
 
+    prepare_to_draw;
     save_tx = turtle_x;
     save_ty = turtle_y;
     save_th = turtle_heading;
@@ -1480,7 +1561,7 @@ void redraw_graphics(void) {
 		r_index += One;
 		break;
 	    case (SETPENMODE) :
-#ifdef x_window
+#if defined(x_window) && !HAVE_WX
 		set_pen_mode(*(GC *)(record + r_index + One));
 #else
 		set_pen_mode(*(int *)(record + r_index + One));
@@ -1491,6 +1572,13 @@ void redraw_graphics(void) {
 	    case (SETPENCOLOR) :
 		set_pen_color((FIXNUM)(*(int *)(record + r_index + One)));
 		r_index += Two;
+		break;
+	    case (SETPENRGB) :
+		set_palette(-1, (*(int *)(record + r_index + One)),
+				(*(int *)(record + r_index + Two)),
+				(*(int *)(record + r_index + Three)));
+		set_pen_color((FIXNUM)(-1));
+		r_index += Four;
 		break;
 	    case (SETPENSIZE) :
 		set_pen_width(*(int *)(record + r_index + One));
@@ -1531,6 +1619,7 @@ void redraw_graphics(void) {
     turtle_y = save_ty;
     turtle_heading = save_th;
     draw_turtle();
+    done_drawing;
 }
 
 NODE *lsavepict(NODE *args) {
@@ -1590,6 +1679,7 @@ NODE *lloadpict(NODE *args) {
 		err_logo(FILE_ERROR,
 				 make_static_strnode("File bad format"));
 		record_index = 0;
+		last_recorded = -1;
 		lclose(args);
 		return UNBOUND;
 	}
@@ -1599,9 +1689,10 @@ NODE *lloadpict(NODE *args) {
 		cnt = fread(p, 1, want, fp);
 		if (ferror(fp) || cnt <= 0) {
 			record_index = 0;
+			last_recorded = -1;
 			done_drawing;
 			err_logo(FILE_ERROR,
-					 make_static_strnode("File bad format"));
+				  make_static_strnode("File bad format"));
 			lclose(args);
 			return UNBOUND;
 		}
@@ -1709,6 +1800,18 @@ NODE *lepspict(NODE *args) {
 		    rgbprint(fp, (*(int *)(record + r_index + One)));
 		    fprintf(fp, " setrgbcolor\n");
 		    r_index += Two;
+		    break;
+		case (SETPENRGB) :
+		    if (act) {
+			fprintf(fp, "stroke %d %d moveto\n", lastx, lasty);
+			act = 0;
+		    }
+		    set_palette(-1, (*(int *)(record + r_index + One)),
+				    (*(int *)(record + r_index + Two)),
+				    (*(int *)(record + r_index + Three)));
+		    rgbprint(fp, -1);
+		    fprintf(fp, " setrgbcolor\n");
+		    r_index += Four;
 		    break;
 		case (SETPENSIZE) :
 		    if (act) {

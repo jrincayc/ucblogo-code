@@ -22,6 +22,7 @@
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
+#include <ctype.h>
 
 NODE *the_generation;
 
@@ -94,7 +95,7 @@ void make_tree_from_body(NODE *body) {
     settype(body, TREE);
 }
 
-BOOLEAN tree_dk_how;
+NODE *tree_dk_how;
 
 /* Treeify a list of tokens (runparsed or not).
  */ 
@@ -107,12 +108,12 @@ void make_tree(NODE *list) {
 	(is_tree(list) && generation__tree(list) == the_generation))
 	    return;
     if (!runparsed(list)) make_runparse(list);
-    tree_dk_how = FALSE;
+    tree_dk_how = NIL;
     tree = paren_line(parsed__runparse(list));
     if (tree != NIL && tree != UNBOUND) {
 	settype(list, TREE);
 	settree__tree(list, tree);
-	if (tree_dk_how || stopping_flag==THROWING)
+	if (tree_dk_how != NIL || stopping_flag==THROWING)
 	    setgeneration__tree(list, UNBOUND);
     }
 }
@@ -147,6 +148,45 @@ int is_setter(NODE *name) {
     return !low_strncmp(getstrptr(string), "set", 3);
 }
 
+/* Check for FD100, give warning, insert space */
+
+NODE *missing_alphabetic, *missing_numeric;
+
+int missing_space(NODE *name) {
+    NODE *str = strnode__caseobj(name);
+    char *s = getstrptr(str);
+    FIXNUM len = getstrlen(str);
+    char *t;
+    char ch;
+    char alpha[100], numer[100];
+    int i;
+    NODE *first;
+
+    t = s+len-1;
+    ch = *t;
+    if (!isdigit(ch)) return 0;
+    i = 1;
+    while ((t>s) && (isdigit(*--t))) i++;
+    if (t<=s) return 0;
+    strncpy(numer,t+1,i);
+    numer[i] = '\0';
+    strncpy(alpha,s,len-i);
+    alpha[len-i] = '\0';
+    first = intern(make_strnode(alpha, 0, len-i, STRING, strnzcpy));
+    if (procnode__caseobj(first) == UNDEFINED && NOT_THROWING)
+	silent_load(first, NULL);    /* try ./<first>.lg */
+    if (procnode__caseobj(first) == UNDEFINED && NOT_THROWING)
+	silent_load(first, logolib); /* try <logolib>/<first> */
+    if (procnode__caseobj(first) == UNDEFINED) return 0;
+    missing_alphabetic = first;
+    missing_numeric = make_intnode(atoi(numer));
+    err_logo(MISSING_SPACE,
+	     cons_list(0, cons_list(0, missing_alphabetic, missing_numeric,
+				    END_OF_LIST),
+		          name, END_OF_LIST));
+    return 1;
+}
+
 /* Parenthesize an expression.  Set expr to the node after the first full
  * expression.
  */ 
@@ -170,7 +210,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    else if (car(*expr) != Right_Paren) {
 		int parens;
 
-		tree_dk_how=1;   /* throw the rest away */
+		tree_dk_how=UNBOUND;   /* throw the rest away */
 		for (parens = 0; *expr; pop(*expr)) {
 		    if (car(*expr) == Left_Paren)
 			parens++;
@@ -180,8 +220,9 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 			    break;
 			}
 		}
+		first = car(tree);
 		tree = cons(Not_Enough_Node, NIL);  /* tell eval */
-		err_logo(TOO_MUCH, NIL);
+		err_logo(TOO_MUCH, first);
 	    }
 	    else
 		pop(*expr);
@@ -202,14 +243,22 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		    silent_load(first, logolib); /* try <logolib>/<first> */
 	    pproc = procnode__caseobj(first);
 	    if (pproc == UNDEFINED) {
-		if (is_setter(first)) {
+		if (missing_space(first)) {
+		    push(missing_numeric, *expr);
+		    first = missing_alphabetic;
+		    pproc = procnode__caseobj(first);
+		    retval = gather_args(first, pproc, expr, inparen, ifnode);
+		    if (retval != UNBOUND) {
+			retval = cons(first, retval);
+		    }
+		} else if (is_setter(first)) {
 		    retval = gather_some_args(0, 1, expr, inparen, ifnode);
 		    if (retval != UNBOUND) {
 			retval = cons(first, retval);
 		    }
 		} else {
 		    retval = cons(first, NIL);
-		    tree_dk_how = TRUE;
+		    tree_dk_how = first;
 		}
 	    } else if (nodetype(pproc) == INFIX && NOT_THROWING) {
 		err_logo(NOT_ENOUGH, first);
@@ -239,7 +288,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 NODE *gather_args(NODE *newfun, NODE *pproc, NODE **args, BOOLEAN inparen,
 		  NODE **ifnode) {
     int min, max;
-    NODE *oldfun, *result;
+    NODE /* *oldfun, */ *result;
     
     if (nodetype(pproc) == CONS) {
 	min = (inparen ? getint(minargs__procnode(pproc))
@@ -249,11 +298,16 @@ NODE *gather_args(NODE *newfun, NODE *pproc, NODE **args, BOOLEAN inparen,
     } else { /* primitive */
 	min = (inparen ? getprimmin(pproc) : getprimdflt(pproc));
 	if (min < 0) {	    /* special form */
+	    result = *args;
+	    *args = NIL;
+	    return result;
+/*
 	    oldfun = fun;
 	    fun = newfun;
 	    result = (*getprimfun(pproc))(*args);
 	    fun = oldfun;
 	    return result;
+ */
 	}
     /* Kludge follows to allow EDIT and CO without input without paren */ 
 	if (getprimmin(pproc) == OK_NO_ARG) min = 0;

@@ -106,7 +106,7 @@ RETSIGTYPE logo_pause()
 #endif
 {
     if (inside_gc || in_eval_save) {
-	int_during_gc = -1;
+	int_during_gc = 2;
     } else {
 	charmode_off();
 	to_pending = 0;
@@ -122,13 +122,47 @@ RETSIGTYPE logo_pause()
     SIGRET
 }
 
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+RETSIGTYPE mouse_down(int sig)
+#else
+#define sig_arg 
+RETSIGTYPE mouse_down()
+#endif
+{
+    NODE *line;
+
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 3;
+    } else {
+	line = valnode__caseobj(Buttonact);
+	if (line != UNBOUND)
+	    eval_driver(line);
+    }
+    SIGRET
+}
+
+RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down};
+
+void delayed_int() {
+#ifdef SIG_TAKES_ARG
+    (void)(*intfuns[int_during_gc])(0);
+#else
+    (void)(*intfuns[int_during_gc])();
+#endif
+}
+
 #if defined(__RZTC__) && !defined(WIN32) /* sowings */
 void _far _cdecl do_ctrl_c(void) {
     ctrl_c_count++;
 }
 #endif
 
+#ifdef HAVE_WX
+int  start (int argc,char ** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
     NODE *exec_list = NIL;
 
 #ifdef SYMANTEC_C
@@ -143,8 +177,10 @@ int main(int argc, char *argv[]) {
 
     bottom_stack = &exec_list; /*GC*/
 
+#ifndef HAVE_WX
 #ifdef x_window
     x_window_init(argc, argv);
+#endif
 #endif
     (void)addseg();
     term_init();
@@ -174,11 +210,16 @@ int main(int argc, char *argv[]) {
 #endif
       {
 	lcleartext(NIL);
-	ndprintf(stdout, message_texts[WELCOME_TO], "5.3");
+	ndprintf(stdout, message_texts[WELCOME_TO], "5.5");
 	new_line(stdout);
       }
     }
 
+    setvalnode__caseobj(LogoVersion, make_floatnode(5.5));
+    setflag__caseobj(LogoVersion, VAL_BURIED);
+
+
+    silent_load(Startup, NULL); /* load startup.lg */
     argv++;
     while (--argc > 0 && NOT_THROWING) {
 	silent_load(NIL,*argv++);

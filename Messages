@@ -1,4 +1,4 @@
-; UCBLogo message file version 5.2
+; UCBLogo message file version 5.5
 ; Error messages -- position in this file corresponds to error number
 ; Lines starting with semicolon don't count in the line numbering
 ;  and may be added at will.
@@ -10,7 +10,7 @@ turtle out of bounds
 %p didn't output to %p
 not enough inputs to %p
 %p doesn't like %s as input
-too much inside ()'s
+too many inputs to %p
 You don't say what to do with %s
 too many ('s
 %s has no value
@@ -41,6 +41,11 @@ Logo: Out of Memory.
 END inside multi-line instruction
 Bad default expression for optional input: %s
 Can't use OUTPUT or STOP inside RUNRESULT
+Assuming you meant '%p', not %p
+I can't open file %p
+File %p already open
+File %p not open
+; Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 Thank you for using Logo.
 Have a nice day.
@@ -111,3 +116,13 @@ quotient
 equalp
 lessp
 greaterp
+lessequalp
+greaterequalp
+notequalp
+; Object stuff
+name
+class
+self
+licenseplate
+initlist
+exist

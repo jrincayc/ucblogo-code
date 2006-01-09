@@ -71,3 +71,9 @@
 
 /* Define if you have the termlib library (-ltermlib).  */
 #undef HAVE_LIBTERMLIB
+
+/* Define if you have X11.  */
+#undef HAVE_X11
+
+/* Define if you have the wx library.  */
+#undef HAVE_WX

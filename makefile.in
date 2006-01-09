@@ -5,6 +5,7 @@ LIBS  = @X_PRE_LIBS@ @X_LIBS@ @LIBS@ @X_EXTRA_LIBS@
 prefix = @prefix@
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
+MAKE = @MAKE@
 
 # LIBLOC      = `pwd`
 
@@ -18,7 +19,7 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 
 HDRS	= globals.h logo.h xgraphics.h
 
-all:	logo logolib helpfiles helpfiles/HELPCONTENTS # logo-mode
+all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS # make-docs logo-mode
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
@@ -33,10 +34,11 @@ tags:	$(SRCS)
 libloc.c:
 	echo 'char *libloc="'$(LIBLOC)'/logolib";' > libloc.c
 	echo 'char *helploc="'$(LIBLOC)'/helpfiles";' >> libloc.c
+	echo 'char *cslsloc="'$(LIBLOC)'/csls";' >> libloc.c
 	echo 'char *temploc="/tmp";' >> libloc.c
 	echo 'char *separator="/";' >> libloc.c
 
-logolib:	makelib Messages
+logolib/Messages:	makelib Messages
 	chmod +x makelib
 	./makelib
 	cp -f Messages logolib
@@ -60,6 +62,7 @@ ship:
 	rm -f config.h config.cache config.log config.status
 	rm -f makefile makehelp logo *.o libloc.c
 	cd emacs; $(MAKE) ship
+	cd docs; $(MAKE) ship
 
 install: all
 	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls; do [ -d $$d ] || mkdir -p $$d || exit 1; done
@@ -68,11 +71,12 @@ install: all
 	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
 	cp -f csls/* $(LIBLOC)/csls/.
 	# (cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
+	# (cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 #	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
 
 logo-mode: 
 	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE))
 #	@prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE)
 
-docs:
-	cd emacs; $(MAKE) docs
+make-docs:
+	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) $(MAKE) all)

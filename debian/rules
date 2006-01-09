@@ -18,7 +18,7 @@ clean:
 	# -rm -rf helpfiles
 	dh_clean
 
-binary-indep: checkroot build
+binary-indep: build
 # None
 	@echo 'No architecture independend package components.'; false
 
@@ -40,8 +40,8 @@ binary binary-arch: build
 	dh_installman ucblogo.1
 	ln -s ucblogo.1.gz debian/ucblogo/usr/share/man/man1/logo.1.gz
 
-	cp emacs/docs/*.pdf debian/ucblogo/usr/share/doc/ucblogo
-	cp emacs/docs/*.html debian/ucblogo/usr/share/doc/ucblogo/html
+	cp -a docs/html debian/ucblogo/usr/share/doc/ucblogo/html
+	cp docs/*.pdf debian/ucblogo/usr/share/doc/ucblogo
 
 	dh_installdocs README
 	cp usermanual debian/ucblogo/usr/share/doc/ucblogo/usermanual.txt
@@ -55,6 +55,4 @@ binary binary-arch: build
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-
-.PHONY: binary binary-arch binary-indep clean checkroot
 
