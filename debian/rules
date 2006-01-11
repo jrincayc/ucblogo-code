@@ -4,8 +4,8 @@
 
 build:
 	dh_testdir
-	./configure
-	$(MAKE) LIBLOC=/usr/share/ucblogo CFLAGS="-O2 -Wall -g"
+	./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib
+	$(MAKE) LIBLOC=/usr/share/ucblogo CFLAGS="-O2 -Wall -g" 
 	touch build
 
 clean:

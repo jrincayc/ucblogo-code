@@ -1,3 +1,9 @@
+ucblogo (5.5-2) unstable; urgency=low
+
+  * Fix detection of X11 at build time (closes: #347497)
+
+ -- Hamish Moffatt <hamish@debian.org>  Wed, 11 Jan 2006 15:25:31 +1100
+
 ucblogo (5.5-1) unstable; urgency=low
 
   * New upstream release
