@@ -1172,19 +1172,7 @@ extern "C" void wxSetInfo(int type, int val) {
 }
 
 extern "C" int wxGetInfo(int type) {
-    if (1 || drawToPrinter || drawToWindow)
-	return TurtleCanvas::getInfo(type);
-    else {
-	int data[2];
-	data[0] = type;
-	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
-	event.SetInt(GETINFO);
-	event.SetClientData((void *)data);
-	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
-	TurtleCanvas::WaitForEvent();
-	return data[1];
-    }
+    return TurtleCanvas::getInfo(type);
 }
 
 extern "C" void wxLabel(char * string) {
