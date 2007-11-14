@@ -1,0 +1,7 @@
+ARITY procedurename
+
+	outputs a list of three numbers: the minimum, default, and maximum
+	number of inputs for the procedure whose name is the input.  It is an
+	error if there is no such procedure.  A maximum of -1 means that the
+	number of inputs is unlimited.
+

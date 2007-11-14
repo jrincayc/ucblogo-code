@@ -1,0 +1,8 @@
+;;; -*- logo -*-
+
+to pen
+op (list (ifelse pendownp ["pendown] ["penup]) ~
+         penmode pensize pencolor penpattern)
+end
+
+bury [pen]

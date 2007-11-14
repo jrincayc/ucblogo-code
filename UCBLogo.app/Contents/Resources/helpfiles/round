@@ -1,0 +1,4 @@
+ROUND num
+
+	outputs the nearest integer to the input.
+

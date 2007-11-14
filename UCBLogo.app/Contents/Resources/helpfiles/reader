@@ -1,0 +1,5 @@
+READER
+
+	outputs the name of the current read stream file, or the empty list
+	if the read stream is the terminal.
+

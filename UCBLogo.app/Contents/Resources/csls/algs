@@ -1,0 +1,249 @@
+;;; Algorithms and Data Structures
+
+;; Local optimization of quadratic formula
+
+to quadratic :a :b :c
+localmake "root sqrt (:b * :b-4 * :a * :c)
+localmake "x1 (-:b+:root)/(2 * :a)
+localmake "x2 (-:b-:root)/(2 * :a)
+print (sentence [The solutions are] :x1 "and :x2)
+end
+
+;; Memoization of T function
+
+to t :n :k
+localmake "result gprop :n :k
+if not emptyp :result [output :result]
+make "result realt :n :k
+pprop :n :k :result
+output :result
+end
+
+to realt :n :k
+if equalp :k 0 [output 1]
+if equalp :n 0 [output 0]
+output (t :n :k-1) + (t :n-1 :k)
+end
+
+;; Speedup of Simplex function
+
+to simplex :buttons
+output 2 * first (cascade :buttons
+                          [fput (sumprods butfirst ?2 ?1) ?1] [1]
+                          [fput 1 nextrow ?2] [1 1])
+end
+
+to sumprods :a :b
+output reduce "sum (map "product :a :b)
+end
+
+to nextrow :combs
+if emptyp butfirst :combs [output :combs]
+output fput (sum first :combs first butfirst :combs) nextrow butfirst :combs
+end
+
+;; Sorting -- selection sort
+
+to ssort :list
+if emptyp :list [output []]
+output ssort1 (first :list) (butfirst :list) []
+end
+
+to ssort1 :min :in :out
+if emptyp :in [output fput :min ssort :out]
+if lessthanp :min (first :in) ~
+   [output ssort1 :min (butfirst :in) (fput first :in :out)]
+output ssort1 (first :in) (butfirst :in) (fput :min :out)
+end
+
+;; Sorting -- partition sort
+
+to psort :list
+if emptyp :list [output []]
+if emptyp butfirst :list [output :list]
+localmake "split ((first :list) + (last :list)) / 2
+if lessthanp first :list :split ~
+   [output psort1 :split (butfirst :list) (list first :list) []]
+output psort1 :split (butlast :list) (list last :list) []
+end
+
+to psort1 :split :in :low :high
+if emptyp :in [output sentence (psort :low) (psort :high)]
+if lessthanp first :in :split ~
+   [output psort1 :split (butfirst :in) (fput first :in :low) :high]
+output psort1 :split (butfirst :in) :low (fput first :in :high)
+end
+
+;; Sorting -- count comparisons
+
+to lessthanp :a :b
+if not namep "comparisons [make "comparisons 0]
+make "comparisons :comparisons+1
+output :a < :b
+end
+
+to howmany
+print :comparisons
+ern "comparisons
+end
+
+;; Abstract Data Type for Trees: Constructor
+
+to tree :datum :children
+output fput :datum :children
+end
+
+;; Tree ADT: Selectors
+
+to datum :node
+output first :node
+end
+
+to children :node
+output butfirst :node
+end
+
+;; Tree ADT: Mutator
+
+to addchild :tree :child
+.setbf :tree (fput :child butfirst :tree)
+end
+
+;; Tree ADT: other procedures
+
+to leaf :datum
+output tree :datum []
+end
+
+to leaves :leaves
+output map [leaf ?] :leaves
+end
+
+to leafp :node
+output emptyp children :node
+end
+
+;; The World tree
+
+to worldtree
+make "world ~
+     tree "world ~
+          (list (tree "France leaves [Paris Dijon Avignon])
+                (tree "China leaves [Beijing Shanghai Guangzhou Suzhou])
+                (tree [United States]
+                      (list (tree [New York]
+                                  leaves [[New York] Albany Rochester
+                                          Armonk] )
+                            (tree "Massachusetts
+                                  leaves [Boston Cambridge Sudbury
+                                          Maynard] )
+                            (tree "California
+                                  leaves [[San Francisco] Berkeley
+                                          [Palo Alto] Pasadena] )
+                            (tree "Washington
+                                  leaves [Seattle Olympia] ) ) )
+                (tree "Canada
+                      (list (tree "Ontario
+                                  leaves [Toronto Ottawa Windsor] )
+                            (tree "Quebec
+                                  leaves [Montreal Quebec Lachine] )
+                            (tree "Manitoba leaves [Winnipeg]) ) ) )
+end
+
+to locate :city
+output locate1 :city :world "false
+end
+
+to locate1 :city :subtree :wanttree
+if and :wanttree (equalp :city datum :subtree) [output :subtree]
+if leafp :subtree ~
+   [ifelse equalp :city datum :subtree
+           [output (list :city)]
+           [output []]]
+localmake "lower locate.in.forest :city (children :subtree) :wanttree
+if emptyp :lower [output []]
+output ifelse :wanttree [:lower] [fput (datum :subtree) :lower]
+end
+
+to locate.in.forest :city :forest :wanttree
+if emptyp :forest [output []]
+localmake "child locate1 :city first :forest :wanttree
+if not emptyp :child [output :child]
+output locate.in.forest :city butfirst :forest :wanttree
+end
+
+to cities :name
+output cities1 (finddatum :name :world)
+end
+
+to cities1 :subtree
+if leafp :subtree [output (list datum :subtree)]
+output map.se [cities1 ?] children :subtree
+end
+
+to finddatum :datum :tree
+output locate1 :name :tree "true
+end
+
+;; Area code/city pairs ADT
+
+to areacode :pair
+output first :pair
+end
+
+to city :pair
+output butfirst :pair
+end
+
+;; Area code linear search
+
+make "codelist [[202 Washington] [206 Seattle] [212 New York] [213 Los Angeles]
+                [215 Philadelphia] [303 Denver] [305 Miami] [313 Detroit]
+                [314 St. Louis] [401 Providence] [404 Atlanta] [408 Sunnyvale]
+                [414 Milwaukee] [415 San Francisco] [504 New Orleans]
+                [608 Madison] [612 St. Paul] [613 Kingston] [614 Columbus]
+                [615 Nashville] [617 Boston] [702 Las Vegas] [704 Charlotte]
+                [712 Sioux City] [714 Anaheim] [716 Rochester] [717 Scranton]
+                [801 Salt Lake City] [804 Newport News] [805 Ventura]
+                [808 Honolulu]]
+
+to listcity :code
+output city find [equalp :code areacode ?] :codelist
+end
+
+;; Area code binary tree search
+
+to balance :list
+if emptyp :list [output []]
+if emptyp butfirst :list [output leaf first :list]
+output balance1 (int (count :list)/2) :list []
+end
+
+to balance1 :count :in :out
+if equalp :count 0 ~
+   [output tree (first :in) (list balance reverse :out
+                                  balance butfirst :in)]
+output balance1 (:count-1) (butfirst :in) (fput first :in :out)
+end
+
+to treecity :code
+output city treecity1 :code :codetree
+end
+
+to treecity1 :code :tree
+if emptyp :tree [output [0 no city]]
+localmake "datum datum :tree
+if :code = areacode :datum [output :datum]
+if :code < areacode :datum [output treecity1 :code lowbranch :tree]
+output treecity1 :code highbranch :tree
+end
+
+to lowbranch :tree
+if leafp :tree [output []]
+output first children :tree
+end
+
+to highbranch :tree
+if leafp :tree [output []]
+output last children :tree
+end

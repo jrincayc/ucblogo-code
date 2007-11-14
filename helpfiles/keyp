@@ -1,0 +1,13 @@
+KEYP
+KEY?
+
+	predicate, outputs TRUE if there are characters waiting to be
+	read from the read stream.  If the read stream is a file, this
+	is equivalent to NOT EOFP.  If the read stream is the terminal,
+	then echoing is turned off and the terminal is set to CBREAK
+	(character at a time instead of line at a time) mode.  It
+	remains in this mode until some line-mode reading is requested
+	(e.g., READLIST).  The Unix operating system forgets about any
+	pending characters when it switches modes, so the first KEYP
+	invocation will always output FALSE.
+

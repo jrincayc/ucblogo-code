@@ -1,0 +1,6 @@
+PLISTS
+
+	outputs a contents list consisting of two empty lists (indicating
+	no procedures or variables) followed by a list of all unburied
+	nonempty property lists in the workspace.
+

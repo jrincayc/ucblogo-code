@@ -1,0 +1,4 @@
+RADCOS radians
+
+	outputs the cosine of its input, which is taken in radians.
+

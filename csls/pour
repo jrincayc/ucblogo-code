@@ -1,0 +1,130 @@
+;; Initialization
+
+to pour :sizes :goal
+local [oldstates pitchers won]
+make "oldstates (list all.empty :sizes)
+make "pitchers fput 0 (map [#] :sizes)
+make "won "false
+win breadth.first make.path [] all.empty :sizes
+end
+
+to all.empty :list
+output map [0] :list
+end
+
+;; Tree search
+
+to breadth.first :root
+op breadth.descend (list :root)
+end
+
+to breadth.descend :queue
+if emptyp :queue [output []]
+if :won [output last :queue]
+op breadth.descend sentence (butfirst :queue) ~
+                            (children first :queue)
+end
+
+;; Generate children
+
+to children :path
+output map.se [children1 :path ?] :pitchers
+end
+
+to children1 :path :from
+output map.se [child :path :from ?] :pitchers
+end
+
+to child :path :from :to
+local [state newstate]
+if :won [output []]
+if equalp :from :to [output []]
+make "state path.state :path
+if not riverp :from ~
+   [if equalp (water :from) 0 [output []]]
+if not riverp :to ~
+   [if equalp (water :to) (size :to) [output []]]
+make "newstate (newstate :state :from :to)
+if memberp :newstate :oldstates [output []]
+make "oldstates fput :newstate :oldstates
+if memberp :goal :newstate [make "won "true]
+output (list make.path (fput list :from :to path.moves :path) :newstate)
+end
+
+to newstate :state :from :to
+if riverp :to [output replace :state :from 0]
+if riverp :from [output replace :state :to (size :to)]
+if (water :from) < (room :to) ~
+   [output replace2 :state ~
+                    :from 0 ~
+                    :to ((water :from)+(water :to))]
+output replace2 :state ~
+                :from ((water :from)-(room :to)) ~
+                :to (size :to)
+end
+
+;; Printing the result
+
+to win :path
+if emptyp :path [print [Can't do it!] stop]
+foreach (reverse path.moves :path) "win1
+print sentence [Final quantities are] (path.state :path)
+end
+
+to win1 :move
+print (sentence [Pour from] (printform first :move)
+                [to] (printform last :move))
+end
+
+to printform :pitcher
+if riverp :pitcher [output "river]
+output size :pitcher
+end
+
+;; Path data abstraction
+
+to make.path :moves :state
+output fput :moves :state
+end
+
+to path.moves :path
+output first :path
+end
+
+to path.state :path
+output butfirst :path
+end
+
+;; Pitcher data abstraction
+
+to riverp :pitcher
+output equalp :pitcher 0
+end
+
+to size :pitcher
+output item :pitcher :sizes
+end
+
+to water :pitcher
+output item :pitcher :state
+end
+
+to room :pitcher
+output (size :pitcher)-(water :pitcher)
+end
+
+;; List processing utilities
+
+to replace :list :index :value
+if equalp :index 1 [output fput :value butfirst :list]
+output fput first :list (replace butfirst :list :index-1 :value)
+end
+
+to replace2 :list :index1 :value1 :index2 :value2
+if equalp :index1 1 ~
+   [output fput :value1 replace butfirst :list :index2-1 :value2]
+if equalp :index2 1 ~
+   [output fput :value2 replace butfirst :list :index1-1 :value1]
+output fput first :list ~
+            replace2 butfirst :list :index1-1 :value1 :index2-1 :value2
+end

@@ -1,0 +1,6 @@
+INVOKE template input					(library procedure)
+(INVOKE template input1 input2 ...)
+
+	command or operation.  Exactly like APPLY except that the inputs
+	are provided as separate expressions rather than in a list.
+

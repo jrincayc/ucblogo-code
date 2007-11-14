@@ -1,0 +1,6 @@
+TAG quoted.word
+
+	command.  Does nothing.  The input must be a literal word following
+	a quotation mark ("), not the result of a computation.  Tags are
+	used by the GOTO command.
+

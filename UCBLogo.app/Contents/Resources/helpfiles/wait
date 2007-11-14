@@ -1,0 +1,7 @@
+WAIT time
+
+	command.  Delays further execution for "time" 60ths of a second.
+	Also causes any buffered characters destined for the terminal to
+	be printed immediately.  WAIT 0 can be used to achieve this
+	buffer flushing without actually waiting.
+

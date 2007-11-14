@@ -1,0 +1,7 @@
+FENCE
+
+	tells the turtle to enter fence mode:  From now on, if the turtle
+	is asked to move past the boundary of the graphics window, it
+	will move as far as it can and then stop at the edge with an
+	"out of bounds" error message.  Compare WRAP and WINDOW.
+

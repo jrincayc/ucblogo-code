@@ -1,0 +1,17 @@
+EQUALP thing1 thing2
+EQUAL? thing1 thing2
+thing1 = thing2
+
+	outputs TRUE if the inputs are equal, FALSE otherwise.  Two numbers
+	are equal if they have the same numeric value.  Two non-numeric words
+	are equal if they contain the same characters in the same order.  If
+	there is a variable named CASEIGNOREDP whose value is TRUE, then an
+	upper case letter is considered the same as the corresponding lower
+	case letter.  (This is the case by default.)  Two lists are equal if
+	their members are equal.  An array is only equal to itself; two
+	separately created arrays are never equal even if their members are
+	equal.  (It is important to be able to know if two expressions have
+	the same array as their value because arrays are mutable; if, for
+	example, two variables have the same array as their values then
+	performing SETITEM on one of them will also change the other.)
+

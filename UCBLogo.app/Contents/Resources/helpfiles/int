@@ -1,0 +1,7 @@
+INT num
+
+	outputs its input with fractional part removed, i.e., an integer
+	with the same sign as the input, whose absolute value is the
+	largest integer less than or equal to the absolute value of
+	the input.
+

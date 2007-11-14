@@ -1,0 +1,8 @@
+BURY contentslist
+
+	command.  Buries the procedures, variables, and property lists
+	named in the input.  A buried item is not included in the lists
+	output by CONTENTS, PROCEDURES, VARIABLES, and PLISTS, but is
+	included in the list output by BURIED.  By implication, buried
+	things are not printed by POALL or saved by SAVE.
+

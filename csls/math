@@ -1,0 +1,315 @@
+;;; Logic problem inference system
+
+;; Establish categories
+
+to category :category.name :members
+print (list "category :category.name :members)
+if not namep "categories [make "categories []]
+make "categories lput :category.name :categories
+make :category.name :members
+foreach :members [pprop ? "category :category.name]
+end
+
+;; Verify and falsify matches
+
+to verify :a :b
+settruth :a :b "true
+end
+
+to falsify :a :b
+settruth :a :b "false
+end
+
+to settruth :a :b :truth.value
+if equalp (gprop :a "category) (gprop :b "category) [stop]
+localmake "oldvalue get :a :b
+if equalp :oldvalue :truth.value [stop]
+if equalp :oldvalue (not :truth.value) ~
+   [(throw "error (sentence [inconsistency in settruth]
+                            :a :b :truth.value))]
+print (list :a :b "-> :truth.value)
+store :a :b :truth.value
+settruth1 :a :b :truth.value
+settruth1 :b :a :truth.value
+if not emptyp :oldvalue ~
+   [foreach (filter [equalp first ? :truth.value] :oldvalue)
+            [apply "settruth butfirst ?]]
+end
+
+to settruth1 :a :b :truth.value
+apply (word "find not :truth.value) (list :a :b)
+foreach (gprop :a "true) [settruth ? :b :truth.value]
+if :truth.value [foreach (gprop :a "false) [falsify ? :b]
+                 pprop :a (gprop :b "category) :b]
+pprop :a :truth.value (fput :b gprop :a :truth.value)
+end
+
+to findfalse :a :b
+foreach (filter [not equalp get ? :b "true] peers :a) ~
+        [falsify ? :b]
+end
+
+to findtrue :a :b
+if equalp (count peers :a) (1+falses :a :b) ~
+   [verify (find [not equalp get ? :b "false] peers :a)
+           :b]
+end
+
+to falses :a :b
+output count filter [equalp "false get ? :b] peers :a
+end
+
+to peers :a
+output thing gprop :a "category
+end
+
+;; Common types of clues
+
+to differ :list
+print (list "differ :list)
+foreach :list [differ1 ? ?rest]
+end
+
+to differ1 :a :them
+foreach :them [falsify :a ?]
+end
+
+to justbefore :this :that :lineup
+falsify :this :that
+falsify :this last :lineup
+falsify :that first :lineup
+justbefore1 :this :that :lineup
+end
+
+to justbefore1 :this :that :slotlist
+if emptyp butfirst :slotlist [stop]
+equiv :this (first :slotlist) :that (first butfirst :slotlist)
+justbefore1 :this :that (butfirst :slotlist)
+end
+
+;; Remember conditional linkages
+
+to implies :who1 :what1 :truth1 :who2 :what2 :truth2
+implies1 :who1 :what1 :truth1 :who2 :what2 :truth2
+implies1 :who2 :what2 (not :truth2) :who1 :what1 (not :truth1)
+end
+
+to implies1 :who1 :what1 :truth1 :who2 :what2 :truth2
+localmake "old1 get :who1 :what1
+if equalp :old1 :truth1 [settruth :who2 :what2 :truth2  stop]
+if equalp :old1 (not :truth1) [stop]
+if memberp (list :truth1 :who2 :what2 (not :truth2)) :old1 ~
+   [settruth :who1 :what1 (not :truth1)  stop]
+if memberp (list :truth1 :what2 :who2 (not :truth2)) :old1 ~
+   [settruth :who1 :what1 (not :truth1)  stop]
+store :who1 :what1 ~
+      fput (list :truth1 :who2 :what2 :truth2) :old1
+end
+
+to equiv :who1 :what1 :who2 :what2
+implies :who1 :what1 "true :who2 :what2 "true
+implies :who2 :what2 "true :who1 :what1 "true
+end
+
+to xor :who1 :what1 :who2 :what2
+implies :who1 :what1 "true :who2 :what2 "false
+implies :who1 :what1 "false :who2 :what2 "true
+end
+
+;; Interface to property list mechanism
+
+to get :a :b
+output gprop :a :b
+end
+
+to store :a :b :val
+pprop :a :b :val
+pprop :b :a :val
+end
+
+;; Print the solution
+
+to solution
+foreach thing first :categories [solve1 ? butfirst :categories]
+end
+
+to solve1 :who :order
+type :who
+foreach :order [type "| |   type gprop :who ?]
+print []
+end
+
+;; Get rid of old problem data
+
+to cleanup
+if not namep "categories [stop]
+ern :categories
+ern "categories
+erpls
+end
+
+;; Anita Harnadek's problem
+
+to cub.reporter
+cleanup
+category "first [Jane Larry Opal Perry]
+category "last [Irving King Mendle Nathan]
+category "age [32 38 45 55]
+category "job [drafter pilot sergeant driver]
+differ [Jane King Larry Nathan]
+says "Jane "Irving 45
+says "King "Perry "driver
+says "Larry "sergeant 45
+says "Nathan "drafter 38
+differ [Mendle Jane Opal Nathan]
+says "Mendle "pilot "Larry
+says "Jane "pilot 45
+says "Opal 55 "driver
+says "Nathan 38 "driver
+print []
+solution
+end
+
+to says :who :what1 :what2
+print (list "says :who :what1 :what2)
+xor :who :what1 :who :what2
+end
+
+;; Diane Baldwin's problem
+
+to foote.family
+cleanup
+category "when [1st 2nd 3rd 4th 5th]
+category "name [Felix Fred Frank Francine Flo]
+category "street [Field Flag Fig Fork Frond]
+category "item [food film flashlight fan fiddle]
+category "position [1 2 3 4 5]
+print [Clue 1]
+justbefore "Flag "2nd :position
+justbefore "2nd "Fred :position
+print [Clue 2]
+male [film Fig 5th]
+print [Clue 3]
+justbefore "flashlight "Fork :position
+justbefore "Fork "1st :position
+female [1st]
+print [Clue 4]
+falsify "5th "Frond
+falsify "5th "fan
+print [Clue 5]
+justbefore "Francine "Frank :position
+justbefore "Francine "Frank :when
+print [Clue 6]
+female [3rd Flag]
+print [Clue 7]
+justbefore "fiddle "Frond :when
+justbefore "Flo "fiddle :when
+print []
+solution
+end
+
+to male :stuff
+differ sentence :stuff [Francine Flo]
+end
+
+to female :stuff
+differ sentence :stuff [Felix Fred Frank]
+end
+
+;;; Combinatorics toolkit
+
+to combs :list :howmany
+if equalp :howmany 0 [output [[]]]
+if equalp :howmany count :list [output (list :list)]
+output sentence (map [fput first :list ?]
+                     combs (butfirst :list) (:howmany-1)) ~
+      (combs (butfirst :list) :howmany)
+end
+
+to fact :n
+output cascade :n [# * ?] 1
+end
+
+to perms :n :r
+if equalp :r 0 [output 1]
+output :n * perms :n-1 :r-1
+end
+
+to choose :n :r
+output (perms :n :r)/(fact :r)
+end
+
+;; The socks problem
+
+to socks :list
+localmake "total combs (expand :list) 2
+localmake "matching filter [equalp first ? last ?] :total
+print (sentence [there are] count :total [possible pairs of socks.])
+print (sentence [of these,] count :matching [are matching pairs.])
+print sentence [probability of match =] ~
+      word (100 * (count :matching)/(count :total)) "%
+end
+
+to expand :list
+if emptyp :list [output []]
+if numberp first :list ~
+   [output cascade (first :list)
+                   [fput first butfirst :list ?]
+                   (expand butfirst butfirst :list)]
+output fput first :list expand butfirst :list
+end
+
+to socktest
+localmake "first pick [brown brown brown brown brown brown 
+                       blue blue blue blue]
+localmake "second ~
+          pick (ifelse equalp :first "brown ~
+                       [[brown brown brown brown brown
+                         blue blue blue blue]] ~
+                       [[brown brown brown brown brown brown
+                         blue blue blue]])
+output equalp :first :second
+end
+
+;; The Simplex lock problem
+
+to lock :buttons
+output cascade :buttons [? + lock1 :buttons #] 1
+end
+
+to lock1 :total :buttons
+localmake "perms perms :total :buttons
+output cascade (twoto (:buttons-1)) [? + lock2 :perms #-1 1] 0
+end
+
+to lock2 :perms :links :factor
+if equalp :links 0 [output :perms/(fact :factor)]
+if equalp (remainder :links 2) 0 ~
+   [output lock2 :perms/(fact :factor) :links/2 1]
+output lock2 :perms (:links-1)/2 :factor+1
+end
+
+to twoto :power
+output cascade :power [2 * ?] 1
+end
+
+to simplex :buttons
+output 2 * f :buttons
+end
+
+to f :n
+if equalp :n 0 [output 1]
+output cascade :n [? + ((choose :n (#-1)) * f (#-1))] 0
+end
+
+to simp :n
+output round (fact :n)/(power (ln 2) (:n+1))
+end
+
+;; The multinomial expansion problem
+
+to t :n :k
+if equalp :k 0 [output 1]
+if equalp :n 0 [output 0]
+output (t :n :k-1)+(t :n-1 :k)
+end

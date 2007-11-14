@@ -1,0 +1,10 @@
+QUOTIENT num1 num2
+(QUOTIENT num)
+num1 / num2
+
+	outputs the quotient of its inputs.  The quotient of two integers
+	is an integer if and only if the dividend is a multiple of the divisor.
+	(In other words, QUOTIENT 5 2 is 2.5, not 2, but QUOTIENT 4 2 is
+	2, not 2.0 -- it does the right thing.)  With a single input,
+	QUOTIENT outputs the reciprocal of the input.
+

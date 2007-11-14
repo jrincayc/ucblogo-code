@@ -1,0 +1,5 @@
+PROCEDUREP name
+PROCEDURE? name
+
+	outputs TRUE if the input is the name of a procedure.
+

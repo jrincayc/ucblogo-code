@@ -1,0 +1,7 @@
+DEQUEUE queuename					(library procedure)
+
+	outputs the least recently QUEUEd member of the queue that is the
+	value of the variable whose name is "queuename" and removes that
+	member from the queue.
+
+

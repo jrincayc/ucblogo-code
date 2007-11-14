@@ -1,0 +1,7 @@
+IFTRUE instructionlist
+IFT instructionlist
+
+	command.  Runs its input if the most recent TEST instruction had
+	a TRUE input.  The TEST must have been in the same procedure or a
+	superprocedure.
+

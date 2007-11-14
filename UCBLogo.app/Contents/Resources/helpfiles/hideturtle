@@ -1,0 +1,7 @@
+HIDETURTLE
+HT
+
+	makes the turtle invisible.  It's a good idea to do this while
+	you're in the middle of a complicated drawing, because hiding
+	the turtle speeds up the drawing substantially.
+

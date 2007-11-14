@@ -1,0 +1,9 @@
+BEFOREP word1 word2
+BEFORE? word1 word2
+
+	outputs TRUE if word1 comes before word2 in ASCII collating sequence
+	(for words of letters, in alphabetical order).  Case-sensitivity is
+	determined by the value of CASEIGNOREDP.  Note that if the inputs are
+	numbers, the result may not be the same as with LESSP; for example,
+	BEFOREP 3 12 is false because 3 collates after 1.
+

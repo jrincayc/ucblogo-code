@@ -1,0 +1,10 @@
+RADARCTAN num
+(RADARCTAN x y)
+
+	outputs the arctangent, in radians, of its input.  With two
+	inputs, outputs the arctangent of y/x, if x is nonzero, or
+	pi/2 or -pi/2 depending on the sign of y, if x is zero.
+
+	The expression 2*(RADARCTAN 0 1) can be used to get the
+	value of pi.
+

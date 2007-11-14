@@ -1,0 +1,10 @@
+;;; -*- logo -*-
+
+to dequeue :the.queue.name
+local "result
+make "result first thing :the.queue.name
+make :the.queue.name butfirst thing :the.queue.name
+output :result
+end
+
+bury "dequeue

@@ -1,0 +1,6 @@
+UNBURYONEDIT						(variable)
+
+	if TRUE, causes any procedure defined during EDIT or LOAD to be
+	unburied, so that it will be saved by a later SAVE.  Files that
+	want to define and bury procedures must do it in that order.
+

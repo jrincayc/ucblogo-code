@@ -1,0 +1,355 @@
+to crypto :text
+make "text map "uppercase :text
+make "fulltext :text
+make "moretext []
+make "textstack []
+if not procedurep "letterp [copydef "letterp "namep]
+forletters "A "Z "initvars
+make "maxcount 0
+initcount "single
+initcount "triple
+cleartext
+histogram :text
+redisplay "false
+if or guess.single guess.triple [showclear :text]
+parseloop
+end
+
+;; Initialization
+
+to initcount :type
+setlist. :type []
+setcount. :type 0
+end
+
+to initvars :letter
+setcnt :letter 0
+make :letter "| |
+setunbound :letter
+end
+
+;; Histogram
+
+to histogram :text
+foreach :text [localmake "word filter "letterp ?
+               foreach :word "histlet
+               prepare.guess :word]
+end
+
+to histlet :letter
+localmake "cnt 1+cnt :letter
+setcursor list (index :letter) (nonneg 24-:cnt)
+type :letter
+setcnt :letter :cnt
+if :maxcount < :cnt [make "maxcount :cnt]
+end
+
+;; Guessing letters
+
+to prepare.guess :word
+if equalp count :word 1 [tally "single :word]
+if equalp count :word 3 [tally "triple :word]
+end
+
+to tally :type :word
+localmake "countvar word :type :word
+if not memberp :word list. :type ~
+   [setlist. :type fput :word list. :type   make :countvar 0]
+localmake "count (thing :countvar)+1
+make :countvar :count
+if :count > (count. :type) ~
+   [setcount. :type :count   setmax. :type :word]
+end
+
+to guess.single
+if emptyp (list. "single) [output "false]
+if emptyp butfirst (list. "single) ~
+   [qbind first (list. "single) "A  output "true]
+qbind (max. "single) "A
+qbind (ifelse equalp first (list. "single) (max. "single)
+              [last (list. "single)]
+              [first (list. "single)]) ~
+      "I
+output "true
+end
+
+to guess.triple
+if emptyp (list. "triple) [output "false]
+if :maxcount < (3+cnt last (max. "triple))	 ~
+   [qbind first (max. "triple) "T
+    qbind first butfirst (max. "triple) "H
+    qbind last (max. "triple) "E
+    output "true]
+output "false
+end
+
+;; Keyboard commands
+
+to parseloop
+forever [parsekey uppercase readchar]
+end
+
+to parsekey :char
+if :char = "@ [fullclear stop]
+if :char = "+ [moretext stop]
+if :char = "- [lesstext stop]
+if not letterp :char [beep stop]
+bind :char uppercase readchar
+end
+
+;; Keeping track of guesses
+
+to bind :from :to
+if not equalp :to "| | [if not letterp :to [beep stop]
+                        if boundp :to [beep stop]]
+if letterp thing :from [dark thing :from]
+make :from :to
+fixtop :from
+if letterp :to [light :to]
+showclear :text
+end
+
+to qbind :from :to
+if letterp thing :from [stop]
+make :from :to
+fixtop :from
+light :to
+end
+
+;; Maintaining the display
+
+to redisplay :flag
+cleartext
+showtop
+alphabet
+showcode :text
+if :flag [showclear :text]
+end
+
+;; Top section of display (letter counts and guesses)
+
+to showtop
+setcursor [0 0]
+showrow "A "E
+showrow "F "J
+showrow "K "O
+showrow "P "T
+showrow "U "Y
+showrow "Z "Z
+end
+
+to showrow :from :to
+forletters :from :to [setposn ? cursor   onetop ?]
+print []
+end
+
+to onetop :letter
+localmake "count cnt :letter
+if :count = 0 [type word :letter "|      | stop]
+localmake "text (word :letter "- twocol :count "- thing :letter)
+ifelse :maxcount < :count+3 [invtype :text] [type :text]
+type "| |
+end
+
+to twocol :number
+if :number > 9 [output :number]
+output word 0 :number
+end
+
+to fixtop :letter
+setcursor posn :letter
+onetop :letter
+end
+
+;; Middle section of display (guessed cleartext letters)
+
+to alphabet
+setcursor [6 6]
+forletters "A "Z [ifelse boundp ? [invtype ?] [type ?]]
+end
+
+to light :letter
+setcursor list 6+(index :letter) 6
+invtype :letter
+setbound :letter
+end
+
+to dark :letter
+setcursor list 6+(index :letter) 6
+type :letter
+setunbound :letter
+end
+
+;; Bottom section of display (coded text)
+
+to showcode :text
+make "moretext []
+showcode1 8 0 :text
+end
+
+to showcode1 :row :col :text
+if emptyp :text [make "moretext [] stop]
+if :row > 22 [stop]
+if and equalp :row 16 equalp :col 0 [make "moretext :text]
+if (:col+count first :text) > 37 [showcode1 :row+2 0 :text stop]
+codeword :row :col first :text
+showcode1 :row (:col+1+count first :text) butfirst :text
+end
+
+to codeword :row :col :word
+setcursor list :col :row
+invtype :word
+end
+
+;; Bottom section of display (cleartext)
+
+to showclear :text
+showclear1 8 0 :text 2
+end
+
+to showclear1 :row :col :text :delta
+if emptyp :text [stop]
+if :row > 23 [stop]
+if keyp [stop]
+if (:col+count first :text) > 37 ~
+   [showclear1 :row+:delta 0 :text :delta stop]
+clearword :row :col first :text
+showclear1 :row (:col+1+count first :text) butfirst :text :delta
+end
+
+to clearword :row :col :word
+setcursor list :col :row+1
+foreach :word [ifelse letterp ? [type thing ?] [type ?]]
+end
+
+;; Windowing commands
+
+to fullclear
+cleartext
+showclear1 0 0 :fulltext 1
+print []
+invtype [type any char to redisplay]
+ignore readchar
+redisplay "true
+end
+
+to moretext
+if emptyp :moretext [beep stop]
+push "textstack :text
+make "text :moretext
+redisplay "true
+end
+
+to lesstext
+if emptyp :textstack [beep stop]
+make "text pop "textstack
+redisplay "true
+end
+
+;; Iteration tool for letters
+
+to forletters :from :to :action
+for [lettercode [ascii :from] [ascii :to]] ~
+    [apply :action (list char :lettercode)]
+end
+
+;; Data abstraction (constructors and selectors)
+
+to setbound :letter
+make word "bound :letter "true
+end
+
+to setunbound :letter
+make word "bound :letter "false
+end
+
+to boundp :letter
+output thing word "bound :letter
+end
+
+to setcnt :letter :thing
+make (word "cnt :letter) :thing
+end
+
+to cnt :letter
+output thing (word "cnt :letter)
+end
+
+to setposn :letter :thing
+make (word "posn :letter) :thing
+end
+
+to posn :letter
+output thing (word "posn :letter)
+end
+
+to setcount. :word :thing
+make (word "count. :word) :thing
+end
+
+to count. :word
+output thing (word "count. :word)
+end
+
+to setlist. :word :thing
+make (word "list. :word) :thing
+end
+
+to list. :word
+output thing (word "list. :word)
+end
+
+to setmax. :word :thing
+make (word "max. :word) :thing
+end
+
+to max. :word
+output thing (word "max. :word)
+end
+
+;; Miscellaneous helpers
+
+to index :letter
+output (ascii :letter)-(ascii "A)
+end
+
+to beep
+tone 440 15
+end
+
+to invtype :text
+type standout :text
+end
+
+to nonneg :number
+output ifelse :number < 0 [0] [:number]
+end
+
+;; Sample cryptograms
+
+make "cgram1 [Dzynufqyjulli, jpqhq ok yr hoxpj qnzeujory qceqwj xhrtoyx
+   zw oyjr u trhjptpolq trhln. oynqqn, rzh qceqkkogq eryeqhy tojp
+   whrvlqfk rd qnzeujory uj whqkqyj kofwli fquyk jpuj jpq |xhrty-zwk| nr
+   yrj pugq kzep u trhln. u nqeqyj qnzeujory uofk uj, whqwuhqk drh, u
+   frhq trhjptpolq dzjzhq, tojp u noddqhqyj erffzyoji kwohoj, noddqhqyj
+   reezwujoryk, uyn frhq hqul zjoloji jpuy ujjuoyoyx kjujzk uyn kuluhi.]
+
+make "cgram2 [Lvo vfkp lfzj md opaxflimn iz lm gitokflo fnp zlkonblvon f
+   hmalv'z inilifliuo, fnp fl lvo zfyo liyo lm zoo lm il lvfl vo jnmwz
+   wvfl iz noxozzfkh lm xmco wilv lvo mnbminb fxliuilioz fnp xaglako md
+   zmxiolh, zm lvfl viz inilifliuo xfn to kogoufnl. il iz ftzakp lm
+   lvinj lvfl lviz lfzj xfn to fxxmycgizvop th zm yaxv zillinb in f tms
+   dfxinb dkmnl, yfnicagflinb zhytmgz fl lvo pikoxlimn md pizlfnl
+   fpyinizlkflmkz. lviz iz kflvok f wfh lm kobiyonl fnp tkfinwfzv.]
+
+make "cgram3 [Pcodl hbdcx qxdrdlh yihcodr, hbd rzbiier gxd lih ziyqdhdlh
+   hi hdgzb gwhbdlhcz echdxgzf, xdgnclp gr g ydglr ia ecudxghcil gln
+   zwehcoghcil. gln c niwuh hbgh yirh ia wr jbi rdxciwref xdgn gln jxchd
+   hbd dlpecrb eglpwgpd dodx edgxldn ch uf hbd xiwhd ia "xwl, rqih, xwl"
+   hi rcegr ygxldx.]
+
+make "cgram4 [Jw btn xnsgsyp ejke gfebbcg, dtyjbn fbccsksg, ryu fbccsksg
+   nswcsfpsu pes usgjns, wnssuba, ryu wtptns bw pes qbtyk, pesns zbtcu
+   ls yb knrujyk, yb psgpjyk svfsxp rg r psrfejyk aspebu, ryu yb
+   lcrfilbrnu dtykcsg. jy wrfp, zs rns ksppjyk cbfigpsx gfesutcjyk ryu
+   knrujyk pb pes xbjyp bw pbnptns.]

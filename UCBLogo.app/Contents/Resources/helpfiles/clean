@@ -1,0 +1,6 @@
+CLEAN
+
+	erases all lines that the turtle has drawn on the graphics window.
+	The turtle's state (position, heading, pen mode, etc.) is not
+	changed.
+

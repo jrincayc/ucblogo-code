@@ -1,0 +1,63 @@
+program cards;
+ {Shuffle a deck of cards}
+
+var ranks:array [0..51] of integer;
+    suits:array [0..51] of char;
+    i:integer;
+
+procedure showdeck;
+ {Print the deck arrays}
+
+  begin {showdeck}
+    for i := 0 to 51 do
+      begin
+        if i mod 13 = 0 then writeln;
+        write(ranks[i]:3,suits[i]);
+      end;
+    writeln;
+    writeln
+  end; {showdeck}
+
+procedure deck;
+ {Create the deck in order}
+
+  var i,j:integer;
+      suitnames:packed array [0..3] of char;
+
+  begin {deck}
+    suitnames := 'HSDC';
+    for i := 0 to 12 do
+      for j := 0 to 3 do
+        begin
+          ranks[13*j+i] := i+1;
+          suits[13*j+i] := suitnames[j]
+        end;
+    writeln('The initial deck:');
+    showdeck
+  end; {deck}
+
+procedure shuffle;
+ {Shuffle the deck randomly}
+
+  var rank,i,j:integer;
+      suit:char;
+
+  begin {shuffle}
+    for i := 51 downto 1 do {For each card in the deck}
+      begin
+        j := random(i+1); {Pick a random card before it}
+        rank := ranks[i]; {Interchange ranks}
+        ranks[i] := ranks[j];
+        ranks[j] := rank;
+        suit := suits[i]; {Interchange suits}
+        suits[i] := suits[j];
+        suits[j] := suit
+      end;
+    writeln('The shuffled deck:');
+    showdeck
+  end; {shuffle}
+
+begin {main program}
+  deck;
+  shuffle
+end.

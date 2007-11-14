@@ -1,0 +1,12 @@
+EDITFILE filename
+
+	command.  Starts the Logo editor, like EDIT, but instead of editing
+	a temporary file it edits the file specified by the input.  When you
+	leave the editor, Logo reads the revised file, as for EDIT.
+	EDITFILE also remembers the filename, so that a subsequent EDIT
+	command with no input will re-edit the same file.
+
+	EDITFILE is intended as an alternative to LOAD and SAVE.  You can
+	maintain a workspace file yourself, controlling the order in which
+	definitions appear, maintaining comments in the file, and so on.
+

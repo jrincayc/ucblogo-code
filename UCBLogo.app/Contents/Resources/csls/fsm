@@ -1,0 +1,355 @@
+;;; Finite State Machine Interpreter (FSM)
+
+to game :which
+fsm thing word "mach :which
+end
+
+to fsm :machine
+cleartext
+setcursor [0 3]
+localmake "start startpart :machine
+localmake "moves movepart :machine
+localmake "accept acceptpart :machine
+fsm1 :start
+end
+
+to fsm1 :here
+ifelse memberp :here :accept [accept] [reject]
+fsm1 (fsmnext :here readchar)
+end
+
+to fsmnext :here :input
+blank
+if memberp :input (list char 13 char 10) ~
+   [print ifelse memberp :here :accept ["| ACCEPT|] ["| REJECT|]
+    output :start]
+type :input
+catch "error [output last find [fsmtest :here :input ?] :moves]
+output -1
+end
+
+to fsmtest :here :input :move
+output and (equalp :here arrowtail :move) (memberp :input arrowtext :move)
+end
+
+;; Display machine state
+
+to accept
+display "accept
+end
+
+to reject
+display "reject
+end
+
+to blank
+display "|      |
+end
+
+to display :text
+localmake "oldpos cursor
+setcursor [15 1]
+type :text
+setcursor :oldpos
+end
+
+;; Data abstraction for machines
+
+to startpart :machine
+output first :machine
+end
+
+to movepart :machine
+output first bf :machine
+end
+
+to acceptpart :machine
+output last :machine
+end
+
+to make.machine :start :moves :accept
+output (list :start :moves :accept)
+end
+
+;; Data abstraction for arrows
+
+to arrowtail :arrow
+output first :arrow
+end
+
+to arrowtext :arrow
+output first butfirst :arrow
+end
+
+to arrowhead :arrow
+output last :arrow
+end
+
+to make.arrow :tail :text :head
+output (list :tail :text :head)
+end
+
+;; Machine descriptions for the guessing game
+
+make "mach1 [1 [[1 AB 1]] [1]]
+make "mach2 [1 [[1 ABC 2] [2 ABC 1]] [1]]
+make "mach3 [1 [[1 A 2] [2 B 3] [3 ABC 3]] [3]]
+make "mach4 [1 [[1 A 2] [1 B 3] [1 C 4] [2 A 1] [3 B 1] [4 C 1]] [1]]
+make "mach5 [1 [[1 ABC 2] [2 B 1]] [1]]
+make "mach6 [1 [[1 A 2] [2 AB 2] [2 C 3] [3 AB 2] [3 C 3]] [3]]
+make "mach7 [1 [[1 AB 1] [1 C 2] [2 C 1]] [1]]
+make "mach8 [1 [[1 A 2] [1 BC 1] [2 A 1] [2 BC 2]] [1]]
+make "mach9 [1 [[1 AB 1] [1 C 2] [2 A 3] [2 B 1] [3 A 1]] [1]]
+make "mach10 [1 [[1 A 2] [1 BC 1] [2 A 2] [2 B 3] [2 C 1]
+                 [3 A 2] [3 B 1] [3 C 4] [4 A 2] [4 B 5] [4 C 1]
+                 [5 A 6] [5 BC 1] [6 ABC 6]]
+              [6]]
+
+
+;;; Regular Expression to FSM Translation (MACHINE)
+
+to machine :regexp
+localmake "nextstate 0
+output optimize determine nondet :regexp
+end
+
+;; First step: make a possibly nondeterministic machine
+
+to nondet :regexp
+if and (wordp :regexp) (equalp count :regexp 1) [output ndletter :regexp]
+if wordp :regexp [output ndor reduce "sentence :regexp]
+if equalp first :regexp "or [output ndor butfirst :regexp]
+if equalp first :regexp "* [output ndmany last :regexp]
+output ndconcat :regexp
+end
+
+;; Alphabet rule
+
+to ndletter :letter
+localmake "from newstate
+localmake "to newstate
+output make.machine :from (list (make.arrow :from :letter :to)) (list :to)
+end
+
+;; Concatenation rule
+
+to ndconcat :exprs
+output reduce "string (map "nondet :exprs)
+end
+
+to string :machine1 :machine2
+output (make.machine (startpart :machine1)
+                     (sentence (movepart :machine1)
+                               (splice acceptpart :machine1 :machine2)
+                               (movepart :machine2))
+                     (stringa (acceptpart :machine1)
+                              (startpart :machine2)
+                              (acceptpart :machine2)))
+end
+
+to stringa :accept1 :start2 :accept2
+if memberp :start2 :accept2 [output sentence :accept1 :accept2]
+output :accept2
+end
+
+;; Alternatives rule
+
+to ndor :exprs
+localmake "newstart newstate
+localmake "machines (map "nondet :exprs)
+localmake "accepts map.se "acceptpart :machines
+output (make.machine :newstart
+                     (sentence map.se "movepart :machines
+                               map.se "or.splice :machines)
+                     ifelse not emptyp find [memberp (startpart ?)
+                                                     (acceptpart ?)]
+                                            :machines
+                            [fput :newstart :accepts]
+                            [:accepts])
+end
+
+to or.splice :machine
+output map [newtail ? :newstart] (arrows.from.start :machine)
+end
+
+;; Repetition rule
+
+to ndmany :regexp
+localmake "machine nondet :regexp
+output (make.machine (startpart :machine)
+                     sentence (movepart :machine)
+                              (splice (acceptpart :machine) :machine)
+                     fput (startpart :machine) (acceptpart :machine))
+end
+
+;; Generate moves from a bunch of given states (:accepts) duplicating
+;; the moves from the start state of some machine (:machine).
+;; Used for concatenation rule to splice two formerly separate machines;
+;; used for repetition rule to "splice" a machine to itself.
+
+to splice :accepts :machine
+output map.se [copy.to.accepts ?] (arrows.from.start :machine)
+end
+
+to arrows.from.start :machine
+output filter [equalp startpart :machine arrowtail ?] movepart :machine
+end
+
+to copy.to.accepts :move
+output map [newtail :move ?] :accepts
+end
+
+to newtail :arrow :tail
+output make.arrow :tail (arrowtext :arrow) (arrowhead :arrow)
+end
+
+;; Make a new state number
+
+to newstate
+make "nextstate :nextstate+1
+output :nextstate
+end
+
+;; Second step: Turn nondeterministic FSM into a deterministic one
+;; Also eliminates "orphan" (unreachable) states.
+
+to determine :machine
+localmake "moves movepart :machine
+localmake "accepts acceptpart :machine
+localmake "states []
+localmake "join.state.list []
+localmake "newmoves nd.traverse (startpart :machine)
+output make.machine (startpart :machine) ~
+                    :newmoves ~
+                    filter [memberp ? :states] :accepts
+end
+
+to nd.traverse :state
+if memberp :state :states [output []]
+make "states fput :state :states
+localmake "newmoves (check.nd filter [equalp arrowtail ? :state] :moves)
+output sentence :newmoves map.se "nd.traverse (map "arrowhead :newmoves)
+end
+
+to check.nd :movelist
+if emptyp :movelist [output []]
+localmake "letter arrowtext first :movelist
+localmake "heads sort map "arrowhead ~
+                          filter [equalp :letter arrowtext ?] :movelist
+if emptyp butfirst :heads ~
+   [output fput first :movelist
+                check.nd filter [not equalp :letter arrowtext ?] :movelist]
+localmake "check.heads member :heads :join.state.list
+if not emptyp :check.heads ~
+   [output fput make.arrow :state :letter first butfirst :check.heads ~
+                check.nd filter [not equalp :letter arrowtext ?] :movelist]
+localmake "join.state newstate
+make "join.state.list fput :heads fput :join.state :join.state.list
+make "moves sentence :moves ~
+                     map [make.arrow :join.state arrowtext ? arrowhead ?] ~
+                         filter [memberp arrowtail ? :heads] :moves
+if not emptyp find [memberp ? :accepts] :heads ~
+   [make "accepts sentence :accepts :join.state]
+output fput make.arrow :state :letter :join.state ~
+            check.nd filter [not equalp :letter arrowtext ?] :movelist
+end
+
+to sort :list
+if emptyp :list [output []]
+output insert first :list sort butfirst :list
+end
+
+to insert :value :sorted
+if emptyp :sorted [output (list :value)]
+if :value = first :sorted [output :sorted]
+if :value < first :sorted [output fput :value :sorted]
+output fput first :sorted insert :value butfirst :sorted
+end
+
+;; Third step: Combine redundant states.
+;; Also combines arrows with same head and tail: [1 A 2] [1 B 2] -> [1 AB 2].
+
+to optimize :machine
+localmake "stubarray array :nextstate
+foreach (movepart :machine) "array.save
+localmake "states sort fput (startpart :machine) ~
+                            map "arrowhead movepart :machine
+localmake "start startpart :machine
+foreach reverse :states [optimize.state ? ?rest]
+output (make.machine :start
+                     map.se [fix.arrows ? item ? :stubarray] :states
+                     filter [memberp ? :states] acceptpart :machine)
+end
+
+to array.save :move
+setitem (arrowtail :move) :stubarray ~
+        stub.add (arrow.stub :move) (item (arrowtail :move) :stubarray)
+end
+
+to stub.add :stub :stublist
+if emptyp :stublist [output (list :stub)]
+if (stub.head :stub) < (stub.head first :stublist) ~
+   [output fput :stub :stublist]
+if (stub.head :stub) = (stub.head first :stublist) ~
+   [output fput make.stub letter.join (stub.text :stub)
+                                      (stub.text first :stublist)
+                          stub.head :stub
+                butfirst :stublist]
+output fput first :stublist (stub.add :stub butfirst :stublist)
+end
+
+to letter.join :this :those
+if emptyp :those [output :this]
+if beforep :this first :those [output word :this :those]
+output word (first :those) (letter.join :this butfirst :those)
+end
+
+to optimize.state :state :others
+localmake "candidates filter (ifelse memberp :state acceptpart :machine
+                                     [[memberp ? acceptpart :machine]]
+                                     [[not memberp ? acceptpart :machine]]) ~
+                             :others
+localmake "mymoves item :state :stubarray
+localmake "twin find [equalp (item ? :stubarray) :mymoves] :candidates
+if emptyp :twin [stop]
+make "states remove :state :states
+if equalp :start :state [make "start :twin]
+foreach :states ~
+        [setitem ? :stubarray 
+                 (cascade [emptyp ?2]
+                          [stub.add (change.head :state :twin first ?2) ?1]
+                          filter [not equalp stub.head ? :state] item ? :stubarray
+                          [butfirst ?2]
+                          filter [equalp stub.head ? :state] item ? :stubarray)]
+end
+
+to change.head :from :to :stub
+if not equalp (stub.head :stub) :from [output :stub]
+output list (stub.text :stub) :to
+end
+
+to fix.arrows :state :stublist
+output map [stub.arrow :state ?] :stublist
+end
+
+;; Data abstraction for "stub" arrow (no tail)
+
+to arrow.stub :arrow
+output butfirst :arrow
+end
+
+to make.stub :text :head
+output list :text :head
+end
+
+to stub.text :stub
+output first :stub
+end
+
+to stub.head :stub
+output last :stub
+end
+
+to stub.arrow :tail :stub
+output fput :tail :stub
+end

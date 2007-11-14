@@ -1,0 +1,5 @@
+CLOSEALL						(library procedure)
+
+	command.  Closes all open files.  Abbreviates
+	FOREACH ALLOPEN [CLOSE ?]
+

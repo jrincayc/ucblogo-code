@@ -1,0 +1,6 @@
+BITXOR num1 num2
+(BITXOR num1 num2 num3 ...)
+
+	outputs the bitwise EXCLUSIVE OR of its inputs, which must be
+	integers.
+

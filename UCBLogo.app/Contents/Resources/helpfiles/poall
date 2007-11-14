@@ -1,0 +1,5 @@
+POALL							(library procedure)
+
+	command.  Prints all unburied definitions in the workspace.
+	Abbreviates PO CONTENTS.
+

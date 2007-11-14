@@ -1,0 +1,6 @@
+ARC angle radius
+
+	draws an arc of a circle, with the turtle at the center, with the
+	specified radius, starting at the turtle's heading and extending
+	clockwise through the specified angle.  The turtle does not move.
+

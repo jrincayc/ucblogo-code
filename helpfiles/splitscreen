@@ -1,0 +1,8 @@
+SPLITSCREEN
+SS
+
+	rearranges the size and position of windows to allow some room for
+	text interaction while also keeping most of the graphics window
+	visible.  The details differ among machines.  Compare TEXTSCREEN
+	and FULLSCREEN.
+

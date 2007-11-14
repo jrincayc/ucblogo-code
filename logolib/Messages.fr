@@ -1,0 +1,110 @@
+; French version of Berkeley Logo messages file 5.5
+Logo : erreur interne fatale
+Plus assez de mémoire
+Débordement de pile
+Tortue en dehors des limites
+%p n'aime pas l'argument %s
+%p ne donne pas de valeur à %p
+Pas assez d'arguments pour %p
+%p n'aime pas l'argument %s
+Trop de choses entre les ( )
+Vous ne dites pas ce qu'il faut faire de %s
+Trop de '('
+%s n'a pas de valeur
+')' inattendue
+Je ne connais pas la procédure %p
+Pas de CATCH correspondant à l'étiquette (tag) %p
+%p est déjà définie
+Arrêt...
+Déjà en train d'appliquer DRIBBLE
+Erreur système de fichiers: %p
+Supposant que vous voulez dire SINON (IFELSE) et non SI (IF)
+%p masquée dans un appel de procédure
+Throw "Error
+%p est une primitive
+Impossible d'utiliser POUR (TO) dans une procédure
+Je ne connais pas la procédure %p
+%p sans TEST
+']' inattendu
+'}' inattendu
+Impossible d'initialiser le graphisme
+La macro retourne %s au lieu d'une liste
+Vous ne dites pas ce qu'il faut faire de %s
+Ne peux utiliser %p que dans une procédure
+APPLY n'accepte pas l'argument %s
+FIN (END) dans une instruction multi-ligne dans %p
+Plus de mémoire (fatal)
+%p
+FIN (END) dans une instruction multi-ligne
+Expression par défaut de l'argument optionnel erronée: %S
+Ne peux utiliser RETOURNE (OUTPUT) ou STOPPE (STOP) dans RUNRESULT
+Supposant que vous voulez dire '%p' et non %p
+Impossible d'ouvrir fichier %p
+Fichier %p déjà ouvert
+Fichier %p non ouvert
+Runlist %s a plus qu'une expression
+Merci d'utiliser Logo.
+Bonne journée!
+Désolé, pas de shell sur le Mac.
+Tapez EXIT pour revenir à Logo
+dans %s\n%s
+ERRACT boucle
+Pause...
+arrête
+sort
+Fichier non trouvé: %t\n
+KEYP impossible, pas de FIONREAD sur ce système
+Mémoire insuffisante
+Impossible d'ouvrir ce fichier
+Fichier déjà ouvert
+Fichier non ouvert
+Pprop
+Bienvenue dans Berkeley Logo version %t
+Vous devez être dans une procédure pour utiliser RETOURNE (OUTPUT) ou STOPPE (STOP)
+Attention: mémoire insuffisante pour lancer le ramasse-miette
+Ramasse-miette désactivé - Enregistrez vos données et quittez!
+%s définie\n
+Faire %s %s
+pour %p\nfin\n\n
+Plist %s = %s\n
+Aide indisponible.\n
+Pas d'aide disponible pour %p.\n
+--plus--
+vrai
+faux
+fin
+retourne
+stoppe
+goto
+étiquette
+si
+sinon
+pour
+.macro
+toplevel
+system
+error
+rien
+; Outputs from SCREENMODE
+textscreen
+splitscreen
+fullscreen
+; Outputs from PENMODE
+paint
+erase
+reverse
+; Outputs from TURTLEMODE
+wrap
+fence
+window
+; HELP turns infix operators +-*/=<> into these
+sum
+difference
+product
+quotient
+equalp
+lessp
+greaterp
+lessequalp
+greaterequalp
+notequalp

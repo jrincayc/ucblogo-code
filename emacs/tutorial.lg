@@ -1,0 +1,469 @@
+;; tutorial.lg --  TUTORIAL for logo-mode
+;;
+;; YOU SHOULD READ THE TEXT AND CARRY OUT THE ACTIONS INDICATED HEREIN
+;; ===================================================================
+;;
+;; First I'll assume that you have a 3 button mouse, and will call the
+;; buttons; mouse-1, mouse-2, and mouse-3 -- starting from left.
+;;
+;; Now click mouse-1 on the `Logo-start' menu (menu-bar top right),
+;; and choose `Run Logo Other Frame'. (If you have already started and
+;; tested ucblogo/logo-mode installation, then skip to TUTORIAL.)
+;;
+;; This should pop-up a new emacs frame with title *logo*, and Logo
+;; should greet you in it with:
+;;
+;;    Welcome to Berkeley Logo version 5.1 
+;;    ?
+;;
+;; If you can see this, then both Logo and emacs logo-mode, are probably
+;; properly installed. Let's test one more thing. Position the cursor on
+;; the line of Logo code (below) that starts with `ct repeat 120 [...'
+;; and hit C-x C-e (Control-x Control-e).
+
+ct repeat 120 [setcursor list random 75 random 23 type standout cursor]
+
+;; You should see 120 pairs of highlighted numbers appear scattered in
+;; *logo* frame. If there were no beeps and error messages, you have a
+;; working version of logo-mode. 
+;;
+;;
+;; T U T O R I A L
+;;
+;; You write logo programs in this window (frame), which I will refer to
+;; as edit buffer, to distinguish it from the other window which I will
+;; call logo buffer.
+;;
+;; Let's clean the logo buffer (from scattered numbers) first.  Move the
+;; focus to logo buffer (make it active), write ct (Logo command
+;; CLEARTEXT), and press Enter. Depending on the focus policy of your
+;; Window Manager (basically, there are two -- click-to-focus and
+;; focus-follows-pointer) you may have heard a beep when you wrote the
+;; first letter (c). Not to worry, this was just emacs telling you that
+;; you started writing out of Logo command line. The reason is that you
+;; had to click the window to give it focus, which also shifted the
+;; cursor away from Logo command line. (That's why I prefer focus follows
+;; pointer policy -- no clicking is necessary.) You can also return to
+;; Logo command line by pressing C-l (Control-l).
+;;
+;; Now we can start with one graphical example:
+;; Actually, you should be writing this, but I'll do it -- for now.
+
+to spiro :side :angle :step :limit
+if :side > :limit [stop]
+fd :side
+rt :angle
+spiro sum :side :step :angle :step :limit
+end
+
+;; Position the cursor (cursor is not the I beam showing current mouse
+;; position) somewhere on the definition of procedure spiro (above). It
+;; doesn't really matter where, as long as it is between the `t' (of
+;; `to') and the first empty line below 'end'. Now press C-M-x (left
+;; Control-Alt-x or Control-Meta-x). This will send the definition of
+;; procedure spiro to Logo, and Logo will acknowledge that by writing
+;; new prompt (? ) on a new line.
+;;
+;;; REMARK:
+;;; The key-chord C-M-x (Ctrl-Alt-x) will not always work, and as it is
+;;; the most frequently used keyboard shortcut (much faster than using
+;;; Send Definition from Logo-send menu), additional instructions are in
+;;; order. Some window managers (KDE 2.1 for instance) use this same
+;;; combination for their own purposes, and will therefore intercept this
+;;; key-chord. You can still use Esc C-x combination (Esc always works in
+;;; the place of Meta or Alt key), but this is much slower that C-M-x. The
+;;; only way to restore the functionality of C-M-x in logo mode is to
+;;; disable this key combination in the KDE Control Center.
+;;
+;; Then shift the focus to logo buffer and write (in logo buffer) this
+;; command:
+
+spiro 1 121 2 160   ;(and press Enter -- I will not repeat this again)
+
+;; Logo popped up a new window (black) where the turtle did it's thing.
+;;
+;; Then continue in logo buffer:
+;;
+;; setpc 4             (sets the pen color to red)
+;; spiro 1 91 2 160
+;;
+;; And now one important instruction -- say you would like to run spiro
+;; again, but with changed inputs:
+;;
+;; press (still in logo buffer) M-p (left Alt-p), and the last command
+;; you entered will appear (in this case `spiro 1 91 2 160'). (If you get
+;; an error message instead, then you are not on the command line -- just
+;; hit C-l and repeat M-p.) Then press again M-p (`setpc 4' will appear), and
+;; again. Now we have the command line we want (spiro 1 121 2 160). Place
+;; the cursor on `0' of `160' and change the command line into
+;; spiro 1 92 1 140 
+;;
+;; You can hit Enter anywhere on the command line (in this case if you
+;; edited the line backwards, you would end with cursor on `2'), and Logo
+;; will respond by drawing a new pattern in graphics window.
+;;
+;; Try to retrieve the `setpc 4' command by pressing M-p repeatedly. If you
+;; overshoot, you can also move back in command-line history with M-n
+;; (Alt-n). When you have found it, change the 4 to 7 and hit Enter on it to
+;; change the pen color back to white.
+;;
+;;
+;; Now, you should be ready to work on your own: 
+;; Try to write a procedure `triangle' (that draws a triangle) in the
+;; space below. (I have started it.)
+
+to triangle :side
+
+end
+
+;; When you have completed it, send it to Logo (C-M-x), and run it
+;; (from logo buffer) with -- say `triangle 120' .
+;;
+;; So far I have mostly explained how to send a procedure definition from
+;; edit buffer to Logo. Now we are going to look at some other
+;; possibilities.
+;;
+;; You can send from edit buffer command lines as well. Take a look at
+;; those instruction lines below.
+
+cs
+st
+repeat 4 [fd 100 rt 90]
+
+;; Place the cursor, and press C-x C-e on each one. Every time, when you
+;; sent the line, Logo responded with showing another prompt in logo
+;; buffer (? ), but also carrying out the instruction in graphics window.
+;; Therefore instead of a triangle (from the previous example) we see a
+;; square now.
+;;
+;; This is rather slow, so there is a faster way as well. We can send a
+;; whole region to Logo. First change slightly the repeat command. Change
+;; 100 into 50. Then place the cursor on the blank line above `cs' and
+;; drag mouse-1 to below `repeat 4 [fd 50 rt 90]'. This will highlight
+;; the region. Now press C-c r (or C-c C-r) and emacs will send the
+;; marked region to Logo. Logo will react by drawing a smaller square.
+;; However, note that sending commands are designed primarily to send
+;; procedure definitions to Logo. Giving Logo direct instructions is
+;; easier from logo buffer.
+;;
+;; There are several other commands for sending (communication with
+;; Logo). One of more important is `C-c b' or `C-c C-b', which sends the
+;; whole buffer. This is the command you would normally use when you open
+;; a new source file, and want to send the contents to Logo. To check
+;; all communication commands click on the `Logo-send' menu on the menu
+;; bar of edit buffer. You will notice there several send commands that end
+;; with `... & Go'. These are here for archaic reasons only, and will work
+;; only if you started Logo with `Run Logo Other Window' or `Run Logo Same
+;; window'. If you followed the instructions to start Logo in `Other Frame'
+;; (which is the most convenient and safe way) than you still have to shift
+;; the focus manually (with the mouse).
+;;
+;; Writing Logo source code in edit buffer is relatively comfortable,
+;; because logo-mode recognizes Logo syntax and will automatically mark
+;; (flash) delimiters `({[', and will not get confused by a single ". It
+;; also knows about Logo syntax for strings `||', so delimiters inside ||
+;; will not be marked. It will also automatically indent Logo code
+;; (according to the indenting style set forth by Brian's CSLS books).
+;;
+;; This indenting business can cause some confusion at first as Enter and
+;; Tab keys may seem to be malfunctioning. Enter (Return) is bound to
+;; newline-and-indent command, so it will insert newline (which everybody
+;; expects) but will also indent the new line if the surrounding code
+;; warrants that. To understand this, place the cursor at the end of the
+;; line (below), after `... I hope]]' but before  `)' and press Enter.
+
+(if "false [print [This will not be printed -- I hope]]     )
+
+;; The cursor and `)' will drop one line down, but not flush
+;; left. Instead cursor will be under `"' in `"false'. That is because
+;; this line is now implicitly continued (all delimiters are not closed
+;; as we just dropped down the closing `)' ).
+;; Now (still at the same position) write this:
+;; [print [This will be printed]]
+;; The closing `)' should remain to the right of last `]]'.
+;;
+;; This looks like two lines now, but to Logo it is only one. To check
+;; this -- with the cursor on any of these "two physical" lines press C-x
+;; C-e.  Logo will respond by printing (in logo buffer)
+;;
+;;    This will be printed
+;;    ? 
+;;
+;; If you press Tab on any of these two physical lines, nothing will
+;; happen. Lines are properly indented, and there is nothing for Tab to
+;; do. To show you that Tab does work, take a look at the same two lines
+;; (below).
+
+                   (if "false [print [This will not be printed -- I hope]]
+[print [This will be printed]])
+
+;; Now press Tab on both of them (first on the top line). They will
+;; indent properly.
+;;
+;; There are several other options available for editing. To see them,
+;; click on the `Logo-edit' menu. The last three (accessed through
+;; Preferences submenu), actually, have nothing to do with editing --
+;; but I had to stick them somewhere :-).  `Toggle Syntax
+;; Highlighting' should be self explanatory. Click on it, and this
+;; text will revert to default text face -- no coloring. As syntax
+;; highlighting is actually useful when working through this tutorial
+;; (makes it easier to see what is tutorial text, and what is Logo
+;; code), click again on `Toggle Syntax Highlighting' to restore it.
+;;
+;; `Toggle Novice Management' menu option takes a bit more explaining.
+;; I have disabled several standard emacs commands, that I feel could cause
+;; either the loss of source code, confusion, or simply frustration of
+;; a novice user. Emacs has an overwhelming number of commands (heck,
+;; I probably know less than 1/10), and some are freely available
+;; on the menu-bar. Let's try one disabled command. Click on Files menu,
+;; and choose `Kill Current Buffer' option. This window will split in two,
+;; with information about invoked command showing in lower part. Read what
+;; it says, and then press N . That would always be the safest course of
+;; action, unless you are absolutely sure of what you're doing. If you
+;; really want to execute the command press Space. And, of-course, if
+;; you are not a novice emacs user, and all this annoys you -- click on
+;; `Toggle Novice Management' to get rid of it.
+;;
+;;`Toggle Abbreviation Expansion' menu disables or enables the Logo
+;; common abbreviation expansion. Current state of abbreviation
+;; expansion is visible on the mode line; if it reads (Logo), expansion
+;; is disabled, if it reads (Logo Abbrev) it is enabled. To see how
+;; expansion works, place the cursor directly after the FD on the next
+;; line of Logo code.
+
+repeat 3 [fd      ]
+
+;; Then press space, and fd will expand to forward (with the space
+;; added after it. To disable expansion (just once), restore the line,
+;; place the cursor after FD again, hit escape, and then space. Space
+;; will be added, but no expansion will have happened. Expansion works
+;; when any of the following characters is entered after the word that
+;; constitutes one of Logo abbreviations: space, newline, ], ), and
+;; }. If you do not want the current abbreviation expanded, all of the
+;; trigger characters can be escaped (just like space).
+;;
+;; One of the nice features of logo-mode is that it allows
+;; simultaneous editing of two or more source files. To test this
+;; click on `Files' menu on the menu-bar of edit buffer, and choose
+;; `Logo-mode Files>>Open Logo File...'.  Emacs will pop a new frame
+;; and drop it in dired (directory) mode.  There you can either choose
+;; an existing source file (by clicking mouse-2 on it) or use
+;; `Files>>Open File...'  menu to create a new source file. If you
+;; create new file, do not forget to name it `some-name.lg'. Without
+;; `.lg' extension, new file will not be opened in logo-mode.
+;; However if you forgot (.lg extension), or you opened Logo source
+;; file that neither has the extension, nor Logo mode-line as the
+;; first line, use `Files>>Logo-mode Files>>Convert to Logo-mode'
+;; choice from the pull-down menu. (Only files opened in fundamental
+;; mode can be converted.)
+;;
+;; Do this now. (Click on `Files>>Logo-mode Files>>Open Logo File...'
+;; and open tutor1.lg file.)
+;;
+;; Now (with focus on tutor1.lg buffer) send the whole buffer to Logo with
+;; C-c C-b . Logo will respond with new (? ) prompt.
+;;
+;; Before we try to run queens or insert.sort procedures, take a close
+;; look at this code. If you were going to say that it doesn't really
+;; look like standard Logo, you would be right. To execute this, we
+;; must load .loops extensions. Click on `LOOPS' pull-down menu in
+;; *logo* buffer and choose `Language>>Ucblogo + LOOPS'. Logo will
+;; respond with:
+;;
+;;    ? ALLOWGETSET and UNBURYONEDIT disabled
+;;    loading LOOPS ... Lisp layer OK ... OOP layer OK
+;;    ? 
+;;
+;; Just a brief explanation of what happened with this `loading LOOPS
+;; ...'. We have loaded .loops initialization file which -- technically
+;; speaking is not part of standard Berkeley Logo, and most users will
+;; not need, nor appreciate the changes introduced with it. I insist
+;; on loading it now, as it is needed to work through this part of
+;; tutorial. When you start Logo next time, you do not have to load
+;; it, and if you want to get rid of it completely, uncomment one line
+;; in your .emacs file. (To understand fully what LOOPS does, check
+;; the `LOOPS User Manual' in `Help>>Logo-Help' menu. BTW -- it stands
+;; for Logo Object Oriented Programming System.)
+;;
+;; You can test the insert-sort program now by sending the following
+;; line (below) to Logo with C-x C-e .
+
+show insert.sort [5 4 3 111 22]
+
+;; This was running very slowly. To improve the performance, you have
+;; to compile both insert.sort, and queens procedures. To do that,
+;; click on `Logo' menu in logo buffer and choose
+;; `Compiler>>Compile Workspace'. Logo will respond with:
+;;
+;;    compiling insert.sort ... OK                                       
+;;    compiling queens ... OK                                         
+;;    compiling spiro ... nothing to do for spiro                         
+;;    compiling triangle ... nothing to do for triangle                   
+;;    compilation completed                       
+;;    ?
+;;
+;; Try insert-sort again. Mark the line `show insert.sort [...'
+;; (above) by dragging mouse-1 over it and then yank it back (paste
+;; it) by pressing mouse-2 in logo buffer (press Enter after
+;; that). Of-course -- you would normally use this way (pasting) to
+;; copy from other applications running on your X display. This time,
+;; sort was running much faster.
+;;
+;; Try running `queens' program. Enter `(queens 6 "false)' in logo
+;; buffer. Logo will respond with:
+;;
+;;    position 1 [2 4 6 1 3 5]                                                
+;;    position 2 [3 6 2 5 1 4]                                                
+;;    position 3 [4 1 5 2 6 3]                                               
+;;    position 4 [5 3 1 6 4 2]                                               
+;;    ?
+;;
+;; If you want to run insert.sort program on a changed input list, (instead
+;; of using M-p repeatedly) you can press and hold shift key, and press
+;; mouse-2 button (anywhere in logo buffer). This will pop `Setcursor Menu'.
+;; Drag the pointer to `List Input History' and release it on
+;; `show insert.sort [5 4 3 111 22]' entry. This will copy that input
+;; line to logo buffer. 
+;;
+;; If you want to save compiled versions of insert.sort and queens,
+;; click on `Logo' menu in logo buffer and choose `Compiler>>Save
+;; compiled procedures ...'. Logo will ask -- `Enter file name to
+;; save to: '. Input any name you wish (but end it with .lgo) and hit
+;; enter. (You do not have to quote the name, but it doesn't hurt if
+;; you do.) To inspect the compiled code, you can open just saved file
+;; using the same procedure as before: Click on `Files>>Logo-mode
+;; Files>>Open Logo File...'
+;;
+;; To avoid possible misunderstandings about compiling Logo code, you
+;; should realize two facts: One -- you can compile only procedures
+;; that use LOOPS extensions (LETREC, COND, and CASE), and two --
+;; compiled code is just a standard Logo source code, that runs at the
+;; same speed as if it were hand written in standard Logo.
+;;
+;; If you don't need LOOPS extensions any more, you can restore
+;; standard ucblogo by clicking on `LOOPS' menu and choosing
+;; `Language>>Standard Ucblogo'. Logo will respond with:
+;;
+;;    ? Standard Berkeley Logo restored.
+;;    ?
+;;
+;; With standard language restored, you can't run insert.sort any
+;; more. If you try, Logo will respond with an error message.  If by
+;; any chance you want to work with LOOPS extensions most of the time,
+;; you can change the language again to `ucblogo + LOOPS' and click
+;; on `LOOPS>>Language>>Set Startup Default' menu. This will force emacs
+;; to load LOOPS extensions every time you start Logo. Of-course you
+;; can `Set Startup Default' to Standard Ucblogo the same way.
+;;
+;;
+;; HELP system:
+;;
+;; With focus in the second edit buffer (tutor1.lg), click with
+;; mouse-3 on the Logo command `foreach' (second line in the procedure
+;; `queens').  The tutor1.lg buffer will disappear and help file for
+;; `foreach' will show instead. To return to tutor1.lg buffer press
+;; `q' in help buffer.  If you want to see all procedures that ucblogo
+;; has help for, click on `Help' menu in edit buffer, and choose
+;; Logo-help>>Help Contents. This buffer will disappear and
+;; HELPCONTENTS file will open. There, you can click on any name to
+;; show help for that procedure. To return here press `q' in
+;; HELPCONTENTS buffer.
+;;
+;; If you want to read ucblogo user manual (in TeX-info format), click on
+;; `Help' menu and choose Logo-help>>User Manual. You move through
+;; user-manual by clicking mouse-2 on links (words that change color when
+;; mouse pointer is over them). To exit user-manual, press `q'.
+;;
+;; Another form of help are completion facilities. Focus tutor1.lg
+;; buffer, move to the end of the file and write letters `ins' . Then
+;; (with the cursor just after s) hit M-/ (Alt-/ or ESC /). Letters
+;; `ins' will expand to insert. Hit M-/ again, and completion will
+;; change to insert.sort, hit again ... Emacs will find all possible
+;; completions for word `ins' that exist in tutor1.lg and tutorial.lg
+;; buffers. If there are many completions, a faster way of choosing is
+;; by hitting C-M-/ (Ctrl-Alt-/ or ESC Ctrl-/) after the word
+;; `ins'. Emacs will open a window with all completions listed. Click
+;; mouse-2, on the one you want, and letters `ins' will expand to the
+;; chosen word. In our current situation (with tutorial.lg buffer
+;; present) emacs will find a lot of useless completion words like
+;; installation, insist, but that is only because tutorial.lg buffer
+;; consists mostly of English text, and not of Logo code. In a real
+;; logo source buffer, you will mostly get previously defined names of
+;; procedures and variables, which is what you probably want.
+;;
+;; The second form of completion facilities is completion for Logo
+;; defined keywords (names of primitive and library procedures). Again
+;; in tutor1.lg buffer, clear any previous completions of `ins' , and
+;; write letters `set' (with the cursor just after t) hit ESC TAB . Emacs
+;; will open a window with the listing of all possible keyword
+;; completions. Click with mouse-2 on the one you want, and `set' will
+;; expand to that keyword.
+;;
+;; Interactive TRACE STEP and ERASE (choosing)
+;; In logo buffer click on `Logo' menu and choose Logo-debug>>Trace...
+;; You will get a buffer with three regions:
+;;
+;; PROCEDURES:
+;;
+;; insert.sort queens spiro triangle
+;;
+;; VARIABLES:
+;;
+;;
+;; PROPERTIES:
+;;
+;;
+;; Here we have four defined procedures (insert.sort ... spiro
+;; triangle). If we click on any one of them, we will mark that
+;; procedure for tracing.  Mouse-1 chooses the pointed procedure,
+;; deselects everything else.  Mouse-2 toggles selection for pointed
+;; procedure.  Mouse-3 chooses the pointed procedure, sends all
+;; selected procedures to Logo, and exits debug buffer.  To quit debug
+;; mode, you can also press `q'. This also sends selected procedures
+;; to Logo.  All mouse actions are confirmed by highlighting relevant
+;; procedure names.  If you open debug buffer again, all procedures
+;; that were selected (for tracing or stepping) before, will be
+;; highlighted (and placed in parentheses).
+;;
+;; Try this now. Click on `Logo>>Logo-debug>>Erase...' menu.  Read the
+;; mode-line of this buffer. It should say: (Fundamental Logo-ERASE
+;; View). This is just to make sure that you don't choose procedures
+;; for tracing or stepping, while you're actually erasing them. Click
+;; mouse-1 on the word `triangle'. Triangle should now be
+;; highlighted. (Don't drag the mouse while clicking!) Press `q' and
+;; you're back in logo buffer. Now try to run triangle; press shift
+;; mouse-2 (to invoke `List Input History' menu), choose `triangle
+;; 120', and hit Enter. Logo should respond with:
+;;
+;;    I don't know how  to triangle                                             
+;;    ? 
+;;
+;; ===========================================
+;;
+;; For detailed instructions on how to use logo-mode, read the README
+;; file in /usr/local/lib/logo/emacs/ directory.
+;;
+;; To end this tutorial (or any future logo-mode sessions) click on
+;; `Files' menu and choose `Exit Emacs' option. Emacs will ask if you
+;; want to save file (meaning the source file you were working on --
+;; right now, this file) to which you normally answer `Yes'. Then it will
+;; ask; `Active processes exist; kill them and exit anyway?', to which
+;; you click on `Yes'. (This is actually asking if you want to kill
+;; Logo.)
+;;
+;; DO NOT - EVER - try to kill Logo by clicking on X in the top right
+;; corner of logo buffer window (if your window manager has that X). This
+;; will kill logo frame, but *not* Logo itself, and you will loose
+;; the communication channel with it. You will not be able to use
+;; `Logo-start' menu on edit buffer, because as far as logo-mode is
+;; concerned Logo is still running, and two Logo processes are not
+;; allowed. You can, however, type `bye' on the Logo command line to kill
+;; it. In that case you can also restart it from `Logo-start' menu.
+;;
+;; If you started this tutorial from a "real" Logo source file, and
+;; you want to return to that file and continue working on it -- then
+;; instead of `Exit Emacs', use `Files>>Kill Current Buffer'
+;; option. Tutorial buffer will disappear, and the file you have been
+;; working on before will show again.
+
+bye    ;-)

@@ -1,0 +1,10 @@
+WRAP
+
+	tells the turtle to enter wrap mode:  From now on, if the turtle
+	is asked to move past the boundary of the graphics window, it
+	will "wrap around" and reappear at the opposite edge of the
+	window.  The top edge wraps to the bottom edge, while the left
+	edge wraps to the right edge.  (So the window is topologically
+	equivalent to a torus.)  This is the turtle's initial mode.
+	Compare WINDOW and FENCE.
+

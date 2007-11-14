@@ -1,0 +1,5 @@
+COMBINE thing1 thing2					(library procedure)
+
+	if thing2 is a word, outputs WORD thing1 thing2.  If thing2 is a list,
+	outputs FPUT thing1 thing2.
+

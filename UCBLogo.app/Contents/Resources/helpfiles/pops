@@ -1,0 +1,5 @@
+POPS							(library procedure)
+
+	command.  Prints the definitions of all unburied procedures in
+	the workspace.  Abbreviates PO PROCEDURES.
+

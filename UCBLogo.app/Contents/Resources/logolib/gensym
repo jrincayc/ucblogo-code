@@ -1,0 +1,9 @@
+;;; -*- logo -*-
+
+to gensym
+if not namep "gensym.number [make "gensym.number 0]
+make "gensym.number :gensym.number + 1
+output word "g :gensym.number
+end
+
+bury [[gensym] [gensym.number]]

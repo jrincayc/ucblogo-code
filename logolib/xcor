@@ -1,0 +1,7 @@
+;;; -*- logo -*-
+
+to xcor
+output first pos
+end
+
+bury "xcor

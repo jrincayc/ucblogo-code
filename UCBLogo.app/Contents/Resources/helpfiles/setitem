@@ -1,0 +1,6 @@
+SETITEM index array value
+
+	command.  Replaces the "index"th member of "array" with the new
+	"value".  Ensures that the resulting array is not circular, i.e.,
+	"value" may not be a list or array that contains "array".
+

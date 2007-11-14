@@ -1,0 +1,6 @@
+POPL plname						(library procedure)
+POPL plnamelist
+
+	command.  Prints the definitions of the named property list(s).
+	Abbreviates PO PLLIST plname(list).
+

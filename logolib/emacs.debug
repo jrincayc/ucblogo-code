@@ -1,0 +1,25 @@
+;;;  -*- logo -*-
+
+to emacs.debug :file_elisp_code :trace_or_step
+localmake "wr_elisp_code writer
+if namep "printwidthlimit [
+   localmake "pw_elisp_code :printwidthlimit
+   ern "printwidthlimit]
+openwrite :file_elisp_code
+setwrite :file_elisp_code
+bury [[] [wr_elisp_code pw_elisp_code file_elisp_code trace_or_step] []]
+(foreach contents run (list :trace_or_step)
+                      [PROCEDURES: VARIABLES: PROPERTIES:]
+                      [[names debugged title]
+                       [pr :title pr []
+                           pr map [[name]
+                                   [op ifelse memberp :name :debugged
+                                           [(word "\( :name "\))]
+                                           [:name]]] :names
+                           pr []]])
+close :file_elisp_code
+setwrite :wr_elisp_code
+if namep "pw_elisp_code [make "printwidthlimit :pw_elisp_code]
+end
+
+bury "emacs.debug

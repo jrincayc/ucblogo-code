@@ -1,0 +1,68 @@
+;;; second part of logo-mode tutorial
+
+;; Start queens with queens 8, if you want only the first result
+;; To get all results use (queens 8 "false), and be prepared for
+;; a long wait. (Maybe you should try 6, or 4 first?)
+
+to queens :number [:one.only "true] 1
+(foreach letrec [[
+
+   ;; Define local procedure makeboard
+   [makeboard [[n]
+               [localmake "row cascade :n [[x] [op lput # :x]] []]
+               [op cascade :n [[x] [op fput :row :x]] []]]]
+
+   ;; Define local procedure shade
+   [shade [[queen rest.board [offset 1] 2]
+           [if emptyp :rest.board [op []]]
+           [op (fput (filter [[x] [op not (or :x = (:queen - :offset)
+                                              :x = :queen
+                                              :x = (:queen + :offset))]]
+                             first :rest.board)
+                     (shade :queen bf :rest.board :offset + 1))]]]
+
+   ;; Define local procedure put.queen
+   [put.queen [[board result]
+               
+               ;; When the board is empty, we're done
+               [if emptyp :board [push "stack :result op :one.only]]
+               [localmake "row first :board]
+               [localmake "queen and [not emptyp :row] [first :row]]
+               
+               ;; If queen not placed -- backtrack right away
+               [op (and [:queen]
+                        [or
+                           
+                           ;; Go ahead -- try to place next queen
+                           [(put.queen (shade :queen bf :board)
+                                       lput :queen :result)]
+                           
+                           ;; Nowhere to put next queen -- try to move
+                           ;; this queen to next available square
+                           [(put.queen fput bf :row bf :board :result)]])]]]]
+                 
+                 ;; Start of letrec body forms
+                 [localmake "stack []]
+                 ;; Run program and discard the output (true/false)
+                 [ignore (put.queen (makeboard :number) [])]
+                 ;; Output positions -- letrec ends here
+                 [op reverse :stack]]
+         
+         ;; Template for foreach 
+         [[x] [(show "position # :x)]])
+end
+
+
+;; Logo version of insert sort -- .logo.compiler torture test
+
+to insert.sort :lst
+op (reduce [[e lst]
+            [op letrec [[
+               [insert [[lst]
+                        [cond [
+                           [[emptyp :lst] [op (list :e)]]
+                           [[:e < first :lst] [op fput :e :lst]]
+                           [t [op fput first :lst (insert bf :lst)]]]]]]]
+                        [(insert :lst)]]]]
+           lput (list last :lst) bl :lst)
+end

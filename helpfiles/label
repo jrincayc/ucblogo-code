@@ -1,0 +1,5 @@
+LABEL text
+
+	takes a word or list as input, and prints the input on the
+	graphics window, starting at the turtle's position.
+

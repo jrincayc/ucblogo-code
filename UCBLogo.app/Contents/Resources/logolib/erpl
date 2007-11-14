@@ -1,0 +1,7 @@
+;;; -*- logo -*-
+
+to erpl :names
+erase pllist :names
+end
+
+bury "erpl

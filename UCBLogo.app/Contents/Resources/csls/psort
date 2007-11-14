@@ -1,0 +1,97 @@
+program psort;
+ {partition sort demo}
+
+var data: array [0..100] of integer;
+    i: integer;
+
+procedure showdata;
+ {print the array}
+
+  var i: integer;
+
+  begin {showdata}
+    for i := 0 to 99 do
+      begin
+        if i mod 20 = 0 then writeln;
+        write(data[i]:3)
+      end;
+    writeln;
+    writeln
+  end; {showdata}
+
+function median(lower,upper:integer):integer;
+  {find the median of three values from the data array}
+  var mid: integer;
+
+  begin
+    mid := (lower+upper) div 2;
+    if (data[lower] <= data[mid]) and (data[mid] <= data[upper]) then
+      median := mid
+    else if (data[lower] >= data[mid]) and
+            (data[mid] >= data[upper]) then
+      median := mid
+    else if (data[mid] <= data[lower]) and
+            (data[lower] <= data[upper]) then
+      median := lower
+    else if (data[mid] >= data[lower]) and
+            (data[lower] >= data[upper]) then
+      median := lower
+    else median := upper
+  end;
+
+procedure sort(lower,upper:integer);
+ {sort part of the array}
+
+  var key,i,j:integer;
+
+  procedure exch(var a,b:integer);
+   {exchange two integers}
+
+    var temp:integer;
+
+    begin {exch}
+      temp := a;
+      a := b;
+      b := temp
+    end; {exch}
+
+  begin {sort}
+    if upper > lower then
+      begin
+        exch (data[lower],data[median(lower,upper)]);
+        key := data[lower];
+        i := lower;
+        j := upper+1;
+        repeat
+          i := i+1
+        until data[i] >= key;
+        repeat
+          j := j-1
+        until data[j] <= key;
+        while (i <= j) do
+          begin
+            exch(data[i], data[j]);
+            repeat
+              i := i+1
+            until data[i] >= key;
+            repeat
+              j := j-1
+            until data[j] <= key
+          end;
+        exch(data[lower], data[j]);
+        sort(lower,j-1);
+        sort(i,upper)
+      end
+  end; {sort}
+
+begin {main program}
+  data[100] := 200;
+  for i := 0 to 99 do
+    data[i] := random(100);
+  writeln('Data before sorting:');
+  showdata;
+
+  sort(0,99);
+  writeln('Data after sorting:');
+  showdata
+end.

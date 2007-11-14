@@ -1,0 +1,5 @@
+RUN instructionlist
+
+	command or operation.  Runs the Logo instructions in the input
+	list; outputs if the list contains an expression that outputs.
+

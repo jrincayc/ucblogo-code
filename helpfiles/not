@@ -1,0 +1,7 @@
+NOT tf
+
+	outputs TRUE if the input is FALSE, and vice versa.  The input can be
+	a list, in which case it is taken as an expression to run; that
+	expression must produce a TRUE or FALSE value.
+
+

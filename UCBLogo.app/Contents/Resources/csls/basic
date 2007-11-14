@@ -1,0 +1,235 @@
+to basic
+make "linenumbers []
+make "readline []
+forever [basicprompt]
+end
+
+to basicprompt
+print []
+print "READY
+print []
+make "line basicread
+if emptyp :line [stop]
+ifelse numberp first :line [compile split :line] [immediate :line]
+end
+
+to compile :commands
+make "number first :commands
+make :number :line
+ifelse emptyp butfirst :commands ~
+       [eraseline :number] ~
+       [makedef (word "basic% :number) butfirst :commands]
+end
+
+to makedef :name :commands
+make "definition [[]]
+foreach :commands [run list (word "compile. first ?) ?]
+queue "definition (list "nextline :number)
+define :name :definition
+make "linenumbers insert :number :linenumbers
+end
+
+to insert :num :list
+if emptyp :list [output (list :num)]
+if :num = first :list [output :list]
+if :num < first :list [output fput :num :list]
+output fput first :list (insert :num butfirst :list)
+end
+
+to eraseline :num
+make "linenumbers remove :num :linenumbers
+end
+
+to immediate :line
+if equalp :line [list] [foreach :linenumbers [print thing ?] stop]
+if equalp :line [run] [run (list (word "basic% first :linenumbers)) stop]
+if equalp :line [exit] [throw "toplevel]
+print sentence [Invalid command:] :line
+end
+
+;; Compiling each BASIC command
+
+to compile.end :command
+queue "definition [stop]
+end
+
+to compile.goto :command
+queue "definition (list (word "basic% last :command) "stop)
+end
+
+to compile.gosub :command
+queue "definition (list (word "basic% last :command))
+end
+
+to compile.return :command
+queue "definition [stop]
+end
+
+to compile.print :command
+make "command butfirst :command
+while [not emptyp :command] [c.print1]
+queue "definition [print []]
+end
+
+to c.print1
+make "exp expression
+ifelse equalp first first :exp "" ~
+       [make "sym gensym
+        make word "%% :sym butfirst butlast first :exp
+        queue "definition list "type word ":%% :sym] ~
+       [queue "definition fput "type :exp]
+if emptyp :command [stop]
+make "delimiter pop "command
+if equalp :delimiter ", [queue "definition [type char 9] stop]
+if equalp :delimiter "\; [stop]
+(throw "error [Comma or semicolon needed in print.])
+end
+
+to compile.input :command
+make "command butfirst :command
+if equalp first first :command "" ~
+   [make "sym gensym
+    make "prompt pop "command
+    make word "%% :sym butfirst butlast :prompt
+    queue "definition list "type word ":%% :sym]
+while [not emptyp :command] [c.input1]
+end
+
+to c.input1
+make "var pop "command
+queue "definition (list "make (word ""% :var) "readvalue)
+if emptyp :command [stop]
+make "delimiter pop "command
+if equalp :delimiter ", [stop]
+(throw "error [Comma needed in input.])
+end
+
+to compile.let :command
+make "command butfirst :command
+make "var pop "command
+make "delimiter pop "command
+if not equalp :delimiter "= [(throw "error [Need = in let.])]
+make "exp expression
+queue "definition (sentence "make (word ""% :var) :exp)
+end
+
+to compile.if :command
+make "command butfirst :command
+make "exp expression
+make "delimiter pop "command
+if not equalp :delimiter "then [(throw "error [Need then after if.])]
+queue "definition (sentence "if :exp (list c.if1))
+end
+
+to c.if1
+local "definition
+make "definition [[]]
+run list (word "compile. first :command) :command
+ifelse (count :definition) = 2 ~
+       [output last :definition] ~
+       [make "newname word "% gensym
+        define :newname :definition
+	output (list :newname)]
+end
+
+to compile.for :command
+make "command butfirst :command
+make "var pop "command
+make "delimiter pop "command
+if not equalp :delimiter "= [(throw "error [Need = after for.])]
+make "start expression
+make "delimiter pop "command
+if not equalp :delimiter "to [(throw "error [Need to after for.])]
+make "end expression
+queue "definition (sentence "make (word ""% :var) :start)
+queue "definition (sentence "make (word ""let% :var) :end)
+make "newname word "% gensym
+queue "definition (sentence "make (word ""next% :var) (list (list :newname)))
+queue "definition (list :newname)
+define :name :definition
+make "name :newname
+make "definition [[]]
+end
+
+to compile.next :command
+make "command butfirst :command
+make "var pop "command
+queue "definition (sentence "make (word ""% :var) (word ":% :var) [+ 1])
+queue "definition (sentence [if not greaterp]
+                            (word ":% :var) (word ":let% :var)
+                            (list (list "run (word ":next% :var) "stop)))
+end
+
+;; Compile an expression for LET, IF, PRINT, or FOR
+
+to expression
+make "expr []
+make "token expr1
+while [not emptyp :token] [queue "expr :token
+                           make "token expr1]
+output :expr
+end
+
+to expr1
+if emptyp :command [output []]
+make "token pop "command
+if memberp :token [+ - * / = < > ( )] [output :token]
+if memberp :token [, \; : then to] [push "command :token  output []]
+if numberp :token [output :token]
+if equalp first :token "" [output :token]
+output word ":% :token
+end
+
+;; reading input
+
+to basicread
+output basicread1 readword [] "
+end
+
+to basicread1 :input :output :token
+if emptyp :input [if not emptyp :token [push "output :token]
+                  output reverse :output]
+if equalp first :input "| | [if not emptyp :token [push "output :token]
+                             output basicread1 (butfirst :input) :output "]
+if equalp first :input "" [if not emptyp :token [push "output :token]
+                             output breadstring butfirst :input :output "]
+if memberp first :input [+ - * / = < > ( ) , \; :] ~
+   [if not emptyp :token [push "output :token]
+    output basicread1 (butfirst :input) (fput first :input :output) "]
+output basicread1 (butfirst :input) :output (word :token first :input)
+end
+
+to breadstring :input :output :string
+if emptyp :input [(throw "error [String needs ending quote.])]
+if equalp first :input "" ~
+   [output basicread1 (butfirst :input)
+                      (fput (word "" :string "") :output)
+                      "]
+output breadstring (butfirst :input) :output (word :string first :input)
+end
+
+to split :line
+output fput first :line split1 (butfirst :line) [] []
+end
+
+to split1 :input :output :command
+if emptyp :input [if not emptyp :command [push "output reverse :command]
+                  output reverse :output]
+if equalp first :input ": [if not emptyp :command
+                              [push "output reverse :command]
+                           output split1 (butfirst :input) :output []]
+output split1 (butfirst :input) :output (fput first :input :command)
+end
+
+;; Runtime library
+
+to nextline :num
+make "target member :num :linenumbers
+if not emptyp :target [make "target butfirst :target]
+if not emptyp :target [run (list (word "basic% first :target))]
+end
+
+to readvalue
+while [emptyp :readline] [make "readline basicread]
+output pop "readline
+end

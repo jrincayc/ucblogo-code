@@ -1,0 +1,484 @@
+to solitaire
+print [Welcome to solitaire]
+instruct
+localmake "allranks [A 2 3 4 5 6 7 8 9 10 J Q K]
+localmake "numranks map "ranknum :allranks
+localmake "suits [H S D C]
+localmake "reds [H D]
+localmake "deckarray (listtoarray (crossmap "word :allranks :suits) 0)
+localmake "upping "false
+catch "exit [forever [onegame cleartext]]
+cleartext
+end
+
+to s
+solitaire
+end
+
+to onegame
+print [Shuffling, please wait...]
+local [card cards digit pile where]
+localmake "onto []
+local map [word "top ?] :suits
+local cascade 9 [(sentence (word "shown #) (word "hidden #) ?)] []
+localmake "ranks :allranks
+localmake "numstacks 7
+local map [word "num ?] :numranks
+foreach :numranks [make word "num ? 4]
+localmake "hand shuffle 52 :deckarray
+setempty "pile
+initstacks
+foreach :suits [settop ? "]
+redisplay
+catch "endgame [forever [catch "bell [parsecmd]]]
+end
+
+;; Initialization
+
+to instruct 
+print [] print [Here are the commands you can type:]
+type "|    | type (sentence standout "+ standout "=)
+type "|  | print [Deal three cards onto pile]
+instruct1 "P [Play top card from pile]
+instruct1 "R [Redisplay the board]
+instruct1 "? [Retype these instructions]
+instruct1 "card [Play that card]
+instruct1 "M [Move same card again]
+instruct1 "W [Play up as much as possible (Win)]
+instruct1 "G [Give up (start a new game)]
+instruct1 "X [Exit to Logo]
+print [A card consists of a rank:]
+type "|   | print (sentence standout [A 2 3 4 5 6 7 8 9 10 J Q K]
+                            "or standout "T [for 10])
+print [followed by a suit:]
+type "|   | print standout [H S D C]
+print (sentence [or followed by] standout ".
+                [to play all possible suits up])
+print [] print [If you make a mistake, hit delete or backspace.]
+print [] print [To move an entire stack,]
+type "|   | print [hit the shifted stack number:]
+type "|     | print (sentence standout [! @ # $ % ^ &] [for stacks])
+type "|     | print [1 2 3 4 5 6 7]
+print []
+end
+
+to instruct1 :key :meaning
+type "|    |
+type standout :key
+repeat 5-count :key [type "| |]
+print :meaning
+end
+
+to shuffle :len :array
+if :len=0 [output arraytolist :array]
+localmake "choice random :len
+localmake "temp item :choice :array
+setitem :choice :array (item :len-1 :array)
+setitem :len-1 :array :temp
+output shuffle :len-1 :array
+end
+
+to initstacks
+for [num 1 7] [inithidden :num
+               turnup :num]
+end
+
+to inithidden :num
+localmake "name hidden :num
+setempty :name
+repeat :num [push :name deal]
+end
+
+;; Reading and interpreting user commands
+
+to parsecmd
+if emptyp :digit [setcursor [1 22] type "|      | setcursor [1 22]]
+local "char
+make "char uppercase readchar
+if equalp :char "T [parsedigit 1 parsezero stop]
+if memberp :char [1 2 3 4 5 6 7 8 9 A J Q K] [parsedigit :char stop]
+if equalp :char "0 [parsezero stop]
+if memberp :char :suits [play.by.name :char stop]
+if equalp :char ". [allup stop]
+if equalp :char "W [wingame stop]
+if equalp :char "M [again stop]
+if memberp :char [+ =] [hand3 stop]
+if equalp :char "R [redisplay stop]
+if equalp :char "? [helper stop]
+if equalp :char "P [playpile stop]
+if and equalp :char "|(| not emptyp :digit [cheat stop]
+if and equalp :char "|)| not emptyp :digit [newstack stop]
+if memberp :char [! @ # $ % ^ & * ( )] ~
+   [playstack :char [! @ # $ % ^ & * ( )] stop]
+if memberp :char (list "| | char 8 char 127) [rubout stop]
+if equalp :char "G [throw "endgame]
+if equalp :char "X [throw "exit]
+bell
+end
+
+to parsedigit :char
+if not emptyp :digit [bell]
+make "digit :char
+type :digit
+end
+
+to parsezero 
+if not equalp :digit 1 [bell]
+make "digit 10
+type 0
+end
+
+to rubout 
+setcursor [1 22]
+type "|    |
+setcursor [1 22]
+setempty "digit
+end
+
+to bell
+if not :upping [type char 7]
+setempty "digit
+throw "bell
+end
+
+;; Deal three cards from the hand
+
+to hand3 
+if not emptyp :digit [bell]
+if and emptyp :hand emptyp :pile [bell]
+push "pile deal
+repeat 2 [if not emptyp :hand [push "pile deal]]
+dispile dishand
+end
+
+to deal 
+if emptyp :hand [make "hand reverse :pile setempty "pile]
+if emptyp :hand [output []]
+output pop "hand
+end
+
+;; Select card to play by position (pile or stack) or by name
+
+to playpile 
+if emptyp :pile [bell]
+if not emptyp :digit [bell]
+make "card first :pile
+make "where [rempile]
+carddis :card
+playcard
+end
+
+to playstack :which :list
+if not emptyp :digit [bell]
+foreach :list [if equalp :which ? [playstack1 # stop]]
+end
+
+to playstack1 :num
+if greaterp :num :numstacks [bell]
+if stackemptyp shown :num [bell]
+make "card last thing shown :num
+make "where sentence "remshown :num
+carddis :card
+playcard
+end
+
+to play.by.name :char
+if emptyp :digit [bell]
+if equalp :digit 1 [make "digit "a]
+type :char
+wait 0
+make "card word :digit :char
+setempty "digit
+findcard
+if not emptyp :where [playcard]
+end
+
+to findcard 
+if findpile [stop]
+make "where findshown
+if emptyp :where [bell]
+end
+
+to findpile 
+if emptyp :pile [output "false]
+if equalp :card first :pile [make "where [rempile] output "true]
+output "false
+end
+
+to findshown
+for [num 1 :numstacks] ~
+    [if memberp :card thing shown :num [output sentence "remshown :num]]
+output []
+end
+
+;; Figure out all possible places to play card, then pick one
+
+to playcard
+setempty "onto
+if not coveredp [checktop]
+if and not :upping ~
+       or (emptyp :onto) (not upsafep rank :card) ~
+   [checkonto]
+if emptyp :onto [bell]
+run :where
+run first :onto
+end
+
+to coveredp 
+if equalp :where [rempile] [output "false]
+output not equalp :card first thing shown last :where
+end
+
+to upsafep :rank
+if memberp :rank [A 2] [output "true]
+output equalp 0 thing word "num ((ranknum :rank)-2)
+end
+
+to checktop 
+if (ranknum rank :card) = 1 + (ranknum top suit :card) ~
+   [push "onto (list "playtop word "" suit :card)]
+end
+
+to checkonto
+for [num :numstacks 1] ~
+    [ifelse stackemptyp shown :num
+            [checkempty :num]
+            [checkfull :num thing shown :num]]
+end
+
+to checkempty :num
+if equalp rank :card "k [push "onto (list "playonto :num)]
+end
+
+to checkfull :num :stack
+if equalp (redp :card) (redp first :stack) [stop]
+if ((ranknum rank first :stack) = 1 + (ranknum rank :card)) ~
+   [push "onto (list "playonto :num)]
+end
+
+;; Play card, step 1: remove from old position
+
+to rempile 
+make "cards (list (pop "pile))
+dispile
+end
+
+to remshown :num
+setempty "cards
+remshown1 :num (count thing shown :num)
+if stackemptyp shown :num [turnup :num disstack :num]
+end
+
+to remshown1 :num :length
+do.until [push "cards (pop shown :num)] ~
+         [equalp :card first :cards]
+for [i 1 [count :cards]] ~
+    [setcursor list (5*:num - 4) (5+:length-:i) type "|   |]
+end
+
+to turnup :num
+setempty shown :num
+if stackemptyp hidden :num [stop]
+push (shown :num) (pop hidden :num)
+end
+
+;; Play card, step 2: put in new position 
+
+to playtop :suit
+localmake "var word "num ranknum rank :card
+settop :suit rank :card
+distop :suit
+make :var (thing :var)-1
+if (thing :var)=0 [make "ranks butfirst :ranks]
+end
+
+to playonto :num
+localmake "row 4+count thing shown :num
+localmake "col 5*:num-4
+for [i 1 [count :cards]] ~
+    [localmake "card pop "cards
+     push (shown :num) :card
+     setcursor list :col :row+:i
+     carddis :card]
+end
+
+;; Update screen display
+
+to redisplay 
+cleartext
+for [num 1 :numstacks] [disstack :num]
+foreach :suits "distop
+dispile
+dishand
+setcursor [1 22]
+setempty "digit
+end
+
+to disstack :num
+setcursor list (-3 + 5 * :num) 4
+type ifelse stackemptyp hidden :num ["| |] ["-]
+if stackemptyp shown :num [setcursor list (-4 + 5 * :num) 5
+                           type "|   | stop]
+localmake "stack (thing shown :num)
+localmake "col 5*:num-4
+for [i [count :stack] 1] ~
+    [setcursor list :col :i+4
+     carddis pop "stack]
+end
+
+to distop :suit
+if emptyp top :suit [stop]
+if equalp :suit "H [distop1 4 stop]
+if equalp :suit "S [distop1 11 stop]
+if equalp :suit "D [distop1 18 stop]
+distop1 25
+end
+
+to distop1 :col
+setcursor list :col 2
+carddis word (top :suit) :suit
+end
+
+to dispile 
+setcursor [32 23]
+ifelse emptyp :pile [type "|   |] [carddis first :pile]
+end
+
+to dishand 
+setcursor [27 23]
+type count :hand
+type "| |
+end
+
+to carddis :card
+ifelse memberp suit :card :reds [redtype :card] [blacktype :card]
+type "| |
+end
+
+to redtype :word
+type :word
+end
+
+to blacktype :word
+type standout :word
+end
+
+
+;; Miscellaneous user commands
+
+to again
+if not emptyp :digit [bell]
+if emptyp :onto [bell]
+make "where list "remshown last pop "onto
+if emptyp :onto [bell]
+carddis :card
+run :where
+run first :onto
+end
+
+to helper
+cleartext 
+instruct
+print standout [type any key to continue]
+ignore rc
+redisplay
+end
+
+to allup
+if emptyp :digit [bell]
+if equalp :digit 1 [make "digit "a]
+localmake "upping "true
+type ". wait 0
+foreach map [word :digit ?] [H S D C] ~
+        [catch "bell [make "card ?
+                      findcard
+                      if not emptyp :where [playcard]]]
+setempty "digit
+end
+
+to wingame
+type "W
+localmake "cursor cursor
+foreach :ranks [if not upsafep ? [stop]
+                make "digit ? ~
+                allup ~
+                setempty "digit ~
+                setcursor :cursor]
+if equalp (map "top [H S D C]) [K K K K] ~
+   [ct print [you win!] wait 120 throw "endgame]
+end
+
+to newstack
+localmake "num :numstacks+1
+setcursor [1 22] type "|   |
+if not equalp :digit 9 [bell]
+setempty hidden :num
+setempty shown :num
+make "numstacks :num
+setempty "digit
+end
+
+to cheat 
+setcursor [1 22] type "|   |
+if not equalp :digit 8 [bell]
+if and emptyp :hand emptyp :pile [bell]
+push "pile deal
+dispile
+dishand
+setempty "digit
+end
+
+;; Data abstraction (ranks)
+
+to rank :card
+output butlast :card
+end
+
+to ranknum :rank
+if emptyp :rank [output 0]
+if numberp :rank [output :rank]
+if :rank = "A [output 1]
+if :rank = "J [output 11]
+if :rank = "Q [output 12]
+if :rank = "K [output 13]
+end
+
+;; Data abstraction (suits)
+
+to suit :card
+output last :card
+end
+
+to redp :card
+output memberp (suit :card) :reds
+end
+
+;; Data abstraction (tops)
+
+to top :suit
+output thing word "top :suit
+end
+
+to settop :suit :value
+make (word "top :suit) :value
+end
+
+;; Data abstraction (card stacks)
+
+to shown :num
+output word "shown :num
+end
+
+to hidden :num
+output word "hidden :num
+end
+
+;; Data abstraction (pushdown stacks)
+
+to stackemptyp :name
+output emptyp thing :name
+end
+
+to setempty :stack
+make :stack []
+end

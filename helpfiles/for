@@ -1,0 +1,31 @@
+FOR forcontrol instructionlist				(library procedure)
+
+	command.  The first input must be a list containing three or four
+	members: (1) a word, which will be used as the name of a local
+	variable; (2) a word or list that will be evaluated as by RUN to
+	determine a number, the starting value of the variable; (3) a word
+	or list that will be evaluated to determine a number, the limit value
+	of the variable; (4) an optional word or list that will be evaluated
+	to determine the step size.  If the fourth member is missing, the
+	step size will be 1 or -1 depending on whether the limit value is
+	greater than or less than the starting value, respectively.
+
+	The second input is an instructionlist.  The effect of FOR is to run
+	that instructionlist repeatedly, assigning a new value to the control
+	variable (the one named by the first member of the forcontrol list)
+	each time.  First the starting value is assigned to the control
+	variable.  Then the value is compared to the limit value.  FOR is
+	complete when the sign of (current - limit) is the same as the sign
+	of the step size.  (If no explicit step size is provided, the
+	instructionlist is always run at least once.  An explicit step size
+	can lead to a zero-trip FOR, e.g., FOR [I 1 0 1] ...)  Otherwise, the
+	instructionlist is run, then the step is added to the current value
+	of the control variable and FOR returns to the comparison step.
+
+		? for [i 2 7 1.5] [print :i]
+		2
+		3.5
+		5
+		6.5
+		?
+

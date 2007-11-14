@@ -1,0 +1,8 @@
+WHILE tfexpression instructionlist			(library procedure)
+
+	command.  Repeatedly evaluates the "instructionlist" as long as the
+	evaluated "tfexpression" remains TRUE.  Evaluates the first input
+	first, so the "instructionlist" may never be run at all.  The
+	"tfexpression" must be an expressionlist whose value when evaluated
+	is TRUE or FALSE.
+

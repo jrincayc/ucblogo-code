@@ -1,0 +1,36 @@
+to plot :inputs
+keyword :inputs [maxharm 5 deltax 2 yscale 75 cycles 1 xrange 230 skip 2]
+localmake "xscale :cycles*180/:xrange
+splitscreen clearscreen hideturtle penup
+setpos list (-:xrange) 0
+pendown
+for [x :deltax [2*:xrange] :deltax] ~
+    [setpos list (xcor+:deltax) (:yscale * series :maxharm)]
+end
+
+;; Compute the Fourier series values
+
+to series :harmonic
+if :harmonic < 1 [output 0]
+output (term :harmonic)+(series :harmonic-:skip)
+end
+
+to term :harmonic
+output (sin :xscale * :harmonic * :x) / :harmonic
+end
+
+;; Handle keyword inputs
+
+.macro keyword :inputs :defaults
+if or (wordp :inputs) (numberp first :inputs) ~
+   [make "inputs sentence (first :defaults) :inputs]
+output `[local ,[filter [not numberp ?] :defaults]
+         setup.values ,[:defaults]
+         setup.values ,[:inputs]]
+end
+
+to setup.values :list
+if emptyp :list [stop]
+make first :list first butfirst :list
+setup.values butfirst butfirst :list
+end

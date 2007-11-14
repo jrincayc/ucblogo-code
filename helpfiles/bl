@@ -1,0 +1,7 @@
+BUTLAST wordorlist
+BL wordorlist
+
+	if the input is a word, outputs a word containing all but the last
+	character of the input.  If the input is a list, outputs a list
+	containing all but the last member of the input.
+

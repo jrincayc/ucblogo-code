@@ -1,0 +1,8 @@
+DIFFERENCE num1 num2
+num1 - num2
+
+	outputs the difference of its inputs.  Minus sign means infix
+	difference in ambiguous contexts (when preceded by a complete
+	expression), unless it is preceded by a space and followed
+	by a nonspace.  (See also MINUS.)
+

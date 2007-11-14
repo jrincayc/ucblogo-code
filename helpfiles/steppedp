@@ -1,0 +1,9 @@
+STEPPEDP contentslist
+STEPPED? contentslist
+
+	outputs TRUE if the first procedure, variable, or property list named
+	in the contents list is stepped, FALSE if not.  Only the first thing
+	in the list is tested; the most common use will be with a word as
+	input, naming a procedure, but a contents list is allowed so that you
+	can STEPPEDP [[] [VARIABLE]] or STEPPEDP [[] [] [PROPLIST]].
+

@@ -1,0 +1,7 @@
+FIRST thing
+
+	if the input is a word, outputs the first character of the word.
+	If the input is a list, outputs the first member of the list.
+	If the input is an array, outputs the origin of the array (that
+	is, the INDEX OF the first member of the array).
+

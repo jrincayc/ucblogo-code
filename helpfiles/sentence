@@ -1,0 +1,8 @@
+SENTENCE thing1 thing2
+SE thing1 thing2
+(SENTENCE thing1 thing2 thing3 ...)
+(SE thing1 thing2 thing3 ...)
+
+	outputs a list whose members are its inputs, if those inputs are
+	not lists, or the members of its inputs, if those inputs are lists.
+

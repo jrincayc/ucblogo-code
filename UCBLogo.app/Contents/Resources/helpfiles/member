@@ -1,0 +1,8 @@
+MEMBER thing1 thing2
+
+	if "thing2" is a word or list and if MEMBERP with these inputs would
+	output TRUE, outputs the portion of "thing2" from the first instance
+	of "thing1" to the end.  If MEMBERP would output FALSE, outputs the
+	empty word or list according to the type of "thing2".  It is an error
+	for "thing2" to be an array.
+

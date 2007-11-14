@@ -1,0 +1,6 @@
+SETEDITOR path
+
+	command.  Tells Logo to use the specified program as its editor
+	instead of the default editor.  The format of a path depends on your
+	operating system.
+

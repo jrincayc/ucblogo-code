@@ -1,0 +1,6 @@
+ERPL plname						(library procedure)
+ERPL plnamelist
+
+	command.  Erases from the workspace the property list(s) named in the
+	input.  Abbreviates ERASE PLLIST plname(list).
+

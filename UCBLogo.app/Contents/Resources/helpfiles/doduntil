@@ -1,0 +1,8 @@
+DO.UNTIL instructionlist tfexpression			(library procedure)
+
+	command.  Repeatedly evaluates the "instructionlist" as long as the
+	evaluated "tfexpression" remains FALSE.  Evaluates the first input
+	first, so the "instructionlist" is always run at least once.  The
+	"tfexpression" must be an expressionlist whose value when evaluated
+	is TRUE or FALSE.
+

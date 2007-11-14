@@ -1,0 +1,6 @@
+SETX xcor
+
+	moves the turtle horizontally from its old position to a new
+	absolute horizontal coordinate.  The input is the new X
+	coordinate.
+

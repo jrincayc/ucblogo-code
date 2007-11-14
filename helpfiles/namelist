@@ -1,0 +1,8 @@
+NAMELIST varname					(library procedure)
+NAMELIST varnamelist
+
+	outputs a contents list consisting of an empty list followed by
+	a list of the name or names given as input.  This is useful in
+	conjunction with workspace control procedures that require a contents
+	list as input.
+

@@ -1,0 +1,5 @@
+HOME
+
+	moves the turtle to the center of the screen.  Equivalent to
+	SETPOS [0 0] SETHEADING 0.
+

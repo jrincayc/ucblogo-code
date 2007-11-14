@@ -1,0 +1,7 @@
+DEFINEDP name
+DEFINED? name
+
+	outputs TRUE if the input is the name of a user-defined procedure,
+	including a library procedure.  (However, Logo does not know about
+	a library procedure until that procedure has been invoked.)
+

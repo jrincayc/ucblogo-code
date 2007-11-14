@@ -1,0 +1,14 @@
+GLOBAL varname
+GLOBAL varnamelist
+(GLOBAL varname1 varname2 ...)
+
+	command.  Accepts as inputs one or more words, or a list of
+	words.  A global variable is created for each of these words, with
+	that word as its name.  The only reason this is necessary is that
+	you might want to use the "setter" notation SETXYZ for a variable
+	XYZ that does not already have a value; GLOBAL "XYZ makes that legal.
+	Note: If there is currently a local variable of the same name, this
+	command does *not* make Logo use the global value instead of the
+	local one.
+
+

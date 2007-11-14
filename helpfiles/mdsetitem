@@ -1,0 +1,5 @@
+MDSETITEM indexlist array value				(library procedure)
+
+	command.  Replaces the member of "array" chosen by "indexlist"
+	with the new "value".
+

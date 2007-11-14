@@ -1,0 +1,16 @@
+SAVE filename
+
+	command.  Saves the definitions of all unburied procedures,
+	variables, and nonempty property lists in the named file.
+	Equivalent to
+
+			to save :filename
+			local "oldwriter
+			make "oldwriter writer
+			openwrite :filename
+			setwrite :filename
+			poall
+			setwrite :oldwriter
+			close :filename
+			end
+

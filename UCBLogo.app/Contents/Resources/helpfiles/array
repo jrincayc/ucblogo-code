@@ -1,0 +1,12 @@
+ARRAY size
+(ARRAY size origin)
+
+	outputs an array of "size" members (must be a positive integer),
+	each of which initially is an empty list.  Array members can be
+	selected with ITEM and changed with SETITEM.  The first member of
+	the array is member number 1 unless an "origin" input (must be an
+	integer) is given, in which case the first member of the array has
+	that number as its index.  (Typically 0 is used as the origin if
+	anything.)  Arrays are printed by PRINT and friends, and can be
+	typed in, inside curly braces; indicate an origin with {a b c}@0.
+

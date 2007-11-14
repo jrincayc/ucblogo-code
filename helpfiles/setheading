@@ -1,0 +1,7 @@
+SETHEADING degrees
+SETH degrees
+
+	turns the turtle to a new absolute heading.  The input is
+	a number, the heading in degrees clockwise from the positive
+	Y axis.
+

@@ -1,0 +1,17 @@
+CASE value clauses					(library procedure)
+
+	command or operation.  The second input is a list of lists (clauses);
+	each clause is a list whose first element is either a list of values
+	or the word ELSE and whose butfirst is a Logo expression or
+	instruction.  CASE examines the clauses in order.  If a clause begins
+	with the word ELSE (upper or lower case), then the butfirst of that
+	clause is evaluated and CASE outputs its value, if any.  If the first
+	input to CASE is a member of the first element of a clause, then the
+	butfirst of that clause is evaluated and CASE outputs its value, if
+	any.  If neither of these conditions is met, then CASE goes on to the
+	next clause.  If no clause is satisfied, CASE does nothing.  Example:
+
+		to vowelp :letter
+		output case :letter [ [[a e i o u] "true] [else "false] ]
+		end
+

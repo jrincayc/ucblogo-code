@@ -1,0 +1,8 @@
+;;; -*- logo -*-
+
+to #
+if not namep "template.number [op repcount]
+op :template.number
+end
+
+bury "#

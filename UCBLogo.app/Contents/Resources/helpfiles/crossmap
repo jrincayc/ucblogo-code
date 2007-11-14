@@ -1,0 +1,21 @@
+CROSSMAP template listlist				(library procedure)
+(CROSSMAP template data1 data2 ...)
+
+	outputs a list containing the results of template evaluations.
+	Each data list contributes to a slot in the template; the number
+	of slots is equal to the number of data list inputs.  As a special
+	case, if only one data list input is given, that list is taken as
+	a list of data lists, and each of its members contributes values
+	to a slot.  CROSSMAP differs from MAP in that instead of taking
+	members from the data inputs in parallel, it takes all possible
+	combinations of members of data inputs, which need not be the same
+	length.
+
+		? show (crossmap [word ?1 ?2] [a b c] [1 2 3 4])
+		[a1 a2 a3 a4 b1 b2 b3 b4 c1 c2 c3 c4]
+		?
+
+	For compatibility with the version in the first edition of CSLS,
+	CROSSMAP templates may use the notation :1 instead of ?1 to indicate
+	slots.
+

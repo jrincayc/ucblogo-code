@@ -1,0 +1,6 @@
+QUOTED thing						(library procedure)
+
+	outputs its input, if a list; outputs its input with a quotation
+	mark prepended, if a word.
+
+

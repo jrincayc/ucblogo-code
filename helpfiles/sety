@@ -1,0 +1,6 @@
+SETY ycor
+
+	moves the turtle vertically from its old position to a new
+	absolute vertical coordinate.  The input is the new Y
+	coordinate.
+

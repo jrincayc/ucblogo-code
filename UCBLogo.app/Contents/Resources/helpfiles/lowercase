@@ -1,0 +1,5 @@
+LOWERCASE word
+
+	outputs a copy of the input word, but with all uppercase letters
+	changed to the corresponding lowercase letter.
+

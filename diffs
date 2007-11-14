@@ -1,0 +1,26 @@
+========================== actions.cpp ======================
+========================== gterm.cpp ======================
+========================== keytrans.cpp ======================
+========================== pseudo.cpp ======================
+========================== states.cpp ======================
+========================== TextEditor.cpp ======================
+========================== utils.cpp ======================
+========================== vt52_states.cpp ======================
+========================== wxMain.cpp ======================
+========================== wxTerminal.cpp ======================
+4,5c4,5
+<         taTelnet - A cross-platform telnet program.
+<         Copyright (c) 2000 Derry Bryson. 
+---
+> 	 taTelnet - A cross-platform telnet program.
+>          Copyright (c) 2000 Derry Bryson. 
+655,656c655
+< //  wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name) ,
+<     wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS, name) ,
+---
+>   wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name) ,
+716c715
+< //  SetScrollbars(m_charWidth, m_charHeight, 0, 30);
+---
+>   SetScrollbars(m_charWidth, m_charHeight, 0, 30);
+========================== wxTurtleGraphics.cpp ======================
