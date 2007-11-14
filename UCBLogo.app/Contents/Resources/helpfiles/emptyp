@@ -1,6 +1,0 @@
-EMPTYP thing
-EMPTY? thing
-
-	outputs TRUE if the input is the empty word or the empty list,
-	FALSE otherwise.
-

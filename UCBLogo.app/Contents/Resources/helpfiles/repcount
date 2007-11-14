@@ -1,6 +1,0 @@
-REPCOUNT
-
-	outputs the repetition count of the innermost current REPEAT or
-	FOREVER, starting from 1.  If no REPEAT or FOREVER is active,
-	outputs -1.
-

@@ -1,6 +1,0 @@
-NOREFRESH
-
-	tells Logo not to remember the turtle's motions.  This will make
-	drawing faster, but prevents recovery if the window is overlayed.
-
-

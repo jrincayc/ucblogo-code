@@ -1,5 +1,0 @@
-EDN varname						(library procedure)
-EDN varnamelist
-
-	command.  Abbreviates EDIT NAMELIST varname(list).
-

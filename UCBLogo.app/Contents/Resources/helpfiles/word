@@ -1,5 +1,0 @@
-WORD word1 word2
-(WORD word1 word2 word3 ...)
-
-	outputs a word formed by concatenating its inputs.
-

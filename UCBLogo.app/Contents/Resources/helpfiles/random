@@ -1,5 +1,0 @@
-RANDOM num
-
-	outputs a random nonnegative integer less than its input, which
-	must be an integer.
-

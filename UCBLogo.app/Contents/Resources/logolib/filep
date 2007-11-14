@@ -1,9 +1,0 @@
-;;; -*- logo -*-
-
-to filep :filename
-ignore error
-catch "error [openread :filename close :filename]
-output emptyp error
-end
-
-bury "filep

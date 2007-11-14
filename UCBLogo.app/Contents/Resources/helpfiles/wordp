@@ -1,5 +1,0 @@
-WORDP thing
-WORD? thing
-
-	outputs TRUE if the input is a word, FALSE otherwise.
-

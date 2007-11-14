@@ -1,6 +1,0 @@
-REFRESH
-
-	tells Logo to remember the turtle's motions so that they can be
-	reconstructed in case the graphics window is overlayed.  The
-	effectiveness of this command may depend on the machine used.
-

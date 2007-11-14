@@ -1,5 +1,0 @@
-ERRACT							(variable)
-
-	an instructionlist that will be run in the event of an error.
-	Typically has the value [PAUSE] to allow interactive debugging.
-

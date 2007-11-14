@@ -1,7 +1,0 @@
-SETPENCOLOR colornumber
-SETPC colornumber
-
-	sets the pen color to the given number, which must be a nonnegative
-	integer.  Color 0 is always black; color 7 is always white.  Other
-	colors may or may not be consistent between machines.
-

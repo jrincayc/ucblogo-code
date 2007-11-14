@@ -1,5 +1,0 @@
-WRITER
-
-	outputs the name of the current write stream file, or the empty list
-	if the write stream is the terminal.
-

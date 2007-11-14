@@ -1,5 +1,0 @@
-FOREVER instructionlist
-
-	command.  Runs the "instructionlist" repeatedly, until something
-	inside the instructionlist (such as STOP or THROW) makes it stop.
-
