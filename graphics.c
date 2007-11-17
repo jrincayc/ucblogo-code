@@ -1561,6 +1561,7 @@ NODE *lnorefresh(NODE *args) {
 }
 
 void redraw_graphics(void) {
+  fprintf(stderr, "inredrawgraphics ");
     FLONUM save_tx, save_ty, save_th;
     FIXNUM r_index = One;
     char *bufp = record_buffer;
@@ -1579,6 +1580,7 @@ void redraw_graphics(void) {
 
     prepare_to_draw;
     if(!graphics_setup){
+      erase_screen(); //evan ?
         done_drawing;
         return;
     }

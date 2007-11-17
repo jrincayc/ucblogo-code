@@ -184,7 +184,7 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
         : wxWindow(parent, -1, wxDefaultPosition, wxDefaultSize,
                            wxNO_FULL_REPAINT_ON_RESIZE)
 {
-    m_memDC=new wxMemoryDC();
+  m_memDC=new wxMemoryDC();
   m_bitmap=0;
   m_owner = parent;
   m_show = Show_Lines;
@@ -235,7 +235,15 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 	  
   m_timer = new wxTimer(this);
   m_timer->Start(100);
-  
+
+  //evan  this is from old code, in internalPrepare  
+		turtleFrame->xgr_pen.vis = 0;
+		turtleFrame->xgr_pen.xpos = 50;
+		turtleFrame->xgr_pen.ypos = 50;
+		turtleFrame->xgr_pen.color = 7;
+		turtleFrame->xgr_pen.pw = 1;
+		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
+
 }
 
 
@@ -246,6 +254,7 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
 	wxdprintf("OnPaint starts\n");
 
   wxPaintDC dc(this);
+  dc.DestroyClippingRegion(); //evan
 
   wxFont f(12, wxDEFAULT, wxNORMAL, wxNORMAL, false, "Courier");
   SetFont(f);
@@ -315,6 +324,7 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 	wxdprintf("OnSize starts\n");
 
 	wxPaintDC dc(this);
+	dc.DestroyClippingRegion(); //evan
 	int x, y;
 	
 	GetSize(&x, &y);
@@ -499,8 +509,8 @@ void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled b
 void TurtleCanvas::internalPrepare(){
 	
 		wxClientDC dc(turtleGraphics);
-		turtleGraphics->PrepareDC(dc);
-		turtleGraphics->GetOwner()->PrepareDC(dc);
+		//turtleGraphics->PrepareDC(dc);
+		//turtleGraphics->GetOwner()->PrepareDC(dc);
 
 		dc.SetPen( wxPen( wxT("white"), 1, wxSOLID) );
 
@@ -514,10 +524,13 @@ void TurtleCanvas::internalPrepare(){
 		wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+2],wxSOLID);
 		dc.SetBackgroundMode( wxSOLID );
 		dc.SetBackground( myBrush );
+		//		dc.Clear();
+	       
 #if USE_MEMDC
 		m_memDC->SetBackgroundMode( wxSOLID );
 		m_memDC->SetBackground( myBrush );
 #endif
+		fprintf(stderr, "SHOULD NOT BE PRINTED\n");
     ignorePaint = 1;
 }
 
@@ -1005,12 +1018,12 @@ extern "C" void wxPrepare(){
     if (drawToPrinter || drawToWindow) return;
     if(!prepared){
 	record_buffer[sizeof(int)] = 0;
-	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+	/*       	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
 	event.SetInt(PREPARE);
 	alreadyDone = 0;
 	turtleGraphics->AddPendingEvent(event);
 
-	TurtleCanvas::WaitForEvent();
+	TurtleCanvas::WaitForEvent();*/
 	prepared = 1;
     }
     if(!turtleFrame->in_graphics_mode)

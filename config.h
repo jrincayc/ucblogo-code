@@ -41,7 +41,7 @@
 #define HAVE_SGTTY_H 1
 
 /* Define if you have the <termio.h> header file.  */
-/* #undef HAVE_TERMIO_H */
+#define HAVE_TERMIO_H 1
   
 /* Define if you have the <unistd.h> header file.  */
 #define HAVE_UNISTD_H 1

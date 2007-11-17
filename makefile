@@ -1,9 +1,9 @@
 CC	= gcc
-CFLAGS	= -g -O -DHAVE_WX    -I/usr/X11R6/include -O0
+CFLAGS	= -g -O -DHAVE_WX    -O0
 CXX     = g++
-CXXFLAGS = -g -DHAVE_WX -I/usr/local/lib/wx/include/mac-ansi-release-static-2.8 -I/usr/local/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXMAC__ 
+CXXFLAGS =  -DHAVE_WX -I/usr/local/lib/wx/include/gtk2-ansi-release-static-2.8 -I/usr/local/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXGTK__ -pthread
 LDFLAGS	= 
-LIBS  =  -lSM -lICE  -L/usr/X11R6/lib -lm  -L/usr/local/lib   -framework IOKit -framework Carbon -framework Cocoa -framework System -framework QuickTime  /usr/local/lib/libwx_mac_aui-2.8.a /usr/local/lib/libwx_mac_xrc-2.8.a /usr/local/lib/libwx_mac_qa-2.8.a /usr/local/lib/libwx_mac_html-2.8.a /usr/local/lib/libwx_mac_adv-2.8.a /usr/local/lib/libwx_mac_core-2.8.a /usr/local/lib/libwx_base_carbon_xml-2.8.a /usr/local/lib/libwx_base_carbon_net-2.8.a /usr/local/lib/libwx_base_carbon-2.8.a -framework WebKit -lwxexpat-2.8 -lwxtiff-2.8 -lwxjpeg-2.8 -lwxpng-2.8 -lz -lpthread -liconv  -ltermcap -lX11 
+LIBS  =   -lm  -L/usr/local/lib -pthread   /usr/local/lib/libwx_gtk2_aui-2.8.a /usr/local/lib/libwx_gtk2_xrc-2.8.a /usr/local/lib/libwx_gtk2_qa-2.8.a /usr/local/lib/libwx_gtk2_html-2.8.a /usr/local/lib/libwx_gtk2_adv-2.8.a /usr/local/lib/libwx_gtk2_core-2.8.a /usr/local/lib/libwx_base_xml-2.8.a /usr/local/lib/libwx_base_net-2.8.a /usr/local/lib/libwx_base-2.8.a -pthread -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lfontconfig -lXext -lXrender -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lX11 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lXinerama -lXxf86vm -lSM -lpng -lexpat -lwxtiff-2.8 -lwxjpeg-2.8 -lz -ldl -lm  -ltermcap -lX11 
 prefix = /usr/local
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
@@ -30,7 +30,7 @@ logo:	$(OBJS)
 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
 
 tags:	$(SRCS)
-	ctags --format=1 -N $(SRCS) $(HDRS)
+	ctags -N $(SRCS) $(HDRS)
 # 	ctags -t $(SRCS) $(HDRS)
 
 libloc.c:
