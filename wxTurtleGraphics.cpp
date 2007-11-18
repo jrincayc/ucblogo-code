@@ -236,10 +236,13 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   m_timer = new wxTimer(this);
   m_timer->Start(100);
 
-  //evan  this is from old code, in internalPrepare  
 		turtleFrame->xgr_pen.vis = 0;
-		turtleFrame->xgr_pen.xpos = wxGetInfo(SCREEN_WIDTH)/2;
-		turtleFrame->xgr_pen.ypos = wxGetInfo(SCREEN_HEIGHT)/2;
+	int screen_width, screen_height;
+	parent->GetSize(&screen_width, &screen_height);
+	setInfo(SCREEN_WIDTH, screen_width);
+	setInfo(SCREEN_HEIGHT, screen_height);
+		turtleFrame->xgr_pen.xpos = screen_width/2;
+		turtleFrame->xgr_pen.ypos = screen_height/2;
 		turtleFrame->xgr_pen.color = 7;
 		turtleFrame->xgr_pen.pw = 1;
 		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
@@ -299,10 +302,6 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     tMut.Lock();
     lines.clear();
     tMut.Unlock();
-	int screen_width, screen_height;
-    this->GetSize(&screen_width, &screen_height);
-	setInfo(SCREEN_WIDTH, screen_width);
-	setInfo(SCREEN_HEIGHT, screen_height);
 //    pictureleft = pictureright = screen_width/2;
 //    picturetop = picturebottom = screen_height/2;
 #if 0
@@ -363,7 +362,7 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
     lines.clear();
     tMut.Unlock();
 	int screen_width, screen_height;
-    this->GetSize(&screen_width, &screen_height);
+    logoFrame->GetSize(&screen_width, &screen_height);
 	setInfo(SCREEN_WIDTH, screen_width);
 	setInfo(SCREEN_HEIGHT, screen_height);
 #if 0
@@ -506,34 +505,6 @@ void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled b
   editWindow->Load(file);
 }
 
-void TurtleCanvas::internalPrepare(){
-	
-		wxClientDC dc(turtleGraphics);
-		//turtleGraphics->PrepareDC(dc);
-		//turtleGraphics->GetOwner()->PrepareDC(dc);
-
-		dc.SetPen( wxPen( wxT("white"), 1, wxSOLID) );
-
-		turtleFrame->xgr_pen.vis = 0;
-		turtleFrame->xgr_pen.xpos = 50;
-		turtleFrame->xgr_pen.ypos = 50;
-		turtleFrame->xgr_pen.color = 7;
-		turtleFrame->xgr_pen.pw = 1;
-		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
-
-		wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+2],wxSOLID);
-		dc.SetBackgroundMode( wxSOLID );
-		dc.SetBackground( myBrush );
-		//		dc.Clear();
-	       
-#if USE_MEMDC
-		m_memDC->SetBackgroundMode( wxSOLID );
-		m_memDC->SetBackground( myBrush );
-#endif
-		fprintf(stderr, "SHOULD NOT BE PRINTED\n");
-    ignorePaint = 1;
-}
-
 
 void
 TurtleCanvas::OnLeftDown(wxMouseEvent& event) {
@@ -655,10 +626,6 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
     pen_info *p;
     wxPen pen;
     switch (e.GetInt()) {
-	case PREPARE:
-	    internalPrepare();
-	    FinishedEvent();
-	    break;
 	case SPLITSCREEN:
 	    turtleFrame->in_graphics_mode = 1;
 	    turtleFrame->in_splitscreen = 1;
@@ -1018,12 +985,6 @@ extern "C" void wxPrepare(){
     if (drawToPrinter || drawToWindow) return;
     if(!prepared){
 	record_buffer[sizeof(int)] = 0;
-	/*       	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
-	event.SetInt(PREPARE);
-	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
-
-	TurtleCanvas::WaitForEvent();*/
 	prepared = 1;
     }
     if(!turtleFrame->in_graphics_mode)

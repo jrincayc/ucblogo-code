@@ -366,7 +366,6 @@ wraploop:
     if ((dy < 0 && dy > -0.000001) || (dy > 0 && dy < 0.000001)) dy = 0;
     x2 = x1 + dx;
     y2 = y1 - dy;
-    
     move_to(g_round(x1), g_round(y1));
     save_move();
     
@@ -1561,7 +1560,6 @@ NODE *lnorefresh(NODE *args) {
 }
 
 void redraw_graphics(void) {
-  fprintf(stderr, "inredrawgraphics ");
     FLONUM save_tx, save_ty, save_th;
     FIXNUM r_index = One;
     char *bufp = record_buffer;

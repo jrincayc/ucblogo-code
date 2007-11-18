@@ -263,10 +263,6 @@ LogoFrame::LogoFrame (const wxChar *title,
 		wxALL,        //   and make border all around
 		2 ); 
 
-	 int screen_width, screen_height;
-     turtleGraphics->GetSize(&screen_width, &screen_height);
-	 turtleGraphics->setInfo(SCREEN_HEIGHT, screen_height);
-	 turtleGraphics->setInfo(SCREEN_WIDTH, screen_width);
      topsizer->Show(wxTerminal::terminal, 1);
     topsizer->Show(turtleGraphics, 0);
     topsizer->Show(editWindow, 0);
