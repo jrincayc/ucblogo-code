@@ -88,8 +88,10 @@
 extern char *getenv();
 #endif
 
+#ifndef HAVE_WX
 #ifdef ibm
 #include <dos.h>
+#endif
 #endif
 
 #ifdef HAVE_WX
