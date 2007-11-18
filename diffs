@@ -1,26 +1,341 @@
-========================== actions.cpp ======================
-========================== gterm.cpp ======================
-========================== keytrans.cpp ======================
-========================== pseudo.cpp ======================
-========================== states.cpp ======================
-========================== TextEditor.cpp ======================
-========================== utils.cpp ======================
-========================== vt52_states.cpp ======================
-========================== wxMain.cpp ======================
-========================== wxTerminal.cpp ======================
-4,5c4,5
-<         taTelnet - A cross-platform telnet program.
-<         Copyright (c) 2000 Derry Bryson. 
+===================== actions.cpp =======================
+===================== coms.c =======================
+49c49
+< #include <termios.h>
 ---
-> 	 taTelnet - A cross-platform telnet program.
->          Copyright (c) 2000 Derry Bryson. 
-655,656c655
-< //  wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name) ,
+> #include <termio.h>
+===================== config.cache =======================
+===================== config.h =======================
+===================== config.h.in =======================
+===================== error.c =======================
+27c27
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== eval.c =======================
+98c98
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== files.c =======================
+35c35
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== globals.h =======================
+===================== gpl.html =======================
+===================== gpl_text.h =======================
+===================== graphics.c =======================
+144a145,157
+>     int swid = screen_width;
+>     int shgt = screen_height;
+> 
+> #undef screen_right
+> #undef screen_bottom
+> #undef screen_x_center
+> #undef screen_y_center
+> 
+> #define screen_right             (swid)
+> #define screen_bottom            (shgt)
+> #define screen_x_center (screen_left + (swid)/2)
+> #define screen_y_center (screen_top + (shgt)/2)
+> 
+150a164
+> 		/* do not draw the turtle when first launched */
+153c167,169
+<                         turtle_shown = TRUE;
+---
+> 			/* cs_helper(TRUE); */
+> 			/* redraw_graphics(); */
+> //			turtle_shown = TRUE;
+194a211,220
+> #undef screen_right
+> #undef screen_bottom
+> #undef screen_x_center
+> #undef screen_y_center
+> 
+> #define screen_right             (screen_width)
+> #define screen_bottom            (screen_height)
+> #define screen_x_center (screen_left + (screen_width)/2)
+> #define screen_y_center (screen_top + (screen_height)/2)
+> 
+429c455
+<     if (x2 > screen_right + 0.5) {
+---
+>     if (x2 > screen_right) {
+453c479
+<     if (x2 < screen_left - 0.5) {
+---
+>     if (x2 < screen_left) {
+477c503
+<     if (y2 < screen_top - 0.5) {
+---
+>     if (y2 < screen_top) {
+514c540
+<     if (y2 > screen_bottom + 0.5) {
+---
+>     if (y2 > screen_bottom) {
+578d603
+<     if(!graphics_setup) graphics_setup++;
+589d613
+<     if(!graphics_setup) graphics_setup++;
+736,739d759
+<     if (!graphics_setup) {
+< 	graphics_setup++;
+<         turtle_shown = TRUE;
+<     }
+972,975d991
+<     if (!graphics_setup) {
+< 	graphics_setup++;
+<         turtle_shown = TRUE;
+<     }
+1564d1579
+<   fprintf(stderr, "inredrawgraphics ");
+1575c1590
+<     if (!refresh_p ) {
+---
+>     if (!refresh_p) {
+1582,1586d1596
+<     if(!graphics_setup){
+<       erase_screen(); //evan ?
+<         done_drawing;
+<         return;
+<     }
+===================== gterm.cpp =======================
+===================== gterm.hpp =======================
+===================== init.c =======================
+===================== intern.c =======================
+===================== keytrans.cpp =======================
+===================== libloc.c =======================
+===================== lists.c =======================
+===================== logodata.c =======================
+===================== LogoFrame.h =======================
+===================== logo.h =======================
+===================== macterm.c =======================
+===================== macterm.h =======================
+===================== main.c =======================
+31c31
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== makehelp.c =======================
+===================== math.c =======================
+===================== mem.c =======================
+===================== nographics.c =======================
+===================== nographics.h =======================
+===================== obj.c =======================
+===================== oldgraphics.c =======================
+===================== oldTurtleGraphics.cpp =======================
+===================== paren.c =======================
+===================== parse.c =======================
+34c34
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== print.c =======================
+===================== pseudo.cpp =======================
+===================== states.cpp =======================
+===================== term.c =======================
+34c34
+< #include <termios.h>
+---
+> #include <termio.h>
+75c75
+< struct termios tty_cooked, tty_cbreak;
+---
+> struct termio tty_cooked, tty_cbreak;
+===================== TextEditor.cpp =======================
+===================== TextEditor.h =======================
+===================== utils.cpp =======================
+===================== vt52_states.cpp =======================
+===================== win32trm.c =======================
+===================== win32trm.h =======================
+===================== wrksp.c =======================
+47c47
+< #include <termios.h>
+---
+> #include <termio.h>
+===================== wxGlobals.h =======================
+===================== wxGraphics.h =======================
+===================== wxMain.cpp =======================
+===================== wxMain.h =======================
+===================== wxterm.c =======================
+34c34
+< #include <termios.h>
+---
+> #include <termio.h>
+73c73
+< struct termios tty_cooked, tty_cbreak;
+---
+> struct termio tty_cooked, tty_cbreak;
+===================== wxTerminal.cpp =======================
+128a129,140
+> static char **win32_lines; // for recording what should appear in the text win
+> static char input_lines[2][200];
+> 
+> char *read_line, buffered_char;
+> int cur_line = 0, cur_index = 0, read_index, hpos = 0, margin, cur_len;
+> int char_mode = 0, input_line = 0, input_index = 0;
+> 
+> int line_avail = FALSE, char_avail = FALSE;
+> char *winPasteText = NULL, *winPastePtr = NULL;
+> char *myScreen = NULL;
+> int maxXChar, maxYChar;
+> 
+638,639c650,651
 <     wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS, name) ,
+<   GTerm(width, height)
 ---
->   wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name) ,
-716c715
-< //  SetScrollbars(m_charWidth, m_charHeight, 0, 30);
+>     wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS, name)
+> // ,  GTerm(width, height)
+649a662,663
+>     wxDC theScreen = wxScreenDC();
+>     wxCoord screenMaxX, screenMaxY;
+665a680,681
+> /*
+> 
+670a687,688
+> */
+> 
+673a692
+> /*
+680a700,703
+> */
+> 
+>   for(i = 0; i < 16; i++)
+>     m_colorPens[i] = wxPen(m_colors[i], 1, wxSOLID);
+695a719,724
+> 
+>     theScreen.GetSize(&screenMaxX, &screenMaxY);
+>     maxXChar = screenMaxX/m_charWidth;
+>     maxYChar = screenMaxY/m_charHeight;
+>     myScreen = (char *)malloc(maxXChar * maxYChar);
+>     memset(myScreen, ' ',maxXChar*maxYChar);
+752a782,783
+> /*
+> 
+845,847d875
+<   /*
+<   **  These colors need tweaking.  I'm sure they are not correct.
+<   */
+865,867d892
+<   /*
+<   **  These are much better
+<   */
+927a953,954
+> */
+> 
+942c969
+<       m_timer.Start(m_curBlinkRate);
 ---
->   SetScrollbars(m_charWidth, m_charHeight, 0, 30);
-========================== wxTurtleGraphics.cpp ======================
+> m_timer.Start(m_curBlinkRate);
+951c978,979
+<  GTerm::set_mode_flag(BOLD);
+---
+> // GTerm::set_mode_flag(BOLD);
+>     m_curFlags |= BOLD;
+969c997,998
+<     GTerm::clear_mode_flag(BOLD);
+---
+> //    GTerm::clear_mode_flag(BOLD);
+>     m_curFlags &= ~BOLD;
+979c1008
+<     scroll_region(last_logo_y, last_logo_y + 1, -1);
+---
+> //    scroll_region(last_logo_y, last_logo_y + 1, -1);
+===================== wxTerminal.h =======================
+60c60
+<   class wxTerminal : public wxScrolledWindow , public GTerm
+---
+>   class wxTerminal : public wxScrolledWindow /* , public GTerm */
+92a93
+> /*
+101a103,109
+> */
+> 
+>   wxColour
+>     *m_colors = &TurtleCanvas::colors[2];
+> 
+>   wxPen
+>     m_colorPens[16];
+===================== wxTurtleGraphics.cpp =======================
+105c105
+< #define MAX_LINES_BUFFERED 100
+---
+> #define MAX_LINES_BUFFERED 1500
+187c187
+<   m_memDC=new wxMemoryDC();
+---
+>     m_memDC=new wxMemoryDC();
+238,246c238
+< 
+<   //evan  this is from old code, in internalPrepare  
+< 		turtleFrame->xgr_pen.vis = 0;
+< 		turtleFrame->xgr_pen.xpos = wxGetInfo(SCREEN_WIDTH)/2;
+< 		turtleFrame->xgr_pen.ypos = wxGetInfo(SCREEN_HEIGHT)/2;
+< 		turtleFrame->xgr_pen.color = 7;
+< 		turtleFrame->xgr_pen.pw = 1;
+< 		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
+< 
+---
+>   
+257d248
+<   dc.DestroyClippingRegion(); //evan
+327d317
+< 	dc.DestroyClippingRegion(); //evan
+512,513c502,503
+< 		//turtleGraphics->PrepareDC(dc);
+< 		//turtleGraphics->GetOwner()->PrepareDC(dc);
+---
+> 		turtleGraphics->PrepareDC(dc);
+> 		turtleGraphics->GetOwner()->PrepareDC(dc);
+527,528d516
+< 		//		dc.Clear();
+< 	       
+533d520
+< 		fprintf(stderr, "SHOULD NOT BE PRINTED\n");
+558c545,546
+< void TurtleCanvas::OnMouseMove(wxMouseEvent& event){
+---
+> void
+> TurtleCanvas::OnMouseMove(wxMouseEvent& event){
+1021c1009
+< 	/*       	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+---
+> 	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+1026c1014
+< 	TurtleCanvas::WaitForEvent();*/
+---
+> 	TurtleCanvas::WaitForEvent();
+1027a1016,1021
+> #ifndef __WXMAC__
+> 	{
+> 	extern void lshowturtle(NODE *);
+> 	lshowturtle(NULL);
+> 	}
+> #endif
+1172c1166
+<     if (1 || drawToPrinter || drawToWindow)
+---
+>     if (drawToPrinter || drawToWindow)
+1188c1182,1194
+<     return TurtleCanvas::getInfo(type);
+---
+>     if (drawToPrinter || drawToWindow)
+> 	return TurtleCanvas::getInfo(type);
+>     else {
+> 	int data[2];
+> 	data[0] = type;
+> 	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+> 	event.SetInt(GETINFO);
+> 	event.SetClientData((void *)data);
+> 	alreadyDone = 0;
+> 	turtleGraphics->AddPendingEvent(event);
+> 	TurtleCanvas::WaitForEvent();
+> 	return data[1];
+>     }
+===================== wxTurtleGraphics.h =======================
+===================== xgraphics.c =======================
+===================== xgraphics.h =======================
+===================== ztcterm.c =======================
+===================== ztcterm.h =======================

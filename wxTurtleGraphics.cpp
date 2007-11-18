@@ -238,8 +238,8 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 
   //evan  this is from old code, in internalPrepare  
 		turtleFrame->xgr_pen.vis = 0;
-		turtleFrame->xgr_pen.xpos = 50;
-		turtleFrame->xgr_pen.ypos = 50;
+		turtleFrame->xgr_pen.xpos = wxGetInfo(SCREEN_WIDTH)/2;
+		turtleFrame->xgr_pen.ypos = wxGetInfo(SCREEN_HEIGHT)/2;
 		turtleFrame->xgr_pen.color = 7;
 		turtleFrame->xgr_pen.pw = 1;
 		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
