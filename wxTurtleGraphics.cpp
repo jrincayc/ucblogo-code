@@ -588,7 +588,7 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
     wxCoord wid, ht;
 	
     dc->GetTextExtent(s, &wid, &ht);
-    dc->SetBackgroundMode(wxSOLID);
+    dc->SetBackgroundMode(wxTRANSPARENT);
     if (turtleFrame->back_ground == 0 && drawToPrinter) {
 	dc->SetTextBackground(TurtleCanvas::colors[9]);
 	if (turtleFrame->xgr_pen.color == 7)
@@ -1192,6 +1192,8 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     wxDC *dc=GetDC();
     int oldshown = turtle_shown;
 
+    if (!dc) return false;
+
     printerDC = dc;
 
 #if 1
@@ -1235,12 +1237,15 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 #endif
 
     drawToPrinter = 1;
-    wxBrush myBrush((turtleFrame->back_ground == 0 ?
+#if 0
+    wxBrush myBrush((turtleFrame->back_ground != 0 ?
 		     TurtleCanvas::colors[turtleFrame->back_ground+2] :
 		     TurtleCanvas::colors[9]),	/* 7+2 white */
 		    wxSOLID);
     dc->SetBackgroundMode( wxSOLID );
     dc->SetBackground( myBrush );
+    dc->Clear();
+#endif
     turtle_shown = 0;
     redraw_graphics();
     turtle_shown = oldshown;
