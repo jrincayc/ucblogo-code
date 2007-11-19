@@ -1058,6 +1058,11 @@ NODE *lsetpencolor(NODE *arg) {
 NODE *lsetbackground(NODE *arg) {
     NODE *val;
 
+    if (!graphics_setup) {
+	graphics_setup++;
+	turtle_shown=TRUE;
+    }
+
     if (NOT_THROWING) {
 	prepare_to_draw;
 	if (is_list(car(arg))) {

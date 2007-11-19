@@ -1194,6 +1194,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     printerDC = dc;
 
+#if 1
     int maxX = pictureright - pictureleft;
     int maxY = picturebottom - picturetop;
 
@@ -1203,6 +1204,35 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     wxCoord xoff = (fitRect.width - maxX) / 2 - pictureleft;
     wxCoord yoff = (fitRect.height - maxY) / 2 - picturetop;
     OffsetLogicalOrigin(xoff, yoff);
+#else
+    float maxX = pictureright - pictureleft;
+    float maxY = picturebottom - picturetop;
+
+    // Let's have at least 50 device units margin
+    float marginX = 50;
+    float marginY = 50;
+
+    // Get the size of the DC in pixels
+    int w, h;
+    dc->GetSize(&w, &h);
+
+    // Calculate a suitable scaling factor
+    float scaleX=(float)(w/(maxX+2*marginX));
+    float scaleY=(float)(h/(maxY+2*marginY));
+
+    // Use x or y scaling factor, whichever fits on the DC
+    float actualScale = wxMin(scaleX,scaleY);
+
+    // Calculate the position on the DC for centring the graphic
+    float posX = (float)((w - (200*actualScale))/2.0
+			    - (pictureleft*actualScale));
+    float posY = (float)((h - (200*actualScale))/2.0
+			    - (picturetop*actualScale));
+
+    // Set the scale and origin
+    dc->SetUserScale(actualScale, actualScale);
+    dc->SetDeviceOrigin( (long)posX, (long)posY );
+#endif
 
     drawToPrinter = 1;
     wxBrush myBrush((turtleFrame->back_ground == 0 ?
