@@ -295,6 +295,10 @@ PRIMTYPE prims[] = {
     {"primitives", 0, 0, 0, PREFIX_PRIORITY, lprimitives},
     {"print", 0, 1, -1, PREFIX_PRIORITY, lprint},
     {"printout", 1, 1, 1, PREFIX_PRIORITY, lpo},
+#ifdef HAVE_WX
+    {"printpict", 0, 0, 1, PREFIX_PRIORITY, lprintpict},
+    {"printtext", 0, 0, 1, PREFIX_PRIORITY, lprinttext},
+#endif
     {"procedurep", 1, 1, 1, PREFIX_PRIORITY, lprocedurep},
     {"procedure?", 1, 1, 1, PREFIX_PRIORITY, lprocedurep},
     {"procedures", 0, 0, 0, PREFIX_PRIORITY, lprocedures},

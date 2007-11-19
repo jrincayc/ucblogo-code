@@ -23,6 +23,8 @@ class LogoFrame : public wxFrame
 	
 	void SetUpEditMenu();
 	void SetUpMenu();
+	void OnPrintText(wxCommandEvent&);
+	void OnPrintTextPrev(wxCommandEvent&);
 	
 private:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
@@ -33,8 +35,6 @@ private:
 	void DoPause(wxCommandEvent& WXUNUSED(event));
 	void DoPaste(wxCommandEvent&);
 	void DoCopy(wxCommandEvent&);
-	void OnPrintText(wxCommandEvent&);
-	void OnPrintTextPrev(wxCommandEvent&);
 	void OnPrintTurtle(wxCommandEvent&);
 	void OnIncreaseFont(wxCommandEvent&);
 	void OnDecreaseFont(wxCommandEvent&);

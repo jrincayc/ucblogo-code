@@ -87,7 +87,7 @@ extern int drawToPrinter;
 int internal_penmode = PENMODE_PAINT;
 int turtle_no_save = 0;
 
-enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;
+enum s_md screen_mode = SCREEN_TEXT;
 
 mode_type current_mode = wrapmode;
 FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;
@@ -1396,6 +1396,22 @@ NODE *larc(NODE *arg) {
 	done_drawing;
     }
     return(UNBOUND);
+}
+
+NODE *lprintpict(NODE *args) {
+    if (args != NIL)
+	wxlPrintPreviewPict();
+    else
+	wxlPrintPict();
+    return UNBOUND;
+}
+
+NODE *lprinttext(NODE *args) {
+    if (args != NIL)
+	wxlPrintPreviewText();
+    else
+	wxlPrintText();
+    return UNBOUND;
 }
 
 /************************************************************/

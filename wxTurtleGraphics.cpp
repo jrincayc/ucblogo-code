@@ -745,6 +745,22 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    drawLine(e);
 	    FinishedEvent();
 	    break;
+	case PRINTPICT:
+	    TurtleCanvas::PrintTurtleWindow(e);
+	    FinishedEvent();
+	    break;
+	case PRINTPREVIEWPICT:
+	    TurtleCanvas::TurtlePrintPreview(e);
+	    FinishedEvent();
+	    break;
+	case PRINTTEXT:
+	    logoFrame->OnPrintText(e);
+	    FinishedEvent();
+	    break;
+	case PRINTPREVIEWTEXT:
+	    logoFrame->OnPrintTextPrev(e);
+	    FinishedEvent();
+	    break;
 	}
 	if(!drawToPrinter)
 		delete dc;
@@ -1055,7 +1071,7 @@ extern "C" void wxSetPenWidth(int width){
     }
 }
 
-extern enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 /* Put the logoframe into splitscreen mode*/
 extern "C" void wxSplitScreen(){
@@ -1086,6 +1102,38 @@ extern "C" void wxTextScreen(){
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
     screen_mode = SCREEN_TEXT;
+}
+
+extern "C" void wxlPrintPict(){
+  wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+  event.SetInt(PRINTPICT);
+  alreadyDone = 0;
+  turtleGraphics->AddPendingEvent(event);
+  TurtleCanvas::WaitForEvent();
+}
+
+extern "C" void wxlPrintPreviewPict(){
+  wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+  event.SetInt(PRINTPREVIEWPICT);
+  alreadyDone = 0;
+  turtleGraphics->AddPendingEvent(event);
+  TurtleCanvas::WaitForEvent();
+}
+
+extern "C" void wxlPrintText(){
+  wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+  event.SetInt(PRINTTEXT);
+  alreadyDone = 0;
+  turtleGraphics->AddPendingEvent(event);
+  TurtleCanvas::WaitForEvent();
+}
+
+extern "C" void wxlPrintPreviewText(){
+  wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+  event.SetInt(PRINTPREVIEWTEXT);
+  alreadyDone = 0;
+  turtleGraphics->AddPendingEvent(event);
+  TurtleCanvas::WaitForEvent();
 }
 
 void getMousePosition (int * x, int * y) {

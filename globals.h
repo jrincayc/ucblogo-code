@@ -512,7 +512,10 @@ extern void redraw_graphics(void);
 extern NODE *lscreenmode(NODE *);
 extern NODE *lturtlemode(NODE *);
 extern void fix_turtle_shownness(void);
-extern enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+#ifdef HAVE_WX
+extern NODE *lprintpict(NODE *), *lprinttext(NODE *);
+#endif
 
 #ifdef mac
 
@@ -577,6 +580,10 @@ extern char getFromWX_2(FILE * f);
 extern void wxLogoExit(int code);
 extern void wxLogoSleep(unsigned int milli);
 extern int wxUnget_c(int c, FILE * f);
+extern void wxlPrintPict(void);
+extern void wxlPrintPreviewPict(void);
+extern void wxlPrintText(void);
+extern void wxlPrintPreviewText(void);
 extern int turtlePosition_x, turtlePosition_y;
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2
