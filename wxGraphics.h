@@ -76,7 +76,9 @@ pen_info* getPen();
                                  xgr_pen->ypos=(b)
 
 #define move_to(a,b)             xgr_pen->xpos=(a); \
-                                 xgr_pen->ypos=(b);
+                                 xgr_pen->ypos=(b); \
+				 turtlePosition_x=screen_x_coord; \
+				 turtlePosition_y=screen_y_coord;
 
 #define draw_string(s)           wxLabel(s);
 

@@ -838,6 +838,7 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();
+	wxTerminal::terminal->SetFocus();
 }
 
 // ----------------------------------------------------------------------------
@@ -941,7 +942,7 @@ extern "C" void logofill() {
     else if (drawToWindow)
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, windowDC);
     else {
-	if (turtle_shown) {
+	if (turtle_shown) { /* wait for turtle to disappear */
 	     wxCommandEvent e(wxEVT_LOGO_CUSTOM_COMMAND);
 	     e.SetInt(CATCHUP);
 	     e.SetClientData((void *)data);

@@ -906,6 +906,7 @@ NODE *lfill(NODE *args) {
     logofill();
     draw_turtle();
     if (safe_to_save()) {
+	save_move();
 	last_recorded = record[record_index] = FILLERUP;
 	record_index += One;
 	record[record_index] = FINISHED;

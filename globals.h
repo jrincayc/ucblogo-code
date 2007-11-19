@@ -575,6 +575,7 @@ extern char getFromWX_2(FILE * f);
 extern void wxLogoExit(int code);
 extern void wxLogoSleep(unsigned int milli);
 extern int wxUnget_c(int c, FILE * f);
+extern int turtlePosition_x, turtlePosition_y;
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2
 #define	BACK_GROUND			3
