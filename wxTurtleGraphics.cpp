@@ -636,7 +636,6 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    topsizer->Layout();
 	    wxTerminal::terminal->SetFocus();
 //	    needToRefresh++;
-	    realClearScreen(dc);
 	    FinishedEvent();
 	    break;
 	case FULLSCREEN:
@@ -985,12 +984,16 @@ extern char record_buffer[];
 
 extern "C" void wxPrepare(){
     if (drawToPrinter || drawToWindow) return;
+    
+    if(!turtleFrame->in_graphics_mode) {
+	wxSplitScreen();
+    }
     if(!prepared){
 	record_buffer[sizeof(int)] = 0;
+        wx_clear();
 	prepared = 1;
     }
-    if(!turtleFrame->in_graphics_mode)
-	wxSplitScreen();
+	
     return;
 }
 
