@@ -228,16 +228,6 @@ void draw_turtle_helper(void) {
 
     real_heading = -turtle_heading + 90.0;
  
-#if 0
-    left_x = g_round(turtle_x + x_scale*(FLONUM)(cos((FLONUM)((real_heading + 90.0)*degrad))*turtle_half_bottom));
-    left_y = g_round(turtle_y + y_scale*(FLONUM)(sin((FLONUM)((real_heading + 90.0)*degrad))*turtle_half_bottom));
- 
-    right_x = g_round(turtle_x + x_scale*(FLONUM)(cos((FLONUM)((real_heading - 90.0)*degrad))*turtle_half_bottom));
-    right_y = g_round(turtle_y + y_scale*(FLONUM)(sin((FLONUM)((real_heading - 90.0)*degrad))*turtle_half_bottom));
- 
-    top_x = g_round(turtle_x + x_scale*(FLONUM)(cos((FLONUM)(real_heading*degrad))*turtle_side));
-    top_y = g_round(turtle_y + y_scale*(FLONUM)(sin((FLONUM)(real_heading*degrad))*turtle_side));
-#else
     cos_real_heading = cos((FLONUM)(real_heading*degrad));
     sin_real_heading = sin((FLONUM)(real_heading*degrad));
  
@@ -252,23 +242,12 @@ void draw_turtle_helper(void) {
  
     top_x = g_round(turtle_x + x_scale*(FLONUM)(cos_real_heading*turtle_side));
     top_y = g_round(turtle_y + y_scale*(FLONUM)(sin_real_heading*turtle_side));
-#endif
  
-#if 0
-    /* move to left, draw to top; move to right, draw to top; move to left draw to right */
-    move_to(screen_x_center + left_x, screen_y_center - left_y);
-    line_to(screen_x_center + top_x, screen_y_center - top_y);
-    move_to(screen_x_center + right_x, screen_y_center - right_y);
-    line_to(screen_x_center + top_x, screen_y_center - top_y);
-    move_to(screen_x_center + left_x, screen_y_center - left_y);
-    line_to(screen_x_center + right_x, screen_y_center - right_y);
-#else
     /* move to right, draw to left, draw to top, draw to right */
     move_to(screen_x_center + right_x, screen_y_center - right_y);
     line_to(screen_x_center + left_x, screen_y_center - left_y);
     line_to(screen_x_center + top_x, screen_y_center - top_y);
     line_to(screen_x_center + right_x, screen_y_center - right_y);
-#endif
  
     restore_pen(&saved_pen);
     done_drawing_turtle;
