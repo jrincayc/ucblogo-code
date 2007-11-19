@@ -315,7 +315,6 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     redraw_graphics();
     drawToWindow--;
 #endif
-
 	wxdprintf("OnPaint ends\n");
 }
 
@@ -635,6 +634,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    topsizer->Layout();
 	    wxTerminal::terminal->SetFocus();
 //	    needToRefresh++;
+	    realClearScreen(dc);
 	    FinishedEvent();
 	    break;
 	case FULLSCREEN:

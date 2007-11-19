@@ -1549,7 +1549,8 @@ void redraw_graphics(void) {
 #if defined(__RZTC__) && !defined(WIN32)
     BOOLEAN save_splitscreen = in_splitscreen;
 #endif
-	   
+	
+
     if (!refresh_p ) {
     /*	clear_screen;
 	draw_turtle();	*/
@@ -1558,7 +1559,6 @@ void redraw_graphics(void) {
 
     prepare_to_draw;
     if(!graphics_setup){
-      erase_screen(); //evan ?
         done_drawing;
         return;
     }
