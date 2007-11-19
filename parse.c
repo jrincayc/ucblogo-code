@@ -211,6 +211,8 @@ NODE *reader(FILE *strm, char *prompt) {
     NODETYPES this_type = STRING;
     NODE *ret;
 
+    fix_turtle_shownness();
+
     readingInstruction = !strcmp(prompt, "? ");
 
     print_stringptr = ender;

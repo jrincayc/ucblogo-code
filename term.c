@@ -233,6 +233,7 @@ NODE *lcleartext(NODE *args) {
 #else
 	fflush(stdout); /* do it now! */
 #endif
+	fix_turtle_shownness();
 #if defined(__RZTC__)
 	zflush();
 #endif
@@ -248,6 +249,7 @@ NODE *lcursor(NODE *args) {
 }
 
 NODE *lsetcursor(NODE *args) {
+	fix_turtle_shownness();
 #ifdef WIN32
     return (win32_lsetcursor(args));
 #else /* !win32 */

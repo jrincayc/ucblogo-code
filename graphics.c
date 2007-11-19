@@ -87,14 +87,17 @@ extern int drawToPrinter;
 int internal_penmode = PENMODE_PAINT;
 int turtle_no_save = 0;
 
+enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;
+
 mode_type current_mode = wrapmode;
 FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;
 FLONUM x_scale = 1.0, y_scale = 1.0;
-BOOLEAN turtle_shown = FALSE;
+BOOLEAN turtle_shown = FALSE, user_turtle_shown = TRUE;
 int graphics_setup = 0;
 FLONUM wanna_x = 0.0, wanna_y = 0.0;
 BOOLEAN out_of_bounds = FALSE;
 void setpos_bynumber(FLONUM, FLONUM);
+void internal_hideturtle(void);
 
 int max_palette_slot = 0;
 
@@ -320,6 +323,7 @@ FLONUM wrap_up(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 FLONUM wrap_down(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 
 void forward(FLONUM d) {
+    internal_hideturtle();
     prepare_to_draw;
     draw_turtle();
     forward_helper(d);
@@ -560,10 +564,11 @@ NODE *lshowturtle(NODE *args) {
 	draw_turtle();
     }
     done_drawing;
+    user_turtle_shown = TRUE;
     return(UNBOUND);
 }
 
-NODE *lhideturtle(NODE *args) {
+void internal_hideturtle() {
     if(!graphics_setup) graphics_setup++;
     prepare_to_draw;
     if (turtle_shown) {
@@ -571,7 +576,17 @@ NODE *lhideturtle(NODE *args) {
 	turtle_shown = FALSE;
     }
     done_drawing;
+}
+
+NODE *lhideturtle(NODE *args) {
+    internal_hideturtle();
+    user_turtle_shown = FALSE;
     return(UNBOUND);
+}
+
+void fix_turtle_shownness() {
+    if (graphics_setup && user_turtle_shown && screen_mode != SCREEN_TEXT)
+	(void)lshowturtle(NIL);
 }
 
 NODE *lshownp(NODE *args) {
@@ -793,6 +808,7 @@ void setpos_helper(NODE *xnode, NODE *ynode) {
     FLONUM target_x, target_y;
     
     if (NOT_THROWING) {
+	internal_hideturtle();
 	prepare_to_draw;
 	draw_turtle();
 	move_to(g_round(screen_x_coord), g_round(screen_y_coord));
@@ -938,8 +954,6 @@ NODE *llabel(NODE *arg) {
     }
     return(UNBOUND);
 }
-
-enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;
 
 NODE *ltextscreen(NODE *args) {
     text_screen;
@@ -1318,6 +1332,7 @@ NODE *larc(NODE *arg) {
 	else
 	    radius = getfloat(val2);
 
+	internal_hideturtle();
 	prepare_to_draw;
 	draw_turtle();
 

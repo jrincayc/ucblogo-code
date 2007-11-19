@@ -1055,6 +1055,8 @@ extern "C" void wxSetPenWidth(int width){
     }
 }
 
+extern enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+
 /* Put the logoframe into splitscreen mode*/
 extern "C" void wxSplitScreen(){
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
@@ -1062,6 +1064,7 @@ extern "C" void wxSplitScreen(){
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+    screen_mode = SCREEN_SPLIT;
   
 }
 
@@ -1072,6 +1075,7 @@ extern "C" void wxFullScreen(){
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+    screen_mode = SCREEN_FULL;
 }
 
 /* Put the logoframe into text screen mode*/
@@ -1081,6 +1085,7 @@ extern "C" void wxTextScreen(){
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+    screen_mode = SCREEN_TEXT;
 }
 
 void getMousePosition (int * x, int * y) {

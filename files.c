@@ -663,6 +663,7 @@ NODE *lkeyp(NODE *args) {
     if (readstream == stdin && interactive) {
 	charmode_on();
 	fflush(stdout);
+	fix_turtle_shownness();
 #ifdef HAVE_WX
 	return(wxKeyp() ? TrueName() : FalseName());
 #else

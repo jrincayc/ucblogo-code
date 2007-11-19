@@ -511,6 +511,8 @@ extern NODE *lepspict(NODE *);
 extern void redraw_graphics(void);
 extern NODE *lscreenmode(NODE *);
 extern NODE *lturtlemode(NODE *);
+extern void fix_turtle_shownness(void);
+extern enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 #ifdef mac
 

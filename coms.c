@@ -411,6 +411,7 @@ NODE *lwait(NODE *args) {
 #if defined(__RZTC__)
 	zflush();
 #endif
+	fix_turtle_shownness();
 	if (getint(num) > 0) {
 #ifdef HAVE_WX
 	  n = (unsigned int)getint(num) * 10; // milliseconds
