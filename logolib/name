@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-to name :name.value.input :name.variable.input
-make :name.variable.input :name.value.input
-end
-
-bury "name

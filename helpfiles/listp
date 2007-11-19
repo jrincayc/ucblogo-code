@@ -1,5 +1,0 @@
-LISTP thing
-LIST? thing
-
-	outputs TRUE if the input is a list, FALSE otherwise.
-

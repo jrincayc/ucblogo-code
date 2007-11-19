@@ -1,5 +1,0 @@
-OPENWRITE filename
-
-	command.  Opens the named file for writing.  If the file already
-	existed, the old version is deleted and a new, empty file created.
-

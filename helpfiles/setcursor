@@ -1,8 +1,0 @@
-SETCURSOR vector
-
-	command.  The input is a list of two numbers, the x and y
-	coordinates of a screen position (origin in the upper left
-	corner, positive direction is southeast).  The screen cursor
-	is moved to the requested position.  This command also forces
-	the immediate printing of any buffered characters.
-

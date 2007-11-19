@@ -1,8 +1,0 @@
-;;; -*- logo -*-
-
-to pllist :names
-if wordp :names [output (list [] [] (list :names))]
-output (list [] [] :names)
-end
-
-bury "pllist

@@ -1,5 +1,0 @@
-NUMBERP thing
-NUMBER? thing
-
-	outputs TRUE if the input is a number, FALSE otherwise.
-

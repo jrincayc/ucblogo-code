@@ -1,7 +1,0 @@
-SETPENSIZE size
-SETPENPATTERN pattern
-
-	set hardware-dependent pen characteristics.  These commands are
-	not guaranteed compatible between implementations on different
-	machines.
-

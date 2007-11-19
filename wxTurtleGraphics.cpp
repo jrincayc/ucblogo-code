@@ -243,6 +243,8 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 	setInfo(SCREEN_HEIGHT, screen_height);
 		turtleFrame->xgr_pen.xpos = screen_width/2;
 		turtleFrame->xgr_pen.ypos = screen_height/2;
+	pictureleft = pictureright = screen_width/2;
+	picturetop = picturebottom = screen_height/2;
 		turtleFrame->xgr_pen.color = 7;
 		turtleFrame->xgr_pen.pw = 1;
 		turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
@@ -834,11 +836,10 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
         wxMessageBox(_T("There was a problem previewing.\nPerhaps your current printer is not set correctly?"), _T("Previewing"), wxOK);
         return;
     }
-	wxPreviewFrame *frame = new wxPreviewFrame(preview, this, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
+    wxPreviewFrame *frame = new wxPreviewFrame(preview, this, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();
-	wxTerminal::terminal->SetFocus();
 }
 
 // ----------------------------------------------------------------------------

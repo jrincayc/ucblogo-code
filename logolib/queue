@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-to queue :the.queue.name :the.item.value
-make :the.queue.name lput :the.item.value thing :the.queue.name
-end
-
-bury "queue

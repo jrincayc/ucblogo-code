@@ -1,6 +1,0 @@
-PENCOLOR
-PC
-
-	outputs a color number, a nonnegative integer that is associated
-	with a particular color by the hardware and operating system.
-

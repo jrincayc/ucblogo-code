@@ -1,8 +1,0 @@
-CURSOR
-
-	outputs a list containing the current x and y coordinates of
-	the screen cursor.  Logo may get confused about the current
-	cursor position if, e.g., you type in a long line that wraps
-	around or your program prints escape codes that affect the
-	terminal strangely.
-

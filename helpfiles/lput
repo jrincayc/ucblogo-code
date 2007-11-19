@@ -1,5 +1,0 @@
-LPUT thing list
-
-	outputs a list equal to its second input with one extra member,
-	the first input, at the end.
-
