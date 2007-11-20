@@ -619,6 +619,7 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
    in the GUI thread but are posted as events from logo*/
 void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
     wxDC *dc;
+
     if(drawToPrinter)
 	dc=printerDC;
     else{
@@ -636,6 +637,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    topsizer->Layout();
 	    wxTerminal::terminal->SetFocus();
 //	    needToRefresh++;
+	    wxTerminal::terminal->deferUpdate(0);
 	    FinishedEvent();
 	    break;
 	case FULLSCREEN:
@@ -645,6 +647,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    topsizer->Show(turtleGraphics, 1);
 	    topsizer->Show(editWindow, 0);
 	    topsizer->Layout();
+	    wxTerminal::terminal->deferUpdate(1);
 	    FinishedEvent();
 	    break;
 	case TEXTSCREEN:
@@ -655,6 +658,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    topsizer->Show(editWindow, 0);
 	    topsizer->Layout();
 	    wxTerminal::terminal->SetFocus();
+	    wxTerminal::terminal->deferUpdate(0);
 	    FinishedEvent();
 	    break;
 	case CLEARSCREEN:

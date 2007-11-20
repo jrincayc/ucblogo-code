@@ -171,6 +171,7 @@ public:
   void SetCursorBlinkRate(int rate);
   void RefreshTerminal();
   void SetBoldStyle(wxTerminal::BOLDSTYLE boldStyle);
+  void deferUpdate(int);
   wxTerminal::BOLDSTYLE GetBoldStyle(void) { return m_boldStyle; }
 
   void ClearSelection();

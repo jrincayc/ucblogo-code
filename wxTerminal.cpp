@@ -709,6 +709,13 @@ wxTerminal::~wxTerminal()
   }
 }
 
+void wxTerminal::deferUpdate(int flag) {
+    if (flag)
+	set_mode_flag(DEFERUPDATE);
+    else
+	clear_mode_flag(DEFERUPDATE);
+}
+
 void
 wxTerminal::SetBoldStyle(wxTerminal::BOLDSTYLE boldStyle)
 {
