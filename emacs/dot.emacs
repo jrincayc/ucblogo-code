@@ -26,11 +26,11 @@
 ;; make LIBLOC=some-unusual-place, or changed $(prefix) in toplevel
 ;; ucblogo makefile
 ;;
-(setq load-path (cons "/home/alanbs/local-installs/lib/logo/emacs" load-path))
-(setq logo-binary-name "/home/alanbs/local-installs/bin/logo")
-(setq logo-info-file "/home/alanbs/local-installs/info/ucblogo.info")
-(setq logo-help-path "/home/alanbs/local-installs/lib/logo/helpfiles/")
-(setq logo-tutorial-path "/home/alanbs/local-installs/lib/logo/emacs/")
+(setq load-path (cons "/usr/local/lib/logo/emacs" load-path))
+(setq logo-binary-name "/usr/local/bin/logo")
+(setq logo-info-file "/usr/local/info/ucblogo.info")
+(setq logo-help-path "/usr/local/lib/logo/helpfiles/")
+(setq logo-tutorial-path "/usr/local/lib/logo/emacs/")
 ;;
 ;; Uncomment next 2 if you want to change the default size of Logo window.
 ;; Default is 80 x 24.

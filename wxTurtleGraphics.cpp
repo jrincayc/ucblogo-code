@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "wxTurtleGraphics.h"
 #include "TextEditor.h"
 #include <wx/stdpaths.h>
@@ -201,7 +202,9 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
     // Set some initial page margins in mm. 
     g_pageSetupData->SetMarginTopLeft(wxPoint(15, 15));
     g_pageSetupData->SetMarginBottomRight(wxPoint(15, 15));
+#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
     wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
+#endif
 
   oldWidth = -1;
   oldHeight = -1;
@@ -1253,7 +1256,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     printerDC = dc;
 
-#if 1
+#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
     int maxX = pictureright - pictureleft;
     int maxY = picturebottom - picturetop;
 
@@ -1276,17 +1279,15 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     dc->GetSize(&w, &h);
 
     // Calculate a suitable scaling factor
-    float scaleX=(float)(w/(maxX+2*marginX));
-    float scaleY=(float)(h/(maxY+2*marginY));
+    float scaleX=(float)((w-2*marginX)/maxX);
+    float scaleY=(float)((h-2*marginY)/maxY);
 
     // Use x or y scaling factor, whichever fits on the DC
     float actualScale = wxMin(scaleX,scaleY);
 
     // Calculate the position on the DC for centring the graphic
-    float posX = (float)((w - (200*actualScale))/2.0
-			    - (pictureleft*actualScale));
-    float posY = (float)((h - (200*actualScale))/2.0
-			    - (picturetop*actualScale));
+    float posX = (float)((w - actualScale*maxX)/2)-pictureleft*actualScale;
+    float posY = (float)((h - actualScale*maxY)/2)-picturetop*actualScale;
 
     // Set the scale and origin
     dc->SetUserScale(actualScale, actualScale);

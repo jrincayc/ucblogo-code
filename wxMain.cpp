@@ -95,8 +95,9 @@ wxCondition read_buff (in_mut);
 
 void * AppThread::Entry()
 {
+#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
 	wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
-
+#endif
 
 	// fix the working directory in mac
 #ifdef __WXMAC__

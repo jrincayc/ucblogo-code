@@ -356,12 +356,20 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)){
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
 			    (firstloadsave ?
+#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
+			      *wxEmptyString :
+#else
 			      wxStandardPaths::Get().GetDocumentsDir() :
+#endif
 			      *wxEmptyString),
 			    wxEmptyString,
 //			    "Logo workspaces(*.lg)|All files(*.*)",
 			    "*.*",
+#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
+			    wxSAVE|wxOVERWRITE_PROMPT|wxCHANGE_DIR);
+#else
 			    wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxFD_CHANGE_DIR);
+#endif
 	
 	dialog.SetFilterIndex(1);
 	
@@ -379,12 +387,21 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	(
 	 this,
 	 _T("Load Logo Workspace"),
-	 (firstloadsave ? wxStandardPaths::Get().GetDocumentsDir() :
+	 (firstloadsave ?
+#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
+	    *wxEmptyString :
+#else
+	    wxStandardPaths::Get().GetDocumentsDir() :
+#endif
 			  *wxEmptyString),
 	 wxEmptyString,
 //	 "Logo workspaces(*.lg)|All files(*.*)",
 	 "*",
+#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
+	 wxOPEN|wxFILE_MUST_EXIST|wxCHANGE_DIR);
+#else
 	 wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_CHANGE_DIR);
+#endif
 		
 	if (dialog.ShowModal() == wxID_OK) {
 	    doLoad((char *)dialog.GetPath().c_str(),
