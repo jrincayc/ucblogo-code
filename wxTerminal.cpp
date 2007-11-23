@@ -1444,6 +1444,7 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   m_sely1 = m_sely2 = event.GetY() / m_charHeight;
   m_selecting = TRUE;
 
+  event.Skip();  //let native handler reset focus
 }
 
 void
