@@ -1875,7 +1875,8 @@ extern void fixMacType(NODE *args);
 
 NODE *lepspict(NODE *args) {
     FILE *fp;
-    int r_index = 0, act=0, lastx = 0, lasty = 0, vis = 0;
+    int r_index = One, act=0, lastx = 0, lasty = 0, vis = 0;
+    char *bufp = record_buffer;
 
 #ifdef mac
     fixMacType(args);
@@ -1906,32 +1907,32 @@ NODE *lepspict(NODE *args) {
 
 	fprintf(fp, "%d %d moveto\n", screen_x_center, screen_y_center);
 
-	while (r_index < record_index)
-	    switch (record[r_index]) {
+	while (bufp[r_index] != FINISHED) {
+	    switch (bufp[r_index]) {
 		case (LINEXY) :
 		    if (!vis) {
-			lastx = screen_x_center + *(int *)(record + r_index + One);
-			lasty = screen_y_center + *(int *)(record + r_index + Two);
+			lastx = screen_x_center + *(int *)(bufp + r_index + One);
+			lasty = screen_y_center + *(int *)(bufp + r_index + Two);
 			fprintf(fp, "%d %d lineto\n", lastx, lasty);
 			r_index += Three;
 			act++;
 			break;	/* else fall through */
 		    }
 		case (MOVEXY) :
-		    lastx = screen_x_center + *(int *)(record + r_index + One);
-		    lasty = screen_y_center + *(int *)(record + r_index + Two);
+		    lastx = screen_x_center + *(int *)(bufp + r_index + One);
+		    lasty = screen_y_center + *(int *)(bufp + r_index + Two);
 		    fprintf(fp, "%d %d moveto\n", lastx, lasty);
 		    r_index += Three;
 		    break;
 		case (LABEL) :
 		    fprintf(fp, "gsave -5 1 rmoveto (");
-		    ps_string(fp, record + r_index + One+1);
+		    ps_string(fp, bufp + r_index + One+1);
 		    fprintf(fp, ") show grestore\n");
 		    fprintf(fp, "%d %d moveto\n", lastx, lasty);
-		    r_index += (One+2 + record[r_index + One] + (One-1)) & ~(One-1);
+		    r_index += (One+2 + bufp[r_index + One] + (One-1)) & ~(One-1);
 		    break;
 		case (SETPENVIS) :
-		    vis = record[r_index + 1];
+		    vis = bufp[r_index + 1];
 		    r_index += One;
 		    break;
 		case (SETPENMODE) :
@@ -1942,7 +1943,7 @@ NODE *lepspict(NODE *args) {
 			fprintf(fp, "stroke %d %d moveto\n", lastx, lasty);
 			act = 0;
 		    }
-		    rgbprint(fp, (*(int *)(record + r_index + One)));
+		    rgbprint(fp, (*(int *)(bufp + r_index + One)));
 		    fprintf(fp, " setrgbcolor\n");
 		    r_index += Two;
 		    break;
@@ -1951,9 +1952,9 @@ NODE *lepspict(NODE *args) {
 			fprintf(fp, "stroke %d %d moveto\n", lastx, lasty);
 			act = 0;
 		    }
-		    set_palette(-1, (*(int *)(record + r_index + One)),
-				    (*(int *)(record + r_index + Two)),
-				    (*(int *)(record + r_index + Three)));
+		    set_palette(-1, (*(int *)(bufp + r_index + One)),
+				    (*(int *)(bufp + r_index + Two)),
+				    (*(int *)(bufp + r_index + Three)));
 		    rgbprint(fp, -1);
 		    fprintf(fp, " setrgbcolor\n");
 		    r_index += Four;
@@ -1964,7 +1965,7 @@ NODE *lepspict(NODE *args) {
 			act = 0;
 		    }
 		    fprintf(fp, "%d setlinewidth\n",
-			    (*(int *)(record + r_index + One)));
+			    (*(int *)(bufp + r_index + One)));
 		    r_index += Three;
 		    break;
 		case (SETPENPATTERN) :
@@ -1976,12 +1977,12 @@ NODE *lepspict(NODE *args) {
 		case (ARC) :
 		{
 		    FLONUM tx = screen_x_center +
-						*(FLONUM *)(record + r_index + 5*Big);
+						*(FLONUM *)(bufp + r_index + 5*Big);
 		    FLONUM ty = screen_y_center +
-						*(FLONUM *)(record + r_index + 6*Big);
-		    FLONUM radius = *(FLONUM *)(record + r_index + 3*Big);
-		    FLONUM angle =*(FLONUM *)(record + r_index + 7*Big);
-		    FLONUM thead = *(FLONUM *)(record + r_index + 8*Big);
+						*(FLONUM *)(bufp + r_index + 6*Big);
+		    FLONUM radius = *(FLONUM *)(bufp + r_index + 3*Big);
+		    FLONUM angle =*(FLONUM *)(bufp + r_index + 7*Big);
+		    FLONUM thead = *(FLONUM *)(bufp + r_index + 8*Big);
 		    
 		    /* move to beginning of the arc */
 		    fprintf(fp, "%f %f moveto\n",
@@ -2000,6 +2001,11 @@ NODE *lepspict(NODE *args) {
 
 		r_index += 9*Big;
 		break;
+	    case (NEXTBUFFER):
+		bufp = *(char **)(bufp);
+		r_index = One;
+		break;
+	    }
 	}
 	    
 	fprintf(fp, "stroke\nshowpage\n%%%%EOF\n");

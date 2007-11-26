@@ -689,9 +689,9 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	    int col;
 	    col = (int) e.GetClientData();
 	    wxColour colour(TurtleCanvas::colors[col+2]);
-	    R = colour.Red();
-	    G = colour.Green();
-	    B = colour.Blue();
+	    R = colour.Red()*256;
+	    G = colour.Green()*256;
+	    B = colour.Blue()*256;
 	    FinishedEvent();
 	}
 	    break;
@@ -899,15 +899,15 @@ extern "C" void nop() {
 }
 
 extern "C" void set_palette(int color, unsigned int r, unsigned int g, unsigned int b){
-	TurtleCanvas::colors[color+2] = wxColour(r,g,b);
+	TurtleCanvas::colors[color+2] = wxColour(r/256,g/256,b/256);
 }
 
 extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigned int *b){
     if (drawToWindow) {
 	wxColour colour(TurtleCanvas::colors[color+2]);
-	*r = colour.Red();
-	*g = colour.Green();
-	*b = colour.Blue();
+	*r = colour.Red()*256;
+	*g = colour.Green()*256;
+	*b = colour.Blue()*256;
     } else {
 	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
 	event.SetInt(GETPALETTE);
