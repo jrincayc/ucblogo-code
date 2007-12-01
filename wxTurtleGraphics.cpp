@@ -326,7 +326,7 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
 void TurtleCanvas::OnSize(wxSizeEvent& event) {
 	wxdprintf("OnSize starts\n");
 
-	wxPaintDC dc(this);
+	wxClientDC dc(this);
 	dc.DestroyClippingRegion(); //evan
 	int x, y;
 	
@@ -416,17 +416,21 @@ void TurtleCanvas::OnTimer (wxTimerEvent& event) {
 }
 
 void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
+    wxPen myPen;
+
     if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
-	dc->SetPen( wxPen( wxT("black"), l->pw, wxSOLID) );
+	myPen = wxPen( wxT("black"), l->pw, wxSOLID);
     } else {
-	dc->SetPen( wxPen(wxT(TurtleCanvas::colors[l->color+2]),
-			  l->pw, wxSOLID) );
+	myPen = wxPen(wxT(TurtleCanvas::colors[l->color+2]),
+			  l->pw, wxSOLID);
+    }
+
+    dc->SetPen(myPen);
 #if USE_MEMDC
 	if (!drawToPrinter)
 	    m_memDC->SetPen(wxPen(wxT(TurtleCanvas::colors[l->color+2]),
 				 l->pw, wxSOLID) );		  
 #endif
-    }
     if(l->pm==PEN_ERASE){
 	dc->SetLogicalFunction(wxINVERT);
 #if USE_MEMDC
@@ -458,6 +462,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     }
     turtlePosition_x = l->x2;
     turtlePosition_y = l->y2;
+    dc->SetPen(wxNullPen);
 }
 
 extern int turtle_shown;
@@ -1030,7 +1035,7 @@ extern "C" void wxDrawLine(int x1, int y1, int x2, int y2){
 	}
 
 	if (numLines == LINEPAUSE) {
-	  lineCond.Wait(1);
+	  lineCond.WaitTimeout(1);
 	  numLines = 0;
 	}
 	else 

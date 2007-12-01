@@ -193,7 +193,7 @@ extern "C" void flushFile(FILE * stream, int justPost) {
     
     if (numLines >= LINEPAUSE) {
       // this is to give the user a chance to pause
-      buff_full_cond.Wait(1);
+      buff_full_cond.WaitTimeout(1);
       numLines = 0;
     }
     else 
@@ -216,7 +216,7 @@ extern "C" void flushFile(FILE * stream, int justPost) {
       // This is so that I don't have to grab the lock twice
       if (numLines >= LINEPAUSE) {
 	out_mut.Lock();
-	buff_full_cond.Wait(1);
+	buff_full_cond.WaitTimeout(1);
 	out_mut.Unlock();
 	numLines = 0;
       }
@@ -239,7 +239,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
 	  else needToRefresh = 1;
   }
   sleepMut.Lock();
-  sleepCond.Wait(milli);
+  sleepCond.WaitTimeout(milli);
   sleepMut.Unlock();
 }
 
@@ -334,7 +334,7 @@ extern "C" char getFromWX_2(FILE * f)
     flushFile(stdout, 0);
     in_mut.Lock();
     if (buff_index == 0 && !putReturn)
-      read_buff.Wait(1000);
+      read_buff.WaitTimeout(1000);
   }
   char c;
   if (putReturn)
