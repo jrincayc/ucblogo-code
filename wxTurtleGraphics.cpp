@@ -417,8 +417,20 @@ void TurtleCanvas::OnTimer (wxTimerEvent& event) {
 
 void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     wxPen myPen;
+    wxColour xorColor;
 
-    if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
+    if (l->pm==PEN_ERASE) {
+	myPen = wxPen(wxT(TurtleCanvas::colors[turtleFrame->back_ground+2]),
+			l->pw, wxSOLID);
+
+    } else if (l->pm==PEN_REVERSE) {
+	unsigned int pr, pg, pb, br, bg, bb;
+	get_palette(l->color, &pr, &pg, &pb);
+	get_palette(turtleFrame->back_ground, &br, &bg, &bb);
+	xorColor=wxColour((pr^br)/256, (pg^bg)/256, (pb^bb)/256);
+	myPen = wxPen(wxT(xorColor), l->pw, wxSOLID);
+
+    } else if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
 	myPen = wxPen( wxT("black"), l->pw, wxSOLID);
     } else {
 	myPen = wxPen(wxT(TurtleCanvas::colors[l->color+2]),
@@ -431,13 +443,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 	    m_memDC->SetPen(wxPen(wxT(TurtleCanvas::colors[l->color+2]),
 				 l->pw, wxSOLID) );		  
 #endif
-    if(l->pm==PEN_ERASE){
-	dc->SetLogicalFunction(wxINVERT);
-#if USE_MEMDC
-	if (!drawToPrinter)
-	    m_memDC->SetLogicalFunction(wxINVERT);
-#endif
-    } else if(l->pm==PEN_REVERSE){
+    if(l->pm==PEN_REVERSE){
 	dc->SetLogicalFunction(wxXOR);
 #if USE_MEMDC
 	if (!drawToPrinter)
@@ -908,7 +914,7 @@ extern "C" void set_palette(int color, unsigned int r, unsigned int g, unsigned 
 }
 
 extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigned int *b){
-    if (drawToWindow) {
+    if (1 || drawToWindow) {
 	wxColour colour(TurtleCanvas::colors[color+2]);
 	*r = colour.Red()*256;
 	*g = colour.Green()*256;

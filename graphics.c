@@ -160,10 +160,12 @@ void draw_turtle(void) {
 
     turtle_no_save = 1;
     turtle_shown = 0;
+/*
     get_palette(pen_color, &r, &g, &b);
     if (r==0 && g==0 && b==0) {
 	set_pen_color(7);
     }
+*/
     save_vis=pen_vis;
     pen_vis = -1;
     forward(-1);
