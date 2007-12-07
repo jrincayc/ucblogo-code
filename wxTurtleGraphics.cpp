@@ -140,7 +140,7 @@ void PrintLines(){
 	for (; turtleIndex<lines.size();turtleIndex++) {
 		l = lines[turtleIndex];
 		wxdprintf("Pen color = %s ", TurtleCanvas::colors[l.color+2]);
-		//dc.SetPen( wxPen( wxT(TurtleCanvas::colors[l.color+2]), 1, wxSOLID) );
+		//dc.SetPen( wxPen(TurtleCanvas::colors[l.color+2], 1, wxSOLID) );
 		if(l.pm==PEN_REVERSE)
 		  {wxdprintf("and reversed \n");}
 		else if(l.pm==PEN_ERASE)
@@ -420,7 +420,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     wxColour xorColor;
 
     if (l->pm==PEN_ERASE) {
-	myPen = wxPen(wxT(TurtleCanvas::colors[turtleFrame->back_ground+2]),
+	myPen = wxPen(TurtleCanvas::colors[turtleFrame->back_ground+2],
 			l->pw, wxSOLID);
 
     } else if (l->pm==PEN_REVERSE) {
@@ -428,19 +428,18 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 	get_palette(l->color, &pr, &pg, &pb);
 	get_palette(turtleFrame->back_ground, &br, &bg, &bb);
 	xorColor=wxColour((pr^br)/256, (pg^bg)/256, (pb^bb)/256);
-	myPen = wxPen(wxT(xorColor), l->pw, wxSOLID);
+	myPen = wxPen(xorColor, l->pw, wxSOLID);
 
     } else if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
 	myPen = wxPen( wxT("black"), l->pw, wxSOLID);
     } else {
-	myPen = wxPen(wxT(TurtleCanvas::colors[l->color+2]),
-			  l->pw, wxSOLID);
+	myPen = wxPen(TurtleCanvas::colors[l->color+2], l->pw, wxSOLID);
     }
 
     dc->SetPen(myPen);
 #if USE_MEMDC
 	if (!drawToPrinter)
-	    m_memDC->SetPen(wxPen(wxT(TurtleCanvas::colors[l->color+2]),
+	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+2],
 				 l->pw, wxSOLID) );		  
 #endif
     if(l->pm==PEN_REVERSE){
