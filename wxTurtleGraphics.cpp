@@ -284,10 +284,11 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
   
   oldWidth = x;
   oldHeight = y;
+
+#if USE_MEMDC
   /*
    **  Create our bitmap for copying
    */
-#if USE_MEMDC
   if(m_bitmap)
   {
 	  m_memDC->SelectObject(wxNullBitmap);
@@ -1264,9 +1265,23 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     if (!dc) return false;
 
-    printerDC = dc;
+  //using a memdc for printer here
+    /*
+     *  Create our bitmap for copying
+     */
+    int w,h; 
+  
+    dc->GetSize(&w, &h);
+ 
+    wxMemoryDC *printMemDC = new wxMemoryDC();
+    wxBitmap *printBitmap = new wxBitmap(w,h);
+    printMemDC->SelectObject(*printBitmap);
 
-#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
+    printerDC = printMemDC;
+
+
+#if 0
+//#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
     int maxX = pictureright - pictureleft;
     int maxY = picturebottom - picturetop;
 
@@ -1285,8 +1300,8 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     float marginY = 50;
 
     // Get the size of the DC in pixels
-    int w, h;
-    dc->GetSize(&w, &h);
+    
+     //dc->GetSize(&w, &h);   //this is now done above with memDC
 
     // Calculate a suitable scaling factor
     float scaleX=(float)((w-2*marginX)/maxX);
@@ -1300,24 +1315,25 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     float posY = (float)((h - actualScale*maxY)/2)-picturetop*actualScale;
 
     // Set the scale and origin
-    dc->SetUserScale(actualScale, actualScale);
-    dc->SetDeviceOrigin( (long)posX, (long)posY );
+    printerDC->SetUserScale(actualScale, actualScale);
+    printerDC->SetDeviceOrigin( (long)posX, (long)posY );
 #endif
 
     drawToPrinter = 1;
-#if 0
-    wxBrush myBrush((turtleFrame->back_ground != 0 ?
-		     TurtleCanvas::colors[turtleFrame->back_ground+2] :
-		     TurtleCanvas::colors[9]),	/* 7+2 white */
-		    wxSOLID);
-    dc->SetBackgroundMode( wxSOLID );
-    dc->SetBackground( myBrush );
-    dc->Clear();
-#endif
     turtle_shown = 0;
     redraw_graphics();
     turtle_shown = oldshown;
     drawToPrinter = 0;
+
+
+    //now print the bitmap to the dc
+    //actualPrinterDC->Blit(0,0,w,h,printMemDC,0,0); //appears not to work
+    dc->DrawBitmap(*printBitmap, 0, 0);
+
+    //delete bitmap and memorydc
+    delete printBitmap;
+    delete printMemDC;
+
     return true;
 }
 
