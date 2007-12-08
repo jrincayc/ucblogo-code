@@ -524,6 +524,7 @@ void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled b
 void
 TurtleCanvas::OnLeftDown(wxMouseEvent& event) {
   mouse_down_left = 1;
+  event.Skip(); //allow native handler to set focus
 }
 void TurtleCanvas::OnLeftUp(wxMouseEvent& event) {
   mouse_down_left = 0;
