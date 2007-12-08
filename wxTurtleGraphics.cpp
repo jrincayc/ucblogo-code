@@ -1260,16 +1260,17 @@ extern int turtle_shown;
 
 bool TurtleWindowPrintout::OnPrintPage(int page)
 {
+    int w,h; 
     wxDC *dc=GetDC();
     int oldshown = turtle_shown;
 
     if (!dc) return false;
 
+#ifndef __WXMAC__
   //using a memdc for printer here
     /*
      *  Create our bitmap for copying
      */
-    int w,h; 
   
     dc->GetSize(&w, &h);
  
@@ -1278,7 +1279,9 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     printMemDC->SelectObject(*printBitmap);
 
     printerDC = printMemDC;
-
+#else
+    printerDC = dc;
+#endif
 
 #if 0
 //#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
@@ -1301,7 +1304,9 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     // Get the size of the DC in pixels
     
-     //dc->GetSize(&w, &h);   //this is now done above with memDC
+#ifdef __WXMAC__
+     dc->GetSize(&w, &h);   //this is now done above with memDC
+#endif
 
     // Calculate a suitable scaling factor
     float scaleX=(float)((w-2*marginX)/maxX);
@@ -1325,7 +1330,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     turtle_shown = oldshown;
     drawToPrinter = 0;
 
-
+#ifndef __WXMAC__
     //now print the bitmap to the dc
     //actualPrinterDC->Blit(0,0,w,h,printMemDC,0,0); //appears not to work
     dc->DrawBitmap(*printBitmap, 0, 0);
@@ -1333,6 +1338,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     //delete bitmap and memorydc
     delete printBitmap;
     delete printMemDC;
+#endif
 
     return true;
 }
