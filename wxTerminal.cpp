@@ -1140,7 +1140,6 @@ void wxTerminal::DoPaste(){
 	
 }
 
-
 void wxTerminal::LoseFocus (wxFocusEvent & event){
 }
 
@@ -1373,13 +1372,13 @@ void wxTerminal::OnSize(wxSizeEvent& event) {
   int x, y;
   GetSize(&x, &y);
   
-  int tmpX, tmpY;
-  logoFrame->GetSize(&tmpX, &tmpY);
+  //int tmpX, tmpY;
+  //logoFrame->GetSize(&tmpX, &tmpY);
   //printf("frame height: %d, frame width: %d\n", tmpY, tmpX);
   //printf("wat did getSize return? x: %d,, y: %d\n", x, y);
   //printf("character width: %d, character height: %d\n", m_charWidth, m_charHeight);
-  wxClientDC dc(this);
-  dc.GetSize(&tmpX, &tmpY);
+  //wxClientDC dc(this);
+  //dc.GetSize(&tmpX, &tmpY);
 	  //printf("dc size? x: %d, y: %d\n", tmpX, tmpY);
 	  
   if (x_max == x / m_charWidth && y_max == y / m_charHeight)
