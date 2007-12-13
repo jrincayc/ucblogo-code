@@ -30,7 +30,7 @@ logo:	$(OBJS)
 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
 
 svn.c:	$(SRCS)
-	echo 'char* SVN = "('`svnversion`')";' > svn.c
+	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)
