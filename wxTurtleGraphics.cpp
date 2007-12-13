@@ -59,7 +59,7 @@ DECLARE_EVENT_TABLE_ENTRY( \
 // ----------------------------------------------------------------------------
 // Globals
 // ----------------------------------------------------------------------------
-//char* LogoPlatformName="wxWidgets";
+char* LogoPlatformName="wxWidgets";
 
 pen_info p;
 
@@ -456,16 +456,17 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 	    m_memDC->SetLogicalFunction(wxCOPY);
 #endif
     }
-    if(l->vis)
+    if(l->vis) {
    	 dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
-    if (!drawToPrinter && !drawToWindow) {
+	if (!drawToPrinter && !drawToWindow) {
 #if USE_MEMDC
-	m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
+	    m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
 #endif
-	if (l->x2 < pictureleft) pictureleft = l->x2;
-	if (l->x2 > pictureright) pictureright = l->x2;
-	if (l->y2 < picturetop) picturetop = l->y2;
-	if (l->y2 > picturebottom) picturebottom = l->y2;
+	    if (l->x2 < pictureleft) pictureleft = l->x2;
+	    if (l->x2 > pictureright) pictureright = l->x2;
+	    if (l->y2 < picturetop) picturetop = l->y2;
+	    if (l->y2 > picturebottom) picturebottom = l->y2;
+	}
     }
     turtlePosition_x = l->x2;
     turtlePosition_y = l->y2;
