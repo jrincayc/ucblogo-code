@@ -213,8 +213,12 @@ int main(int argc, char *argv[]) {
       if (isatty(1))
 #endif
       {
+	extern char *SVN;
+	char version[20];
 	lcleartext(NIL);
-	ndprintf(stdout, message_texts[WELCOME_TO], "6.0");
+	strcpy(version,"6.0");
+	strcat(version,SVN);
+	ndprintf(stdout, message_texts[WELCOME_TO], version);
 	new_line(stdout);
       }
     }

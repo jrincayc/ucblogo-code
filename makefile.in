@@ -13,7 +13,7 @@ LINKER = @LINKER@
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
+	  print.o wrksp.o nographics.o svn.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
@@ -28,6 +28,9 @@ mem.o:	mem.c
 
 logo:	$(OBJS)
 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+
+svn.c:	$(SRCS)
+	echo 'char* SVN = "('`svnversion`')";' > svn.c
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)

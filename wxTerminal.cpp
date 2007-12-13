@@ -225,6 +225,8 @@ EVT_MENU(Edit_Menu_Edit_Find,			LogoFrame::OnEditFind)
 EVT_MENU(Edit_Menu_Edit_Find_Next,		LogoFrame::OnEditFindNext)
 END_EVENT_TABLE()
 
+#include "ucblogo.xpm"
+
 LogoFrame::LogoFrame (const wxChar *title,
  int xpos, int ypos,
  int width, int height)
@@ -234,6 +236,7 @@ LogoFrame::LogoFrame (const wxChar *title,
   // the topsizer allows different resizeable segments in the main frame (i.e. for 
   // turtle graphics and the terminal displaying simultaneously)
   SetMinSize(wxSize(100, 100));
+    SetIcon(wxIcon(ucblogo));
   logoFrame = this;
   topsizer = new wxBoxSizer( wxVERTICAL );
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
