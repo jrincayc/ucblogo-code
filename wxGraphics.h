@@ -69,9 +69,8 @@ pen_info* getPen();
 
 #define erase_screen()		 wx_clear();
 
-#define line_to(a,b)             if(xgr_pen->vis==0)\
-                                 wxDrawLine(xgr_pen->xpos, \
-                                 xgr_pen->ypos,a,b);\
+#define line_to(a,b)             wxDrawLine(xgr_pen->xpos, \
+                                 xgr_pen->ypos,a,b,!xgr_pen->vis);\
                                  xgr_pen->xpos=(a);\
                                  xgr_pen->ypos=(b)
 

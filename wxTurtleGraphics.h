@@ -26,6 +26,7 @@ struct line {
 	short int pw;
 	char color;
 	char pm;
+	int vis;
 };
 
 typedef struct {
@@ -229,7 +230,7 @@ extern "C" void set_pen_patter();
 extern "C" void logofill();
 extern "C" void wx_clear();
 extern "C" NODE lclearscreen(NODE *);
-extern "C" void wxDrawLine(int x1, int y1, int x2, int y2);
+extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis);
 extern "C" void wxSplitScreen();
 extern "C" void wxFullScreen();
 extern "C" void wxTextScreen();

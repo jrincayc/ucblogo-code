@@ -59,7 +59,7 @@ DECLARE_EVENT_TABLE_ENTRY( \
 // ----------------------------------------------------------------------------
 // Globals
 // ----------------------------------------------------------------------------
-char* LogoPlatformName="wxWidgets";
+//char* LogoPlatformName="wxWidgets";
 
 pen_info p;
 
@@ -456,7 +456,8 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 	    m_memDC->SetLogicalFunction(wxCOPY);
 #endif
     }
-    dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
+    if(l->vis)
+   	 dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
     if (!drawToPrinter && !drawToWindow) {
 #if USE_MEMDC
 	m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
@@ -977,7 +978,7 @@ extern "C" void logofill() {
     else if (drawToWindow)
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, windowDC);
     else {
-	if (turtle_shown) { /* wait for turtle to disappear */
+	if (1 || turtle_shown) { /* wait for turtle to disappear */
 	     wxCommandEvent e(wxEVT_LOGO_CUSTOM_COMMAND);
 	     e.SetInt(CATCHUP);
 	     e.SetClientData((void *)data);
@@ -1033,7 +1034,7 @@ extern "C" void wxPrepare(){
 }
 
 /* Have turtle graphics draw the given line */
-extern "C" void wxDrawLine(int x1, int y1, int x2, int y2){
+extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){
     static int numLines = 0;
     tMut.Lock();
     if (!drawToPrinter && !drawToWindow) {
@@ -1054,6 +1055,7 @@ extern "C" void wxDrawLine(int x1, int y1, int x2, int y2){
     l.y1 = y1;
     l.x2 = x2;
     l.y2 = y2;
+    l.vis = vis;
     l.color = turtleFrame->xgr_pen.color;
     l.pm = turtleFrame->xgr_pen.pen_mode;
     l.pw = turtleFrame->xgr_pen.pw;
