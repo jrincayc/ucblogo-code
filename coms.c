@@ -330,16 +330,22 @@ NODE *liffalse(NODE *args) {
 	return(NIL);
 }
 
+
 void prepare_to_exit(BOOLEAN okay) {
+
+#ifdef HAVE_WX
+	extern void doClose();
+	doClose();
+	wxLogoExit (0);
+#endif
+
 #ifdef mac
     if (okay) {
 	console_options.pause_atexit = 0;
-#ifdef HAVE_WX
-	wxLogoExit (0);
-#endif 
 	exit(0);
     }
 #endif
+
 #ifndef WIN32 /* sowings */
 #ifdef ibm
     ltextscreen(NIL);
@@ -403,11 +409,16 @@ NODE *lwait(NODE *args) {
       wxLogoSleep(n);
       return(UNBOUND);
       #endif*/
+#ifndef HAVE_WX
 #ifdef WIN32
-	win32_update_text();
+      win32_update_text();
 #else
-	fflush(stdout); /* csls v. 1 p. 7 */
+      fflush(stdout); /* csls v. 1 p. 7 */
 #endif
+#else
+      fflush(stdout); /* csls v. 1 p. 7 */
+#endif
+
 #if defined(__RZTC__)
 	zflush();
 #endif

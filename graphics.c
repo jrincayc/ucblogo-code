@@ -325,7 +325,9 @@ FLONUM wrap_up(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 FLONUM wrap_down(FLONUM, FLONUM, FLONUM, FLONUM, FLONUM);
 
 void forward(FLONUM d) {
+   // #ifndef WIN32
     internal_hideturtle();
+   // #endif
     prepare_to_draw;
     draw_turtle();
     forward_helper(d);
@@ -918,7 +920,7 @@ NODE *lturtlemode(NODE *args) {
     return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
-NODE *lfill(NODE *args) {
+NODE *lfill(NODE *args) {    
     prepare_to_draw;
     draw_turtle();
     logofill();
@@ -931,6 +933,7 @@ NODE *lfill(NODE *args) {
     }
     done_drawing;
     return(UNBOUND);
+
 }
 
 NODE *llabel(NODE *arg) {

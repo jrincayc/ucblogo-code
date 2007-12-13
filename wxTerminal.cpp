@@ -2157,3 +2157,9 @@ extern "C" void setTermInfo(int type, int val){
 	}
 
 }
+
+
+extern "C" void doClose() {
+	logoFrame->Close(TRUE);
+}
+

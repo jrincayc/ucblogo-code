@@ -20,6 +20,9 @@
  */
 
 #ifdef HAVE_WX
+#ifdef WIN32
+#define NEW_WIN32
+#endif
 #undef WIN32
 #endif
 
@@ -31,7 +34,9 @@
 #include "globals.h"
 
 #ifdef HAVE_TERMIO_H
+#ifndef NEW_WIN32
 #include <termios.h>
+#endif
 #else
 #ifdef HAVE_SGTTY_H
 #include <sgtty.h>
