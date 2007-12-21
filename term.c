@@ -31,7 +31,11 @@
 #endif
 
 #ifdef HAVE_TERMIO_H
+#ifdef HAVE_WX
 #include <termios.h>
+#else
+#include <termio.h>
+#endif
 #else
 #ifdef HAVE_SGTTY_H
 #include <sgtty.h>

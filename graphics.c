@@ -589,7 +589,11 @@ NODE *lhideturtle(NODE *args) {
 }
 
 void fix_turtle_shownness() {
-    if (graphics_setup && user_turtle_shown && screen_mode != SCREEN_TEXT)
+    if (graphics_setup && user_turtle_shown
+#ifndef x_window
+		    && screen_mode != SCREEN_TEXT
+#endif
+	)
 	(void)lshowturtle(NIL);
 }
 
@@ -1403,6 +1407,7 @@ NODE *larc(NODE *arg) {
     return(UNBOUND);
 }
 
+#ifdef HAVE_WX
 NODE *lprintpict(NODE *args) {
     if (args != NIL)
 	wxlPrintPreviewPict();
@@ -1418,6 +1423,7 @@ NODE *lprinttext(NODE *args) {
 	wxlPrintText();
     return UNBOUND;
 }
+#endif
 
 /************************************************************/
 /* The rest of this file implements the recording of moves in

@@ -213,17 +213,27 @@ int main(int argc, char *argv[]) {
       if (isatty(1))
 #endif
       {
+#ifdef HAVE_WX
 	extern char *SVN;
+#endif
 	char version[20];
 	lcleartext(NIL);
+#ifdef HAVE_WX
 	strcpy(version,"6.0");
 	strcat(version,SVN);
+#else
+	strcpy(version,"5.6");
+#endif
 	ndprintf(stdout, message_texts[WELCOME_TO], version);
 	new_line(stdout);
       }
     }
 
-    setvalnode__caseobj(LogoVersion, make_floatnode(6.0));
+#ifdef HAVE_WX
+    setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
+#else
+    setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
+#endif
     setflag__caseobj(LogoVersion, VAL_BURIED);
 
     argv2 = argv; argc2 = argc;

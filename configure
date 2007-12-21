@@ -36,7 +36,7 @@ verbose=
 x_includes=NONE
 x_libraries=NONE
 wx_config_path=NONE
-wx_enable=no
+wx_enable=maybe
 bindir='${exec_prefix}/bin'
 sbindir='${exec_prefix}/sbin'
 libexecdir='${exec_prefix}/libexec'
@@ -380,6 +380,8 @@ EOF
     wx_config_path="$ac_optarg" ;;
   -wx-enable | --wx-enable | -wx | --wx)
     wx_enable=yes;;
+  -wx-disable | --wx-disable | -nowx | --nowx)
+    wx_enable=no;;
   -*) { echo "configure: error: $ac_option: invalid option; use --help to show usage" 1>&2; exit 1; }
     ;;
 
@@ -730,9 +732,11 @@ GRAPHICSFILE=" xgraphics.c "
 
 #Alan input
 # If wx is enabled, then x will be disabled.
+if test "$wx_enable" = maybe; then
 if test -x /usr/local/bin/wx-config ; then
     wx_enable='yes';
     echo "Found wx, activating it as default" ;
+fi
 fi
 if test "$wx_enable" = yes; then
     #with_x=no
