@@ -230,7 +230,7 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef HAVE_WX
-    setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
+    setvalnode__caseobj(LogoVersion, make_floatnode(6.0));
 #else
     setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
 #endif
