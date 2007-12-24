@@ -591,6 +591,7 @@ void TurtleCanvas::realClearScreen(wxDC *dc) {
 
 void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
     wxColour c;
+//fprintf(stderr, "realFloodFill: (x,y): (%d, %d)\n", turtlePosition_x, turtlePosition_y);
     dc->GetPixel(turtlePosition_x, turtlePosition_y, &c);
     wxBrush brush(TurtleCanvas::colors[color+2]);
 #if USE_MEMDC
@@ -601,6 +602,7 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
 #endif
     dc->SetBrush(brush);
     dc->FloodFill(turtlePosition_x, turtlePosition_y , c);
+//    dc->FloodFill(dc->LogicalToDeviceX(turtlePosition_x), dc->LogicalToDeviceY(turtlePosition_y) , c);
 }
 
 void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
@@ -1009,13 +1011,20 @@ extern "C" void wx_clear() {
     else if (drawToWindow)
 	TurtleCanvas::realClearScreen(windowDC);
     else {
-	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
-	event.SetInt(CLEARSCREEN);
-	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
-	TurtleCanvas::WaitForEvent();
-	if(!TurtleFrame::in_graphics_mode)
-	    wxSplitScreen();
+      // finish drawing lines first
+      wxCommandEvent e(wxEVT_LOGO_CUSTOM_COMMAND);
+      e.SetInt(CATCHUP);
+      alreadyDone = 0;
+      turtleGraphics->AddPendingEvent(e);
+      TurtleCanvas::WaitForEvent();
+      
+      wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+      event.SetInt(CLEARSCREEN);
+      alreadyDone = 0;
+      turtleGraphics->AddPendingEvent(event);
+      TurtleCanvas::WaitForEvent();
+      if(!TurtleFrame::in_graphics_mode)
+	wxSplitScreen();
     }
     return;
 }
@@ -1299,7 +1308,9 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     wxRect fitRect = GetLogicalPageMarginsRect(*g_pageSetupData);
 
     wxCoord xoff = (fitRect.width - maxX) / 2 - pictureleft;
+    //wxCoord xoff = (fitRect.width - maxX) / 2;
     wxCoord yoff = (fitRect.height - maxY) / 2 - picturetop;
+    //wxCoord yoff = (fitRect.height - maxY) / 2;
     OffsetLogicalOrigin(xoff, yoff);
 #else
     float maxX = pictureright - pictureleft;
