@@ -1444,8 +1444,8 @@ BOOLEAN safe_to_save(void) {
 	return TRUE;
     }
     if (record_index < (GR_SIZE - 300)) return TRUE;	/* room here */
-//evan
-#if 0
+//evan, undone by bh
+#if 1
     if (*(char **)(record) != 0) {    /* already allocated next one */
 	*(record + record_index) = NEXTBUFFER;
 	record = *(char **)(record);
@@ -1461,6 +1461,7 @@ BOOLEAN safe_to_save(void) {
 
     *(char **)(record) = newbuf;
     record = newbuf;
+    *(char **)(record) = 0; // bh
     record_index = One;
     return TRUE;
 }
