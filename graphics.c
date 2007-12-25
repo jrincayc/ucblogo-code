@@ -1444,16 +1444,22 @@ BOOLEAN safe_to_save(void) {
 	return TRUE;
     }
     if (record_index < (GR_SIZE - 300)) return TRUE;	/* room here */
+//evan
+#if 0
     if (*(char **)(record) != 0) {    /* already allocated next one */
 	*(record + record_index) = NEXTBUFFER;
 	record = *(char **)(record);
 	record_index = One;
 	return TRUE;
     }
+#endif
     newbuf = malloc(GR_SIZE);	/* get a new buffer */
     if (newbuf == NULL) return FALSE;	/* failed */
-    *(char **)(record) = newbuf;
+    
+    //evan (moved this line before the set on record) 
     *(record + record_index) = NEXTBUFFER;
+
+    *(char **)(record) = newbuf;
     record = newbuf;
     record_index = One;
     return TRUE;
