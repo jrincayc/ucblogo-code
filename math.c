@@ -71,7 +71,7 @@ int numberp(NODE *snd) {
 
 NODE *lrandom(NODE *arg) {
 	NODE *val;
-	long r, base, range;
+	unsigned long r, base, range;
 
 	val = pos_int_arg(arg);
 	if (NOT_THROWING) {

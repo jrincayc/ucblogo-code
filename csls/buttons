@@ -1,0 +1,186 @@
+;;; Primitive GUI for Logo games.
+
+;;; Displays buttons, then accepts mouseclicks or keystrokes
+;;; to control actions.
+
+;;; To clear the screen and all the remembered buttons:
+;;;   init.buttons
+
+;;; To install a button:
+;;;   SETBUTTON [150 130] [40 25] [make "mysecret "true throw "newgame] ~
+;;;             :mysecret 0 [Logo guess] []
+;;;
+;;; Inputs are:
+;;;   1. Position of lower left corner of button
+;;;   2. Size [x y] of button
+;;;   3. Action to take if button pressed
+;;;   4. TRUE if box should be drawn thick, FALSE if thin
+;;;   5. Color to fill box (0 if no fill)
+;;;   6. Text caption inside button (a word or a two-word list for
+;;;        a two-line caption) or empty list for no caption
+;;;   7. Equivalent keystroke (empty list if no equivalent keystroke)
+;;;        (DEL means char 8 or 127; RET means char 10 or 13)
+;;;        (Keystroke inside list, e.g., [X], means don't draw it.)
+
+;;; REBUTTON (same inputs as SETBUTTON) looks for existing matching button
+;;; and, if found, just redraws border (possibly changing thickness).
+
+;;; To display a descriptive caption (e.g., for a group of buttons)
+;;; without making a button:
+;;;   CAPTION [150 130] [40 25] [Number |of boxes:|]
+;;;   CENTER.CAPTION [150 130] [40 25] [Number |of boxes:|]
+;;;
+;;; Inputs are position, size, caption.
+;;; CENTER.CAPTION centers the text within the box; CAPTION puts it
+;;; at the left edge of the box.
+
+;;; To loop reading keystrokes or mouseclicks and taking actions as set:
+;;;   ACTION.LOOP
+;;; Within an action, :CHAR is the character typed (or zero if the action
+;;; was triggered by a mouse click), :BUTTON is the mouse button pressed
+;;; (or zero if the action was triggered by a keystroke), and :MOUSEPOS is
+;;; the mouse position (or unspecified for a keystroke).  Actions triggered
+;;; by a mouse click happen when the mouse button is released.
+
+; -----------------------------
+
+;;; IMPORTANT:  Here is how we know the size of a text character as
+;;; drawn by the LABEL command.  Change these numbers if necessary:
+
+make "labelcharsize ifelse equalp :LogoPlatform "Windows [[8 13]] [[6 11]]
+if equalp :LogoPlatform "wxWidgets [make "labelcharsize [7 14]]
+
+; -----------------------------
+
+to init.buttons
+cs ht
+make "buttons []
+end
+
+; -----------------------------
+
+to setbutton :corner :size :action :thickp :fillcolor :caption :key
+center.caption :corner :size :caption
+pu setpos :corner
+seth 0
+pd setpensize ifelse :thickp [[3 3]] [[1 1]]
+setpc 7
+apply "button.rectangle :size
+setpensize [1 1]
+if not equalp :fillcolor 0 [
+  button.offset :corner 5 5
+  setpc :fillcolor
+  fill
+  setpc 7
+]
+if (and (not listp :key) (not emptyp :key) (not equalp :key :caption)) [
+  caption (list (sum first :corner first :size 4) last :corner) ~
+                 (list (first :labelcharsize) (last :size)) ~
+                 :key
+]
+if and (listp :key) (not emptyp :key) [make "key first :key]
+push "buttons (list :corner :size :key :action)
+end
+
+to rebutton :corner :size :action :thickp :fillcolor :caption :key
+localmake "thekey :key
+if and listp :key not emptyp :key [make "thekey first :key]
+localmake "test (list :corner :size :thekey :action)
+localmake "button find [equalp ? :test] :buttons
+if emptyp :button ~
+   [setbutton :corner :size :action :thickp :fillcolor :caption :key  stop]
+penup setpos :corner
+seth 0
+setpc 7
+penerase setpensize [3 3]
+apply "button.rectangle :size
+penpaint setpensize ifelse :thickp [[3 3]] [[1 1]]
+apply "button.rectangle :size
+setpensize [1 1]
+end
+
+to button.offset :corner :dx :dy
+penup setxy (first :corner)+:dx (last :corner)+:dy
+end
+
+to button.rectangle :x :y
+repeat 2 [fd :y rt 90 fd :x rt 90]
+end
+
+; -----------------------------
+
+to caption :corner :size :caption
+if emptyp :caption [stop]
+localmake "halfx (first :labelcharsize)/2
+localmake "y (last :labelcharsize)
+setpc 7
+ifelse listp :caption [
+  button.offset :corner 0 ((14-:y)+((last :size)-25)/3)
+  label last :caption
+  button.offset :corner 0 ((14-:y)+:y+2*((last :size)-25)/3)
+  label first :caption
+] [
+  button.offset :corner 0 ((17-:y)+((last :size)-17)/2)
+  label :caption
+]
+end
+
+to center.caption :corner :size :caption
+if emptyp :caption [stop]
+localmake "halfx (first :labelcharsize)/2
+localmake "y (last :labelcharsize)
+setpc 7
+ifelse listp :caption [
+  button.offset :corner (1+(first :size)/2-:halfx*(count last :caption)) ~
+                        ((14-:y)+((last :size)-25)/3)
+  label last :caption
+  button.offset :corner (1+(first :size)/2-:halfx*(count first :caption)) ~
+                        ((14-:y)+:y+2*((last :size)-25)/3)
+  label first :caption
+] [
+  button.offset :corner (1+(first :size)/2-:halfx*(count :caption)) ~
+                        ((17-:y)+((last :size)-17)/2)
+  label :caption
+]
+end
+
+; -----------------------------
+
+to action.loop
+forever [action.once]
+end
+
+to action.once
+if keyp [button.readkey]
+if buttonp [button.mouseclick]
+end
+
+to button.readkey [:char rc] [:button 0]
+foreach :buttons [
+  localmake "key item 3 ?
+  ifelse equalp :key "DEL [
+    if memberp (ascii :char) [8 127] [run last ? stop]
+  ] [
+    ifelse equalp :key "RET [
+      if memberp (ascii :char) [10 13] [run last ? stop]
+    ] [
+      if equalp :char :key [run last ? stop]
+    ]
+  ]
+]
+end
+
+to button.mouseclick [:mousepos mousepos] [:button button] [:char 0]
+while [buttonp] []	; wait for release of button
+foreach :buttons [
+  if apply "button.inrange ? [run last ? stop]
+]
+end
+
+to button.inrange :corner :size :key :action
+(foreach :mousepos :corner :size [
+   if ?1 < ?2 [output "false]
+   if ?1 > (?2 + ?3) [output "false]
+])
+output "true
+end

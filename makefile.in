@@ -96,5 +96,6 @@ mac: all
 	cp -r csls UCBLogo.app/Contents/Resources/
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
+	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp logo UCBLogo.app/Contents/MacOS/UCBLogo

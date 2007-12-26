@@ -1,0 +1,269 @@
+;;; Connect-the-dots game
+
+to dotgame :size
+; Connect-the-dots game.  Input is the number of dots on each side.
+if :LogoPlatform = "Windows [maximize.window "true]
+ht cs
+setpc 7
+setpensize [6 6]
+localmake "offset (:size-1)*20
+pu setpos list -:offset -:offset
+board :size
+localmake "lines ~
+   se (crossmap [list (list ?1 ?2) (list ?1 1+?2)]
+                (iseq 0 :size-1) (iseq 0 :size-2)) ~
+      (crossmap [list (list ?1 ?2) (list 1+?1 ?2)]
+                (iseq 0 :size-2) (iseq 0 :size-1))
+localmake "computer 0
+localmake "person 0
+localmake "numboxes (:size-1)*(:size-1)
+localmake "boxlists (array 5 0)
+localmake "oldmove []
+for [i 1 4] [setitem :i :boxlists []]
+setitem 0 :boxlists ~
+        (crossmap [list ?1 ?2] (iseq 0 :size-2) (iseq 0 :size-2))
+localmake "boxes (array :size-1 0)
+for [i 0 :size-2] [setitem :i :boxes (array :size-1 0)]
+
+CATCH "WIN [FOREVER [PERSONMOVE COMMOVE]]	; play the game!
+
+if not emptyp :oldmove [	; make the last move white
+  setpc 7
+  pu
+  setpos map [40*? - :offset] first :oldmove
+  pd
+  setpos map [40*? - :offset] last :oldmove
+]
+if computer > :person ~
+   [print (se [you lost] :computer "to :person)]
+if :computer < :person ~
+   [print (se [you won] :person "to :computer)]
+if :computer = :person [print (se [tie game])]
+setpensize [1 1]
+end
+
+; --------------- Initial board display -------------------------
+
+to board :num
+repeat :num [dots :num]
+end
+
+to dots :num
+pd
+repeat :num [fd 0 pu rt 90 fd 40 lt 90 pd]
+pu lt 90 fd 40 * :num rt 90 fd 40
+end
+
+; -------------- Human player's move ---------------------
+
+to personmove
+; Read a mouse click, turn it into a move if legal.
+localmake "move gmove
+if not legal? :move [print [Not a legal move!  Try again.]
+                     personmove stop]
+drawline :move 6
+localmake "direction reverse (map "difference (last :move) (first :move))
+localmake "found "false
+fillboxes 6 "person
+if :found [personmove]
+end
+
+to gmove
+while [not buttonp] []
+while [buttonp] []
+output findline (map [? + :offset] mousepos)
+end
+
+to findline :pos
+; Find the nearest vertical or horizontal line to the mouse click.
+localmake "xrem remainder (first :pos)+10 40
+localmake "yrem remainder (last :pos)+10 40
+localmake "xpos (first :pos)+10-:xrem
+localmake "ypos (last :pos)+10-:yrem
+if :xrem > :yrem ~
+   [output list (list :xpos/40 :ypos/40) (list :xpos/40+1 :ypos/40)]
+output list (list :xpos/40 :ypos/40) (list :xpos/40 :ypos/40+1)
+end
+
+to legal? :move
+; Output true if this is an undrawn line segment connecting two dots.
+output memberp :move :lines
+end
+
+; ----------------- Computer's move ----------------------
+
+to commove
+; The computer chooses a move, does the housekeeping for it.
+; Strategy: complete boxes if possible, otherwise pick a move that doesn't
+; let the opponent complete a box.
+ifelse not emptyp (item 3 :boxlists) [
+  localmake "move lastline first (item 3 :boxlists)
+] [
+  localmake "goodlines filter "lineokay? :lines
+  ifelse not emptyp :goodlines [
+    localmake "move pick :goodlines
+  ] [
+    localmake "cohorts []
+    makecohorts :lines
+    localmake "move lastline first smallest :cohorts
+  ]
+]
+drawline :move 4
+localmake "direction reverse (map "difference (last :move) (first :move))
+localmake "found "false
+fillboxes 4 "computer
+if :found [commove]
+end
+
+to lineokay? :move
+; Output true if this move won't let the opponent complete a box.
+localmake "direction reverse (map "difference (last :move) (first :move))
+output and (boxokay? first :move) ~
+           (boxokay? (map "difference (first :move) :direction))
+end
+
+to boxokay? :box
+; Output true if this box has fewer than 2 edges already drawn.
+if or ((first :box) < 0) ((last :box) < 0) [output "true]
+if or ((first :box) > (:size-2)) ((last :box) > (:size-2)) [output "true]
+localmake "count item (last :box) item (first :box) :boxes
+if emptyp :count [make "count 0]
+output :count<2
+end
+
+to lastline :box
+; Box has three lines drawn; find the missing one for us to draw.
+if memberp (list :box (map "sum :box [0 1])) :lines [
+  output (list :box (map "sum :box [0 1]))]
+if memberp (list :box (map "sum :box [1 0])) :lines [
+  output (list :box (map "sum :box [1 0]))]
+if memberp (list (map "sum :box [0 1]) (map "sum :box [1 1])) :lines [
+  output (list (map "sum :box [0 1]) (map "sum :box [1 1]))]
+if memberp (list (map "sum :box [1 0]) (map "sum :box [1 1])) :lines [
+  output (list (map "sum :box [1 0]) (map "sum :box [1 1]))]
+output []	; box was full already (from makecohort)
+end
+
+to makecohorts :lines
+; Partition the available boxes into chains, to look for the smallest.
+; Note, the partition is not necessarily optimal -- this algorithm needs work.
+; It's important that LINES be a local variable here, so that we can "draw"
+; lines hypothetically that we're not really going to draw on the board.
+while [not emptyp :lines] [
+  localmake "cohort []
+  makecohort first :lines
+  push "cohorts :cohort
+]
+end
+
+to makecohort :line
+; Group all the boxes in a chain that starts with this line.
+; Mark the line as drawn (locally to caller), then look in both directions
+; for completable boxes.
+make "lines remove :line :lines
+localmake "direction reverse (map "difference (last :line) (first :line))
+makecohort1 (map "difference (first :line) :direction)
+makecohort1 first :line
+end
+
+to makecohort1 :box
+; Examine one of the boxes adjoining the line just hypothetically drawn.
+; It has 0, 1, or 2 undrawn sides.  (If 3 or 4, wouldn't have gotten here.)
+; 0 sides -> count the box if not already, but no further lines in the chain.
+; 1 side -> count the box, continue the chain with its last side.
+; 2 sides -> the box isn't ready to complete, so it's not in this chain.
+if or ((first :box) < 0) ((last :box) < 0) [stop]
+if or ((first :box) > (:size-2)) ((last :box) > (:size-2)) [stop]
+localmake "togo filter [memberp (list (map "sum :box first ?)
+				      (map "sum :box last ?))
+				:lines] ~
+		       [[[0 0] [0 1]] [[0 0] [1 0]]
+		        [[1 0] [1 1]] [[0 1] [1 1]]]
+if (count :togo)=2 [stop]
+if not memberp :box :cohort [push "cohort :box]
+if emptyp :togo [stop]
+localmake "line (list (map "sum :box first first :togo)
+                      (map "sum :box last first :togo))
+makecohort :line
+end
+
+to smallest :cohorts [:sofar []] [:minsize :numboxes+1]
+if emptyp :cohorts [output :sofar]
+if (count first :cohorts) < :minsize ~
+   [output (smallest bf :cohorts first :cohorts count first :cohorts)]
+output (smallest bf :cohorts :sofar :minsize)
+end
+
+; ----------- Common procedures for person and computer moves --------
+
+to drawline :move :color
+; Actually draw the selected move on the screen.
+if not emptyp :oldmove [
+  setpc 7
+  pu
+  setpos map [40*? - :offset] first :oldmove
+  pd
+  setpos map [40*? - :offset] last :oldmove
+]
+setpc :color
+pu
+setpos map [40*? - :offset] first :move
+pd
+setpos map [40*? - :offset] last :move
+make "oldmove :move
+end
+
+to fillboxes :color :owner
+; Implicit inputs (inherited from caller):
+;   :move is the move someone just made.
+;   :direction is [1 0] for vertical move, [0 1] for horizontal.
+; Note that the line is drawn, check the two boxes (maybe) on either side,
+; color them and count them for the appropriate player, see if game over.
+make "lines remove :move :lines
+if boxbefore? :move [fillbox (map "difference (first :move) :direction)]
+if boxafter? :move [fillbox first :move]
+testwin
+end
+
+to boxafter? :move
+; Output true if the box above or to the right of the move is now complete.
+output (increment first :move)=4
+end
+
+to boxbefore? :move
+; Output true if the box below or to the left of the move is now complete.
+localmake "p3 (map "difference (first :move) :direction)
+output (increment :p3)=4
+end
+
+to increment :box
+; If this isn't a box at all (might be if the move was on a border),
+; just output [].  Otherwise, increment the number in the :boxes array,
+; and move this box from one of the :boxlists to the next higher one.
+; Output the new count of number of lines drawn in this box.
+if or ((first :box) < 0) ((last :box) < 0) [output []]
+if or ((first :box) > (:size-2)) ((last :box) > (:size-2)) [output []]
+localmake "count item (last :box) item (first :box) :boxes
+if emptyp :count [make "count 0]
+setitem (last :box) item (first :box) :boxes :count+1
+setitem :count :boxlists (remove :box item :count :boxlists)
+setitem :count+1 :boxlists (fput :box item :count+1 :boxlists)
+output :count+1
+end
+
+to fillbox :box
+; Color in a completed box, increase the box count of its owner, and
+; flag that a box was completed.
+pu
+setpos (map [40*? + 10 - :offset] :box)
+setpc :color
+fill
+make :owner (thing :owner)+1
+make "found "true
+end
+
+; ------------------- Endgame processing --------------------
+
+to testwin
+if :computer+:person = :numboxes [throw "win]
+end

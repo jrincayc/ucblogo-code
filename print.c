@@ -152,7 +152,8 @@ void ndprintf(FILE *strm, char *fmt, ...) {
     va_list ap;
     NODE *nd, *ahead_node = UNBOUND, *next_ahead_node = UNBOUND;
     char *cp;
-    char ch;
+    long int i;
+    char buf[30],ch;
 
     va_start(ap,fmt);
     while ((ch = *fmt++) != '\0') {
@@ -181,6 +182,11 @@ void ndprintf(FILE *strm, char *fmt, ...) {
 		    print_node(strm,nd);
 	    } else if (ch == 't') { /* text */
 		cp = va_arg(ap,char *);
+		while ((ch = *cp++) != '\0') print_char(strm,ch);
+	    } else if (ch == 'd') { /* integer */
+		i = va_arg(ap, int);
+		sprintf(buf,"%ld",i);
+		cp = buf;
 		while ((ch = *cp++) != '\0') print_char(strm,ch);
 	    } else {
 		print_char(strm,'%');

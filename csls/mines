@@ -1,0 +1,490 @@
+;  Minesweeper game
+
+;  Mouse clicks call HIT procedure
+
+;  Main data structure: array of arrays, e.g.,
+;      (ITEM (ITEM STATUS 3) 5) for row 3 column 5.
+;  Values are: HIDDEN (tan square),
+;              FLAGGED (flagged as a mine),
+;              SHOWN (open, non-mine, shows number of mined neighbors),
+;              BORDER (just outside of actual playing field).
+;  Notice that a FLAGGED square might not really be a mine.
+;  (Player can make mistakes!)
+;  Actual mines are listed in MINES (list of [row col] lists).
+
+cslsload "buttons
+
+to mines
+if :LogoPlatform = "Windows [maximize.window "true]
+localmake "inference "false
+localmake "newnmines 100
+localmake "newsize 15
+localmake "halfsize 10
+localmake "squaresize 2*:halfsize
+localmake "maxxmax :halfsize*15*2
+localmake "maxymax :halfsize*15
+localmake "sizechoice 3
+localmake "hardchoice 2
+localmake "sizes [5 10 15]
+localmake "hardness [18 21 28]
+localmake "windows ifelse :LogoPlatform="Windows [16] [0]
+if :LogoPlatform="wxWidgets [make "windows 16]
+catch "quit [forever [catch "newgame [setup :newnmines :newsize :newsize*2]]]
+cs ct setpc 7 st
+end
+
+; ------------------------ Initial setup ---------------------------------
+
+to setup :nmines :rows :columns
+cs ct wait 0 ht fs
+localmake "mines []	; list of [row col] lists
+localmake "statuses (array :rows+2 -1)	; status of each square
+localmake "xmax :halfsize*:columns
+localmake "ymax :halfsize*:rows
+localmake "opening "true
+localmake "playing "true	; false only at end of game
+for [i -1 :rows] [setitem :i :statuses (array :columns+2 -1)]
+putmines :nmines	; Choose mined squares randomly.
+setbg 0
+setup.buttons
+make "nhidden :rows * :columns
+borderrow -1 :columns
+borderrow :rows :columns
+    ; mark nonexistent squares just outside field as BORDER
+    ; to simplify how-many-of-my-neighbors computations
+bordersides :rows-1
+hint		; open some safe squares so we don't have to guess blindly
+localmake "prevmines -1
+pu setxy :maxxmax-100-2*:windows :maxymax+14 setpc 7
+label [Mines left:]
+showminesleft
+action.loop
+end
+
+to putmines :num
+; Choose random square, and make it a mine unless it already was one.
+if :num = 0 [stop]
+localmake "row random :rows
+localmake "col random :columns
+if member? (list :row :col) :mines [putmines :num  stop]
+make "mines fput (list :row :col) :mines
+putmines :num-1
+end
+
+to setup.buttons
+init.buttons
+setbutton (list -:maxxmax :maxymax+10) [60 20] [throw "newgame] ~
+          "false 0 "|NEW GAME| "G
+setbutton (list 80-:maxxmax :maxymax+10) [40 20] [throw "quit] ~
+          "false 0 "QUIT "Q
+caption (list 160-:maxxmax-:windows :maxymax+10) [60 20] "infer:
+drawinferbuttons
+caption (list -:maxxmax -(:maxymax+30)) [60 20] "size:
+caption (list 160-:maxxmax-:windows -(:maxymax+30)) [80 20] "difficulty:
+drawsizebuttons
+setbutton (list -:xmax -:ymax) (list 2*:xmax 2*:ymax) ~
+          [hit :mousepos  showminesleft] "false 9 "|| []
+          ; Entire board is one big button.
+showboard "false   ; input is TRUE to uncover entire board at end of game 
+pu
+end
+
+to drawinferbuttons
+rebutton (list 200-:maxxmax :maxymax+10) [20 20] ~
+         [make "inference "true  drawinferbuttons] ~
+         :inference 0 "Y "Y
+rebutton (list 230-:maxxmax :maxymax+10) [20 20] ~
+         [make "inference "false  drawinferbuttons] ~
+         not :inference 0 "N "N
+end
+
+to drawsizebuttons
+make "newsize item :sizechoice :sizes
+make "newnmines int (item :hardchoice :hardness)*:newsize*:newsize/100
+rebutton (list 40-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "sizechoice 1  drawsizebuttons] ~
+         :sizechoice=1 0 "S "S
+rebutton (list 70-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "sizechoice 2  drawsizebuttons] ~
+         :sizechoice=2 0 "M "M
+rebutton (list 100-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "sizechoice 3  drawsizebuttons] ~
+         :sizechoice=3 0 "L "L
+rebutton (list 230-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "hardchoice 1  drawsizebuttons] ~
+         :hardchoice=1 0 "1 "1
+rebutton (list 260-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "hardchoice 2  drawsizebuttons] ~
+         :hardchoice=2 0 "2 "2
+rebutton (list 290-:maxxmax -(:maxymax+30)) [20 20] ~
+         [make "hardchoice 3  drawsizebuttons] ~
+         :hardchoice=3 0 "3 "3
+end
+
+to showminesleft
+if :prevmines=:nmines [stop]
+setpensize [2 2]
+penerase
+if :prevmines > 99 [pu seth 0 setxy :maxxmax-30 :maxymax+14
+                    invoke word "draw int :prevmines/100 7]
+if :prevmines > 9  [pu seth 0 setxy :maxxmax-19 :maxymax+14
+                    invoke word "draw int (remainder :prevmines 100)/10 7]
+if :prevmines > -1 [pu seth 0 setxy :maxxmax-8 :maxymax+14
+                    invoke word "draw remainder :prevmines 10 7]
+penpaint
+if :nmines > 99 [pu seth 0 setxy :maxxmax-30 :maxymax+14
+                 invoke word "draw int :nmines/100 7]
+if :nmines > 9  [pu seth 0 setxy :maxxmax-19 :maxymax+14
+                 invoke word "draw int (remainder :nmines 100)/10 7]
+if :nmines > -1 [pu seth 0 setxy :maxxmax-8 :maxymax+14
+                 invoke word "draw remainder :nmines 10 7]
+make "prevmines :nmines
+pu seth 0 setpensize [1 1]
+end
+
+; --------------------------- Mark border squares -------------------------
+
+to borderrow :row :col
+; Mark all squares on this row (including -1 and :columns) as border
+setstatus :row :col "border
+if :col < 0 [stop]
+borderrow :row :col-1
+end
+
+to bordersides :row
+; Mark squares -1 and :columns on all rows as border
+if :row < 0 [stop]
+setstatus :row -1 "border
+setstatus :row :columns "border
+bordersides :row-1
+end
+
+; ---------------------- Initial and final display of entire board --------
+
+to showboard :over
+; Input is FALSE during setup, TRUE when a mine is uncovered and game ends.
+setpc 7
+for [y -:ymax :ymax :squaresize] [pu setxy -:xmax :y pd setxy :xmax :y]
+for [x -:xmax :xmax :squaresize] [pu setxy :x -:ymax pd setxy :x :ymax]
+pu
+turtlerows :rows-1
+end
+
+to turtlerows :row
+if :row < 0 [stop]
+turtlerow :columns-1
+turtlerows :row-1
+end
+
+to turtlerow :col
+if :col < 0 [stop]
+ifelse :over [		; game over, only hidden squares need be displayed
+  if "hidden = status :row :col [onesquare]
+  if and ("flagged = status :row :col)
+         (not member? (list :row :col) :mines) [
+			; but indicate mistakenly flagged ones
+     setx (:col*:squaresize)-:xmax
+     sety (:row*:squaresize)-:ymax
+     setpensize [3 3]
+     setpc 4		; draw red X over mine symbol
+     pd setxy xcor+:squaresize ycor+:squaresize
+     pu setx xcor-:squaresize
+     pd setxy xcor+:squaresize ycor-:squaresize
+     pu setpensize [1 1] setpc 7
+  ]
+] [			; game starting, mark each square as hidden
+  setstatus :row :col "hidden
+ ]
+turtlerow :col - 1
+end
+
+to onesquare
+action.once
+setx (:col*:squaresize)-:xmax
+sety (:row*:squaresize)-:ymax
+ifelse member? (list :row :col) :mines [
+  setpc 2			; thick green border
+  pu setxy xcor+1 ycor+1
+  pd repeat 4 [fd :squaresize-2 rt 90]
+  pu setxy xcor+1 ycor+1
+  pd repeat 4 [fd :squaresize-4 rt 90]
+  setpc 13			; purple for undetected mine
+  pu setxy xcor+3 ycor+3 fill
+] [
+  setpc 11			; grey in aqua border for empty
+  pu setxy xcor+1 ycor+1
+  pd repeat 4 [fd :squaresize-2 rt 90]
+  setpc 15
+  pu setxy xcor+3 ycor+3 fill
+]
+end
+
+; ---------------- Start game by uncovering a few safe squares --------------
+
+to hint [:tries 30] [:inference "true]
+if :tries=0 [stop]		; limit number of attempts
+localmake "ohidden :nhidden
+localmake "ry random :rows
+localmake "rx random :columns
+if and equalp status :ry :rx "hidden not member? (list :ry :rx) :mines [
+  catch "error [hitsquare :ry :rx]
+  if (:ohidden - :nhidden) > 5 [stop]
+	; stop when at least 5 neighbors were opened
+]
+(hint :tries-1)
+end
+
+; -------- Main player activity, mouse clicks on minefield squares -----
+
+to hit :pos
+; Convert mouse (pixel) coordinate to column and row numbers
+; (square is :squaresize x :squaresize pixels)
+if not :playing [stop]
+localmake "opening equalp :button 1	; true to open, false to flag
+catch "error [hitsquare (int (((last :pos) + :ymax) / :squaresize))
+			(int (((first :pos) + :xmax) / :squaresize))]
+end
+
+to hitsquare :row :col
+; Called on player mouse click and automatic opening of neighbors
+; when infering.
+if :nhidden = 0 [stop]		; No hidden squares, game is over.
+if (or (:row<0) (:row>=:rows) (:col<0) (:col>=:columns)) [stop]
+penup
+setx (:col*:squaresize)-:xmax	; Move turtle over chosen square
+sety (:row*:squaresize)-:ymax
+localmake "status status :row :col
+localmake "near neighbors :row :col "minecheck
+if not equal? :status "shown [	; Clicking on hidden or flagged square.
+  if not :opening [showflag stop]	; FLAG mode.  (Below is OPEN mode.)
+  if :status = "flagged [showflag stop]	; Can't open flagged square.
+  setstatus :row :col "shown		; This square is now shown.
+  if member? (list :row :col) :mines [lose stop]	; Oops!
+  setpc 11				; aqua border
+  pu setxy xcor+1 ycor+1
+  pd repeat 4 [fd :squaresize-2 rt 90]
+  pu setxy xcor+6 ycor+3
+  setpc 15				; grey fill
+  fill
+  setpensize [2 2] seth 0 pu
+  if :near>0 word "draw :near	; Run procedure to draw digit
+  pu setpensize [1 1] seth 0
+  make "nhidden :nhidden - 1	; Keep track of number of squares still hidden.
+  if :nhidden = 0 [win stop]	; If all squares shown or flagged, we win!
+  if and (not equal? :near 0) (not :inference) [stop]
+	; Finished if no automatic inference
+]
+	; Automatic inference section:
+localmake "hnear neighbors :row :col "hiddencheck
+localmake "fnear neighbors :row :col "flaggedcheck
+ifelse :fnear = :near [		; If number of neighboring mines equals
+  localmake "opening "true	;   number of flagged neighbors,
+  hitfriends :row :col		;   all hidden neighbors must be safe
+			        ;   (unless player has flagged wrongly!)
+] [
+  if (:hnear + :fnear) = :near [ ; If number of neighboring mines equals
+    localmake "opening "false 	 ;  number of non-shown (hidden or flagged)
+    hitfriends :row :col	 ;  neighbors, all hidden neighbors must be
+			         ;  mines.
+  ]
+]
+end
+
+; --------------- Automatic inference to speed up game ------------------
+
+; Either OPEN or FLAG all eight immediate neighbors unless already open or
+; flagged. Note mutual recursion: HITSQUARE calls HITFRIENDS to do inference;
+; HITFRIENDS calls HITSQUARE for each inferred opening/flagging.
+
+to hitfriends :row :col
+hitfriendsrow :row-1 :col
+hitfriendsrow :row :col
+hitfriendsrow :row+1 :col
+end
+
+to hitfriendsrow :row :col
+hitfriend :row :col-1
+hitfriend :row :col
+hitfriend :row :col+1
+end
+
+to hitfriend :row :col
+if "hidden = status :row :col [hitsquare :row :col]
+end
+
+; Here's where we count the neighbors that have some property
+; (being truly mined, being flagged as mined, or being hidden).
+; Third input is a procedure that takes ROW and COL inputs,
+;   returning 1 if property is satisfied, 0 if not.
+
+to neighbors :row :col :check
+output (nrow :row-1 :col) + (nrow :row :col) + (nrow :row+1 :col)
+end
+
+to nrow :row :col
+output (invoke :check :row :col-1) + (invoke :check :row :col) + ~
+       (invoke :check :row :col+1)
+end
+
+; Here are the three property-checking procedures.
+
+to minecheck :row :col
+output ifelse member? (list :row :col) :mines [1] [0]
+end
+
+to hiddencheck :row :col
+output ifelse "hidden = status :row :col [1] [0]
+end
+
+to flaggedcheck :row :col
+output ifelse "flagged = status :row :col [1] [0]
+end
+
+; --------------------- Flag mode (user says where mines are) --------------
+
+to showflag
+if :nhidden = 0 [stop]		; Game is over, no action allowed.
+localmake "flagged status :row :col
+ifelse :flagged = "hidden [	; Square was hidden, so flag it.
+    if :nmines = 0 [stop]	; But don't allow more flags than actual mines.
+    setstatus :row :col "flagged
+    setpc 2			; Green background
+    pu setxy xcor+6 ycor+3 fill
+    drawflag			; with purple flag
+    make "nmines :nmines-1
+    make "nhidden :nhidden-1
+] [
+    if not equal? :flagged "flagged [stop] ; Square was shown, can't flag it.
+    setstatus :row :col "hidden
+    setpc 2			; First make it all green
+    pu setxy xcor+6 ycor+3 fill
+    setpc 9			; Square was flagged, unflag (hide) it.
+    fill
+    make "nmines :nmines + 1
+    make "nhidden :nhidden + 1
+]
+if :nhidden = 0 [win]			; Flagged last mine, so win.
+end
+
+to drawflag
+setpc 13			; purple for flag
+setpensize [2 2]
+pd fd 5 repeat 4 [fd 5 rt 90]
+pu setxy xcor+3 ycor+3 fill
+end
+
+; ------------ Notify user when game is won or lost -------------------
+
+to win
+make "playing "false
+make "nhidden 0
+print [You win!!!!]
+pu setxy :xmax+3 0	; flash screen green
+repeat 5 [action.once setpc 2 fill wait 2 action.once setpc 0 fill wait 2]
+end
+
+to lose
+make "playing "false
+setpc 13					; Show which mine was hit
+pu setxy xcor+3 ycor+3 fill
+setpc 6						; Yellow square on purple
+setpensize [3 3]
+pd repeat 4 [fd :squaresize-6 rt 90]
+setpensize [1 1]
+make "nhidden 0
+print [You lose!!!!]
+pu setxy :xmax+3 0	; flash screen red
+repeat 5 [action.once setpc 4 fill wait 2 action.once setpc 0 fill wait 2]
+showboard "true
+end
+
+; --------------- data abstraction for statuses array -------------
+
+to status :row :col
+output item :col (item :row :statuses)
+end
+
+to setstatus :row :col :value
+setitem :col (item :row :statuses) :value
+end
+
+
+; -------------------- draw digits ----------------------
+
+to draw1 [:color 4]
+setpc :color		; red
+pd rt 90 fd 6 bk 3
+lt 90 fd 12
+lt 90+45 fd 4
+end
+
+to draw2 [:color 13]
+setpc :color		; purple
+pu setxy xcor-1 ycor+2
+pd rt 90 fd 6 bk 6
+lt 45 fd 8
+rt 45 pu bk 3 pd arc -180 3
+end
+
+to draw3 [:color 0]
+setpc :color		; black
+pu fd 12 rt 90
+pd fd 6
+rt 90+45 fd 7
+pu lt 45 fd 3 pd arc -130 3
+end
+
+to draw4 [:color 8]
+setpc :color		; brown
+pu fd 6 
+pd fd 6 bk 6
+rt 90 fd 6 bk 3
+lt 90 fd 6 bk 12
+end
+
+to draw5 [:color 10]
+setpc :color		; forest
+pu fd 12
+pd rt 90 fd 6 bk 6
+rt 90 fd 5
+pu fd 3 pd arc -180 3
+end
+
+to draw6 [:color 12]
+setpc :color		; salmon
+pu fd 7 rt 90 fd 1 pd
+repeat 270 [fd 0.07 rt 1]
+repeat 45 [fd 0.3 rt 2]
+end
+
+to draw7 [:color 1]
+setpc :color		; blue
+pu fd 11 rt 90
+pd fd 6
+rt 90+30 fd 9
+end
+
+to draw8 [:color 5]
+setpc :color		; magenta
+pu fd 3 rt 90 fd 2
+pd arc 359 3
+pu lt 90 fd 6
+pd arc 359 3
+end
+
+to draw9 [:color 7]
+setpc :color
+pu fd 12 rt 90 fd 6 rt 90	; like 6 but upside down
+pu fd 7 rt 90 fd 1 pd
+repeat 270 [fd 0.07 rt 1]
+repeat 45 [fd 0.3 rt 2]
+end
+
+to draw0 [:color 7]
+setpc :color
+pu fd 6 pd
+repeat 90 [fd (2-repcount/90)*6/150 rt 1]
+repeat 90 [fd (1+repcount/90)*6/150 rt 1]
+repeat 90 [fd (2-repcount/90)*6/150 rt 1]
+repeat 90 [fd (1+repcount/90)*6/150 rt 1]
+end
