@@ -1189,12 +1189,16 @@ wxTerminal::OnChar(wxKeyEvent& event)
     }
     else if (keyCode >= WXK_START) {
 	/* ignore it */
-    } else {
-	if (event.ControlDown()) keyCode -= 0140;
-	if (event.AltDown()) keyCode += 0200;
-	inputBuffer[input_index++] = keyCode;
-	PassInputToInterp();
+      return;  //not sure about this (evan)
+    } 
+    else {
+      
     }
+    //also not sure about this (evan)
+    if (event.ControlDown()) keyCode -= 0140;
+    if (event.AltDown()) keyCode += 0200;
+    inputBuffer[input_index++] = keyCode;
+    PassInputToInterp();
   }
   else if (keyCode == WXK_RETURN) {
     buf[0] = 10;
