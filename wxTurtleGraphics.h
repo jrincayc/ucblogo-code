@@ -189,12 +189,12 @@ public:
     wxFrame *  GetOwner();
 	wxDC *  GetDC();
 
-	int mousePosition_x;
-	int mousePosition_y;
+	static int mousePosition_x;
+	static int mousePosition_y;
 
-	int mouse_down_left;
-	int mouse_down_middle;
-	int mouse_down_right;
+	static int mouse_down_left;
+	static int mouse_down_middle;
+	static int mouse_down_right;
 
 	static wxColour colors[NUMCOLORS+2];
 

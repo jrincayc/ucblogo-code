@@ -209,7 +209,7 @@ ifelse member? (list :row :col) :mines [
   pu setxy xcor+1 ycor+1
   pd repeat 4 [fd :squaresize-4 rt 90]
   setpc 13			; purple for undetected mine
-  pu setxy xcor+3 ycor+3 fill
+  pu setxy xcor+5 ycor+5 fill
 ] [
   setpc 11			; grey in aqua border for empty
   pu setxy xcor+1 ycor+1
