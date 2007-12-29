@@ -1179,7 +1179,6 @@ extern "C" void wxlPrintPreviewText(){
 }
 
 void getMousePosition (int * x, int * y) {
-/*
   int data[2];
   data[0] = 0;
   data[1] = 0;
@@ -1191,9 +1190,9 @@ void getMousePosition (int * x, int * y) {
   TurtleCanvas::WaitForEvent();
   *x = data[0] - wxGetInfo(SCREEN_WIDTH)/2;
   *y = wxGetInfo(SCREEN_HEIGHT)/2 - data[1];
-*/
-  *x = TurtleCanvas::mousePosition_x - wxGetInfo(SCREEN_WIDTH)/2;
-  *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::mousePosition_y;
+
+//  *x = TurtleCanvas::mousePosition_x - wxGetInfo(SCREEN_WIDTH)/2;
+//  *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::mousePosition_y;
 }
 
 extern "C" int wxGetMouseX() {
@@ -1207,7 +1206,6 @@ extern "C" int wxGetMouseY() {
   return y;
 }
 extern "C" int wxGetButton () {
-/*
    int data[1];
    data[0] = 0;
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
@@ -1217,9 +1215,9 @@ extern "C" int wxGetButton () {
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
   return data[0];
- */
-    return TurtleCanvas::mouse_down_left + TurtleCanvas::mouse_down_middle
-	    + TurtleCanvas::mouse_down_right;
+
+//    return TurtleCanvas::mouse_down_left + TurtleCanvas::mouse_down_middle
+//	    + TurtleCanvas::mouse_down_right;
 }
 
 /* Show the text editor and have it load the given file */
