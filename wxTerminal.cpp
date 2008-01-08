@@ -1,4 +1,3 @@
-
 /* 
 	Much of the code for the terminal came from:
         taTelnet - A cross-platform telnet program.
@@ -54,7 +53,6 @@
 
 #include <wx/timer.h>
 #include <wx/stdpaths.h>
-
 #include <ctype.h>
 
 extern unsigned char *cmdHistory[];
@@ -79,6 +77,10 @@ extern int readingInstruction;
 
 using namespace std;
 
+
+
+
+
 // ----------------------------------------------------------------------------
 // Globals
 // ----------------------------------------------------------------------------
@@ -99,6 +101,7 @@ TurtleCanvas * turtleGraphics;
 // this contains the previous 3 window
 wxBoxSizer *topsizer;
 LogoFrame *logoFrame;
+LogoEventManager *logoEventManager;
 
 // used to calculate where the cursor should be
 int cur_x = 0, cur_y = 0;
@@ -121,7 +124,9 @@ extern "C" RETSIGTYPE logo_pause(int);
 extern "C" RETSIGTYPE logo_stop();
 extern "C" RETSIGTYPE logo_pause();
 #endif
+#ifdef MULTITHREAD
 extern void wxLogoWakeup();
+#endif
 int logo_stop_flag = 0;
 int logo_pause_flag = 0;
 int movedCursor = 0;
@@ -190,10 +195,100 @@ bool LogoApplication::OnInit()
      50, 50, 900, 500);
 
   logoFrame->Show(TRUE);
+#ifndef MULTITHREAD
+  m_shouldLeave = 0;
+  LogoEventManager *eventLoop = new LogoEventManager(this);
+  logoEventManager = eventLoop; 
+  m_mainLoop = eventLoop;
+#endif
   SetTopWindow(logoFrame);
   return TRUE;	
 }
 
+#ifndef MULTITHREAD
+extern "C" int start (int, char **);
+
+void LogoApplication::SetShouldLeave(bool b)
+{
+  m_shouldLeave = b;
+}
+
+
+int LogoApplication::OnRun()
+{
+  SetExitOnFrameDelete(true);
+  wxEventLoop::SetActive(m_mainLoop);
+
+#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
+	wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
+#endif
+
+	// fix the working directory in mac
+#ifdef __WXMAC__
+	char path[1024];
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	assert( mainBundle );
+	
+	CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+	assert( mainBundleURL);
+	
+	CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+	assert( cfStringRef);
+	
+	CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+	
+	CFRelease( mainBundleURL);
+	CFRelease( cfStringRef);
+
+	//std::string pathString(path);
+	pathString = path;
+	pathString+="/Contents/Resources/";
+//	chdir(pathString.c_str());
+	
+#endif
+
+
+  start(1, argv);
+  return 0;
+}
+#endif
+
+
+
+// ----------------------------------------------------------------------------
+// LogoEventManager class
+// ----------------------------------------------------------------------------
+
+#ifndef MULTITHREAD
+LogoEventManager::LogoEventManager(LogoApplication *logoApp) : wxEventLoop()
+{
+  m_logoApp = logoApp;
+}
+
+void LogoEventManager::ProcessAnEvent()
+{
+  if( m_logoApp->Pending() &&  !m_logoApp->Dispatch() )
+    m_logoApp->SetShouldLeave(TRUE);
+}
+
+void LogoEventManager::ProcessAllEvents()
+{
+  while( m_logoApp->Pending() ) {
+    if(!m_logoApp->Dispatch())
+      m_logoApp->SetShouldLeave(TRUE);
+  }
+}
+
+void LogoEventManager::LogoExit()
+{
+  m_logoApp->SetShouldLeave(TRUE);
+}
+
+void LogoEventManager::OnExit()
+{
+  m_logoApp->SetShouldLeave(TRUE);
+}
+#endif
 
 // ----------------------------------------------------------------------------
 // LogoFrame class
@@ -226,6 +321,7 @@ EVT_MENU(Edit_Menu_Edit_Find_Next,		LogoFrame::OnEditFindNext)
 END_EVENT_TABLE()
 
 #include "ucblogo.xpm"
+
 
 LogoFrame::LogoFrame (const wxChar *title,
  int xpos, int ypos,
@@ -279,14 +375,20 @@ LogoFrame::LogoFrame (const wxChar *title,
     wxTerminal::terminal->SetFocus();
 	SetUpMenu();
     wxSleep(1);
-	
+
+#ifdef MULTITHREAD	
     init_Logo_Interpreter (1, argv );
+#endif
 }
+
+
 
 void LogoFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
     Close(TRUE);
 }
+
+
 
 void LogoFrame::SetUpMenu(){
 	int i;
@@ -526,13 +628,17 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 
 void LogoFrame::DoStop(wxCommandEvent& WXUNUSED(event)){
   logo_stop_flag = 1;
+#ifdef MULTITHREAD
   wxLogoWakeup();
+#endif
 }
 
 
 void LogoFrame::DoPause(wxCommandEvent& WXUNUSED(event)){
   logo_pause_flag = 1;
-	wxLogoWakeup();
+#ifdef MULTITHREAD
+  wxLogoWakeup();
+#endif
 }
 
 void LogoFrame::OnEditCloseAccept(wxCommandEvent& WXUNUSED(event)){
@@ -969,26 +1075,30 @@ wxTerminal::SetCursorBlinkRate(int rate)
 
 
 void  wxTerminal::printText (wxCommandEvent& event){
-  
-
  GTerm::set_mode_flag(BOLD);
-  
-  out_mut.Lock();
+
+#ifdef MULTITHREAD  
+ out_mut.Lock();
+#endif
 
   if (event.GetClientData() != NULL) {
     int * temp = (int *)event.GetClientData();
     this->setCursor(temp[0], temp[1]);
     free (temp);
     movedCursor = 1;
+#ifdef MULTITHREAD
     buff_full_cond.Broadcast();
     out_mut.Unlock();
+#endif
     return;
   }
 
   if (out_buff_index_public == 0) {
     alreadyAlerted = 0;
+#ifdef MULTITHREAD
     buff_full_cond.Broadcast();
     out_mut.Unlock();
+#endif
     GTerm::clear_mode_flag(BOLD);
     return;
   }
@@ -1047,8 +1157,10 @@ void  wxTerminal::printText (wxCommandEvent& event){
      out_buff_index_public = 0;
   } 
 
+#ifdef MULTITHREAD
   buff_full_cond.Broadcast();
   out_mut.Unlock();
+#endif
 
   last_logo_x = cursor_x;
   last_logo_y = cursor_y;
@@ -1073,11 +1185,15 @@ void  wxTerminal::printText (wxCommandEvent& event){
  */
 void wxTerminal::PassInputToInterp() {
   int i;  
+#ifdef MULTITHREAD
   in_mut.Lock();
+#endif
   if(logo_char_mode){
     buff[buff_index++] = inputBuffer[--input_index];
     input_index = 0;
+#ifdef MULTITHREAD
     read_buff.Broadcast();
+#endif
   }
   else {
     buff[buff_index++] = '\n';
@@ -1085,13 +1201,17 @@ void wxTerminal::PassInputToInterp() {
       buff[buff_index++] = inputBuffer[i];
     }
     input_index = 0;
+#ifdef MULTITHREAD
     read_buff.Broadcast();
+#endif
     
     // sent to logo, so the text is locked
     last_logo_x = cursor_x;
     last_logo_y = cursor_y;
   }
+#ifdef MULTITHREAD
   in_mut.Unlock();
+#endif
 }
 
 
@@ -1366,10 +1486,14 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
 void wxTerminal::setCursor (int x, int y) {
   wxClientDC dc (this);
+#ifdef MULTITHREAD
   in_mut.Lock();
+#endif
   GTerm::move_cursor(x, y);
   GTerm::Update();
+#ifdef MULTITHREAD
   in_mut.Unlock();
+#endif
 }
 
 void wxTerminal::OnSize(wxSizeEvent& event) {
@@ -2044,11 +2168,15 @@ extern "C" void setCharMode(int mode){
 }
 
 extern "C" void wxClearText() {
-	out_mut.Lock();
-	wxTerminal::terminal->Reset();
-	out_buff_index_public = 0;
-	out_buff_index_private = 0;
-	out_mut.Unlock();
+#ifdef MULTITHREAD
+  out_mut.Lock();
+#endif
+  wxTerminal::terminal->Reset();
+  out_buff_index_public = 0;
+  out_buff_index_private = 0;
+#ifdef MULTITHREAD
+  out_mut.Unlock();
+#endif
 }
 
 extern "C" void flushFile(FILE * stream, int);
@@ -2060,20 +2188,34 @@ extern "C" void wxSetCursor(int x, int y){
 	wxCommandEvent event(wxEVT_MY_CUSTOM_COMMAND);
 	event.SetClientData((void *)data);
 	flushFile(stdout, 0);
+#ifdef MULTITHREAD
 	out_mut.Lock();
+#endif
 	movedCursor = 0;
+#ifdef MULTITHREAD
 	out_mut.Unlock();
 	wxPostEvent(wxTerminal::terminal,event);
+#else
+	wxTerminal::terminal->ProcessEvent(event);
+#endif
+#ifdef MULTITHREAD
 	out_mut.Lock();
-	if (!movedCursor)
-		buff_full_cond.Wait();
+	if (!movedCursor) {
+	  buff_full_cond.Wait();	  	
+	}
+#endif
 	movedCursor = 0;
+#ifdef MULTITHREAD
 	out_mut.Unlock();
+#endif
 }
 
 
 
 extern "C" int check_wx_stop() {
+#ifndef MULTITHREAD
+  logoEventManager->ProcessAnEvent(); 
+#endif
   if (logo_stop_flag) {
     logo_stop_flag = 0;
 #ifdef SIG_TAKES_ARG

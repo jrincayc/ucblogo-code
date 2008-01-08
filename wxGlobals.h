@@ -33,31 +33,25 @@
 #define DO_LOAD	1
 #define NO_LOAD 2
 
+
 /* wxMain */
 extern int out_buff_index_public;
 extern int out_buff_index_private;
 extern char * out_buff_public;
 extern char * out_buff_private;
-extern wxCondition read_buff;
 extern char buff[];
 extern int buff_index;
 extern int alreadyAlerted;
-extern wxMutex buff_full_m;
-extern wxCondition buff_full_cond;
 extern int MAXOUTBUFF;
 extern char out_buff[];
 extern int out_buff_index;
-extern wxMutex out_mut;
-extern wxMutex in_mut;
-
-extern int needToRefresh;
-extern wxCondition read_buff;
 
 /* wxTerminal */
 class TurtleCanvas;
 class TextEditor;
 extern wxCommandEvent * haveInputEvent;
 extern LogoFrame *logoFrame;
+extern LogoEventManager *logoEventManager;
 extern wxMenuBar* menuBar;
 extern wxBoxSizer *topsizer;
 extern TextEditor *editWindow;
@@ -69,12 +63,26 @@ extern "C" int getInfo(int);
 extern "C" void setInfo(int, int);
 
 /* wxTextEdit */
-extern wxCondition editCond;
-extern wxMutex editMut; 
 extern char * file; // using this is safe because the other thread is sleeping
 					// and it stack is also asleep
 extern "C" int check_wx_stop();
 extern "C" int internal_check();
+
+/* Synchronization for Multithreaded version */
+#ifdef MULTITHREAD
+/* wxMain, wxTerminal */
+extern wxCondition read_buff;
+extern wxMutex buff_full_m;
+extern wxCondition buff_full_cond;
+extern wxMutex out_mut;
+extern wxMutex in_mut;
+extern wxCondition read_buff;
+extern int needToRefresh;
+/* wxTextEdit */
+extern wxCondition editCond;
+extern wxMutex editMut; 
+#endif
+
 
 #define wxdprintf if (wx_Debugging) printf
 

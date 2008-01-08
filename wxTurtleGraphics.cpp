@@ -18,6 +18,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 
 /* The line drawing event */
+#ifdef MULTITHREAD
 BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EVENT_TYPE(wxEVT_MY_TURTLE_CUSTOM_COMMAND, 7777)
 END_DECLARE_EVENT_TYPES()
@@ -29,8 +30,9 @@ DECLARE_EVENT_TABLE_ENTRY( \
 						   (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
 						   (wxObject *) NULL \
 						   ),
+#endif
 
-/* The edit event */
+  /* The edit event */
 BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EVENT_TYPE(wxEVT_EDIT_CUSTOM_COMMAND, 7777)
 END_DECLARE_EVENT_TYPES()
@@ -43,7 +45,9 @@ DECLARE_EVENT_TABLE_ENTRY( \
 						   (wxObject *) NULL \
 						   ),
 
-// This is the wxPrepare event
+ 
+  /* Used for multithread event handling, as well as
+     for a dummy event otherwise */
 BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EVENT_TYPE(wxEVT_LOGO_CUSTOM_COMMAND, 7777)
 END_DECLARE_EVENT_TYPES()
@@ -55,7 +59,6 @@ DECLARE_EVENT_TABLE_ENTRY( \
 						   (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
 						   (wxObject *) NULL \
 						   ),
-
 // ----------------------------------------------------------------------------
 // Globals
 // ----------------------------------------------------------------------------
@@ -65,7 +68,6 @@ char* LogoPlatformName="wxWidgets";
 #endif
 
 pen_info p;
-
 int TurtleFrame::back_ground = 0;
 int TurtleFrame::screen_height = 0; 
 int TurtleFrame::screen_width = 0;
@@ -75,7 +77,7 @@ pen_info TurtleFrame::xgr_pen = p;
 
 int ignorePaint = 0;	// for Paint events when we've already handled it
 int drawToWindow = 0;	// for redraw_graphics from gui thread
-wxDC *windowDC;
+wxDC *windowDC = 0;
 
 wxMemoryDC *m_memDC;
 #define USE_MEMDC 0
@@ -95,7 +97,9 @@ wxColour TurtleCanvas::colors[NUMCOLORS+2];
 
 int R, G, B;
 
+#ifdef MULTITHREAD
 vector <struct line> lines;
+#endif
 
 // Global print data, to remember settings during the session
 wxPrintData *g_printData = (wxPrintData*) NULL ;
@@ -109,6 +113,7 @@ int drawToPrinter=0;
 wxDC *printerDC;
 wxBitmap *tempBitmap;
 
+#ifdef MULTITHREAD
 wxCommandEvent turtleEvent = wxCommandEvent(wxEVT_MY_TURTLE_CUSTOM_COMMAND);
 wxMutex * messageMut;
 wxCondition * messageJoinCond;
@@ -116,14 +121,17 @@ wxThread * guiThread;
 wxMutex tMut;
 #define MAX_LINES_BUFFERED 100
 wxCondition lineCond(tMut);
+#endif
 // have already called prepareToDraw
 int prepared = 0;
 TurtleFrame *turtleFrame;
 int turtleIndex = 0;
 int putInQueue = 0;
 
+#ifdef MULTITHREAD
 wxMutex editMut;
 wxCondition editCond(editMut);
+#endif
 wxCommandEvent editEvent = wxCommandEvent(wxEVT_EDIT_CUSTOM_COMMAND);
 char * file;
 
@@ -176,9 +184,13 @@ BEGIN_EVENT_TABLE(TurtleCanvas, wxWindow)
 EVT_PAINT  (TurtleCanvas::OnPaint)
 EVT_SIZE (TurtleCanvas::OnSize)
 EVT_MOTION (TurtleCanvas::OnMouseMove)
-EVT_MY_TURTLE_CUSTOM_COMMAND(-1, TurtleCanvas::drawLine)
+#ifdef MULTITHREAD
+  EVT_MY_TURTLE_CUSTOM_COMMAND(-1, TurtleCanvas::drawLine)
+#endif
 EVT_EDIT_CUSTOM_COMMAND(-1, TurtleCanvas::editCall)
-EVT_LOGO_CUSTOM_COMMAND (-1, TurtleCanvas::logoHandle)
+#ifdef MULTITHREAD
+  EVT_LOGO_CUSTOM_COMMAND (-1, TurtleCanvas::logoHandle)
+#endif
 EVT_SET_FOCUS( TurtleCanvas::OnFocus)
 EVT_KILL_FOCUS(TurtleCanvas::LoseFocus)
 EVT_LEFT_DOWN(TurtleCanvas::OnLeftDown)
@@ -187,7 +199,9 @@ EVT_MIDDLE_DOWN(TurtleCanvas::OnMiddleDown)
 EVT_MIDDLE_UP(TurtleCanvas::OnMiddleUp)
 EVT_RIGHT_DOWN(TurtleCanvas::OnRightDown)
 EVT_RIGHT_UP(TurtleCanvas::OnRightUp)
-EVT_TIMER(-1, TurtleCanvas::OnTimer)
+#ifdef MULTITHREAD
+  EVT_TIMER(-1, TurtleCanvas::OnTimer)
+#endif
 EVT_ERASE_BACKGROUND(TurtleCanvas::OnEraseBackGround)
 END_EVENT_TABLE()
 
@@ -201,9 +215,11 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   m_owner = parent;
   m_show = Show_Lines;
   m_clip = FALSE;
+#ifdef MULTITHREAD
   messageMut = new wxMutex();
   messageJoinCond = new wxCondition(*messageMut);
   guiThread = wxThread::This();
+#endif
   tempBitmap=0;
   g_printData = new wxPrintData;
 
@@ -246,9 +262,11 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   for(i=18;i<NUMCOLORS+2;i++){
     TurtleCanvas::colors[i] = TurtleCanvas::colors[(i-2)%NUMINITCOLORS+2];
   }
-	  
+	
+#ifdef MULTITHREAD  
   m_timer = new wxTimer(this);
   m_timer->Start(100);
+#endif
 
 		turtleFrame->xgr_pen.vis = 0;
 	int screen_width, screen_height;
@@ -316,9 +334,11 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     m_memDC->Clear();
 #endif
 
+#ifdef MULTITHREAD
     tMut.Lock();
     lines.clear();
     tMut.Unlock();
+#endif
 //    pictureleft = pictureright = screen_width/2;
 //    picturetop = picturebottom = screen_height/2;
 #if 0
@@ -327,10 +347,19 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     read_buff.Broadcast();
     in_mut.Unlock();
 #else
-    windowDC = &dc;
+    int unset_windowDC = 0;
+    if(windowDC == 0) {
+      windowDC = &dc;
+      unset_windowDC++;
+    }
     drawToWindow++;
     redraw_graphics();
     drawToWindow--;
+
+    if(unset_windowDC) {
+      windowDC = 0;
+      unset_windowDC--;
+    }
 #endif
 	wxdprintf("OnPaint ends\n");
 }
@@ -339,8 +368,9 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 	wxdprintf("OnSize starts\n");
 
 	wxClientDC dc(this);
-	dc.DestroyClippingRegion(); //evan
 	int x, y;
+
+	dc.DestroyClippingRegion(); //evan
 	
 	GetSize(&x, &y);
 #if USE_MEMDC
@@ -353,13 +383,13 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 	oldWidth = x;
 	oldHeight = y;
 	/*
-	 **  Create our bitmap for copying
+	 *  Create our bitmap for copying
 	 */
 #if USE_MEMDC
 	if(m_bitmap)
 	{
-		m_memDC->SelectObject(wxNullBitmap);
-		delete m_bitmap;
+	  m_memDC->SelectObject(wxNullBitmap);
+	  delete m_bitmap;
 	}
 	m_bitmap = new wxBitmap(x, y);
 	
@@ -374,27 +404,37 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 //    pictureleft = pictureright = getInfo(SCREEN_WIDTH)/2;
 //    picturetop = picturebottom = getInfo(SCREEN_HEIGHT)/2;
 
+#ifdef MULTITHREAD
     tMut.Lock();
     lines.clear();
     tMut.Unlock();
-	int screen_width, screen_height;
+#endif
+    int screen_width, screen_height;
     logoFrame->GetSize(&screen_width, &screen_height);
-	setInfo(SCREEN_WIDTH, screen_width);
-	setInfo(SCREEN_HEIGHT, screen_height);
+    setInfo(SCREEN_WIDTH, screen_width);
+    setInfo(SCREEN_HEIGHT, screen_height);
 #if 0
     in_mut.Lock();
     needToRefresh++;
     read_buff.Broadcast();
     in_mut.Unlock();
 #else
-    windowDC = &dc;
+    int unset_windowDC = 0;
+    if(windowDC == 0) {   //OnSize may be triggered multiple times...
+      windowDC = &dc;
+      unset_windowDC++;
+    }
+    
     drawToWindow++;
     redraw_graphics();
     drawToWindow--;
 #endif
+    if(unset_windowDC) {
+      windowDC = 0;
+      unset_windowDC--;
+    }
 	
-	
-	wxdprintf("OnSize ends\n");
+    wxdprintf("OnSize ends\n");
 }
 
 
@@ -422,10 +462,13 @@ void TurtleCanvas::OnEraseBackGround(wxEraseEvent& event) {
 	wxdprintf("Executing OnEraseBackGround\n");
 }
 
+
+#ifdef MULTITHREAD
 void TurtleCanvas::OnTimer (wxTimerEvent& event) {
     wxCommandEvent  e;
     if (!drawToPrinter && !drawToWindow) drawLine(e);
 }
+#endif
 
 void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     wxPen myPen;
@@ -447,8 +490,8 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     } else {
 	myPen = wxPen(TurtleCanvas::colors[l->color+2], l->pw, wxSOLID);
     }
-
     dc->SetPen(myPen);
+
 #if USE_MEMDC
 	if (!drawToPrinter)
 	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+2],
@@ -468,7 +511,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 #endif
     }
     if(l->vis) {
-   	 dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
+      dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
 	if (!drawToPrinter && !drawToWindow) {
 #if USE_MEMDC
 	    m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
@@ -487,6 +530,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 extern int turtle_shown;
 extern "C" void draw_turtle();
 
+#ifdef MULTITHREAD
 void TurtleCanvas::drawLine(wxCommandEvent & event) {
     wxDC *dc;
     int broadcast = 0;
@@ -494,11 +538,24 @@ void TurtleCanvas::drawLine(wxCommandEvent & event) {
     putInQueue = 0;
 
     if (lines.size() > MAX_LINES_BUFFERED)
-	broadcast = 1;
+      broadcast = 1;
+
     if(drawToPrinter)
 	dc=printerDC;
     else {
-	dc = new wxClientDC(this);
+      //need to set drawToWindow!
+      //this event cannot be happening at the same time as
+      // a redraw_graphics, so we should be okay!
+      
+      //just in case, set windowDC
+      if(drawToWindow) {
+	//this is an error... what shall I do? debug for now
+	fprintf(stderr, " **** error!!!! ****");
+	
+      }
+      dc = new wxClientDC(this);
+      windowDC = dc;
+      drawToWindow++;    
     }
     turtleIndex = 0;
     for (; turtleIndex<lines.size();turtleIndex++) {
@@ -507,14 +564,17 @@ void TurtleCanvas::drawLine(wxCommandEvent & event) {
 
     lines.clear();
     if (broadcast) {
-	lineCond.Broadcast();
+      	lineCond.Broadcast();
     }
-    tMut.Unlock();
+        tMut.Unlock();
   
     if(!drawToPrinter){
-	delete dc;
+      drawToWindow--;
+      windowDC = 0;
+      delete dc;
     }
 }
+#endif
 
 void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled by any gui thread, it should be thread safe
   editWindow->Clear();
@@ -566,21 +626,23 @@ void TurtleCanvas::OnMouseMove(wxMouseEvent& event){
   event.Skip(); //allow native handler to set focus
 }
 
+#ifdef MULTITHREAD
 void TurtleCanvas::FinishedEvent(){
 	// wake the sleeping logo thread
-	messageMut->Lock();
-	alreadyDone = 1;
-	messageJoinCond->Broadcast();
-	messageMut->Unlock();
+  	messageMut->Lock();
+  	alreadyDone = 1;
+  	messageJoinCond->Broadcast();
+  	messageMut->Unlock();
 }
 
 
 void TurtleCanvas::WaitForEvent(){	
-	messageMut->Lock();
-	while (!alreadyDone)
-		messageJoinCond->Wait();
-	messageMut->Unlock();	
+  	messageMut->Lock();
+  	while (!alreadyDone)
+  		messageJoinCond->Wait();
+  	messageMut->Unlock();	
 }
+#endif
 
 extern "C" pen_info* getPen();
 
@@ -653,6 +715,7 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
 
 /* For synchronization purposes, this make sure all these actions happen
    in the GUI thread but are posted as events from logo*/
+#ifdef MULTITHREAD
 void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
     wxDC *dc;
 
@@ -781,7 +844,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	case KILLAPPLICATION:
 	  exit(0);
 	  break;
-	case CATCHUP:
+        case CATCHUP:
 	    drawLine(e);
 	    FinishedEvent();
 	    break;
@@ -805,6 +868,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	if(!drawToPrinter)
 		delete dc;
 }
+#endif
 
 /* A setter function for various turtle graphics properties */
 void TurtleCanvas::setInfo(int type, int val){
@@ -936,7 +1000,8 @@ extern "C" void set_palette(int color, unsigned int r, unsigned int g, unsigned 
 }
 
 extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigned int *b){
-    if (1 || drawToWindow) {
+#ifdef MULTITHREAD
+    if (drawToWindow) {
 	wxColour colour(TurtleCanvas::colors[color+2]);
 	*r = colour.Red()*256;
 	*g = colour.Green()*256;
@@ -952,9 +1017,16 @@ extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigne
 	*g = G;
 	*b = B;
     }
+#else
+    wxColour colour(TurtleCanvas::colors[color+2]);
+    *r = colour.Red()*256;
+    *g = colour.Green()*256;
+    *b = colour.Blue()*256;
+#endif
 }
 
 extern "C" void save_pen(pen_info *p) {
+#ifdef MULTITHREAD
     if (drawToPrinter || drawToWindow)
 	memcpy(((char *)(p)),((char *)(&turtleFrame->xgr_pen)),
 	       sizeof(pen_info));
@@ -964,11 +1036,16 @@ extern "C" void save_pen(pen_info *p) {
 	event.SetClientData(p);
 	alreadyDone = 0;
 	turtleGraphics->AddPendingEvent(event);
-	TurtleCanvas::WaitForEvent();
+	TurtleCanvas::WaitForEvent();      
     }
+#else
+    memcpy(((char *)(p)),((char *)(&turtleFrame->xgr_pen)),
+	   sizeof(pen_info));
+#endif
 }
 
 extern "C" void restore_pen(pen_info *p) {
+#ifdef MULTITHREAD
     if (drawToPrinter || drawToWindow)
 	memcpy(((char *)(&turtleFrame->xgr_pen)),((char *)(p)),
 	       sizeof(pen_info));
@@ -977,35 +1054,41 @@ extern "C" void restore_pen(pen_info *p) {
 	event.SetInt(RESTOREPEN);
 	event.SetClientData(p);
 	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
+	turtleGraphics->AddPendingEvent(event);	
 	TurtleCanvas::WaitForEvent();
     }
+#else
+    memcpy(((char *)(&turtleFrame->xgr_pen)),((char *)(p)),
+	   sizeof(pen_info));
+#endif
 }
-
-
 
 extern "C" void set_pen_patter(){
   nop();
 }
 
 extern "C" void logofill() {
+#ifdef MULTITHREAD
     int data[2];
-    extern int turtle_shown;
-    extern void draw_turtle();
+    //extern int turtle_shown;
+    //extern void draw_turtle();
+#endif
 
     if (drawToPrinter)
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, printerDC);
     else if (drawToWindow)
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, windowDC);
     else {
+#ifdef MULTITHREAD
 	if (1 || turtle_shown) { /* wait for turtle to disappear */
 	     wxCommandEvent e(wxEVT_LOGO_CUSTOM_COMMAND);
 	     e.SetInt(CATCHUP);
 	     e.SetClientData((void *)data);
 	     alreadyDone = 0;
-	     turtleGraphics->AddPendingEvent(e);
+	     turtleGraphics->AddPendingEvent(e);	     
 	     TurtleCanvas::WaitForEvent();
 	}
+
 	data[0] = turtleFrame->xgr_pen.color;
 	data[1] = turtleFrame->xgr_pen.pw;
 	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
@@ -1014,7 +1097,13 @@ extern "C" void logofill() {
 	alreadyDone = 0;
 	turtleGraphics->AddPendingEvent(event);
 	TurtleCanvas::WaitForEvent();
+#else
+	wxDC *dc = new wxClientDC(turtleGraphics);
+	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, dc);
+	delete dc;
+#endif
     }
+
 }
 
 /* Clear the turtle graphics screen, and put in splitscreen if we are
@@ -1026,9 +1115,10 @@ extern "C" void wx_clear() {
 	TurtleCanvas::realClearScreen(windowDC);
     else {
       // finish drawing lines first
+#ifdef MULTITHREAD
       wxCommandEvent e(wxEVT_LOGO_CUSTOM_COMMAND);
       e.SetInt(CATCHUP);
-      alreadyDone = 0;
+      alreadyDone = 0;      
       turtleGraphics->AddPendingEvent(e);
       TurtleCanvas::WaitForEvent();
       
@@ -1037,6 +1127,12 @@ extern "C" void wx_clear() {
       alreadyDone = 0;
       turtleGraphics->AddPendingEvent(event);
       TurtleCanvas::WaitForEvent();
+#else
+      wxDC *dc = new wxClientDC(turtleGraphics);
+      TurtleCanvas::realClearScreen(dc);
+      delete dc;
+#endif
+
       if(!TurtleFrame::in_graphics_mode)
 	wxSplitScreen();
     }
@@ -1046,7 +1142,9 @@ extern "C" void wx_clear() {
 extern char record_buffer[];
 
 extern "C" void wxPrepare(){
-    if (drawToPrinter || drawToWindow) return;
+    if (drawToPrinter || drawToWindow) {
+      return;
+    }
     
     if(!turtleFrame->in_graphics_mode) {
 	wxSplitScreen();
@@ -1056,26 +1154,38 @@ extern "C" void wxPrepare(){
         wx_clear();
 	prepared = 1;
     }
-	
     return;
 }
 
 /* Have turtle graphics draw the given line */
 extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){
-    static int numLines = 0;
-    tMut.Lock();
-    if (!drawToPrinter && !drawToWindow) {
-	while (lines.size() > MAX_LINES_BUFFERED) {
-	  lineCond.Wait();
-	}
 
+    static int numLines = 0;
+#ifdef MULTITHREAD
+    tMut.Lock();
+#endif
+    if (!drawToPrinter && !drawToWindow) {
+#ifdef MULTITHREAD
+      while (lines.size() > MAX_LINES_BUFFERED) {
+	  lineCond.Wait();
+      }
+#endif
 	if (numLines == LINEPAUSE) {
+#ifdef MULTITHREAD
 	  lineCond.WaitTimeout(1);
+#else
+	  wxMilliSleep(1);
+#endif
 	  numLines = 0;
 	}
 	else 
 	  numLines++;
+
     }
+
+
+    
+    wxDC *dc;
 
     struct line l;
     l.x1 = x1;
@@ -1091,22 +1201,31 @@ extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){
     else if (drawToWindow)
 	TurtleCanvas::drawOneLine(&l, windowDC);
     else {
+#ifdef MULTITHREAD
 	lines.push_back(l);
-	if (!putInQueue) {
-	    putInQueue = 1;
-	}
+	  if (!putInQueue) {
+	  putInQueue = 1;
+	  }
+#else
+	dc = new wxClientDC(turtleGraphics);
+	TurtleCanvas::drawOneLine(&l, dc);
+	delete dc;
+#endif
       // NOTE: DO NOT FORGET
       // YOU CAN NOT BE HOLDING A LOCK THAT THE OTHER THREAD IS WAITING ON
       // AND DO A POST EVENT!!!! IT IS DEADLOCK
       // BEWARE!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
-    tMut.Unlock();
+#ifdef MULTITHREAD
+        tMut.Unlock();
+#endif
     return;
 }
 
 /* Set the pen width.  Notice this only takes one number, because wx only
    allows us to set the width and not the pen height */
 extern "C" void wxSetPenWidth(int width){
+#ifdef MULTITHREAD
     if (drawToPrinter || drawToWindow)
 	turtleFrame->xgr_pen.pw = width;
     else {
@@ -1117,74 +1236,125 @@ extern "C" void wxSetPenWidth(int width){
 	turtleGraphics->AddPendingEvent(event);
 	TurtleCanvas::WaitForEvent();
     }
+#else
+    turtleFrame->xgr_pen.pw = width;
+#endif
 }
 
 extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 /* Put the logoframe into splitscreen mode*/
 extern "C" void wxSplitScreen(){
+#ifdef MULTITHREAD
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(SPLITSCREEN);
   alreadyDone = 0;
-  turtleGraphics->AddPendingEvent(event);
+  turtleGraphics->AddPendingEvent(event);  
   TurtleCanvas::WaitForEvent();
+#else
+    turtleFrame->in_graphics_mode = 1;
+    turtleFrame->in_splitscreen = 1;
+    topsizer->Show(wxTerminal::terminal, 1);
+    topsizer->Show(turtleGraphics, 1);
+    topsizer->Show(editWindow, 0);   
+    topsizer->Layout();
+    wxTerminal::terminal->SetFocus();
+    wxTerminal::terminal->deferUpdate(0);
+#endif
     screen_mode = SCREEN_SPLIT;
-  
 }
 
 /* Put the logoframe into full screen mode */
 extern "C" void wxFullScreen(){
+#ifdef MULTITHREAD
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(FULLSCREEN);
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+#else
+    turtleFrame->in_graphics_mode = 1;
+    turtleFrame->in_splitscreen = 0;
+    topsizer->Show(wxTerminal::terminal, 0);
+    topsizer->Show(turtleGraphics, 1);
+    topsizer->Show(editWindow, 0);
+    topsizer->Layout();
+    wxTerminal::terminal->deferUpdate(1);
+#endif
     screen_mode = SCREEN_FULL;
 }
 
 /* Put the logoframe into text screen mode*/
 extern "C" void wxTextScreen(){
+#ifdef MULTITHREAD
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(TEXTSCREEN);
   alreadyDone = 0;
-  turtleGraphics->AddPendingEvent(event);
+  turtleGraphics->AddPendingEvent(event);  
   TurtleCanvas::WaitForEvent();
-    screen_mode = SCREEN_TEXT;
+#else
+  turtleFrame->in_graphics_mode = 0;
+  turtleFrame->in_splitscreen = 0;
+  topsizer->Show(wxTerminal::terminal, 1);
+  topsizer->Show(turtleGraphics, 0);
+  topsizer->Show(editWindow, 0);
+  topsizer->Layout();
+  wxTerminal::terminal->SetFocus();
+  wxTerminal::terminal->deferUpdate(0);
+#endif
+  screen_mode = SCREEN_TEXT;
 }
 
 extern "C" void wxlPrintPict(){
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+#ifdef MULTITHREAD
   event.SetInt(PRINTPICT);
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+#else
+  turtleGraphics->PrintTurtleWindow(event);
+#endif
 }
 
 extern "C" void wxlPrintPreviewPict(){
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+#ifdef MULTITHREAD
   event.SetInt(PRINTPREVIEWPICT);
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+#else
+  turtleGraphics->TurtlePrintPreview(event);
+#endif
 }
 
 extern "C" void wxlPrintText(){
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+#ifdef MULTITHREAD
   event.SetInt(PRINTTEXT);
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+#else
+  logoFrame->OnPrintText(event);
+#endif
 }
 
 extern "C" void wxlPrintPreviewText(){
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
+#ifdef MULTITHREAD
   event.SetInt(PRINTPREVIEWTEXT);
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+#else
+  logoFrame->OnPrintTextPrev(event);
+#endif
 }
 
 void getMousePosition (int * x, int * y) {
+#ifdef MULTITHREAD
   int data[2];
   data[0] = 0;
   data[1] = 0;
@@ -1194,11 +1364,13 @@ void getMousePosition (int * x, int * y) {
   alreadyDone = 0;
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
+  
   *x = data[0] - wxGetInfo(SCREEN_WIDTH)/2;
   *y = wxGetInfo(SCREEN_HEIGHT)/2 - data[1];
-
-//  *x = TurtleCanvas::mousePosition_x - wxGetInfo(SCREEN_WIDTH)/2;
-//  *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::mousePosition_y;
+#else
+  *x = TurtleCanvas::mousePosition_x - wxGetInfo(SCREEN_WIDTH)/2;
+  *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::mousePosition_y;
+#endif
 }
 
 extern "C" int wxGetMouseX() {
@@ -1212,8 +1384,9 @@ extern "C" int wxGetMouseY() {
   return y;
 }
 extern "C" int wxGetButton () {
-   int data[1];
-   data[0] = 0;
+#ifdef MULTITHREAD
+  int data[1];
+  data[0] = 0;
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(GETMOUSEDOWN);
   event.SetClientData((void *)data);
@@ -1221,19 +1394,26 @@ extern "C" int wxGetButton () {
   turtleGraphics->AddPendingEvent(event);
   TurtleCanvas::WaitForEvent();
   return data[0];
-
-//    return TurtleCanvas::mouse_down_left + TurtleCanvas::mouse_down_middle
-//	    + TurtleCanvas::mouse_down_right;
+#else
+    return TurtleCanvas::mouse_down_left + TurtleCanvas::mouse_down_middle
+	    + TurtleCanvas::mouse_down_right;
+#endif
 }
 
 /* Show the text editor and have it load the given file */
 extern "C" int wxEditFile(char * f){
   file = f;
   alreadyDone = 0;
-  turtleGraphics->AddPendingEvent(editEvent);
-  editMut.Lock();
-  editCond.Wait();
-  editMut.Unlock();
+#ifdef MULTITHREAD
+    turtleGraphics->AddPendingEvent(editEvent);
+#else
+  turtleGraphics->ProcessEvent(editEvent);
+#endif
+#ifdef MULTITHREAD
+   editMut.Lock();
+   editCond.Wait();
+   editMut.Unlock();
+#endif
   return editWindow->doSave;
 }
 
@@ -1242,7 +1422,8 @@ extern "C" pen_info* getPen(){
 }
 
 extern "C" void wxSetInfo(int type, int val) {
-    if (1 || drawToPrinter || drawToWindow)
+#ifdef MULTITHREAD
+    if (drawToPrinter || drawToWindow)
 	TurtleCanvas::setInfo(type, val);
     else {
 	int data[2];
@@ -1252,9 +1433,12 @@ extern "C" void wxSetInfo(int type, int val) {
 	event.SetInt(SETINFO);
 	event.SetClientData((void *)data);
 	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
+	turtleGraphics->AddPendingEvent(event);	
 	TurtleCanvas::WaitForEvent();
     }
+#else
+    TurtleCanvas::setInfo(type, val);
+#endif
 }
 
 extern "C" int wxGetInfo(int type) {
@@ -1267,12 +1451,18 @@ extern "C" void wxLabel(char * string) {
     else if (drawToWindow) 
 	TurtleCanvas::realDrawLabel(string, windowDC);
     else {
+#ifdef MULTITHREAD
 	wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
 	event.SetInt(DRAWLABEL);
 	event.SetClientData((void *)string);
 	alreadyDone = 0;
-	turtleGraphics->AddPendingEvent(event);
+	turtleGraphics->AddPendingEvent(event);	
 	TurtleCanvas::WaitForEvent();
+#else
+	wxDC *dc = new wxClientDC(turtleGraphics);
+	TurtleCanvas::realDrawLabel(string, dc);
+	delete dc;	
+#endif
     }
 }
 
@@ -1282,7 +1472,11 @@ void TurtleCanvas::exitApplication()
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(KILLAPPLICATION);
   alreadyDone = 0;
+#ifdef MULTITHREAD
   turtleGraphics->AddPendingEvent(event);
+#else
+  turtleGraphics->ProcessEvent(event);
+#endif
 }
 
 
