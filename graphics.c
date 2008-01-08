@@ -590,7 +590,7 @@ NODE *lhideturtle(NODE *args) {
 
 void fix_turtle_shownness() {
     if (graphics_setup && user_turtle_shown
-#ifndef x_window
+#if !defined(x_window) || defined(HAVE_WX)
 		    && screen_mode != SCREEN_TEXT
 #endif
 	)
