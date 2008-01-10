@@ -12,6 +12,7 @@ class LogoApplication : public wxApp
 {
   public:
 	virtual bool OnInit();
+	virtual int OnExit();
 #ifndef MULTITHREAD
         virtual int OnRun();	
 #endif
@@ -25,7 +26,6 @@ class LogoEventManager {
     LogoEventManager(LogoApplication *logoApp);
     void ProcessAnEvent();
     void ProcessAllEvents();
-    void LogoExit();
   private:
     LogoApplication *m_logoApp;
 };
@@ -42,7 +42,6 @@ class LogoFrame : public wxFrame
 	void SetUpMenu();
 	void OnPrintText(wxCommandEvent&);
 	void OnPrintTextPrev(wxCommandEvent&);
-	
 private:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 	void OnSave(wxCommandEvent& WXUNUSED(event));
@@ -66,6 +65,8 @@ private:
 	void OnEditPaste(wxCommandEvent& WXUNUSED(event));
 	void OnEditSave(wxCommandEvent& WXUNUSED(event));
 	void OnEditLoad(wxCommandEvent& WXUNUSED(event));
+
+        void OnCloseWindow(wxCloseEvent& event);
 	
 	DECLARE_EVENT_TABLE()
 };

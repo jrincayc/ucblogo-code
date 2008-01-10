@@ -22,6 +22,7 @@
 /* main.c */
 #ifdef HAVE_WX
 extern int start(int, char **);
+extern int wx_leave_mainloop;
 #endif
 extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;

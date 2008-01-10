@@ -160,6 +160,7 @@ void _far _cdecl do_ctrl_c(void) {
 #endif
 
 #ifdef HAVE_WX
+int wx_leave_mainloop = 0;
 int  start (int argc,char ** argv) {
 #else
 int main(int argc, char *argv[]) {
@@ -288,6 +289,11 @@ int main(int argc, char *argv[]) {
 		if (exec_list != NIL) eval_driver(exec_list);
 	    }
 	}
+#ifdef HAVE_WX
+	if (wx_leave_mainloop) {
+	  break;
+	}
+#endif	
 	if (stopping_flag == THROWING) {
 	    if (isName(throw_node, Name_error)) {
 		err_print(NULL);

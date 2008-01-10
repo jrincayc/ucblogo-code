@@ -210,7 +210,6 @@ extern "C" int start (int, char **);
 int LogoApplication::OnRun()
 {
   SetExitOnFrameDelete(true);
-  //wxEventLoop::SetActive(m_mainLoop);
 
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
   wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
@@ -243,6 +242,10 @@ int LogoApplication::OnRun()
   start(1, argv);
   return 0;
 }
+
+int LogoApplication::OnExit() {
+  return 0;
+}
 #endif
 
 
@@ -263,7 +266,7 @@ void LogoEventManager::ProcessAnEvent()
     m_logoApp->Dispatch();
   }
   else {
-    m_logoApp->Yield(TRUE);
+    m_logoApp->Yield(TRUE);    
   }
 }
 
@@ -273,11 +276,6 @@ void LogoEventManager::ProcessAllEvents()
     m_logoApp->Dispatch();
   }
   m_logoApp->Yield(TRUE);
-}
-
-void LogoEventManager::LogoExit()
-{
-
 }
 
 #endif
@@ -310,6 +308,7 @@ EVT_MENU(Edit_Menu_Edit_Cut,			LogoFrame::OnEditCut)
 EVT_MENU(Edit_Menu_Edit_Paste,			LogoFrame::OnEditPaste)
 EVT_MENU(Edit_Menu_Edit_Find,			LogoFrame::OnEditFind)
 EVT_MENU(Edit_Menu_Edit_Find_Next,		LogoFrame::OnEditFindNext)
+EVT_CLOSE(LogoFrame::OnCloseWindow)
 END_EVENT_TABLE()
 
 #include "ucblogo.xpm"
@@ -374,10 +373,18 @@ LogoFrame::LogoFrame (const wxChar *title,
 }
 
 
+void LogoFrame::OnCloseWindow(wxCloseEvent& event)
+{
+  extern int wx_leave_mainloop;
+  logo_stop_flag = 1;
+  wx_leave_mainloop++;
+  Destroy();
+}
+
 
 void LogoFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-    Close(TRUE);
+  Close(TRUE);
 }
 
 
@@ -2205,7 +2212,7 @@ extern "C" void wxSetCursor(int x, int y){
 
 
 extern "C" int check_wx_stop() {
-#ifndef MULTITHREAD
+#ifndef MULTITHREAD  
   logoEventManager->ProcessAnEvent(); 
 #endif
   if (logo_stop_flag) {
@@ -2298,6 +2305,8 @@ extern "C" void setTermInfo(int type, int val){
 
 
 extern "C" void doClose() {
-	logoFrame->Close(TRUE);
+  extern int wx_leave_mainloop;
+  if(!wx_leave_mainloop)
+    logoFrame->Close(TRUE);
 }
 

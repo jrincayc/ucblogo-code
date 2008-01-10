@@ -168,8 +168,6 @@ extern "C" void wxLogoExit(int code) {
 #ifdef MULTITHREAD
   AppThread * thisThread =  (AppThread *)AppThread::This();
   thisThread->doExit(code);
-#else
-  logoEventManager->LogoExit();
 #endif
 }
 

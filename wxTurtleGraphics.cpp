@@ -1469,13 +1469,11 @@ extern "C" void wxLabel(char * string) {
 
 void TurtleCanvas::exitApplication()
 {
+#ifdef MULTITHREAD
   wxCommandEvent event(wxEVT_LOGO_CUSTOM_COMMAND);
   event.SetInt(KILLAPPLICATION);
   alreadyDone = 0;
-#ifdef MULTITHREAD
   turtleGraphics->AddPendingEvent(event);
-#else
-  turtleGraphics->ProcessEvent(event);
 #endif
 }
 

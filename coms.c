@@ -384,11 +384,12 @@ NODE *lbye(NODE *args) {
 #endif
     
 #ifdef HAVE_WX
-    wxLogoExit (0);
-#endif 
-    
+    wx_leave_mainloop++;
+    return UNBOUND;
+#else    
     exit(0);
     return UNBOUND;	/* not reached, but makes compiler happy */
+#endif
 }
 
 NODE *lwait(NODE *args) {
