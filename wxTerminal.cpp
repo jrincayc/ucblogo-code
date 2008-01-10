@@ -52,6 +52,7 @@
 #endif
 
 #include <wx/timer.h>
+extern std::string pathString;
 #include <wx/stdpaths.h>
 #include <ctype.h>
 
