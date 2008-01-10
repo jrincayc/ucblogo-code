@@ -14,24 +14,21 @@ class LogoApplication : public wxApp
 	virtual bool OnInit();
 #ifndef MULTITHREAD
         virtual int OnRun();	
-        void SetShouldLeave(bool b);
-	int m_shouldLeave;
 #endif
 };
 
 // This is the Event Manager for the logo application
 // allows us to process events while waiting (single-thread wxLogo)
-class LogoEventManager : public wxEventLoop {
+
+class LogoEventManager {
   public:
     LogoEventManager(LogoApplication *logoApp);
     void ProcessAnEvent();
     void ProcessAllEvents();
     void LogoExit();
-    virtual void OnExit();
   private:
     LogoApplication *m_logoApp;
 };
-
 
 // This is the Top level frame for logo
 class LogoFrame : public wxFrame

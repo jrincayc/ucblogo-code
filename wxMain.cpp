@@ -315,7 +315,6 @@ extern "C" void printToScreen(char c, FILE * stream)
   else {
      out_buff_private[out_buff_index_private++] = c;
   }
-  
 }
 
 

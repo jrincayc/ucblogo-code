@@ -190,16 +190,13 @@ enum
 bool LogoApplication::OnInit()
 {
 
-  LogoFrame  * logoFrame = new LogoFrame
+  logoFrame = new LogoFrame
     ("Berkeley Logo",
      50, 50, 900, 500);
 
   logoFrame->Show(TRUE);
 #ifndef MULTITHREAD
-  m_shouldLeave = 0;
-  LogoEventManager *eventLoop = new LogoEventManager(this);
-  logoEventManager = eventLoop; 
-  m_mainLoop = eventLoop;
+  logoEventManager = new LogoEventManager(this);
 #endif
   SetTopWindow(logoFrame);
   return TRUE;	
@@ -208,46 +205,40 @@ bool LogoApplication::OnInit()
 #ifndef MULTITHREAD
 extern "C" int start (int, char **);
 
-void LogoApplication::SetShouldLeave(bool b)
-{
-  m_shouldLeave = b;
-}
-
 
 int LogoApplication::OnRun()
 {
   SetExitOnFrameDelete(true);
-  wxEventLoop::SetActive(m_mainLoop);
+  //wxEventLoop::SetActive(m_mainLoop);
 
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
-	wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
+  wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
 #endif
 
-	// fix the working directory in mac
+  // fix the working directory in mac
 #ifdef __WXMAC__
-	char path[1024];
-	CFBundleRef mainBundle = CFBundleGetMainBundle();
-	assert( mainBundle );
-	
-	CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
-	assert( mainBundleURL);
-	
-	CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
-	assert( cfStringRef);
-	
-	CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
-	
-	CFRelease( mainBundleURL);
-	CFRelease( cfStringRef);
-
-	//std::string pathString(path);
-	pathString = path;
-	pathString+="/Contents/Resources/";
-//	chdir(pathString.c_str());
-	
+  char path[1024];
+  CFBundleRef mainBundle = CFBundleGetMainBundle();
+  assert( mainBundle );
+  
+  CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+  assert( mainBundleURL);
+  
+  CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+  assert( cfStringRef);
+  
+  CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+  
+  CFRelease( mainBundleURL);
+  CFRelease( cfStringRef);
+  
+  //std::string pathString(path);
+  pathString = path;
+  pathString+="/Contents/Resources/";
+  //	chdir(pathString.c_str());
+  
 #endif
-
-
+  
   start(1, argv);
   return 0;
 }
@@ -260,34 +251,34 @@ int LogoApplication::OnRun()
 // ----------------------------------------------------------------------------
 
 #ifndef MULTITHREAD
-LogoEventManager::LogoEventManager(LogoApplication *logoApp) : wxEventLoop()
+LogoEventManager::LogoEventManager(LogoApplication *logoApp)
 {
   m_logoApp = logoApp;
 }
 
 void LogoEventManager::ProcessAnEvent()
 {
-  if( m_logoApp->Pending() &&  !m_logoApp->Dispatch() )
-    m_logoApp->SetShouldLeave(TRUE);
+  if( m_logoApp->Pending() ) {
+    m_logoApp->Dispatch();
+  }
+  else {
+    m_logoApp->Yield(TRUE);
+  }
 }
 
 void LogoEventManager::ProcessAllEvents()
 {
   while( m_logoApp->Pending() ) {
-    if(!m_logoApp->Dispatch())
-      m_logoApp->SetShouldLeave(TRUE);
+    m_logoApp->Dispatch();
   }
+  m_logoApp->Yield(TRUE);
 }
 
 void LogoEventManager::LogoExit()
 {
-  m_logoApp->SetShouldLeave(TRUE);
+
 }
 
-void LogoEventManager::OnExit()
-{
-  m_logoApp->SetShouldLeave(TRUE);
-}
 #endif
 
 // ----------------------------------------------------------------------------
