@@ -1,3 +1,0 @@
-#!/bin/sh
-emacs -batch ~/.emacs -l /usr/local/lib/logo/emacs/edfunc.el -f edfunc -insert /usr/local/lib/logo/emacs/dot.emacs -f save-buffer -kill
-exec emacs /usr/local/lib/logo/emacs/check.lg &
