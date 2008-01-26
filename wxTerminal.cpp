@@ -266,7 +266,11 @@ void LogoEventManager::ProcessAnEvent()
     m_logoApp->Dispatch();
   }
   else {
-    m_logoApp->Yield(TRUE);    
+    static int foo = 50;    // carefully tuned fudge factor
+    if (--foo == 0) {
+	m_logoApp->Yield(TRUE);    
+	foo = 50;
+    }
   }
 }
 
