@@ -61,12 +61,12 @@ makehelp:	makehelp.c
 
 clean:
 	rm -f *.o libloc.c
-	cd emacs; $(MAKE) clean
+#	cd emacs; $(MAKE) clean
 
 ship:
 	rm -f config.h config.cache config.log config.status
 	rm -f makefile makehelp logo *.o libloc.c
-	cd emacs; $(MAKE) ship
+#	cd emacs; $(MAKE) ship
 	cd docs; $(MAKE) ship
 
 install: all
@@ -75,12 +75,12 @@ install: all
 	cp -f logolib/* $(LIBLOC)/logolib/.
 	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
 	cp -f csls/* $(LIBLOC)/csls/.
-	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
+#	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 #	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
 
 logo-mode: 
-	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE))
+#	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE))
 #	@prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE)
 
 make-docs:

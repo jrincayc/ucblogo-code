@@ -2310,7 +2310,9 @@ extern "C" void setTermInfo(int type, int val){
 
 extern "C" void doClose() {
   extern int wx_leave_mainloop;
-  if(!wx_leave_mainloop)
+
+  if(!wx_leave_mainloop) {
     logoFrame->Close(TRUE);
+  }
 }
 

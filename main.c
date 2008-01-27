@@ -310,6 +310,7 @@ int main(int argc, char *argv[]) {
 	    stopping_flag = RUN;
 	}
     }
-    prepare_to_exit(TRUE);
+    //prepare_to_exit(TRUE);
+    exit(0);
     return 0;
 }
