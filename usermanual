@@ -1644,6 +1644,14 @@ FILL
 	portable; it doesn't work for all machines, and may not work
 	exactly the same way on different machines.
 
+FILLED color instructions
+
+	runs the instructions, remembering all points visited by turtle
+	motion commands, starting *and ending* with the turtle's initial
+	position.  Then draws (ignoring penmode) the resulting polygon,
+	in the current pen color, filling the polygon with the given color,
+	which can be a color number or an RGB list.
+
 LABEL text
 
 	takes a word or list as input, and prints the input on the

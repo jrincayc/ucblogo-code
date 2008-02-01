@@ -23,6 +23,7 @@
 #include <windows.h>
 #endif /* WIN32 */
  
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 /*   #include "globals.h"   has been moved further down */
 #include <math.h>
@@ -1000,12 +1001,14 @@ NODE *lpendownp(NODE *args) {
 }
 
 NODE *lpencolor(NODE *args) {
-    if (pen_color == -1) return lpalette(cons(make_intnode(-1),NIL));
+    if (pen_color == PEN_COLOR_OFFSET)
+	return lpalette(cons(make_intnode(PEN_COLOR_OFFSET),NIL));
     return(make_intnode((FIXNUM)pen_color));
 }
 
 NODE *lbackground(NODE *args) {
-    if (back_ground == -2) return lpalette(cons(make_intnode(-2),NIL));
+    if (back_ground == BACKGROUND_COLOR_OFFSET)
+	return lpalette(cons(make_intnode(BACKGROUND_COLOR_OFFSET),NIL));
     return(make_intnode((FIXNUM)back_ground));
 }
 
@@ -1067,7 +1070,7 @@ NODE *lsetpencolor(NODE *arg) {
     if (NOT_THROWING) {
 	prepare_to_draw;
 	if (is_list(car(arg))) {
-	    val = make_intnode(-1);
+	    val = make_intnode(PEN_COLOR_OFFSET);
 	    lsetpalette(cons(val,arg));
 	} else
 	    val = pos_int_arg(arg);
@@ -1089,7 +1092,7 @@ NODE *lsetbackground(NODE *arg) {
     if (NOT_THROWING) {
 	prepare_to_draw;
 	if (is_list(car(arg))) {
-	    val = make_intnode(-2);
+	    val = make_intnode(BACKGROUND_COLOR_OFFSET);
 	    lsetpalette(cons(val,arg));
 	} else
 	    val = pos_int_arg(arg);
@@ -1104,7 +1107,7 @@ NODE *lsetpalette(NODE *args) {
 	NODE *arg = rgb_arg(cdr(args));
 	int slotnum = (int)getint(slot);
 
-	if (slotnum < -2) {
+	if (slotnum < -SPECIAL_COLORS) {
 	    err_logo(BAD_DATA_UNREC, slot);
 	} else if (NOT_THROWING && ((slotnum > 7) || (slotnum < 0))) {
 		prepare_to_draw;
@@ -1125,7 +1128,7 @@ NODE *lpalette(NODE *args) {
     NODE *arg = integer_arg(args);
     unsigned int r=0, g=0, b=0;
 
-    if (getint(arg) < -2) err_logo(BAD_DATA_UNREC, arg);
+    if (getint(arg) < -SPECIAL_COLORS) err_logo(BAD_DATA_UNREC, arg);
     if (NOT_THROWING) {
 	get_palette((int)getint(arg), &r, &g, &b);
 	return cons(make_intnode((FIXNUM)r),
@@ -1408,6 +1411,129 @@ NODE *larc(NODE *arg) {
 }
 
 #ifdef HAVE_WX
+NODE *lfilled(NODE *args) {
+    NODE *val, *arg;
+    char *start, *ptr;
+    int start_idx, idx, count;
+    struct mypoint {
+	int x,y;
+    } *points, *point;
+    FLONUM x1,y1,lastx,lasty;
+
+    prepare_to_draw;
+    if (is_list(car(args))) {
+	val = make_intnode(FILLED_COLOR_OFFSET);
+	lsetpalette(cons(val,args));
+    } else
+	val = pos_int_arg(args);
+    done_drawing;
+
+    if (!safe_to_save()) {
+	err_logo(BAD_GRAPH_INIT, NIL);
+	return UNBOUND;
+    }
+
+    start = record;
+    start_idx = record_index;
+    x1 = screen_x_coord;
+    y1 = screen_y_coord;
+
+    arg = runnable_arg(cdr(args));
+    if (NOT_THROWING) {
+	(void)evaluator(arg, begin_line);
+    }
+
+    if (!safe_to_save()) {
+	err_logo(BAD_GRAPH_INIT, NIL);
+	return UNBOUND;
+    }
+
+    if (NOT_THROWING) {
+	count=0;
+	for (ptr = start, idx = start_idx; ptr[idx] != FINISHED; ) {
+	switch (ptr[idx]) {
+		case (LINEXY) :
+		case (MOVEXY) :
+		    count++;
+		case (SETPENMODE) :
+		case (SETPENSIZE) :
+		    idx += Three;
+		    break;
+		case (LABEL) :
+		    idx += (One+2 + ptr[idx + One] + (One-1)) & ~(One-1);
+		    break;
+		case (SETPENVIS) :
+		case (FILLERUP) :
+		    idx += One;
+		    break;
+		case (SETPENCOLOR) :
+		    idx += Two;
+		    break;
+		case (SETPENRGB) :
+		    idx += Four;
+		    break;
+		case (SETPENPATTERN) :
+		    idx += One+8;
+		    break;
+		case (ARC) :
+		    idx += 9*Big;
+		    break;
+		case (NEXTBUFFER):
+		    ptr = *(char **)(ptr);
+		    idx = One;
+		    break;
+	    }
+	}
+	point = points = malloc((count+1)*sizeof(struct mypoint));
+	point->x = g_round(x1);
+	point->y = g_round(y1);
+	point++;
+	ptr = start;
+	idx = start_idx;
+    while (ptr[idx] != FINISHED) {
+	switch (ptr[idx]) {
+	    case (LINEXY) :
+	    case (MOVEXY) :
+		lastx = *(int *)(ptr + idx + One);
+		lasty = *(int *)(ptr + idx + Two);
+		point->x = screen_x_center+lastx;
+		point->y = screen_y_center-lasty;
+		point++;
+	    case (SETPENMODE) :
+	    case (SETPENSIZE) :
+		idx += Three;
+		break;
+	    case (LABEL) :
+		idx += (One+2 + ptr[idx + One] + (One-1)) & ~(One-1);
+		break;
+	    case (SETPENVIS) :
+	    case (FILLERUP) :
+		idx += One;
+		break;
+	    case (SETPENCOLOR) :
+		idx += Two;
+		break;
+	    case (SETPENRGB) :
+		idx += Four;
+		break;
+	    case (SETPENPATTERN) :
+		idx += One+8;
+		break;
+	    case (ARC) :
+		idx += 9*Big;
+		break;
+	    case (NEXTBUFFER):
+		ptr = *(char **)(ptr);
+		idx = One;
+		break;
+	    }
+	}
+	doFilled(getint(val), count+1, points);
+	free(points);
+    }
+    return UNBOUND;
+}
+
 NODE *lprintpict(NODE *args) {
     if (args != NIL)
 	wxlPrintPreviewPict();

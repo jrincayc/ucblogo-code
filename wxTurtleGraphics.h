@@ -98,6 +98,14 @@ enum messageEnum {
 #define NUMCOLORS 512
 #define NUMINITCOLORS 16
 
+#define SPECIAL_COLORS 3
+#define FILLED_COLOR_INDEX 0
+#define FILLED_COLOR_OFFSET -3
+#define BACKGROUND_COLOR_INDEX 1
+#define BACKGROUND_COLOR_OFFSET -2
+#define PEN_COLOR_INDEX 2
+#define PEN_COLOR_OFFSET -1
+
 
 // ----------------------------------------------------------------------------
 // Classes
@@ -143,6 +151,10 @@ private:
 		DECLARE_EVENT_TABLE()
 };
 
+struct mypoint {
+    int x,y;
+};
+
 // define a scrollable canvas for drawing onto
 class TurtleCanvas: public wxWindow
 {
@@ -182,6 +194,9 @@ public:
     void OnPageSetup(wxCommandEvent& event);
     static void drawOneLine(struct line *, wxDC *);
     static void realFloodFill(int, wxDC *);
+    static void realdoFilled(int fillcolor, int count,
+				    struct mypoint *points, wxDC *dc);
+
     static void realDrawLabel(char *, wxDC *);
     static void realClearScreen(wxDC *);
 	void PaintBackground(wxDC& dc) ;
@@ -196,7 +211,7 @@ public:
 	static int mouse_down_middle;
 	static int mouse_down_right;
 
-	static wxColour colors[NUMCOLORS+2];
+	static wxColour colors[NUMCOLORS+SPECIAL_COLORS];
 
 private:
 

@@ -404,6 +404,7 @@ extern void prepare_to_exit(BOOLEAN);
 extern NODE *lbye(NODE *);
 extern NODE *lwait(NODE *);
 extern NODE *lshell(NODE *);
+NODE *runnable_arg(NODE *);
 
 /* term.c */
 #ifndef HAVE_WX
@@ -477,6 +478,9 @@ extern NODE *lwrap(NODE *);
 extern NODE *lfence(NODE *);
 extern NODE *lwindow(NODE *);
 extern NODE *lfill(NODE *);
+#ifdef HAVE_WX
+extern NODE *lfilled(NODE *);
+#endif
 extern NODE *llabel(NODE *);
 extern NODE *ltextscreen(NODE *);
 extern NODE *lsplitscreen(NODE *);

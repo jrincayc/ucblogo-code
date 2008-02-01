@@ -93,7 +93,7 @@ int TurtleCanvas::mouse_down_left;
 int TurtleCanvas::mouse_down_middle;
 int TurtleCanvas::mouse_down_right;
 
-wxColour TurtleCanvas::colors[NUMCOLORS+2];
+wxColour TurtleCanvas::colors[NUMCOLORS+SPECIAL_COLORS];
 
 int R, G, B;
 
@@ -158,8 +158,10 @@ void PrintLines(){
 	unsigned int turtleIndex = 0;
 	for (; turtleIndex<lines.size();turtleIndex++) {
 		l = lines[turtleIndex];
-		wxdprintf("Pen color = %s ", TurtleCanvas::colors[l.color+2]);
-		//dc.SetPen( wxPen(TurtleCanvas::colors[l.color+2], 1, wxSOLID) );
+		wxdprintf("Pen color = %s ",
+			  TurtleCanvas::colors[l.color+SPECIAL_COLORS]);
+//		dc.SetPen( wxPen(TurtleCanvas::colors[l.color+SPECIAL_COLORS],
+				    1, wxSOLID) );
 		if(l.pm==PEN_REVERSE)
 		  {wxdprintf("and reversed \n");}
 		else if(l.pm==PEN_ERASE)
@@ -243,24 +245,25 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 
   // initialize the TurtleCanvas::colors
   int i;
-    TurtleCanvas::colors[2] = wxColour(0, 0, 0);
-    TurtleCanvas::colors[3] = wxColour(0, 0, 255);
-    TurtleCanvas::colors[4] = wxColour(0, 255, 0);
-    TurtleCanvas::colors[5] = wxColour(0, 255, 255);
-    TurtleCanvas::colors[6] = wxColour(255, 0, 0);
-    TurtleCanvas::colors[7] = wxColour(255, 0, 255);
-    TurtleCanvas::colors[8] = wxColour(255, 255, 0);
-    TurtleCanvas::colors[9] = wxColour(255, 255, 255);
-    TurtleCanvas::colors[10] = wxColour(155, 96, 59);
-    TurtleCanvas::colors[11] = wxColour(197, 136, 18);
-    TurtleCanvas::colors[12] = wxColour(100, 162, 64);
-    TurtleCanvas::colors[13] = wxColour(120, 187, 187);
-    TurtleCanvas::colors[14] = wxColour(255, 149, 119);
-    TurtleCanvas::colors[15] = wxColour(144, 113, 208);
-    TurtleCanvas::colors[16] = wxColour(255, 163, 0);
-    TurtleCanvas::colors[17] = wxColour(183, 183, 183);
-  for(i=18;i<NUMCOLORS+2;i++){
-    TurtleCanvas::colors[i] = TurtleCanvas::colors[(i-2)%NUMINITCOLORS+2];
+    TurtleCanvas::colors[SPECIAL_COLORS] = wxColour(0, 0, 0);
+    TurtleCanvas::colors[SPECIAL_COLORS+1] = wxColour(0, 0, 255);
+    TurtleCanvas::colors[SPECIAL_COLORS+2] = wxColour(0, 255, 0);
+    TurtleCanvas::colors[SPECIAL_COLORS+3] = wxColour(0, 255, 255);
+    TurtleCanvas::colors[SPECIAL_COLORS+4] = wxColour(255, 0, 0);
+    TurtleCanvas::colors[SPECIAL_COLORS+5] = wxColour(255, 0, 255);
+    TurtleCanvas::colors[SPECIAL_COLORS+6] = wxColour(255, 255, 0);
+    TurtleCanvas::colors[SPECIAL_COLORS+7] = wxColour(255, 255, 255);
+    TurtleCanvas::colors[SPECIAL_COLORS+8] = wxColour(155, 96, 59);
+    TurtleCanvas::colors[SPECIAL_COLORS+9] = wxColour(197, 136, 18);
+    TurtleCanvas::colors[SPECIAL_COLORS+10] = wxColour(100, 162, 64);
+    TurtleCanvas::colors[SPECIAL_COLORS+11] = wxColour(120, 187, 187);
+    TurtleCanvas::colors[SPECIAL_COLORS+12] = wxColour(255, 149, 119);
+    TurtleCanvas::colors[SPECIAL_COLORS+13] = wxColour(144, 113, 208);
+    TurtleCanvas::colors[SPECIAL_COLORS+14] = wxColour(255, 163, 0);
+    TurtleCanvas::colors[SPECIAL_COLORS+15] = wxColour(183, 183, 183);
+  for(i=SPECIAL_COLORS+16;i<NUMCOLORS+SPECIAL_COLORS;i++){
+    TurtleCanvas::colors[i] =
+        TurtleCanvas::colors[(i-SPECIAL_COLORS)%NUMINITCOLORS+SPECIAL_COLORS];
   }
 	
 #ifdef MULTITHREAD  
@@ -327,7 +330,8 @@ void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
 
 
     PrepareDC(*m_memDC);
-    wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+2],wxSOLID);
+    wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground
+					    +SPECIAL_COLORS],wxSOLID);
     m_memDC->SelectObject(*m_bitmap);
     m_memDC->SetBackgroundMode( wxSOLID );
     m_memDC->SetBackground( myBrush );
@@ -395,7 +399,8 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 	
 	
     PrepareDC(*m_memDC);
-	wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+2],wxSOLID);
+	wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+
+						SPECIAL_COLORS],wxSOLID);
 	m_memDC->SelectObject(*m_bitmap);
     m_memDC->SetBackgroundMode( wxSOLID );
     m_memDC->SetBackground( myBrush );
@@ -475,7 +480,8 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     wxColour xorColor;
 
     if (l->pm==PEN_ERASE) {
-	myPen = wxPen(TurtleCanvas::colors[turtleFrame->back_ground+2],
+	myPen = wxPen(TurtleCanvas::colors[turtleFrame->back_ground+
+					    SPECIAL_COLORS],
 			l->pw, wxSOLID);
 
     } else if (l->pm==PEN_REVERSE) {
@@ -488,13 +494,14 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     } else if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
 	myPen = wxPen( wxT("black"), l->pw, wxSOLID);
     } else {
-	myPen = wxPen(TurtleCanvas::colors[l->color+2], l->pw, wxSOLID);
+	myPen = wxPen(TurtleCanvas::colors[l->color+SPECIAL_COLORS],
+			l->pw, wxSOLID);
     }
     dc->SetPen(myPen);
 
 #if USE_MEMDC
 	if (!drawToPrinter)
-	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+2],
+	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+SPECIAL_COLORS],
 				 l->pw, wxSOLID) );		  
 #endif
     if(l->pm==PEN_REVERSE){
@@ -647,7 +654,8 @@ void TurtleCanvas::WaitForEvent(){
 extern "C" pen_info* getPen();
 
 void TurtleCanvas::realClearScreen(wxDC *dc) {
-    wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+2],wxSOLID);
+    wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+
+					    SPECIAL_COLORS],wxSOLID);
     if(drawToPrinter && turtleFrame->back_ground==0){
 	    myBrush.SetColour("white");
     }
@@ -669,7 +677,7 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
     wxColour c;
 //fprintf(stderr, "realFloodFill: (x,y): (%d, %d)\n", turtlePosition_x, turtlePosition_y);
     dc->GetPixel(turtlePosition_x, turtlePosition_y, &c);
-    wxBrush brush(TurtleCanvas::colors[color+2]);
+    wxBrush brush(TurtleCanvas::colors[color+SPECIAL_COLORS]);
 #if USE_MEMDC
     if (!drawToPrinter) {
 	m_memDC->SetBrush(brush);
@@ -681,6 +689,40 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
 //    dc->FloodFill(dc->LogicalToDeviceX(turtlePosition_x), dc->LogicalToDeviceY(turtlePosition_y) , c);
 }
 
+void TurtleCanvas::realdoFilled(int fillcolor, int count,
+				    struct mypoint *points, wxDC *dc) {
+    wxPen myPen;
+    wxPoint *wxpoints = (wxPoint*)malloc(count*sizeof(wxPoint));
+    wxPoint *wxptr;
+    struct mypoint *ptr;
+
+    for (wxptr = wxpoints, ptr = points; ptr < &points[count];
+	    wxptr++, ptr++) {
+	 wxptr->x = ptr->x;
+	 wxptr->y = ptr->y;
+    }
+
+    if(drawToPrinter && turtleFrame->back_ground==0 &&
+		turtleFrame->xgr_pen.color==7){
+	myPen = wxPen( wxT("black"), turtleFrame->xgr_pen.pw, wxSOLID);
+    } else {
+	myPen = wxPen(colors[turtleFrame->xgr_pen.color+SPECIAL_COLORS],
+			turtleFrame->xgr_pen.pw, wxSOLID);
+    }
+    dc->SetPen(myPen);
+    wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxSOLID);
+#if USE_MEMDC
+    if (!drawToPrinter) {
+	m_memDC->SetPen(myPen)
+	m_memDC->SetBrush(brush);
+	m_memDC->DrawPolygon(count, wxpoints);
+    }
+#endif
+    dc->SetBrush(brush);
+    dc->DrawPolygon(count, wxpoints);
+    free(wxpoints);
+}
+
 void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
     wxString s(data);
     wxCoord wid, ht;
@@ -688,21 +730,26 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
     dc->GetTextExtent(s, &wid, &ht);
     dc->SetBackgroundMode(wxTRANSPARENT);
     if (turtleFrame->back_ground == 0 && drawToPrinter) {
-	dc->SetTextBackground(TurtleCanvas::colors[9]);
+	dc->SetTextBackground(TurtleCanvas::colors[SPECIAL_COLORS+7]);
 	if (turtleFrame->xgr_pen.color == 7)
-	    dc->SetTextForeground(TurtleCanvas::colors[2]);
+	    dc->SetTextForeground(TurtleCanvas::colors[SPECIAL_COLORS+0]);
 	else
-	    dc->SetTextForeground(TurtleCanvas::colors[turtleFrame->xgr_pen.color+2]);
+	    dc->SetTextForeground(TurtleCanvas::colors
+				  [turtleFrame->xgr_pen.color+SPECIAL_COLORS]);
     } else {
-	dc->SetTextBackground(TurtleCanvas::colors[turtleFrame->back_ground+2]);
-	dc->SetTextForeground(TurtleCanvas::colors[turtleFrame->xgr_pen.color+2]);
+	dc->SetTextBackground(TurtleCanvas::colors[turtleFrame->back_ground+
+						    SPECIAL_COLORS]);
+	dc->SetTextForeground(TurtleCanvas::colors[turtleFrame->xgr_pen.color+
+						    SPECIAL_COLORS]);
     }
     dc->DrawText(s, getPen()->xpos, getPen()->ypos-ht);
     if (!drawToPrinter) {
 #if USE_MEMDC
 	m_memDC->SetBackgroundMode(wxSOLID);
-	m_memDC->SetTextBackground(TurtleCanvas::colors[turtleFrame->back_ground+2]);
-	m_memDC->SetTextForeground(TurtleCanvas::colors[turtleFrame->xgr_pen.color+2]);
+	m_memDC->SetTextBackground(TurtleCanvas::colors
+				   [turtleFrame->back_ground+SPECIAL_COLORS]);
+	m_memDC->SetTextForeground(TurtleCanvas::colors
+				    [turtleFrame->xgr_pen.color+SPECIAL_COLORS]);
 	m_memDC->DrawText(s, getPen()->xpos, getPen()->ypos-ht);
 #endif
 	if (getPen()->xpos < pictureleft) pictureleft = getPen()->xpos;
@@ -784,7 +831,7 @@ void TurtleCanvas::logoHandle ( wxCommandEvent & e) {
 	{
 	    int col;
 	    col = (int) e.GetClientData();
-	    wxColour colour(TurtleCanvas::colors[col+2]);
+	    wxColour colour(TurtleCanvas::colors[col+SPECIAL_COLORS]);
 	    R = colour.Red()*256;
 	    G = colour.Green()*256;
 	    B = colour.Blue()*256;
@@ -996,13 +1043,14 @@ extern "C" void nop() {
 }
 
 extern "C" void set_palette(int color, unsigned int r, unsigned int g, unsigned int b){
-	TurtleCanvas::colors[color+2] = wxColour(r/256,g/256,b/256);
+	TurtleCanvas::colors[color+SPECIAL_COLORS] =
+				wxColour(r/256,g/256,b/256);
 }
 
 extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigned int *b){
 #ifdef MULTITHREAD
     if (drawToWindow) {
-	wxColour colour(TurtleCanvas::colors[color+2]);
+	wxColour colour(TurtleCanvas::colors[color+SPECIAL_COLORS]);
 	*r = colour.Red()*256;
 	*g = colour.Green()*256;
 	*b = colour.Blue()*256;
@@ -1018,7 +1066,7 @@ extern "C" void get_palette(int color, unsigned int *r, unsigned int *g, unsigne
 	*b = B;
     }
 #else
-    wxColour colour(TurtleCanvas::colors[color+2]);
+    wxColour colour(TurtleCanvas::colors[color+SPECIAL_COLORS]);
     *r = colour.Red()*256;
     *g = colour.Green()*256;
     *b = colour.Blue()*256;
@@ -1220,6 +1268,18 @@ extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){
         tMut.Unlock();
 #endif
     return;
+}
+
+extern "C" void doFilled(int fillcolor, int count, struct mypoint *points) {
+    if (drawToPrinter)
+	TurtleCanvas::realdoFilled(fillcolor, count, points, printerDC);
+    else if (drawToWindow)
+	TurtleCanvas::realdoFilled(fillcolor, count, points, windowDC);
+    else {
+	wxDC *dc = new wxClientDC(turtleGraphics);
+	TurtleCanvas::realdoFilled(fillcolor, count, points, dc);
+	delete dc;
+    }
 }
 
 /* Set the pen width.  Notice this only takes one number, because wx only

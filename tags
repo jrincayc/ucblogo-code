@@ -19,6 +19,8 @@ Alt	logo.h	/^    NODE *Alt;$/
 AppThread	wxMain.cpp	/^AppThread:: AppThread(int c, char ** v) $/
 AppThread	wxMain.cpp	/^class AppThread : public wxThread {$/
 B	wxTurtleGraphics.cpp	/^int R, G, B;$/
+BACKGROUND_COLOR_INDEX	logo.h	/^#define BACKGROUND_COLOR_INDEX /
+BACKGROUND_COLOR_OFFSET	logo.h	/^#define BACKGROUND_COLOR_OFFSET /
 BACKSLASH_STRING	logo.h	/^#define BACKSLASH_STRING /
 BACK_GROUND	globals.h	/^#define	BACK_GROUND	/
 BACK_GROUND	wxTurtleGraphics.cpp	/^#define	BACK_GROUND	/
@@ -72,7 +74,6 @@ DoPrint	TextEditor.cpp	/^void TextEditor::DoPrint(){$/
 Dotsvalue	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
 DrawCursor	wxTerminal.cpp	/^wxTerminal::DrawCursor(int fg_color, int bg_color, int flags,$/
 DrawText	wxTerminal.cpp	/^wxTerminal::DrawText(int fg_color, int bg_color, int flags,$/
-DrawToPrinter	wxTurtleGraphics.cpp	/^void TurtleCanvas::DrawToPrinter(int toPrinter){$/
 EDIT_STATE	globals.h	/^#define EDIT_STATE /
 EMPTY_PROC	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
 END_OF_LIST	logo.h	/^#define END_OF_LIST /
@@ -95,6 +96,7 @@ Edit_Menu_Edit_Paste	wxTerminal.cpp	/^	Edit_Menu_Edit_Paste,$/
 Edit_Menu_File	wxTerminal.cpp	/^	Edit_Menu_File = 700,$/
 Edit_Menu_File_Close_Accept	wxTerminal.cpp	/^	Edit_Menu_File_Close_Accept,$/
 Edit_Menu_File_Close_Reject	wxTerminal.cpp	/^	Edit_Menu_File_Close_Reject,$/
+Edit_Menu_File_Page_Setup	wxTerminal.cpp	/^    Edit_Menu_File_Page_Setup,$/
 Edit_Menu_File_Print_Text	wxTerminal.cpp	/^    Edit_Menu_File_Print_Text,$/
 English	logo.h	/^    NODE *English;$/
 Entry	wxMain.cpp	/^void * AppThread::Entry()$/
@@ -105,6 +107,8 @@ FALSE	wxterm.c	/^#define FALSE	/
 FALSE	wxterm.c	/^#undef FALSE$/
 FATAL	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
 FILE_ERROR	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+FILLED_COLOR_INDEX	logo.h	/^#define FILLED_COLOR_INDEX /
+FILLED_COLOR_OFFSET	logo.h	/^#define FILLED_COLOR_OFFSET /
 FILLERUP	graphics.c	/^#define FILLERUP /
 FINISHED	graphics.c	/^#define FINISHED /
 FIXNUM	logo.h	/^#define FIXNUM /
@@ -165,6 +169,7 @@ Left_Paren	init.c	/^NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Err
 Listvalue	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
 Load	TextEditor.cpp	/^bool TextEditor::Load(const wxString& filename){$/
 LoadNoisily	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+LogoEventManager	wxTerminal.cpp	/^LogoEventManager::LogoEventManager(LogoApplication *logoApp)$/
 LogoFrame	wxTerminal.cpp	/^LogoFrame::LogoFrame (const wxChar *title,$/
 LogoLogo	init.c	/^     *LogoLogo, *CommandLine,$/
 LogoPlatform	init.c	/^     *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,$/
@@ -196,7 +201,8 @@ Menu_Edit_Copy	wxTerminal.cpp	/^    Menu_Edit_Copy,$/
 Menu_Edit_Paste	wxTerminal.cpp	/^	Menu_Edit_Paste,$/
 Menu_File	wxTerminal.cpp	/^    Menu_File = 200,$/
 Menu_File_Load	wxTerminal.cpp	/^	Menu_File_Load,$/
-Menu_File_Print_Text	wxTerminal.cpp	/^    Menu_File_Print_Text,$/
+Menu_File_Page_Setup	wxTerminal.cpp	/^    Menu_File_Page_Setup,$/
+Menu_File_Print_Text	wxTerminal.cpp	/^	Menu_File_Print_Text,$/
 Menu_File_Print_Text_Prev	wxTerminal.cpp	/^	Menu_File_Print_Text_Prev,$/
 Menu_File_Print_Turtle	wxTerminal.cpp	/^	Menu_File_Print_Turtle,$/
 Menu_File_Print_Turtle_Prev	wxTerminal.cpp	/^	Menu_File_Print_Turtle_Prev,$/
@@ -214,6 +220,7 @@ Minus_Sign	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAltern
 Minus_Tight	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAlternateNames;$/
 ModeChange	wxTerminal.cpp	/^wxTerminal::ModeChange(int state)$/
 MoveChars	wxTerminal.cpp	/^wxTerminal::MoveChars(int sx, int sy, int dx, int dy, int w, int h)$/
+NEW_WIN32	parse.c	/^#define NEW_WIN32$/
 NEXTBUFFER	graphics.c	/^#define NEXTBUFFER /
 NICE_DAY	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
 NIL	logo.h	/^#define NIL /
@@ -283,8 +290,10 @@ OnChar	wxTerminal.cpp	/^wxTerminal::OnChar(wxKeyEvent& event)$/
 OnCloseAccept	TextEditor.cpp	/^void TextEditor::OnCloseAccept(){$/
 OnCloseEvent	TextEditor.cpp	/^void TextEditor::OnCloseEvent(wxCloseEvent& event){$/
 OnCloseReject	TextEditor.cpp	/^void TextEditor::OnCloseReject(){$/
+OnCloseWindow	wxTerminal.cpp	/^void LogoFrame::OnCloseWindow(wxCloseEvent& event)$/
 OnEraseBackGround	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnEraseBackGround(wxEraseEvent& event) {$/
 OnExit	wxMain.cpp	/^void AppThread::OnExit()$/
+OnExit	wxTerminal.cpp	/^int LogoApplication::OnExit() {$/
 OnFind	TextEditor.cpp	/^void TextEditor::OnFind(){$/
 OnFindDialog	TextEditor.cpp	/^void TextEditor::OnFindDialog(wxFindDialogEvent& event)$/
 OnFindNext	TextEditor.cpp	/^void TextEditor::OnFindNext(){$/
@@ -297,11 +306,12 @@ OnLeftUp	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnLeftUp(wxMouseEvent& event)
 OnMiddleDown	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnMiddleDown(wxMouseEvent& event) {$/
 OnMiddleUp	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnMiddleUp(wxMouseEvent& event) {$/
 OnMouseMove	wxTerminal.cpp	/^wxTerminal::OnMouseMove(wxMouseEvent& event)$/
-OnMouseMove	wxTurtleGraphics.cpp	/^TurtleCanvas::OnMouseMove(wxMouseEvent& event){$/
+OnMouseMove	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnMouseMove(wxMouseEvent& event){$/
 OnPaint	wxTerminal.cpp	/^wxTerminal::OnPaint(wxPaintEvent& event)$/
 OnPrintPage	wxTurtleGraphics.cpp	/^bool TurtleWindowPrintout::OnPrintPage(int page)$/
 OnRightDown	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnRightDown(wxMouseEvent& event) {$/
 OnRightUp	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnRightUp(wxMouseEvent& event) {$/
+OnRun	wxTerminal.cpp	/^int LogoApplication::OnRun()$/
 OnSave	TextEditor.cpp	/^void TextEditor::OnSave(){$/
 OnSize	wxTerminal.cpp	/^void wxTerminal::OnSize(wxSizeEvent& event) {$/
 OnSize	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnSize(wxSizeEvent& event) {$/
@@ -313,6 +323,8 @@ PC	wxterm.c	/^char PC;$/
 PENMODE_ERASE	graphics.c	/^#define PENMODE_ERASE	/
 PENMODE_PAINT	graphics.c	/^#define PENMODE_PAINT	/
 PENMODE_REVERSE	graphics.c	/^#define PENMODE_REVERSE	/
+PEN_COLOR_INDEX	logo.h	/^#define PEN_COLOR_INDEX /
+PEN_COLOR_OFFSET	logo.h	/^#define PEN_COLOR_OFFSET /
 PERMANENT	logo.h	/^#define PERMANENT	/
 PLIST_BURIED	logo.h	/^#define PLIST_BURIED	/
 PLIST_STEPPED	logo.h	/^#define PLIST_STEPPED	/
@@ -333,9 +345,10 @@ PassInputToGterm	wxTerminal.cpp	/^wxTerminal::PassInputToGterm(int len, unsigned
 PassInputToInterp	wxTerminal.cpp	/^void wxTerminal::PassInputToInterp() {$/
 Pause	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
 PrintChars	wxTerminal.cpp	/^wxTerminal::PrintChars(int len, unsigned char *data)$/
-PrintTurtleWindow	wxTurtleGraphics.cpp	/^void TurtleCanvas::PrintTurtleWindow(){$/
 Printdepthlimit	init.c	/^NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
 Printwidthlimit	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+ProcessAllEvents	wxTerminal.cpp	/^void LogoEventManager::ProcessAllEvents()$/
+ProcessAnEvent	wxTerminal.cpp	/^void LogoEventManager::ProcessAnEvent()$/
 QUOTE	logo.h	/^#define QUOTE	/
 Query	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAlternateNames;$/
 R	wxTurtleGraphics.cpp	/^int R, G, B;$/
@@ -356,11 +369,14 @@ ResizeTerminal	gterm.cpp	/^void GTerm::ResizeTerminal(int w, int h)$/
 ResizeTerminal	wxTerminal.cpp	/^wxTerminal::ResizeTerminal(int width, int height)$/
 Right_Paren	init.c	/^NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
 SAFEINT	logo.h	/^#define SAFEINT	/
-SCREEN_FULL	graphics.c	/^enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;$/
+SCREEN_FULL	globals.h	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
+SCREEN_FULL	wxTurtleGraphics.cpp	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
 SCREEN_HEIGHT	globals.h	/^#define SCREEN_HEIGHT	/
 SCREEN_HEIGHT	wxTurtleGraphics.cpp	/^#define SCREEN_HEIGHT	/
-SCREEN_SPLIT	graphics.c	/^enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;$/
-SCREEN_TEXT	graphics.c	/^enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;$/
+SCREEN_SPLIT	globals.h	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
+SCREEN_SPLIT	wxTurtleGraphics.cpp	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
+SCREEN_TEXT	globals.h	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
+SCREEN_TEXT	wxTurtleGraphics.cpp	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
 SCREEN_WIDTH	globals.h	/^#define SCREEN_WIDTH	/
 SCREEN_WIDTH	wxTurtleGraphics.cpp	/^#define SCREEN_WIDTH	/
 SEG_SIZE	logo.h	/^#define SEG_SIZE	/
@@ -376,6 +392,7 @@ SIGQUIT	globals.h	/^#define SIGQUIT /
 SIGQUIT	main.c	/^#define SIGQUIT /
 SIGRET	logo.h	/^#define SIGRET /
 SIG_TAKES_ARG	logo.h	/^#define SIG_TAKES_ARG$/
+SPECIAL_COLORS	logo.h	/^#define SPECIAL_COLORS /
 STACK	logo.h	/^#define STACK	/
 STACK_OVERFLOW	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
 STDC_HEADERS	logo.h	/^#define STDC_HEADERS$/
@@ -423,7 +440,6 @@ True	xgraphics.h	/^#undef True$/
 TrueName	logodata.c	/^NODE *TrueName() {$/
 TurtleCanvas	wxTurtleGraphics.cpp	/^TurtleCanvas::TurtleCanvas(wxFrame *parent)$/
 TurtleFrame	wxTurtleGraphics.cpp	/^TurtleFrame::TurtleFrame(wxFrame * parent, const wxString& title, const wxPoint& pos, const wxSize& size)$/
-TurtlePrintPreview	wxTurtleGraphics.cpp	/^void TurtleCanvas::TurtlePrintPreview()$/
 Two	graphics.c	/^#define Two /
 UNBOUND	logo.h	/^#define UNBOUND /
 UNDEFINED	logo.h	/^#define UNDEFINED /
@@ -433,6 +449,7 @@ UNEXPECTED_PAREN	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN,
 UP	wxterm.c	/^char *UP;$/
 USER_ERR	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
 USER_ERR_MESSAGE	logo.h	/^		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,$/
+USE_MEMDC	wxTurtleGraphics.cpp	/^#define USE_MEMDC /
 Unbound	init.c	/^     *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,$/
 UnburyOnEdit	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
 Update	gterm.cpp	/^void GTerm::Update()$/
@@ -451,6 +468,7 @@ WANT_EVAL_REGS	mem.c	/^#define WANT_EVAL_REGS /
 WANT_EVAL_REGS	paren.c	/^#define WANT_EVAL_REGS /
 WANT_EVAL_REGS	wrksp.c	/^#define WANT_EVAL_REGS /
 WELCOME_TO	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+WIN32	parse.c	/^#undef WIN32$/
 WIN32_DEBUG	globals.h	/^#undef WIN32_DEBUG$/
 WORDSIZE	logo.h	/^#define WORDSIZE	/
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::DoCopy(wxCommandEvent& WXUNUSED(event)){$/
@@ -471,12 +489,13 @@ WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSE
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){$/
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){$/
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){$/
-WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnPrintTurtle(wxCommandEvent& WXUNUSED(event)){$/
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnQuit(wxCommandEvent& WXUNUSED(event))$/
 WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)){$/
-WXUNUSED	wxTerminal.cpp	/^void LogoFrame::OnTurtlePrintPreview(wxCommandEvent& WXUNUSED(event)){$/
 WXUNUSED	wxTerminal.cpp	/^wxTerminal::OnTimer(wxTimerEvent& WXUNUSED(event))$/
+WXUNUSED	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnPageSetup(wxCommandEvent& WXUNUSED(event))$/
 WXUNUSED	wxTurtleGraphics.cpp	/^void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))$/
+WXUNUSED	wxTurtleGraphics.cpp	/^void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {$/
+WXUNUSED	wxTurtleGraphics.cpp	/^void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {$/
 WXUNUSED	wxTurtleGraphics.cpp	/^void TurtleFrame::OnQuit(wxCommandEvent& WXUNUSED(event))$/
 WX_TURTLEGRAPHICS_CPP	wxTurtleGraphics.cpp	/^#define WX_TURTLEGRAPHICS_CPP /
 WaitForEvent	wxTurtleGraphics.cpp	/^void TurtleCanvas::WaitForEvent(){	$/
@@ -569,8 +588,7 @@ cnv_node_to_numnode	logodata.c	/^NODE *cnv_node_to_numnode(NODE *ndi) {$/
 cnv_node_to_strnode	logodata.c	/^NODE *cnv_node_to_strnode(NODE *nd) {$/
 colon_strnzcpy	logodata.c	/^char *colon_strnzcpy(char *s1, char *s2, int n) {$/
 color	xgraphics.h	/^  int color;$/
-colorname	wxTurtleGraphics.cpp	/^char *colorname[NUMINITCOLORS] = {$/
-colors	wxTurtleGraphics.cpp	/^wxColour TurtleCanvas::colors[NUMCOLORS+2];$/
+colors	wxTurtleGraphics.cpp	/^wxColour TurtleCanvas::colors[NUMCOLORS+SPECIAL_COLORS];$/
 command_line	main.c	/^NODE *command_line = NIL;   \/* 6.0 command line args after files *\/$/
 compare_node	math.c	/^int compare_node(NODE *n1, NODE *n2, BOOLEAN ignorecase) {$/
 compare_numnodes	math.c	/^int compare_numnodes(NODE *n1, NODE *n2) {$/
@@ -614,6 +632,7 @@ decstrrefcnt	logo.h	/^#define decstrrefcnt(/
 deep_copy	eval.c	/^NODE *deep_copy(NODE *exp) {$/
 deepend_proc_name	parse.c	/^NODE *deepend_proc_name = NIL;$/
 defargs	init.c	/^    short defargs;$/
+deferUpdate	wxTerminal.cpp	/^void wxTerminal::deferUpdate(int flag) {$/
 define_helper	wrksp.c	/^NODE *define_helper(NODE *args, BOOLEAN macro_flag) {$/
 degrad	math.c	/^FLONUM degrad = 0.017453292520;$/
 degrad	math.c	/^FLONUM degrad = 3.141592653589793227020265931059839203954\/180.0;$/
@@ -624,7 +643,9 @@ device_attrib	actions.cpp	/^void GTerm::device_attrib()$/
 dfltargs__procnode	logo.h	/^#define dfltargs__procnode(/
 didnt_get_output	logo.h	/^#define didnt_get_output /
 didnt_output_name	logo.h	/^#define didnt_output_name /
+doClose	wxTerminal.cpp	/^extern "C" void doClose() {$/
 doExit	wxMain.cpp	/^void AppThread::doExit(int code) {$/
+doFilled	wxTurtleGraphics.cpp	/^extern "C" void doFilled(int fillcolor, int count, struct mypoint *points) {$/
 doLoad	wxMain.cpp	/^void doLoad(char * name, int length) {$/
 doSave	wxMain.cpp	/^void doSave(char * name, int length) {$/
 do_arc	graphics.c	/^void do_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,$/
@@ -641,7 +662,9 @@ done_drawing	xgraphics.h	/^#define done_drawing /
 done_drawing_turtle	xgraphics.h	/^#define done_drawing_turtle /
 dont_fix_ift	eval.c	/^FIXNUM	    dont_fix_ift = 0;$/
 drawLine	wxTurtleGraphics.cpp	/^void TurtleCanvas::drawLine(wxCommandEvent & event) {$/
+drawOneLine	wxTurtleGraphics.cpp	/^void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {$/
 drawToPrinter	wxTurtleGraphics.cpp	/^int drawToPrinter=0;$/
+drawToWindow	wxTurtleGraphics.cpp	/^int drawToWindow = 0;	\/\/ for redraw_graphics from gui thread$/
 draw_string	xgraphics.h	/^#define draw_string(/
 draw_turtle	graphics.c	/^void draw_turtle(void) {$/
 draw_turtle_helper	graphics.c	/^void draw_turtle_helper(void) {$/
@@ -695,6 +718,8 @@ find_limit	print.c	/^int find_limit(NODE *nd, int forced) {$/
 find_old_default	wrksp.c	/^int find_old_default(NODE *name) {$/
 find_to	wrksp.c	/^NODE *find_to(NODE *line) {$/
 first	wxTerminal.cpp	/^int first = 1;$/
+firstloadsave	wxTerminal.cpp	/^int firstloadsave = 1;$/
+fix_turtle_shownness	graphics.c	/^void fix_turtle_shownness() {$/
 flag__caseobj	logo.h	/^#define flag__caseobj(/
 flag__object	logo.h	/^#define flag__object(/
 flatten	eval.c	/^NODE *flatten(NODE *a) {$/
@@ -711,6 +736,7 @@ free_list	mem.c	/^NODE *free_list = NIL;                \/* global ptr to free n
 freed_threshold	mem.c	/^#define freed_threshold /
 full_screen	xgraphics.h	/^#define full_screen /
 fun	logo.h	/^#define fun /
+g_pageSetupData	wxTurtleGraphics.cpp	/^wxPageSetupDialogData* g_pageSetupData = (wxPageSetupDialogData*) NULL;$/
 g_printData	wxTurtleGraphics.cpp	/^wxPrintData *g_printData = (wxPrintData*) NULL ;$/
 g_round	graphics.c	/^FIXNUM g_round(FLONUM n) {$/
 gather_args	paren.c	/^NODE *gather_args(NODE *newfun, NODE *pproc, NODE **args, BOOLEAN inparen,$/
@@ -785,6 +811,7 @@ iblk_buf	main.c	/^jmp_buf iblk_buf;$/
 ibm	logo.h	/^#define ibm$/
 ibm	logo.h	/^#undef ibm$/
 ift_iff_flag	logo.h	/^#define ift_iff_flag /
+ignorePaint	wxTurtleGraphics.cpp	/^int ignorePaint = 0;	\/\/ for Paint events when we've already handled it$/
 in_eval_save	eval.c	/^int in_eval_save = 0;$/
 in_graphics_mode	globals.h	/^#define in_graphics_mode /
 in_graphics_mode	wxTurtleGraphics.cpp	/^int TurtleFrame::in_graphics_mode = 0;$/
@@ -811,8 +838,8 @@ inter_gen_mark	mem.c	/^NODE **inter_gen_mark (NODE **prev) {$/
 interactive	wxterm.c	/^int interactive, tty_charmode;$/
 intern	intern.c	/^NODE *intern(NODE *nd) {$/
 intern_p	init.c	/^NODE *intern_p(NODE *caseobj) {$/
-internalPrepare	wxTurtleGraphics.cpp	/^void TurtleCanvas::internalPrepare(){$/
 internal_check	wxTerminal.cpp	/^extern "C" int internal_check(){$/
+internal_hideturtle	graphics.c	/^void internal_hideturtle() {$/
 internal_penmode	graphics.c	/^int internal_penmode = PENMODE_PAINT;$/
 intfuns	main.c	/^RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down};$/
 into_line	parse.c	/^#define into_line(/
@@ -898,7 +925,8 @@ lerror	error.c	/^NODE *lerror(NODE *args) {$/
 lexp	math.c	/^NODE *lexp(NODE *args) {$/
 lf	actions.cpp	/^void GTerm::lf()$/
 lfence	graphics.c	/^NODE *lfence(NODE *args) {$/
-lfill	graphics.c	/^NODE *lfill(NODE *args) {$/
+lfill	graphics.c	/^NODE *lfill(NODE *args) {    $/
+lfilled	graphics.c	/^NODE *lfilled(NODE *args) {$/
 lfirst	lists.c	/^NODE *lfirst(NODE *args) {$/
 lfirsts	lists.c	/^NODE *lfirsts(NODE *args) {$/
 lforever	coms.c	/^NODE *lforever(NODE *args) {$/
@@ -959,6 +987,7 @@ lnotequalp	math.c	/^NODE *lnotequalp(NODE *args) {$/
 lnumberp	lists.c	/^NODE *lnumberp(NODE *arg) {$/
 load_flag	wxMain.cpp	/^int load_flag = 0;$/
 loadstream	parse.c	/^FILE *loadstream;$/
+logoEventManager	wxTerminal.cpp	/^LogoEventManager *logoEventManager;$/
 logoFrame	wxTerminal.cpp	/^LogoFrame *logoFrame;$/
 logoHandle	wxTurtleGraphics.cpp	/^void TurtleCanvas::logoHandle ( wxCommandEvent & e) {$/
 logo_char_mode	wxTerminal.cpp	/^int logo_char_mode;$/
@@ -998,6 +1027,8 @@ lpower	math.c	/^NODE *lpower(NODE *args) {$/
 lpprop	logodata.c	/^NODE *lpprop(NODE *args) {$/
 lprefix	files.c	/^NODE *lprefix(NODE *args) {$/
 lprint	print.c	/^NODE *lprint(NODE *args) {$/
+lprintpict	graphics.c	/^NODE *lprintpict(NODE *args) {$/
+lprinttext	graphics.c	/^NODE *lprinttext(NODE *args) {$/
 lqm	eval.c	/^NODE *lqm(NODE *args) {$/
 lradatan	math.c	/^NODE *lradatan(NODE *args) {$/
 lradcos	math.c	/^NODE *lradcos(NODE *args) {$/
@@ -1081,6 +1112,7 @@ lwordp	lists.c	/^NODE *lwordp(NODE *arg) {$/
 lwrap	graphics.c	/^NODE *lwrap(NODE *args) {$/
 lwritepos	files.c	/^NODE *lwritepos(NODE *args) {$/
 lwriter	files.c	/^NODE *lwriter(NODE *args) {$/
+m_memDC	wxTurtleGraphics.cpp	/^wxMemoryDC *m_memDC;$/
 mac	logo.h	/^#define mac$/
 make_array	logodata.c	/^NODE *make_array(FIXNUM len) {$/
 make_case	intern.c	/^NODE *make_case(NODE *casestrnd, NODE *obj) {$/
@@ -1130,8 +1162,13 @@ missing_numeric	paren.c	/^NODE *missing_alphabetic, *missing_numeric;$/
 missing_space	paren.c	/^int missing_space(NODE *name) {$/
 mmark	mem.c	/^#define mmark(/
 mode_type	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
+mousePosition_x	wxTurtleGraphics.cpp	/^int TurtleCanvas::mousePosition_x;$/
+mousePosition_y	wxTurtleGraphics.cpp	/^int TurtleCanvas::mousePosition_y;$/
 mouse_click	globals.h	/^#define mouse_click /
 mouse_down	main.c	/^RETSIGTYPE mouse_down(int sig)$/
+mouse_down_left	wxTurtleGraphics.cpp	/^int TurtleCanvas::mouse_down_left;$/
+mouse_down_middle	wxTurtleGraphics.cpp	/^int TurtleCanvas::mouse_down_middle;$/
+mouse_down_right	wxTurtleGraphics.cpp	/^int TurtleCanvas::mouse_down_right;$/
 mouse_x	xgraphics.h	/^#define mouse_x /
 mouse_y	xgraphics.h	/^#define mouse_y /
 move_cursor	utils.cpp	/^void GTerm::move_cursor(int x, int y)$/
@@ -1291,6 +1328,10 @@ pen_y	xgraphics.h	/^#define pen_y /
 pfmod	graphics.c	/^double pfmod(double x, double y) {$/
 ph	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
 ph	xgraphics.h	/^  int ph;$/
+picturebottom	wxTurtleGraphics.cpp	/^int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;$/
+pictureleft	wxTurtleGraphics.cpp	/^int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;$/
+pictureright	wxTurtleGraphics.cpp	/^int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;$/
+picturetop	wxTurtleGraphics.cpp	/^int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;$/
 plain_xor_pen	xgraphics.h	/^#define plain_xor_pen(/
 plist__caseobj	logo.h	/^#define plist__caseobj(/
 plist__object	logo.h	/^#define plist__object(/
@@ -1307,7 +1348,6 @@ prim	init.c	/^    NODE *(*prim) ();$/
 prim_exists	wrksp.c	/^BOOLEAN prim_exists(NODE *name) {$/
 priminfo	init.c	/^typedef struct priminfo {$/
 prims	init.c	/^PRIMTYPE prims[] = {$/
-printPreview	wxTurtleGraphics.cpp	/^bool printPreview;$/
 printText	wxTerminal.cpp	/^void  wxTerminal::printText (wxCommandEvent& event){$/
 printToScreen	wxMain.cpp	/^extern "C" void printToScreen(char c, FILE * stream) $/
 print_char	print.c	/^void print_char(FILE *strm, char ch) {$/
@@ -1318,7 +1358,7 @@ print_space	print.c	/^void print_space(FILE *strm) {$/
 print_stringlen	print.c	/^int print_stringlen;$/
 print_stringptr	print.c	/^char *print_stringptr;$/
 print_text	utils.cpp	/^void GTerm::print_text(){$/
-printerDC	wxTurtleGraphics.cpp	/^wxMemoryDC *printerDC;$/
+printerDC	wxTurtleGraphics.cpp	/^wxDC *printerDC;$/
 priority	init.c	/^    short priority;$/
 priority	paren.c	/^int priority(NODE *proc_obj) {$/
 prname	mem.c	/^void prname(NODE *foo) {$/
@@ -1367,8 +1407,12 @@ reader	parse.c	/^NODE *reader(FILE *strm, char *prompt) {$/
 reader_name	files.c	/^NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;$/
 readingInstruction	parse.c	/^int readingInstruction = 0;$/
 readstream	parse.c	/^FILE *readstream;$/
+realClearScreen	wxTurtleGraphics.cpp	/^void TurtleCanvas::realClearScreen(wxDC *dc) {$/
+realDrawLabel	wxTurtleGraphics.cpp	/^void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {$/
+realFloodFill	wxTurtleGraphics.cpp	/^void TurtleCanvas::realFloodFill(int color, wxDC *dc) {$/
 real_print_help	print.c	/^void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {$/
 real_print_node	print.c	/^void real_print_node(FILE *strm, NODE *nd, int depth, int width) {$/
+realdoFilled	wxTurtleGraphics.cpp	/^void TurtleCanvas::realdoFilled(int fillcolor, int count,$/
 record	graphics.c	/^char *record = 0;$/
 record_buffer	graphics.c	/^char record_buffer[GR_SIZE];$/
 record_index	graphics.c	/^FIXNUM record_index = 0;$/
@@ -1397,6 +1441,8 @@ runparse	parse.c	/^NODE *runparse(NODE *ndlist) {$/
 runparse_node	parse.c	/^NODE *runparse_node(NODE *nd, NODE **ndsptr) {$/
 runparsed	logo.h	/^#define runparsed(/
 runstartup	files.c	/^void runstartup(NODE *oldst) {$/
+s_md	globals.h	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
+s_md	wxTurtleGraphics.cpp	/^extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;$/
 safe_to_save	graphics.c	/^BOOLEAN safe_to_save(void) {$/
 save	eval.c	/^#define save(/
 save2	eval.c	/^#define save2(/
@@ -1418,7 +1464,7 @@ screen_align	actions.cpp	/^void GTerm::screen_align()$/
 screen_bottom	xgraphics.h	/^#define screen_bottom /
 screen_height	wxTurtleGraphics.cpp	/^int TurtleFrame::screen_height = 0; $/
 screen_left	xgraphics.h	/^#define screen_left /
-screen_mode	graphics.c	/^enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;$/
+screen_mode	graphics.c	/^enum s_md screen_mode = SCREEN_TEXT;$/
 screen_right	xgraphics.h	/^#define screen_right /
 screen_top	xgraphics.h	/^#define screen_top /
 screen_width	wxTurtleGraphics.cpp	/^int TurtleFrame::screen_width = 0;$/
@@ -1549,10 +1595,10 @@ tree__tree	logo.h	/^#define tree__tree(/
 tree_dk_how	paren.c	/^NODE *tree_dk_how;$/
 treepair__tree	logo.h	/^#define treepair__tree(/
 tty_cbreak	wxterm.c	/^struct sgttyb tty_cooked, tty_cbreak;$/
-tty_cbreak	wxterm.c	/^struct termio tty_cooked, tty_cbreak;$/
+tty_cbreak	wxterm.c	/^struct termios tty_cooked, tty_cbreak;$/
 tty_charmode	wxterm.c	/^int interactive, tty_charmode;$/
 tty_cooked	wxterm.c	/^struct sgttyb tty_cooked, tty_cbreak;$/
-tty_cooked	wxterm.c	/^struct termio tty_cooked, tty_cbreak;$/
+tty_cooked	wxterm.c	/^struct termios tty_cooked, tty_cbreak;$/
 turtleEvent	wxTurtleGraphics.cpp	/^wxCommandEvent turtleEvent = wxCommandEvent(wxEVT_MY_TURTLE_CUSTOM_COMMAND);$/
 turtleFrame	wxTurtleGraphics.cpp	/^TurtleFrame *turtleFrame;$/
 turtleGraphics	wxTerminal.cpp	/^TurtleCanvas * turtleGraphics; $/
@@ -1567,7 +1613,7 @@ turtle_height	xgraphics.h	/^#define turtle_height /
 turtle_left_max	xgraphics.h	/^#define turtle_left_max /
 turtle_no_save	graphics.c	/^int turtle_no_save = 0;$/
 turtle_right_max	xgraphics.h	/^#define turtle_right_max /
-turtle_shown	graphics.c	/^BOOLEAN turtle_shown = FALSE;$/
+turtle_shown	graphics.c	/^BOOLEAN turtle_shown = FALSE, user_turtle_shown = TRUE;$/
 turtle_side	xgraphics.h	/^#define turtle_side /
 turtle_top_max	xgraphics.h	/^#define turtle_top_max /
 turtle_x	graphics.c	/^FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;$/
@@ -1591,6 +1637,7 @@ update_coords	print.c	/^void update_coords(char ch) {$/
 upper_p	logodata.c	/^#define upper_p(/
 use_reserve_tank	mem.c	/^void use_reserve_tank(void) {$/
 user_repcount	logo.h	/^#define user_repcount /
+user_turtle_shown	graphics.c	/^BOOLEAN turtle_shown = FALSE, user_turtle_shown = TRUE;$/
 val	eval.c	/^	*val    = NIL,  \/* the value of the last expression *\/$/
 val__cont	logo.h	/^#define val__cont(/
 val_status	logo.h	/^#define val_status /
@@ -1613,7 +1660,6 @@ vt52_cursory_state	vt52_states.cpp	/^StateOption GTerm::vt52_cursory_state[] = {
 vt52_esc_state	vt52_states.cpp	/^StateOption GTerm::vt52_esc_state[] = {$/
 vt52_ident	actions.cpp	/^void GTerm::vt52_ident()$/
 vt52_normal_state	vt52_states.cpp	/^StateOption GTerm::vt52_normal_state[] = {$/
-waitingForPrint	wxTurtleGraphics.cpp	/^bool waitingForPrint=false;$/
 wanna_x	graphics.c	/^FLONUM wanna_x = 0.0, wanna_y = 0.0;$/
 wanna_y	graphics.c	/^FLONUM wanna_x = 0.0, wanna_y = 0.0;$/
 want_buried	wrksp.c	/^int want_buried = 0;$/
@@ -1621,6 +1667,7 @@ wd_copy	init.c	/^#define wd_copy(/
 wd_enum	logo.h	/^#define wd_enum(/
 wdtrans	logo.h	/^struct wdtrans {$/
 white_space	parse.c	/^#define white_space(/
+windowDC	wxTurtleGraphics.cpp	/^wxDC *windowDC = 0;$/
 windowmode	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
 word_strnzcpy	logodata.c	/^char *word_strnzcpy(char *s1, NODE *kludge, int n) {  \/* KLUDGE! *\/$/
 words	logo.h	/^enum words {$/
@@ -1633,7 +1680,7 @@ write_buf	files.c	/^char *write_buf = 0;$/
 writer_name	files.c	/^NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;$/
 writestream	parse.c	/^FILE *writestream;$/
 wxClearText	wxTerminal.cpp	/^extern "C" void wxClearText() {$/
-wxDrawLine	wxTurtleGraphics.cpp	/^extern "C" void wxDrawLine(int x1, int y1, int x2, int y2){$/
+wxDrawLine	wxTurtleGraphics.cpp	/^extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){$/
 wxEVT_TERM_CUSTOM_COMMAND	wxTerminal.cpp	/^#define wxEVT_TERM_CUSTOM_COMMAND(/
 wxEditFile	wxTurtleGraphics.cpp	/^extern "C" int wxEditFile(char * f){$/
 wxFullScreen	wxTurtleGraphics.cpp	/^extern "C" void wxFullScreen(){$/
@@ -1645,7 +1692,7 @@ wxKeyp	wxMain.cpp	/^extern "C" int wxKeyp() {$/
 wxLabel	wxTurtleGraphics.cpp	/^extern "C" void wxLabel(char * string) {$/
 wxLogoExit	wxMain.cpp	/^extern "C" void wxLogoExit(int code) {$/
 wxLogoSleep	wxMain.cpp	/^extern "C" void wxLogoSleep(unsigned int milli) {$/
-wxLogoWakeup	wxMain.cpp	/^void wxLogoWakeup() {$/
+wxLogoWakeup	wxMain.cpp	/^void wxLogoWakeup() {  $/
 wxMacGetCslsloc	wxMain.cpp	/^extern "C" const char* wxMacGetCslsloc(){$/
 wxMacGetHelploc	wxMain.cpp	/^extern "C" const char* wxMacGetHelploc(){$/
 wxMacGetLibloc	wxMain.cpp	/^extern "C" const char* wxMacGetLibloc(){$/
@@ -1660,7 +1707,12 @@ wxUnget_c	wxMain.cpp	/^extern "C" int wxUnget_c(int c, FILE * f) {$/
 wx_Debugging	wxMain.cpp	/^int wx_Debugging = 0;$/
 wx_clear	wxTurtleGraphics.cpp	/^extern "C" void wx_clear() {$/
 wx_fgets	wxMain.cpp	/^extern "C" char* wx_fgets(char* s, int n, FILE* stream) {$/
+wx_leave_mainloop	main.c	/^int wx_leave_mainloop = 0;$/
 wxdprintf	utils.cpp	/^#define wxdprintf /
+wxlPrintPict	wxTurtleGraphics.cpp	/^extern "C" void wxlPrintPict(){$/
+wxlPrintPreviewPict	wxTurtleGraphics.cpp	/^extern "C" void wxlPrintPreviewPict(){$/
+wxlPrintPreviewText	wxTurtleGraphics.cpp	/^extern "C" void wxlPrintPreviewText(){$/
+wxlPrintText	wxTurtleGraphics.cpp	/^extern "C" void wxlPrintText(){$/
 x_margin	print.c	/^int x_margin=0, y_margin=0;$/
 x_scale	graphics.c	/^FLONUM x_scale = 1.0, y_scale = 1.0;$/
 x_window	logo.h	/^#define x_window$/

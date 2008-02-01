@@ -252,6 +252,14 @@ typedef int BOOLEAN;
 #define FALSE	0
 #define TRUE	1
 
+#define SPECIAL_COLORS 3
+#define FILLED_COLOR_INDEX 0
+#define FILLED_COLOR_OFFSET -3
+#define BACKGROUND_COLOR_INDEX 1
+#define BACKGROUND_COLOR_OFFSET -2
+#define PEN_COLOR_INDEX 2
+#define PEN_COLOR_OFFSET -1
+
 #define even_p(x) !(x & 0x1)
 
 #define FIXNUM          long

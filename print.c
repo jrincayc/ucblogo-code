@@ -209,7 +209,7 @@ void ndprintf(FILE *strm, char *fmt, ...) {
 }
 
 void dbprint(NODE *data) {
-    ndprintf(stdout, "%p\n", data);
+    ndprintf(stderr, "%p\n", data);
 }
 
 void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {
