@@ -370,7 +370,7 @@ extern "C" char getFromWX_2(FILE * f)
     in_mut.Unlock();
 #endif
     // Do this while the lock is released just in case the longjump occurs
-    if (check_wx_stop()) {
+    if (check_wx_stop(1)) {   // force yield (1)
       putReturn = 1;
     }
     flushFile(stdout, 0);

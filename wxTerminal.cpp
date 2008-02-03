@@ -260,16 +260,21 @@ LogoEventManager::LogoEventManager(LogoApplication *logoApp)
   m_logoApp = logoApp;
 }
 
-void LogoEventManager::ProcessAnEvent()
+void LogoEventManager::ProcessAnEvent(int force_yield)
 {
   if( m_logoApp->Pending() ) {
     m_logoApp->Dispatch();
   }
   else {
-    static int foo = 50;    // carefully tuned fudge factor
-    if (--foo == 0) {
-	m_logoApp->Yield(TRUE);    
-	foo = 50;
+    if(force_yield) {
+      m_logoApp->Yield(TRUE);
+    }
+    else {
+      static int foo = 50;    // carefully tuned fudge factor
+      if (--foo == 0) {
+	  m_logoApp->Yield(TRUE);    
+	  foo = 50;
+      }
     }
   }
 }
@@ -2215,9 +2220,9 @@ extern "C" void wxSetCursor(int x, int y){
 
 
 
-extern "C" int check_wx_stop() {
+extern "C" int check_wx_stop(int force_yield = 0) {
 #ifndef MULTITHREAD  
-  logoEventManager->ProcessAnEvent(); 
+  logoEventManager->ProcessAnEvent(force_yield); 
 #endif
   if (logo_stop_flag) {
     logo_stop_flag = 0;

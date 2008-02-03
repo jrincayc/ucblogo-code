@@ -65,7 +65,7 @@ extern "C" void setInfo(int, int);
 /* wxTextEdit */
 extern char * file; // using this is safe because the other thread is sleeping
 					// and it stack is also asleep
-extern "C" int check_wx_stop();
+extern "C" int check_wx_stop(int force_yield);
 extern "C" int internal_check();
 
 /* Synchronization for Multithreaded version */

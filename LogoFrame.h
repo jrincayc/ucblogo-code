@@ -24,7 +24,7 @@ class LogoApplication : public wxApp
 class LogoEventManager {
   public:
     LogoEventManager(LogoApplication *logoApp);
-    void ProcessAnEvent();
+    void ProcessAnEvent(int force_yield = 0);
     void ProcessAllEvents();
   private:
     LogoApplication *m_logoApp;
