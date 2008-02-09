@@ -270,7 +270,7 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
       m_logoApp->Yield(TRUE);
     }
     else {
-      static int foo = 50;    // carefully tuned fudge factor
+      static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
 	  m_logoApp->Yield(TRUE);    
 	  foo = 50;
@@ -2220,7 +2220,7 @@ extern "C" void wxSetCursor(int x, int y){
 
 
 
-extern "C" int check_wx_stop(int force_yield = 0) {
+extern "C" int check_wx_stop(int force_yield) {
 #ifndef MULTITHREAD  
   logoEventManager->ProcessAnEvent(force_yield); 
 #endif
