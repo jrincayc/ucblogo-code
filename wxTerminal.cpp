@@ -197,6 +197,7 @@ bool LogoApplication::OnInit()
 
   logoFrame->Show(TRUE);
 #ifndef MULTITHREAD
+  m_mainLoop = new wxEventLoop();
   logoEventManager = new LogoEventManager(this);
 #endif
   SetTopWindow(logoFrame);
@@ -209,6 +210,7 @@ extern "C" int start (int, char **);
 
 int LogoApplication::OnRun()
 {
+  wxEventLoop::SetActive(m_mainLoop);
   SetExitOnFrameDelete(true);
 
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
