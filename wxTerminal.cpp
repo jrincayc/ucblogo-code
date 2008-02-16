@@ -249,10 +249,10 @@ int LogoApplication::OnRun()
   return 0;
 }
 
+#endif
 int LogoApplication::OnExit() {
   return 0;
 }
-#endif
 
 
 

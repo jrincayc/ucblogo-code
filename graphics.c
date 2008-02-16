@@ -86,7 +86,7 @@ extern int drawToPrinter;
 #define PENMODE_REVERSE	2
 
 int internal_penmode = PENMODE_PAINT;
-int turtle_no_save = 0;
+int drawing_turtle = 0;
 
 enum s_md screen_mode = SCREEN_TEXT;
 
@@ -159,7 +159,7 @@ void draw_turtle(void) {
 		return;
 	}
 
-    turtle_no_save = 1;
+    drawing_turtle = 1;
     turtle_shown = 0;
 /*
     get_palette(pen_color, &r, &g, &b);
@@ -195,7 +195,7 @@ void draw_turtle(void) {
     forward(1);
     set_pen_vis(save_vis);
     turtle_shown = 1;
-    turtle_no_save = 0;
+    drawing_turtle = 0;
 }
 
 void check_x_high(void) {
@@ -357,7 +357,7 @@ wraploop:
     move_to(g_round(x1), g_round(y1));
     save_move();
     
-    if (check_throwing) return;
+    if (!drawing_turtle && check_throwing) return;
 
     if (internal_penmode == PENMODE_REVERSE && pen_vis == 0 && d > 0.0) {
 	line_to(g_round(x1), g_round(y1));	/* flip the corner */
@@ -367,7 +367,7 @@ wraploop:
     rx2 = g_round(x2);
     ry2 = g_round(y2);
     
-    if (check_throwing) return;
+    if (!drawing_turtle && check_throwing) return;
 
     if (current_mode == windowmode ||
 	(rx2 >= screen_left && rx2 <= screen_right &&
@@ -1562,7 +1562,7 @@ NODE *lprinttext(NODE *args) {
 BOOLEAN safe_to_save(void) {
     char *newbuf;
 
-    if (!refresh_p || turtle_no_save) return FALSE;
+    if (!refresh_p || drawing_turtle) return FALSE;
     if (record == 0) {	/* first time */
 	record = record_buffer;
 	*(char **)(record) = 0;
@@ -1570,24 +1570,20 @@ BOOLEAN safe_to_save(void) {
 	return TRUE;
     }
     if (record_index < (GR_SIZE - 300)) return TRUE;	/* room here */
-//evan, undone by bh
-#if 1
     if (*(char **)(record) != 0) {    /* already allocated next one */
 	*(record + record_index) = NEXTBUFFER;
 	record = *(char **)(record);
 	record_index = One;
 	return TRUE;
     }
-#endif
     newbuf = malloc(GR_SIZE);	/* get a new buffer */
     if (newbuf == NULL) return FALSE;	/* failed */
     
-    //evan (moved this line before the set on record) 
     *(record + record_index) = NEXTBUFFER;
 
     *(char **)(record) = newbuf;
     record = newbuf;
-    *(char **)(record) = 0; // bh
+    *(char **)(record) = 0; 
     record_index = One;
     return TRUE;
 }
