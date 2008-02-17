@@ -279,7 +279,7 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
       static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
 	  m_logoApp->Yield(TRUE);    
-	  foo = 50;
+	  foo = 500;
       }
     }
   }

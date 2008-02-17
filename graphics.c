@@ -71,6 +71,9 @@ extern int drawToPrinter;
 #define ARC	      10
 #define SETPENRGB     11
 #define NEXTBUFFER    12
+#define STARTFILL     13
+#define ENDFILL	      14
+#define COLORFILL     15
 
 /* NOTE: See the files (macterm.c and macterm.h) or (ibmterm.c and ibmterm.h)
    for examples of the functions and macros that this file assumes exist. */
@@ -1411,13 +1414,19 @@ NODE *larc(NODE *arg) {
 }
 
 #ifdef HAVE_WX
+
+int insidefill = 0;
+
+struct mypoint {
+    int x,y;
+};
+
 NODE *lfilled(NODE *args) {
     NODE *val, *arg;
     char *start, *ptr;
-    int start_idx, idx, count;
-    struct mypoint {
-	int x,y;
-    } *points, *point;
+    int start_idx, idx, count, color;
+    unsigned int r,g,b;
+    struct mypoint *points, *point;
     FLONUM x1,y1,lastx,lasty;
 
     prepare_to_draw;
@@ -1427,12 +1436,14 @@ NODE *lfilled(NODE *args) {
     } else
 	val = pos_int_arg(args);
     done_drawing;
+    color = getint(val);
 
-    if (!safe_to_save()) {
+    if (!safe_to_save() || insidefill) {
 	err_logo(BAD_GRAPH_INIT, NIL);
 	return UNBOUND;
     }
 
+    insidefill = 1;
     start = record;
     start_idx = record_index;
     x1 = screen_x_coord;
@@ -1440,8 +1451,22 @@ NODE *lfilled(NODE *args) {
 
     arg = runnable_arg(cdr(args));
     if (NOT_THROWING) {
+	last_recorded = record[record_index] = STARTFILL;
+	record_index += Three;	/* Will be filled in at endfill */
+	record[record_index] = FINISHED;
+	if (color == FILLED_COLOR_OFFSET) {
+	    get_palette(FILLED_COLOR_OFFSET, &r, &g, &b);
+	    last_recorded = record[record_index] = COLORFILL;
+	    *(unsigned int *)(record + record_index + One) = r;
+	    *(unsigned int *)(record + record_index + Two) = g;
+	    *(unsigned int *)(record + record_index + Three) = b;
+	    record_index += Four;
+	}
+
 	(void)evaluator(arg, begin_line);
     }
+
+    insidefill = 0;
 
     if (!safe_to_save()) {
 	err_logo(BAD_GRAPH_INIT, NIL);
@@ -1449,7 +1474,12 @@ NODE *lfilled(NODE *args) {
     }
 
     if (NOT_THROWING) {
-	count=0;
+	last_recorded = record[record_index] = ENDFILL;
+	*(char **)(record + record_index + One) = start;
+	*(int *)(record + record_index + Two) = start_idx;
+	record_index += Three;
+	record[record_index] = FINISHED;
+	    count=0;
 	for (ptr = start, idx = start_idx; ptr[idx] != FINISHED; ) {
 	switch (ptr[idx]) {
 		case (LINEXY) :
@@ -1457,6 +1487,8 @@ NODE *lfilled(NODE *args) {
 		    count++;
 		case (SETPENMODE) :
 		case (SETPENSIZE) :
+		case (STARTFILL) :
+		case (ENDFILL) :
 		    idx += Three;
 		    break;
 		case (LABEL) :
@@ -1470,6 +1502,7 @@ NODE *lfilled(NODE *args) {
 		    idx += Two;
 		    break;
 		case (SETPENRGB) :
+		case (COLORFILL) :
 		    idx += Four;
 		    break;
 		case (SETPENPATTERN) :
@@ -1490,6 +1523,9 @@ NODE *lfilled(NODE *args) {
 	point++;
 	ptr = start;
 	idx = start_idx;
+	*(int *)(start + start_idx + One) = count+1;
+	*(int *)(start + start_idx + Two) = color;
+
     while (ptr[idx] != FINISHED) {
 	switch (ptr[idx]) {
 	    case (LINEXY) :
@@ -1501,6 +1537,8 @@ NODE *lfilled(NODE *args) {
 		point++;
 	    case (SETPENMODE) :
 	    case (SETPENSIZE) :
+	    case (STARTFILL) :
+	    case (ENDFILL) :
 		idx += Three;
 		break;
 	    case (LABEL) :
@@ -1514,6 +1552,7 @@ NODE *lfilled(NODE *args) {
 		idx += Two;
 		break;
 	    case (SETPENRGB) :
+	    case (COLORFILL) :
 		idx += Four;
 		break;
 	    case (SETPENPATTERN) :
@@ -1528,7 +1567,7 @@ NODE *lfilled(NODE *args) {
 		break;
 	    }
 	}
-	doFilled(getint(val), count+1, points);
+	doFilled(color, count+1, points);
 	free(points);
     }
     return UNBOUND;
@@ -1639,7 +1678,7 @@ void save_color(void) {
     unsigned int r,g,b;
 
     if (safe_to_save()) {
-	if (pen_color == -1) {
+	if (pen_color == PEN_COLOR_OFFSET) {
 	    get_palette(pen_color, &r, &g, &b);
 	    last_recorded = record[record_index] = SETPENRGB;
 	    *(unsigned int *)(record + record_index + One) = r;
@@ -1725,7 +1764,12 @@ void redraw_graphics(void) {
 #if defined(__RZTC__) && !defined(WIN32)
     BOOLEAN save_splitscreen = in_splitscreen;
 #endif
-	
+#ifdef HAVE_WX
+    char *start, *ptr;
+    int start_idx, idx, count, color;
+    unsigned int r,g,b;
+    struct mypoint *points = 0, *point = 0;
+#endif
 
     if (!refresh_p ) {
     /*	clear_screen;
@@ -1775,12 +1819,26 @@ void redraw_graphics(void) {
 		lasty = *(int *)(bufp + r_index + Two);
 		line_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += Three;
+#ifdef HAVE_WX
+	    if (point != NULL) {
+		point->x = screen_x_center+lastx;
+		point->y = screen_y_center-lasty;
+		point++;
+	    }
+#endif
 		break;
 	    case (MOVEXY) :
 		lastx = *(int *)(bufp + r_index + One);
 		lasty = *(int *)(bufp + r_index + Two);
 		move_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += Three;
+#ifdef HAVE_WX
+	    if (point != NULL) {
+		point->x = screen_x_center+lastx;
+		point->y = screen_y_center-lasty;
+		point++;
+	    }
+#endif
 		break;
 	    case (LABEL) :
  		draw_string((unsigned char *)(bufp + r_index + One+1));
@@ -1805,11 +1863,45 @@ void redraw_graphics(void) {
 		r_index += Two;
 		break;
 	    case (SETPENRGB) :
-		set_palette(-1, (*(int *)(bufp + r_index + One)),
+		set_palette(PEN_COLOR_OFFSET,
+				(*(int *)(bufp + r_index + One)),
 				(*(int *)(bufp + r_index + Two)),
 				(*(int *)(bufp + r_index + Three)));
-		set_pen_color((FIXNUM)(-1));
+		set_pen_color((FIXNUM)(PEN_COLOR_OFFSET));
 		r_index += Four;
+		break;
+	    case (COLORFILL) :
+#ifdef HAVE_WX
+		set_palette(FILLED_COLOR_OFFSET,
+				(*(int *)(bufp + r_index + One)),
+				(*(int *)(bufp + r_index + Two)),
+				(*(int *)(bufp + r_index + Three)));
+#endif
+		r_index += Four;
+		break;
+	    case (STARTFILL) :
+#ifdef HAVE_WX
+		point = points = malloc((*(int *)(bufp + r_index + One))
+					    * sizeof(struct mypoint));
+		if (point != NULL) {
+		    point->x = screen_x_center+lastx;
+		    point->y = screen_y_center-lasty;
+		    point++;
+		}
+#endif
+		r_index += Three;
+		break;
+	    case (ENDFILL) :
+#ifdef HAVE_WX
+		start = *(char **)(bufp + r_index + One);
+		start_idx = *(int *)(bufp + r_index + Two);
+		doFilled((*(int *)(start + start_idx + Two)),
+			 (*(int *)(start + start_idx + One)),
+			 points);
+		free(points);
+		point = points = 0;
+#endif
+		r_index += Three;
 		break;
 	    case (SETPENSIZE) :
 		set_pen_width(*(int *)(bufp + r_index + One));
@@ -2144,6 +2236,13 @@ NODE *lepspict(NODE *args) {
 	    case (NEXTBUFFER):
 		bufp = *(char **)(bufp);
 		r_index = One;
+		break;
+	    case (STARTFILL):
+	    case (ENDFILL):
+		r_index += Three;
+		break;
+	    case (COLORFILL):
+		r_index += Four;
 		break;
 	    }
 	}
