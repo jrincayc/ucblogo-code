@@ -21,7 +21,8 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 
 HDRS	= globals.h logo.h xgraphics.h
 
-all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS logo-mode 
+all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
+#logo-mode
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
@@ -93,7 +94,7 @@ mac: all
 	cp PkgInfo UCBLogo.app/Contents/
 	cp pbdevelopment.plist UCBLogo.app/Contents/
 	mkdir -p UCBLogo.app/Contents/Resources
-	cp -r csls UCBLogo.app/Contents/Resources/
+	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
 	cp logo.icns UCBLogo.app/Contents/Resources/

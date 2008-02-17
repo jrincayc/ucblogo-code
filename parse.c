@@ -88,6 +88,9 @@ int rd_getc(FILE *strm) {
     c = getc(strm);
 #endif
     if (strm == stdin && c != EOF) update_coords(c);
+#ifndef mac
+    if (c == '\r') return rd_getc(strm);
+#endif
 #ifdef ibm
     if (c == 17 && interactive && strm==stdin) { /* control-q */
 	to_pending = 0;
