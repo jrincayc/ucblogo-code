@@ -436,6 +436,13 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 	    }
 	}
 	if (to_pending && NOT_THROWING) {
+#ifdef OBJECT
+	    if (current_object != logo_object) {
+		setprocs(current_object,
+			 cons(make_procnode(body_list, body_words, minimum,
+                                               deflt, maximum),
+			        getprocs(current_object)));
+#else
 	    setprocnode__caseobj(proc_name,
 				 make_procnode(body_list, body_words, minimum,
 					       deflt, maximum));
@@ -443,6 +450,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		setflag__caseobj(proc_name, PROC_MACRO);
 	    else
 		clearflag__caseobj(proc_name, PROC_MACRO);
+#endif
 	    if (deflt != old_default && old_default >= 0) {
 		the_generation = cons(NIL, NIL);
 	    }
