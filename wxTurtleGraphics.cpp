@@ -418,27 +418,22 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
     logoFrame->GetSize(&screen_width, &screen_height);
     setInfo(SCREEN_WIDTH, screen_width);
     setInfo(SCREEN_HEIGHT, screen_height);
-#if 0
-    in_mut.Lock();
-    needToRefresh++;
-    read_buff.Broadcast();
-    in_mut.Unlock();
-#else
-    int unset_windowDC = 0;
-    if(windowDC == 0) {   //OnSize may be triggered multiple times...
-      windowDC = &dc;
-      unset_windowDC++;
-    }
-    
-    drawToWindow++;
-    redraw_graphics();
-    drawToWindow--;
-#endif
-    if(unset_windowDC) {
-      windowDC = 0;
-      unset_windowDC--;
-    }
-	
+
+    if(!wxGetMouseState().LeftDown()) {
+	    int unset_windowDC = 0;
+	    if(windowDC == 0) {   //OnSize may be triggered multiple times...
+	      windowDC = &dc;
+	      unset_windowDC++;
+	    }
+	    
+	    drawToWindow++;
+	    redraw_graphics();
+	    drawToWindow--;
+	    if(unset_windowDC) {
+	      windowDC = 0;
+	      unset_windowDC--;
+	    }
+    }	
     wxdprintf("OnSize ends\n");
 }
 
