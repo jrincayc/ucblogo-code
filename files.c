@@ -421,6 +421,7 @@ void silent_load(NODE *arg, char *prefix) {
 	arg = cnv_node_to_strnode(arg);
 	if (arg == UNBOUND) return;
 	if (!strncmp(getstrptr(arg), ".", getstrlen(arg))) return;
+	if (getstrlen(arg) > 150) return;
 	noparitylow_strnzcpy(load_path + (int)strlen(load_path),
 			     getstrptr(arg), getstrlen(arg));
 	if (prefix == NULL)
