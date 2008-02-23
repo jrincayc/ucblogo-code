@@ -145,6 +145,7 @@ NODE *lsetcursor(NODE *args) {
 
 	int x_coord, y_coord, x_max, y_max;
 	NODE *arg;
+	fix_turtle_shownness();
 
 	x_coord=getTermInfo(X_COORD);
 	y_coord=getTermInfo(Y_COORD);
@@ -155,8 +156,8 @@ NODE *lsetcursor(NODE *args) {
 
     arg = pos_int_vector_arg(args);
     if (NOT_THROWING) {
-	x_coord = x_margin + getint(cadr(arg));
-	y_coord = y_margin + getint(car(arg));
+	x_coord = x_margin + getint(car(arg));
+	y_coord = y_margin + getint(cadr(arg));
 	while ((x_coord >= x_max || y_coord >= y_max) && NOT_THROWING) {
 	    setcar(args, err_logo(BAD_DATA, arg));
 	    if (NOT_THROWING) {
