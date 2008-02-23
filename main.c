@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
 #ifndef WIN32
-      if (isatty(1))
+      if (1 || isatty(1))   // fix this.  for interactive from menu bar.
 #endif
       {
 #ifdef HAVE_WX
