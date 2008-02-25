@@ -1,32 +1,3 @@
-/*
-    Much of this code from: taTelnet - A cross-platform telnet program.
-							Copyright (c) 2000 Derry Bryson.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Contact Information:
-
-       Technology Associates, Inc.
-       Attn:  Derry Bryson
-       959 W. 5th Street
-       Reno, NV  89503
-       USA
-
-       derry@techass.com
-*/
-
 #ifndef INCLUDE_WXTERM
 #define INCLUDE_WXTERM
 
@@ -35,7 +6,6 @@
 #endif
 
 #include <wx/html/htmprint.h>
-#include "gterm.hpp"
 #include <wx/print.h>
 
 #define CURSOR_BLINK_DEFAULT_TIMEOUT	300
@@ -57,21 +27,99 @@ class TurtleWindowPrintout: public wxPrintout
   void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo);
 };
 
-  class wxTerminal : public wxScrolledWindow , public GTerm
+
+// Structures for maintaining characters and lines
+#define WXTERM_CB_SIZE 8000
+#define WXTERM_LB_SIZE 1000
+
+struct wxterm_char_buffer {
+  unsigned char cbuf[WXTERM_CB_SIZE];       //characters
+  unsigned char mbuf[WXTERM_CB_SIZE];       //mode flags
+  wxterm_char_buffer *next; //next part of buffer
+} ;
+
+struct wxterm_charpos {
+  wxterm_char_buffer *buf;   //which char buffer
+  int offset;                //offset into buffer
+  int line_length;           //length of line
+} ;
+
+#define inc_charpos(cp)   cp.offset++; \
+                          if(cp.offset == WXTERM_CB_SIZE) {  \
+                            if(!cp.buf->next) {  \
+                              cp.buf->next = (wxterm_char_buffer *) malloc(sizeof(wxterm_char_buffer)); \
+                              memset(cp.buf->next, '\0', sizeof(wxterm_char_buffer));  \
+                            }  \
+			    cp.buf = cp.buf->next; \
+                            cp.offset = 0; \
+                          }
+
+// adjust offset >= WXTERM_CB_SIZE issues
+#define adjust_charpos(cp) while(cp.offset >= WXTERM_CB_SIZE) { \
+                             if(!cp.buf->next) {  \
+                               cp.buf->next = (wxterm_char_buffer *) malloc(sizeof(wxterm_char_buffer)); \
+                               memset(cp.buf->next, '\0', sizeof(wxterm_char_buffer));  \
+                             }  \
+			     cp.buf = cp.buf->next; \
+                             cp.offset -= WXTERM_CB_SIZE; \
+                          }
+ 
+
+//lineposition consists of just a buffer and an offset.
+#define inc_linepos(lp)   lp.offset++; \
+                          if(lp.offset == WXTERM_LB_SIZE) { \
+                              if(!lp.buf->next) { \
+                                lp.buf->next = (wxterm_line_buffer *) malloc(sizeof(wxterm_line_buffer)); \
+                                memset(lp.buf->next, 0, sizeof(wxterm_line_buffer)); \
+                              } \
+                              lp.buf = lp.buf->next; \
+                              lp.offset = 0; \
+                          }
+
+//adjust offset >= WXTERM_LB_SIZE issue
+#define adjust_linepos(lp) while(lp.offset >= WXTERM_LB_SIZE) { \
+                               if(!lp.buf->next) { \
+                                 lp.buf->next = (wxterm_line_buffer *) malloc(sizeof(wxterm_line_buffer)); \
+                                 memset(lp.buf->next, 0, sizeof(wxterm_line_buffer)); \
+                               } \
+                               lp.buf = lp.buf->next; \
+                               lp.offset -= WXTERM_LB_SIZE; \
+                           }
+
+                               
+struct wxterm_line_buffer {
+  wxterm_charpos lbuf[WXTERM_LB_SIZE];  //lines
+  wxterm_line_buffer *next;          //next part of buffer
+};
+
+struct wxterm_linepos {
+  wxterm_line_buffer *buf;  //which line buffer
+  int offset;               //offset into line buffer
+};
+
+
+#define line_of(lpos) lpos.buf->lbuf[lpos.offset]
+#define char_of(cpos) cpos.buf->cbuf[cpos.offset]
+#define mode_of(cpos) cpos.buf->mbuf[cpos.offset]
+
+// enter/exit standout mode character
+#define TOGGLE_STANDOUT 17
+
+  class wxTerminal : public wxScrolledWindow
 {
 
-  wxCoord
-	m_charWidth;
-  int
-    m_charHeight,
-    m_init,
-    m_width,
-    m_height,
-    m_selx1,
+ public:
+  int m_charWidth;
+  int m_charHeight;
+
+  int  m_width;
+  int m_height;
+ private:
+  int  m_selx1,
     m_sely1,
     m_selx2,
     m_sely2,
-	m_seloldx1,
+    m_seloldx1,
     m_seloldy1,
     m_seloldx2,
     m_seloldy2,
@@ -79,9 +127,7 @@ class TurtleWindowPrintout: public wxPrintout
     m_curY,
     m_curFG,
     m_curBG,
-    m_curFlags,
-    m_curState,
-    m_curBlinkRate;
+    m_curFlags;
 
   unsigned char
     m_curChar;
@@ -92,12 +138,12 @@ class TurtleWindowPrintout: public wxPrintout
 
   wxColour
     m_vt_colors[16],
-    m_pc_colors[16],
+//    m_pc_colors[16],
     *m_colors;
 
   wxPen
     m_vt_colorPens[16],
-    m_pc_colorPens[16],
+ //   m_pc_colorPens[16],
     *m_colorPens;
 
   wxFont
@@ -109,19 +155,37 @@ class TurtleWindowPrintout: public wxPrintout
   wxMemoryDC
     m_memDC;
 
-  wxBitmap
-    *m_bitmap;
-
   FILE
     *m_printerFN;
 
   char
     *m_printerName;
 
-  wxTimer
-    m_timer;
+
+// character buffer
+  wxterm_char_buffer *term_chars;
+  wxterm_line_buffer *term_lines;
+  wxterm_charpos curr_char_pos;
+  wxterm_linepos curr_line_pos;
+  int cursor_x, cursor_y;
 
 public:
+	// mode flags
+	enum MODES
+        {
+          BOLD=0x1, 
+          BLINK=0x2, 
+          UNDERLINE=0x4, 
+          INVERSE=0x8,
+	  DEFERUPDATE=0x10,
+//          DESTRUCTBS=0x800,
+          CURSORINVISIBLE=0x20,
+          SELECTED=0x40	// flag to indicate a char is selected
+        };
+
+	char m_currMode;
+
+#if 0
   enum BOLDSTYLE
   {
     DEFAULT = -1,
@@ -129,10 +193,10 @@ public:
     OVERSTRIKE = 1,
     FONT = 2
   };
+#endif
 
 private:
-  BOLDSTYLE
-    m_boldStyle;
+//  BOLDSTYLE m_boldStyle;
 
   typedef struct
   {
@@ -161,66 +225,63 @@ public:
 	  isEditFile;
   static wxTerminal *terminal; 
   bool SetFont(const wxFont& font);
-  void GetDefVTColors(wxColor colors[16], wxTerminal::BOLDSTYLE boldStyle = wxTerminal::DEFAULT);
-  void GetVTColors(wxColour colors[16]);
-  void SetVTColors(wxColour colors[16]);
-  void GetDefPCColors(wxColour colors[16]);
-  void GetPCColors(wxColour colors[16]);
-  void SetPCColors(wxColour colors[16]);
-  int GetCursorBlinkRate() { return m_curBlinkRate; }
-  void SetCursorBlinkRate(int rate);
-  void RefreshTerminal();
-  void SetBoldStyle(wxTerminal::BOLDSTYLE boldStyle);
+  void GetDefVTColors(wxColor colors[16]/*, wxTerminal::BOLDSTYLE boldStyle = wxTerminal::DEFAULT*/);
   void deferUpdate(int);
-  wxTerminal::BOLDSTYLE GetBoldStyle(void) { return m_boldStyle; }
+  void set_mode_flag(int flag);
+  void clear_mode_flag(int flag);
 
   void ClearSelection();
   bool HasSelection();
+  wxString GetChars(int x1,int y1,int x2, int y2);
   wxString GetSelection();
   void SelectAll();
+  wxterm_linepos GetLinePosition(int y);
+  wxterm_charpos GetCharPosition(int x, int y);
   void DoCopy();
   void DoPaste();
   void printText (wxCommandEvent& event);
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);
   void PassInputToInterp();
-  void setCursor (int x, int y);
+  void setCursor (int x, int y, BOOLEAN fromLogo = FALSE);
   int currentPosition ();
     
-  /*
-  **  GTerm stuff
-  */
-  virtual void DrawText(int fg_color, int bg_color, int flags,
+  virtual void DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
                         int x, int y, int len, unsigned char *string);
-  virtual void DrawCursor(int fg_color, int bg_color, int flags,
-                          int x, int y, unsigned char c);
 
-  virtual void MoveChars(int sx, int sy, int dx, int dy, int w, int h);
-  virtual void ClearChars(int bg_color, int x, int y, int w, int h);
-  virtual void ModeChange(int state);
+//  virtual void MoveChars(int sx, int sy, int dx, int dy, int w, int h);
+//  virtual void ClearChars(int bg_color, int x, int y, int w, int h);
+//  virtual void ModeChange(int state);
   virtual void Bell();
+  void RenumberLines(int new_width);
   virtual void ResizeTerminal(int w, int h);
-  virtual void RequestSizeChange(int w, int h);
+//  virtual void RequestSizeChange(int w, int h);
 
-  virtual void PassInputToGterm(int len, unsigned char *data);
+  void DebugOutputBuffer();
+  void InsertChar(char c);
+  void NextLine();
+  virtual void PassInputToTerminal(int len, unsigned char *data);
+
+  wxString *get_text();
+
+  void ClearScreen();
 
   virtual void SelectPrinter(char *PrinterName);
   virtual void PrintChars(int len, unsigned char *data);
 
 private:
   int MapKeyCode(int keyCode);
+  void InvertScrolledArea(wxDC &dc, int tx1, int tx2, int w, int h);
   void MarkSelection();
-  void DoDrawCursor(int fg_color, int bg_color, int flags,
-                    int x, int y, unsigned char c);
 
   int CheckPlatformKeys(wxKeyEvent& event);
   void OnChar(wxKeyEvent& event);
   void OnKeyDown(wxKeyEvent& event);
-  void OnPaint(wxPaintEvent& event);
+//  void OnPaint(wxPaintEvent& event);
+  virtual void OnDraw(wxDC& dc);
   void OnLeftDown(wxMouseEvent& event);
   void OnLeftUp(wxMouseEvent& event);
   void OnMouseMove(wxMouseEvent& event);
-  void OnTimer(wxTimerEvent& event);
   void LoseFocus (wxFocusEvent & event);
   
   DECLARE_EVENT_TABLE()

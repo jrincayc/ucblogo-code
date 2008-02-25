@@ -1,33 +1,3 @@
-/* 
-	Much of the code for the terminal came from:
-        taTelnet - A cross-platform telnet program.
-        Copyright (c) 2000 Derry Bryson. 
-  
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,Ä
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Contact Information:
-
-       Technology Associates, Inc.
-       Attn:  Derry Bryson
-       959 W. 5th Street
-       Reno, NV  89503
-       USA
-
-       derry@techass.com
-*/
-
 /* This file implements the logo frame, which is the main frame that
    contains the terminal, turtle graphics and the editor.
 */
@@ -70,7 +40,6 @@ extern int readingInstruction;
 #include "wxTurtleGraphics.h"
 #include "config.h"
 #include "TextEditor.h"
-#include "gterm.hpp"		/* must come after wxTurtleGraphics.h */
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #ifdef __WXMAC__                                                        
 #include <Carbon/Carbon.h>                                              
@@ -279,7 +248,7 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
       static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
 	  m_logoApp->Yield(TRUE);    
-	  foo = 500;
+	  foo = 50;
       }
     }
   }
@@ -343,8 +312,8 @@ LogoFrame::LogoFrame (const wxChar *title,
   topsizer = new wxBoxSizer( wxVERTICAL );
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
   turtleGraphics = new TurtleCanvas( this );
-  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, "Courier");
+  wxFont f(18, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+	   false, wxString(""));
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
   wxTerminal::terminal->isEditFile=0;
   
@@ -471,7 +440,7 @@ int firstloadsave = 1;
 
 void doSave(char * name, int length);
 void doLoad(char * name, int length);
-void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)){
+void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
 			    (firstloadsave ?
@@ -487,6 +456,9 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)){
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 			    wxSAVE|wxOVERWRITE_PROMPT|wxCHANGE_DIR);
 #else
+#if 0
+	(
+#endif
 			    wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxFD_CHANGE_DIR);
 #endif
 	
@@ -519,6 +491,9 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 	 wxOPEN|wxFILE_MUST_EXIST|wxCHANGE_DIR);
 #else
+#if 0
+	(
+#endif
 	 wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_CHANGE_DIR);
 #endif
 		
@@ -755,13 +730,9 @@ BEGIN_EVENT_TABLE(wxTerminal, wxWindow)
   EVT_LEFT_DOWN(wxTerminal::OnLeftDown)
   EVT_LEFT_UP(wxTerminal::OnLeftUp)
   EVT_MOTION(wxTerminal::OnMouseMove)
-  EVT_TIMER(-1, wxTerminal::OnTimer)
   EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::printText)
   EVT_SIZE(wxTerminal::OnSize)
   EVT_KILL_FOCUS(wxTerminal::LoseFocus)
-#if 0
-  EVT_KEY_DOWN(wxTerminal::OnKeyDown)
-#endif
 END_EVENT_TABLE()
 
 wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
@@ -770,21 +741,41 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
                const wxPoint& pos,
                int width, int height,
                const wxString& name) :
-//  wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name) ,
-    wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS, name) ,
-  GTerm(width, height)
+  wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS|wxVSCROLL, name)
+//    wxScrolledWindow(parent, id, pos, wxSize(-1, -1), wxWANTS_CHARS, name)
 {
+  //allocating char structures.
+  term_chars = (wxterm_char_buffer *) malloc(sizeof(wxterm_char_buffer));
+  memset(term_chars, '\0', sizeof(wxterm_char_buffer));
+  term_lines = (wxterm_line_buffer *) malloc(sizeof(wxterm_line_buffer));
+  memset(term_lines, 0, sizeof(wxterm_line_buffer));
+  term_chars->next = 0;
+  term_lines->next = 0;
+
+  //initializations
+  curr_line_pos.buf = term_lines;
+  curr_line_pos.offset = 0;
+  line_of(curr_line_pos).buf = term_chars;
+  line_of(curr_line_pos).offset = 0;
+
+  curr_char_pos.buf = term_chars;
+  curr_char_pos.offset = 0;
+  //curr_char_pos line_length not used!
+
+
+  m_currMode = 0;
+  y_max = 0;
+  x_max = m_width;
+
+
   // start us out not in char mode
   logo_char_mode = 0;
   // For printing the text
   htmlPrinter = 0;
-  set_mode_flag(DESTRUCTBS);
-   m_bitmap = 0;
+  //  set_mode_flag(DESTRUCTBS);
   wxTerminal::terminal = this;
   int
     i;
-
-  m_init = 1;
 
   m_selecting = FALSE;
   m_selx1 = m_sely1 = m_selx2 = m_sely2 = 0;
@@ -792,26 +783,20 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_marking = FALSE;
   m_curX = -1;
   m_curY = -1;
-  m_curBlinkRate=0;
-  m_timer.SetOwner(this);
-  if(m_curBlinkRate)
-    m_timer.Start(m_curBlinkRate);
 
-  m_boldStyle = FONT;
+  //  m_boldStyle = FONT;
 
   GetDefVTColors(m_vt_colors);
-  GetDefPCColors(m_pc_colors);
 
   m_colors = m_vt_colors;
 
+  m_curFG = 15;
+  m_curBG = 0;
   SetBackgroundColour(m_colors[0]);
   SetMinSize(wxSize(50, 50));
 
   for(i = 0; i < 16; i++)
     m_vt_colorPens[i] = wxPen(m_vt_colors[i], 1, wxSOLID);
-
-  for(i = 0; i < 16; i++)
-    m_pc_colorPens[i] = wxPen(m_pc_colors[i], 1, wxSOLID);
 
   m_colorPens = m_vt_colorPens;
 
@@ -821,32 +806,33 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_printerFN = 0;
   m_printerName = 0;
 
-  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+  wxFont f(18, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
 	   false, "Courier");
   SetFont(f);
 
   wxClientDC
     dc(this);
+  
   dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   m_charWidth--;
   
-  int x, y;
-  GetSize(&x, &y);
-//  SetScrollbars(m_charWidth, m_charHeight, 0, 30);
+  //  int x, y;
+  //GetSize(&x, &y);  
   
-  parent->SetSize(-1,-1, m_charWidth * width, m_charHeight * height + 1);
+  //  parent->SetSize(-1,-1, m_charWidth * width, m_charHeight * height + 1);
+  //  SetScrollbars(m_charWidth, m_charHeight, 0, 30);
+  //SetScrollRate(0, m_charHeight);
+  //SetVirtualSize(m_charWidth * width, 2 * m_charHeight);  //1 row (nothing displayed yet)
 
-  ResizeTerminal(width, height);
+
+  //  ResizeTerminal(width, height);
 
 }
 
 wxTerminal::~wxTerminal()
 {
-  if(m_bitmap)
-  {
-    m_memDC.SelectObject(wxNullBitmap);
-    delete m_bitmap;
-  }
+  //clean up the buffers
+  
 }
 
 void wxTerminal::deferUpdate(int flag) {
@@ -856,24 +842,18 @@ void wxTerminal::deferUpdate(int flag) {
 	clear_mode_flag(DEFERUPDATE);
 }
 
-void
-wxTerminal::SetBoldStyle(wxTerminal::BOLDSTYLE boldStyle)
-{
-  /*wxColour
-    colors[16];*/
-
-  if(boldStyle == DEFAULT)
-    boldStyle = COLOR;
-
-  m_boldStyle = boldStyle;
-  Refresh();
+void wxTerminal::set_mode_flag(int flag) {
+  m_currMode |= flag;
 }
+
+void wxTerminal::clear_mode_flag(int flag) {
+  m_currMode &= ~flag;
+}
+
 
 bool
 wxTerminal::SetFont(const wxFont& font)
 {
-  m_init = 1;
-  
   wxWindow::SetFont(font);
   m_normalFont = font;
   m_underlinedFont = font;
@@ -882,9 +862,9 @@ wxTerminal::SetFont(const wxFont& font)
   m_boldFont.SetWeight(wxBOLD);
   m_boldUnderlinedFont = m_boldFont;
   m_boldUnderlinedFont.SetUnderlined(TRUE);
-  m_init = 0;
   wxClientDC
 	  dc(this);
+  
   dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   m_charWidth--;
   ResizeTerminal(m_width, m_height);
@@ -894,13 +874,8 @@ wxTerminal::SetFont(const wxFont& font)
 }
 
 void
-wxTerminal::GetDefVTColors(wxColour colors[16], wxTerminal::BOLDSTYLE boldStyle)
+wxTerminal::GetDefVTColors(wxColour colors[16] /*, wxTerminal::BOLDSTYLE boldStyle*/)
 {
-  if(boldStyle == DEFAULT)
-    boldStyle = m_boldStyle;
-
-  if(boldStyle != COLOR)
-  {
     colors[0] = wxColour(0, 0, 0);                             // black
     colors[1] = wxColour(255, 0, 0);                           // red
     colors[2] = wxColour(0, 255, 0);                           // green
@@ -917,179 +892,13 @@ wxTerminal::GetDefVTColors(wxColour colors[16], wxTerminal::BOLDSTYLE boldStyle)
     colors[13] = wxColour(255, 255, 0);                        // magenta
     colors[14] = wxColour(0, 255, 255);                        // cyan
     colors[15] = wxColour(255, 255, 255);                      // white
-  }
-  else
-  {
-    colors[0] = wxColour(0, 0, 0);                             // black
-    colors[1] = wxColour(170, 0, 0);                           // red
-    colors[2] = wxColour(0, 170, 0);                           // green
-    colors[3] = wxColour(170, 0, 170);                         // yellow
-    colors[4] = wxColour(0, 0, 170);                           // blue
-    colors[5] = wxColour(170, 170, 0);                         // magenta
-    colors[6] = wxColour(0, 170, 170);                         // cyan
-    colors[7] = wxColour(192, 192, 192);                       // white
-//    colors[7] = wxColour(170, 170, 170);                       // white
-#if 0
-    colors[8] = wxColour(85, 85, 85);                          // bold black
-    colors[9] = wxColour(255, 85, 85);                         // bold red
-    colors[10] = wxColour(85, 255, 85);                        // bold green
-    colors[11] = wxColour(255, 85, 255);                       // bold yellow
-    colors[12] = wxColour(85, 85, 255);                        // bold blue
-    colors[13] = wxColour(255, 255, 85);                       // bold magenta
-    colors[14] = wxColour(85, 255, 255);                       // bold cyan
-    colors[15] = wxColour(255, 255, 255);                      // bold white
-#else
-    colors[8] = wxColour(85, 85, 85);                          // bold black
-    colors[9] = wxColour(255, 0, 0);                         // bold red
-    colors[10] = wxColour(0, 255, 0);                        // bold green
-    colors[11] = wxColour(255, 0, 255);                       // bold yellow
-    colors[12] = wxColour(0, 0, 255);                        // bold blue
-    colors[13] = wxColour(255, 255, 0);                       // bold magenta
-    colors[14] = wxColour(0, 255, 255);                       // bold cyan
-    colors[15] = wxColour(255, 255, 255);                      // bold white
-#endif    
-  }
 }
 
-void
-wxTerminal::GetVTColors(wxColour colors[16])
-{
-  int
-    i;
 
-  for(i = 0; i < 16; i++)
-    colors[i] = m_vt_colors[i];
-}
-
-void
-wxTerminal::SetVTColors(wxColour colors[16])
-{
-  int
-    i;
-
-  m_init = 1;
-  for(i = 0; i < 16; i++)
-    m_vt_colors[i] = colors[i];
-
-  if(!(GetMode() & PC))
-    SetBackgroundColour(m_vt_colors[0]);
-
-  for(i = 0; i < 16; i++)
-    m_vt_colorPens[i] = wxPen(m_vt_colors[i], 1, wxSOLID);
-  m_init = 0;
-
-  Refresh();
-}
-
-void
-wxTerminal::GetDefPCColors(wxColour colors[16])
-{
-#if 0
-  /*
-  **  These colors need tweaking.  I'm sure they are not correct.
-  */
-  colors[0] = wxColour(0, 0, 0);                             // black
-  colors[1] = wxColour(0, 0, 128);                           // blue
-  colors[2] = wxColour(0, 128, 0);                           // green
-  colors[3] = wxColour(0, 128, 128);                         // cyan
-  colors[4] = wxColour(128, 0, 0);                           // red
-  colors[5] = wxColour(128, 0, 128);                         // magenta
-  colors[6] = wxColour(128, 128, 0);                         // brown
-  colors[7] = wxColour(128, 128, 128);                       // white
-  colors[8] = wxColour(64, 64, 64);                          // gray
-  colors[9] = wxColour(0, 0, 255);                           // lt blue
-  colors[10] = wxColour(0, 255, 0);                          // lt green
-  colors[11] = wxColour(0, 255, 255);                        // lt cyan
-  colors[12] = wxColour(255, 0, 0);                          // lt red
-  colors[13] = wxColour(255, 0, 255);                        // lt magenta
-  colors[14] = wxColour(255, 255, 0);                        // yellow
-  colors[15] = wxColour(255, 255, 255);                      // white
-#else
-  /*
-  **  These are much better
-  */
-  colors[0] = wxColour(0, 0, 0);                             // black
-  colors[1] = wxColour(0, 0, 170);                           // blue
-  colors[2] = wxColour(0, 170, 0);                           // green
-  colors[3] = wxColour(0, 170, 170);                         // cyan
-  colors[4] = wxColour(170, 0, 0);                           // red
-  colors[5] = wxColour(170, 0, 170);                         // magenta
-  colors[6] = wxColour(170, 170, 0);                         // brown
-  colors[7] = wxColour(170, 170, 170);                       // white
-#if 0
-  colors[8] = wxColour(85, 85, 85);                          // gray
-  colors[9] = wxColour(85, 85, 255);                         // lt blue
-  colors[10] = wxColour(85, 255, 85);                        // lt green
-  colors[11] = wxColour(85, 255, 255);                       // lt cyan
-  colors[12] = wxColour(255, 85, 85);                        // lt red
-  colors[13] = wxColour(255, 85, 255);                       // lt magenta
-  colors[14] = wxColour(255, 255, 85);                       // yellow
-  colors[15] = wxColour(255, 255, 255);                      // white
-#else
-  colors[8] = wxColour(50, 50, 50);                          // gray
-  colors[9] = wxColour(0, 0, 255);                         // lt blue
-  colors[10] = wxColour(0, 255, 0);                        // lt green
-  colors[11] = wxColour(0, 255, 255);                       // lt cyan
-  colors[12] = wxColour(255, 0, 0);                        // lt red
-  colors[13] = wxColour(255, 0, 255);                       // lt magenta
-  colors[14] = wxColour(255, 255, 0);                       // yellow
-  colors[15] = wxColour(255, 255, 255);                      // white
-#endif  
-#endif
-}
-
-void
-wxTerminal::GetPCColors(wxColour colors[16])
-{
-  int
-    i;
-
-  for(i = 0; i < 16; i++)
-    colors[i] = m_pc_colors[i];
-}
-
-void
-wxTerminal::SetPCColors(wxColour colors[16])
-{
-  int
-    i;
-
-  m_init = 1;
-  for(i = 0; i < 16; i++)
-    m_pc_colors[i] = colors[i];
-
-  if(GetMode() & PC)
-    SetBackgroundColour(m_pc_colors[0]);
-
-  for(i = 0; i < 16; i++)
-    m_pc_colorPens[i] = wxPen(m_pc_colors[i], 1, wxSOLID);
-  m_init = 0;
-
-  Refresh();
-}
-
-void
-wxTerminal::SetCursorBlinkRate(int rate)
-{
-  
-  if(rate < 0 || rate > CURSOR_BLINK_MAX_TIMEOUT)
-    return;
-
-  m_init = 1;
-  if(rate != m_curBlinkRate)
-  {
-    m_curBlinkRate = rate;
-    if(!m_curBlinkRate)
-      m_timer.Stop();
-    else
-      m_timer.Start(m_curBlinkRate);
-  }
-  m_init = 0;
-}
 
 
 void  wxTerminal::printText (wxCommandEvent& event){
- GTerm::set_mode_flag(BOLD);
+  set_mode_flag(BOLD);
 
 #ifdef MULTITHREAD  
  out_mut.Lock();
@@ -1113,61 +922,24 @@ void  wxTerminal::printText (wxCommandEvent& event){
     buff_full_cond.Broadcast();
     out_mut.Unlock();
 #endif
-    GTerm::clear_mode_flag(BOLD);
+    clear_mode_flag(BOLD);
     return;
   }
 
   alreadyAlerted = 0;
   wxClientDC
     dc(this);
+
   if(input_index != 0){
     // set the cursor in the proper place 
     setCursor(last_logo_x, last_logo_y);
-    scroll_region(last_logo_y, last_logo_y + 1, -1);
+    //    scroll_region(last_logo_y, last_logo_y + 1, -1);
     cursor_moved = 1;
     
   }
-  if (out_buff_index_public != 0) {
-	  
-	  //printf("wxTerminal:printText starts, out_buff_index_public is: %d\n", out_buff_index_public);
-	  
-    int num_returns = 0;
-     int i;
-     for (i = 0; i < out_buff_index_public; i++) {
-       if (out_buff_public[i] == '\n')
-     	 num_returns++;
-     }
-     int thingy = (num_returns+ cursor_y) - height;
-	 
-	 	  //printf("Terminal Height: %d, Screen height: %d, \"thingy\": %d\n", height, turtleGraphics->getInfo(SCREEN_HEIGHT), thingy);
-		  //printf("x_max: %d, y_max: %d, x_coord: %d. y_coord: %d, m_width: %d, m_height: %d\n", x_max, y_max, x_coord, y_coord, m_width, m_height);
-		  //printf("Height(): %d, Width(): %d\n", Height(), Width());
-		  
-     if (thingy < 0) {
-       i = 0;
-     }
-     else {
-       if (num_returns  > height) {
-	 thingy = num_returns - height;
-	 scroll_region(scroll_top, scroll_bot, height-1);
-	 setCursor(cursor_x,0);
-       }
-       else if (num_returns + cursor_y > height) {
-	 thingy = num_returns - (num_returns + cursor_y - height) -1; 
-	 scroll_region(scroll_top, scroll_bot, num_returns + cursor_y - height - 1);
-	 setCursor(cursor_x,height- (num_returns + cursor_y - height));
-       }
-       
-       for (i = 0; i < out_buff_index_public; i++) {
-	 if (out_buff_public[i] == '\n')
-	   thingy--;
-	 if (thingy == 0)
-	   break;
-       }
-     }
-
+  if (out_buff_index_public != 0) {	  
      ClearSelection();
-     PassInputToGterm(out_buff_index_public - i, (unsigned char *)out_buff_public + i);
+     PassInputToTerminal(out_buff_index_public, (unsigned char *)out_buff_public);
      out_buff_index_public = 0;
   } 
 
@@ -1184,12 +956,10 @@ void  wxTerminal::printText (wxCommandEvent& event){
     y_changed = input_index / x_max;
     setCursor(last_logo_x, last_logo_y);
     // Because scrolling trouble occurs 
-    GTerm::clear_mode_flag(BOLD);
     ClearSelection();
-    PassInputToGterm(input_index, (unsigned char *)inputBuffer);
+    PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
     cursor_moved = 0;
   }
-  GTerm::clear_mode_flag(BOLD);
 }
 
 
@@ -1268,7 +1038,7 @@ void wxTerminal::DoPaste(){
 					len = 2;
 				}
 				ClearSelection();
-				PassInputToGterm(len, (unsigned char *)chars);
+				PassInputToTerminal(len, (unsigned char *)chars);
 			}
 			
 		}  
@@ -1282,17 +1052,19 @@ void wxTerminal::LoseFocus (wxFocusEvent & event){
 
 
 int wxTerminal::currentPosition () {
-  // Gives the length of the character up to the cursor
+  // Gives the length of the characters up to the cursor
 
   int ret = 0;
   if (cursor_y - last_logo_y >= 2) {
-    ret = (cursor_y - last_logo_y - 1) * width + (width - last_logo_x) + cursor_x;
+    ret = (cursor_y - last_logo_y - 1) * m_width + (m_width - last_logo_x) + cursor_x;
   }
   else if (cursor_y - last_logo_y == 1) {
-    ret = (width - last_logo_x) + cursor_x;
+    ret = (m_width - last_logo_x) + cursor_x;
   }
   else 
     ret = cursor_x - last_logo_x;
+
+  //  fprintf(stderr, "currentposition: %d \n", ret);
   return ret;
 }
 
@@ -1335,15 +1107,45 @@ wxTerminal::OnChar(wxKeyEvent& event)
     PassInputToInterp();
   }
   else if (keyCode == WXK_RETURN) {
+    // for the new terminal:
+    
+    int currentPos =  currentPosition();
+
+#if 1
+    if(currentPos < input_index) {
+      int new_x = cursor_x + (input_index - currentPos);
+      int new_y = cursor_y;
+      
+      while(new_x > x_max) {
+	new_y++;
+	new_x -= x_max;
+      }
+      setCursor(new_x, new_y);
+    }
+
+#else
+    //old method:
+    while(currentPosition() < input_index) {
+      if(max(last_logo_x, cursor_x + 1) >= x_max) {
+	setCursor(0,  max(cursor_y,last_logo_y) + 1);
+      }
+      else {
+	setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
+      }
+    }
+#endif
+
+
     buf[0] = 10;
     buf[1] = 13;
     len = 2;
     
-    PassInputToGterm(len, buf);
+    PassInputToTerminal(len, buf);
 
     PassInputToInterp();
   }
   else if (keyCode == WXK_BACK) {
+    //    fprintf(stderr, "onchar backspace\n");
     if (input_index == 0)
       return;
     
@@ -1352,35 +1154,25 @@ wxTerminal::OnChar(wxKeyEvent& event)
     if (currentPos == 0)
       return;
     
-    if ( currentPos < input_index) { // we are in the middle of input
-      int i;
-      if (cursor_x == 0) { // need to go back to the prev line
-	setCursor(width, cursor_y - 1);
-      }
-      for (i = currentPos; i < input_index; i++) {
-	inputBuffer[i-1] = inputBuffer[i]; 
-      }
-      input_index--;
-      currentPos--;
-      inputBuffer[input_index] = ' ';
-      cur_x = cursor_x, cur_y = cursor_y;
-      setCursor(cur_x - 1, cur_y);
-      set_mode_flag(CURSORINVISIBLE);
-      PassInputToGterm(input_index - currentPos + 1, // 1 for the space 
-		       (unsigned char *)inputBuffer + currentPos);
-      clear_mode_flag(CURSORINVISIBLE);
-      setCursor(cur_x - 1, cur_y);
+    //    fprintf(stderr, "cpos %d, inputidx %d\n", currentPos, input_index);
+
+    int i;
+    if (cursor_x == 0) { // need to go back to the prev line
+      setCursor(m_width, cursor_y - 1);
     }
-    else {
-      input_index--;
-      buf[0] = keyCode;
-      len = 1;
-      
-      if (cursor_x == 0) { // need to go back to the prev line
-	setCursor(width, cursor_y - 1);
-      }
-      PassInputToGterm(len, buf);
+    for (i = currentPos; i < input_index; i++) {
+      inputBuffer[i-1] = inputBuffer[i]; 
     }
+    input_index--;
+    currentPos--;
+    inputBuffer[input_index] = ' ';
+    cur_x = cursor_x, cur_y = cursor_y;
+    setCursor(cur_x - 1, cur_y);
+    set_mode_flag(CURSORINVISIBLE);
+    PassInputToTerminal(input_index - currentPos + 1, // 1 for the space 
+			(unsigned char *)inputBuffer + currentPos);
+    clear_mode_flag(CURSORINVISIBLE);
+    setCursor(cur_x - 1, cur_y);
   }
   else if (keyCode == WXK_UP) { // up
     xval = last_logo_x;
@@ -1392,7 +1184,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	for (i = 0; i < input_index; i++) {
 	  inputBuffer[i] = ' ';
 	}
-	PassInputToGterm(input_index, (unsigned char *)inputBuffer);
+	PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
       }
       setCursor(xval, yval); 
       // Now get a history entry
@@ -1400,15 +1192,17 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	    hist_outptr = &cmdHistory[HIST_MAX-1];
 	}
 	if (*hist_outptr == 0) {
-	    wxBell();
+	  wxBell();
 	    hist_outptr++;
-	} else {
-	    PassInputToGterm(strlen((const char *)*hist_outptr), *hist_outptr);
-	    for (i = 0; (*hist_outptr)[i]; i++)
-		inputBuffer[i] = (*hist_outptr)[i];
-      input_index = i;
+	} 
+	else {
+	  PassInputToTerminal(strlen((const char *)*hist_outptr), *hist_outptr);
+	  for (i = 0; (*hist_outptr)[i]; i++)
+	    inputBuffer[i] = (*hist_outptr)[i];
+	  input_index = i;
+	}
     }
-  }}
+  }
   else if  (keyCode == WXK_DOWN) { // down
     xval = last_logo_x;
     yval = last_logo_y;
@@ -1419,7 +1213,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	for (i = 0; i < input_index; i++) {
 	  inputBuffer[i] = ' ';
 	}
-	PassInputToGterm(input_index, (unsigned char *)inputBuffer);
+	PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
       }
       setCursor(xval, yval); 
 	if (*hist_outptr != 0) {
@@ -1431,14 +1225,16 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	if (*hist_outptr == 0) {
 	    wxBell();
 	} else {
-	    PassInputToGterm(strlen((const char *)*hist_outptr),
+	    PassInputToTerminal(strlen((const char *)*hist_outptr),
 			     *hist_outptr);
 	    for (i = 0; (*hist_outptr)[i]; i++)
 		inputBuffer[i] = (*hist_outptr)[i];
       input_index = i;
     }
   }}
-  else if  (keyCode == WXK_LEFT) { // left
+  else if  (keyCode == WXK_LEFT) { // left    
+    // cursor_x, cursor_y. make sure it doesn't go past cursor_x
+    
     if (cursor_x - 1 < 0)
       setCursor(x_max, max(cursor_y,last_logo_y) - 1);
     int xval;
@@ -1456,6 +1252,9 @@ wxTerminal::OnChar(wxKeyEvent& event)
        setCursor(0,  max(cursor_y,last_logo_y) + 1);
     else 
       setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
+  }
+  else if (keyCode == WXK_TAB) { // tab
+    //do nothing for now. could be tab completion later.
   }
   else if (keyCode >= WXK_START) {
 	/* ignore it */
@@ -1482,90 +1281,162 @@ wxTerminal::OnChar(wxKeyEvent& event)
       // Use the global ones so it will be decremented if this scrolls
       cur_x = cursor_x; cur_y = cursor_y;
       set_mode_flag(CURSORINVISIBLE);
-      PassInputToGterm(input_index - currentPos,
+      PassInputToTerminal(input_index - currentPos,
 		       (unsigned char *)(inputBuffer + currentPos));
       clear_mode_flag(CURSORINVISIBLE);
-      if (cur_x == width)
+      if (cur_x == m_width)
 	setCursor(1, cur_y + 1);
       else
 	setCursor(cur_x+1, cur_y);
     }
     else {
-      PassInputToGterm(len, buf);
+      PassInputToTerminal(len, buf);
     }
     
   }
 
 }
 
-void wxTerminal::setCursor (int x, int y) {
+void wxTerminal::setCursor (int x, int y, BOOLEAN fromLogo) {
   wxClientDC dc (this);
 #ifdef MULTITHREAD
   in_mut.Lock();
 #endif
-  GTerm::move_cursor(x, y);
-  GTerm::Update();
+  if(fromLogo) {
+    if(x < 0 || x > m_width ||
+       y < 0 || y > m_height) {
+      return;
+    }
+    GetViewStart(&cursor_x,&cursor_y);
+    cursor_x = x;
+    cursor_y += y;
+    //    fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
+  }
+  else {
+    cursor_x = x;
+    cursor_y = y;
+  }
+
+  //    fprintf(stderr, "setcursor : set to %d %d\n", cursor_x, cursor_y);
+  int want_x, want_y;
+  want_x = cursor_x;
+  want_y = cursor_y;
+
+  if(cursor_y < 0) {
+    fprintf(stderr, "cursor_y < 0 in setcursor. BAD \n");
+  }
+  cursor_y = min(cursor_y,y_max);
+  curr_line_pos = GetLinePosition(cursor_y);
+  curr_char_pos = line_of(curr_line_pos);
+  if(cursor_y < want_y ||  
+     cursor_x > curr_char_pos.line_length) {
+    cursor_x = curr_char_pos.line_length;
+  }
+  curr_char_pos.offset = curr_char_pos.offset + cursor_x;
+  adjust_charpos(curr_char_pos);
+
+  if(fromLogo && 
+     (cursor_x != want_x ||
+      cursor_y != want_y)) {
+
+    //advance one character
+    inc_charpos(curr_char_pos);
+    cursor_x++;
+
+    if(cursor_x > x_max) {
+      cursor_x = 0;
+      cursor_y++;
+      inc_linepos(curr_line_pos);
+    }
+    //    fprintf(stderr, "padding with spaces... cxcy %d %d, wxwy %d %d\n", cursor_x, cursor_y, want_x, want_y);
+
+    unsigned char space = ' ';  
+    int oldmode = m_currMode & DEFERUPDATE;
+    set_mode_flag(DEFERUPDATE);
+    while(cursor_x != want_x || cursor_y != want_y) {
+      PassInputToTerminal(1,&space);
+    }
+    clear_mode_flag(DEFERUPDATE);
+    m_currMode |= oldmode;    
+  }
+  
+  //  fprintf(stderr, "CURSOR CHANGE: (%d, %d), charoffset: %d\n", x,y,curr_char_pos.offset);
+
+  if(!(m_currMode & DEFERUPDATE)) {
+    Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
+    
+    Refresh();
+  }
+
 #ifdef MULTITHREAD
   in_mut.Unlock();
 #endif
 }
 
-void wxTerminal::OnSize(wxSizeEvent& event) {
-	
-	//printf("wxTerminal.OnSize starts\n");
+void wxTerminal::OnSize(wxSizeEvent& event) {      
 	
   int x, y;
   GetSize(&x, &y);
   
-  //int tmpX, tmpY;
-  //logoFrame->GetSize(&tmpX, &tmpY);
-  //printf("frame height: %d, frame width: %d\n", tmpY, tmpX);
-  //printf("wat did getSize return? x: %d,, y: %d\n", x, y);
-  //printf("character width: %d, character height: %d\n", m_charWidth, m_charHeight);
-  //wxClientDC dc(this);
-  //dc.GetSize(&tmpX, &tmpY);
-	  //printf("dc size? x: %d, y: %d\n", tmpX, tmpY);
-	  
-  if (x_max == x / m_charWidth && y_max == y / m_charHeight)
+  if (m_width == x / m_charWidth && m_height == y / m_charHeight)
     return;
-  x_max = x / m_charWidth;
-  y_max = y / m_charHeight;
+  x = x / m_charWidth;
+  y = y / m_charHeight;
   
-  //printf("what is new x_max, y_max? x_max: %d, y_max:%d\n", x_max, y_max);
-  
-  if (x_max < 1) 
-    x_max = 1;
-  if (y_max < 1) 
-    y_max = 1;
-  ResizeTerminal(x_max, y_max);
+  if (x < 1) 
+    x = 1;
+  if (y < 1) 
+    y = 1;
+  ResizeTerminal(x,y);
+  Refresh();
 }
-
-#if 0
-void
-wxTerminal::OnKeyDown(wxKeyEvent& event)
-{
-  if(!(GetMode() & PC) && event.AltDown())
-    event.Skip();
-  else if(event.AltDown())
-  {
-  }
-  else
-    event.Skip();
-}
-#endif
 
 wxMemoryDC * currentMemDC = NULL;
 wxBitmap * currentBitmap = NULL;
 int oldWidth = -1;
 int oldHeight = -1;
 
-void
-wxTerminal::OnPaint(wxPaintEvent& event)
-{
-	wxPaintDC
-    dc(this);
-  ExposeArea(0, 0, x_max, y_max);
 
+void wxTerminal::OnDraw(wxDC& dc)
+{  
+  
+  //  DebugOutputBuffer();
+
+  wxRect rectUpdate = GetUpdateRegion().GetBox();
+  CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
+			 &rectUpdate.x, &rectUpdate.y);
+  int lineFrom = rectUpdate.y / m_charHeight;
+  int lineTo = rectUpdate.GetBottom() / m_charHeight;
+
+  if ( lineTo > y_max)
+    lineTo = y_max;
+
+  //  fprintf(stderr, "OnDraw: lines %d to %d\n", lineFrom, lineTo);
+  
+  //find the position!
+  wxterm_linepos tlpos;
+  tlpos.buf = term_lines;
+  wxterm_charpos tline;
+  tlpos.offset = lineFrom;
+  adjust_linepos(tlpos);
+
+  for ( int line = lineFrom; line <= lineTo; line++ )
+  {
+    tline = line_of(tlpos);
+    //    fprintf(stderr, "off %d length %d ", tlpos.offset, tline.line_length);
+    for ( int col = 0; col < tline.line_length; col++ ) {      
+      DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, 1, &char_of(tline));
+      inc_charpos(tline);
+    }
+
+    inc_linepos(tlpos);
+  }
+
+  //draw cursor if visible
+  if(lineFrom <= cursor_y  && cursor_y <= lineTo &&
+     !(m_currMode & CURSORINVISIBLE)) {
+    dc.Blit( cursor_x*m_charWidth, cursor_y*m_charHeight, m_charWidth, m_charHeight, &dc, cursor_x*m_charWidth, cursor_y*m_charHeight, wxINVERT);
+  }
 }
 
 void
@@ -1579,13 +1450,27 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   m_seloldy2 = tmpy;
   MarkSelection();
 
-	m_seloldx1 = m_selx1;	
-	m_seloldx2 = m_selx2;
-	m_seloldy1 = m_sely1;
-	m_seloldy2 = m_sely2;
+  m_seloldx1 = m_selx1;	
+  m_seloldx2 = m_selx2;
+  m_seloldy1 = m_sely1;
+  m_seloldy2 = m_sely2;
 
-  m_selx1 = m_selx2 = event.GetX() / m_charWidth;
-  m_sely1 = m_sely2 = event.GetY() / m_charHeight;
+  tmpx = event.GetX();
+  tmpy = event.GetY();
+  CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
+
+  tmpx = tmpx / m_charWidth;
+  if(tmpx > x_max)
+    //      tmpx = m_width - 1;
+    tmpx = x_max;
+  tmpy = tmpy / m_charHeight;
+  if(tmpy >= y_max)
+    //tmpy = m_height - 1;
+    tmpy = y_max;   
+ 
+  m_selx1 = m_selx2 = tmpx;
+  m_sely1 = m_sely2 = tmpy;
+  //  fprintf(stderr, "LeftDown: mouseunscrolledpos: %d, %d", tmpx, tmpy);
   m_selecting = TRUE;
 
   event.Skip();  //let native handler reset focus
@@ -1599,28 +1484,39 @@ wxTerminal::OnLeftUp(wxMouseEvent& event)
     {
       if (wxTheClipboard->Open() ) {
 	// This data objects are held by the clipboard, 
-      // so do not delete them in the app.
+	// so do not delete them in the app.
 	wxTheClipboard->SetData( new wxTextDataObject(GetSelection()) );
 	wxTheClipboard->Close();
       }
     }
   m_selecting = FALSE;
+
+  if (HasCapture()) {
+    // uncapture mouse
+    ReleaseMouse();
+  }
 }
 
 void
 wxTerminal::OnMouseMove(wxMouseEvent& event)
 {
-  
   if(m_selecting)
   { 
     int tmpx, tmpy;
-    tmpx = event.GetX() / m_charWidth;
-    if(tmpx >= Width())
-      tmpx = Width() - 1;
-    tmpy = event.GetY() / m_charHeight;
-    if(tmpy >= Height())
-      tmpy = Height() - 1;
-    
+    tmpx = event.GetX();
+    tmpy = event.GetY();
+    CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
+    tmpx = tmpx / m_charWidth;
+    if(tmpx > x_max)
+      //      tmpx = m_width - 1;
+      tmpx = x_max;
+    tmpy = tmpy / m_charHeight;
+    if(tmpy >= y_max)
+      //tmpy = m_height - 1;
+      tmpy = y_max;   
+ 
+    //    fprintf(stderr, "MouseMove: mouseunscrolledpos: %d, %d", tmpx, tmpy);
+
     if ((m_sely2 > m_sely1 || (m_sely2 == m_sely1 && m_selx2 > m_selx1)) &&
 	((tmpy < m_sely1) || (tmpy == m_sely1 && tmpx < m_selx1))) {
       int x = m_selx2, y = m_sely2;
@@ -1633,12 +1529,17 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
     m_seloldx1 = m_selx1;	
     m_seloldx2 = m_selx2;
     m_seloldy1 = m_sely1;
-	m_seloldy2 = m_sely2;
-	
-	m_selx2 = tmpx;
-	m_sely2 = tmpy;
+    m_seloldy2 = m_sely2;
     
-      MarkSelection();
+    m_selx2 = tmpx;
+    m_sely2 = tmpy;
+    
+    //    fprintf(stderr, "x1y1x2y2 (%d,%d) (%d,%d)\n", m_selx1, m_sely1, m_selx2, m_sely2);
+    MarkSelection();
+      
+    if(!HasCapture()) {
+      CaptureMouse();
+    }      
   }
 }
 
@@ -1652,6 +1553,13 @@ wxTerminal::ClearSelection()
   }
 }
 
+void 
+wxTerminal::InvertScrolledArea(wxDC &dc, int t_x, int t_y, int w, int h) {
+  CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
+  dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
+}
+
+
 void
 wxTerminal::MarkSelection() {
   static int prev = 0;
@@ -1660,68 +1568,74 @@ wxTerminal::MarkSelection() {
   
   int pixx2 = m_selx2 * m_charWidth, pixy2 = m_sely2 * m_charHeight,
     pixoldx2 = m_seloldx2 * m_charWidth, pixoldy2 = m_seloldy2 * m_charHeight;
+
   if ((m_sely2 > m_sely1 || (m_sely2 == m_sely1 && m_selx2 > m_selx1)) || 
      ((m_sely2 == m_sely1 && m_selx2 == m_selx1) && !prev)) {
     prev = 0;
     if(m_seloldy2 == m_sely2)
       {
-	if(m_selx2 > m_seloldx2)
-	  dc.Blit( pixoldx2, pixoldy2, pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
-	else
-	  dc.Blit( pixx2, pixy2,pixoldx2 - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+	if(m_selx2 > m_seloldx2) {
+	  //dc.Blit( pixoldx2, pixoldy2, pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	  InvertScrolledArea(dc, pixoldx2, pixoldy2, pixx2 - pixoldx2, m_charHeight);
+	}
+	else {
+	  //dc.Blit( pixx2, pixy2,pixoldx2 - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+	  InvertScrolledArea(dc, pixx2, pixy2,pixoldx2 - pixx2, m_charHeight);
+	}
       }
     else if(m_seloldy2 < m_sely2)
       {
-	dc.Blit( pixoldx2, pixoldy2, (Width() * m_charWidth) - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	//dc.Blit( pixoldx2, pixoldy2, (x_max * m_charWidth) - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	InvertScrolledArea(dc, pixoldx2, pixoldy2, (x_max * m_charWidth) - pixoldx2, m_charHeight);
 
-	dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,
-		       (Width() * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight),
-		       &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
-	dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
+	//dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight), &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
+	InvertScrolledArea(dc, 0, (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight));
+	//dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
+	InvertScrolledArea(dc, 0, pixy2, pixx2, m_charHeight);
 	
       }
     else
       {
-	dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
+	//dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
+	InvertScrolledArea(dc, 0, pixoldy2, pixoldx2, m_charHeight);
 
-	dc.Blit( 0,  (m_sely2 + 1) * m_charHeight,
-		       (Width() * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight),
-		       &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
+	//	dc.Blit( 0,  (m_sely2 + 1) * m_charHeight, (x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight), &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
+	InvertScrolledArea(dc, 0,  (m_sely2 + 1) * m_charHeight, (x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight));
 
-	dc.Blit( pixx2 /*+ m_charWidth*/, pixy2, 
-		       (Width() * m_charWidth)-(pixx2  /*+ m_charWidth*/),
-		       m_charHeight, &dc, pixx2 /*+ m_charWidth*/, pixy2, wxINVERT);
+	//dc.Blit( pixx2 /*+ m_charWidth*/, pixy2, (x_max * m_charWidth)-(pixx2  /*+ m_charWidth*/), m_charHeight, &dc, pixx2 /*+ m_charWidth*/, pixy2, wxINVERT);
+	InvertScrolledArea(dc, pixx2 /*+ m_charWidth*/, pixy2, (x_max * m_charWidth)-(pixx2  /*+ m_charWidth*/), m_charHeight);
       }
   } else {
     prev = 1;
     if(m_seloldy2 == m_sely2)
       {
 	if(m_selx2 <= m_seloldx2)
-	  dc.Blit( pixx2, pixy2, pixoldx2 - pixx2 , m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+	  //dc.Blit( pixx2, pixy2, pixoldx2 - pixx2 , m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+	  InvertScrolledArea(dc,  pixx2, pixy2, pixoldx2 - pixx2 , m_charHeight);
 	else
-	  dc.Blit( pixoldx2, pixoldy2,pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	  //dc.Blit( pixoldx2, pixoldy2,pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	  InvertScrolledArea(dc,  pixoldx2, pixoldy2,pixx2 - pixoldx2, m_charHeight);
       }
     else if(m_seloldy2 > m_sely2)
-      {
-	dc.Blit( pixx2, pixy2, (Width() * m_charWidth) - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+      {       
+	//	dc.Blit( pixx2, pixy2, (x_max * m_charWidth) - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
+	InvertScrolledArea(dc,  pixx2, pixy2, (x_max * m_charWidth) - pixx2, m_charHeight);
 
-	dc.Blit( 0,  (m_sely2 + 1) * m_charHeight,
-		       (Width() * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight),
-		       &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
-
-	dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
+	// dc.Blit( 0,  (m_sely2 + 1) * m_charHeight,(x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight), &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
+	InvertScrolledArea(dc, 0,  (m_sely2 + 1) * m_charHeight,(x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight));
+	//dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
+	InvertScrolledArea(dc, 0, pixoldy2, pixoldx2, m_charHeight);
       }
     else
       {
-	dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
+	//dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
+	InvertScrolledArea(dc,  0, pixy2, pixx2, m_charHeight);
 
-	dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,
-		       (Width() * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight),
-		       &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
+	//dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight), &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
+	InvertScrolledArea(dc, 0, (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight));
 	
-	dc.Blit( pixoldx2, pixoldy2, 
-		       (Width() * m_charWidth)-(pixoldx2  ) ,
-		       m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	//dc.Blit( pixoldx2, pixoldy2, (x_max * m_charWidth)-(pixoldx2  ) , m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
+	InvertScrolledArea(dc,  pixoldx2, pixoldy2, (x_max * m_charWidth)-(pixoldx2  ) , m_charHeight);
 	
     }
     
@@ -1739,62 +1653,62 @@ wxTerminal::HasSelection()
   return(m_selx1 != m_selx2 || m_sely1 != m_sely2);
 }
 
+
+/*
+ * Gets characters from x1,y1 up to , but not including x2,y2
+ */
+wxString
+wxTerminal::GetChars(int x1, int y1, int x2, int y2) 
+{
+  //  fprintf(stderr, "getchars: x1y1 x2y2 %d,%d -> %d,%d\n", x1,y1,x2,y2);
+  int tx,ty;
+  if(y1 > y2 || 
+     (y1 == y2 && x1 > x2)) {
+    tx = x1;
+    ty = y1;
+    x1 = x2;
+    y1 = y2;
+    x2 = tx;
+    y2 = ty;
+  }
+
+  wxString ret;
+
+  //invalid means offset < -1.
+  if(0 < y1 && y1 > y_max) {
+    return ret;
+  }
+  wxterm_charpos a = GetCharPosition(0,y1);
+
+  a.offset = a.offset + min(x1, a.line_length - 1); 
+  adjust_charpos(a);
+
+  wxterm_charpos b = GetCharPosition(0,min(y2, y_max));
+  
+  b.offset = b.offset + min(x2, b.line_length); 
+  adjust_charpos(b);
+
+  while(a.buf != b.buf) {
+    //  size 10, offset 5,  copy 10-5=5 chars... yup
+    ret.Append((wxChar*)a.buf->cbuf+a.offset, WXTERM_CB_SIZE-a.offset);
+    if(a.buf->next) {
+      a.offset = 0;
+      a.buf = a.buf->next;
+    }
+    else {
+      //bad
+      fprintf(stderr, "BAD (getchars)\n");
+    }
+  }
+  //  fprintf(stderr, "off1 off2 %d %d\n", a.offset, b.offset);
+  ret.Append((wxChar*)a.buf->cbuf+a.offset, b.offset - a.offset);
+  return ret;
+}
+
 wxString
 wxTerminal::GetSelection()
 {
-  int
-    x1,
-    y1,
-    x2,
-    y2;
-
-  wxString
-    sel;
-
-  if(m_sely1 <= m_sely2)
-  {
-    x1 = m_selx1;
-    y1 = m_sely1;
-    x2 = m_selx2;
-    y2 = m_sely2;
-  }
-  else
-  {
-    x1 = m_selx2;
-    y1 = m_sely2;
-    x2 = m_selx1;
-    y2 = m_sely1;
-  }
-
-  int numSpace=0;
-  while(x1 != x2 || y1 != y2)
-  {
-	  if(GetChar(x1, y1)){
-		  if(GetChar(x1,y1)==32)   // watch for trailing spaces
-			  numSpace++;
-		  else{
-			  int i;
-			  for(i=0;i<numSpace;i++)
-				  sel.Append(32);
-			  numSpace=0;
-			  sel.Append(GetChar(x1, y1));
-		  }
-
-	  }
-
-    x1++;
-    if(x1 == Width())
-    {
-      sel.Append('\n');
-	  numSpace=0;
-      x1 = 0;
-      y1++;
-    }
-  }
-  if(GetChar(x1, y1))
-    sel.Append(GetChar(x1, y1));
-
-  return sel;
+  return GetChars(m_selx1,m_sely1,m_selx2,m_sely2);
 }
 
 void
@@ -1802,24 +1716,43 @@ wxTerminal::SelectAll()
 {
   m_selx1 = 0;
   m_sely1 = 0;
-  m_selx2 = Width() - 1;
-  m_sely2 = Height() - 1;
+  m_selx2 = x_max;
+  m_sely2 = y_max;
   MarkSelection();
 }
 
-/*
-**  GTerm hooks
-*/
+wxterm_linepos wxTerminal::GetLinePosition(int y) 
+{
+  wxterm_linepos lpos;
+  lpos.buf = term_lines;
+  lpos.offset = y;
+  adjust_linepos(lpos);
+  return lpos;
+}
+
+wxterm_charpos wxTerminal::GetCharPosition(int x, int y)
+{ 
+  //  fprintf(stderr, "getcharpos: x,y: %d,%d", x, y);
+  
+  wxterm_charpos ret = line_of(GetLinePosition(y));
+
+  if(x > ret.line_length) {    
+    fprintf(stderr, "invalid longer than linelength: %d\n", ret.line_length);
+  }
+
+  
+  ret.offset = ret.offset + x;
+  adjust_charpos(ret);
+  return ret;  
+}
+
 void
-wxTerminal::DrawText(int fg_color, int bg_color, int flags,
+wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
                  int x, int y, int len, unsigned char *string)
 {
-	int
-    t;
-    wxClientDC dc(this);
-
-  if(flags & BOLD && m_boldStyle == COLOR)
-    fg_color = (fg_color % 8) + 8;
+  //      fprintf(stderr, "indrawtext x: %d, y: %d, , fgc: %d, bgc: %d, flags: %d, c: %c\n", x,y,fg_color, bg_color, flags,string[0]);
+      //      fprintf(stderr, "cw: %d, ch: %d\n", m_charWidth, m_charHeight);
+  //  int t;
 
   if(flags & SELECTED)
   {
@@ -1827,25 +1760,9 @@ wxTerminal::DrawText(int fg_color, int bg_color, int flags,
     bg_color = 15;
   }
 
-  if(flags & INVERSE)
-  {
-    t = fg_color;
-    fg_color = bg_color;
-    bg_color = t;
-  }
-
   wxString
     str(string, len);
 
-  if(m_boldStyle != FONT)
-  {
-    if(flags & UNDERLINE)
-      dc.SetFont(m_underlinedFont);
-    else
-      dc.SetFont(m_normalFont);
-  }
-  else
-  {
     if(flags & BOLD)
     {
       if(flags & UNDERLINE)
@@ -1860,7 +1777,6 @@ wxTerminal::DrawText(int fg_color, int bg_color, int flags,
       else
         dc.SetFont(m_normalFont);
     }
-  }
 
   int coord_x, coord_y;
   dc.SetBackgroundMode(wxSOLID);
@@ -1871,160 +1787,12 @@ wxTerminal::DrawText(int fg_color, int bg_color, int flags,
 	  
   for(unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth){
 	  dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
-	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
-	  dc.DrawText(str, x + 1, y);
+	  //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
+	  //	  dc.DrawText(str, x + 1, y);
+	  if(flags & INVERSE) {
+	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
+	  }
   }
-}
-
-void
-wxTerminal::DoDrawCursor(int fg_color, int bg_color, int flags,
-                   int x, int y, unsigned char c)
-{
-  int
-    t;
-    wxClientDC dc(this);
-
-  if(flags & BOLD && m_boldStyle == COLOR)
-    fg_color = (fg_color % 8) + 8;
-
-  if(flags & INVERSE)
-  {
-    t = fg_color;
-    fg_color = bg_color;
-    bg_color = t;
-  }
-
-#ifndef __WXMSW__
-  /*  c = xCharMap[c];*/
-#endif
-
-  wxString
-    str((char)c);
-
-  if(m_boldStyle != FONT)
-  {
-    if(flags & UNDERLINE)
-      dc.SetFont(m_underlinedFont);
-    else
-      dc.SetFont(m_normalFont);
-  }
-  else
-  {
-    if(flags & BOLD)
-    {
-      if(flags & UNDERLINE)
-        dc.SetFont(m_boldUnderlinedFont);
-      else
-        dc.SetFont(m_boldFont);
-    }
-    else
-    {
-      if(flags & UNDERLINE) 
-	dc.SetFont(m_underlinedFont);
-      else
-        dc.SetFont(m_normalFont);
-    }
-  }
-  int old_y = y;
-  x = x * m_charWidth;
-  y = y * m_charHeight;
-  dc.SetBackgroundMode(wxSOLID);
-  dc.SetTextBackground(m_colors[fg_color]);
-  dc.SetTextForeground(m_colors[bg_color]);
-  dc.DrawText(str, x, y);
-  if (old_y == height - 1){
-    dc.SetBackgroundMode(wxSOLID);
-    dc.SetTextBackground(m_colors[bg_color]);
-    dc.SetTextForeground(m_colors[fg_color]);
-    dc.DrawText(' ', x, y + m_charHeight - 1);
-  }
-  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
-    dc.DrawText(str, x + 1, y);
-}
-
-void
-wxTerminal::DrawCursor(int fg_color, int bg_color, int flags,
-                   int x, int y, unsigned char c)
-{
-  m_curX = x;
-  m_curY = y;
-  m_curFG = fg_color;
-  m_curBG = bg_color,
-  m_curFlags = flags;
-  m_curChar = c;
-
-  if(m_timer.IsRunning())
-    m_timer.Stop();
-  DoDrawCursor(fg_color, bg_color, flags, x, y, c);
-  if(m_curBlinkRate)
-  {
-    m_timer.Start(m_curBlinkRate);
-    m_curState = 1;
-  }
-}
-
-void
-wxTerminal::OnTimer(wxTimerEvent& WXUNUSED(event))
-{
- 
-  wxClientDC dc(this);
-
-  if(m_init)
-    return;
-    
-  if(m_curX == -1 || m_curY == -1)
-    return;
-    
-  if(GetMode() & CURSORINVISIBLE)
-    return;
-
-  if(m_curBlinkRate)
-  {
-    m_curState++;
-    if(m_curState & 1 && m_curX != -1 && m_curY != -1)
-      DoDrawCursor(m_curFG, m_curBG, m_curFlags, m_curX, m_curY, m_curChar);
-    else
-      DoDrawCursor(m_curBG, m_curFG, m_curFlags, m_curX, m_curY, m_curChar);
-  }
-}
-
-void
-wxTerminal::MoveChars(int sx, int sy, int dx, int dy, int w, int h)
-{
-    wxClientDC dc(this);
-
-  if(!m_marking)
-    ClearSelection();
-
-  sx = sx * m_charWidth;
-  sy = sy * m_charHeight;
-  dx = dx * m_charWidth;
-  dy = dy * m_charHeight;
-  w = w * m_charWidth;
-  h = h * m_charHeight;
-
-  dc.Blit(dx, dy, w, h, &dc, sx, sy);
-
-}
-
-void
-wxTerminal::ClearChars(int bg_color, int x, int y, int w, int h)
-{
-    wxClientDC dc(this);
-  x = x * m_charWidth;
-  y = y * m_charHeight;
-  w = w * (m_charWidth + 1);	// to get rid of the extra bit of cursor
-  h = h * m_charHeight;
-
-  dc.SetPen(m_colorPens[bg_color]);
-  dc.SetBrush(wxBrush(m_colors[bg_color], wxSOLID));
-  dc.DrawRectangle(x, y, w /* + 1*/, h /* + 1*/);
-}
-
-void
-wxTerminal::ModeChange(int state)
-{
-  GTerm::ModeChange(state);
 }
 
 void
@@ -2033,79 +1801,351 @@ wxTerminal::Bell()
   wxBell();
 }
 
-void wxTerminal::RefreshTerminal(){
-	ResizeTerminal(m_width, m_height);
-	Refresh();
+void 
+wxTerminal::RenumberLines(int new_width) 
+{
+  //m_width is the OLD WIDTH at this point of the code.
+  
+  curr_line_pos.buf = term_lines;
+  curr_line_pos.offset = 0;
+
+  wxterm_charpos cpos = (wxterm_charpos) { term_chars, 0, 0};
+  wxterm_charpos last_logo_pos = GetCharPosition(last_logo_x,last_logo_y);
+
+  int line_number = 0;
+  
+  //run until see '\0'
+  int next_line = 0; // flag to say "mark next line".
+  
+  //  fprintf(stderr, "renumber: buf: %d, off: %d \n", curr_char_pos.buf, curr_char_pos.offset);
+  while(char_of(cpos) != '\0') {
+    //fprintf(stderr, "renumber: current buf: %d, current off: %d \n", cpos.buf, cpos.offset);
+    if(cpos.buf == curr_char_pos.buf && cpos.offset == curr_char_pos.offset) {
+      //fprintf(stderr, "changed cursor position");
+      cursor_x = cpos.line_length;
+      cursor_y = line_number;
+    }
+    if(last_logo_pos.buf == curr_char_pos.buf && last_logo_pos.offset == curr_char_pos.offset) {
+      //fprintf(stderr, "changed cursor position");
+      last_logo_x = last_logo_pos.line_length;
+      last_logo_y = line_number;
+    }
+    if(char_of(cpos) == '\n') {
+      next_line = 1;
+    }
+    else {
+      cpos.line_length++;
+      if(cpos.line_length == new_width) {
+	next_line = 1;
+      }
+    }
+
+    inc_charpos(cpos);
+
+    if(next_line) {
+      //      fprintf(stderr, "resizing... nextline\n");
+      line_of(curr_line_pos).line_length = cpos.line_length;
+      inc_linepos(curr_line_pos)
+
+      line_of(curr_line_pos).buf = cpos.buf;
+      line_of(curr_line_pos).offset = cpos.offset;
+      
+      cpos.line_length = 0;
+      next_line = 0;
+      line_number++;
+    }
+
+
+
+  }
+  if(cpos.buf == curr_char_pos.buf && cpos.offset == curr_char_pos.offset) {
+    //    fprintf(stderr, "changed cursor position");
+    cursor_x = cpos.line_length;
+    cursor_y = line_number;
+  }
+
+  line_of(curr_line_pos).line_length = cpos.line_length;
+  y_max = line_number;
 }
 
 void
 wxTerminal::ResizeTerminal(int width, int height)
 {
-  int
-    w,
-    h;
-
-  /*
-  **  Determine window size from current font
-  */
-  wxClientDC
-    dc(this);
-
-  if(m_boldStyle != FONT)
-    dc.SetFont(m_normalFont);
-  else
-    dc.SetFont(m_boldFont);
-	
-  dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
-  m_charWidth--;
-  w = width * m_charWidth;
-  h = height * m_charHeight;
-
-  /*
-  **  Create our bitmap for copying
-  */
-  if(m_bitmap)
-  {
-    m_memDC.SelectObject(wxNullBitmap);
-      delete m_bitmap;
-  }
 
   /*
   **  Set terminal size
   */
-  GTerm::ResizeTerminal(width, height);
-  m_width = width;
+  if(width != m_width) {
+    //need to renumber the lines
+    RenumberLines(width);
+    m_width = width;
+    x_max = m_width;
+  }
   m_height = height;
 
-  /*
-  **  Send event
-  */
-  if(!m_init)
-  {
-    wxCommandEvent e(wxEVT_COMMAND_TERM_RESIZE, GetId());
-    e.SetEventObject(this);
-    GetParent()->GetEventHandler()->ProcessEvent(e);
+
+  //reset virtual size
+  SetScrollRate(0, m_charHeight);
+  SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
+
+}
+
+
+void wxTerminal::DebugOutputBuffer() {
+  //debugging
+  wxterm_linepos lpos;
+  lpos.buf = term_lines;
+  lpos.offset = 0;
+  wxterm_charpos pos_1 = line_of(lpos);
+  
+    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
+    fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
+  while(char_of(pos_1) != '\0') {
+    fprintf(stderr,"%c", char_of(pos_1));
+    inc_charpos(pos_1);
   }
+    fprintf(stderr, "\n#############\n");
+    fprintf(stderr, "WXTERMINAL LINE BUFFER\n##############\n");
+  for(int i = 0; i <= y_max; i++) {
+    fprintf(stderr, "LINE %d: buf: %d, offset: %d, len: %d\n", i,(int)line_of(lpos).buf, line_of(lpos).offset, line_of(lpos).line_length);
+    inc_linepos(lpos);
+  }
+    fprintf(stderr, "\n#############\n\n");
+}
+
+void wxTerminal::InsertChar(char c)
+{
+  //  fprintf(stderr, "inserting char: '%c' at offset %d\n", c, curr_char_pos.offset);
+  //  fprintf(stderr, "test: %d\n", x_max);
+  
+  //insert a character at current location
+
+  //if there is a newline at the current location and we're not inserting one
+  if(char_of(curr_char_pos) == '\n' &&
+     c != '\n') {
+    // check case if we're about to insert the last character of the line
+    if(line_of(curr_line_pos).line_length < m_width - 1) {       
+      //      fprintf(stderr, "here1\n");
+
+      //have to add characters to current line, 
+
+      //bump characters up.      
+      wxterm_linepos lpos = curr_line_pos;
+      wxterm_charpos pos_1 = curr_char_pos;
+      wxterm_charpos pos_2 = pos_1;
+
+      inc_charpos(pos_2);
+
+
+      //  Method of relocating characters:
+      //   need two variables, S = save, G = grab
+      // 
+      //   save 1, 
+      //   S1  G      
+      //  12345678
+      //
+      //   grab 2, place 1, save 2
+      //  
+      //  S2 G2
+      //  _1345678
+      //
+      //  grab 3, place 2, save 3...
+      //
+      //  S3 G3
+      //  _1245678
+      // 
+      //  etc...
+      // ends when next position to grab is '\0'
+      // (allocate buffer when necesary)
+      // grab 8, place 7, save 8
+      // place 8 in that last position
+
+      unsigned char save_char, save_mode; 
+      unsigned char grab_char, grab_mode;       
+      save_char = char_of(pos_1);
+      save_mode = mode_of(pos_1);
+
+      while(char_of(pos_2) != '\0') {
+
+	grab_char = char_of(pos_2);
+	grab_mode = mode_of(pos_2);
+	char_of(pos_2) = save_char;
+	mode_of(pos_2) = save_mode;
+	save_char = grab_char;
+	save_mode = grab_mode;
+
+	inc_charpos(pos_1);
+	inc_charpos(pos_2);	
+      }
+      //insert "save" into pos2
+      char_of(pos_2) = save_char;
+      mode_of(pos_2) = save_mode;
+      
+      //now bump all the lines up.
+      //look at the current line number (cursor_y)
+      // go until  y_max, and adjust position of all lines +1
+      inc_linepos(lpos);
+      for(int lnum = cursor_y+1; lnum <= y_max; lnum++) {
+	inc_charpos(line_of(lpos));
+	inc_linepos(lpos);      
+      }
+    }
+  }
+  char_of(curr_char_pos) = c;
+  mode_of(curr_char_pos) = m_currMode;
+  inc_charpos(curr_char_pos);
+}
+
+void wxTerminal::NextLine() {
+  //  fprintf(stderr, "nextline!\n");
+  //points next line position to current char position, and increments line offset.
+
+  inc_linepos(curr_line_pos);
+
+  line_of(curr_line_pos).buf = curr_char_pos.buf;
+  line_of(curr_line_pos).offset = curr_char_pos.offset;
+  //line_of(curr_line_pos).line_length = 0;
+
+
+  cursor_y++;
+  if(cursor_y > y_max) {
+    y_max = cursor_y;
+    int x,y;
+    GetVirtualSize(&x,&y);
+    //    fprintf(stderr, "old virtual size: %d, %d", x,y);
+    //    fprintf(stderr, "proposed virtual size: %d, %d", x_max*m_charWidth, (y_max+1)*m_charHeight); 
+    
+    SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1)*m_charHeight));
+    //    fprintf(stderr, "increasing virtual area\n");
+  }
+  cursor_x = 0;
 }
 
 void
-wxTerminal::RequestSizeChange(int w, int h)
+wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 {
-  ResizeTerminal(w, h);
+  //  fprintf(stderr, "pitt: input received: %s\n", data);
+
+  //fprintf(stderr, "PItT before:\n");
+  //DebugOutputBuffer();     
+
+  int i;
+  int numspaces, j;
+   wxterm_linepos lpos;
+   wxterm_charpos pos_1, pos_2;
+   int new_line_length;
+   for(i = 0; i < len; i++) {
+     switch(data[i]) {
+     case TOGGLE_STANDOUT:  // char 17
+       //enter/exit standout mode , ignore character
+       m_currMode ^= INVERSE;
+       break;
+     case '\t':
+       // formula is: (8 - (cursorpos%8)) spaces
+       numspaces = (8 - (cursor_x % 8));
+       if(numspaces == 0) {
+	 numspaces = 8;
+       }
+       for(j = 0; j < numspaces; j++) {
+	 InsertChar(' ');
+	 cursor_x++;
+	 if(cursor_x > line_of(curr_line_pos).line_length) {
+	   line_of(curr_line_pos).line_length = cursor_x;
+	 }
+	 if(cursor_x == x_max) {
+	   NextLine();
+	 }
+       }
+       break;
+     case '\r':
+     case '\n':
+       new_line_length = cursor_x;
+       InsertChar('\n');
+
+       if(i + 1 < len && 
+	  ((data[i] == '\r' && data[i+1] == '\n') ||  //LF+CR
+	   (data[i] == '\n' && data[i+1] == '\r')))  { //CR+LF
+	 i++;
+       }
+       if(new_line_length < line_of(curr_line_pos).line_length &&
+	  cursor_y < y_max) {
+	 //shift all the characters down.
+	 //current position is after the newline.
+	 
+	 lpos = curr_line_pos;
+	 inc_linepos(lpos);
+	 pos_1 = curr_char_pos;
+	 pos_2 = line_of(lpos);
+	 while(char_of(pos_1) != '\0') {
+	   if(char_of(pos_2) != '\0' &&
+	      pos_2.buf == line_of(lpos).buf &&
+	      pos_2.offset == line_of(lpos).offset) {
+	     line_of(lpos).buf = pos_1.buf;
+	     line_of(lpos).offset = pos_1.offset;
+	     inc_linepos(lpos);
+	   }
+	   char_of(pos_1) = char_of(pos_2);
+	   mode_of(pos_1) = mode_of(pos_2);
+	   inc_charpos(pos_1);
+	   inc_charpos(pos_2);
+	 }
+       }
+       //check if line_length is  -1  TODO
+       //       fprintf(stderr, "new length: %d\n", new_line_length);
+       line_of(curr_line_pos).line_length = new_line_length;
+
+       NextLine();
+       
+       break;
+     default:
+       InsertChar(data[i]);
+       cursor_x++;
+       if(cursor_x > line_of(curr_line_pos).line_length) {
+	 line_of(curr_line_pos).line_length = cursor_x;
+       }
+       if(cursor_x == x_max) {
+	 NextLine();
+       }
+       break;
+     }
+   }
+   //   last_user_x = cursor_x;
+   //   last_user_y = cursor_y;
+
+   if(!(m_currMode & DEFERUPDATE)) {
+     Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
+     //Scroll(-1,y_max-min(m_height, y_max)+1);
+     //fprintf(stderr, "PItT after:\n");
+     //DebugOutputBuffer();     
+     Refresh();
+   }
+   //   fprintf(stderr, "end pitt\n");
 }
 
-
-void
-wxTerminal::PassInputToGterm(int len, unsigned char *data)
+wxString * wxTerminal::get_text() 
 {
-   wxClientDC
-    dc(this);
-
-  GTerm::PassInputToGterm(len, data);
-  last_user_x = cursor_x;
-  last_user_y = cursor_y;
-
+  //  int i;
+  wxString *outputString = new wxString();
+  outputString->Clear();
+  outputString->Append("<HTML>\n");
+  outputString->Append("<BODY>\n");
+  outputString->Append("<FONT SIZE=2>\n");
+  wxString txt = GetChars(0,0,x_max,y_max);
+  txt.Replace("\n","<BR>\n");
+  outputString->Append(txt);
+  /*
+  wxterm_linepos tlpos = term_lines;
+  for(i=0;i<ymax;i++){
+    outputString->append(textString->Mid(linenumbers[i]*MAXWIDTH),MAXWIDTH);
+    outputString->append("<BR>");		
+    }*/
+  outputString->Append("<\\FONT>");
+  outputString->Append("<\\BODY>");
+  outputString->Append("<\\HTML>");
+  //  delete textString;
+  return outputString;
 }
+
 
 void
 wxTerminal::SelectPrinter(char *PrinterName)
@@ -2173,6 +2213,8 @@ wxTerminal::PrintChars(int len, unsigned char *data)
   }
 }
 
+
+
 // ----------------------------------------------------------------------------
 // Functions called from the interpreter thread
 // ----------------------------------------------------------------------------
@@ -2185,7 +2227,10 @@ extern "C" void wxClearText() {
 #ifdef MULTITHREAD
   out_mut.Lock();
 #endif
-  wxTerminal::terminal->Reset();
+  //  wxTerminal::terminal->Reset();
+  //idea here.. increase the size of the terminal, and set the thumb position to the bottom
+  //TODO
+  wxTerminal::terminal->ClearScreen();
   out_buff_index_public = 0;
   out_buff_index_private = 0;
 #ifdef MULTITHREAD
@@ -2193,33 +2238,44 @@ extern "C" void wxClearText() {
 #endif
 }
 
+void wxTerminal::ClearScreen() {
+  int x,y;
+  GetVirtualSize(&x,&y);
+  SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+m_height)*m_charHeight));
+  Scroll(-1,y_max);
+  Refresh();
+}
+
 extern "C" void flushFile(FILE * stream, int);
 
 extern "C" void wxSetCursor(int x, int y){
+#ifndef MULTITHREAD
+  //just call wxTerminal::setCursor with a special flag.
+  flushFile(stdout, 0);
+  wxTerminal::terminal->setCursor(x,y,TRUE);
+
+#else
 	int * data = (int *)malloc(2 * sizeof(int));
 	data[0] = x;
 	data[1] = y;
 	wxCommandEvent event(wxEVT_MY_CUSTOM_COMMAND);
 	event.SetClientData((void *)data);
 	flushFile(stdout, 0);
-#ifdef MULTITHREAD
+
 	out_mut.Lock();
-#endif
+
 	movedCursor = 0;
-#ifdef MULTITHREAD
+
 	out_mut.Unlock();
 	wxPostEvent(wxTerminal::terminal,event);
-#else
-	wxTerminal::terminal->ProcessEvent(event);
-#endif
-#ifdef MULTITHREAD
+
 	out_mut.Lock();
 	if (!movedCursor) {
-	  buff_full_cond.Wait();	  	
+	  buff_full_cond.Wait();
 	}
-#endif
+
 	movedCursor = 0;
-#ifdef MULTITHREAD
+
 	out_mut.Unlock();
 #endif
 }
@@ -2282,10 +2338,12 @@ extern "C" int getTermInfo(int type){
 		return wxTerminal::terminal->y_coord;
 		break;
 	case X_MAX:
-		return wxTerminal::terminal->x_max;
+	  //return wxTerminal::terminal->x_max;
+	  return wxTerminal::terminal->m_width;
 		break;
 	case Y_MAX:
-		return wxTerminal::terminal->y_max;
+	  //return wxTerminal::terminal->y_max;
+	  return wxTerminal::terminal->m_height;
 		break;
 	case EDIT_STATE:
 		return editWindow->stateFlag;
@@ -2306,10 +2364,12 @@ extern "C" void setTermInfo(int type, int val){
 			wxTerminal::terminal->y_coord=val;
 			break;
 		case X_MAX:
-			wxTerminal::terminal->x_max=val;
+		  return;
+		  //wxTerminal::terminal->x_max=val;
 			break;
 		case Y_MAX:
-			wxTerminal::terminal->y_max=val;
+		  return;
+		  //wxTerminal::terminal->y_max=val;
 			break;
 		case EDIT_STATE:
 			editWindow->stateFlag=val;
