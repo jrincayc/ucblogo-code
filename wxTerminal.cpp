@@ -77,7 +77,6 @@ LogoEventManager *logoEventManager;
 int cur_x = 0, cur_y = 0;
 int first = 1;
 int last_logo_x = 0, last_logo_y = 0;
-int last_user_x = 0, last_user_y = 0;
 bool cursor_moved = 0;
 // the menu
 wxMenuBar* menuBar;
@@ -99,7 +98,9 @@ extern void wxLogoWakeup();
 #endif
 int logo_stop_flag = 0;
 int logo_pause_flag = 0;
+#ifdef MULTITHREAD
 int movedCursor = 0;
+#endif
 
 // this is a static reference to the main terminal
 wxTerminal *wxTerminal::terminal;
@@ -910,8 +911,8 @@ void  wxTerminal::printText (wxCommandEvent& event){
     int * temp = (int *)event.GetClientData();
     this->setCursor(temp[0], temp[1]);
     free (temp);
-    movedCursor = 1;
 #ifdef MULTITHREAD
+    movedCursor = 1;
     buff_full_cond.Broadcast();
     out_mut.Unlock();
 #endif
@@ -1310,16 +1311,17 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
       return;
     }
     GetViewStart(&cursor_x,&cursor_y);
+    /*
     if(!m_vscroll_enabled) {
       cursor_x = x;
       cursor_y = m_vscroll_pos;
-    }
+      }*/
 
     cursor_x = x;
     cursor_y += y;
 
     
-        fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
+    //        fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
   }
   else {
     cursor_x = x;
@@ -1414,7 +1416,7 @@ int oldHeight = -1;
 void wxTerminal::OnDraw(wxDC& dc)
 {  
   
-  //DebugOutputBuffer();
+  DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1422,11 +1424,11 @@ void wxTerminal::OnDraw(wxDC& dc)
   int lineFrom = rectUpdate.y / m_charHeight;
   int lineTo = rectUpdate.GetBottom() / m_charHeight;
 
-  if(!m_vscroll_enabled) {
+  /*  if(!m_vscroll_enabled) {
     lineFrom += m_vscroll_pos;
     lineTo += m_vscroll_pos;
     fprintf(stderr, "OnDraw: lines %d to %d\n", lineFrom, lineTo);
-  }
+    }*/
 
   if ( lineTo > y_max)
     lineTo = y_max;
@@ -1455,16 +1457,59 @@ void wxTerminal::OnDraw(wxDC& dc)
      !(m_currMode & CURSORINVISIBLE)) {
     int c_x = cursor_x;
     int c_y = cursor_y;
-    if(!m_vscroll_enabled) {
+    /*    if(!m_vscroll_enabled) {
       c_y = c_y - m_vscroll_pos;
-    }
+      }*/
     dc.Blit( c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight, &dc, c_x*m_charWidth, c_y*m_charHeight, wxINVERT);
   }
+
+  //also mark selection
+  //  if(m_selecting) {
+    MarkSelection(dc);
+  //}
+}
+
+// gets the click coordinate (unscrolled) in terms of characters
+void wxTerminal::GetClickCoords(wxMouseEvent& event, int *click_x, int *click_y) {
+  // pixel coordinates
+  *click_x = event.GetX();
+  *click_y = event.GetY();
+  CalcUnscrolledPosition(*click_x, *click_y, click_x, click_y);
+  /*  if(!m_vscroll_enabled) {
+    *click_y += m_vscroll_pos * m_charHeight;
+    }*/
+  // convert to character coordinates
+  *click_x = *click_x / m_charWidth;
+  *click_y = *click_y / m_charHeight;
+  if(*click_x < 0) {
+    *click_x = 0;
+  }
+  else if(*click_x > x_max) {
+    *click_x = x_max;
+  }
+
+  if(*click_y < 0) { 
+    *click_y = 0; 
+  }
+  else if(*click_y > y_max) {
+    *click_y = y_max;
+  }
+  //fprintf(stderr, "click coords: %d, %d", *click_x, *click_y);
 }
 
 void
 wxTerminal::OnLeftDown(wxMouseEvent& event)
 {
+#if 1
+  m_selecting = TRUE;
+  int click_x, click_y;
+  GetClickCoords(event, &click_x, &click_y);
+
+  m_selx1 = m_selx2 = click_x;
+  m_sely1 = m_sely2 = click_y;
+  Refresh();
+  
+#else
   m_selecting = TRUE;
   int tmpx = m_selx2, tmpy = m_sely2;
   m_selx2 = m_selx1;
@@ -1481,9 +1526,9 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   tmpx = event.GetX();
   tmpy = event.GetY();
   CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
-  if(!m_vscroll_enabled) {
-    tmpy += m_vscroll_pos * m_charWidth;
-  }
+  /*  if(!m_vscroll_enabled) {
+    tmpy += m_vscroll_pos * m_charHeight;
+    }*/
 
   tmpx = tmpx / m_charWidth;
   if(tmpx > x_max)
@@ -1498,6 +1543,7 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   m_sely1 = m_sely2 = tmpy;
   //  fprintf(stderr, "LeftDown: mouseunscrolledpos: %d, %d", tmpx, tmpy);
   m_selecting = TRUE;
+#endif
 
   event.Skip();  //let native handler reset focus
 }
@@ -1528,13 +1574,23 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
 {
   if(m_selecting)
   { 
+
+#if 1
+    int click_x, click_y;
+    GetClickCoords(event, &click_x, &click_y);
+    m_selx2 = click_x;
+    m_sely2 = click_y;
+    
+    Refresh();
+
+#else 
     int tmpx, tmpy;
     tmpx = event.GetX();
     tmpy = event.GetY();
     CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
-    if(!m_vscroll_enabled) {
+    /*    if(!m_vscroll_enabled) {
       tmpy += m_vscroll_pos * m_charWidth;
-    }
+      }*/
 
     tmpx = tmpx / m_charWidth;
     if(tmpx > x_max)
@@ -1563,9 +1619,11 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
     
     m_selx2 = tmpx;
     m_sely2 = tmpy;
-    
-    //    fprintf(stderr, "x1y1x2y2 (%d,%d) (%d,%d)\n", m_selx1, m_sely1, m_selx2, m_sely2);
+
+
+    //        fprintf(stderr, "x1y1x2y2 (%d,%d) (%d,%d)\n", m_selx1, m_sely1, m_selx2, m_sely2);
     MarkSelection();
+#endif
       
     if(!HasCapture()) {
       CaptureMouse();
@@ -1579,28 +1637,73 @@ wxTerminal::ClearSelection()
   if (m_sely2 != m_sely1 || m_selx2 != m_selx1) {
     m_sely2 = m_sely1;
     m_selx2 = m_selx1;
-    MarkSelection();
+    
+    //MarkSelection();
   }
 }
 
 void 
-wxTerminal::InvertScrolledArea(wxDC &dc, int t_x, int t_y, int w, int h) {
+wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h) {
   if(!m_vscroll_enabled) {
     t_y -= m_vscroll_pos * m_charWidth;
   }
-  CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
+  //  CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
+  //fprintf(stderr, "scrolled pos: %d %d\n", t_x / m_charWidth, t_y / m_charHeight);
   dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
 }
 
 
 void
-wxTerminal::MarkSelection() {
-  static int prev = 0;
-  wxClientDC dc(this);
+wxTerminal::MarkSelection(wxDC &dc) {
+
+#if 1
+  int 
+    pic_x1, pic_y1,
+    pic_x2, pic_y2;
+
+  //invert temporarily if out of order
+
+  if(m_sely1 > m_sely2 ||
+     (m_sely1 == m_sely2 && m_selx1 > m_selx2)) {
+    pic_x1 = m_selx2;
+    pic_y1 = m_sely2;
+    pic_x2 = m_selx1;
+    pic_y2 = m_sely1;
+  }
+  else {
+    pic_x1 = m_selx1;
+    pic_y1 = m_sely1;
+    pic_x2 = m_selx2;
+    pic_y2 = m_sely2;
+  }
+
+  //fprintf(stderr, "marking (%d, %d) to (%d, %d)\n", pic_x1, pic_y1, pic_x2, pic_y2);
+
+  if(pic_y1 == pic_y2) {
+    InvertArea(dc, 
+		       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
+		       (pic_x2 - pic_x1)*m_charWidth, m_charHeight);
+  }
+  else if(pic_y1 < pic_y2) {
+    InvertArea(dc, 
+		       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
+		       (x_max - pic_x1) * m_charWidth, m_charHeight);
+    InvertArea(dc, 
+		       0, (pic_y1 + 1)*m_charHeight,
+		       x_max * m_charWidth, (pic_y2 - pic_y1 - 1)*m_charHeight);
+    InvertArea(dc, 
+		       0, pic_y2*m_charHeight, 
+		       pic_x2*m_charWidth, m_charHeight);
+  }
+
+#else
   m_marking = TRUE;
-  
+
+  static int prev = 0;
   int pixx2 = m_selx2 * m_charWidth, pixy2 = m_sely2 * m_charHeight,
     pixoldx2 = m_seloldx2 * m_charWidth, pixoldy2 = m_seloldy2 * m_charHeight;
+
+
 
   if ((m_sely2 > m_sely1 || (m_sely2 == m_sely1 && m_selx2 > m_selx1)) || 
      ((m_sely2 == m_sely1 && m_selx2 == m_selx1) && !prev)) {
@@ -1678,6 +1781,7 @@ wxTerminal::MarkSelection() {
   wxWindow::Update();
 
   m_marking = FALSE;
+#endif
 }
 
 bool
@@ -1704,6 +1808,12 @@ wxTerminal::GetChars(int x1, int y1, int x2, int y2)
     x2 = tx;
     y2 = ty;
   }
+
+  //this case from dragging the mouse position off screen.
+  if(x1 < 0) x1 = 0;
+  if(x2 < 0) x2 = 0;
+  if(y1 < 0) y1 = 0;
+  if(y2 < 0) y2 = 0;
 
   wxString ret;
 
@@ -1751,7 +1861,9 @@ wxTerminal::SelectAll()
   m_sely1 = 0;
   m_selx2 = x_max;
   m_sely2 = y_max;
-  MarkSelection();
+
+  Refresh();
+  //MarkSelection(dc);
 }
 
 wxterm_linepos wxTerminal::GetLinePosition(int y) 
@@ -1823,7 +1935,8 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
 	  //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
 	  //	  dc.DrawText(str, x + 1, y);
 	  if(flags & INVERSE) {
-	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
+	    InvertArea(dc, coord_x, coord_y, m_charWidth, m_charHeight);
+	    //	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
 	  }
   }
 }
@@ -1939,7 +2052,6 @@ wxTerminal::ResizeTerminal(int width, int height)
   //reset virtual size
   SetScrollRate(0, m_charHeight);
   SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
-
 }
 
 
@@ -2071,7 +2183,9 @@ void wxTerminal::NextLine() {
     y_max = cursor_y;
     int x,y;
     GetVirtualSize(&x,&y);
-    SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1)*m_charHeight));
+    if(m_vscroll_enabled) {
+      SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1)*m_charHeight));
+    }
     //    fprintf(stderr, "increasing virtual area\n");
   }
   cursor_x = 0;
@@ -2165,14 +2279,14 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
        break;
      }
    }
-   //   last_user_x = cursor_x;
-   //   last_user_y = cursor_y;
 
    if(!(m_currMode & DEFERUPDATE)) {
-     Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
+     
+     //for now... scroll if bolded (means output from terminal)     
+     if(m_currMode & BOLD) {
+       Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
      //Scroll(-1,y_max-min(m_height, y_max)+1);
-     //fprintf(stderr, "PItT after:\n");
-     //DebugOutputBuffer();     
+     }
      Refresh();
    }
    //   fprintf(stderr, "end pitt\n");
@@ -2309,9 +2423,10 @@ void wxTerminal::ClearScreen() {
 
 
 void wxTerminal::EnableScrolling(bool want_scrolling) {
+  //once fixed, remove me.
   return;
   //the following doesn't work yet.
-#if 0
+
   if(want_scrolling) {
     if(!m_vscroll_enabled) {
       SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
@@ -2322,11 +2437,12 @@ void wxTerminal::EnableScrolling(bool want_scrolling) {
     if(m_vscroll_enabled) {
       int x;
       GetViewStart(&x, &m_vscroll_pos);
+      //fprintf(stderr, "viewstarty %d\n", m_vscroll_pos);
       m_vscroll_enabled = FALSE;
       SetVirtualSize(m_width*m_charWidth, m_height*m_charHeight);
     }
   }
-#endif
+
 }
 
 
@@ -2335,9 +2451,9 @@ extern "C" void flushFile(FILE * stream, int);
 extern "C" void wxSetCursor(int x, int y){
 #ifndef MULTITHREAD
   //just call wxTerminal::setCursor with a special flag.
-  fprintf(stderr, "Setting scroll off\n");
-  wxTerminal::terminal->EnableScrolling(FALSE);
+  //  fprintf(stderr, "Setting scroll off\n");
   flushFile(stdout, 0);
+  wxTerminal::terminal->EnableScrolling(FALSE);
   wxTerminal::terminal->setCursor(x,y,TRUE);
 
 #else

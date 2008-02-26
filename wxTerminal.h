@@ -281,14 +281,15 @@ public:
 
 private:
   int MapKeyCode(int keyCode);
-  void InvertScrolledArea(wxDC &dc, int tx1, int tx2, int w, int h);
-  void MarkSelection();
+  void InvertArea(wxDC &dc, int tx1, int tx2, int w, int h);
+  void MarkSelection(wxDC &dc);
 
   int CheckPlatformKeys(wxKeyEvent& event);
   void OnChar(wxKeyEvent& event);
   void OnKeyDown(wxKeyEvent& event);
 //  void OnPaint(wxPaintEvent& event);
   virtual void OnDraw(wxDC& dc);
+  void GetClickCoords(wxMouseEvent& event, int *x, int *y);
   void OnLeftDown(wxMouseEvent& event);
   void OnLeftUp(wxMouseEvent& event);
   void OnMouseMove(wxMouseEvent& event);
