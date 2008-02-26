@@ -248,7 +248,7 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
       static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
 	  m_logoApp->Yield(TRUE);    
-	  foo = 50;
+	  foo = 500;
       }
     }
   }
@@ -815,6 +815,8 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   
   dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   m_charWidth--;
+
+  m_vscroll_enabled = TRUE;
   
   //  int x, y;
   //GetSize(&x, &y);  
@@ -1297,7 +1299,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
 }
 
-void wxTerminal::setCursor (int x, int y, BOOLEAN fromLogo) {
+void wxTerminal::setCursor (int x, int y, bool fromLogo) {
   wxClientDC dc (this);
 #ifdef MULTITHREAD
   in_mut.Lock();
@@ -1308,14 +1310,22 @@ void wxTerminal::setCursor (int x, int y, BOOLEAN fromLogo) {
       return;
     }
     GetViewStart(&cursor_x,&cursor_y);
+    if(!m_vscroll_enabled) {
+      cursor_x = x;
+      cursor_y = m_vscroll_pos;
+    }
+
     cursor_x = x;
     cursor_y += y;
-    //    fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
+
+    
+        fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
   }
   else {
     cursor_x = x;
     cursor_y = y;
   }
+
 
   //    fprintf(stderr, "setcursor : set to %d %d\n", cursor_x, cursor_y);
   int want_x, want_y;
@@ -1340,8 +1350,8 @@ void wxTerminal::setCursor (int x, int y, BOOLEAN fromLogo) {
       cursor_y != want_y)) {
 
     //advance one character
-    inc_charpos(curr_char_pos);
-    cursor_x++;
+    //    inc_charpos(curr_char_pos);
+    //cursor_x++;
 
     if(cursor_x > x_max) {
       cursor_x = 0;
@@ -1351,9 +1361,13 @@ void wxTerminal::setCursor (int x, int y, BOOLEAN fromLogo) {
     //    fprintf(stderr, "padding with spaces... cxcy %d %d, wxwy %d %d\n", cursor_x, cursor_y, want_x, want_y);
 
     unsigned char space = ' ';  
+    unsigned char newline = '\n';
     int oldmode = m_currMode & DEFERUPDATE;
     set_mode_flag(DEFERUPDATE);
-    while(cursor_x != want_x || cursor_y != want_y) {
+    while(cursor_y != want_y) {
+      PassInputToTerminal(1,&newline);
+    }
+    while(cursor_x != want_x) {
       PassInputToTerminal(1,&space);
     }
     clear_mode_flag(DEFERUPDATE);
@@ -1400,7 +1414,7 @@ int oldHeight = -1;
 void wxTerminal::OnDraw(wxDC& dc)
 {  
   
-  //  DebugOutputBuffer();
+  //DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1408,10 +1422,14 @@ void wxTerminal::OnDraw(wxDC& dc)
   int lineFrom = rectUpdate.y / m_charHeight;
   int lineTo = rectUpdate.GetBottom() / m_charHeight;
 
+  if(!m_vscroll_enabled) {
+    lineFrom += m_vscroll_pos;
+    lineTo += m_vscroll_pos;
+    fprintf(stderr, "OnDraw: lines %d to %d\n", lineFrom, lineTo);
+  }
+
   if ( lineTo > y_max)
     lineTo = y_max;
-
-  //  fprintf(stderr, "OnDraw: lines %d to %d\n", lineFrom, lineTo);
   
   //find the position!
   wxterm_linepos tlpos;
@@ -1435,7 +1453,12 @@ void wxTerminal::OnDraw(wxDC& dc)
   //draw cursor if visible
   if(lineFrom <= cursor_y  && cursor_y <= lineTo &&
      !(m_currMode & CURSORINVISIBLE)) {
-    dc.Blit( cursor_x*m_charWidth, cursor_y*m_charHeight, m_charWidth, m_charHeight, &dc, cursor_x*m_charWidth, cursor_y*m_charHeight, wxINVERT);
+    int c_x = cursor_x;
+    int c_y = cursor_y;
+    if(!m_vscroll_enabled) {
+      c_y = c_y - m_vscroll_pos;
+    }
+    dc.Blit( c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight, &dc, c_x*m_charWidth, c_y*m_charHeight, wxINVERT);
   }
 }
 
@@ -1458,6 +1481,9 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   tmpx = event.GetX();
   tmpy = event.GetY();
   CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
+  if(!m_vscroll_enabled) {
+    tmpy += m_vscroll_pos * m_charWidth;
+  }
 
   tmpx = tmpx / m_charWidth;
   if(tmpx > x_max)
@@ -1506,6 +1532,10 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
     tmpx = event.GetX();
     tmpy = event.GetY();
     CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
+    if(!m_vscroll_enabled) {
+      tmpy += m_vscroll_pos * m_charWidth;
+    }
+
     tmpx = tmpx / m_charWidth;
     if(tmpx > x_max)
       //      tmpx = m_width - 1;
@@ -1555,6 +1585,9 @@ wxTerminal::ClearSelection()
 
 void 
 wxTerminal::InvertScrolledArea(wxDC &dc, int t_x, int t_y, int w, int h) {
+  if(!m_vscroll_enabled) {
+    t_y -= m_vscroll_pos * m_charWidth;
+  }
   CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
   dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
 }
@@ -1806,11 +1839,19 @@ wxTerminal::RenumberLines(int new_width)
 {
   //m_width is the OLD WIDTH at this point of the code.
   
-  curr_line_pos.buf = term_lines;
-  curr_line_pos.offset = 0;
+  wxterm_linepos l_pos;
+  l_pos.buf = term_lines;
+  l_pos.offset = 0;
 
-  wxterm_charpos cpos = (wxterm_charpos) { term_chars, 0, 0};
+  wxterm_charpos c_pos = (wxterm_charpos) { term_chars, 0, 0 };
   wxterm_charpos last_logo_pos = GetCharPosition(last_logo_x,last_logo_y);
+
+  //  fprintf(stderr, "lastlogopos buf %d off %d\n", (int)last_logo_pos.buf, last_logo_pos.offset);
+
+  //IMPORTANT: 
+  //  * line_number stores the current line we're looking at,
+  //  * c_pos.line_length is how far into the current line we are
+  //  * c_pos.offset is the offset into the BUFFER
 
   int line_number = 0;
   
@@ -1818,39 +1859,40 @@ wxTerminal::RenumberLines(int new_width)
   int next_line = 0; // flag to say "mark next line".
   
   //  fprintf(stderr, "renumber: buf: %d, off: %d \n", curr_char_pos.buf, curr_char_pos.offset);
-  while(char_of(cpos) != '\0') {
-    //fprintf(stderr, "renumber: current buf: %d, current off: %d \n", cpos.buf, cpos.offset);
-    if(cpos.buf == curr_char_pos.buf && cpos.offset == curr_char_pos.offset) {
-      //fprintf(stderr, "changed cursor position");
-      cursor_x = cpos.line_length;
+  while(char_of(c_pos) != '\0') {
+    //fprintf(stderr, "renumber: current buf: %d, current off: %d \n", c_pos.buf, c_pos.offset);
+    if(c_pos.buf == curr_char_pos.buf && c_pos.offset == curr_char_pos.offset) {
+      //fprintf(stderr, "changed cursor position\n");
+      cursor_x = c_pos.line_length;
       cursor_y = line_number;
+      curr_line_pos = l_pos;
     }
-    if(last_logo_pos.buf == curr_char_pos.buf && last_logo_pos.offset == curr_char_pos.offset) {
-      //fprintf(stderr, "changed cursor position");
-      last_logo_x = last_logo_pos.line_length;
-      last_logo_y = line_number;
+    if(c_pos.buf == last_logo_pos.buf && c_pos.offset == last_logo_pos.offset) {
+      //fprintf(stderr, "changed lastlogo position\n");
+      last_logo_x = c_pos.line_length;
+      last_logo_y = line_number;      
     }
-    if(char_of(cpos) == '\n') {
+    if(char_of(c_pos) == '\n') {
       next_line = 1;
     }
     else {
-      cpos.line_length++;
-      if(cpos.line_length == new_width) {
+      c_pos.line_length++;
+      if(c_pos.line_length == new_width) {
 	next_line = 1;
       }
     }
 
-    inc_charpos(cpos);
+    inc_charpos(c_pos);
 
     if(next_line) {
       //      fprintf(stderr, "resizing... nextline\n");
-      line_of(curr_line_pos).line_length = cpos.line_length;
-      inc_linepos(curr_line_pos)
+      line_of(l_pos).line_length = c_pos.line_length;
+      inc_linepos(l_pos);
 
-      line_of(curr_line_pos).buf = cpos.buf;
-      line_of(curr_line_pos).offset = cpos.offset;
+      line_of(l_pos).buf = c_pos.buf;
+      line_of(l_pos).offset = c_pos.offset;
       
-      cpos.line_length = 0;
+      c_pos.line_length = 0;
       next_line = 0;
       line_number++;
     }
@@ -1858,14 +1900,24 @@ wxTerminal::RenumberLines(int new_width)
 
 
   }
-  if(cpos.buf == curr_char_pos.buf && cpos.offset == curr_char_pos.offset) {
-    //    fprintf(stderr, "changed cursor position");
-    cursor_x = cpos.line_length;
+  if(c_pos.buf == curr_char_pos.buf && c_pos.offset == curr_char_pos.offset) {
+    //    fprintf(stderr, "changed cursor position\n");
+    cursor_x = c_pos.line_length;
     cursor_y = line_number;
+    curr_line_pos = l_pos;
+  }
+  if(c_pos.buf == last_logo_pos.buf && c_pos.offset == last_logo_pos.offset) {
+    //    fprintf(stderr, "changed lastlogo position\n");
+    last_logo_x = c_pos.line_length;
+    last_logo_y = line_number;      
   }
 
-  line_of(curr_line_pos).line_length = cpos.line_length;
+  line_of(l_pos).line_length = c_pos.line_length;
   y_max = line_number;
+
+  //sanity check on variables
+  //fprintf(stderr, "cursor %d %d\n", cursor_x, cursor_y);
+  //fprintf(stderr, "lastlogopos xy %d %d\n", last_logo_x, last_logo_y);
 }
 
 void
@@ -1901,9 +1953,16 @@ void wxTerminal::DebugOutputBuffer() {
     fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
     fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
   while(char_of(pos_1) != '\0') {
-    fprintf(stderr,"%c", char_of(pos_1));
+    if(char_of(pos_1) == '\n') {
+      fprintf(stderr, "\\n\n");
+    }
+    else {
+      fprintf(stderr,"%c", char_of(pos_1));
+      
+    }
     inc_charpos(pos_1);
   }
+  fprintf(stderr, "|");
     fprintf(stderr, "\n#############\n");
     fprintf(stderr, "WXTERMINAL LINE BUFFER\n##############\n");
   for(int i = 0; i <= y_max; i++) {
@@ -2012,9 +2071,6 @@ void wxTerminal::NextLine() {
     y_max = cursor_y;
     int x,y;
     GetVirtualSize(&x,&y);
-    //    fprintf(stderr, "old virtual size: %d, %d", x,y);
-    //    fprintf(stderr, "proposed virtual size: %d, %d", x_max*m_charWidth, (y_max+1)*m_charHeight); 
-    
     SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1)*m_charHeight));
     //    fprintf(stderr, "increasing virtual area\n");
   }
@@ -2024,7 +2080,7 @@ void wxTerminal::NextLine() {
 void
 wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 {
-  //  fprintf(stderr, "pitt: input received: %s\n", data);
+  //    fprintf(stderr, "pitt: input received: len %d, string %s\n", len, data);
 
   //fprintf(stderr, "PItT before:\n");
   //DebugOutputBuffer();     
@@ -2239,18 +2295,48 @@ extern "C" void wxClearText() {
 }
 
 void wxTerminal::ClearScreen() {
-  int x,y;
-  GetVirtualSize(&x,&y);
-  SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+m_height)*m_charHeight));
-  Scroll(-1,y_max);
-  Refresh();
+  if(y_max > 0) {
+    int x,y;
+    GetVirtualSize(&x,&y);
+    SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1+m_height)*m_charHeight));
+    Scroll(-1,y_max);
+    int vx,vy;
+    GetViewStart(&vx,&vy);
+    setCursor(0,y_max + 1 - vy, TRUE);
+    Refresh();
+  }
 }
+
+
+void wxTerminal::EnableScrolling(bool want_scrolling) {
+  return;
+  //the following doesn't work yet.
+#if 0
+  if(want_scrolling) {
+    if(!m_vscroll_enabled) {
+      SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
+      m_vscroll_enabled = TRUE;
+    }
+  }
+  else {
+    if(m_vscroll_enabled) {
+      int x;
+      GetViewStart(&x, &m_vscroll_pos);
+      m_vscroll_enabled = FALSE;
+      SetVirtualSize(m_width*m_charWidth, m_height*m_charHeight);
+    }
+  }
+#endif
+}
+
 
 extern "C" void flushFile(FILE * stream, int);
 
 extern "C" void wxSetCursor(int x, int y){
 #ifndef MULTITHREAD
   //just call wxTerminal::setCursor with a special flag.
+  fprintf(stderr, "Setting scroll off\n");
+  wxTerminal::terminal->EnableScrolling(FALSE);
   flushFile(stdout, 0);
   wxTerminal::terminal->setCursor(x,y,TRUE);
 
@@ -2281,6 +2367,9 @@ extern "C" void wxSetCursor(int x, int y){
 }
 
 
+extern "C" void wx_enable_scrolling() {
+  wxTerminal::terminal->EnableScrolling(TRUE);
+}
 
 extern "C" int check_wx_stop(int force_yield) {
 #ifndef MULTITHREAD  

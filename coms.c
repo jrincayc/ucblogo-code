@@ -19,8 +19,9 @@
  *
  */
 
-#ifdef HAV_WX
+#ifdef HAVE_WX
 #define fgets wx_fgets
+extern int check_wx_stop(int force_yield);
 #endif
 
 #define WANT_EVAL_REGS 1

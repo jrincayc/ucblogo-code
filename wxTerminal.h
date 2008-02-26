@@ -129,6 +129,12 @@ struct wxterm_linepos {
     m_curBG,
     m_curFlags;
 
+  //used in enableScrolling
+  bool
+    m_vscroll_enabled;
+  int 
+    m_vscroll_pos;
+
   unsigned char
     m_curChar;
 
@@ -243,7 +249,11 @@ public:
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);
   void PassInputToInterp();
-  void setCursor (int x, int y, BOOLEAN fromLogo = FALSE);
+  void setCursor (int x, int y, bool fromLogo = FALSE);
+
+  //scrolling
+  void EnableScrolling(bool want_scrolling);
+
   int currentPosition ();
     
   virtual void DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
