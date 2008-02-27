@@ -383,6 +383,9 @@ charmode_off();
 	}
 	hist_outptr = hist_inptr;
     }
+
+    //added (evan)
+    readingInstruction = 0;
     return(ret);
 }
 

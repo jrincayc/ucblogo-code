@@ -135,6 +135,9 @@ struct wxterm_linepos {
   int 
     m_vscroll_pos;
 
+  //used when readingInstruction is false
+  bool m_inputReady;
+
   unsigned char
     m_curChar;
 

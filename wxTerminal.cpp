@@ -818,6 +818,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_charWidth--;
 
   m_vscroll_enabled = TRUE;
+  m_inputReady = FALSE;
   
   //  int x, y;
   //GetSize(&x, &y);  
@@ -940,20 +941,21 @@ void  wxTerminal::printText (wxCommandEvent& event){
     cursor_moved = 1;
     
   }
-  if (out_buff_index_public != 0) {	  
+  if (out_buff_index_public != 0) {
      ClearSelection();
      PassInputToTerminal(out_buff_index_public, (unsigned char *)out_buff_public);
      out_buff_index_public = 0;
-  } 
+  }
 
 #ifdef MULTITHREAD
   buff_full_cond.Broadcast();
   out_mut.Unlock();
 #endif
 
+  clear_mode_flag(BOLD);
   last_logo_x = cursor_x;
   last_logo_y = cursor_y;
-  if(cursor_moved){
+  if(cursor_moved && readingInstruction){
     int x_changed, y_changed;
     x_changed = input_index % x_max;
     y_changed = input_index / x_max;
@@ -962,12 +964,18 @@ void  wxTerminal::printText (wxCommandEvent& event){
     ClearSelection();
     PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
     cursor_moved = 0;
+    
+    if(m_inputReady) {
+      PassInputToInterp();
+      m_inputReady = 0;
+    }
   }
 }
 
 
 /* 
-	PassInputToInterp() takes all characters in the input buffer and hands
+	PassInputToInterp() takes all characters in the input buffer 
+	up to the last '\n' and hands
 	them off to the logo interpreter
  */
 void wxTerminal::PassInputToInterp() {
@@ -983,11 +991,29 @@ void wxTerminal::PassInputToInterp() {
 #endif
   }
   else {
-    buff[buff_index++] = '\n';
-    for (i = input_index -1;i >= 0; i --) {
-      buff[buff_index++] = inputBuffer[i];
+    buff[buff_index++] = '\n'; 
+    //look for newline... the following variable stores the location
+    //  (any any location other than 0 is "true" in the condition check)
+    int saw_newline = 0;
+    // buff stores chars in reverse
+    for (i = input_index -1;i >= 0; i--) {
+      if(saw_newline) {
+	buff[buff_index++] = inputBuffer[i];
+      }
+      else {
+	if(inputBuffer[i] == '\n')
+	  saw_newline = i;
+      }
     }
-    input_index = 0;
+    //TODO: from saw_newline to input_index - 1, shift chars down
+
+    for(i = input_index - 1; i >= saw_newline + 1; i--) {
+      inputBuffer[i - saw_newline - 1] = inputBuffer[i];
+    }
+    // a to b, length is b - a + 1
+    input_index = input_index - saw_newline - 1;
+
+      //input_index = 0;
 #ifdef MULTITHREAD
     read_buff.Broadcast();
 #endif
@@ -1025,23 +1051,28 @@ void wxTerminal::DoPaste(){
 			wxString s = data.GetText();
 
 			unsigned int i; 
-			char chars[2];
+			//char chars[2];
+			unsigned char c;
 			int len;
 			char prev = ' ';
 			for (i = 0; i < s.Length(); i++){
 				len = 1;
-				chars[0] = s.GetChar(i);
-				if (prev == ' ' && chars[0] == ' ')
+				//chars[0] = s.GetChar(i);
+				c = s.GetChar(i);
+				//if (prev == ' ' && chars[0] == ' ')
+				if (prev == ' ' && c == ' ')
 				  continue;
-				prev = chars[0];
-				inputBuffer[input_index++] = s.GetChar(i);
-				if(chars[0] == 10){
-					chars[0] = 10;
-					chars[1] = 13;
-					len = 2;
-				}
+				//prev = chars[0];
+				prev = c;
+				inputBuffer[input_index++] = c;
+				//if(c == '\n'){
+				  //chars[0] = 10;
+				  //chars[1] = 13;
+				  //len = 2;
+				  //chars[0] = '\n';
+				//}
 				ClearSelection();
-				PassInputToTerminal(len, (unsigned char *)chars);
+				PassInputToTerminal(len, &c);
 			}
 			
 		}  
@@ -1086,8 +1117,10 @@ wxTerminal::OnChar(wxKeyEvent& event)
   int
       keyCode = 0,
       len;
-    unsigned char
-      buf[10];
+  unsigned char
+    buf[10];
+  
+
   keyCode = (int)event.GetKeyCode();
   if(logo_char_mode){
     if (keyCode == WXK_RETURN) {
@@ -1112,40 +1145,36 @@ wxTerminal::OnChar(wxKeyEvent& event)
   else if (keyCode == WXK_RETURN) {
     // for the new terminal:
     
-    int currentPos =  currentPosition();
-
-#if 1
-    if(currentPos < input_index) {
-      int new_x = cursor_x + (input_index - currentPos);
-      int new_y = cursor_y;
+    if(readingInstruction) {
+      int currentPos =  currentPosition();
+      if(currentPos < input_index) {
+	int new_x = cursor_x + (input_index - currentPos);
+	int new_y = cursor_y;
+	
+	while(new_x > x_max) {
+	  new_y++;
+	  new_x -= x_max;
+	}
+	setCursor(new_x, new_y);
+      }
       
-      while(new_x > x_max) {
-	new_y++;
-	new_x -= x_max;
-      }
-      setCursor(new_x, new_y);
     }
 
-#else
-    //old method:
-    while(currentPosition() < input_index) {
-      if(max(last_logo_x, cursor_x + 1) >= x_max) {
-	setCursor(0,  max(cursor_y,last_logo_y) + 1);
-      }
-      else {
-	setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
-      }
-    }
-#endif
-
-
-    buf[0] = 10;
-    buf[1] = 13;
-    len = 2;
+    //    buf[0] = 10;
+    //buf[1] = 13;
+    //len = 2;
     
-    PassInputToTerminal(len, buf);
-
-    PassInputToInterp();
+    inputBuffer[input_index++] = '\n';
+    if(readingInstruction) {
+      //      PassInputToTerminal(len, buf);
+      unsigned char newline = '\n';
+      PassInputToTerminal(1,&newline);
+      
+      PassInputToInterp();
+    }
+    else {
+      m_inputReady = 1;
+    }
   }
   else if (keyCode == WXK_BACK) {
     //    fprintf(stderr, "onchar backspace\n");
@@ -1167,15 +1196,18 @@ wxTerminal::OnChar(wxKeyEvent& event)
       inputBuffer[i-1] = inputBuffer[i]; 
     }
     input_index--;
-    currentPos--;
-    inputBuffer[input_index] = ' ';
-    cur_x = cursor_x, cur_y = cursor_y;
-    setCursor(cur_x - 1, cur_y);
-    set_mode_flag(CURSORINVISIBLE);
-    PassInputToTerminal(input_index - currentPos + 1, // 1 for the space 
-			(unsigned char *)inputBuffer + currentPos);
-    clear_mode_flag(CURSORINVISIBLE);
-    setCursor(cur_x - 1, cur_y);
+
+    if(readingInstruction) {
+      currentPos--;
+      inputBuffer[input_index] = ' ';
+      cur_x = cursor_x, cur_y = cursor_y;
+      setCursor(cur_x - 1, cur_y);
+      set_mode_flag(CURSORINVISIBLE);
+      PassInputToTerminal(input_index - currentPos + 1, // 1 for the space 
+			  (unsigned char *)inputBuffer + currentPos);
+      clear_mode_flag(CURSORINVISIBLE);
+      setCursor(cur_x - 1, cur_y);
+    }
   }
   else if (keyCode == WXK_UP) { // up
     xval = last_logo_x;
@@ -1219,55 +1251,59 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
       }
       setCursor(xval, yval); 
-	if (*hist_outptr != 0) {
-	    hist_outptr++;
-	}
-	if (hist_outptr >= &cmdHistory[HIST_MAX]) {
-	    hist_outptr = cmdHistory;
-	}
-	if (*hist_outptr == 0) {
-	    wxBell();
-	} else {
-	    PassInputToTerminal(strlen((const char *)*hist_outptr),
-			     *hist_outptr);
-	    for (i = 0; (*hist_outptr)[i]; i++)
-		inputBuffer[i] = (*hist_outptr)[i];
-      input_index = i;
+      if (*hist_outptr != 0) {
+	hist_outptr++;
+      }
+      if (hist_outptr >= &cmdHistory[HIST_MAX]) {
+	hist_outptr = cmdHistory;
+      }
+      if (*hist_outptr == 0) {
+	wxBell();
+      } else {
+	PassInputToTerminal(strlen((const char *)*hist_outptr),
+			    *hist_outptr);
+	for (i = 0; (*hist_outptr)[i]; i++)
+	  inputBuffer[i] = (*hist_outptr)[i];
+	input_index = i;
+      }
     }
-  }}
+  }
   else if  (keyCode == WXK_LEFT) { // left    
     // cursor_x, cursor_y. make sure it doesn't go past cursor_x
-    
-    if (cursor_x - 1 < 0)
-      setCursor(x_max, max(cursor_y,last_logo_y) - 1);
-    int xval;
-    if (last_logo_y == cursor_y && cursor_x - 1 < last_logo_x)
-      xval = last_logo_x;
-    else
-      xval = cursor_x - 1;
-    setCursor( xval, max(cursor_y,last_logo_y)); 
+    if(readingInstruction) {
+      if (cursor_x - 1 < 0)
+	setCursor(x_max, max(cursor_y,last_logo_y) - 1);
+      int xval;
+      if (last_logo_y == cursor_y && cursor_x - 1 < last_logo_x)
+	xval = last_logo_x;
+      else
+	xval = cursor_x - 1;
+      setCursor( xval, max(cursor_y,last_logo_y)); 
+    }
   }
   else if  (keyCode == WXK_RIGHT) { // right
-    int currentPos =  currentPosition();
-    if (currentPos >= input_index)
-      return;
-    if (max(last_logo_x, cursor_x + 1) >= x_max)
-       setCursor(0,  max(cursor_y,last_logo_y) + 1);
-    else 
-      setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
+    if(readingInstruction) {
+      int currentPos =  currentPosition();
+      if (currentPos >= input_index)
+	return;
+      if (max(last_logo_x, cursor_x + 1) >= x_max)
+	setCursor(0,  max(cursor_y,last_logo_y) + 1);
+      else 
+	setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
+    }
   }
   else if (keyCode == WXK_TAB) { // tab
     //do nothing for now. could be tab completion later.
   }
   else if (keyCode >= WXK_START) {
-	/* ignore it */
+    /* ignore it */
   } 
   else {
     buf[0] = keyCode;
     len = 1;
     int doInsert = 0;
     int currentPos = currentPosition();
-    if (currentPos < input_index ) { // we are in the middle of input
+    if (readingInstruction && currentPos < input_index ) { // we are in the middle of input
       doInsert = 1;
       int i;
       for (i = input_index; i >= currentPos + 1; i--) {
@@ -1278,26 +1314,28 @@ wxTerminal::OnChar(wxKeyEvent& event)
     }
     else
       inputBuffer[input_index++] = keyCode;
-    if (doInsert) {
-      // I can't get insert to work quite right ???
-      // So I guess this will do
-      // Use the global ones so it will be decremented if this scrolls
-      cur_x = cursor_x; cur_y = cursor_y;
-      set_mode_flag(CURSORINVISIBLE);
-      PassInputToTerminal(input_index - currentPos,
-		       (unsigned char *)(inputBuffer + currentPos));
-      clear_mode_flag(CURSORINVISIBLE);
-      if (cur_x == m_width)
-	setCursor(1, cur_y + 1);
-      else
-	setCursor(cur_x+1, cur_y);
-    }
-    else {
-      PassInputToTerminal(len, buf);
+
+    if(readingInstruction) {
+      if (doInsert) {
+	// I can't get insert to work quite right ???
+	// So I guess this will do
+	// Use the global ones so it will be decremented if this scrolls
+	cur_x = cursor_x; cur_y = cursor_y;
+	set_mode_flag(CURSORINVISIBLE);
+	PassInputToTerminal(input_index - currentPos,
+			    (unsigned char *)(inputBuffer + currentPos));
+	clear_mode_flag(CURSORINVISIBLE);
+	if (cur_x == m_width)
+	  setCursor(1, cur_y + 1);
+	else
+	  setCursor(cur_x+1, cur_y);
+      }
+      else {
+	PassInputToTerminal(len, buf);
+      }
     }
     
   }
-
 }
 
 void wxTerminal::setCursor (int x, int y, bool fromLogo) {
@@ -1416,7 +1454,7 @@ int oldHeight = -1;
 void wxTerminal::OnDraw(wxDC& dc)
 {  
   
-  DebugOutputBuffer();
+  //  DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1500,7 +1538,6 @@ void wxTerminal::GetClickCoords(wxMouseEvent& event, int *click_x, int *click_y)
 void
 wxTerminal::OnLeftDown(wxMouseEvent& event)
 {
-#if 1
   m_selecting = TRUE;
   int click_x, click_y;
   GetClickCoords(event, &click_x, &click_y);
@@ -1509,41 +1546,7 @@ wxTerminal::OnLeftDown(wxMouseEvent& event)
   m_sely1 = m_sely2 = click_y;
   Refresh();
   
-#else
-  m_selecting = TRUE;
-  int tmpx = m_selx2, tmpy = m_sely2;
-  m_selx2 = m_selx1;
-  m_sely2 = m_sely1;
-  m_seloldx2 = tmpx;
-  m_seloldy2 = tmpy;
-  MarkSelection();
 
-  m_seloldx1 = m_selx1;	
-  m_seloldx2 = m_selx2;
-  m_seloldy1 = m_sely1;
-  m_seloldy2 = m_sely2;
-
-  tmpx = event.GetX();
-  tmpy = event.GetY();
-  CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
-  /*  if(!m_vscroll_enabled) {
-    tmpy += m_vscroll_pos * m_charHeight;
-    }*/
-
-  tmpx = tmpx / m_charWidth;
-  if(tmpx > x_max)
-    //      tmpx = m_width - 1;
-    tmpx = x_max;
-  tmpy = tmpy / m_charHeight;
-  if(tmpy >= y_max)
-    //tmpy = m_height - 1;
-    tmpy = y_max;   
- 
-  m_selx1 = m_selx2 = tmpx;
-  m_sely1 = m_sely2 = tmpy;
-  //  fprintf(stderr, "LeftDown: mouseunscrolledpos: %d, %d", tmpx, tmpy);
-  m_selecting = TRUE;
-#endif
 
   event.Skip();  //let native handler reset focus
 }
@@ -1575,7 +1578,6 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
   if(m_selecting)
   { 
 
-#if 1
     int click_x, click_y;
     GetClickCoords(event, &click_x, &click_y);
     m_selx2 = click_x;
@@ -1583,47 +1585,6 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
     
     Refresh();
 
-#else 
-    int tmpx, tmpy;
-    tmpx = event.GetX();
-    tmpy = event.GetY();
-    CalcUnscrolledPosition(tmpx,tmpy,&tmpx,&tmpy);
-    /*    if(!m_vscroll_enabled) {
-      tmpy += m_vscroll_pos * m_charWidth;
-      }*/
-
-    tmpx = tmpx / m_charWidth;
-    if(tmpx > x_max)
-      //      tmpx = m_width - 1;
-      tmpx = x_max;
-    tmpy = tmpy / m_charHeight;
-    if(tmpy >= y_max)
-      //tmpy = m_height - 1;
-      tmpy = y_max;   
- 
-    //    fprintf(stderr, "MouseMove: mouseunscrolledpos: %d, %d", tmpx, tmpy);
-
-    if ((m_sely2 > m_sely1 || (m_sely2 == m_sely1 && m_selx2 > m_selx1)) &&
-	((tmpy < m_sely1) || (tmpy == m_sely1 && tmpx < m_selx1))) {
-      int x = m_selx2, y = m_sely2;
-      m_selx2 = m_selx1;
-      m_sely2 = m_sely1;
-      m_seloldx2 = x;
-      m_seloldy2 = y;
-      MarkSelection();
-    }
-    m_seloldx1 = m_selx1;	
-    m_seloldx2 = m_selx2;
-    m_seloldy1 = m_sely1;
-    m_seloldy2 = m_sely2;
-    
-    m_selx2 = tmpx;
-    m_sely2 = tmpy;
-
-
-    //        fprintf(stderr, "x1y1x2y2 (%d,%d) (%d,%d)\n", m_selx1, m_sely1, m_selx2, m_sely2);
-    MarkSelection();
-#endif
       
     if(!HasCapture()) {
       CaptureMouse();
@@ -1656,7 +1617,6 @@ wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h) {
 void
 wxTerminal::MarkSelection(wxDC &dc) {
 
-#if 1
   int 
     pic_x1, pic_y1,
     pic_x2, pic_y2;
@@ -1695,93 +1655,6 @@ wxTerminal::MarkSelection(wxDC &dc) {
 		       0, pic_y2*m_charHeight, 
 		       pic_x2*m_charWidth, m_charHeight);
   }
-
-#else
-  m_marking = TRUE;
-
-  static int prev = 0;
-  int pixx2 = m_selx2 * m_charWidth, pixy2 = m_sely2 * m_charHeight,
-    pixoldx2 = m_seloldx2 * m_charWidth, pixoldy2 = m_seloldy2 * m_charHeight;
-
-
-
-  if ((m_sely2 > m_sely1 || (m_sely2 == m_sely1 && m_selx2 > m_selx1)) || 
-     ((m_sely2 == m_sely1 && m_selx2 == m_selx1) && !prev)) {
-    prev = 0;
-    if(m_seloldy2 == m_sely2)
-      {
-	if(m_selx2 > m_seloldx2) {
-	  //dc.Blit( pixoldx2, pixoldy2, pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
-	  InvertScrolledArea(dc, pixoldx2, pixoldy2, pixx2 - pixoldx2, m_charHeight);
-	}
-	else {
-	  //dc.Blit( pixx2, pixy2,pixoldx2 - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
-	  InvertScrolledArea(dc, pixx2, pixy2,pixoldx2 - pixx2, m_charHeight);
-	}
-      }
-    else if(m_seloldy2 < m_sely2)
-      {
-	//dc.Blit( pixoldx2, pixoldy2, (x_max * m_charWidth) - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
-	InvertScrolledArea(dc, pixoldx2, pixoldy2, (x_max * m_charWidth) - pixoldx2, m_charHeight);
-
-	//dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight), &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
-	InvertScrolledArea(dc, 0, (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight));
-	//dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
-	InvertScrolledArea(dc, 0, pixy2, pixx2, m_charHeight);
-	
-      }
-    else
-      {
-	//dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
-	InvertScrolledArea(dc, 0, pixoldy2, pixoldx2, m_charHeight);
-
-	//	dc.Blit( 0,  (m_sely2 + 1) * m_charHeight, (x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight), &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
-	InvertScrolledArea(dc, 0,  (m_sely2 + 1) * m_charHeight, (x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight));
-
-	//dc.Blit( pixx2 /*+ m_charWidth*/, pixy2, (x_max * m_charWidth)-(pixx2  /*+ m_charWidth*/), m_charHeight, &dc, pixx2 /*+ m_charWidth*/, pixy2, wxINVERT);
-	InvertScrolledArea(dc, pixx2 /*+ m_charWidth*/, pixy2, (x_max * m_charWidth)-(pixx2  /*+ m_charWidth*/), m_charHeight);
-      }
-  } else {
-    prev = 1;
-    if(m_seloldy2 == m_sely2)
-      {
-	if(m_selx2 <= m_seloldx2)
-	  //dc.Blit( pixx2, pixy2, pixoldx2 - pixx2 , m_charHeight, &dc, pixx2, pixy2, wxINVERT);
-	  InvertScrolledArea(dc,  pixx2, pixy2, pixoldx2 - pixx2 , m_charHeight);
-	else
-	  //dc.Blit( pixoldx2, pixoldy2,pixx2 - pixoldx2, m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
-	  InvertScrolledArea(dc,  pixoldx2, pixoldy2,pixx2 - pixoldx2, m_charHeight);
-      }
-    else if(m_seloldy2 > m_sely2)
-      {       
-	//	dc.Blit( pixx2, pixy2, (x_max * m_charWidth) - pixx2, m_charHeight, &dc, pixx2, pixy2, wxINVERT);
-	InvertScrolledArea(dc,  pixx2, pixy2, (x_max * m_charWidth) - pixx2, m_charHeight);
-
-	// dc.Blit( 0,  (m_sely2 + 1) * m_charHeight,(x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight), &dc,0, (m_sely2 + 1) * m_charHeight, wxINVERT);
-	InvertScrolledArea(dc, 0,  (m_sely2 + 1) * m_charHeight,(x_max * m_charWidth), pixoldy2 - ((m_sely2 + 1) * m_charHeight));
-	//dc.Blit( 0, pixoldy2, pixoldx2, m_charHeight, &dc, 0, pixoldy2, wxINVERT);
-	InvertScrolledArea(dc, 0, pixoldy2, pixoldx2, m_charHeight);
-      }
-    else
-      {
-	//dc.Blit( 0, pixy2, pixx2, m_charHeight, &dc, 0, pixy2, wxINVERT);
-	InvertScrolledArea(dc,  0, pixy2, pixx2, m_charHeight);
-
-	//dc.Blit( 0,  (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight), &dc,0, (m_seloldy2 + 1) * m_charHeight, wxINVERT);
-	InvertScrolledArea(dc, 0, (m_seloldy2 + 1) * m_charHeight,(x_max * m_charWidth), pixy2 - ((m_seloldy2 + 1) * m_charHeight));
-	
-	//dc.Blit( pixoldx2, pixoldy2, (x_max * m_charWidth)-(pixoldx2  ) , m_charHeight, &dc, pixoldx2, pixoldy2, wxINVERT);
-	InvertScrolledArea(dc,  pixoldx2, pixoldy2, (x_max * m_charWidth)-(pixoldx2  ) , m_charHeight);
-	
-    }
-    
-  }
-
-  dc.SetLogicalFunction(wxCOPY);
-  wxWindow::Update();
-
-  m_marking = FALSE;
-#endif
 }
 
 bool
@@ -2282,8 +2155,13 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 
    if(!(m_currMode & DEFERUPDATE)) {
      
-     //for now... scroll if bolded (means output from terminal)     
-     if(m_currMode & BOLD) {
+     //scroll if cursor current cursor not visible or 
+     // if we're not reading an instruction (logo output)
+     int visx,visy;
+     GetViewStart(&visx,&visy);
+     if(!readingInstruction || 
+	cursor_y < visy  ||
+	cursor_y >= visy + m_height - 1) {
        Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
      //Scroll(-1,y_max-min(m_height, y_max)+1);
      }
