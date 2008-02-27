@@ -1217,7 +1217,12 @@ wxTerminal::OnChar(wxKeyEvent& event)
       setCursor(xval, yval); 
       if (input_index != 0) { // we have to swipe what is already there
 	for (i = 0; i < input_index; i++) {
-	  inputBuffer[i] = ' ';
+	  if(inputBuffer[i] == '\n') {
+	    inputBuffer[i] = '\n';
+	  }
+	  else {
+	    inputBuffer[i] = ' ';
+	  }
 	}
 	PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
       }
@@ -1246,7 +1251,12 @@ wxTerminal::OnChar(wxKeyEvent& event)
       setCursor(xval, yval); 
       if (input_index != 0) { // we have to swipe what is already there
 	for (i = 0; i < input_index; i++) {
-	  inputBuffer[i] = ' ';
+	  if(inputBuffer[i] == '\n') {
+	    inputBuffer[i] = '\n';
+	  }
+	  else {	    
+	    inputBuffer[i] = ' ';
+	  }
 	}
 	PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
       }
@@ -1454,7 +1464,7 @@ int oldHeight = -1;
 void wxTerminal::OnDraw(wxDC& dc)
 {  
   
-  //  DebugOutputBuffer();
+  DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1690,13 +1700,13 @@ wxTerminal::GetChars(int x1, int y1, int x2, int y2)
 
   wxString ret;
 
-  //invalid means offset < -1.
   if(0 < y1 && y1 > y_max) {
     return ret;
   }
+
   wxterm_charpos a = GetCharPosition(0,y1);
 
-  a.offset = a.offset + min(x1, a.line_length - 1); 
+  a.offset = a.offset + min(x1, max(0,a.line_length - 1)); 
   adjust_charpos(a);
 
   wxterm_charpos b = GetCharPosition(0,min(y2, y_max));
