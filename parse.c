@@ -223,7 +223,8 @@ NODE *reader(FILE *strm, char *prompt) {
 
     fix_turtle_shownness();
 
-    readingInstruction = !strcmp(prompt, "? ");
+    //readingInstruction = !strcmp(prompt, "? ");
+    readingInstruction = (strm == stdin);
 #ifdef HAVE_WX
     if(readingInstruction) {
       wx_enable_scrolling();
