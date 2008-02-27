@@ -176,6 +176,7 @@ struct wxterm_linepos {
   wxterm_line_buffer *term_lines;
   wxterm_charpos curr_char_pos;
   wxterm_linepos curr_line_pos;
+public:
   int cursor_x, cursor_y;
 
 public:

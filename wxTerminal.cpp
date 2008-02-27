@@ -2425,10 +2425,12 @@ extern "C" int internal_check(){
 extern "C" int getTermInfo(int type){
 	switch (type){
 	case X_COORD:
-		return wxTerminal::terminal->x_coord;
+		return wxTerminal::terminal->cursor_x;
 		break;
 	case Y_COORD:
-		return wxTerminal::terminal->y_coord;
+	  int vx,vy;
+	  wxTerminal::terminal->GetViewStart(&vx,&vy);
+		return wxTerminal::terminal->cursor_y - vy;
 		break;
 	case X_MAX:
 	  //return wxTerminal::terminal->x_max;
@@ -2451,10 +2453,12 @@ extern "C" int getTermInfo(int type){
 extern "C" void setTermInfo(int type, int val){
 	switch (type){
 		case X_COORD:
-			wxTerminal::terminal->x_coord=val;
+		  //wxTerminal::terminal->x_coord=val;
+		  return;
 			break;
 		case Y_COORD:
-			wxTerminal::terminal->y_coord=val;
+		  //wxTerminal::terminal->y_coord=val;
+		  return;
 			break;
 		case X_MAX:
 		  return;
@@ -2468,7 +2472,6 @@ extern "C" void setTermInfo(int type, int val){
 			editWindow->stateFlag=val;
 			break;
 	}
-
 }
 
 

@@ -43,6 +43,7 @@ void update_coords(char ch) {
 	
 #ifdef HAVE_WX
 	int getTermInfo(int type);
+#if 0
 	int setTermInfo(int type, int val);
 	int x_coord, y_coord, x_max, y_max;
 	x_coord=getTermInfo(X_COORD);
@@ -72,7 +73,7 @@ void update_coords(char ch) {
     if (y_coord > y_max) y_coord = y_max;
 	setTermInfo(X_COORD,x_coord);
 	setTermInfo(Y_COORD,y_coord);
-	
+#endif
 	
 #else 	
     if (ch == '\n') {
