@@ -418,20 +418,23 @@ NODE *lwait(NODE *args) {
       fflush(stdout); /* csls v. 1 p. 7 */
 #endif
 #else
-      fflush(stdout); /* csls v. 1 p. 7 */
+      //doesn't seem to work in WX. now done in wxLogoSleep
+      //fflush(stdout); /* csls v. 1 p. 7 */
 #endif
 
 #if defined(__RZTC__)
 	zflush();
 #endif
 	fix_turtle_shownness();
-	if (getint(num) > 0) {
+
 #ifdef HAVE_WX
-	  n = (unsigned int)getint(num) * 10; // milliseconds
-	  wxLogoSleep(n);
-	  check_throwing;
-	  return(UNBOUND); 
+	n = (unsigned int)getint(num) * 10; // milliseconds
+	wxLogoSleep(n);
+	//check_throwing;
+	return(UNBOUND); 
 #endif
+
+	if (getint(num) > 0) {
 #ifdef unix
 #ifdef HAVE_USLEEP
 	    n = (unsigned int)getint(num);

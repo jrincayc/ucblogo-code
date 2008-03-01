@@ -261,8 +261,8 @@ extern "C" void flushFile(FILE * stream, int justPost) {
 
 // have the interpreter go to sleep
 extern "C" void wxLogoSleep(unsigned int milli) {
-  flushFile(stdout, 0);
 #ifdef MULTITHREAD
+  flushFile(stdout, 0);
   if(needToRefresh){
     redraw_graphics();
     // to make sure we always get an entire refresh
@@ -274,7 +274,15 @@ extern "C" void wxLogoSleep(unsigned int milli) {
   sleepCond.WaitTimeout(milli);
   sleepMut.Unlock();
 #else
-  wxMilliSleep(milli);
+  wxDateTime stop_waiting = wxDateTime::Now().Add(wxTimeSpan(0,0,0,milli));
+  flushFile(stdout, 0);
+  while(wxDateTime::Now().IsEarlierThan(stop_waiting)) {
+    if(check_wx_stop(0)) {
+      break;
+    }
+    //wxMilliSleep(1);
+  }
+  //  wxMilliSleep(milli);
 #endif
 }
 

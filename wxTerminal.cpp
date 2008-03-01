@@ -815,7 +815,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
     dc(this);
   
   dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
-  m_charWidth--;
+  //  m_charWidth--;
 
   m_vscroll_enabled = TRUE;
   m_inputReady = FALSE;
@@ -870,7 +870,7 @@ wxTerminal::SetFont(const wxFont& font)
 	  dc(this);
   
   dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
-  m_charWidth--;
+  //  m_charWidth--;
   ResizeTerminal(m_width, m_height);
   Refresh();
   
@@ -955,17 +955,17 @@ void  wxTerminal::printText (wxCommandEvent& event){
   clear_mode_flag(BOLD);
   last_logo_x = cursor_x;
   last_logo_y = cursor_y;
-  if(cursor_moved && readingInstruction){
-    int x_changed, y_changed;
-    x_changed = input_index % x_max;
-    y_changed = input_index / x_max;
+  if(cursor_moved/* && readingInstruction*/){
+    //int x_changed, y_changed;
+    //x_changed = input_index % x_max;
+    //y_changed = input_index / x_max;
     setCursor(last_logo_x, last_logo_y);
     // Because scrolling trouble occurs 
     ClearSelection();
     PassInputToTerminal(input_index, (unsigned char *)inputBuffer);
     cursor_moved = 0;
     
-    if(m_inputReady) {
+    if(m_inputReady && readingInstruction) {
       PassInputToInterp();
       m_inputReady = 0;
     }
@@ -1181,23 +1181,24 @@ wxTerminal::OnChar(wxKeyEvent& event)
     if (input_index == 0)
       return;
     
-    int currentPos = currentPosition(); 
-    
-    if (currentPos == 0)
-      return;
-    
-    //    fprintf(stderr, "cpos %d, inputidx %d\n", currentPos, input_index);
-
-    int i;
-    if (cursor_x == 0) { // need to go back to the prev line
-      setCursor(m_width, cursor_y - 1);
-    }
-    for (i = currentPos; i < input_index; i++) {
-      inputBuffer[i-1] = inputBuffer[i]; 
-    }
-    input_index--;
-
     if(readingInstruction) {
+      int currentPos = currentPosition(); 
+      
+      if (currentPos == 0)
+	return;
+      
+      //    fprintf(stderr, "cpos %d, inputidx %d\n", currentPos, input_index);
+      
+      if (cursor_x == 0) { // need to go back to the prev line
+	setCursor(m_width, cursor_y - 1);
+      }
+
+      for (int i = currentPos; i < input_index; i++) {
+	inputBuffer[i-1] = inputBuffer[i]; 
+      }
+      input_index--;
+
+
       currentPos--;
       inputBuffer[input_index] = ' ';
       cur_x = cursor_x, cur_y = cursor_y;
@@ -1208,6 +1209,12 @@ wxTerminal::OnChar(wxKeyEvent& event)
       clear_mode_flag(CURSORINVISIBLE);
       setCursor(cur_x - 1, cur_y);
     }
+    else {
+      //pretend it's at the end
+      input_index--;
+    }
+
+
   }
   else if (keyCode == WXK_UP) { // up
     xval = last_logo_x;
@@ -2164,18 +2171,28 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
    }
 
    if(!(m_currMode & DEFERUPDATE)) {
-     
      //scroll if cursor current cursor not visible or 
      // if we're not reading an instruction (logo output)
      int visx,visy;
      GetViewStart(&visx,&visy);
-     if(!readingInstruction || 
+
+     //if we're not reading an instruction, then we should scroll to the 
+     //bottom automatically, but only if it's not already there.
+     //careful! it may not be possible to put cursor_y at the top.
+     if((!readingInstruction &&
+         visy != cursor_y) || 
 	cursor_y < visy  ||
 	cursor_y >= visy + m_height - 1) {
-       Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
-     //Scroll(-1,y_max-min(m_height, y_max)+1);
+       Scroll(-1, cursor_y);
+       Refresh();
      }
-     Refresh();
+     else {
+       //We can simply draw the character.  (TODO)
+       //but for now...
+       Scroll(-1, cursor_y);
+       Refresh();
+     }
+     
    }
    //   fprintf(stderr, "end pitt\n");
 }
