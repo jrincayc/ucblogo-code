@@ -39,8 +39,22 @@ extern int out_buff_index_public;
 extern int out_buff_index_private;
 extern char * out_buff_public;
 extern char * out_buff_private;
+#define BUFF_LEN 1024  //should be a power of two.
+
+#define buff_empty (buff_push_index == buff_pop_index)
+
+#define buff_push(c) buff[buff_push_index++] = c; \
+                     buff_push_index = buff_push_index % BUFF_LEN; \
+                     if(buff_push_index == buff_pop_index) { \
+                       fprintf(stderr, "buff push warning: pushindex = popindex\n. discarding last push"); \
+                       buff_push_index = (buff_push_index - 1) % BUFF_LEN; \
+		     }
+
+#define buff_pop(c)  c = buff[buff_pop_index++]; \
+                     buff_pop_index = buff_pop_index % BUFF_LEN
 extern char buff[];
-extern int buff_index;
+extern int buff_push_index;
+extern int buff_pop_index;
 extern int alreadyAlerted;
 extern int MAXOUTBUFF;
 extern char out_buff[];

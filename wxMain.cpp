@@ -82,13 +82,14 @@ wxMutex sleepMut;
 wxCondition sleepCond(sleepMut);
 
 // the buffer from the GUI to the interpreter
-char buff[1024];
+char buff[BUFF_LEN];
 int buff_index = 0;
 wxMutex in_mut;
 wxCondition read_buff (in_mut);
 #else
-char buff[1024];
-int buff_index = 0;
+char buff[BUFF_LEN];
+int buff_push_index = 0;
+int buff_pop_index = 0;
 #endif
 
 // ----------------------------------------------------------------------------
@@ -342,7 +343,8 @@ extern "C" char getFromWX_2(FILE * f)
    in_mut.Lock();
 #endif
 	
-  while (buff_index == 0 && !putReturn) {
+   //  while (buff_index == 0 && !putReturn) {
+   while(buff_empty && !putReturn) {
     if(needToRefresh){
 #ifdef MULTITHREAD
       in_mut.Unlock();
@@ -359,20 +361,37 @@ extern "C" char getFromWX_2(FILE * f)
     if (load_flag) {
       load_flag = 0;
       int i;
-      buff[buff_index++] = '\n';
+      //buff[buff_index++] = '\n';
+      buff_push('\n');
+       
       for (i = 0; i < nameBufferSize; i++) {
-	buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+	//buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+	buff_push(nameBuffer[nameBufferSize - i - 1]);
       }
-      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'd'; buff[buff_index++] = 'a'; buff[buff_index++] = 'o'; buff[buff_index++] = 'l';
+      //      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'd'; buff[buff_index++] = 'a'; buff[buff_index++] = 'o'; buff[buff_index++] = 'l';
+      buff_push('l'); 
+      buff_push('o'); 
+      buff_push('a'); 
+      buff_push('d'); 
+      buff_push(' '); 
+      buff_push('"');
     }
     if (save_flag) {
       save_flag = 0;
       int i;
-      buff[buff_index++] = '\n';
+      //      buff[buff_index++] = '\n';
+      buff_push('\n');
       for (i = 0; i < nameBufferSize; i++) {
-	buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+	//buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+	buff_push(nameBuffer[nameBufferSize - i - 1]);
       }
-      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'e'; buff[buff_index++] = 'v'; buff[buff_index++] = 'a'; buff[buff_index++] = 's';
+      //      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'e'; buff[buff_index++] = 'v'; buff[buff_index++] = 'a'; buff[buff_index++] = 's';
+      buff_push('s'); 
+      buff_push('a'); 
+      buff_push('v');
+      buff_push('e'); 
+      buff_push(' '); 
+      buff_push('"');      
     }
 #ifdef MULTITHREAD
     in_mut.Unlock();
@@ -385,7 +404,8 @@ extern "C" char getFromWX_2(FILE * f)
 #ifdef MULTITHREAD
     in_mut.Lock();
 #endif
-    if (buff_index == 0 && !putReturn)
+    //if (buff_index == 0 && !putReturn)
+    if (buff_empty && !putReturn)
 #ifdef MULTITHREAD
       read_buff.WaitTimeout(1000);
 #else
@@ -396,7 +416,8 @@ extern "C" char getFromWX_2(FILE * f)
   if (putReturn)
     c = '\n';
   else
-    c= buff[--buff_index];
+    //    c= buff[--buff_index];
+    buff_pop(c);
 #ifdef MULTITHREAD
     in_mut.Unlock();
 #endif
@@ -409,7 +430,8 @@ extern "C" int wxKeyp() {
 #ifdef MULTITHREAD
   in_mut.Lock();
 #endif
-  if (buff_index != 0)
+  //if (buff_index != 0)
+  if (!buff_empty)
     ret = 1;
 #ifdef MULTITHREAD
   in_mut.Unlock();
@@ -424,7 +446,8 @@ extern "C" int wxUnget_c(int c, FILE * f) {
 #ifdef MULTITHREAD
     in_mut.Lock();
 #endif
-    buff[++buff_index] = (char)c;
+    //buff[++buff_index] = (char)c;
+    buff_push((char)c);
 #ifdef MULTITHREAD
     in_mut.Unlock();
 #endif
@@ -436,6 +459,12 @@ extern "C" char* wx_fgets(char* s, int n, FILE* stream) {
   if (stream != stdin) {
     return fgets(s, n, stream);
   }
+  
+  //turn on logo char mode (evan)
+  //setCharMode(1);
+  extern void charmode_on();
+  charmode_on();
+
   char c;
   char * orig = s;
   n --;

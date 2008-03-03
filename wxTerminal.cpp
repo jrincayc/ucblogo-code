@@ -58,6 +58,8 @@ using namespace std;
 unsigned char inputBuffer [8000];
 // How far into the inputBuffer we are
 int input_index = 0;
+// Where the cursor is in the inputBuffer
+int input_current_pos = 0;
 
 // if logo is in character mode
 int logo_char_mode;
@@ -766,7 +768,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 
   m_currMode = 0;
   y_max = 0;
-  x_max = m_width;
+  x_max = m_width - 1;
 
 
   // start us out not in char mode
@@ -984,36 +986,42 @@ void wxTerminal::PassInputToInterp() {
   in_mut.Lock();
 #endif
   if(logo_char_mode){
-    buff[buff_index++] = inputBuffer[--input_index];
+    //buff[buff_index++] = inputBuffer[--input_index];
+    buff_push(inputBuffer[--input_index]);
+    
     input_index = 0;
+    input_current_pos = 0;
 #ifdef MULTITHREAD
     read_buff.Broadcast();
 #endif
   }
   else {
-    buff[buff_index++] = '\n'; 
-    //look for newline... the following variable stores the location
+    //look for the last newline... the following variable stores the location
     //  (any any location other than 0 is "true" in the condition check)
     int saw_newline = 0;
-    // buff stores chars in reverse
-    for (i = input_index -1;i >= 0; i--) {
-      if(saw_newline) {
-	buff[buff_index++] = inputBuffer[i];
-      }
-      else {
-	if(inputBuffer[i] == '\n')
-	  saw_newline = i;
+
+    for (i = input_index-1;i >= 0; i--) {
+      if(inputBuffer[i] == '\n') {
+	saw_newline = i;
+	break;
       }
     }
-    //TODO: from saw_newline to input_index - 1, shift chars down
 
-    for(i = input_index - 1; i >= saw_newline + 1; i--) {
+    for (i = 0; i < saw_newline; i++) {
+      buff_push(inputBuffer[i]);
+    }
+
+    //buff[buff_index++] = '\n'; 
+    buff_push('\n');
+
+
+    for(i = saw_newline + 1; i < input_index; i++) {
       inputBuffer[i - saw_newline - 1] = inputBuffer[i];
     }
     // a to b, length is b - a + 1
     input_index = input_index - saw_newline - 1;
+    input_current_pos = input_index;
 
-      //input_index = 0;
 #ifdef MULTITHREAD
     read_buff.Broadcast();
 #endif
@@ -1074,7 +1082,7 @@ void wxTerminal::DoPaste(){
 				ClearSelection();
 				PassInputToTerminal(len, &c);
 			}
-			
+			input_current_pos = input_index;
 		}  
 		wxTheClipboard->Close();
 	}
@@ -1084,23 +1092,6 @@ void wxTerminal::DoPaste(){
 void wxTerminal::LoseFocus (wxFocusEvent & event){
 }
 
-
-int wxTerminal::currentPosition () {
-  // Gives the length of the characters up to the cursor
-
-  int ret = 0;
-  if (cursor_y - last_logo_y >= 2) {
-    ret = (cursor_y - last_logo_y - 1) * m_width + (m_width - last_logo_x) + cursor_x;
-  }
-  else if (cursor_y - last_logo_y == 1) {
-    ret = (m_width - last_logo_x) + cursor_x;
-  }
-  else 
-    ret = cursor_x - last_logo_x;
-
-  //  fprintf(stderr, "currentposition: %d \n", ret);
-  return ret;
-}
 
 /*
  OnChar is called each time the user types a character
@@ -1140,20 +1131,20 @@ wxTerminal::OnChar(wxKeyEvent& event)
     if (event.ControlDown()) keyCode -= 0140;
     if (event.AltDown()) keyCode += 0200;
     inputBuffer[input_index++] = keyCode;
+    input_current_pos++;
     PassInputToInterp();
   }
   else if (keyCode == WXK_RETURN) {
     // for the new terminal:
     
     if(readingInstruction) {
-      int currentPos =  currentPosition();
-      if(currentPos < input_index) {
-	int new_x = cursor_x + (input_index - currentPos);
+      if(input_current_pos < input_index) {
+	int new_x = cursor_x + (input_index - input_current_pos);
 	int new_y = cursor_y;
 	
 	while(new_x > x_max) {
 	  new_y++;
-	  new_x -= x_max;
+	  new_x -= m_width;
 	}
 	setCursor(new_x, new_y);
       }
@@ -1165,6 +1156,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
     //len = 2;
     
     inputBuffer[input_index++] = '\n';
+    input_current_pos++;
     if(readingInstruction) {
       //      PassInputToTerminal(len, buf);
       unsigned char newline = '\n';
@@ -1181,40 +1173,59 @@ wxTerminal::OnChar(wxKeyEvent& event)
     if (input_index == 0)
       return;
     
-    if(readingInstruction) {
-      int currentPos = currentPosition(); 
-      
-      if (currentPos == 0)
-	return;
-      
-      //    fprintf(stderr, "cpos %d, inputidx %d\n", currentPos, input_index);
-      
-      if (cursor_x == 0) { // need to go back to the prev line
-	setCursor(m_width, cursor_y - 1);
-      }
 
-      for (int i = currentPos; i < input_index; i++) {
-	inputBuffer[i-1] = inputBuffer[i]; 
-      }
-      input_index--;
+    if (input_current_pos == 0)
+      return;
+    
+    //    fprintf(stderr, "cpos %d, inputidx %d\n", input_current_pos, input_index);
 
-
-      currentPos--;
-      inputBuffer[input_index] = ' ';
-      cur_x = cursor_x, cur_y = cursor_y;
-      setCursor(cur_x - 1, cur_y);
-      set_mode_flag(CURSORINVISIBLE);
-      PassInputToTerminal(input_index - currentPos + 1, // 1 for the space 
-			  (unsigned char *)inputBuffer + currentPos);
-      clear_mode_flag(CURSORINVISIBLE);
-      setCursor(cur_x - 1, cur_y);
+    bool removing_newline = FALSE;
+    if(inputBuffer[input_current_pos-1] == '\n') {
+      removing_newline = TRUE;
+    }
+    
+    for (int i = input_current_pos; i < input_index; i++) {
+      inputBuffer[i-1] = inputBuffer[i]; 
+    }
+    input_index--;
+    input_current_pos--;
+    
+    if(removing_newline) {
+      inputBuffer[input_index] = '\n';
     }
     else {
-      //pretend it's at the end
-      input_index--;
+      inputBuffer[input_index] = ' ';
     }
-
-
+    
+    cur_x = cursor_x - 1, cur_y = cursor_y;
+    if(cur_x < 0) {
+      wxterm_linepos cpos = GetLinePosition(cursor_y - 1);
+      // x_max if wrapped line,  line_length otherwise.
+      cur_x = min(x_max, line_of(cpos).line_length);
+      cur_y = cursor_y - 1;
+      setCursor(cur_x, cur_y);
+    }
+    else {
+      setCursor(cur_x, cur_y);
+    }
+    
+    set_mode_flag(CURSORINVISIBLE);
+    PassInputToTerminal(input_index - input_current_pos + 1, // 1 for the space 
+			(unsigned char *)inputBuffer + input_current_pos);
+    if(removing_newline) {
+      //add a second newline, to erase contents of the last
+      //input line.
+      //this causes a very specific "feature"....
+      //if last input line contains other noninput chars
+      //then doing this will erase them too
+      //this situation can happen when you use setcursor and Backspace...
+      //it's a very specific situation that should not clash with 
+      //intended behavior...
+      unsigned char nl = '\n';
+      PassInputToTerminal(1, &nl);
+    }
+    clear_mode_flag(CURSORINVISIBLE);
+    setCursor(cur_x,cur_y); 
   }
   else if (keyCode == WXK_UP) { // up
     xval = last_logo_x;
@@ -1247,6 +1258,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	  for (i = 0; (*hist_outptr)[i]; i++)
 	    inputBuffer[i] = (*hist_outptr)[i];
 	  input_index = i;
+	  input_current_pos = input_index;
 	}
     }
   }
@@ -1282,11 +1294,28 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	for (i = 0; (*hist_outptr)[i]; i++)
 	  inputBuffer[i] = (*hist_outptr)[i];
 	input_index = i;
+	input_current_pos = input_index;
       }
     }
   }
   else if  (keyCode == WXK_LEFT) { // left    
-    // cursor_x, cursor_y. make sure it doesn't go past cursor_x
+#if 1
+    if(readingInstruction) {
+      if(input_current_pos > 0) {
+	if (cursor_x - 1 < 0) {	  
+	  //if previous char is a newline, then cursor goes to line_length
+	  //otherwise, it's a wrapped line, and should go to the end
+	  // just use min...
+	  wxterm_linepos cpos = GetLinePosition(cursor_y - 1);
+	  setCursor(min(x_max, line_of(cpos).line_length), cursor_y - 1);   
+	}   
+	else {
+	  setCursor(cursor_x - 1, cursor_y);
+	}
+	input_current_pos--;
+      }
+    }
+#else
     if(readingInstruction) {
       if (cursor_x - 1 < 0)
 	setCursor(x_max, max(cursor_y,last_logo_y) - 1);
@@ -1297,17 +1326,32 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	xval = cursor_x - 1;
       setCursor( xval, max(cursor_y,last_logo_y)); 
     }
+#endif
   }
   else if  (keyCode == WXK_RIGHT) { // right
+#if 1
     if(readingInstruction) {
-      int currentPos =  currentPosition();
-      if (currentPos >= input_index)
+      if(input_current_pos < input_index) {
+	if (inputBuffer[input_current_pos] == '\n' ||
+	    cursor_x + 1 > x_max) {
+	  setCursor(0, cursor_y + 1);
+	}
+	else {
+	  setCursor(cursor_x + 1, cursor_y);	  
+	}
+	input_current_pos++;
+      }
+    }
+#else
+    if(readingInstruction) {
+      if (input_current_pos >= input_index)
 	return;
-      if (max(last_logo_x, cursor_x + 1) >= x_max)
+      if (max(last_logo_x, cursor_x + 1) > x_max)
 	setCursor(0,  max(cursor_y,last_logo_y) + 1);
       else 
 	setCursor(max(last_logo_x, cursor_x + 1), max(cursor_y,last_logo_y)); 
     }
+#endif
   }
   else if (keyCode == WXK_TAB) { // tab
     //do nothing for now. could be tab completion later.
@@ -1319,31 +1363,37 @@ wxTerminal::OnChar(wxKeyEvent& event)
     buf[0] = keyCode;
     len = 1;
     int doInsert = 0;
-    int currentPos = currentPosition();
-    if (readingInstruction && currentPos < input_index ) { // we are in the middle of input
+    fprintf(stderr, "inputindex inputcurrpos %d %d\n", input_current_pos, input_index);
+    if (readingInstruction && input_current_pos < input_index ) { // we are in the middle of input
       doInsert = 1;
       int i;
-      for (i = input_index; i >= currentPos + 1; i--) {
+      for (i = input_index; i >= input_current_pos + 1; i--) {
 	inputBuffer[i] = inputBuffer[i - 1]; 
       }
-      inputBuffer[currentPos] = keyCode;
+      inputBuffer[input_current_pos] = keyCode;
       input_index++;
+      input_current_pos++;
     }
-    else
+    else {
       inputBuffer[input_index++] = keyCode;
+      input_current_pos++;
+    }
 
     if(readingInstruction) {
       if (doInsert) {
-	// I can't get insert to work quite right ???
-	// So I guess this will do
-	// Use the global ones so it will be decremented if this scrolls
 	cur_x = cursor_x; cur_y = cursor_y;
-	set_mode_flag(CURSORINVISIBLE);
-	PassInputToTerminal(input_index - currentPos,
-			    (unsigned char *)(inputBuffer + currentPos));
-	clear_mode_flag(CURSORINVISIBLE);
-	if (cur_x == m_width)
-	  setCursor(1, cur_y + 1);
+	//set_mode_flag(CURSORINVISIBLE);
+	int oldmode = m_currMode & DEFERUPDATE;
+	set_mode_flag(DEFERUPDATE);
+	//remember, input_current_pos - 1 has last character typed
+	PassInputToTerminal(input_index - (input_current_pos - 1),
+			    (unsigned char *)(inputBuffer + (input_current_pos - 1)));
+	//clear_mode_flag(CURSORINVISIBLE);
+	clear_mode_flag(DEFERUPDATE);
+	m_currMode |= oldmode;
+	//set cursor back to cursorPos
+	if (cur_x == x_max)
+	  setCursor(0, cur_y + 1);
 	else
 	  setCursor(cur_x+1, cur_y);
       }
@@ -1434,7 +1484,7 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
   //  fprintf(stderr, "CURSOR CHANGE: (%d, %d), charoffset: %d\n", x,y,curr_char_pos.offset);
 
   if(!(m_currMode & DEFERUPDATE)) {
-    Scroll(-1, cursor_y/* - min(m_height, y_max)+1*/);
+    Scroll(-1, cursor_y);
     
     Refresh();
   }
@@ -1449,9 +1499,10 @@ void wxTerminal::OnSize(wxSizeEvent& event) {
   int x, y;
   GetSize(&x, &y);
   
-  if (m_width == x / m_charWidth && m_height == y / m_charHeight)
+  //leave one char on the right for scroll bar width
+  if (m_width == (x / m_charWidth) - 1 && m_height == y / m_charHeight)
     return;
-  x = x / m_charWidth;
+  x = (x / m_charWidth) - 1;
   y = y / m_charHeight;
   
   if (x < 1) 
@@ -1934,14 +1985,15 @@ wxTerminal::ResizeTerminal(int width, int height)
     //need to renumber the lines
     RenumberLines(width);
     m_width = width;
-    x_max = m_width;
+    x_max = m_width - 1;
   }
   m_height = height;
 
 
   //reset virtual size
   SetScrollRate(0, m_charHeight);
-  SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
+  //number of lines is y_max + 1
+  SetVirtualSize(m_width*m_charWidth,(y_max+1)*m_charHeight);
 }
 
 
@@ -2074,7 +2126,8 @@ void wxTerminal::NextLine() {
     int x,y;
     GetVirtualSize(&x,&y);
     if(m_vscroll_enabled) {
-      SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1)*m_charHeight));
+      //y_max + 1 = number of lines
+      SetVirtualSize(max(x,m_width*m_charWidth),max(y,(y_max+1)*m_charHeight));
     }
     //    fprintf(stderr, "increasing virtual area\n");
   }
@@ -2112,8 +2165,10 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 	 if(cursor_x > line_of(curr_line_pos).line_length) {
 	   line_of(curr_line_pos).line_length = cursor_x;
 	 }
-	 if(cursor_x == x_max) {
+	 if(cursor_x > x_max) {
+	   //tab should stop inserting spaces.	   
 	   NextLine();
+	   break; //out of the for loop
 	 }
        }
        break;
@@ -2130,7 +2185,7 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
        if(new_line_length < line_of(curr_line_pos).line_length &&
 	  cursor_y < y_max) {
 	 //shift all the characters down.
-	 //current position is after the newline.
+	 //(remove characters between inserted newline and end of line)
 	 
 	 lpos = curr_line_pos;
 	 inc_linepos(lpos);
@@ -2150,7 +2205,6 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 	   inc_charpos(pos_2);
 	 }
        }
-       //check if line_length is  -1  TODO
        //       fprintf(stderr, "new length: %d\n", new_line_length);
        line_of(curr_line_pos).line_length = new_line_length;
 
@@ -2163,7 +2217,7 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
        if(cursor_x > line_of(curr_line_pos).line_length) {
 	 line_of(curr_line_pos).line_length = cursor_x;
        }
-       if(cursor_x == x_max) {
+       if(cursor_x > x_max) {
 	 NextLine();
        }
        break;
@@ -2302,9 +2356,6 @@ extern "C" void wxClearText() {
 #ifdef MULTITHREAD
   out_mut.Lock();
 #endif
-  //  wxTerminal::terminal->Reset();
-  //idea here.. increase the size of the terminal, and set the thumb position to the bottom
-  //TODO
   wxTerminal::terminal->ClearScreen();
   out_buff_index_public = 0;
   out_buff_index_private = 0;
@@ -2317,7 +2368,7 @@ void wxTerminal::ClearScreen() {
   if(y_max > 0) {
     int x,y;
     GetVirtualSize(&x,&y);
-    SetVirtualSize(max(x,x_max*m_charWidth),max(y,(y_max+1+m_height)*m_charHeight));
+    SetVirtualSize(max(x,m_width*m_charWidth),max(y,(y_max+1+m_height)*m_charHeight));
     Scroll(-1,y_max);
     int vx,vy;
     GetViewStart(&vx,&vy);
@@ -2334,7 +2385,7 @@ void wxTerminal::EnableScrolling(bool want_scrolling) {
 
   if(want_scrolling) {
     if(!m_vscroll_enabled) {
-      SetVirtualSize(x_max*m_charWidth,(y_max+1)*m_charHeight);
+      SetVirtualSize(m_width*m_charWidth,(y_max+1)*m_charHeight);
       m_vscroll_enabled = TRUE;
     }
   }

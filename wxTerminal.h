@@ -257,8 +257,6 @@ public:
 
   //scrolling
   void EnableScrolling(bool want_scrolling);
-
-  int currentPosition ();
     
   virtual void DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
                         int x, int y, int len, unsigned char *string);
