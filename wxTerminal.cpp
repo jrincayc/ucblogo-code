@@ -1251,7 +1251,10 @@ wxTerminal::OnChar(wxKeyEvent& event)
 	}
 	if (*hist_outptr == 0) {
 	  wxBell();
-	    hist_outptr++;
+	  hist_outptr++;
+	  input_index = 0;
+	  input_current_pos = 0;
+
 	} 
 	else {
 	  PassInputToTerminal(strlen((const char *)*hist_outptr), *hist_outptr);
@@ -1288,6 +1291,8 @@ wxTerminal::OnChar(wxKeyEvent& event)
       }
       if (*hist_outptr == 0) {
 	wxBell();
+	input_index = 0;
+	input_current_pos = 0;
       } else {
 	PassInputToTerminal(strlen((const char *)*hist_outptr),
 			    *hist_outptr);
