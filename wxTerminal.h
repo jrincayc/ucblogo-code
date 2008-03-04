@@ -190,7 +190,7 @@ public:
 	  DEFERUPDATE=0x10,
 //          DESTRUCTBS=0x800,
           CURSORINVISIBLE=0x20,
-          SELECTED=0x40	// flag to indicate a char is selected
+          //SELECTED=0x40	// flag to indicate a char is selected
         };
 
 	char m_currMode;

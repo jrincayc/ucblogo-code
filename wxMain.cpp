@@ -206,7 +206,7 @@ extern "C" void flushFile(FILE * stream, int justPost) {
       buff_full_cond.Wait();
 #else
       logoEventManager->ProcessAnEvent();
-      wxMilliSleep(10);
+      //wxMilliSleep(10);
 #endif
     }
     

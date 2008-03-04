@@ -561,9 +561,9 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	}
 	wxTerminal::terminal->SetFont(font);
 	editWindow->SetFont(font);
-	wxSizeEvent event;
-	if(wxTerminal::terminal->IsShown())
-		wxTerminal::terminal->OnSize(event);
+	//wxSizeEvent event;
+	//	if(wxTerminal::terminal->IsShown())
+	//	wxTerminal::terminal->OnSize(event);
 	
 	// resize the frame according to the new font size
 	int new_m_charWidth, new_m_charHeight, new_m_lineHeight;
@@ -601,8 +601,8 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	}	
 	wxTerminal::terminal->SetFont(font);
 	editWindow->SetFont(font);
-	wxSizeEvent event;
-	wxTerminal::terminal->OnSize(event);
+	//	wxSizeEvent event;
+	//wxTerminal::terminal->OnSize(event);
 	
 	// resize the frame according to the new font size
 	int new_m_charWidth, new_m_charHeight;
@@ -969,7 +969,7 @@ void  wxTerminal::printText (wxCommandEvent& event){
     
     if(m_inputReady && readingInstruction) {
       PassInputToInterp();
-      m_inputReady = 0;
+      m_inputReady = FALSE;
     }
   }
 }
@@ -1165,7 +1165,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
       PassInputToInterp();
     }
     else {
-      m_inputReady = 1;
+      //m_inputReady = TRUE;
     }
   }
   else if (keyCode == WXK_BACK) {
@@ -1210,7 +1210,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
     }
     
     set_mode_flag(CURSORINVISIBLE);
-    PassInputToTerminal(input_index - input_current_pos + 1, // 1 for the space 
+    PassInputToTerminal(input_index - input_current_pos + 1, // 1 for the space
 			(unsigned char *)inputBuffer + input_current_pos);
     if(removing_newline) {
       //add a second newline, to erase contents of the last
@@ -1368,7 +1368,6 @@ wxTerminal::OnChar(wxKeyEvent& event)
     buf[0] = keyCode;
     len = 1;
     int doInsert = 0;
-    fprintf(stderr, "inputindex inputcurrpos %d %d\n", input_current_pos, input_index);
     if (readingInstruction && input_current_pos < input_index ) { // we are in the middle of input
       doInsert = 1;
       int i;
@@ -1415,12 +1414,21 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
 #ifdef MULTITHREAD
   in_mut.Lock();
 #endif
+
+  int vis_x,vis_y;
+  GetViewStart(&vis_x,&vis_y);
+
+  if(!(m_currMode & DEFERUPDATE)) {
+    //undraw cursor
+    InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
+  }
+
   if(fromLogo) {
     if(x < 0 || x > m_width ||
        y < 0 || y > m_height) {
       return;
     }
-    GetViewStart(&cursor_x,&cursor_y);
+    //GetViewStart(&cursor_x,&cursor_y);
     /*
     if(!m_vscroll_enabled) {
       cursor_x = x;
@@ -1428,7 +1436,7 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
       }*/
 
     cursor_x = x;
-    cursor_y += y;
+    cursor_y = vis_y + y;
 
     
     //        fprintf(stderr, "wxsetcursor from logo: set to %d %d\n", cursor_x, cursor_y);
@@ -1489,9 +1497,16 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
   //  fprintf(stderr, "CURSOR CHANGE: (%d, %d), charoffset: %d\n", x,y,curr_char_pos.offset);
 
   if(!(m_currMode & DEFERUPDATE)) {
-    Scroll(-1, cursor_y);
-    
-    Refresh();
+    if(cursor_y >= vis_y &&
+       cursor_y <= vis_y + m_height - 1) {
+      InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
+    }
+    else {
+
+      Scroll(-1, cursor_y);
+      
+      Refresh();
+    }
   }
 
 #ifdef MULTITHREAD
@@ -1527,7 +1542,7 @@ int oldHeight = -1;
 void wxTerminal::OnDraw(wxDC& dc)
 {  
   
-  DebugOutputBuffer();
+  //  DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1571,7 +1586,8 @@ void wxTerminal::OnDraw(wxDC& dc)
     /*    if(!m_vscroll_enabled) {
       c_y = c_y - m_vscroll_pos;
       }*/
-    dc.Blit( c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight, &dc, c_x*m_charWidth, c_y*m_charHeight, wxINVERT);
+    //    dc.Blit( c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight, &dc, c_x*m_charWidth, c_y*m_charHeight, wxINVERT);
+    InvertArea(dc, c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight);
   }
 
   //also mark selection
@@ -1844,12 +1860,13 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
   //      fprintf(stderr, "indrawtext x: %d, y: %d, , fgc: %d, bgc: %d, flags: %d, c: %c\n", x,y,fg_color, bg_color, flags,string[0]);
       //      fprintf(stderr, "cw: %d, ch: %d\n", m_charWidth, m_charHeight);
   //  int t;
+  
 
-  if(flags & SELECTED)
+  /*  if(flags & SELECTED)
   {
     fg_color = 0;
     bg_color = 15;
-  }
+    }*/
 
   wxString
     str(string, len);
@@ -1877,13 +1894,15 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
   coord_x = x * (m_charWidth);
 	  
   for(unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth){
-	  dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
-	  //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
-	  //	  dc.DrawText(str, x + 1, y);
-	  if(flags & INVERSE) {
-	    InvertArea(dc, coord_x, coord_y, m_charWidth, m_charHeight);
-	    //	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
-	  }
+    //clear the pixels first
+    dc.Blit(coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxCLEAR);
+    dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
+    //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
+    //	  dc.DrawText(str, x + 1, y);
+    if(flags & INVERSE) {
+      InvertArea(dc, coord_x, coord_y, m_charWidth, m_charHeight);
+      //	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
+    }
   }
 }
 
@@ -2009,7 +2028,7 @@ void wxTerminal::DebugOutputBuffer() {
   lpos.offset = 0;
   wxterm_charpos pos_1 = line_of(lpos);
   
-    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
+    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n cw: %d, ch: %d \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, m_charWidth, m_charHeight, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
     fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
   while(char_of(pos_1) != '\0') {
     if(char_of(pos_1) == '\n') {
@@ -2149,111 +2168,132 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
 
   int i;
   int numspaces, j;
-   wxterm_linepos lpos;
-   wxterm_charpos pos_1, pos_2;
-   int new_line_length;
-   for(i = 0; i < len; i++) {
-     switch(data[i]) {
-     case TOGGLE_STANDOUT:  // char 17
-       //enter/exit standout mode , ignore character
-       m_currMode ^= INVERSE;
-       break;
-     case '\t':
-       // formula is: (8 - (cursorpos%8)) spaces
-       numspaces = (8 - (cursor_x % 8));
-       if(numspaces == 0) {
-	 numspaces = 8;
-       }
-       for(j = 0; j < numspaces; j++) {
-	 InsertChar(' ');
-	 cursor_x++;
-	 if(cursor_x > line_of(curr_line_pos).line_length) {
-	   line_of(curr_line_pos).line_length = cursor_x;
-	 }
-	 if(cursor_x > x_max) {
-	   //tab should stop inserting spaces.	   
-	   NextLine();
-	   break; //out of the for loop
-	 }
-       }
-       break;
-     case '\r':
-     case '\n':
-       new_line_length = cursor_x;
-       InsertChar('\n');
+  wxterm_linepos lpos;
+  wxterm_charpos pos_1, pos_2;
+  int new_line_length;
+  wxClientDC dc(this);
 
-       if(i + 1 < len && 
-	  ((data[i] == '\r' && data[i+1] == '\n') ||  //LF+CR
-	   (data[i] == '\n' && data[i+1] == '\r')))  { //CR+LF
-	 i++;
-       }
-       if(new_line_length < line_of(curr_line_pos).line_length &&
-	  cursor_y < y_max) {
-	 //shift all the characters down.
-	 //(remove characters between inserted newline and end of line)
-	 
-	 lpos = curr_line_pos;
-	 inc_linepos(lpos);
-	 pos_1 = curr_char_pos;
-	 pos_2 = line_of(lpos);
-	 while(char_of(pos_1) != '\0') {
-	   if(char_of(pos_2) != '\0' &&
-	      pos_2.buf == line_of(lpos).buf &&
-	      pos_2.offset == line_of(lpos).offset) {
-	     line_of(lpos).buf = pos_1.buf;
-	     line_of(lpos).offset = pos_1.offset;
-	     inc_linepos(lpos);
-	   }
-	   char_of(pos_1) = char_of(pos_2);
-	   mode_of(pos_1) = mode_of(pos_2);
-	   inc_charpos(pos_1);
-	   inc_charpos(pos_2);
-	 }
-       }
-       //       fprintf(stderr, "new length: %d\n", new_line_length);
-       line_of(curr_line_pos).line_length = new_line_length;
+  int vis_x,vis_y;
+  GetViewStart(&vis_x,&vis_y);
+  static int old_vis_y = 0;
 
-       NextLine();
-       
-       break;
-     default:
-       InsertChar(data[i]);
-       cursor_x++;
-       if(cursor_x > line_of(curr_line_pos).line_length) {
-	 line_of(curr_line_pos).line_length = cursor_x;
-       }
-       if(cursor_x > x_max) {
-	 NextLine();
-       }
-       break;
-     }
-   }
+  unsigned char spc = ' ';
 
-   if(!(m_currMode & DEFERUPDATE)) {
-     //scroll if cursor current cursor not visible or 
-     // if we're not reading an instruction (logo output)
-     int visx,visy;
-     GetViewStart(&visx,&visy);
+  //first undraw cursor
+  if(!(m_currMode & DEFERUPDATE)) {
+    InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
+  }
 
-     //if we're not reading an instruction, then we should scroll to the 
-     //bottom automatically, but only if it's not already there.
-     //careful! it may not be possible to put cursor_y at the top.
-     if((!readingInstruction &&
-         visy != cursor_y) || 
-	cursor_y < visy  ||
-	cursor_y >= visy + m_height - 1) {
-       Scroll(-1, cursor_y);
-       Refresh();
-     }
-     else {
-       //We can simply draw the character.  (TODO)
-       //but for now...
-       Scroll(-1, cursor_y);
-       Refresh();
-     }
-     
-   }
-   //   fprintf(stderr, "end pitt\n");
+  for(i = 0; i < len; i++) {
+    switch(data[i]) {
+    case TOGGLE_STANDOUT:  // char 17
+      //enter/exit standout mode , ignore character
+      m_currMode ^= INVERSE;
+      break;
+    case '\t':
+      // formula is: (8 - (cursorpos%8)) spaces
+      numspaces = (8 - (cursor_x % 8));
+      if(numspaces == 0) {
+	numspaces = 8;
+      }
+      for(j = 0; j < numspaces; j++) {
+	InsertChar(spc);
+	//draw
+	if(cursor_y >= vis_y &&
+	   cursor_y <= vis_y + m_height - 1) {
+	  DrawText(dc, m_curFG, m_curBG, m_currMode, cursor_x, cursor_y - vis_y, 1, &spc);
+	}
+
+	cursor_x++;
+	if(cursor_x > line_of(curr_line_pos).line_length) {
+	  line_of(curr_line_pos).line_length = cursor_x;
+	}
+	if(cursor_x > x_max) {
+	  //tab should stop inserting spaces.	   
+	  NextLine();
+	  break; //out of the for loop
+	}
+      }
+      break;
+    case '\r':
+    case '\n':
+      new_line_length = cursor_x;
+      InsertChar('\n');
+      
+      if(i + 1 < len && 
+	 ((data[i] == '\r' && data[i+1] == '\n') ||  //LF+CR
+	  (data[i] == '\n' && data[i+1] == '\r')))  { //CR+LF
+	i++;
+      }
+      if(new_line_length < line_of(curr_line_pos).line_length &&
+	 cursor_y < y_max) {
+	//shift all the characters down.
+	//(remove characters between inserted newline and end of line)
+	
+	lpos = curr_line_pos;
+	inc_linepos(lpos);
+	pos_1 = curr_char_pos;
+	pos_2 = line_of(lpos);
+	while(char_of(pos_1) != '\0') {
+	  if(char_of(pos_2) != '\0' &&
+	     pos_2.buf == line_of(lpos).buf &&
+	     pos_2.offset == line_of(lpos).offset) {
+	    line_of(lpos).buf = pos_1.buf;
+	    line_of(lpos).offset = pos_1.offset;
+	    inc_linepos(lpos);
+	  }
+	  char_of(pos_1) = char_of(pos_2);
+	  mode_of(pos_1) = mode_of(pos_2);
+	  inc_charpos(pos_1);
+	  inc_charpos(pos_2);
+	}
+      }
+      //       fprintf(stderr, "new length: %d\n", new_line_length);
+      line_of(curr_line_pos).line_length = new_line_length;
+      
+      NextLine();
+      
+      break;
+    default:
+      InsertChar(data[i]);
+      //draw
+      if(cursor_y >= vis_y &&
+	 cursor_y <= vis_y + m_height - 1) {
+	DrawText(dc, m_curFG, m_curBG, m_currMode, cursor_x, cursor_y - vis_y, 1, &data[i]);
+      }
+      cursor_x++;
+      if(cursor_x > line_of(curr_line_pos).line_length) {
+	line_of(curr_line_pos).line_length = cursor_x;
+      }
+      if(cursor_x > x_max) {
+	NextLine();
+      }      
+      break;
+    }   
+  }
+
+  if(!(m_currMode & DEFERUPDATE)) {
+    //draw the cursor back
+    if(cursor_y >= vis_y &&
+       cursor_y <= vis_y + m_height - 1) {
+      InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
+    }
+    
+    //scroll if cursor current cursor not visible or 
+    // if we're not reading an instruction (logo output)
+    // old_vis_y keeps track of whether the screen has changed lately
+
+    if((!readingInstruction &&
+	vis_y != old_vis_y) || 
+       cursor_y < vis_y  ||
+       cursor_y > vis_y + m_height - 1) {
+      //      fprintf(stderr, "pitt Scrolling\n");
+      Scroll(-1, cursor_y);
+      Refresh();
+      old_vis_y = vis_y;
+    }
+  }
+  //   fprintf(stderr, "end pitt\n");
 }
 
 wxString * wxTerminal::get_text() 
@@ -2374,17 +2414,18 @@ void wxTerminal::ClearScreen() {
     int x,y;
     GetVirtualSize(&x,&y);
     SetVirtualSize(max(x,m_width*m_charWidth),max(y,(y_max+1+m_height)*m_charHeight));
-    Scroll(-1,y_max);
+    Scroll(-1,y_max+1);
     int vx,vy;
     GetViewStart(&vx,&vy);
-    setCursor(0,y_max + 1 - vy, TRUE);
+    //pretend setcursor from logo so that it can insert spaces if needed
+    setCursor(0,y_max + 1 - vy, TRUE); 
     Refresh();
   }
 }
 
 
 void wxTerminal::EnableScrolling(bool want_scrolling) {
-  //once fixed, remove me.
+  //once fixed, remove me. (TODO)
   return;
   //the following doesn't work yet.
 
