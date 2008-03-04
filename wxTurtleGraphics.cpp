@@ -971,18 +971,19 @@ void TurtleCanvas::OnPageSetup(wxCommandEvent& WXUNUSED(event))
 
 
 void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {
+    int status;
     wxPrintDialogData printDialogData(* g_printData);
 
     wxPrinter printer(& printDialogData);
     TurtleWindowPrintout printout(_T("Turtle Graphics"));
-    if (!printer.Print(turtleFrame, &printout, true /*prompt*/))
-    {
-	if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
-	    wxMessageBox(_T("There was a problem printing.\nPerhaps your current printer is not set correctly?"), _T("Printing"), wxOK);
-	else
-	    wxMessageBox(_T("Printing Canceled"), _T("Printing"), wxOK);
+    if (!printer.Print(turtleFrame, &printout, true /*prompt*/)) {
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+	        wxMessageBox(_T("There was a problem printing.\nPerhaps your current printer is not set correctly?"), _T("Printing"), wxOK);
+        else
+            wxMessageBox(_T("Printing Canceled"), _T("Printing"), wxOK);
     } else {
-	(*g_printData) = printer.GetPrintDialogData().GetPrintData();
+        wxMessageBox(_T("We are printing turtle window"), _T("Print"), wxOK);
+        (*g_printData) = printer.GetPrintDialogData().GetPrintData();
     }
 }
 
@@ -1549,7 +1550,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     if (!dc) return false;
 
-#ifndef __WXMAC__
+#if !defined(__WXMAC__) && !defined(__WXMSW__)
   //using a memdc for printer here
     /*
      *  Create our bitmap for copying
@@ -1589,7 +1590,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
 
     // Get the size of the DC in pixels
     
-#ifdef __WXMAC__
+#if defined(__WXMAC__) || defined(__WXMSW__)
      dc->GetSize(&w, &h);   //this is now done above with memDC
 #endif
 
@@ -1615,7 +1616,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     turtle_shown = oldshown;
     drawToPrinter = 0;
 
-#ifndef __WXMAC__
+#if !defined(__WXMAC__) && !defined(__WXMSW__)
     //now print the bitmap to the dc
     //actualPrinterDC->Blit(0,0,w,h,printMemDC,0,0); //appears not to work
     dc->DrawBitmap(*printBitmap, 0, 0);
