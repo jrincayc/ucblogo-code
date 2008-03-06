@@ -275,13 +275,14 @@ extern "C" void wxLogoSleep(unsigned int milli) {
   sleepCond.WaitTimeout(milli);
   sleepMut.Unlock();
 #else
-  wxDateTime stop_waiting = wxDateTime::Now().Add(wxTimeSpan(0,0,0,milli));
+  //may not work on mac according to wxWidgets doc
+  wxDateTime stop_waiting = wxDateTime::UNow() + wxTimeSpan(0,0,0,milli);
   flushFile(stdout, 0);
-  while(wxDateTime::Now().IsEarlierThan(stop_waiting)) {
-    if(check_wx_stop(0)) {
+  while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
+    if(check_wx_stop(1)) {  //force yielding
       break;
     }
-    //wxMilliSleep(1);
+    wxMilliSleep(1);
   }
   //  wxMilliSleep(milli);
 #endif
