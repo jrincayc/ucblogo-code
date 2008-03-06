@@ -143,18 +143,18 @@ struct wxterm_linepos {
     m_curChar;
 
   bool
-    m_selecting,
-    m_marking;
+    m_selecting;
+//    m_marking;
 
   wxColour
-    m_vt_colors[16],
+//    m_vt_colors[16],
 //    m_pc_colors[16],
-    *m_colors;
+    m_colors[16];
 
   wxPen
-    m_vt_colorPens[16],
+//    m_vt_colorPens[16],
  //   m_pc_colorPens[16],
-    *m_colorPens;
+    m_colorPens[16];
 
   wxFont
     m_normalFont,
@@ -236,7 +236,7 @@ public:
 	  isEditFile;
   static wxTerminal *terminal; 
   bool SetFont(const wxFont& font);
-  void GetDefVTColors(wxColor colors[16]/*, wxTerminal::BOLDSTYLE boldStyle = wxTerminal::DEFAULT*/);
+  void GetColors(wxColor colors[16]/*, wxTerminal::BOLDSTYLE boldStyle = wxTerminal::DEFAULT*/);
   void deferUpdate(int);
   void set_mode_flag(int flag);
   void clear_mode_flag(int flag);
@@ -250,6 +250,7 @@ public:
   wxterm_charpos GetCharPosition(int x, int y);
   void DoCopy();
   void DoPaste();
+  void ProcessInput();
   void Flush (wxCommandEvent& event);
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);

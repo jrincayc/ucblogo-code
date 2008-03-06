@@ -776,15 +776,13 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_selecting = FALSE;
   m_selx1 = m_sely1 = m_selx2 = m_sely2 = 0;
   m_seloldx1 = m_seloldy1= m_seloldx2 = m_seloldy2 = 0;
-  m_marking = FALSE;
+  //m_marking = FALSE;
   m_curX = -1;
   m_curY = -1;
 
   //  m_boldStyle = FONT;
 
-  GetDefVTColors(m_vt_colors);
-
-  m_colors = m_vt_colors;
+  GetColors(m_colors);
 
   m_curFG = 15;
   m_curBG = 0;
@@ -792,9 +790,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   SetMinSize(wxSize(50, 50));
 
   for(i = 0; i < 16; i++)
-    m_vt_colorPens[i] = wxPen(m_vt_colors[i], 1, wxSOLID);
-
-  m_colorPens = m_vt_colorPens;
+    m_colorPens[i] = wxPen(m_colors[i], 1, wxSOLID);
 
   m_width = width;
   m_height = height;
@@ -802,7 +798,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_printerFN = 0;
   m_printerName = 0;
 
-  wxFont f(18, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
 	   false, "Courier");
   SetFont(f);
 
@@ -874,7 +870,7 @@ wxTerminal::SetFont(const wxFont& font)
 }
 
 void
-wxTerminal::GetDefVTColors(wxColour colors[16] /*, wxTerminal::BOLDSTYLE boldStyle*/)
+wxTerminal::GetColors(wxColour colors[16] /*, wxTerminal::BOLDSTYLE boldStyle*/)
 {
     colors[0] = wxColour(0, 0, 0);                             // black
     colors[1] = wxColour(255, 0, 0);                           // red
@@ -897,9 +893,33 @@ wxTerminal::GetDefVTColors(wxColour colors[16] /*, wxTerminal::BOLDSTYLE boldSty
 
 
 /*
+ * ProcessInput()
+ *
+ * passes input to logo, one line at a time
+ * and prints to terminal as well
+ *
+ * assumes cursor is set at last logo position already 
+ */
+void wxTerminal::ProcessInput() {
+  //pass input up to newline.
+  int i;
+  for(i = 0; i < input_index; i++) {
+    if(inputBuffer[i] == '\n') break;
+  }
+  PassInputToTerminal(i+1,inputBuffer); //include '\n'
+  last_logo_x = cursor_x;
+  last_logo_y = cursor_y;
+  
+  PassInputToInterp();
+  m_inputLines--;
+  if(!m_inputLines) m_inputReady = FALSE;  
+}
+
+
+/*
  * Flush()
  * 
- * Handles output from logo and input from user
+ * Handles output from logo
  */
 void  wxTerminal::Flush (wxCommandEvent& event){
   set_mode_flag(BOLD);
@@ -932,11 +952,10 @@ void  wxTerminal::Flush (wxCommandEvent& event){
   alreadyAlerted = 0;
 #endif
 
-  if(out_buff_index_public == 0 && !(readingInstruction && m_inputReady)) {
+  if(out_buff_index_public == 0) {
     clear_mode_flag(BOLD);
     return;
   }
-
   wxClientDC
     dc(this);
 
@@ -971,18 +990,7 @@ void  wxTerminal::Flush (wxCommandEvent& event){
     cursor_moved = FALSE;
 
     if(m_inputReady && readingInstruction) {
-      //pass input up to newline.
-      int i;
-      for(i = 0; i < input_index; i++) {
-	if(inputBuffer[i] == '\n') break;
-      }
-      PassInputToTerminal(i+1,inputBuffer); //include '\n'
-      last_logo_x = cursor_x;
-      last_logo_y = cursor_y;
-
-      PassInputToInterp();
-      m_inputLines--;
-      if(!m_inputLines) m_inputReady = FALSE;
+      ProcessInput();
     }
     else {
       //pass the input up to the current input location to terminal
@@ -1075,27 +1083,24 @@ void wxTerminal::DoPaste(){
 			unsigned int i; 
 			//char chars[2];
 			unsigned char c;
+			int num_newlines = 0;
 			int len;
 			char prev = ' ';
 			for (i = 0; i < s.Length(); i++){
 				len = 1;
-				//chars[0] = s.GetChar(i);
 				c = s.GetChar(i);
-				//if (prev == ' ' && chars[0] == ' ')
-				if (prev == ' ' && c == ' ')
+				if (c == '\n') {
+				  num_newlines++;
+				}
+				if (prev == ' ' && c == ' ') {
 				  continue;
-				//prev = chars[0];
+				}
 				prev = c;
 				inputBuffer[input_index++] = c;
-				//if(c == '\n'){
-				  //chars[0] = 10;
-				  //chars[1] = 13;
-				  //len = 2;
-				  //chars[0] = '\n';
-				//}
 				ClearSelection();
 				PassInputToTerminal(len, &c);
 			}
+			m_inputLines = num_newlines;
 			input_current_pos = input_index;
 		}  
 		wxTheClipboard->Close();
@@ -1169,9 +1174,8 @@ wxTerminal::OnChar(wxKeyEvent& event)
     m_inputLines++;
 
     if(readingInstruction) {
-      //call Flush (handles sending input as well)
-      haveInputEvent->SetClientData(NULL);
-      Flush(*haveInputEvent);
+      setCursor(last_logo_x, last_logo_y);
+      ProcessInput(); 
     }
     else {
       last_input_x = cursor_x;
@@ -1536,7 +1540,7 @@ int oldHeight = -1;
 
 void wxTerminal::OnDraw(wxDC& dc)
 {  
-  //  DebugOutputBuffer();
+  DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
