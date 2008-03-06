@@ -56,7 +56,9 @@ int load_flag = 0;
 // need to save
 int save_flag = 0;
 // alreadyAlerted indicated there is a pending message from logo to the GUI
+#ifdef MULTITHREAD
 int alreadyAlerted = 0;
+#endif
 
 // IO buffer handling
 char nameBuffer [NAME_BUFFER_SIZE];
@@ -201,7 +203,7 @@ extern "C" void flushFile(FILE * stream, int justPost) {
     out_mut.Lock();
 #endif
     
-    while (out_buff_index_public != 0) {	  
+    while (out_buff_index_public != 0) {
 #ifdef MULTITHREAD
       buff_full_cond.Wait();
 #else
@@ -227,10 +229,12 @@ extern "C" void flushFile(FILE * stream, int justPost) {
     out_buff_private = temp;
     out_buff_index_public = out_buff_index_private;
     out_buff_index_private = 0;
+#ifdef MULTITHREAD
     if (alreadyAlerted == 0)
       doPost = 1;
-#ifdef MULTITHREAD
-      out_mut.Unlock();
+    out_mut.Unlock();
+#else
+    doPost = 1;
 #endif
     
   }

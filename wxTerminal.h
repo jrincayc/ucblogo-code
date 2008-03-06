@@ -135,8 +135,9 @@ struct wxterm_linepos {
   int 
     m_vscroll_pos;
 
-  //used when readingInstruction is false
-  bool m_inputReady;
+  //number of input lines ready
+  int m_inputLines;
+  bool m_inputReady; //whether ENTER was hit.
 
   unsigned char
     m_curChar;
@@ -249,7 +250,7 @@ public:
   wxterm_charpos GetCharPosition(int x, int y);
   void DoCopy();
   void DoPaste();
-  void printText (wxCommandEvent& event);
+  void Flush (wxCommandEvent& event);
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);
   void PassInputToInterp();

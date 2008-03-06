@@ -726,7 +726,7 @@ BEGIN_EVENT_TABLE(wxTerminal, wxWindow)
   EVT_LEFT_DOWN(wxTerminal::OnLeftDown)
   EVT_LEFT_UP(wxTerminal::OnLeftUp)
   EVT_MOTION(wxTerminal::OnMouseMove)
-  EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::printText)
+  EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::Flush)
   EVT_SIZE(wxTerminal::OnSize)
   EVT_KILL_FOCUS(wxTerminal::LoseFocus)
 END_EVENT_TABLE()
@@ -814,6 +814,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 
   m_vscroll_enabled = TRUE;
   m_inputReady = FALSE;
+  m_inputLines = 0;
   
   //  int x, y;
   //GetSize(&x, &y);  
@@ -895,37 +896,47 @@ wxTerminal::GetDefVTColors(wxColour colors[16] /*, wxTerminal::BOLDSTYLE boldSty
 
 
 
-
-void  wxTerminal::printText (wxCommandEvent& event){
+/*
+ * Flush()
+ * 
+ * Handles output from logo and input from user
+ */
+void  wxTerminal::Flush (wxCommandEvent& event){
   set_mode_flag(BOLD);
 
 #ifdef MULTITHREAD  
  out_mut.Lock();
-#endif
 
   if (event.GetClientData() != NULL) {
     int * temp = (int *)event.GetClientData();
     this->setCursor(temp[0], temp[1]);
     free (temp);
-#ifdef MULTITHREAD
+
     movedCursor = 1;
     buff_full_cond.Broadcast();
     out_mut.Unlock();
-#endif
     return;
   }
 
+
   if (out_buff_index_public == 0) {
     alreadyAlerted = 0;
-#ifdef MULTITHREAD
+
     buff_full_cond.Broadcast();
     out_mut.Unlock();
-#endif
+
     clear_mode_flag(BOLD);
     return;
   }
 
   alreadyAlerted = 0;
+#endif
+
+  if(out_buff_index_public == 0 && !(readingInstruction && m_inputReady)) {
+    clear_mode_flag(BOLD);
+    return;
+  }
+
   wxClientDC
     dc(this);
 
@@ -959,37 +970,45 @@ void  wxTerminal::printText (wxCommandEvent& event){
     ClearSelection();
     cursor_moved = FALSE;
 
-    //pass the input up to the current input location to terminal
-    //e.g. cpos is 6, then pass chars 0 to 5 to terminal (6 chars)
-    PassInputToTerminal(input_current_pos, inputBuffer);
-    int new_cursor_x = cursor_x, new_cursor_y = cursor_y;
-    //pass the rest of input to terminal
-    //e.g. inputindex is 20, then pass chars 6 to 19 to terminal (14 chars)
-    PassInputToTerminal(input_index-input_current_pos, inputBuffer+input_current_pos);
-    // and set cursor back to proper location
-    setCursor(new_cursor_x, new_cursor_y);
-  
     if(m_inputReady && readingInstruction) {
+      //pass input up to newline.
+      int i;
+      for(i = 0; i < input_index; i++) {
+	if(inputBuffer[i] == '\n') break;
+      }
+      PassInputToTerminal(i+1,inputBuffer); //include '\n'
+      last_logo_x = cursor_x;
+      last_logo_y = cursor_y;
+
       PassInputToInterp();
-      m_inputReady = FALSE;
+      m_inputLines--;
+      if(!m_inputLines) m_inputReady = FALSE;
     }
-  }
-  else {
-    //save current cursor position to last_logo
-    last_logo_x = cursor_x;
-    last_logo_y = cursor_y;    
+    else {
+      //pass the input up to the current input location to terminal
+      //e.g. cpos is 6, then pass chars 0 to 5 to terminal (6 chars)
+      PassInputToTerminal(input_current_pos, inputBuffer);
+      int new_cursor_x = cursor_x, new_cursor_y = cursor_y;
+      //pass the rest of input to terminal
+      //e.g. inputindex is 20, then pass chars 6 to 19 to terminal (14 chars)
+      PassInputToTerminal(input_index-input_current_pos, inputBuffer+input_current_pos);
+      // set last_input coords
+      last_input_x = cursor_x;
+      last_input_y = cursor_y;
+      // and set cursor back to proper location
+      setCursor(new_cursor_x, new_cursor_y);
+    }
   }
 }
 
 
 /* 
-	PassInputToInterp() takes all characters in the input buffer 
-	up to the last '\n' and hands
+	PassInputToInterp() 
+        takes all characters in the input buffer 
+	up to the FIRST '\n' and hands
 	them off to the logo interpreter
-
-	NOTE: assumes cursor_x and cursor_y are set to the location of the
-	last '\n'.
-	
+        if logo_char_mode, then just send the character
+ ** does not edit cursor locations!
  */
 void wxTerminal::PassInputToInterp() {
   int i;  
@@ -1007,25 +1026,13 @@ void wxTerminal::PassInputToInterp() {
 #endif
   }
   else {
-    //look for the last newline... the following variable stores the location
-    //  (any any location other than 0 is "true" in the condition check)
-    int saw_newline = 0;
-
-    for (i = input_index-1;i >= 0; i--) {
+    for (i = 0; i < input_index; i++) {
+      buff_push(inputBuffer[i]);	
       if(inputBuffer[i] == '\n') {
-	saw_newline = i;
 	break;
       }
     }
-
-    for (i = 0; i < saw_newline; i++) {
-      buff_push(inputBuffer[i]);
-    }
-
-    //buff[buff_index++] = '\n'; 
-    buff_push('\n');
-
-
+    int saw_newline = i;
     for(i = saw_newline + 1; i < input_index; i++) {
       inputBuffer[i - saw_newline - 1] = inputBuffer[i];
     }
@@ -1035,13 +1042,7 @@ void wxTerminal::PassInputToInterp() {
 
 #ifdef MULTITHREAD
     read_buff.Broadcast();
-#endif
-    
-    // sent to logo, so the text is locked
-    last_logo_x = cursor_x;
-    last_logo_y = cursor_y;
-    //also where new input starts
-    
+#endif    
   }
 #ifdef MULTITHREAD
   in_mut.Unlock();
@@ -1164,12 +1165,15 @@ wxTerminal::OnChar(wxKeyEvent& event)
     unsigned char newline = '\n';
     PassInputToTerminal(1,&newline);      
 
+    m_inputReady = TRUE;
+    m_inputLines++;
+
     if(readingInstruction) {
-      //      PassInputToTerminal(len, buf);
-      PassInputToInterp();
+      //call Flush (handles sending input as well)
+      haveInputEvent->SetClientData(NULL);
+      Flush(*haveInputEvent);
     }
     else {
-      //m_inputReady = TRUE;
       last_input_x = cursor_x;
       last_input_y = cursor_y;
     }
@@ -1193,14 +1197,6 @@ wxTerminal::OnChar(wxKeyEvent& event)
     input_index--;
     input_current_pos--;
 
-    /*    
-    if(removing_newline) {
-      inputBuffer[input_index] = '\n';
-    }
-    else {
-      inputBuffer[input_index] = ' ';
-      }*/
-   
     cur_x = cursor_x - 1, cur_y = cursor_y;
     if(cur_x < 0) {
       wxterm_linepos cpos = GetLinePosition(cursor_y - 1);
@@ -1213,7 +1209,6 @@ wxTerminal::OnChar(wxKeyEvent& event)
       setCursor(cur_x, cur_y);
     }
     
-      //      set_mode_flag(CURSORINVISIBLE);
     PassInputToTerminal(input_index - input_current_pos,
 			(unsigned char *)inputBuffer + input_current_pos);
     
@@ -1234,12 +1229,13 @@ wxTerminal::OnChar(wxKeyEvent& event)
       unsigned char nl = '\n';
       PassInputToTerminal(1, &nl);
       PassInputToTerminal(1, &nl);  //pass two newlines
+
+      m_inputLines--; //merged two lines
     }
     else {
       unsigned char spc = ' ';
       PassInputToTerminal(1, &spc);
     }
-    //      clear_mode_flag(CURSORINVISIBLE);
     
     //set cursor back to backspace'd location
     setCursor(cur_x,cur_y); 
@@ -1271,12 +1267,17 @@ wxTerminal::OnChar(wxKeyEvent& event)
       hist_outptr++;
       input_index = 0;
       input_current_pos = 0;
-
+      m_inputLines = 0;
     } 
     else {
       PassInputToTerminal(strlen((const char *)*hist_outptr), *hist_outptr);
-      for (i = 0; (*hist_outptr)[i]; i++)
+      
+      int num_newlines = 0;
+      for (i = 0; (*hist_outptr)[i]; i++) {
 	inputBuffer[i] = (*hist_outptr)[i];
+	if(inputBuffer[i] == '\n') num_newlines++;
+      }
+      m_inputLines = num_newlines;
       input_index = i;
       input_current_pos = input_index;
     }
@@ -1313,11 +1314,17 @@ wxTerminal::OnChar(wxKeyEvent& event)
       wxBell();
       input_index = 0;
       input_current_pos = 0;
+      m_inputLines = 0;
     } else {
       PassInputToTerminal(strlen((const char *)*hist_outptr),
 			  *hist_outptr);
-      for (i = 0; (*hist_outptr)[i]; i++)
+      int num_newlines = 0;
+      for (i = 0; (*hist_outptr)[i]; i++) {
 	inputBuffer[i] = (*hist_outptr)[i];
+	if(inputBuffer[i] == '\n') num_newlines++;
+      }
+      m_inputLines = num_newlines;
+
       input_index = i;
       input_current_pos = input_index;
     }
@@ -1402,6 +1409,9 @@ wxTerminal::OnChar(wxKeyEvent& event)
     } 
     else {
       PassInputToTerminal(len, buf);
+      //now the cursor is where the last input position is
+      last_input_x = cursor_x;
+      last_input_y = cursor_y;	
     }   
   }
 }
@@ -1415,7 +1425,6 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
   int vis_x,vis_y;
   GetViewStart(&vis_x,&vis_y);
 
-  //TODO: FIX DEFERUPDATE FLAG and cursor synch
   if(!(m_currMode & DEFERUPDATE)) {
     //undraw cursor
     InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
