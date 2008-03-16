@@ -82,22 +82,6 @@ extern char * file; // using this is safe because the other thread is sleeping
 extern "C" int check_wx_stop(int force_yield);
 extern "C" int internal_check();
 
-/* Synchronization for Multithreaded version */
-#ifdef MULTITHREAD
-/* wxMain, wxTerminal */
-extern wxCondition read_buff;
-extern wxMutex buff_full_m;
-extern wxCondition buff_full_cond;
-extern wxMutex out_mut;
-extern wxMutex in_mut;
-extern wxCondition read_buff;
-extern int needToRefresh;
-/* wxTextEdit */
-extern wxCondition editCond;
-extern wxMutex editMut; 
-#endif
-
-
 #define wxdprintf if (wx_Debugging) printf
 
 

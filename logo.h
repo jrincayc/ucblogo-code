@@ -27,8 +27,6 @@
 
 /* #define MEM_DEBUG */
 
-/* #define MULTITHREAD */
-
 #define ecma	/* for European extended character set using parity bit */
 
 #ifdef WIN32

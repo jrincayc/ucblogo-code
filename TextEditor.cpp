@@ -208,11 +208,6 @@ void TextEditor::Close(){
 	topsizer->Layout();
 	wxTerminal::terminal->SetFocus();
 	logoFrame->SetUpMenu();
-	// Now we are done, wake up the terminal
-#ifdef MULTITHREAD
-	editCond.Broadcast();
-#endif
-	
 }
 
 void TextEditor::OnSave(){

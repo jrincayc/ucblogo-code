@@ -13,9 +13,7 @@ class LogoApplication : public wxApp
   public:
 	virtual bool OnInit();
 	virtual int OnExit();
-#ifndef MULTITHREAD
         virtual int OnRun();	
-#endif
 };
 
 // This is the Event Manager for the logo application

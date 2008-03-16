@@ -56,9 +56,6 @@ int load_flag = 0;
 // need to save
 int save_flag = 0;
 // alreadyAlerted indicated there is a pending message from logo to the GUI
-#ifdef MULTITHREAD
-int alreadyAlerted = 0;
-#endif
 
 // IO buffer handling
 char nameBuffer [NAME_BUFFER_SIZE];
@@ -71,123 +68,18 @@ int out_buff_index_private = 0;
 char * out_buff_public = out_buff1;
 char * out_buff_private = out_buff2;
 
-#ifdef MULTITHREAD
-// mutexes for the buffers
-wxMutex out_mut;
-wxMutex * init_m;
-wxMutex buff_full_m;
-wxCondition buff_full_cond(out_mut);
-
-
-// used for sleeping
-wxMutex sleepMut;
-wxCondition sleepCond(sleepMut);
-
-// the buffer from the GUI to the interpreter
-char buff[BUFF_LEN];
-int buff_index = 0;
-wxMutex in_mut;
-wxCondition read_buff (in_mut);
-#else
 char buff[BUFF_LEN];
 int buff_push_index = 0;
 int buff_pop_index = 0;
-#endif
-
-// ----------------------------------------------------------------------------
-// AppThread
-// ----------------------------------------------------------------------------
-
-// this class corresponds to the logo interpereter thread that is started when 
-// UCBLogo starts up
-
-#ifdef MULTITHREAD
-void * AppThread::Entry()
-{
-#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
-	wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
-#endif
-
-	// fix the working directory in mac
-#ifdef __WXMAC__
-	char path[1024];
-	CFBundleRef mainBundle = CFBundleGetMainBundle();
-	assert( mainBundle );
-	
-	CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
-	assert( mainBundleURL);
-	
-	CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
-	assert( cfStringRef);
-	
-	CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
-	
-	CFRelease( mainBundleURL);
-	CFRelease( cfStringRef);
-
-	//std::string pathString(path);
-	pathString = path;
-	pathString+="/Contents/Resources/";
-//	chdir(pathString.c_str());
-	
-#endif
-	
-	/*wxTerminal::terminal->x_coord=0;
-	wxTerminal::terminal->y_coord=0;
-	wxTerminal::terminal->x_max=80;
-	wxTerminal::terminal->y_max=24;*/
-  start(argc, argv);
-  return 0;
-
-}
 
 
-void AppThread::doExit(int code) {
-  this->Exit((ExitCode)code);
-}
-
-void AppThread::OnExit()
-{
-  turtleGraphics->exitApplication();
-  while (1) {
-    this->Sleep(1000);
-  }
-}
-
-
-AppThread:: AppThread(int c, char ** v) 
-  : wxThread(wxTHREAD_DETACHED)
-{
-  argc = c;
-  argv = v;
-}
-#endif
 
 // ----------------------------------------------------------------------------
 // misc functions
 // ----------------------------------------------------------------------------
 
 extern "C" void wxLogoExit(int code) {
-#ifdef MULTITHREAD
-  AppThread * thisThread =  (AppThread *)AppThread::This();
-  thisThread->doExit(code);
-#endif
 }
-
-#ifdef MULTITHREAD
-// start the interpreter thread
-void init_Logo_Interpreter ( int argc, char ** argv) {
-  AppThread * a = new AppThread(argc, argv);
-  
-   if (a->Create() != wxTHREAD_NO_ERROR) {
-     wxdprintf("There was an error during create");
-   }
-
-   if (a->Run() != wxTHREAD_NO_ERROR) {
-     wxdprintf("There was an error during run");
-   }
-}
-#endif
 
 #define LINEPAUSE 25
 
@@ -198,28 +90,16 @@ extern "C" void flushFile(FILE * stream, int justPost) {
   char * temp;
 
   if (!justPost) {
-
-#ifdef MULTITHREAD
-    out_mut.Lock();
-#endif
     
     while (out_buff_index_public != 0) {
-#ifdef MULTITHREAD
-      buff_full_cond.Wait();
-#else
       logoEventManager->ProcessAnEvent();
-      //wxMilliSleep(10);
-#endif
+      wxMilliSleep(10);
     }
     
     if (numLines >= LINEPAUSE) {
       // this is to give the user a chance to pause
-#ifdef MULTITHREAD
-      buff_full_cond.WaitTimeout(1);
-#else
       wxMilliSleep(1);
       numLines = 0;
-#endif
     }
     else 
       numLines++;
@@ -229,56 +109,26 @@ extern "C" void flushFile(FILE * stream, int justPost) {
     out_buff_private = temp;
     out_buff_index_public = out_buff_index_private;
     out_buff_index_private = 0;
-#ifdef MULTITHREAD
-    if (alreadyAlerted == 0)
-      doPost = 1;
-    out_mut.Unlock();
-#else
-    doPost = 1;
-#endif
-    
+    doPost = 1;    
   }
 
   if (doPost || justPost) {
     if (!doPost) {
       // This is so that I don't have to grab the lock twice
       if (numLines >= LINEPAUSE) {
-#ifdef MULTITHREAD
-	out_mut.Lock();
-	buff_full_cond.WaitTimeout(1);
-	out_mut.Unlock();
-#else
 	wxMilliSleep(1);
-#endif
 	numLines = 0;
       }
       else 
 	numLines++;
     }
     haveInputEvent->SetClientData(NULL);
-#ifdef MULTITHREAD
-    wxPostEvent(wxTerminal::terminal, *(haveInputEvent));
-#else
     wxTerminal::terminal->ProcessEvent(*haveInputEvent);
-#endif
   }
 }
 
 // have the interpreter go to sleep
 extern "C" void wxLogoSleep(unsigned int milli) {
-#ifdef MULTITHREAD
-  flushFile(stdout, 0);
-  if(needToRefresh){
-    redraw_graphics();
-    // to make sure we always get an entire refresh
-    if(needToRefresh == 1)
-      needToRefresh = 0;
-    else needToRefresh = 1;
-  }
-  sleepMut.Lock();
-  sleepCond.WaitTimeout(milli);
-  sleepMut.Unlock();
-#else
   //may not work on mac according to wxWidgets doc
   wxDateTime stop_waiting = wxDateTime::UNow() + wxTimeSpan(0,0,0,milli);
   flushFile(stdout, 0);
@@ -288,21 +138,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     }
     wxMilliSleep(1);
   }
-  //  wxMilliSleep(milli);
-#endif
 }
-
-// have the interpreter wake up
-#ifdef MULTITHREAD
-void wxLogoWakeup() {  
-  sleepMut.Lock();
-  sleepCond.Broadcast();
-  sleepMut.Unlock();
-  in_mut.Lock();
-  read_buff.Broadcast();
-  in_mut.Unlock();
-}
-#endif
 
 /* Called by the logo thread to display a character onto the terminal screen */
 extern "C" void printToScreen(char c, FILE * stream) 
@@ -344,21 +180,12 @@ extern "C" char getFromWX_2(FILE * f)
  if (f != stdin) {
     return getc(f);
   }
-#ifdef MULTITHREAD
-   in_mut.Lock();
-#endif
 	
    //  while (buff_index == 0 && !putReturn) {
    while(buff_empty && !putReturn) {
     if(needToRefresh){
-#ifdef MULTITHREAD
-      in_mut.Unlock();
-#endif
       redraw_graphics();
       wxdprintf("wxMain after calling redraw graphics\n");
-#ifdef MULTITHREAD
-      in_mut.Lock();
-#endif
       needToRefresh = 0;
       turtleGraphics->Refresh();
       wxdprintf("after wxMain calling refresh()");	  
@@ -398,24 +225,14 @@ extern "C" char getFromWX_2(FILE * f)
       buff_push(' '); 
       buff_push('"');      
     }
-#ifdef MULTITHREAD
-    in_mut.Unlock();
-#endif
     // Do this while the lock is released just in case the longjump occurs
     if (check_wx_stop(1)) {   // force yield (1)
       putReturn = 1;
     }
     flushFile(stdout, 0);
-#ifdef MULTITHREAD
-    in_mut.Lock();
-#endif
     //if (buff_index == 0 && !putReturn)
     if (buff_empty && !putReturn)
-#ifdef MULTITHREAD
-      read_buff.WaitTimeout(1000);
-#else
       wxMilliSleep(1); // don't wait too long now...
-#endif
   }
   char c;
   if (putReturn)
@@ -423,24 +240,14 @@ extern "C" char getFromWX_2(FILE * f)
   else
     //    c= buff[--buff_index];
     buff_pop(c);
-#ifdef MULTITHREAD
-    in_mut.Unlock();
-#endif
   return c;
 }
 
 
 extern "C" int wxKeyp() {
   int ret = 0;
-#ifdef MULTITHREAD
-  in_mut.Lock();
-#endif
-  //if (buff_index != 0)
   if (!buff_empty)
     ret = 1;
-#ifdef MULTITHREAD
-  in_mut.Unlock();
-#endif
   return ret;
 }
 
@@ -448,14 +255,7 @@ extern "C" int wxUnget_c(int c, FILE * f) {
   if (f != stdin)
     return ungetc(c, f);
   else {
-#ifdef MULTITHREAD
-    in_mut.Lock();
-#endif
-    //buff[++buff_index] = (char)c;
     buff_push((char)c);
-#ifdef MULTITHREAD
-    in_mut.Unlock();
-#endif
     return c;
   }
 }
@@ -486,29 +286,17 @@ extern "C" char* wx_fgets(char* s, int n, FILE* stream) {
 
 void doLoad(char * name, int length) {
   int i = 0;
-#ifdef MULTITHREAD
-  in_mut.Lock();
-#endif
   while (i < length && i < NAME_BUFFER_SIZE) {
     nameBuffer[i] = name[i];
     i++;
   }
   nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
 
-  load_flag = 1;
-#ifdef MULTITHREAD
-  read_buff.Broadcast();
-
-  in_mut.Unlock();
-#endif
-  
+  load_flag = 1;  
 }
 
 void doSave(char * name, int length) {
   int i = 0;
-#ifdef MULTITHREAD
-  in_mut.Lock();
-#endif
   while (i < length && i < NAME_BUFFER_SIZE) {
     nameBuffer[i] = name[i];
     i++;
@@ -516,11 +304,6 @@ void doSave(char * name, int length) {
   nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
   
   save_flag = 1;
-#ifdef MULTITHREAD
-  read_buff.Broadcast();
-  
-  in_mut.Unlock();
-#endif
   }
 
 extern "C" const char* wxMacGetLibloc(){

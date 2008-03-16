@@ -92,14 +92,8 @@ extern "C" RETSIGTYPE logo_pause(int);
 extern "C" RETSIGTYPE logo_stop();
 extern "C" RETSIGTYPE logo_pause();
 #endif
-#ifdef MULTITHREAD
-extern void wxLogoWakeup();
-#endif
 int logo_stop_flag = 0;
 int logo_pause_flag = 0;
-#ifdef MULTITHREAD
-int movedCursor = 0;
-#endif
 
 // this is a static reference to the main terminal
 wxTerminal *wxTerminal::terminal;
@@ -165,17 +159,14 @@ bool LogoApplication::OnInit()
      50, 50, 900, 500);
 
   logoFrame->Show(TRUE);
-#ifndef MULTITHREAD
 #ifndef __WXMAC__
   m_mainLoop = new wxEventLoop();
 #endif
   logoEventManager = new LogoEventManager(this);
-#endif
   SetTopWindow(logoFrame);
   return TRUE;	
 }
 
-#ifndef MULTITHREAD
 extern "C" int start (int, char **);
 
 
@@ -218,7 +209,6 @@ int LogoApplication::OnRun()
   return 0;
 }
 
-#endif
 int LogoApplication::OnExit() {
   return 0;
 }
@@ -229,7 +219,6 @@ int LogoApplication::OnExit() {
 // LogoEventManager class
 // ----------------------------------------------------------------------------
 
-#ifndef MULTITHREAD
 LogoEventManager::LogoEventManager(LogoApplication *logoApp)
 {
   m_logoApp = logoApp;
@@ -262,7 +251,6 @@ void LogoEventManager::ProcessAllEvents()
   m_logoApp->Yield(TRUE);
 }
 
-#endif
 
 // ----------------------------------------------------------------------------
 // LogoFrame class
@@ -312,8 +300,8 @@ LogoFrame::LogoFrame (const wxChar *title,
   topsizer = new wxBoxSizer( wxVERTICAL );
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
   turtleGraphics = new TurtleCanvas( this );
-  wxFont f(18, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, wxString(""));
+  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+	   false, wxString("Courier"));
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
   wxTerminal::terminal->isEditFile=0;
   
@@ -350,10 +338,6 @@ LogoFrame::LogoFrame (const wxChar *title,
     wxTerminal::terminal->SetFocus();
 	SetUpMenu();
     wxSleep(1);
-
-#ifdef MULTITHREAD	
-    init_Logo_Interpreter (1, argv );
-#endif
 }
 
 
@@ -613,17 +597,11 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 
 void LogoFrame::DoStop(wxCommandEvent& WXUNUSED(event)){
   logo_stop_flag = 1;
-#ifdef MULTITHREAD
-  wxLogoWakeup();
-#endif
 }
 
 
 void LogoFrame::DoPause(wxCommandEvent& WXUNUSED(event)){
   logo_pause_flag = 1;
-#ifdef MULTITHREAD
-  wxLogoWakeup();
-#endif
 }
 
 void LogoFrame::OnEditCloseAccept(wxCommandEvent& WXUNUSED(event)){
@@ -924,34 +902,6 @@ void wxTerminal::ProcessInput() {
 void  wxTerminal::Flush (wxCommandEvent& event){
   set_mode_flag(BOLD);
 
-#ifdef MULTITHREAD  
- out_mut.Lock();
-
-  if (event.GetClientData() != NULL) {
-    int * temp = (int *)event.GetClientData();
-    this->setCursor(temp[0], temp[1]);
-    free (temp);
-
-    movedCursor = 1;
-    buff_full_cond.Broadcast();
-    out_mut.Unlock();
-    return;
-  }
-
-
-  if (out_buff_index_public == 0) {
-    alreadyAlerted = 0;
-
-    buff_full_cond.Broadcast();
-    out_mut.Unlock();
-
-    clear_mode_flag(BOLD);
-    return;
-  }
-
-  alreadyAlerted = 0;
-#endif
-
   if(out_buff_index_public == 0) {
     clear_mode_flag(BOLD);
     return;
@@ -973,11 +923,6 @@ void  wxTerminal::Flush (wxCommandEvent& event){
      PassInputToTerminal(out_buff_index_public, (unsigned char *)out_buff_public);
      out_buff_index_public = 0;
   }
-
-#ifdef MULTITHREAD
-  buff_full_cond.Broadcast();
-  out_mut.Unlock();
-#endif
 
   //save current cursor position to last_logo
   last_logo_x = cursor_x;
@@ -1020,18 +965,12 @@ void  wxTerminal::Flush (wxCommandEvent& event){
  */
 void wxTerminal::PassInputToInterp() {
   int i;  
-#ifdef MULTITHREAD
-  in_mut.Lock();
-#endif
   if(logo_char_mode){
     //buff[buff_index++] = inputBuffer[--input_index];
     buff_push(inputBuffer[--input_index]);
     
     input_index = 0;
     input_current_pos = 0;
-#ifdef MULTITHREAD
-    read_buff.Broadcast();
-#endif
   }
   else {
     for (i = 0; i < input_index; i++) {
@@ -1047,14 +986,7 @@ void wxTerminal::PassInputToInterp() {
     // a to b, length is b - a + 1
     input_index = input_index - saw_newline - 1;
     input_current_pos = input_index;
-
-#ifdef MULTITHREAD
-    read_buff.Broadcast();
-#endif    
   }
-#ifdef MULTITHREAD
-  in_mut.Unlock();
-#endif
 }
 
 
@@ -1422,9 +1354,6 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
 void wxTerminal::setCursor (int x, int y, bool fromLogo) {
   wxClientDC dc (this);
-#ifdef MULTITHREAD
-  in_mut.Lock();
-#endif
 
   int vis_x,vis_y;
   GetViewStart(&vis_x,&vis_y);
@@ -1508,9 +1437,6 @@ void wxTerminal::setCursor (int x, int y, bool fromLogo) {
     }
   }
 
-#ifdef MULTITHREAD
-  in_mut.Unlock();
-#endif
 }
 
 void wxTerminal::OnSize(wxSizeEvent& event) {      
@@ -2357,15 +2283,9 @@ extern "C" void setCharMode(int mode){
 }
 
 extern "C" void wxClearText() {
-#ifdef MULTITHREAD
-  out_mut.Lock();
-#endif
   wxTerminal::terminal->ClearScreen();
   out_buff_index_public = 0;
   out_buff_index_private = 0;
-#ifdef MULTITHREAD
-  out_mut.Unlock();
-#endif
 }
 
 void wxTerminal::ClearScreen() {
@@ -2409,36 +2329,10 @@ void wxTerminal::EnableScrolling(bool want_scrolling) {
 extern "C" void flushFile(FILE * stream, int);
 
 extern "C" void wxSetCursor(int x, int y){
-#ifndef MULTITHREAD
   //just call wxTerminal::setCursor with a special flag.
   flushFile(stdout, 0);
   wxTerminal::terminal->EnableScrolling(FALSE);
   wxTerminal::terminal->setCursor(x,y,TRUE);
-
-#else
-	int * data = (int *)malloc(2 * sizeof(int));
-	data[0] = x;
-	data[1] = y;
-	wxCommandEvent event(wxEVT_MY_CUSTOM_COMMAND);
-	event.SetClientData((void *)data);
-	flushFile(stdout, 0);
-
-	out_mut.Lock();
-
-	movedCursor = 0;
-
-	out_mut.Unlock();
-	wxPostEvent(wxTerminal::terminal,event);
-
-	out_mut.Lock();
-	if (!movedCursor) {
-	  buff_full_cond.Wait();
-	}
-
-	movedCursor = 0;
-
-	out_mut.Unlock();
-#endif
 }
 
 
@@ -2447,9 +2341,8 @@ extern "C" void wx_enable_scrolling() {
 }
 
 extern "C" int check_wx_stop(int force_yield) {
-#ifndef MULTITHREAD  
   logoEventManager->ProcessAnEvent(force_yield); 
-#endif
+
   if (logo_stop_flag) {
     logo_stop_flag = 0;
 #ifdef SIG_TAKES_ARG
