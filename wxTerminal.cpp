@@ -37,6 +37,7 @@ extern int readingInstruction;
 #include <wx/html/htmprint.h>
 #include <wx/print.h>
 #include <wx/printdlg.h>
+#include <wx/dcbuffer.h>  //buffered_DC
 #include "wxTurtleGraphics.h"
 #include "config.h"
 #include "TextEditor.h"
@@ -1353,7 +1354,10 @@ wxTerminal::OnChar(wxKeyEvent& event)
 }
 
 void wxTerminal::setCursor (int x, int y, bool fromLogo) {
-  wxClientDC dc (this);
+  wxClientDC unbuffered_dc(this);
+  wxSize sz = unbuffered_dc.GetSize();    
+  wxBufferedDC dc(&unbuffered_dc, sz);
+  dc.Blit(0,0,sz.GetWidth(), sz.GetHeight(), &unbuffered_dc, 0, 0);
 
   int vis_x,vis_y;
   GetViewStart(&vis_x,&vis_y);
@@ -1466,7 +1470,7 @@ int oldHeight = -1;
 
 void wxTerminal::OnDraw(wxDC& dc)
 {  
-  DebugOutputBuffer();
+  //DebugOutputBuffer();
 
   wxRect rectUpdate = GetUpdateRegion().GetBox();
   CalcUnscrolledPosition(rectUpdate.x, rectUpdate.y,
@@ -1513,10 +1517,6 @@ void wxTerminal::OnDraw(wxDC& dc)
     InvertArea(dc, c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight);
   }
 
-  //also mark selection
-  //  if(m_selecting) {
-    MarkSelection(dc);
-  //}
 }
 
 // gets the click coordinate (unscrolled) in terms of characters
@@ -1588,13 +1588,20 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
 {
   if(m_selecting)
   { 
+    wxClientDC unbuffered_dc(this);
+    wxSize sz = unbuffered_dc.GetSize();    
+    wxBufferedDC dc(&unbuffered_dc, sz);
+    dc.Blit(0,0,sz.GetWidth(), sz.GetHeight(), &unbuffered_dc, 0, 0);
+
+    MarkSelection(dc, TRUE);
 
     int click_x, click_y;
     GetClickCoords(event, &click_x, &click_y);
     m_selx2 = click_x;
     m_sely2 = click_y;
     
-    Refresh();
+    //Refresh();
+    MarkSelection(dc, TRUE);
 
       
     if(!HasCapture()) {
@@ -1607,25 +1614,32 @@ void
 wxTerminal::ClearSelection()
 {
   if (m_sely2 != m_sely1 || m_selx2 != m_selx1) {
+    wxClientDC dc(this);
+    MarkSelection(dc, TRUE); //undraw
     m_sely2 = m_sely1;
-    m_selx2 = m_selx1;
-    
-    //MarkSelection();
+    m_selx2 = m_selx1;   
   }
 }
 
 void 
-wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h) {
+wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_coord) {
   if(!m_vscroll_enabled) {
     t_y -= m_vscroll_pos * m_charWidth;
   }
-  //  CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
+  if(scrolled_coord) {
+    CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
+    //calculate if out of bounds
+    //    if(t_x < 0 || t_x > m_width * m_charWidth ||
+    //   t_y < 0 || t_y > m_height * m_charHeight) {
+    //  return;
+    //}
+  }
   dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
 }
 
 
 void
-wxTerminal::MarkSelection(wxDC &dc) {
+wxTerminal::MarkSelection(wxDC &dc, bool scrolled_coord) {
 
   int 
     pic_x1, pic_y1,
@@ -1649,19 +1663,23 @@ wxTerminal::MarkSelection(wxDC &dc) {
 
   if(pic_y1 == pic_y2) {
     InvertArea(dc, 
-		       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
-		       (pic_x2 - pic_x1)*m_charWidth, m_charHeight);
+	       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
+	       (pic_x2 - pic_x1)*m_charWidth, m_charHeight,
+	       scrolled_coord);
   }
   else if(pic_y1 < pic_y2) {
     InvertArea(dc, 
-		       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
-		       (x_max - pic_x1) * m_charWidth, m_charHeight);
+	       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
+	       (x_max - pic_x1) * m_charWidth, m_charHeight,
+	       scrolled_coord);
     InvertArea(dc, 
-		       0, (pic_y1 + 1)*m_charHeight,
-		       x_max * m_charWidth, (pic_y2 - pic_y1 - 1)*m_charHeight);
+	       0, (pic_y1 + 1)*m_charHeight,
+	       x_max * m_charWidth, (pic_y2 - pic_y1 - 1)*m_charHeight,
+	       scrolled_coord);
     InvertArea(dc, 
-		       0, pic_y2*m_charHeight, 
-		       pic_x2*m_charWidth, m_charHeight);
+	       0, pic_y2*m_charHeight, 
+	       pic_x2*m_charWidth, m_charHeight,
+	       scrolled_coord);
   }
 }
 
@@ -1742,7 +1760,6 @@ wxTerminal::SelectAll()
   m_sely2 = y_max;
 
   Refresh();
-  //MarkSelection(dc);
 }
 
 wxterm_linepos wxTerminal::GetLinePosition(int y) 
@@ -2057,7 +2074,11 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
   wxterm_linepos lpos;
   wxterm_charpos pos_1, pos_2;
   int new_line_length;
-  wxClientDC dc(this);
+
+  wxClientDC unbuffered_dc(this);
+  wxSize sz = unbuffered_dc.GetSize();    
+  wxBufferedDC dc(&unbuffered_dc, sz);
+  dc.Blit(0,0,sz.GetWidth(), sz.GetHeight(), &unbuffered_dc, 0, 0);
 
   int vis_x,vis_y;
   GetViewStart(&vis_x,&vis_y);

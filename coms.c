@@ -97,7 +97,7 @@ NODE *loutput(NODE *arg) {
 }
 
 NODE *lstop(NODE *args) {
-    if (NOT_THROWING)
+  if (NOT_THROWING) {
 	if (ufun == NIL)
 	    err_logo(AT_TOPLEVEL, theName(Name_stop));
 	else if (val_status & OUTPUT_TAIL 
@@ -108,6 +108,7 @@ NODE *lstop(NODE *args) {
 	    stopping_flag = STOP;
 	    output_unode = current_unode;
 	}
+  }
     return(UNBOUND);
 }
 
@@ -428,7 +429,7 @@ NODE *lwait(NODE *args) {
 	fix_turtle_shownness();
 
 #ifdef HAVE_WX
-	n = (unsigned int)getint(num) * 10; // milliseconds
+	n = (unsigned int)getint(num) * 100 / 6; // milliseconds
 	wxLogoSleep(n);
 	//check_throwing;
 	return(UNBOUND); 

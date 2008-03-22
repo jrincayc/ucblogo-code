@@ -285,8 +285,8 @@ public:
 
 private:
   int MapKeyCode(int keyCode);
-  void InvertArea(wxDC &dc, int tx1, int tx2, int w, int h);
-  void MarkSelection(wxDC &dc);
+  void InvertArea(wxDC &dc, int tx1, int tx2, int w, int h, bool scrolled_coord = FALSE);
+  void MarkSelection(wxDC &dc, bool scrolled_coord = FALSE);
 
   int CheckPlatformKeys(wxKeyEvent& event);
   void OnChar(wxKeyEvent& event);
