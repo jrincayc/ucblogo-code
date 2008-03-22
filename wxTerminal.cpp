@@ -2075,10 +2075,14 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
   wxterm_charpos pos_1, pos_2;
   int new_line_length;
 
+#if 1
+  wxClientDC dc(this);
+#else
   wxClientDC unbuffered_dc(this);
   wxSize sz = unbuffered_dc.GetSize();    
   wxBufferedDC dc(&unbuffered_dc, sz);
   dc.Blit(0,0,sz.GetWidth(), sz.GetHeight(), &unbuffered_dc, 0, 0);
+#endif
 
   int vis_x,vis_y;
   GetViewStart(&vis_x,&vis_y);
