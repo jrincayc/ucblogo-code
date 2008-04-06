@@ -519,13 +519,13 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	
 	// get original size and number of characters per row and column
 	int width, height, numCharX, numCharY, m_charWidth, m_charHeight;
-	int m_lineHeight;
-	wxClientDC dc(wxTerminal::terminal);
-	dc.GetMultiLineTextExtent("M", &m_charWidth, &m_charHeight,
-				  &m_lineHeight);	
+	wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
+	//wxClientDC dc(wxTerminal::terminal);
+	//	dc.GetMultiLineTextExtent("M", &m_charWidth, &m_charHeight,
+	//			  &m_lineHeight);	
 	GetSize(&width, &height);
 	numCharX = width/m_charWidth;
-	numCharY = height/m_lineHeight;
+	numCharY = height/m_charHeight;
 	
 	wxdprintf("m_charWidth: %d, m_charHeight: %d, width: %d, height: %d, numCharX: %d, numCharY: %d\n", m_charWidth, m_charHeight, width, height, numCharX, numCharY);
 	
@@ -544,13 +544,14 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	//	wxTerminal::terminal->OnSize(event);
 	
 	// resize the frame according to the new font size
-	int new_m_charWidth, new_m_charHeight, new_m_lineHeight;
-	wxClientDC newdc(wxTerminal::terminal);
-	newdc.GetMultiLineTextExtent("M", &new_m_charWidth,
-				     &new_m_charHeight, &new_m_lineHeight);
+	int new_m_charWidth, new_m_charHeight;
+	wxTerminal::terminal->GetCharSize(&new_m_charWidth, &new_m_charHeight);
+	//wxClientDC newdc(wxTerminal::terminal);
+	//newdc.GetMultiLineTextExtent("M", &new_m_charWidth,
+	//			     &new_m_charHeight, &new_m_lineHeight);
 	if (new_m_charWidth != m_charWidth ||
-		    new_m_lineHeight != m_lineHeight) {
-	    SetSize(numCharX*new_m_charWidth, numCharY*new_m_lineHeight);
+		    new_m_charHeight != m_charHeight) {
+	    SetSize(numCharX*new_m_charWidth, numCharY*new_m_charHeight);
 	}
 	//GetSize(&width, &height); 
 	//printf("new m_charWidth: %d, new m_charHeight: %d, new width: %d, new height: %d\n", new_m_charWidth, new_m_charHeight, width, height);
@@ -562,8 +563,9 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	
 	// get original size and number of characters per row and column
 	int width, height, numCharX, numCharY, m_charWidth, m_charHeight;
-	wxClientDC dc(wxTerminal::terminal);
-	dc.GetTextExtent("M", &m_charWidth, &m_charHeight);	
+	wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
+	//wxClientDC dc(wxTerminal::terminal);
+	//dc.GetTextExtent("M", &m_charWidth, &m_charHeight);	
 	GetSize(&width, &height);
 	numCharX = width/m_charWidth;
 	numCharY = height/m_charHeight;
@@ -584,11 +586,11 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	
 	// resize the frame according to the new font size
 	int new_m_charWidth, new_m_charHeight;
-	wxClientDC newdc(wxTerminal::terminal);
-	newdc.GetTextExtent("M", &new_m_charWidth, &new_m_charHeight);
+	wxTerminal::terminal->GetCharSize(&new_m_charWidth, &new_m_charHeight);
+	//wxClientDC newdc(wxTerminal::terminal);
+	//newdc.GetTextExtent("M", &new_m_charWidth, &new_m_charHeight);
 	if (new_m_charWidth != m_charWidth || new_m_charHeight != m_charHeight) {
-		SetSize(numCharX*new_m_charWidth, numCharY*new_m_charHeight);	
-		wxdprintf("resized window?");
+		SetSize(numCharX*new_m_charWidth, numCharY*new_m_charHeight); 
 	}
 	//GetSize(&width, &height); 
 	//printf("new m_charWidth: %d, new m_charHeight: %d, new width: %d, new height: %d\n", new_m_charWidth, new_m_charHeight, width, height);
@@ -784,7 +786,8 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   wxClientDC
     dc(this);
   
-  dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
+  wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
+  //dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   //  m_charWidth--;
 
   m_vscroll_enabled = TRUE;
@@ -837,15 +840,30 @@ wxTerminal::SetFont(const wxFont& font)
   m_boldFont.SetWeight(wxBOLD);
   m_boldUnderlinedFont = m_boldFont;
   m_boldUnderlinedFont.SetUnderlined(TRUE);
-  wxClientDC
-	  dc(this);
+  GetCharSize(&m_charWidth, &m_charHeight);
+  //  wxClientDC
+  //	  dc(this);
   
-  dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
+  //  dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   //  m_charWidth--;
   ResizeTerminal(m_width, m_height);
   Refresh();
   
   return TRUE;
+}
+
+void 
+wxTerminal::GetCharSize(int *cw, int *ch) {
+  wxClientDC
+    dc(this);
+  
+  //int dummy;
+  //dc.GetTextExtent("M", cw, &dummy);
+  //dc.GetTextExtent("(", &dummy, ch);
+  
+  int descent, extlead;
+  dc.GetTextExtent("M", cw, ch, &descent, &extlead);
+  *ch += descent + extlead;
 }
 
 void
@@ -1459,6 +1477,7 @@ void wxTerminal::OnSize(wxSizeEvent& event) {
   if (y < 1) 
     y = 1;
   ResizeTerminal(x,y);
+  Scroll(-1, cursor_y);
   Refresh();
 }
 
@@ -2196,6 +2215,7 @@ wxTerminal::PassInputToTerminal(int len, unsigned char *data)
     // old_vis_y keeps track of whether the screen has changed lately
 
     if((!readingInstruction &&
+	1 ||                     //don't use old_vis_y??
 	vis_y != old_vis_y) || 
        cursor_y < vis_y  ||
        cursor_y > vis_y + m_height - 1) {
@@ -2327,9 +2347,29 @@ void wxTerminal::ClearScreen() {
   }
 }
 
-
 void wxTerminal::EnableScrolling(bool want_scrolling) {
   //once fixed, remove me. (TODO)
+
+  //wxScrolledWindow::EnableScrolling(FALSE,want_scrolling); //doesn't work?
+  static int 
+    scroll_disabled = FALSE,
+    scroll_pos = GetScrollPos(wxVERTICAL),
+    scroll_range = GetScrollRange(wxVERTICAL),
+    scroll_thumb = GetScrollThumb(wxVERTICAL);
+  if(want_scrolling) {
+    if(scroll_disabled) {
+      SetScrollbar(wxVERTICAL, scroll_pos, scroll_thumb, scroll_range);
+      scroll_disabled = FALSE;
+    }
+  }
+  else {
+    scroll_pos = GetScrollPos(wxVERTICAL);
+    scroll_range = GetScrollRange(wxVERTICAL);
+    scroll_thumb = GetScrollThumb(wxVERTICAL);
+
+    SetScrollbar(wxVERTICAL, 0,0,0);
+    scroll_disabled = TRUE;
+  }
   return;
   //the following doesn't work yet.
 
@@ -2350,7 +2390,6 @@ void wxTerminal::EnableScrolling(bool want_scrolling) {
 
 }
 
-
 extern "C" void flushFile(FILE * stream, int);
 
 extern "C" void wxSetCursor(int x, int y){
@@ -2362,6 +2401,7 @@ extern "C" void wxSetCursor(int x, int y){
 
 
 extern "C" void wx_enable_scrolling() {
+
   wxTerminal::terminal->EnableScrolling(TRUE);
 }
 

@@ -235,6 +235,7 @@ public:
 	  y_max,
 	  isEditFile;
   static wxTerminal *terminal; 
+  void GetCharSize(int *cw, int *ch);
   bool SetFont(const wxFont& font);
   void GetColors(wxColor colors[16]/*, wxTerminal::BOLDSTYLE boldStyle = wxTerminal::DEFAULT*/);
   void deferUpdate(int);
