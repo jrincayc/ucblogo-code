@@ -176,7 +176,7 @@ int LogoApplication::OnRun()
 #ifndef __WXMAC__
   wxEventLoop::SetActive(m_mainLoop);
 #endif
-  SetExitOnFrameDelete(true);
+  //SetExitOnFrameDelete(true);
 
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
   wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());

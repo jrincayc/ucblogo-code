@@ -21,21 +21,6 @@ std::string pathString;
 
 int wx_Debugging = 0;
 
-/* The thread for Logo */
-class AppThread : public wxThread {
-	
-public:
-	AppThread(int , char **);
-	virtual void * Entry();
-	virtual void doExit(int code);
-	virtual void OnExit();
-private:
-		int argc;
-	char ** argv;
-};
-
-
-
 // start the application
 IMPLEMENT_APP(LogoApplication)
 
