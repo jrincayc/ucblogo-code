@@ -754,8 +754,8 @@ if test "$wx_enable" = yes; then
     cat >> confdefs.h <<\EOF
 #define HAVE_WX 1
 EOF
-    WXOFILES="actions.o states.o utils.o vt52_states.o keytrans.o wxMain.o wxTerminal.o wxTurtleGraphics.o  gterm.o TextEditor.o"
-    WXSRCFILES="actions.cpp states.cpp utils.cpp vt52_states.cpp keytrans.cpp wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  gterm.cpp TextEditor.cpp"
+    WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
+    WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
     LIBS="$LIBS "`$wx_config_path --libs`;
     CXXFLAGS="$CXXFLAGS -DHAVE_WX "`$wx_config_path --cxxflags`;
     CFLAGS="$CFLAGS -DHAVE_WX "
