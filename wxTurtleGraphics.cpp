@@ -52,6 +52,8 @@ DECLARE_EVENT_TABLE_ENTRY( \
 char* LogoPlatformName="wxWidgets";
 #endif
 
+float fillScale;
+
 pen_info p;
 int TurtleFrame::back_ground = 0;
 int TurtleFrame::screen_height = 0; 
@@ -541,8 +543,17 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
     }
 #endif
     dc->SetBrush(brush);
+  if (drawToPrinter) {
+    dc->SetUserScale(1.0, 1.0);
+    dc->FloodFill((long)(turtlePosition_x*fillScale),
+		  (long)(turtlePosition_y*fillScale) , c);
+    dc->SetUserScale(fillScale, fillScale);
+  } else
     dc->FloodFill(turtlePosition_x, turtlePosition_y , c);
+
+
 //    dc->FloodFill(dc->LogicalToDeviceX(turtlePosition_x), dc->LogicalToDeviceY(turtlePosition_y) , c);
+
 }
 
 void TurtleCanvas::realdoFilled(int fillcolor, int count,
@@ -569,7 +580,7 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
     wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxSOLID);
 #if USE_MEMDC
     if (!drawToPrinter) {
-	m_memDC->SetPen(myPen)
+	m_memDC->SetPen(myPen);
 	m_memDC->SetBrush(brush);
 	m_memDC->DrawPolygon(count, wxpoints);
     }
@@ -683,7 +694,6 @@ void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {
     if (!printer.Print(turtleFrame, &printout, true /*prompt*/)) {
         if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
 	        wxMessageBox(_T("There was a problem printing.\nPerhaps your current printer is not set correctly?"), _T("Printing"), wxOK);
-
     } else {
         (*g_printData) = printer.GetPrintDialogData().GetPrintData();
     }
@@ -1065,6 +1075,7 @@ bool TurtleWindowPrintout::OnPrintPage(int page)
     // Set the scale and origin
     printerDC->SetUserScale(actualScale, actualScale);
     printerDC->SetDeviceOrigin( (long)posX, (long)posY );
+    fillScale = actualScale;
 #endif
 
     drawToPrinter = 1;
