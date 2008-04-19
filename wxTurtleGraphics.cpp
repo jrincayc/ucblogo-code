@@ -683,10 +683,8 @@ void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {
     if (!printer.Print(turtleFrame, &printout, true /*prompt*/)) {
         if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
 	        wxMessageBox(_T("There was a problem printing.\nPerhaps your current printer is not set correctly?"), _T("Printing"), wxOK);
-        else
-            wxMessageBox(_T("Printing Canceled"), _T("Printing"), wxOK);
+
     } else {
-        wxMessageBox(_T("We are printing turtle window"), _T("Print"), wxOK);
         (*g_printData) = printer.GetPrintDialogData().GetPrintData();
     }
 }
@@ -702,6 +700,7 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
         wxMessageBox(_T("There was a problem previewing.\nPerhaps your current printer is not set correctly?"), _T("Previewing"), wxOK);
         return;
     }
+    preview->SetZoom(100);
     wxPreviewFrame *frame = new wxPreviewFrame(preview, this, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
     frame->Centre(wxBOTH);
     frame->Initialize();
