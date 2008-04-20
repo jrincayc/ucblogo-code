@@ -251,12 +251,12 @@ public:
   wxterm_charpos GetCharPosition(int x, int y);
   void DoCopy();
   void DoPaste();
-  void ProcessInput();
+  void ProcessInput(wxDC &dc);
   void Flush (wxCommandEvent& event);
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);
   void PassInputToInterp();
-  void setCursor (int x, int y, bool fromLogo = FALSE);
+  void setCursor (wxDC &dc, int x, int y, bool fromLogo = FALSE);
 
   //scrolling
   void EnableScrolling(bool want_scrolling);
@@ -275,7 +275,7 @@ public:
   void DebugOutputBuffer();
   void InsertChar(char c);
   void NextLine();
-  virtual void PassInputToTerminal(int len, unsigned char *data);
+  virtual void PassInputToTerminal(wxDC &dc, int len, unsigned char *data);
 
   wxString *get_text();
 
@@ -292,8 +292,9 @@ private:
   int CheckPlatformKeys(wxKeyEvent& event);
   void OnChar(wxKeyEvent& event);
   void OnKeyDown(wxKeyEvent& event);
-//  void OnPaint(wxPaintEvent& event);
-  virtual void OnDraw(wxDC& dc);
+  void OnEraseBackground(wxEraseEvent& event);
+  void OnPaint(wxPaintEvent& event);
+  void OnDraw(wxDC& dc);
   void GetClickCoords(wxMouseEvent& event, int *x, int *y);
   void OnLeftDown(wxMouseEvent& event);
   void OnLeftUp(wxMouseEvent& event);
