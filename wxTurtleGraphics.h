@@ -166,8 +166,9 @@ public:
 	static void FinishedEvent();
 	static void WaitForEvent();
     void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-	void AddLineToQueue(int x1, int y1, int x2, int y2);
+    void OnSize(wxSizeEvent &event);
+    void OnDraw(wxDC &dc);
+
     void Show(ScreenToShow show) { m_show = show; Refresh(); }
 	void internalPrepare();
 	void TurtlePrintPreview(wxCommandEvent& event);
@@ -220,8 +221,6 @@ private:
 		*m_bitmap;
 
 	int resized;
-    int oldWidth;
-	int oldHeight;
 	ScreenToShow m_show;
     wxBitmap     m_smile_bmp;
     wxIcon       m_std_icon;

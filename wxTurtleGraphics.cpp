@@ -62,12 +62,11 @@ int TurtleFrame::in_graphics_mode = 0;
 int TurtleFrame::in_splitscreen = 0;
 pen_info TurtleFrame::xgr_pen = p;
 
-int ignorePaint = 0;	// for Paint events when we've already handled it
 int drawToWindow = 0;	// for redraw_graphics from gui thread
 wxDC *windowDC = 0;
 
 wxMemoryDC *m_memDC;
-#define USE_MEMDC 0
+#define USE_MEMDC 1
 
 int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;
 // Keep track of max range for printing.
@@ -175,8 +174,6 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
         : wxWindow(parent, -1, wxDefaultPosition, wxDefaultSize,
                            wxNO_FULL_REPAINT_ON_RESIZE)
 {
-  m_memDC=new wxMemoryDC();
-  m_bitmap=0;
   m_owner = parent;
   m_show = Show_Lines;
   m_clip = FALSE;
@@ -193,8 +190,6 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
     wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
 #endif
 
-  oldWidth = -1;
-  oldHeight = -1;
   mousePosition_x = 0;
   mousePosition_y = 0;
   mouse_down_left = 0;
@@ -236,6 +231,38 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   turtleFrame->xgr_pen.color = 7;
   turtleFrame->xgr_pen.pw = 1;
   turtleFrame->xgr_pen.pen_mode = PEN_DOWN;
+
+
+#if USE_MEMDC
+
+  m_memDC=new wxMemoryDC();
+  
+  //make a bitmap the maximum size of the screen (the monitor, not the drawing area)
+  int m_w,m_h; //monitor screen width and height
+  wxDisplaySize(&m_w,&m_h);
+  m_bitmap = new wxBitmap(m_w, m_h);
+
+  PrepareDC(*m_memDC);
+  wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground
+				       +SPECIAL_COLORS],wxSOLID);
+  m_memDC->SelectObject(*m_bitmap);
+  m_memDC->SetBackgroundMode( wxSOLID );
+  m_memDC->SetBackground( myBrush );
+  m_memDC->Clear();
+
+  //compute origin based on  screen size vs monitor size
+  //(BIGWIDTH - SMALLWIDTH)/2
+
+  m_memDC->SetDeviceOrigin( (m_w - screen_width)/2, 
+			    (m_h - screen_height)/2 );
+
+  wxFont f(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+	   false, wxString("Courier"));
+  m_memDC->SetFont(f);
+
+  
+#endif
+
   
 }
 
@@ -244,134 +271,65 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 
 void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
 {
-	wxdprintf("OnPaint starts\n");
+  wxdprintf("OnPaint starts\n");
 
   wxPaintDC dc(this);
-  dc.DestroyClippingRegion(); //evan
-
-  wxFont f(12, wxDEFAULT, wxNORMAL, wxNORMAL, false, "Courier");
-  SetFont(f);
-
-  int x, y;
-
-    if (ignorePaint) {
-	ignorePaint = 0;
-	return;
-    }
-
-  GetSize(&x, &y);
-#if USE_MEMDC
-  if (oldWidth == x  && oldHeight == y && m_bitmap != NULL) {
-    dc.DrawBitmap(*m_bitmap, 0,0);
-    return;
-  }
-#endif
-  
-  oldWidth = x;
-  oldHeight = y;
-
-#if USE_MEMDC
-  /*
-   **  Create our bitmap for copying
-   */
-  if(m_bitmap)
-  {
-	  m_memDC->SelectObject(wxNullBitmap);
-      delete m_bitmap;
-  }
-  m_bitmap = new wxBitmap(x, y);
-
-
-    PrepareDC(*m_memDC);
-    wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground
-					    +SPECIAL_COLORS],wxSOLID);
-    m_memDC->SelectObject(*m_bitmap);
-    m_memDC->SetBackgroundMode( wxSOLID );
-    m_memDC->SetBackground( myBrush );
-    m_memDC->Clear();
-#endif
-
-
-    int unset_windowDC = 0;
-    if(windowDC == 0) {
-      windowDC = &dc;
-      unset_windowDC++;
-    }
-    drawToWindow++;
-    redraw_graphics();
-    drawToWindow--;
-
-    if(unset_windowDC) {
-      windowDC = 0;
-      unset_windowDC--;
-    }
-    wxdprintf("OnPaint ends\n");
+  OnDraw(dc);
+  wxdprintf("OnPaint ends\n");
 }
 
 void TurtleCanvas::OnSize(wxSizeEvent& event) {
-	wxdprintf("OnSize starts\n");
 
-	wxClientDC dc(this);
-	int x, y;
+  wxdprintf("OnSize starts\n");
 
-	dc.DestroyClippingRegion(); //evan
-	
-	GetSize(&x, &y);
-#if USE_MEMDC
-	if (oldWidth == x  && oldHeight == y && m_bitmap != NULL) {
-		dc.DrawBitmap(*m_bitmap, 0,0);
-		return;
-	}
-#endif
-	
-	oldWidth = x;
-	oldHeight = y;
-	/*
-	 *  Create our bitmap for copying
-	 */
-#if USE_MEMDC
-	if(m_bitmap)
-	{
-	  m_memDC->SelectObject(wxNullBitmap);
-	  delete m_bitmap;
-	}
-	m_bitmap = new wxBitmap(x, y);
-	
-	
-    PrepareDC(*m_memDC);
-	wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+
-						SPECIAL_COLORS],wxSOLID);
-	m_memDC->SelectObject(*m_bitmap);
-    m_memDC->SetBackgroundMode( wxSOLID );
-    m_memDC->SetBackground( myBrush );
-    m_memDC->Clear();
-#endif
-//    pictureleft = pictureright = getInfo(SCREEN_WIDTH)/2;
-//    picturetop = picturebottom = getInfo(SCREEN_HEIGHT)/2;
+  int m_w,m_h;
+  int screen_width, screen_height;
 
-    int screen_width, screen_height;
-    logoFrame->GetSize(&screen_width, &screen_height);
-    setInfo(SCREEN_WIDTH, screen_width);
-    setInfo(SCREEN_HEIGHT, screen_height);
+  wxDisplaySize(&m_w,&m_h);
 
-    if(!wxGetMouseState().LeftDown()) {
-	    int unset_windowDC = 0;
-	    if(windowDC == 0) {   //OnSize may be triggered multiple times...
-	      windowDC = &dc;
-	      unset_windowDC++;
-	    }
-	    
-	    drawToWindow++;
-	    redraw_graphics();
-	    drawToWindow--;
-	    if(unset_windowDC) {
-	      windowDC = 0;
-	      unset_windowDC--;
-	    }
-    }	
-    wxdprintf("OnSize ends\n");
+  logoFrame->GetSize(&screen_width, &screen_height);
+  setInfo(SCREEN_WIDTH, screen_width);
+  setInfo(SCREEN_HEIGHT, screen_height);
+  
+  m_memDC->SetDeviceOrigin( (m_w - screen_width)/2, 
+			    (m_h - screen_height)/2 );
+  
+
+  wxClientDC dc(this);
+
+  OnDraw(dc);
+
+  wxdprintf("OnSize ends\n");
 }
 
+
+void TurtleCanvas::OnDraw(wxDC &dc) {
+  int x, y;
+
+  dc.DestroyClippingRegion();
+  
+  GetSize(&x, &y);
+  
+#if USE_MEMDC
+  dc.Blit(0,0,x,y,m_memDC,0,0);
+  return;
+#endif
+	
+  int unset_windowDC = 0;
+  if(windowDC == 0) {   //OnSize may be triggered multiple times...
+    windowDC = &dc;
+    unset_windowDC++;
+  }
+  
+  drawToWindow++;
+  redraw_graphics();
+  drawToWindow--;
+  if(unset_windowDC) {
+    windowDC = 0;
+    unset_windowDC--;
+  }
+
+}
 
 void TurtleCanvas::OnFocus (wxFocusEvent & event){
   wxTerminal::terminal->SetFocus();
