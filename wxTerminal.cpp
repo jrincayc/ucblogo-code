@@ -706,15 +706,15 @@ BEGIN_DECLARE_EVENT_TYPES()
 
 
 BEGIN_EVENT_TABLE(wxTerminal, wxWindow)
-  EVT_ERASE_BACKGROUND(wxTerminal::OnEraseBackground)
-  EVT_PAINT(wxTerminal::OnPaint)
-  EVT_CHAR(wxTerminal::OnChar)
-  EVT_LEFT_DOWN(wxTerminal::OnLeftDown)
-  EVT_LEFT_UP(wxTerminal::OnLeftUp)
-  EVT_MOTION(wxTerminal::OnMouseMove)
-  EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::Flush)
-  EVT_SIZE(wxTerminal::OnSize)
-  EVT_KILL_FOCUS(wxTerminal::LoseFocus)
+EVT_ERASE_BACKGROUND(wxTerminal::OnEraseBackground)
+EVT_PAINT(wxTerminal::OnPaint)
+EVT_CHAR(wxTerminal::OnChar)
+EVT_LEFT_DOWN(wxTerminal::OnLeftDown)
+EVT_LEFT_UP(wxTerminal::OnLeftUp)
+EVT_MOTION(wxTerminal::OnMouseMove)
+EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::Flush)
+EVT_SIZE(wxTerminal::OnSize)
+EVT_KILL_FOCUS(wxTerminal::LoseFocus)
 END_EVENT_TABLE()
 
 wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
@@ -1072,7 +1072,8 @@ void wxTerminal::DoPaste(){
 	
 }
 
-void wxTerminal::LoseFocus (wxFocusEvent & event){
+
+void wxTerminal::LoseFocus (wxFocusEvent & event) {
 }
 
 

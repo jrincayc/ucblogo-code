@@ -9,7 +9,7 @@ using namespace std;
 
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2
-#define	BACK_GROUND			3
+#define	BACK_GROUND		3
 #define	IN_SPLITSCREEN		4
 #define	IN_GRAPHICS_MODE	5
 
@@ -167,6 +167,7 @@ EVT_MIDDLE_UP(TurtleCanvas::OnMiddleUp)
 EVT_RIGHT_DOWN(TurtleCanvas::OnRightDown)
 EVT_RIGHT_UP(TurtleCanvas::OnRightUp)
 EVT_ERASE_BACKGROUND(TurtleCanvas::OnEraseBackGround)
+EVT_CHAR(TurtleCanvas::OnChar)
 END_EVENT_TABLE()
 
 /* The TurtleCanvas class is what the turtle is drawn on */
@@ -373,7 +374,7 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 
 
 void TurtleCanvas::OnFocus (wxFocusEvent & event){
-	wxTerminal::terminal->SetFocus();
+  wxTerminal::terminal->SetFocus();
 }
 
 void TurtleCanvas::LoseFocus (wxFocusEvent & event){
@@ -508,6 +509,7 @@ void TurtleCanvas::OnMouseMove(wxMouseEvent& event){
   mousePosition_y = event.m_y;
   event.Skip(); //allow native handler to set focus
 }
+
 
 extern "C" pen_info* getPen();
 
@@ -700,6 +702,32 @@ void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {
 }
 
 
+#if 0
+class turtlePreviewFrame : public wxPreviewFrame
+{
+public:
+  turtlePreviewFrame(wxPrintPreview* preview, wxWindow* parent, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_FRAME_STYLE, const wxString& name = "frame") 
+    : wxPreviewFrame(preview, parent, title, pos, size, style, name)
+  {
+    
+  }
+private:
+
+  virtual void OnCloseWindow(wxCloseEvent &event) {
+    wxTerminal::terminal->SetFocus();
+
+    wxPreviewFrame::OnCloseWindow(event);    
+  }
+
+  DECLARE_EVENT_TABLE()
+};
+
+BEGIN_EVENT_TABLE (turtlePreviewFrame, wxPreviewFrame)
+EVT_CLOSE(turtlePreviewFrame::OnCloseWindow)
+END_EVENT_TABLE()
+
+#endif
+
 void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
     // Pass two printout objects: for preview, and possible printing.
     wxPrintDialogData printDialogData(* g_printData);
@@ -711,7 +739,10 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
         return;
     }
     preview->SetZoom(100);
-    wxPreviewFrame *frame = new wxPreviewFrame(preview, this, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
+    wxPreviewFrame *frame = new wxPreviewFrame(preview, wxTerminal::terminal->terminal, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
+#if 0
+    turtlePreviewFrame *frame = new turtlePreviewFrame(preview, wxTerminal::terminal->terminal, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
+#endif
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();
@@ -884,6 +915,11 @@ extern "C" void wxSetPenWidth(int width){
 }
 
 extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+
+
+void TurtleCanvas::OnChar(wxKeyEvent& event) {
+  wxTerminal::terminal->OnChar(event);
+}
 
 /* Put the logoframe into splitscreen mode*/
 extern "C" void wxSplitScreen(){

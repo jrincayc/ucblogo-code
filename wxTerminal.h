@@ -284,13 +284,16 @@ public:
   virtual void SelectPrinter(char *PrinterName);
   virtual void PrintChars(int len, unsigned char *data);
 
+
+  //TurtleCanvas passes char to here.
+  void OnChar(wxKeyEvent& event);
+
 private:
   int MapKeyCode(int keyCode);
   void InvertArea(wxDC &dc, int tx1, int tx2, int w, int h, bool scrolled_coord = FALSE);
   void MarkSelection(wxDC &dc, bool scrolled_coord = FALSE);
 
   int CheckPlatformKeys(wxKeyEvent& event);
-  void OnChar(wxKeyEvent& event);
   void OnKeyDown(wxKeyEvent& event);
   void OnEraseBackground(wxEraseEvent& event);
   void OnPaint(wxPaintEvent& event);

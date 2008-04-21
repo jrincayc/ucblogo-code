@@ -187,6 +187,7 @@ public:
      void OnRightDown(wxMouseEvent& event) ;
     void OnRightUp(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event) ;
+    void OnChar(wxKeyEvent& event);
     static void setInfo(int type, int val);
     static int getInfo(int type);
     void OnTimer (wxTimerEvent& event);
