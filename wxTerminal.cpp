@@ -164,11 +164,14 @@ bool LogoApplication::OnInit()
      50, 50, 900, 500);
 
   logoFrame->Show(TRUE);
+  SetTopWindow(logoFrame);
+
 #ifndef __WXMAC__
   m_mainLoop = new wxEventLoop();
 #endif
+
   logoEventManager = new LogoEventManager(this);
-  SetTopWindow(logoFrame);
+
   return TRUE;	
 }
 
@@ -209,7 +212,7 @@ int LogoApplication::OnRun()
   //	chdir(pathString.c_str());
   
 #endif
-  
+
   start(1, argv);
   return 0;
 }
@@ -317,32 +320,31 @@ LogoFrame::LogoFrame (const wxChar *title,
 		wxALL,        //   and make border all around
 		2 );  
  
-    topsizer->Add(
+  topsizer->Add(
 		turtleGraphics,
 		4,            // make vertically stretchable
 		wxEXPAND |    // make horizontally stretchable
 		wxALL,        //   and make border all around
 		2 );
-     topsizer->Add(
+  topsizer->Add(
 		wxTerminal::terminal,
 		1,            // make vertically stretchable
 		wxEXPAND |    // make horizontally stretchable
 		wxALL,        //   and make border all around
 		2 ); 
-
-     topsizer->Show(wxTerminal::terminal, 1);
-    topsizer->Show(turtleGraphics, 0);
-    topsizer->Show(editWindow, 0);
-   
-    SetSizer( topsizer ); 
-	
-	SetAutoLayout(true);
-	//topsizer->Fit(this);
-	//topsizer->SetSizeHints(this);
-	
-    wxTerminal::terminal->SetFocus();
-	SetUpMenu();
-    wxSleep(1);
+     
+  topsizer->Show(wxTerminal::terminal, 1);
+  topsizer->Show(turtleGraphics, 0);
+  topsizer->Show(editWindow, 0);
+  
+  SetSizer( topsizer ); 
+  
+  SetAutoLayout(true);
+  //topsizer->Fit(this);
+  //topsizer->SetSizeHints(this);  
+  
+  //wxTerminal::terminal->SetFocus();
+  SetUpMenu();
 }
 
 
@@ -745,6 +747,10 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   //curr_char_pos line_length not used!
 
 
+  m_width = width;
+  m_height = height;
+
+
   m_currMode = 0;
   y_max = 0;
   x_max = m_width - 1;
@@ -779,9 +785,6 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   for(i = 0; i < 16; i++)
     m_colorPens[i] = wxPen(m_colors[i], 1, wxSOLID);
 
-  m_width = width;
-  m_height = height;
-
   m_printerFN = 0;
   m_printerName = 0;
 
@@ -810,8 +813,6 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 
 
   //  ResizeTerminal(width, height);
-
-  
 
 }
 
@@ -1862,8 +1863,8 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
   dc.SetTextBackground(m_colors[bg_color]);
   dc.SetTextForeground(m_colors[fg_color]);
   coord_y = y * m_charHeight; 
-  coord_x = x * (m_charWidth);
-	  
+  coord_x = x * (m_charWidth);	
+
   for(unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth){
     //clear the pixels first
     dc.Blit(coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxCLEAR);
@@ -2118,7 +2119,6 @@ void wxTerminal::NextLine() {
 void
 wxTerminal::PassInputToTerminal(wxDC &dc, int len, unsigned char *data)
 {
-
   int i;
   int numspaces, j;
   wxterm_linepos lpos;
