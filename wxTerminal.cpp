@@ -1509,7 +1509,12 @@ void wxTerminal::OnEraseBackground(wxEraseEvent &WXUNUSED(event))
 
 void wxTerminal::OnPaint(wxPaintEvent &WXUNUSED(event)) 
 {
+#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
   wxAutoBufferedPaintDC dc(this);
+#else
+  wxBufferedDC dc(this);
+#endif
+
   DoPrepareDC(dc);
   dc.SetBackground(m_colors[0]);
   dc.Clear();
