@@ -1512,7 +1512,7 @@ void wxTerminal::OnPaint(wxPaintEvent &WXUNUSED(event))
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
   wxAutoBufferedPaintDC dc(this);
 #else
-  wxBufferedDC dc(this);
+  wxBufferedPaintDC dc(this);
 #endif
 
   DoPrepareDC(dc);
