@@ -53,6 +53,7 @@ extern jmp_buf iblk_buf;
 extern char *strnzcpy(char *, char *, int);
 extern char *word_strnzcpy(char *, NODE *, int);
 extern char *noparity_strnzcpy(char *, char *, int);
+extern char *backslashed_strnzcpy(char *, char *, int);
 extern char *mend_strnzcpy(char *, char *, int);
 extern char *mend_nosemi(char *, char *, int);
 extern char *low_strnzcpy(char *, char *, int);

@@ -96,6 +96,18 @@ char *noparity_strnzcpy(char *s1, char *s2, int n) {
     return(s1);
 }
 
+char *backslashed_strnzcpy(char *s1, char *s2, int n) {
+    int i,j;
+
+    for (i = 0, j = 0; i < n; i++) {
+	if (getparity(s2[i]))
+	    s1[j++] = '\\';
+	s1[j++] = clearparity(s2[i]);
+    }
+    s1[j] = '\0';
+    return(s1);
+}
+
 char *mend_strnzcpy(char *s1, char *s2, int n) {
     int i, vbar = 0;
 
