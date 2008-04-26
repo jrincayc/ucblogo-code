@@ -593,12 +593,14 @@ NODE *lhideturtle(NODE *args) {
 }
 
 void fix_turtle_shownness() {
-    if (graphics_setup && user_turtle_shown
+    if (graphics_setup
 #if !defined(x_window) || defined(HAVE_WX)
 		    && screen_mode != SCREEN_TEXT
 #endif
-	)
+	) {
+      if(user_turtle_shown)
 	(void)lshowturtle(NIL);
+    }
 }
 
 NODE *lshownp(NODE *args) {

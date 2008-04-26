@@ -65,6 +65,7 @@ pen_info* getPen();
 #define turtle_half_bottom 6.0
 #define turtle_side 19.0
 
+#define refresh_screen()         wx_refresh();
 #define clear_screen		 wx_clear();
 
 #define erase_screen()		 wx_clear();

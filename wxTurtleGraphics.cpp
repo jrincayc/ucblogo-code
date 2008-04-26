@@ -380,20 +380,20 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     }
     dc->SetPen(myPen);
 
-#if USE_MEMDC
+#if 0
 	if (!drawToPrinter)
 	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+SPECIAL_COLORS],
 				 l->pw, wxSOLID) );		  
 #endif
     if(l->pm==PEN_REVERSE){
 	dc->SetLogicalFunction(wxXOR);
-#if USE_MEMDC
+#if 0
 	if (!drawToPrinter)
 	    m_memDC->SetLogicalFunction(wxXOR);
 #endif
     } else {  
 	dc->SetLogicalFunction(wxCOPY);
-#if USE_MEMDC
+#if 0
 	if (!drawToPrinter)
 	    m_memDC->SetLogicalFunction(wxCOPY);
 #endif
@@ -401,7 +401,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     if(l->vis) {
       dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
 	if (!drawToPrinter && !drawToWindow) {
-#if USE_MEMDC
+#if 0
 	    m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
 #endif
 	    if (l->x2 < pictureleft) pictureleft = l->x2;
@@ -481,7 +481,7 @@ void TurtleCanvas::realClearScreen(wxDC *dc) {
     dc->SetBackground( myBrush );
     dc->Clear();
     if (!drawToPrinter && !drawToWindow) {
-#if USE_MEMDC
+#if 0
 	m_memDC->SetBackgroundMode( wxSOLID );
 	m_memDC->SetBackground( myBrush );
 	m_memDC->Clear();
@@ -496,7 +496,7 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
 //fprintf(stderr, "realFloodFill: (x,y): (%d, %d)\n", turtlePosition_x, turtlePosition_y);
     dc->GetPixel(turtlePosition_x, turtlePosition_y, &c);
     wxBrush brush(TurtleCanvas::colors[color+SPECIAL_COLORS]);
-#if USE_MEMDC
+#if 0
     if (!drawToPrinter) {
 	m_memDC->SetBrush(brush);
 	m_memDC->FloodFill(turtlePosition_x, turtlePosition_y , c);
@@ -538,7 +538,7 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
     }
     dc->SetPen(myPen);
     wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxSOLID);
-#if USE_MEMDC
+#if 0
     if (!drawToPrinter) {
 	m_memDC->SetPen(myPen);
 	m_memDC->SetBrush(brush);
@@ -571,7 +571,7 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
     }
     dc->DrawText(s, getPen()->xpos, getPen()->ypos-ht);
     if (!drawToPrinter) {
-#if USE_MEMDC
+#if 0
 	m_memDC->SetBackgroundMode(wxSOLID);
 	m_memDC->SetTextBackground(TurtleCanvas::colors
 				   [turtleFrame->back_ground+SPECIAL_COLORS]);
@@ -772,11 +772,22 @@ extern "C" void logofill() {
     else if (drawToWindow)
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, windowDC);
     else {
+#if USE_MEMDC
+      TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, m_memDC);
+#else
 	wxDC *dc = new wxClientDC(turtleGraphics);
 	TurtleCanvas::realFloodFill(turtleFrame->xgr_pen.color, dc);
 	delete dc;
+#endif
     }
 
+}
+
+
+extern "C" void wx_refresh() {
+#if USE_MEMDC
+  turtleGraphics->Refresh();
+#endif
 }
 
 /* Clear the turtle graphics screen, and put in splitscreen if we are
@@ -787,9 +798,13 @@ extern "C" void wx_clear() {
     else if (drawToWindow)
 	TurtleCanvas::realClearScreen(windowDC);
     else {
+#if USE_MEMDC
+      TurtleCanvas::realClearScreen(m_memDC);
+#else
       wxDC *dc = new wxClientDC(turtleGraphics);
       TurtleCanvas::realClearScreen(dc);
       delete dc;
+#endif
 
       if(!TurtleFrame::in_graphics_mode)
 	wxSplitScreen();
@@ -847,9 +862,13 @@ extern "C" void wxDrawLine(int x1, int y1, int x2, int y2, int vis){
     else if (drawToWindow)
 	TurtleCanvas::drawOneLine(&l, windowDC);
     else {
+#if USE_MEMDC
+        TurtleCanvas::drawOneLine(&l, m_memDC);
+#else
 	dc = new wxClientDC(turtleGraphics);
 	TurtleCanvas::drawOneLine(&l, dc);
 	delete dc;
+#endif
     }
     return;
 }
@@ -860,9 +879,13 @@ extern "C" void doFilled(int fillcolor, int count, struct mypoint *points) {
     else if (drawToWindow)
 	TurtleCanvas::realdoFilled(fillcolor, count, points, windowDC);
     else {
+#if USE_MEMDC
+      TurtleCanvas::realdoFilled(fillcolor, count, points, m_memDC);
+#else
 	wxDC *dc = new wxClientDC(turtleGraphics);
 	TurtleCanvas::realdoFilled(fillcolor, count, points, dc);
 	delete dc;
+#endif
     }
 }
 
@@ -983,9 +1006,13 @@ extern "C" void wxLabel(char * string) {
     else if (drawToWindow) 
 	TurtleCanvas::realDrawLabel(string, windowDC);
     else {
+#if USE_MEMDC
+      TurtleCanvas::realDrawLabel(string, m_memDC);
+#else
 	wxDC *dc = new wxClientDC(turtleGraphics);
 	TurtleCanvas::realDrawLabel(string, dc);
 	delete dc;	
+#endif
     }
 }
 

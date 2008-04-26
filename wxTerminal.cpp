@@ -2431,6 +2431,8 @@ extern "C" void wx_enable_scrolling() {
 extern "C" int check_wx_stop(int force_yield) {
   logoEventManager->ProcessAnEvent(force_yield); 
 
+  turtleGraphics->Refresh();
+
   if (logo_stop_flag) {
     logo_stop_flag = 0;
 #ifdef SIG_TAKES_ARG
