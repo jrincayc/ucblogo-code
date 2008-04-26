@@ -244,7 +244,7 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
     else {
       static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
-	  m_logoApp->Yield(TRUE);
+	m_logoApp->Yield(TRUE);
 	  foo = 500;
       }
     }
@@ -1078,6 +1078,8 @@ void wxTerminal::LoseFocus (wxFocusEvent & event) {
 }
 
 
+extern "C" char *backslashed_strnzcpy(char *s1, char *s2, int n);
+
 /*
  OnChar is called each time the user types a character
  in the main terminal window
@@ -1245,13 +1247,18 @@ wxTerminal::OnChar(wxKeyEvent& event)
       m_inputLines = 0;
     } 
     else {
-      PassInputToTerminal(dc,strlen((const char *)*hist_outptr), *hist_outptr);
+      int hist_len = strlen((const char *) *hist_outptr);
+      char *hist_str = (char *) malloc(1 + 2*hist_len);
+      backslashed_strnzcpy(hist_str, (char *)*hist_outptr, hist_len);
+      PassInputToTerminal(dc,strlen(hist_str), (unsigned char *)hist_str);
       
       int num_newlines = 0;
-      for (i = 0; (*hist_outptr)[i]; i++) {
-	inputBuffer[i] = (*hist_outptr)[i];
+      for (i = 0; hist_str[i]; i++) {
+	inputBuffer[i] = hist_str[i];
 	if(inputBuffer[i] == '\n') num_newlines++;
       }
+      free(hist_str);
+
       m_inputLines = num_newlines;
       input_index = i;
       input_current_pos = input_index;
@@ -1291,13 +1298,19 @@ wxTerminal::OnChar(wxKeyEvent& event)
       input_current_pos = 0;
       m_inputLines = 0;
     } else {
-      PassInputToTerminal(dc,strlen((const char *)*hist_outptr),
-			  *hist_outptr);
+      int hist_len = strlen((const char *) *hist_outptr);
+      char *hist_str = (char *) malloc(1 + 2*hist_len);
+      backslashed_strnzcpy(hist_str, (char *)*hist_outptr, hist_len);
+      PassInputToTerminal(dc,strlen(hist_str), (unsigned char *)hist_str);
+
       int num_newlines = 0;
-      for (i = 0; (*hist_outptr)[i]; i++) {
-	inputBuffer[i] = (*hist_outptr)[i];
+      for (i = 0; hist_str[i]; i++) {
+	inputBuffer[i] = hist_str[i];
 	if(inputBuffer[i] == '\n') num_newlines++;
       }
+
+      free(hist_str);
+
       m_inputLines = num_newlines;
 
       input_index = i;
