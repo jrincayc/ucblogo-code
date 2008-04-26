@@ -118,7 +118,6 @@ class TurtleFrame : public wxFrame
 {
 public:
     TurtleFrame( wxFrame * parent, const wxString& title, const wxPoint& pos, const wxSize& size);
-	
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);	
     void OnShow(wxCommandEvent &event);
@@ -160,7 +159,8 @@ class TurtleCanvas: public wxWindow
 {
 public:
     TurtleCanvas( wxFrame *parent );
-	wxFrame *m_owner;
+    virtual ~TurtleCanvas();
+    wxFrame *m_owner;
     wxPaintDC * dc;
 
 	static void FinishedEvent();

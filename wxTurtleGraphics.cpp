@@ -266,7 +266,9 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   
 }
 
-
+TurtleCanvas::~TurtleCanvas() {
+  turtleGraphics = 0;
+}
 
 
 void TurtleCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))

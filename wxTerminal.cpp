@@ -3,7 +3,6 @@
 */
 
 
-//TODO: deferUpdate isn't very consistent right now
 //TODO: clearSelection should happen less often.
 
 #include <iostream>
@@ -251,14 +250,6 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
   }
 }
 
-void LogoEventManager::ProcessAllEvents()
-{
-  while( m_logoApp->Pending() ) {
-    m_logoApp->Dispatch();
-  }
-  m_logoApp->Yield(TRUE);
-}
-
 
 // ----------------------------------------------------------------------------
 // LogoFrame class
@@ -343,7 +334,7 @@ LogoFrame::LogoFrame (const wxChar *title,
   //topsizer->Fit(this);
   //topsizer->SetSizeHints(this);  
   
-  //wxTerminal::terminal->SetFocus();
+  wxTerminal::terminal->SetFocus();
   SetUpMenu();
 }
 
@@ -819,7 +810,7 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 wxTerminal::~wxTerminal()
 {
   //clean up the buffers
-  
+  wxTerminal::terminal = 0;
 }
 
 void wxTerminal::deferUpdate(int flag) {
@@ -2149,6 +2140,7 @@ wxTerminal::PassInputToTerminal(wxDC &dc, int len, unsigned char *data)
 
   unsigned char spc = ' ';
 
+
   //first undraw cursor
   if(!(m_currMode & DEFERUPDATE)) {
     InvertArea(dc, cursor_x*m_charWidth, (cursor_y-vis_y)*m_charHeight, m_charWidth, m_charHeight);
@@ -2271,9 +2263,11 @@ wxTerminal::PassInputToTerminal(wxDC &dc, int len, unsigned char *data)
 	vis_y != old_vis_y) || 
        cursor_y < vis_y  ||
        cursor_y > vis_y + m_height - 1) {
+
       Scroll(-1, cursor_y);
       old_vis_y = vis_y;
       
+
       Refresh();
     }  
     
@@ -2444,7 +2438,17 @@ extern "C" void wx_enable_scrolling() {
 extern "C" int check_wx_stop(int force_yield) {
   logoEventManager->ProcessAnEvent(force_yield); 
 
-  turtleGraphics->Refresh();
+  if(turtleGraphics)
+    turtleGraphics->Refresh();
+
+  //give focus to terminal if text window shown
+  //and Frame has focus
+  if(wxTerminal::terminal &&
+     wxTerminal::terminal->IsShownOnScreen() &&
+     !(wxWindow::FindFocus() == (wxWindow *)wxTerminal::terminal) &&
+     (wxWindow::FindFocus() == (wxWindow *)logoFrame)) {
+    wxTerminal::terminal->SetFocus();
+  }
 
   if (logo_stop_flag) {
     logo_stop_flag = 0;
