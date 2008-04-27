@@ -130,8 +130,6 @@ struct wxterm_linepos {
     m_curFlags;
 
   //used in enableScrolling
-  bool
-    m_vscroll_enabled;
   int 
     m_vscroll_pos;
 

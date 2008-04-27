@@ -790,7 +790,6 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   //dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   //  m_charWidth--;
 
-  m_vscroll_enabled = TRUE;
   m_inputReady = FALSE;
   m_inputLines = 0;
   
@@ -1410,11 +1409,6 @@ void wxTerminal::setCursor (wxDC &dc, int x, int y, bool fromLogo) {
       return;
     }
     //GetViewStart(&cursor_x,&cursor_y);
-    /*
-    if(!m_vscroll_enabled) {
-      cursor_x = x;
-      cursor_y = m_vscroll_pos;
-      }*/
 
     cursor_x = x;
     cursor_y = vis_y + y;
@@ -1535,12 +1529,6 @@ void wxTerminal::OnDraw(wxDC& dc)
   int lineFrom = rectUpdate.y / m_charHeight;
   int lineTo = rectUpdate.GetBottom() / m_charHeight;
 
-  /*  if(!m_vscroll_enabled) {
-    lineFrom += m_vscroll_pos;
-    lineTo += m_vscroll_pos;
-    fprintf(stderr, "OnDraw: lines %d to %d\n", lineFrom, lineTo);
-    }*/
-
   if ( lineTo > y_max)
     lineTo = y_max;
   
@@ -1567,10 +1555,6 @@ void wxTerminal::OnDraw(wxDC& dc)
      !(m_currMode & CURSORINVISIBLE)) {
     int c_x = cursor_x;
     int c_y = cursor_y;
-    /*    if(!m_vscroll_enabled) {
-      c_y = c_y - m_vscroll_pos;
-      }*/
-    //    dc.Blit( c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight, &dc, c_x*m_charWidth, c_y*m_charHeight, wxINVERT);
     InvertArea(dc, c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight);
   }
 
@@ -1584,9 +1568,7 @@ void wxTerminal::GetClickCoords(wxMouseEvent& event, int *click_x, int *click_y)
   *click_x = event.GetX();
   *click_y = event.GetY();
   CalcUnscrolledPosition(*click_x, *click_y, click_x, click_y);
-  /*  if(!m_vscroll_enabled) {
-    *click_y += m_vscroll_pos * m_charHeight;
-    }*/
+
   // convert to character coordinates
   *click_x = *click_x / m_charWidth;
   *click_y = *click_y / m_charHeight;
@@ -1683,9 +1665,7 @@ wxTerminal::ClearSelection()
 
 void 
 wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_coord) {
-  if(!m_vscroll_enabled) {
-    t_y -= m_vscroll_pos * m_charWidth;
-  }
+
   if(scrolled_coord) {
     CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
     //calculate if out of bounds
@@ -2117,10 +2097,9 @@ void wxTerminal::NextLine() {
     y_max = cursor_y;
     int x,y;
     GetVirtualSize(&x,&y);
-    if(m_vscroll_enabled) {
-      //y_max + 1 = number of lines
-      SetVirtualSize(max(x,m_width*m_charWidth),max(y,(y_max+1)*m_charHeight));
-    }
+
+    //y_max + 1 = number of lines    
+    SetVirtualSize(max(x,m_width*m_charWidth),max(y,(y_max+1)*m_charHeight)); 
   }
   cursor_x = 0;
 }
@@ -2435,6 +2414,8 @@ extern "C" void wx_enable_scrolling() {
   wxTerminal::terminal->EnableScrolling(TRUE);
 }
 
+extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+
 extern "C" int check_wx_stop(int force_yield) {
   logoEventManager->ProcessAnEvent(force_yield); 
 
@@ -2444,7 +2425,7 @@ extern "C" int check_wx_stop(int force_yield) {
   //give focus to terminal if text window shown
   //and Frame has focus
   if(wxTerminal::terminal &&
-     wxTerminal::terminal->IsShownOnScreen() &&
+     screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
      !(wxWindow::FindFocus() == (wxWindow *)wxTerminal::terminal) &&
      (wxWindow::FindFocus() == (wxWindow *)logoFrame)) {
     wxTerminal::terminal->SetFocus();
