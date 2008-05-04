@@ -341,7 +341,11 @@ NODE *evaluator(NODE *list, enum labels where) {
 all_done:
     reset_args(var);
     eval_restore();
-    return(val);
+    if (dont_fix_ift) {
+        ift_iff_flag = dont_fix_ift-1;
+        dont_fix_ift = 0;
+    }
+return(val);
 
 begin_line:
     this_line = list;

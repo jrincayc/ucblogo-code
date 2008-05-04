@@ -307,7 +307,7 @@ NODE *lforever(NODE *args) {
 NODE *ltest(NODE *args) {
     int arg = torf_arg(args);
 
-    if (tailcall != 0) return UNBOUND;
+    if (ufun != NIL && tailcall != 0) return UNBOUND;
     if (NOT_THROWING) {
 	dont_fix_ift = arg+1;
     }
