@@ -207,15 +207,11 @@ ifelse member? (list :row :col) :mines [
   pu setxy xcor+1 ycor+1
   pd repeat 4 [fd :squaresize-2 rt 90]
   pu setxy xcor+1 ycor+1
-  pd repeat 4 [fd :squaresize-4 rt 90]
-  setpc 13			; purple for undetected mine
-  pu setxy xcor+5 ycor+5 fill
+  pd filled 13 [repeat 4 [fd :squaresize-4 rt 90]]
 ] [
   setpc 11			; grey in aqua border for empty
   pu setxy xcor+1 ycor+1
-  pd repeat 4 [fd :squaresize-2 rt 90]
-  setpc 15
-  pu setxy xcor+3 ycor+3 fill
+  pd filled 15 [repeat 4 [fd :squaresize-2 rt 90]]
 ]
 end
 
@@ -262,11 +258,9 @@ if not equal? :status "shown [	; Clicking on hidden or flagged square.
   if member? (list :row :col) :mines [lose stop]	; Oops!
   setpc 11				; aqua border
   pu setxy xcor+1 ycor+1
-  pd repeat 4 [fd :squaresize-2 rt 90]
-  pu setxy xcor+6 ycor+3
-  setpc 15				; grey fill
-  fill
+  pd filled 15 [repeat 4 [fd :squaresize-2 rt 90]]
   setpensize [2 2] seth 0 pu
+  setxy xcor+6 ycor+3
   if :near>0 word "draw :near	; Run procedure to draw digit
   pu setpensize [1 1] seth 0
   make "nhidden :nhidden - 1	; Keep track of number of squares still hidden.
@@ -348,18 +342,17 @@ localmake "flagged status :row :col
 ifelse :flagged = "hidden [	; Square was hidden, so flag it.
     if :nmines = 0 [stop]	; But don't allow more flags than actual mines.
     setstatus :row :col "flagged
-    setpc 2			; Green background
-    pu setxy xcor+6 ycor+3 fill
+    setpc 7
+    filled 2 [repeat 4 [fd :squaresize rt 90]]
+    pu setxy xcor+6 ycor+3
     drawflag			; with purple flag
     make "nmines :nmines-1
     make "nhidden :nhidden-1
 ] [
     if not equal? :flagged "flagged [stop] ; Square was shown, can't flag it.
     setstatus :row :col "hidden
-    setpc 2			; First make it all green
-    pu setxy xcor+6 ycor+3 fill
-    setpc 9			; Square was flagged, unflag (hide) it.
-    fill
+    setpc 7
+    filled 9 [repeat 4 [fd :squaresize rt 90]]
     make "nmines :nmines + 1
     make "nhidden :nhidden + 1
 ]
@@ -369,8 +362,7 @@ end
 to drawflag
 setpc 13			; purple for flag
 setpensize [2 2]
-pd fd 5 repeat 4 [fd 5 rt 90]
-pu setxy xcor+3 ycor+3 fill
+pd fd 5 filled 13 [repeat 4 [fd 5 rt 90]]
 end
 
 ; ------------ Notify user when game is won or lost -------------------
@@ -378,23 +370,22 @@ end
 to win
 make "playing "false
 make "nhidden 0
-print [You win!!!!]
+; print [You win!!!!]
 pu setxy :xmax+3 0	; flash screen green
-repeat 5 [action.once setpc 2 fill wait 2 action.once setpc 0 fill wait 2]
+repeat 5 [action.once setpc 2 fill wait 1 action.once setpc 0 fill wait 1]
 end
 
 to lose
 make "playing "false
-setpc 13					; Show which mine was hit
-pu setxy xcor+3 ycor+3 fill
 setpc 6						; Yellow square on purple
 setpensize [3 3]
-pd repeat 4 [fd :squaresize-6 rt 90]
+pu setxy xcor+3 ycor+3 pd
+filled 13 [repeat 4 [fd :squaresize-6 rt 90]]	; Show which mine was hit
 setpensize [1 1]
 make "nhidden 0
-print [You lose!!!!]
+; print [You lose!!!!]
 pu setxy :xmax+3 0	; flash screen red
-repeat 5 [action.once setpc 4 fill wait 2 action.once setpc 0 fill wait 2]
+repeat 5 [action.once setpc 4 fill wait 1 action.once setpc 0 fill wait 1]
 showboard "true
 end
 
