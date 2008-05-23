@@ -255,9 +255,8 @@ to fillbox :box
 ; Color in a completed box, increase the box count of its owner, and
 ; flag that a box was completed.
 pu
-setpos (map [40*? + 10 - :offset] :box)
-setpc :color
-fill
+setpos (map [40*? - :offset] :box)
+filled :color [repeat 4 [fd 40 rt 90]]
 make :owner (thing :owner)+1
 make "found "true
 end

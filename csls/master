@@ -310,9 +310,8 @@ if :numcolors < 1 [stop]
 if :numcolors > :numsquares [stop]
 if not :dup.ok [if member? :colorletter :guess [stop]]
 make "guess word :guess :colorletter
-move [10 10]
-setpc :colornumber
-fill
+move [0 0]
+filled :colornumber [repeat 4 [fd 25 rt 90]]
 make "numcolors :numcolors+1
 end
 
@@ -321,9 +320,8 @@ to clear
 if :numcolors < 2 [stop]
 make "guess butlast :guess
 make "numcolors :numcolors-1
-move [10 10]
-setpc 0
-fill
+move [0 0]
+filled 0 [repeat 4 [fd 25 rt 90]]
 end
 
 to guess
