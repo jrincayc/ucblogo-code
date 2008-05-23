@@ -292,10 +292,12 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
   logoFrame->GetSize(&screen_width, &screen_height);
   setInfo(SCREEN_WIDTH, screen_width);
   setInfo(SCREEN_HEIGHT, screen_height);
-  
+
+#if USE_MEMDC  
   m_memDC->SetDeviceOrigin( (m_w - screen_width)/2, 
 			    (m_h - screen_height)/2 );
   
+#endif
 
   wxClientDC dc(this);
 
