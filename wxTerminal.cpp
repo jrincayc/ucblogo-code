@@ -231,6 +231,7 @@ LogoEventManager::LogoEventManager(LogoApplication *logoApp)
   m_logoApp = logoApp;
 }
 
+extern "C" void wx_refresh();
 void LogoEventManager::ProcessAnEvent(int force_yield)
 {
   if( m_logoApp->Pending() ) {
@@ -238,13 +239,15 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
   }
   else {
     if(force_yield) {
+      wx_refresh();
       m_logoApp->Yield(TRUE);
     }
     else {
       static int foo = 500;    // carefully tuned fudge factor
       if (--foo == 0) {
+	wx_refresh();
 	m_logoApp->Yield(TRUE);
-	  foo = 500;
+	foo = 500;
       }
     }
   }
@@ -2416,11 +2419,9 @@ extern "C" void wx_enable_scrolling() {
 
 extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
+
 extern "C" int check_wx_stop(int force_yield) {
   logoEventManager->ProcessAnEvent(force_yield); 
-
-  if(turtleGraphics)
-    turtleGraphics->Refresh();
 
   //give focus to terminal if text window shown
   //and Frame has focus

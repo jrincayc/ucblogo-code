@@ -62,7 +62,7 @@ int TurtleFrame::in_graphics_mode = 0;
 int TurtleFrame::in_splitscreen = 0;
 pen_info TurtleFrame::xgr_pen = p;
 
-int drawToWindow = 0;	// for redraw_graphics from gui thread
+int drawToWindow = 0;	// for redraw_graphics from gui "thread"
 wxDC *windowDC = 0;
 
 wxMemoryDC *m_memDC;
@@ -310,7 +310,7 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
 void TurtleCanvas::OnDraw(wxDC &dc) {
   int x, y;
 
-  dc.DestroyClippingRegion();
+  //dc.DestroyClippingRegion();
   
   GetSize(&x, &y);
   
@@ -384,30 +384,14 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     }
     dc->SetPen(myPen);
 
-#if 0
-	if (!drawToPrinter)
-	    m_memDC->SetPen(wxPen(TurtleCanvas::colors[l->color+SPECIAL_COLORS],
-				 l->pw, wxSOLID) );		  
-#endif
     if(l->pm==PEN_REVERSE){
 	dc->SetLogicalFunction(wxXOR);
-#if 0
-	if (!drawToPrinter)
-	    m_memDC->SetLogicalFunction(wxXOR);
-#endif
     } else {  
 	dc->SetLogicalFunction(wxCOPY);
-#if 0
-	if (!drawToPrinter)
-	    m_memDC->SetLogicalFunction(wxCOPY);
-#endif
     }
     if(l->vis) {
       dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
 	if (!drawToPrinter && !drawToWindow) {
-#if 0
-	    m_memDC->DrawLine(l->x1,l->y1,l->x2,l->y2);
-#endif
 	    if (l->x2 < pictureleft) pictureleft = l->x2;
 	    if (l->x2 > pictureright) pictureright = l->x2;
 	    if (l->y2 < picturetop) picturetop = l->y2;
@@ -417,6 +401,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     turtlePosition_x = l->x2;
     turtlePosition_y = l->y2;
     dc->SetPen(wxNullPen);
+
 }
 
 extern int turtle_shown;
@@ -485,11 +470,6 @@ void TurtleCanvas::realClearScreen(wxDC *dc) {
     dc->SetBackground( myBrush );
     dc->Clear();
     if (!drawToPrinter && !drawToWindow) {
-#if 0
-	m_memDC->SetBackgroundMode( wxSOLID );
-	m_memDC->SetBackground( myBrush );
-	m_memDC->Clear();
-#endif
 	pictureleft = pictureright = getInfo(SCREEN_WIDTH)/2;
 	picturetop = picturebottom = getInfo(SCREEN_HEIGHT)/2;
     }
@@ -500,20 +480,16 @@ void TurtleCanvas::realFloodFill(int color, wxDC *dc) {
 //fprintf(stderr, "realFloodFill: (x,y): (%d, %d)\n", turtlePosition_x, turtlePosition_y);
     dc->GetPixel(turtlePosition_x, turtlePosition_y, &c);
     wxBrush brush(TurtleCanvas::colors[color+SPECIAL_COLORS]);
-#if 0
-    if (!drawToPrinter) {
-	m_memDC->SetBrush(brush);
-	m_memDC->FloodFill(turtlePosition_x, turtlePosition_y , c);
-    }
-#endif
+
     dc->SetBrush(brush);
-  if (drawToPrinter) {
-    dc->SetUserScale(1.0, 1.0);
-    dc->FloodFill((long)(turtlePosition_x*fillScale),
-		  (long)(turtlePosition_y*fillScale) , c);
-    dc->SetUserScale(fillScale, fillScale);
-  } else
-    dc->FloodFill(turtlePosition_x, turtlePosition_y , c);
+    if (drawToPrinter) {
+      dc->SetUserScale(1.0, 1.0);
+      dc->FloodFill((long)(turtlePosition_x*fillScale),
+		    (long)(turtlePosition_y*fillScale) , c);
+      dc->SetUserScale(fillScale, fillScale);
+    } else {
+      dc->FloodFill(turtlePosition_x, turtlePosition_y , c);
+    }
 
 
 //    dc->FloodFill(dc->LogicalToDeviceX(turtlePosition_x), dc->LogicalToDeviceY(turtlePosition_y) , c);
@@ -542,16 +518,11 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
     }
     dc->SetPen(myPen);
     wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxSOLID);
-#if 0
-    if (!drawToPrinter) {
-	m_memDC->SetPen(myPen);
-	m_memDC->SetBrush(brush);
-	m_memDC->DrawPolygon(count, wxpoints);
-    }
-#endif
+
     dc->SetBrush(brush);
     dc->DrawPolygon(count, wxpoints);
     free(wxpoints);
+
 }
 
 void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
@@ -575,14 +546,6 @@ void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
     }
     dc->DrawText(s, getPen()->xpos, getPen()->ypos-ht);
     if (!drawToPrinter) {
-#if 0
-	m_memDC->SetBackgroundMode(wxSOLID);
-	m_memDC->SetTextBackground(TurtleCanvas::colors
-				   [turtleFrame->back_ground+SPECIAL_COLORS]);
-	m_memDC->SetTextForeground(TurtleCanvas::colors
-				    [turtleFrame->xgr_pen.color+SPECIAL_COLORS]);
-	m_memDC->DrawText(s, getPen()->xpos, getPen()->ypos-ht);
-#endif
 	if (getPen()->xpos < pictureleft) pictureleft = getPen()->xpos;
 	if (getPen()->xpos+wid > pictureright)
 	    pictureright = getPen()->xpos+wid;
@@ -664,32 +627,6 @@ void TurtleCanvas::PrintTurtleWindow(wxCommandEvent& WXUNUSED(event)) {
 }
 
 
-#if 0
-class turtlePreviewFrame : public wxPreviewFrame
-{
-public:
-  turtlePreviewFrame(wxPrintPreview* preview, wxWindow* parent, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_FRAME_STYLE, const wxString& name = "frame") 
-    : wxPreviewFrame(preview, parent, title, pos, size, style, name)
-  {
-    
-  }
-private:
-
-  virtual void OnCloseWindow(wxCloseEvent &event) {
-    wxTerminal::terminal->SetFocus();
-
-    wxPreviewFrame::OnCloseWindow(event);    
-  }
-
-  DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE (turtlePreviewFrame, wxPreviewFrame)
-EVT_CLOSE(turtlePreviewFrame::OnCloseWindow)
-END_EVENT_TABLE()
-
-#endif
-
 void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
     // Pass two printout objects: for preview, and possible printing.
     wxPrintDialogData printDialogData(* g_printData);
@@ -702,9 +639,6 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
     }
     preview->SetZoom(100);
     wxPreviewFrame *frame = new wxPreviewFrame(preview, wxTerminal::terminal->terminal, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
-#if 0
-    turtlePreviewFrame *frame = new turtlePreviewFrame(preview, wxTerminal::terminal->terminal, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
-#endif
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();
@@ -790,7 +724,9 @@ extern "C" void logofill() {
 
 extern "C" void wx_refresh() {
 #if USE_MEMDC
-  turtleGraphics->Refresh();
+  if(turtleGraphics) {
+    turtleGraphics->Refresh();
+  }
 #endif
 }
 
