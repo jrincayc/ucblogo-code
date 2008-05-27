@@ -426,7 +426,8 @@ void TurtleCanvas::editCall(wxCommandEvent &e){
   editWindow->Load(file);
   //need to busy wait and handle events...
   while(editor_active) {
-    check_wx_stop(1); 
+    if(check_wx_stop(1))
+      break; 
     wxMilliSleep(1);
   }
 }
