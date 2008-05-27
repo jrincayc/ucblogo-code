@@ -12,18 +12,21 @@
 #include "TextEditor.h"
 #include "wxTurtleGraphics.h"
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
- 
+
 
 // ----------------------------------------------------------------------------
 // TextEditor
 // ----------------------------------------------------------------------------
-
 
 BEGIN_EVENT_TABLE (TextEditor, wxTextCtrl)
 EVT_CHAR(TextEditor::OnChar)  
 EVT_FIND(wxID_ANY, TextEditor::OnFindDialog)
 EVT_CLOSE(TextEditor::OnCloseEvent)
 END_EVENT_TABLE()
+
+
+// globals for signalling to logo 
+int editor_active = 0; 
 
 /* The constructor */
 TextEditor::TextEditor(wxWindow* const f, int a, wxString s, const wxPoint& p , const wxSize& sz, int b, wxFont font ) :
@@ -208,6 +211,7 @@ void TextEditor::Close(){
 	topsizer->Layout();
 	wxTerminal::terminal->SetFocus();
 	logoFrame->SetUpMenu();
+	editor_active = 0;
 }
 
 void TextEditor::OnSave(){

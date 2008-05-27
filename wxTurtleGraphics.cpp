@@ -406,8 +406,10 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 
 extern int turtle_shown;
 extern "C" void draw_turtle();
+extern int editor_active;  //from TextEditor.cpp
 
-void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled by any gui thread, it should be thread safe
+void TurtleCanvas::editCall(wxCommandEvent &e){ 
+  editor_active = 1;  
   editWindow->Clear();
   topsizer->Show(wxTerminal::terminal, 0);
   topsizer->Show(turtleGraphics, 0);
@@ -422,6 +424,11 @@ void TurtleCanvas::editCall(wxCommandEvent &e){  // So long as this is handled b
   }
   fclose(filestream);
   editWindow->Load(file);
+  //need to busy wait and handle events...
+  while(editor_active) {
+    check_wx_stop(1); 
+    wxMilliSleep(1);
+  }
 }
 
 
@@ -925,6 +932,7 @@ extern "C" int wxEditFile(char * f){
   file = f;
   alreadyDone = 0;
   turtleGraphics->ProcessEvent(editEvent);
+fprintf(stderr, "%d", editWindow->doSave);
   return editWindow->doSave;
 }
 
