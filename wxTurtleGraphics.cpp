@@ -1077,7 +1077,7 @@ bool TurtleWindowPrintout::OnBeginDocument(int startPage, int endPage)
 
 void TurtleWindowPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo)
 {
-    *minPage = 0;
+    *minPage = 1;
     *maxPage = 1;
     *selPageFrom = 1;
     *selPageTo = 1;
