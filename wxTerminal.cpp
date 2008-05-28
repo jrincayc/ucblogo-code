@@ -234,22 +234,23 @@ LogoEventManager::LogoEventManager(LogoApplication *logoApp)
 extern "C" void wx_refresh();
 void LogoEventManager::ProcessAnEvent(int force_yield)
 {
+  static int inside_yield = 0;
+  static int yield_delay = 500;  // carefully tuned fudge factor
+  static int foo = yield_delay;
+
   if( m_logoApp->Pending() ) {
     m_logoApp->Dispatch();
   }
   else {
-    if(force_yield) {
+    if(force_yield || --foo == 0) {
       wx_refresh();
-      m_logoApp->Yield(TRUE);
-    }
-    else {
-      static int foo = 500;    // carefully tuned fudge factor
-      if (--foo == 0) {
-	wx_refresh();
-	m_logoApp->Yield(TRUE);
-	foo = 500;
+      if(!inside_yield) {
+        inside_yield++;
+        m_logoApp->Yield(TRUE);
+        inside_yield--;
       }
     }
+    if(foo == 0) foo = yield_delay;
   }
 }
 
