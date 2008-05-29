@@ -1,5 +1,5 @@
 /* XPM */
-static char *ucblogo[] =
+static const char *ucblogo[] =
 {
 /* width height ncolors chars_per_pixel */
 "256 256 234 2",

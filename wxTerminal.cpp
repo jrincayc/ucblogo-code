@@ -242,15 +242,18 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
     m_logoApp->Dispatch();
   }
   else {
-    if(force_yield || --foo == 0) {
-      wx_refresh();
+    foo--;
+    if(force_yield || foo == 0) {
       if(!inside_yield) {
         inside_yield++;
         m_logoApp->Yield(TRUE);
         inside_yield--;
       }
     }
-    if(foo == 0) foo = yield_delay;
+    if(foo == 0) {
+      wx_refresh();
+      foo = yield_delay;
+    }
   }
 }
 
