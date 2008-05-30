@@ -77,7 +77,8 @@ extern "C" void flushFile(FILE * stream, int justPost) {
   if (!justPost) {
     
     while (out_buff_index_public != 0) {
-      logoEventManager->ProcessAnEvent();
+ fprintf(stderr, "f");
+      logoEventManager->ProcessEvents(1);
       wxMilliSleep(10);
     }
     
@@ -108,15 +109,19 @@ extern "C" void flushFile(FILE * stream, int justPost) {
 	numLines++;
     }
     haveInputEvent->SetClientData(NULL);
-    wxTerminal::terminal->ProcessEvent(*haveInputEvent);
+    wxTerminal::terminal->Flush(*haveInputEvent);
+    //wxTerminal::terminal->ProcessEvent(*haveInputEvent);
   }
 }
 
 // have the interpreter go to sleep
+
 extern "C" void wxLogoSleep(unsigned int milli) {
   //may not work on mac according to wxWidgets doc
   wxDateTime stop_waiting = wxDateTime::UNow() + wxTimeSpan(0,0,0,milli);
   flushFile(stdout, 0);
+  extern void wx_refresh();
+  wx_refresh();
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
     if(check_wx_stop(1)) {  //force yielding
       break;

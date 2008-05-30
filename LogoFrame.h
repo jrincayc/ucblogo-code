@@ -22,7 +22,7 @@ class LogoApplication : public wxApp
 class LogoEventManager {
   public:
     LogoEventManager(LogoApplication *logoApp);
-    void ProcessAnEvent(int force_yield = 0);
+    void ProcessEvents(int force_yield = 0);
   private:
     LogoApplication *m_logoApp;
 };

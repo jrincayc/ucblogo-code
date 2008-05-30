@@ -232,17 +232,19 @@ LogoEventManager::LogoEventManager(LogoApplication *logoApp)
 }
 
 extern "C" void wx_refresh();
-void LogoEventManager::ProcessAnEvent(int force_yield)
+void LogoEventManager::ProcessEvents(int force_yield)
 {
   static int inside_yield = 0;
   static int yield_delay = 500;  // carefully tuned fudge factor
   static int foo = yield_delay;
 
+  foo--;
+
   if( m_logoApp->Pending() ) {
-    m_logoApp->Dispatch();
+    while( m_logoApp->Pending() )
+       m_logoApp->Dispatch();
   }
   else {
-    foo--;
     if(force_yield || foo == 0) {
       if(!inside_yield) {
         inside_yield++;
@@ -250,10 +252,11 @@ void LogoEventManager::ProcessAnEvent(int force_yield)
         inside_yield--;
       }
     }
-    if(foo == 0) {
-      wx_refresh();
-      foo = yield_delay;
-    }
+  }
+
+  if(foo == 0) {
+    wx_refresh();
+    foo = yield_delay;
   }
 }
 
@@ -2425,14 +2428,15 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 
 extern "C" int check_wx_stop(int force_yield) {
-  logoEventManager->ProcessAnEvent(force_yield); 
+  logoEventManager->ProcessEvents(force_yield); 
 
   //give focus to terminal if text window shown
   //and Frame has focus
+  wxWindow * focus_win = wxWindow::FindFocus();
   if(wxTerminal::terminal &&
      screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
-     !(wxWindow::FindFocus() == (wxWindow *)wxTerminal::terminal) &&
-     (wxWindow::FindFocus() == (wxWindow *)logoFrame)) {
+     !(focus_win == (wxWindow *)wxTerminal::terminal) &&
+     (focus_win == (wxWindow *)logoFrame)) {
     wxTerminal::terminal->SetFocus();
   }
 

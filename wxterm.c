@@ -140,12 +140,14 @@ NODE *lcursor(NODE *args) {
 }
 
 extern void wxSetCursor();
+extern void wx_refresh();
 
 NODE *lsetcursor(NODE *args) {
 
 	int x_coord, y_coord, x_max, y_max;
 	NODE *arg;
 	fix_turtle_shownness();
+        wx_refresh();
 
 	x_coord=getTermInfo(X_COORD);
 	y_coord=getTermInfo(Y_COORD);
