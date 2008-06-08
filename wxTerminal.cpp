@@ -311,7 +311,7 @@ LogoFrame::LogoFrame (const wxChar *title,
   turtleGraphics = new TurtleCanvas( this );
 
   wxFont f(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, wxString("monospace"));
+	   false, wxString("Courier"));
 
   wxTerminal::terminal->SetFont(f);
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
