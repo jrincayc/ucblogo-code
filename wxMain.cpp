@@ -122,6 +122,10 @@ extern "C" void wxLogoSleep(unsigned int milli) {
   flushFile(stdout, 0);
   extern void wx_refresh();
   wx_refresh();
+  if(milli <= 100) {
+    wxMilliSleep(milli);
+    return;
+  }
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
     if(check_wx_stop(1)) {  //force yielding
       break;

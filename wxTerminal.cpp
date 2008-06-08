@@ -304,13 +304,16 @@ LogoFrame::LogoFrame (const wxChar *title,
   // the topsizer allows different resizeable segments in the main frame (i.e. for 
   // turtle graphics and the terminal displaying simultaneously)
   SetMinSize(wxSize(100, 100));
-    SetIcon(wxIcon(ucblogo));
+  SetIcon(wxIcon(ucblogo));
   logoFrame = this;
   topsizer = new wxBoxSizer( wxVERTICAL );
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
   turtleGraphics = new TurtleCanvas( this );
-  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, wxString("Courier"));
+
+  wxFont f(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
+	   false, wxString("monospace"));
+
+  wxTerminal::terminal->SetFont(f);
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
   wxTerminal::terminal->isEditFile=0;
   
@@ -789,10 +792,6 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   m_printerFN = 0;
   m_printerName = 0;
 
-  wxFont f(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, "Courier");
-  SetFont(f);
-
   wxClientDC
     dc(this);
   
@@ -842,11 +841,12 @@ bool
 wxTerminal::SetFont(const wxFont& font)
 {
   wxWindow::SetFont(font);
+
   m_normalFont = font;
   m_underlinedFont = font;
   m_underlinedFont.SetUnderlined(TRUE);
-  m_boldFont = GetFont();
-  m_boldFont.SetWeight(wxBOLD);
+  m_boldFont = font;
+  m_boldFont.SetWeight(wxFONTWEIGHT_BOLD);
   m_boldUnderlinedFont = m_boldFont;
   m_boldUnderlinedFont.SetUnderlined(TRUE);
   GetCharSize(&m_charWidth, &m_charHeight);
@@ -869,10 +869,12 @@ wxTerminal::GetCharSize(int *cw, int *ch) {
   //int dummy;
   //dc.GetTextExtent("M", cw, &dummy);
   //dc.GetTextExtent("(", &dummy, ch);
-  
-  int descent, extlead;
+
+  int descent, extlead; 
   dc.GetTextExtent("M", cw, ch, &descent, &extlead);
-  *ch += descent + extlead + 1;
+  //for the tails of g's and y's, if needed.
+  //  *ch += descent + extlead + 1;
+  //  *ch += descent + 1;
 }
 
 void
@@ -2387,6 +2389,7 @@ void wxTerminal::ClearScreen() {
 
 void wxTerminal::EnableScrolling(bool want_scrolling) {
   //wxScrolledWindow::EnableScrolling(FALSE,want_scrolling); //doesn't work
+  return;
   static int 
     scroll_disabled = FALSE,
     scroll_pos = GetScrollPos(wxVERTICAL),
