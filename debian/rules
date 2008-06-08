@@ -14,7 +14,7 @@ clean:
 	-rm -f build
 	-rm -f makefile config.h config.cache config.log config.status \
 		core logo makehelp helpfiles/HELPCONTENTS
-	-rm -rf *~ debian/ucblogo debian/{*~,files*,substvars}
+	-rm -rf *~ debian/ucblogo debian/*~ debian/files* debian/substvars
 	# -rm -rf helpfiles
 	dh_clean
 
