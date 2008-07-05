@@ -40,18 +40,15 @@ int needToRefresh = 0;
 int load_flag = 0;
 // need to save
 int save_flag = 0;
-// alreadyAlerted indicated there is a pending message from logo to the GUI
+
 
 // IO buffer handling
 char nameBuffer [NAME_BUFFER_SIZE];
 int nameBufferSize = 0;
-int MAXOUTBUFF  =  MAXOUTBUFF_;
-char out_buff1[MAXOUTBUFF_];
-char out_buff2[MAXOUTBUFF_];
-int out_buff_index_public = 0;
-int out_buff_index_private = 0;
-char * out_buff_public = out_buff1;
-char * out_buff_private = out_buff2;
+
+
+char output_buffer[MAXOUTBUFF];
+int output_index = 0;
 
 char buff[BUFF_LEN];
 int buff_push_index = 0;
@@ -69,49 +66,18 @@ extern "C" void wxLogoExit(int code) {
 #define LINEPAUSE 25
 
 // flush the output
-extern "C" void flushFile(FILE * stream, int justPost) {
+extern "C" void flushFile(FILE * stream) {
   static int numLines = 0;
-  int doPost = 0;
   char * temp;
 
-  if (!justPost) {
-    
-    while (out_buff_index_public != 0) {
- fprintf(stderr, "f");
-      logoEventManager->ProcessEvents(1);
-      wxMilliSleep(10);
-    }
-    
-    if (numLines >= LINEPAUSE) {
-      // this is to give the user a chance to pause
-      wxMilliSleep(1);
-      numLines = 0;
-    }
-    else 
-      numLines++;
-    
-    temp = out_buff_public;
-    out_buff_public = out_buff_private;
-    out_buff_private = temp;
-    out_buff_index_public = out_buff_index_private;
-    out_buff_index_private = 0;
-    doPost = 1;    
+  if (numLines >= LINEPAUSE) {
+    wxMilliSleep(1);
+    numLines = 0;
   }
+  else 
+    numLines++;
 
-  if (doPost || justPost) {
-    if (!doPost) {
-      // This is so that I don't have to grab the lock twice
-      if (numLines >= LINEPAUSE) {
-	wxMilliSleep(1);
-	numLines = 0;
-      }
-      else 
-	numLines++;
-    }
-    haveInputEvent->SetClientData(NULL);
-    wxTerminal::terminal->Flush(*haveInputEvent);
-    //wxTerminal::terminal->ProcessEvent(*haveInputEvent);
-  }
+  wxTerminal::terminal->Flush();
 }
 
 // have the interpreter go to sleep
@@ -119,7 +85,7 @@ extern "C" void flushFile(FILE * stream, int justPost) {
 extern "C" void wxLogoSleep(unsigned int milli) {
   //may not work on mac according to wxWidgets doc
   wxDateTime stop_waiting = wxDateTime::UNow() + wxTimeSpan(0,0,0,milli);
-  flushFile(stdout, 0);
+  flushFile(stdout);
   extern void wx_refresh();
   wx_refresh();
   if(milli <= 100) {
@@ -145,17 +111,17 @@ extern "C" void printToScreen(char c, FILE * stream)
     // we are in fullscreen mode
     wxSplitScreen();
   
-  if (out_buff_index_private >= (MAXOUTBUFF - 1)) {   
-    flushFile(stdout, 0);   
+  if (output_index >= (MAXOUTBUFF - 1)) {   
+    flushFile(stdout);   
   }
     
   if (c == '\n') {
-    out_buff_private[out_buff_index_private++] = 10;
-    out_buff_private[out_buff_index_private++] = 13;
-    flushFile(stdout, 1);
+    output_buffer[output_index++] = 10;
+    output_buffer[output_index++] = 13;
+    flushFile(stdout);
   }
   else {
-     out_buff_private[out_buff_index_private++] = c;
+     output_buffer[output_index++] = c;
   }
 }
 
@@ -187,14 +153,14 @@ extern "C" char getFromWX_2(FILE * f)
     if (load_flag) {
       load_flag = 0;
       int i;
-      //buff[buff_index++] = '\n';
+
       buff_push('\n');
        
       for (i = 0; i < nameBufferSize; i++) {
-	//buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+
 	buff_push(nameBuffer[nameBufferSize - i - 1]);
       }
-      //      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'd'; buff[buff_index++] = 'a'; buff[buff_index++] = 'o'; buff[buff_index++] = 'l';
+
       buff_push('l'); 
       buff_push('o'); 
       buff_push('a'); 
@@ -205,13 +171,13 @@ extern "C" char getFromWX_2(FILE * f)
     if (save_flag) {
       save_flag = 0;
       int i;
-      //      buff[buff_index++] = '\n';
+
       buff_push('\n');
       for (i = 0; i < nameBufferSize; i++) {
-	//buff[buff_index++] = nameBuffer[nameBufferSize - i - 1];
+
 	buff_push(nameBuffer[nameBufferSize - i - 1]);
       }
-      //      buff[buff_index++] = '"'; buff[buff_index++] = ' '; buff[buff_index++] = 'e'; buff[buff_index++] = 'v'; buff[buff_index++] = 'a'; buff[buff_index++] = 's';
+
       buff_push('s'); 
       buff_push('a'); 
       buff_push('v');
@@ -223,7 +189,7 @@ extern "C" char getFromWX_2(FILE * f)
     if (check_wx_stop(1)) {   // force yield (1)
       putReturn = 1;
     }
-    flushFile(stdout, 0);
+    flushFile(stdout);
     //if (buff_index == 0 && !putReturn)
     if (buff_empty && !putReturn)
       wxMilliSleep(1); // don't wait too long now...
@@ -232,7 +198,6 @@ extern "C" char getFromWX_2(FILE * f)
   if (putReturn)
     c = '\n';
   else
-    //    c= buff[--buff_index];
     buff_pop(c);
   return c;
 }

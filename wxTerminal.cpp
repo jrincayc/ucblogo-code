@@ -56,10 +56,10 @@ using namespace std;
 // Globals
 // ----------------------------------------------------------------------------
 // This is for the input for terminal-like behavior
-unsigned char inputBuffer [8000];
-// How far into the inputBuffer we are
+unsigned char input_buffer [MAXINBUFF];
+// How far into the input_buffer we are
 int input_index = 0;
-// Where the cursor is in the inputBuffer
+// Where the cursor is in the input_buffer
 int input_current_pos = 0;
 
 // if logo is in character mode
@@ -718,7 +718,7 @@ EVT_CHAR(wxTerminal::OnChar)
 EVT_LEFT_DOWN(wxTerminal::OnLeftDown)
 EVT_LEFT_UP(wxTerminal::OnLeftUp)
 EVT_MOTION(wxTerminal::OnMouseMove)
-EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::Flush)
+//EVT_MY_CUSTOM_COMMAND(-1, wxTerminal::Flush)
 EVT_SIZE(wxTerminal::OnSize)
 EVT_KILL_FOCUS(wxTerminal::LoseFocus)
 END_EVENT_TABLE()
@@ -912,9 +912,9 @@ void wxTerminal::ProcessInput(wxDC &dc) {
   //pass input up to newline.
   int i;
   for(i = 0; i < input_index; i++) {
-    if(inputBuffer[i] == '\n') break;
+    if(input_buffer[i] == '\n') break;
   }
-  PassInputToTerminal(dc,i+1,inputBuffer); //include '\n'
+  PassInputToTerminal(dc,i+1,input_buffer); //include '\n'
   last_logo_x = cursor_x;
   last_logo_y = cursor_y;
   
@@ -929,10 +929,10 @@ void wxTerminal::ProcessInput(wxDC &dc) {
  * 
  * Handles output from logo
  */
-void  wxTerminal::Flush (wxCommandEvent& event){
+void  wxTerminal::Flush (){
   set_mode_flag(BOLD);
 
-  if(out_buff_index_public == 0) {
+  if(output_index == 0) {
     clear_mode_flag(BOLD);
     return;
   }
@@ -951,10 +951,10 @@ void  wxTerminal::Flush (wxCommandEvent& event){
     cursor_moved = TRUE;
     
   }    //calculate new cursor location
-  if (out_buff_index_public != 0) {
+  if (output_index != 0) {
      ClearSelection();
-     PassInputToTerminal(dc,out_buff_index_public, (unsigned char *)out_buff_public);
-     out_buff_index_public = 0;
+     PassInputToTerminal(dc,output_index, (unsigned char *)output_buffer);
+     output_index = 0;
   }
 
   //save current cursor position to last_logo
@@ -973,11 +973,11 @@ void  wxTerminal::Flush (wxCommandEvent& event){
     else {
       //pass the input up to the current input location to terminal
       //e.g. cpos is 6, then pass chars 0 to 5 to terminal (6 chars)
-      PassInputToTerminal(dc,input_current_pos, inputBuffer);
+      PassInputToTerminal(dc,input_current_pos, input_buffer);
       int new_cursor_x = cursor_x, new_cursor_y = cursor_y;
       //pass the rest of input to terminal
       //e.g. inputindex is 20, then pass chars 6 to 19 to terminal (14 chars)
-      PassInputToTerminal(dc,input_index-input_current_pos, inputBuffer+input_current_pos);
+      PassInputToTerminal(dc,input_index-input_current_pos, input_buffer+input_current_pos);
       // set last_input coords
       last_input_x = cursor_x;
       last_input_y = cursor_y;
@@ -999,22 +999,22 @@ void  wxTerminal::Flush (wxCommandEvent& event){
 void wxTerminal::PassInputToInterp() {
   int i;  
   if(logo_char_mode){
-    //buff[buff_index++] = inputBuffer[--input_index];
-    buff_push(inputBuffer[--input_index]);
+    //buff[buff_index++] = input_buffer[--input_index];
+    buff_push(input_buffer[--input_index]);
     
     input_index = 0;
     input_current_pos = 0;
   }
   else {
     for (i = 0; i < input_index; i++) {
-      buff_push(inputBuffer[i]);	
-      if(inputBuffer[i] == '\n') {
+      buff_push(input_buffer[i]);	
+      if(input_buffer[i] == '\n') {
 	break;
       }
     }
     int saw_newline = i;
     for(i = saw_newline + 1; i < input_index; i++) {
-      inputBuffer[i - saw_newline - 1] = inputBuffer[i];
+      input_buffer[i - saw_newline - 1] = input_buffer[i];
     }
     // a to b, length is b - a + 1
     input_index = input_index - saw_newline - 1;
@@ -1053,7 +1053,7 @@ void wxTerminal::DoPaste(){
 		  int num_newlines = 0;
 		  int len;
 		  char prev = ' ';
-		  for (i = 0; i < s.Length(); i++){
+		  for (i = 0; i < s.Length() && input_index < MAXINBUFF; i++){
 		    len = 1;
 		    c = s.GetChar(i);
 		    if (c == '\n') {
@@ -1063,7 +1063,7 @@ void wxTerminal::DoPaste(){
 		      continue;
 		    }
 		    prev = c;
-		    inputBuffer[input_index++] = c;
+		    input_buffer[input_index++] = c;
 		    ClearSelection();
 		    PassInputToTerminal(dc,len, &c);
 		  }
@@ -1124,12 +1124,15 @@ wxTerminal::OnChar(wxKeyEvent& event)
     //also not sure about this (evan)
     if (event.ControlDown()) keyCode -= 0140;
     if (event.AltDown()) keyCode += 0200;
-    inputBuffer[input_index++] = keyCode;
-    input_current_pos++;
-    PassInputToInterp();
+    if(input_index < MAXINBUFF) {
+      input_buffer[input_index++] = keyCode;
+      input_current_pos++;
+      PassInputToInterp();
+    }
   }
   else if (keyCode == WXK_RETURN) {
-    // for the new terminal:
+    if(input_index >= MAXINBUFF) return;
+
     
     if(input_current_pos < input_index) {
       setCursor(dc,last_input_x, last_input_y);
@@ -1139,7 +1142,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
     //buf[1] = 13;
     //len = 2;
     
-    inputBuffer[input_index++] = '\n';
+    input_buffer[input_index++] = '\n';
     input_current_pos = input_index;
 
     unsigned char newline = '\n';
@@ -1166,12 +1169,12 @@ wxTerminal::OnChar(wxKeyEvent& event)
       return;
     
     bool removing_newline = FALSE;
-    if(inputBuffer[input_current_pos-1] == '\n') {
+    if(input_buffer[input_current_pos-1] == '\n') {
       removing_newline = TRUE;
     }
     
     for (int i = input_current_pos; i < input_index; i++) {
-      inputBuffer[i-1] = inputBuffer[i]; 
+      input_buffer[i-1] = input_buffer[i]; 
     }
     input_index--;
     input_current_pos--;
@@ -1189,7 +1192,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
     }
     
     PassInputToTerminal(dc,input_index - input_current_pos,
-			(unsigned char *)inputBuffer + input_current_pos);
+			(unsigned char *)input_buffer + input_current_pos);
     
     //cursor_x , cursor_y now at input's last location
     last_input_x = cursor_x;
@@ -1227,14 +1230,14 @@ wxTerminal::OnChar(wxKeyEvent& event)
     setCursor(dc,xval, yval); 
     if (input_index != 0) { // we have to swipe what is already there
       for (i = 0; i < input_index; i++) {
-	if(inputBuffer[i] == '\n') {
-	  inputBuffer[i] = '\n';
+	if(input_buffer[i] == '\n') {
+	  input_buffer[i] = '\n';
 	}
 	else {
-	  inputBuffer[i] = ' ';
+	  input_buffer[i] = ' ';
 	}
       }
-      PassInputToTerminal(dc,input_index, (unsigned char *)inputBuffer);
+      PassInputToTerminal(dc,input_index, (unsigned char *)input_buffer);
     }
     setCursor(dc,xval, yval); 
     // Now get a history entry
@@ -1256,8 +1259,8 @@ wxTerminal::OnChar(wxKeyEvent& event)
       
       int num_newlines = 0;
       for (i = 0; hist_str[i]; i++) {
-	inputBuffer[i] = hist_str[i];
-	if(inputBuffer[i] == '\n') num_newlines++;
+	input_buffer[i] = hist_str[i];
+	if(input_buffer[i] == '\n') num_newlines++;
       }
       free(hist_str);
 
@@ -1278,14 +1281,14 @@ wxTerminal::OnChar(wxKeyEvent& event)
     setCursor(dc,xval, yval); 
     if (input_index != 0) { // we have to swipe what is already there
       for (i = 0; i < input_index; i++) {
-	if(inputBuffer[i] == '\n') {
-	  inputBuffer[i] = '\n';
+	if(input_buffer[i] == '\n') {
+	  input_buffer[i] = '\n';
 	}
 	else {	    
-	  inputBuffer[i] = ' ';
+	  input_buffer[i] = ' ';
 	}
       }
-      PassInputToTerminal(dc,input_index, (unsigned char *)inputBuffer);
+      PassInputToTerminal(dc,input_index, (unsigned char *)input_buffer);
     }
     setCursor(dc,xval, yval); 
     if (*hist_outptr != 0) {
@@ -1307,8 +1310,8 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
       int num_newlines = 0;
       for (i = 0; hist_str[i]; i++) {
-	inputBuffer[i] = hist_str[i];
-	if(inputBuffer[i] == '\n') num_newlines++;
+	input_buffer[i] = hist_str[i];
+	if(input_buffer[i] == '\n') num_newlines++;
       }
 
       free(hist_str);
@@ -1340,7 +1343,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
   }
   else if  (keyCode == WXK_RIGHT) { // right
     if(input_current_pos < input_index) {
-      if (inputBuffer[input_current_pos] == '\n' ||
+      if (input_buffer[input_current_pos] == '\n' ||
 	  cursor_x + 1 > x_max) {
 	setCursor(dc,0, cursor_y + 1);
       }
@@ -1357,6 +1360,8 @@ wxTerminal::OnChar(wxKeyEvent& event)
     /* ignore it */
   } 
   else {
+    if(input_index >= MAXINBUFF) return;	
+
     buf[0] = keyCode;
     len = 1;
     int doInsert = 0;
@@ -1364,14 +1369,14 @@ wxTerminal::OnChar(wxKeyEvent& event)
       doInsert = 1;
       int i;
       for (i = input_index; i >= input_current_pos + 1; i--) {
-	inputBuffer[i] = inputBuffer[i - 1]; 
+	input_buffer[i] = input_buffer[i - 1]; 
       }
-      inputBuffer[input_current_pos] = keyCode;
+      input_buffer[input_current_pos] = keyCode;
       input_index++;
       input_current_pos++;
     }
     else {
-      inputBuffer[input_index++] = keyCode;
+      input_buffer[input_index++] = keyCode;
       input_current_pos++;
     }
 
@@ -1381,7 +1386,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
       //remember, input_current_pos - 1 has last character typed
       PassInputToTerminal(dc,input_index - (input_current_pos - 1),
-			  (unsigned char *)(inputBuffer + (input_current_pos - 1)));
+			  (unsigned char *)(input_buffer + (input_current_pos - 1)));
 	
       //now the cursor is where the last input position is
       last_input_x = cursor_x;
@@ -2376,8 +2381,7 @@ extern "C" void setCharMode(int mode){
 
 extern "C" void wxClearText() {
   wxTerminal::terminal->ClearScreen();
-  out_buff_index_public = 0;
-  out_buff_index_private = 0;
+  //  output_index = 0;
 }
 
 void wxTerminal::ClearScreen() {
@@ -2420,11 +2424,11 @@ void wxTerminal::EnableScrolling(bool want_scrolling) {
   return;
 }
 
-extern "C" void flushFile(FILE * stream, int);
+extern "C" void flushFile(FILE * stream);
 
 extern "C" void wxSetCursor(int x, int y){
   //just call wxTerminal::setCursor with a special flag.
-  flushFile(stdout, 0);
+  flushFile(stdout);
   wxTerminal::terminal->EnableScrolling(FALSE);
   wxClientDC dc(wxTerminal::terminal);
   wxTerminal::terminal->setCursor(dc,x,y,TRUE);

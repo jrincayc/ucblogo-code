@@ -4,9 +4,6 @@
 #include <wx/evtloop.h>
 #include "logo.h"
 
-#define NAME_BUFFER_SIZE 300
-#define MAXOUTBUFF_ 4 * (1024)
-
 // This is the Top level Application Class
 class LogoApplication : public wxApp
 {

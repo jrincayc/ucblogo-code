@@ -35,11 +35,15 @@
 
 
 /* wxMain */
+#define NAME_BUFFER_SIZE 300
+#define MAXOUTBUFF 4096
+#define MAXINBUFF 4096
+
 extern int out_buff_index_public;
 extern int out_buff_index_private;
 extern char * out_buff_public;
 extern char * out_buff_private;
-#define BUFF_LEN 1024  //should be a power of two.
+#define BUFF_LEN 4096  //should be a power of two.
 
 #define buff_empty (buff_push_index == buff_pop_index)
 
@@ -56,9 +60,9 @@ extern char buff[];
 extern int buff_push_index;
 extern int buff_pop_index;
 extern int alreadyAlerted;
-extern int MAXOUTBUFF;
-extern char out_buff[];
-extern int out_buff_index;
+
+extern char output_buffer[];
+extern int output_index;
 
 /* wxTerminal */
 class TurtleCanvas;

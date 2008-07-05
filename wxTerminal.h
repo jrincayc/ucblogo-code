@@ -250,7 +250,7 @@ public:
   void DoCopy();
   void DoPaste();
   void ProcessInput(wxDC &dc);
-  void Flush (wxCommandEvent& event);
+  void Flush ();
   void OnSize(wxSizeEvent& event);
   void terminalEvent (wxCommandEvent & event);
   void PassInputToInterp();
