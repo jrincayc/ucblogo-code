@@ -2364,6 +2364,14 @@ wxTerminal::PrintChars(int len, unsigned char *data)
 
 extern "C" void setCharMode(int mode){
 	logo_char_mode = mode;
+	
+	//if turning charmode off, flush the
+	//buffer (not the input buffer, logo's buffer)
+
+	char tmp;
+	while(!buff_empty) {
+	  buff_pop(tmp);
+	}
 }
 
 extern "C" void wxClearText() {
