@@ -1,0 +1,118 @@
+
+How the GUI communicates with Logo in wxWidgets:
+
+
+Everything is done with a single thread. We have overriden the 
+main event loop from wxWidgets (via LogoApplication::OnRun()),
+and events are handled periodically through calls to 
+check_wx_stop(), which calls LogoEventManager::ProcessEvents().
+To prevent yielding too much time for event checking, we have a
+"fudge factor" that delays how often we yield to the wxWidgets
+GUI event checking code, and a parameter that let's us force
+yielding if we are say polling for user input. All events (key
+press events, window resize, etc) are handled during the yield.
+There is a trade-off between responsiveness in the UI (how fast 
+the GUI recognizes that a key has been pressed) and overall speed 
+of the program (when crunching numbers or painting) when adjusting
+the fudge factor.
+
+
+Character buffers
+
+in wxTerminal:  
+ char input_buffer[MAXINBUFF];   //stores typed input (before send to logo)
+
+in wxMain:
+ char output_buffer[MAXOUTBUFF]; //stores output to send to terminal (from logo)
+ char buff[BUFF_LEN];            //stores input to send to logo (from input_buffer)
+
+When polling for input, any typed characters are stored in input_buffer, which
+keeps track of total characters and where the cursor position is (because you can
+use the left and right arrow keys to go back). 
+When the enter key is pressed, one line is put into the logo buffer (buff) and
+will be read from logo.
+Whenever logo needs to print characters to screen, the characters are put in 
+output_buffer and will be displayed by the GUI.
+
+
+Terminal Display Character Storage
+
+The contents of the terminal are stored in a linked list of character arrays.
+There are two structures, one that stores the actual characters and mode flags
+(bold, standout mode, etc), and one that stores line information (where each
+line starts). Both are linked lists of blocks. 
+
+struct wxterm_char_buffer {
+  unsigned char cbuf[WXTERM_CB_SIZE];       //characters
+  unsigned char mbuf[WXTERM_CB_SIZE];       //mode flags
+  wxterm_char_buffer *next; //next part of buffer
+} ;
+
+struct wxterm_charpos {
+  wxterm_char_buffer *buf;   //which char buffer
+  int offset;                //offset into buffer
+  int line_length;           //length of line
+} ;
+
+A charpos points to some character in the character buffer. There are macros
+to help navigate. (line_length may or may not be used, depending on the situation).
+
+
+char_of(charpos)        retrieves the character referenced by charpos
+mode_of(charpos)        retrieves the mode of the character referenced by charpos
+inc_charpos(charpos)    puts charpos to next character 
+		        (goes to next block if necessary)
+adjust_charpos(charpos) if offset too large, adjusts charpos so that it points to 
+                    	the right block (commonly used to jump many characters 
+    			forward)
+
+
+
+struct wxterm_line_buffer {
+  wxterm_charpos lbuf[WXTERM_LB_SIZE];  //lines
+  wxterm_line_buffer *next;          //next part of buffer
+};
+
+struct wxterm_linepos {
+  wxterm_line_buffer *buf;  //which line buffer
+  int offset;               //offset into line buffer
+};
+
+
+
+A linepos references a particular line. A line is just a charpos, keeping track of
+where the start of the line is, and how long the line is. There are macros to help
+navigate this structure as well:
+
+line_of(linepos)        gets line referenced by linepos.
+inc_linepos(linepos)    puts linepos to next line
+adjust_linepos(linepos) if offset is too large, adjusts linepos so it points to the
+			right block.
+
+So, our terminal references the start of the character buffer / line buffer with
+
+  wxterm_char_buffer *term_chars;
+  wxterm_line_buffer *term_lines;
+
+and references the current position (where the cursor is) with 
+
+  wxterm_charpos curr_char_pos;
+  wxterm_linepos curr_line_pos;
+
+With this, it's easy to retrieve a particular line:
+
+wxterm_linepos wxTerminal::GetLinePosition(int y) 
+{
+  wxterm_linepos lpos;
+  lpos.buf = term_lines;
+  lpos.offset = y;
+  adjust_linepos(lpos);
+  return lpos;
+}
+
+Set the offset and adjust the position!
+
+
+DebugOutputBuffer() can be called to print out the contents 
+and properties of the terminal.
+
