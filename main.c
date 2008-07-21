@@ -58,6 +58,8 @@ NODE *current_line = NIL;
 NODE **bottom_stack; /*GC*/
 NODE *command_line = NIL;   /* 6.0 command line args after files */
 
+int stop_quietly_flag=0;
+
 void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
@@ -88,7 +90,9 @@ RETSIGTYPE logo_stop()
     } else {
 	charmode_off();
 	to_pending = 0;
-	err_logo(STOP_ERROR,NIL);
+        if (!stop_quietly_flag)
+            err_logo(STOP_ERROR,NIL);
+        stop_quietly_flag = 0;
 #ifdef __RZTC__
 	if (!input_blocking)
 #endif

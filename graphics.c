@@ -827,11 +827,11 @@ void setpos_helper(NODE *xnode, NODE *ynode) {
 	draw_turtle();
 	move_to(g_round(screen_x_coord), g_round(screen_y_coord));
 	target_x = ((xnode == NIL) ?
-		turtle_x :
+		turtle_x/x_scale :
 		((nodetype(xnode) == FLOATT) ? getfloat(xnode) :
 		 (FLONUM)getint(xnode)));
 	target_y = ((ynode == NIL) ?
-		turtle_y :
+		turtle_y/y_scale :
 		((nodetype(ynode) == FLOATT) ? getfloat(ynode) :
 		 (FLONUM)getint(ynode)));
 	setpos_commonpart(target_x, target_y);
@@ -1238,7 +1238,8 @@ NODE *lsetscrunch(NODE *args) {
 }
 
 NODE *lmousepos(NODE *args) {
-    return(cons(make_intnode(mouse_x), cons(make_intnode(mouse_y), NIL)));
+    return(cons(make_floatnode(mouse_x/x_scale),
+		cons(make_floatnode(mouse_y/y_scale), NIL)));
 }
 
 NODE *lbuttonp(NODE *args) {

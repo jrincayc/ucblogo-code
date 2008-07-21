@@ -446,8 +446,8 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 #endif
 			      *wxEmptyString),
 			    wxEmptyString,
-//			    "Logo workspaces(*.lg)|All files(*.*)",
-			    "*.*",
+			    "Logo workspaces(*.lg)|*.lg|All files(*)|*",
+//			    "*",
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 			    wxSAVE|wxOVERWRITE_PROMPT|wxCHANGE_DIR
 #else
@@ -479,8 +479,8 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 #endif
 			  *wxEmptyString),
 	 wxEmptyString,
-//	 "Logo workspaces(*.lg)|All files(*.*)",
-	 "*",
+	 "Logo workspaces(*.lg)|*.lg|All files(*)|*",
+//	 "*",
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 	 wxOPEN|wxFILE_MUST_EXIST|wxCHANGE_DIR
 #else

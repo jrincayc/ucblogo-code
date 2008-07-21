@@ -23,7 +23,13 @@ int wx_Debugging = 0;
 
 // start the application
 IMPLEMENT_APP(LogoApplication)
-
+ 
+extern "C" NODE *cons(NODE *, NODE *);
+extern "C" NODE *make_static_strnode(char *);
+extern "C" NODE *lload(NODE *);
+extern "C" NODE *lsave(NODE *);
+extern int logo_stop_flag;
+extern "C" int stop_quietly_flag;
 
 // ----------------------------------------------------------------------------
 // Globals
@@ -251,7 +257,9 @@ void doLoad(char * name, int length) {
   }
   nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
 
-  load_flag = 1;  
+    (void)lload(cons(make_static_strnode(name),NIL));
+    stop_quietly_flag = 1;
+    logo_stop_flag = 1;
 }
 
 void doSave(char * name, int length) {
@@ -262,7 +270,9 @@ void doSave(char * name, int length) {
   }
   nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
   
-  save_flag = 1;
+    (void)lsave(cons(make_static_strnode(name),NIL));
+    stop_quietly_flag = 1;
+    logo_stop_flag = 1;
   }
 
 extern "C" const char* wxMacGetLibloc(){
