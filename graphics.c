@@ -1264,7 +1264,7 @@ NODE *ltone(NODE *args) {
 	pitch = (nodetype(p) == FLOATT) ? (FIXNUM)getfloat(p) : getint(p);
 	duration = (nodetype(d) == FLOATT) ? (FIXNUM)getfloat(d) : getint(d);
 	if (pitch > 0) tone(pitch, duration);
-    }
+}
     return(UNBOUND);
 }
 
@@ -1282,8 +1282,8 @@ void do_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,
     if (save) {
 	x = sin(ang*3.141592654/180.0)*radius;
 	y = cos(ang*3.141592654/180.0)*radius;
-	turtle_x = tx+x;
-	turtle_y = ty+y;
+	turtle_x = tx+x*x_scale;
+	turtle_y = ty+y*y_scale;
     }
 
     /* draw each line segment of arc (will do wrap) */
@@ -1294,7 +1294,7 @@ void do_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,
 
        x = sin(ang*3.141592654/180.0)*radius;
        y = cos(ang*3.141592654/180.0)*radius;
-       setpos_bynumber(tx+x, ty+y);
+       setpos_bynumber(tx/x_scale+x, ty/y_scale+y);
        ang = ang + delta;
     }
 
@@ -1303,12 +1303,12 @@ void do_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,
     x = sin((thead+angle)*3.141592654/180.0)*radius;
     y = cos((thead+angle)*3.141592654/180.0)*radius;
 
-    setpos_bynumber(tx+x, ty+y);
+    setpos_bynumber(tx/x_scale+x, ty/y_scale+y);
 
     if (save) {
 	pen_state = pen_vis;
 	pen_vis = -1;
-	setpos_bynumber(tx, ty);
+	setpos_bynumber(tx/x_scale, ty/y_scale);
 	pen_vis = pen_state;
 	turtle_x = save_x;
 	turtle_y = save_y;
@@ -1381,7 +1381,7 @@ NODE *larc(NODE *arg) {
 	pen_state = pen_vis;
 	pen_vis = -1;
 	save_vis();
-	setpos_bynumber(tx+x, ty+y);
+	setpos_bynumber(tx/x_scale+x, ty/y_scale+y);
 	pen_vis = pen_state;
 	save_vis();
 	ang = ang + delta;
@@ -1395,7 +1395,7 @@ NODE *larc(NODE *arg) {
 	pen_state = pen_vis;
 	pen_vis = -1;
 	save_vis();
-	setpos_bynumber(tx, ty);
+	setpos_bynumber(tx/x_scale, ty/y_scale);
 	pen_vis = pen_state;
 	save_vis();
 
