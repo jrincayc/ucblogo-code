@@ -608,6 +608,20 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	
 }
 
+extern void *Unbound;
+
+extern "C" void *IncreaseFont(void *) {
+    wxCommandEvent dummy;
+    logoFrame->OnIncreaseFont(dummy);
+    return Unbound;
+}
+
+extern "C" void *DecreaseFont(void *) {
+    wxCommandEvent dummy;
+    logoFrame->OnDecreaseFont(dummy);
+    return Unbound;
+}
+
 void LogoFrame::DoStop(wxCommandEvent& WXUNUSED(event)){
   logo_stop_flag = 1;
 }

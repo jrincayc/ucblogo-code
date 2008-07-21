@@ -46,7 +46,8 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
 #ifdef OBJECTS
      *askexist,
 #endif
-     *Minus_Sign, *Minus_Tight, *Startup, *Query, *UseAlternateNames;
+     *Minus_Sign, *Minus_Tight, *Startup, *Startuplg,
+     *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
 
 PRIMTYPE prims[] = {
@@ -127,6 +128,9 @@ PRIMTYPE prims[] = {
     {"cslsload", 1, 1, 1, PREFIX_PRIORITY, lcslsload},
     {"ct", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
     {"cursor", 0, 0, 0, PREFIX_PRIORITY, lcursor},
+#ifdef HAVE_WX
+    {"decreasefont", 0, 0, 0, PREFIX_PRIORITY, DecreaseFont},
+#endif
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
     {"definedp", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
     {"defined?", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
@@ -192,6 +196,9 @@ PRIMTYPE prims[] = {
     {"iffalse", 1, 1, 1, MACRO_PRIORITY, liffalse},
     {"ift", 1, 1, 1, MACRO_PRIORITY, liftrue},
     {"iftrue", 1, 1, 1, MACRO_PRIORITY, liftrue},
+#ifdef HAVE_WX
+    {"increasefont", 0, 0, 0, PREFIX_PRIORITY, IncreaseFont},
+#endif
     {"int", 1, 1, 1, PREFIX_PRIORITY, linteg},
     {"item", 2, 2, 2, PREFIX_PRIORITY, litem},
     {"keyp", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
@@ -699,6 +706,7 @@ void init(void) {
     Dotsvalue = make_colon(car(Listvalue));
     Pause = intern_p(make_static_strnode("pause"));
     Startup = intern_p(make_static_strnode("startup"));
+    Startuplg = intern_p(make_static_strnode("startup.lg"));
     LogoVersion = intern_p(make_static_strnode("logoversion"));
     LogoPlatform = intern_p(make_static_strnode("logoplatform"));
     LogoLogo = intern_p(make_static_strnode("logo-logo"));

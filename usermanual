@@ -222,6 +222,12 @@ Windows: Double-click on the UCBWLOGO icon in the UCBLOGO folder.
 
 To leave Logo, enter the command "bye".
 
+On startup, Logo looks for a file named "startup.lg" in the system Logo
+library and, if found, loads it.  Then it looks for "startup.lg" in the
+user's home directory, or the current directory, depending on the operating
+system, and loads that.  These startup files can be used to predefine
+procedures, e.g., to provide non-English names for primitive procedures.
+
 Under Unix, DOS, or Windows, if you include one or more filenames on the
 command line when starting Logo, those files will be loaded before the
 interpreter starts reading commands from your terminal.  If you load a file
@@ -230,6 +236,10 @@ program and exit.  You can therefore write standalone programs in Logo and run
 them with shell/batch scripts.  To support this technique, Logo does not print
 its usual welcoming and parting messages if you give file arguments to the
 logo command.
+
+If the command line contains a word consisting of only a hyphen ("-"),
+then any text following the hyphen is not taken as filenames to load, but
+instead is copied into a list, accessible through the variable CommandLine.
 
 If you type your interrupt character (see table below) Logo will stop what
 it's doing and return to toplevel, as if you did THROW "TOPLEVEL.  If you
@@ -1167,6 +1177,12 @@ SETTC foreground background
 	printed by the program, not to the echoing of text typed by the
 	user.  Neither limitation applies to the text portion of splitscreen
 	mode, which is actually drawn as graphics internally.
+
+INCREASEFONT
+DECREASEFONT
+
+	command (wxWidgets only).  Increase or decrease the size of the font
+	used in the text window to the next larger or smaller available size.
 
 
 ARITHMETIC
@@ -3648,6 +3664,11 @@ CASEIGNOREDP						(variable)
 	if TRUE, indicates that lower case and upper case letters should be
 	considered equal by EQUALP, BEFOREP, MEMBERP, etc.  Logo initially
 	makes this variable TRUE, and buries it.
+
+COMMANDLINE						(variable)
+
+	contains any text appearing after a hyphen on the command line
+	used to start Logo.
 
 ERRACT							(variable)
 

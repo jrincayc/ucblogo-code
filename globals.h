@@ -205,7 +205,7 @@ extern NODE *Redefp, *Caseignoredp, *Erract, *Printdepthlimit;
 extern NODE *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet;
 extern NODE *UnburyOnEdit, *Make, *Listvalue, *Dotsvalue;
 extern NODE *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion;
-extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Query;
+extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Startuplg, *Query;
 extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform;
 extern NODE *CommandLine, *Null_Word;
 extern void init(void);
@@ -590,6 +590,8 @@ extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
+extern void *IncreaseFont(void *);
+extern void *DecreaseFont(void *);
 extern int turtlePosition_x, turtlePosition_y;
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2

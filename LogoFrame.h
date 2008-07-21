@@ -36,6 +36,8 @@ class LogoFrame : public wxFrame
 	void SetUpMenu();
 	void OnPrintText(wxCommandEvent&);
 	void OnPrintTextPrev(wxCommandEvent&);
+	void OnIncreaseFont(wxCommandEvent&);
+	void OnDecreaseFont(wxCommandEvent&);
 private:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 	void OnSave(wxCommandEvent& WXUNUSED(event));
@@ -46,8 +48,6 @@ private:
 	void DoPaste(wxCommandEvent&);
 	void DoCopy(wxCommandEvent&);
 	void OnPrintTurtle(wxCommandEvent&);
-	void OnIncreaseFont(wxCommandEvent&);
-	void OnDecreaseFont(wxCommandEvent&);
 	
 	void OnEditCloseAccept(wxCommandEvent& WXUNUSED(event));
 	void OnEditCloseReject(wxCommandEvent& WXUNUSED(event));
