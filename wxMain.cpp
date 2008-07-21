@@ -42,10 +42,6 @@ extern "C" void redraw_graphics();
 
 // need to redraw turtle graphics
 int needToRefresh = 0;
-// need to load
-int load_flag = 0;
-// need to save
-int save_flag = 0;
 
 
 // IO buffer handling
@@ -155,41 +151,6 @@ extern "C" char getFromWX_2(FILE * f)
       needToRefresh = 0;
       turtleGraphics->Refresh();
       wxdprintf("after wxMain calling refresh()");	  
-    }
-    if (load_flag) {
-      load_flag = 0;
-      int i;
-
-      buff_push('\n');
-       
-      for (i = 0; i < nameBufferSize; i++) {
-
-	buff_push(nameBuffer[nameBufferSize - i - 1]);
-      }
-
-      buff_push('l'); 
-      buff_push('o'); 
-      buff_push('a'); 
-      buff_push('d'); 
-      buff_push(' '); 
-      buff_push('"');
-    }
-    if (save_flag) {
-      save_flag = 0;
-      int i;
-
-      buff_push('\n');
-      for (i = 0; i < nameBufferSize; i++) {
-
-	buff_push(nameBuffer[nameBufferSize - i - 1]);
-      }
-
-      buff_push('s'); 
-      buff_push('a'); 
-      buff_push('v');
-      buff_push('e'); 
-      buff_push(' '); 
-      buff_push('"');      
     }
     // Do this while the lock is released just in case the longjump occurs
     if (check_wx_stop(1)) {   // force yield (1)
