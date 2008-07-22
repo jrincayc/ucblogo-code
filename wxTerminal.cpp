@@ -2413,10 +2413,12 @@ extern "C" void setCharMode(int mode){
 	//if turning charmode off, flush the
 	//buffer (not the input buffer, logo's buffer)
 
-	char tmp;
-	while(!buff_empty) {
-	  buff_pop(tmp);
-	}
+	if(!logo_char_mode) {
+          char tmp;
+	  while(!buff_empty) {
+	    buff_pop(tmp);
+	  }
+        }
 }
 
 extern "C" void wxClearText() {
