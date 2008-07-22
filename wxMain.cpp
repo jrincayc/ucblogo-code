@@ -98,7 +98,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     if(check_wx_stop(1)) {  //force yielding
       break;
     }
-    wxMilliSleep(1);
+    wxMilliSleep(10);
   }
 }
 

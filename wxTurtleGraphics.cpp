@@ -845,7 +845,7 @@ extern "C" void wxSetPenWidth(int width){
 
 extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
-
+//the event calling this never seems to trigger...
 void TurtleCanvas::OnChar(wxKeyEvent& event) {
   wxTerminal::terminal->OnChar(event);
 }

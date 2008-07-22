@@ -871,8 +871,9 @@ wxTerminal::SetFont(const wxFont& font)
   //  dc.GetTextExtent("M", &m_charWidth, &m_charHeight);
   //  m_charWidth--;
   ResizeTerminal(m_width, m_height);
-  Refresh();
-  
+  if(!(m_currMode & DEFERUPDATE)) {
+    Refresh();
+  } 
   return TRUE;
 }
 
@@ -1001,7 +1002,9 @@ void  wxTerminal::Flush (){
     }
   }
 #if 1
-  Refresh();
+  if(!(m_currMode & DEFERUPDATE)) {
+    Refresh();
+  }
 #endif
 }
 
@@ -1424,7 +1427,11 @@ wxTerminal::OnChar(wxKeyEvent& event)
       last_input_y = cursor_y;	
     }   
   }
-  Refresh();
+#if 1
+  if(!(m_currMode & DEFERUPDATE)) {
+    Refresh();
+  }
+#endif
 }
 
 void wxTerminal::setCursor (int x, int y, bool fromLogo) {
@@ -1692,7 +1699,9 @@ wxTerminal::OnMouseMove(wxMouseEvent& event)
     }      
   }
 #if 1
-  Refresh();
+  if(!(m_currMode & DEFERUPDATE)) {
+    Refresh();
+  }
 #endif
 }
 
@@ -1711,7 +1720,9 @@ wxTerminal::ClearSelection()
 
   }
 #if 1
-  Refresh();
+  if(!(m_currMode & DEFERUPDATE)) {
+    Refresh();
+  }
 #endif	
 }
 
@@ -2437,7 +2448,9 @@ void wxTerminal::ClearScreen() {
     //pretend setcursor from logo so that it can insert spaces if needed
     wxClientDC dc(this);
     setCursor(0,y_max + 1 - vy, TRUE); 
-    Refresh();
+    if(!(m_currMode & DEFERUPDATE)) {
+      Refresh();
+    }
   }
 }
 
@@ -2472,7 +2485,7 @@ extern "C" int check_wx_stop(int force_yield) {
   //and Frame has focus
   wxWindow * focus_win = wxWindow::FindFocus();
   if(wxTerminal::terminal &&
-     screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
+     //screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
      !(focus_win == (wxWindow *)wxTerminal::terminal) &&
      (focus_win == (wxWindow *)logoFrame)) {
     wxTerminal::terminal->SetFocus();
