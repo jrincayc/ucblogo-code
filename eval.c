@@ -27,6 +27,8 @@
 struct registers regs;
 NODE *Regs_Node;
 int num_saved_nodes;
+int inside_evaluator = 0;
+NODE *eval_buttonact = NIL;
 
 /* node-value registers that don't need saving */
 
@@ -332,6 +334,7 @@ NODE *evaluator(NODE *list, enum labels where) {
     int i;
     BOOLEAN tracing = FALSE; /* are we tracing the current procedure? */
 	
+    inside_evaluator++;
     eval_save();
     var = var_stack;
     newcont(all_done);
@@ -345,6 +348,7 @@ all_done:
         ift_iff_flag = dont_fix_ift-1;
         dont_fix_ift = 0;
     }
+inside_evaluator--;
 return(val);
 
 begin_line:
@@ -623,6 +627,9 @@ compound_apply:
 #ifdef ibm
     check_ibm_stop();
 #endif
+#ifdef HAVE_WX
+    check_wx_stop();
+#endif
     if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
 	for (i = 0; i < trace_level; i++) print_space(writestream);
 	trace_level++;
@@ -803,6 +810,15 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
+    if (eval_buttonact != NIL) {
+	make_tree(eval_buttonact);
+	if (NOT_THROWING) {
+	    if (is_tree(eval_buttonact)) {
+		unev = append(tree__tree(eval_buttonact), unev);
+		eval_buttonact = NIL;
+	    }
+	}
+    }
     if (!RUNNING) goto fetch_cont;
     if (nodetype(unev) == LINE) {
 	if (the_generation != (generation__line(unev))) {

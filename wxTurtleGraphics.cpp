@@ -432,10 +432,12 @@ void TurtleCanvas::editCall(wxCommandEvent &e){
   }
 }
 
+extern "C" void mouse_down(int);
 
 void
 TurtleCanvas::OnLeftDown(wxMouseEvent& event) {
   mouse_down_left = 1;
+    mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
 void TurtleCanvas::OnLeftUp(wxMouseEvent& event) {
@@ -444,6 +446,7 @@ void TurtleCanvas::OnLeftUp(wxMouseEvent& event) {
 }
 void TurtleCanvas::OnMiddleDown(wxMouseEvent& event) {
   mouse_down_middle = 3;
+    mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
 void TurtleCanvas::OnMiddleUp(wxMouseEvent& event) {
@@ -452,6 +455,7 @@ void TurtleCanvas::OnMiddleUp(wxMouseEvent& event) {
 }
 void TurtleCanvas::OnRightDown(wxMouseEvent& event) {
   mouse_down_right = 2;
+    mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
 void TurtleCanvas::OnRightUp(wxMouseEvent& event) {

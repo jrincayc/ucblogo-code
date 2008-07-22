@@ -141,8 +141,14 @@ RETSIGTYPE mouse_down()
 	if (int_during_gc == 0) int_during_gc = 3;
     } else {
 	line = valnode__caseobj(Buttonact);
-	if (line != UNBOUND)
-	    eval_driver(line);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		eval_driver(line);
+		fix_turtle_shownness();
+	    }
+	}
     }
     SIGRET
 }

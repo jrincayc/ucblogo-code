@@ -291,6 +291,8 @@ extern int not_local(NODE *, NODE *);
 extern int num_saved_nodes;
 extern struct registers regs;
 extern NODE *Regs_Node;
+extern int inside_evaluator;
+extern NODE *eval_buttonact;
 
 /*
  #ifdef OBJECTS
