@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
 
     setvalnode__caseobj(CommandLine, command_line);
 
-    silent_load(Startup, logolib);
+    silent_load(Startuplg, logolib);
     silent_load(Startup, NULL); /* load startup.lg */
     if (!strcmp(*argv2+strlen(*argv2)-4, "logo")) {
 	argv2++;

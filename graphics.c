@@ -604,7 +604,7 @@ void fix_turtle_shownness() {
 }
 
 NODE *lshownp(NODE *args) {
-    return(turtle_shown ? TrueName() : FalseName());
+    return(user_turtle_shown ? TrueName() : FalseName());
 }
 
 NODE *lsetheading(NODE *arg) {
@@ -979,7 +979,7 @@ NODE *ltextscreen(NODE *args) {
 NODE *lsplitscreen(NODE *args) {
     if (!graphics_setup) {
 	graphics_setup++;
-        turtle_shown = TRUE;
+//        turtle_shown = TRUE;
     }
     split_screen;
     screen_mode = SCREEN_SPLIT;
@@ -987,6 +987,10 @@ NODE *lsplitscreen(NODE *args) {
 }
 
 NODE *lfullscreen(NODE *args) {
+    if (!graphics_setup) {
+	graphics_setup++;
+//        turtle_shown = TRUE;
+    }
     full_screen;
     screen_mode = SCREEN_FULL;
     return(UNBOUND);
