@@ -1,5 +1,5 @@
 /*
- *	term.c		terminal cursor control			dvb
+ *	wxterm.c	terminal cursor control			dvb
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
@@ -139,7 +139,7 @@ NODE *lcursor(NODE *args) {
 	      cons(make_intnode((FIXNUM)(y_coord-y_margin)), NIL)));
 }
 
-extern void wxSetCursor();
+extern void wxSetCursor(int, int);
 extern void wx_refresh();
 
 NODE *lsetcursor(NODE *args) {
@@ -198,4 +198,31 @@ NODE *lstandout(NODE *args) {
     ndprintf((FILE *)NULL,fmtbuf,car(args));
     *print_stringptr = '\0';
     return(make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy));
+}
+
+extern void wxSetFontFamily(char *fm);
+
+NODE *lsettextfont(NODE *arg) {
+  char textbuf[300];                                                      
+  print_stringptr = textbuf;
+  print_stringlen = 300;
+  ndprintf((FILE *)NULL, "%p", car(arg));
+  *print_stringptr = '\0';
+
+  if (NOT_THROWING) {
+    wxSetFontFamily(textbuf);
+  }
+
+  return(UNBOUND);
+}
+
+extern void wxSetFontSize(int sz);
+
+NODE *lsettextsize(NODE *arg) {
+  NODE *val = integer_arg(arg);
+  if (NOT_THROWING) {
+    wxSetFontSize(getint(val));
+  }
+
+  return(UNBOUND);
 }

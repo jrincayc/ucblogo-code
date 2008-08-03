@@ -33,16 +33,17 @@
 #define DO_LOAD	1
 #define NO_LOAD 2
 
+// fonts
+extern char wx_font_family[300];
+extern int wx_font_size;	
+#define FONT_CFG(fm,sz) sz, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxString(fm)
 
 /* wxMain */
 #define NAME_BUFFER_SIZE 300
 #define MAXOUTBUFF 4096
 #define MAXINBUFF 4096
 
-extern int out_buff_index_public;
-extern int out_buff_index_private;
-extern char * out_buff_public;
-extern char * out_buff_private;
+
 #define BUFF_LEN 4096  //should be a power of two.
 
 #define buff_empty (buff_push_index == buff_pop_index)

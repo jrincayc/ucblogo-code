@@ -103,6 +103,10 @@ int logo_pause_flag = 0;
 // this is a static reference to the main terminal
 wxTerminal *wxTerminal::terminal;
 
+//for font
+char wx_font_family[300] = "Courier";   //300 matches lsettextfont in wxterm.c
+int wx_font_size = 12;	
+
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
@@ -311,8 +315,7 @@ LogoFrame::LogoFrame (const wxChar *title,
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
   turtleGraphics = new TurtleCanvas( this );
 
-  wxFont f(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, wxString("Courier"));
+  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
 
   wxTerminal::terminal->SetFont(f);
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
@@ -459,7 +462,6 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
-fprintf(stderr, "%s", dialog.GetPath().c_str());
 	    doSave((char *)dialog.GetPath().c_str(),
 		   dialog.GetPath().length());
 	    new_line(stdout);
@@ -2470,6 +2472,15 @@ extern "C" void wxSetCursor(int x, int y){
   wxTerminal::terminal->setCursor(x,y,TRUE);
 }
 
+extern "C" void wxSetFontFamily(char *fm) {
+  strcpy(wx_font_family, fm);
+  wxTerminal::terminal->SetFont(wxFont(FONT_CFG(wx_font_family, wx_font_size)));
+}
+
+extern "C" void wxSetFontSize(int sz) {
+  wx_font_size = sz;
+  wxTerminal::terminal->SetFont(wxFont(FONT_CFG(wx_font_family, wx_font_size)));
+}
 
 extern "C" void wx_enable_scrolling() {
   wxTerminal::terminal->EnableScrolling(TRUE);
@@ -2594,4 +2605,5 @@ extern "C" void doClose() {
     logoFrame->Close(TRUE);
   }
 }
+
 

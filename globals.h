@@ -551,6 +551,12 @@ extern WindowPtr graphics_window, listener_window;
 #endif
 #endif
 
+#ifdef HAVE_WX
+extern NODE *lsettextfont(NODE *);
+extern NODE *lsettextsize(NODE *);
+#endif
+
+
 #ifdef __RZTC__   /* ztcterm.c */
 extern BOOLEAN in_graphics_mode, in_splitscreen;
 extern int ibm_screen_bottom;

@@ -385,6 +385,10 @@ PRIMTYPE prims[] = {
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
 #endif
 #endif
+#ifdef HAVE_WX
+    {"settextfont", 1, 1, 1, PREFIX_PRIORITY, lsettextfont},
+    {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
+#endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
     {"setwrite", 1, 1, 1, PREFIX_PRIORITY, lsetwrite},
     {"setwritepos", 1, 1, 1, PREFIX_PRIORITY, lsetwritepos},

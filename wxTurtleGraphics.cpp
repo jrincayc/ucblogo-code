@@ -256,8 +256,7 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
   m_memDC->SetDeviceOrigin( (m_w - screen_width)/2, 
 			    (m_h - screen_height)/2 );
 
-  wxFont f(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL,
-	   false, wxString("Courier"));
+  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
   m_memDC->SetFont(f);
 
   
