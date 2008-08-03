@@ -29,8 +29,8 @@ class LogoFrame : public wxFrame
 {
   public:
 	LogoFrame( const wxChar *title,
-                int xpos, int ypos,
-                int width, int height);
+                int xpos=50, int ypos=50,
+                int width=900, int height=500);
 	
 	void SetUpEditMenu();
 	void SetUpMenu();

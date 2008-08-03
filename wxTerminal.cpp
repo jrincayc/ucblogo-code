@@ -164,8 +164,7 @@ bool LogoApplication::OnInit()
 {
 
   logoFrame = new LogoFrame
-    ("Berkeley Logo",
-     50, 50, 900, 500);
+    ("Berkeley Logo");
 
   logoFrame->Show(TRUE);
   SetTopWindow(logoFrame);
@@ -299,7 +298,7 @@ END_EVENT_TABLE()
 
 #include "ucblogo.xpm"
 
-
+//this should compute the size based on the chosen font!
 LogoFrame::LogoFrame (const wxChar *title,
  int xpos, int ypos,
  int width, int height)
@@ -312,12 +311,19 @@ LogoFrame::LogoFrame (const wxChar *title,
   SetIcon(wxIcon(ucblogo));
   logoFrame = this;
   topsizer = new wxBoxSizer( wxVERTICAL );
-  wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), 82, 25,  wxString(""));
+  wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), TERM_COLS, TERM_ROWS,  wxString(""));
   turtleGraphics = new TurtleCanvas( this );
 
   wxFont f(FONT_CFG(wx_font_family, wx_font_size));
 
   wxTerminal::terminal->SetFont(f);
+  
+  int char_width, char_height;
+  wxTerminal::terminal->GetCharSize(&char_width, &char_height);
+
+  SetSize(wxSize(char_width * TERM_COLS, char_height * (TERM_ROWS + 2)));
+
+
   editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
   wxTerminal::terminal->isEditFile=0;
   
