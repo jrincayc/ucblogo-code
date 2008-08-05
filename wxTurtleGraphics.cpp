@@ -74,10 +74,13 @@ int pictureleft = 0, pictureright = 0, picturetop = 0, picturebottom = 0;
 
 int TurtleCanvas::mousePosition_x;
 int TurtleCanvas::mousePosition_y;
+int TurtleCanvas::clickPosition_x;
+int TurtleCanvas::clickPosition_y;
 
 int TurtleCanvas::mouse_down_left;
 int TurtleCanvas::mouse_down_middle;
 int TurtleCanvas::mouse_down_right;
+int TurtleCanvas::mouse_down_last;
 
 wxColour TurtleCanvas::colors[NUMCOLORS+SPECIAL_COLORS];
 
@@ -192,9 +195,12 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 
   mousePosition_x = 0;
   mousePosition_y = 0;
+  clickPosition_x = 0;
+  clickPosition_y = 0;
   mouse_down_left = 0;
   mouse_down_middle = 0;
   mouse_down_right = 0;
+  mouse_down_last = 0;
 
   // initialize the TurtleCanvas::colors
   int i;
@@ -436,6 +442,9 @@ extern "C" void mouse_down(int);
 void
 TurtleCanvas::OnLeftDown(wxMouseEvent& event) {
   mouse_down_left = 1;
+  mouse_down_last = 1;
+  clickPosition_x = mousePosition_x;
+  clickPosition_y = mousePosition_y;
     mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
@@ -445,6 +454,9 @@ void TurtleCanvas::OnLeftUp(wxMouseEvent& event) {
 }
 void TurtleCanvas::OnMiddleDown(wxMouseEvent& event) {
   mouse_down_middle = 3;
+  mouse_down_last = 3;
+  clickPosition_x = mousePosition_x;
+  clickPosition_y = mousePosition_y;
     mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
@@ -454,6 +466,9 @@ void TurtleCanvas::OnMiddleUp(wxMouseEvent& event) {
 }
 void TurtleCanvas::OnRightDown(wxMouseEvent& event) {
   mouse_down_right = 2;
+  mouse_down_last = 2;
+  clickPosition_x = mousePosition_x;
+  clickPosition_y = mousePosition_y;
     mouse_down(0);
   event.Skip(); //allow native handler to set focus
 }
@@ -916,6 +931,11 @@ void getMousePosition (int * x, int * y) {
   *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::mousePosition_y;
 }
 
+void getClickPosition (int * x, int * y) {
+  *x = TurtleCanvas::clickPosition_x - wxGetInfo(SCREEN_WIDTH)/2;
+  *y = wxGetInfo(SCREEN_HEIGHT)/2 - TurtleCanvas::clickPosition_y;
+}
+
 extern "C" int wxGetMouseX() {
   int x, y;
   getMousePosition(&x,&y);
@@ -926,9 +946,24 @@ extern "C" int wxGetMouseY() {
   getMousePosition(&x,&y);
   return y;
 }
+
+extern "C" int wxGetClickX() {
+  int x, y;
+  getClickPosition(&x,&y);
+  return x;
+}
+extern "C" int wxGetClickY() {
+  int x, y;
+  getClickPosition(&x,&y);
+  return y;
+}
+
 extern "C" int wxGetButton () {
     return TurtleCanvas::mouse_down_left + TurtleCanvas::mouse_down_middle
 	    + TurtleCanvas::mouse_down_right;
+}
+extern "C" int wxGetLastButton () {
+    return TurtleCanvas::mouse_down_last;
 }
 
 /* Show the text editor and have it load the given file */

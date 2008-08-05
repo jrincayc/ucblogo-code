@@ -42,7 +42,7 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
      *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
      *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
      *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,
-     *LogoLogo, *CommandLine,
+     *LogoLogo, *CommandLine, *Keyact,
 #ifdef OBJECTS
      *askexist,
 #endif
@@ -117,6 +117,7 @@ PRIMTYPE prims[] = {
     {"clean", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"clearscreen", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cleartext", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
+    {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
     {"close", 1, 1, 1, PREFIX_PRIORITY, lclose},
     {"co", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lcontinue},
     {"contents", 0, 0, 0, PREFIX_PRIORITY, lcontents},
@@ -698,6 +699,7 @@ void init(void) {
     Caseignoredp = intern_p(make_static_strnode("caseignoredp"));
     Erract = intern_p(make_static_strnode("erract"));
     Buttonact = intern_p(make_static_strnode("buttonact"));
+    Keyact = intern_p(make_static_strnode("Keyact"));
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));

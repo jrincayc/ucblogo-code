@@ -206,7 +206,7 @@ extern NODE *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet;
 extern NODE *UnburyOnEdit, *Make, *Listvalue, *Dotsvalue;
 extern NODE *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion;
 extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Startuplg, *Query;
-extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform;
+extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform, *Keyact;
 extern NODE *CommandLine, *Null_Word;
 extern void init(void);
 extern struct wdtrans translations[];
@@ -379,6 +379,7 @@ extern NODE *lreadpos(NODE *);
 extern NODE *lsetreadpos(NODE *);
 extern NODE *lwritepos(NODE *);
 extern NODE *lsetwritepos(NODE *);
+extern int readchar_lookahead_buf;
 
 /* coms.c */
 extern NODE *make_cont(enum labels, NODE *);
@@ -507,6 +508,7 @@ extern NODE *lsetpensize(NODE *);
 extern NODE *lsetpenpattern(NODE *);
 extern NODE *lsetscrunch(NODE *);
 extern NODE *lmousepos(NODE *);
+extern NODE *lclickpos(NODE *);
 extern NODE *lbuttonp(NODE *);
 extern NODE *lbutton(NODE *);
 extern NODE *ltone(NODE *);
@@ -598,8 +600,8 @@ extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
-extern void *IncreaseFont(void *);
-extern void *DecreaseFont(void *);
+extern NODE*IncreaseFont(void *);
+extern NODE*DecreaseFont(void *);
 extern int turtlePosition_x, turtlePosition_y;
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2

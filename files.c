@@ -515,12 +515,20 @@ NODE *lreadrawline(NODE *args) {
     return(val);
 }
 
+int readchar_lookahead_buf = -1;
+
 NODE *lreadchar(NODE *args) {
 #ifdef WIN32
     MSG msg;
 #endif /* WIN32 */
     char c;
 
+    if (readchar_lookahead_buf >= 0) {
+	c = (char)readchar_lookahead_buf;
+	readchar_lookahead_buf = -1;
+	return(make_strnode((char *)&c, (struct string_block *)NULL, 1,
+		(getparity(c) ? BACKSLASH_STRING : STRING), strnzcpy));
+    }
     charmode_on();
     input_blocking++;
 #ifdef HAVE_WX
@@ -661,6 +669,7 @@ NODE *lkeyp(NODE *args) {
     int old_mode;
 #endif
 
+    if (readchar_lookahead_buf >= 0) return TrueName();
     if (readstream == stdin && interactive) {
 	charmode_on();
 	fflush(stdout);

@@ -127,12 +127,12 @@ pen_info* getPen();
 #define pen_down                 pen_mode=PEN_DOWN
 
 #define button                   wxGetButton()
+#define lastbutton		 wxGetLastButton()
 #define mouse_x                  wxGetMouseX()
 #define mouse_y                  wxGetMouseY()
+#define click_x                  wxGetClickX()
+#define click_y                  wxGetClickY()
 
-/* There seems little point in implementing these unless we put
-   everything in one window.  (Possibly use a slave xterm?)
- */
 #define full_screen              wxFullScreen()
 #define split_screen             wxSplitScreen()
 #define text_screen              wxTextScreen()

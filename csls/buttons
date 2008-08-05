@@ -147,7 +147,14 @@ end
 ; -----------------------------
 
 to action.loop
-forever [action.once]
+make "buttonact [button.mouseclick]
+make "keyact [button.readkey]
+forever [wait 100]
+; forever [action.once]
+end
+
+to action.off
+ern "buttonact
 end
 
 to action.once
@@ -155,7 +162,7 @@ if keyp [button.readkey]
 if buttonp [button.mouseclick]
 end
 
-to button.readkey [:char rc] [:button 0]
+to button.readkey [:char rc] [:button 0] [:buttonact []] [:keyact []]
 foreach :buttons [
   localmake "key item 3 ?
   ifelse equalp :key "DEL [
@@ -170,7 +177,8 @@ foreach :buttons [
 ]
 end
 
-to button.mouseclick [:mousepos mousepos] [:button button] [:char 0]
+to button.mouseclick [:mousepos clickpos] [:button button] [:char 0] ~
+                     [:buttonact []] [:keyact []]
 while [buttonp] []	; wait for release of button
 foreach :buttons [
   if apply "button.inrange ? [run last ? stop]

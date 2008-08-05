@@ -1246,6 +1246,11 @@ NODE *lmousepos(NODE *args) {
 		cons(make_floatnode(mouse_y/y_scale), NIL)));
 }
 
+NODE *lclickpos(NODE *args) {
+    return(cons(make_floatnode(click_x/x_scale),
+		cons(make_floatnode(click_y/y_scale), NIL)));
+}
+
 NODE *lbuttonp(NODE *args) {
 
     if (button)
@@ -1254,7 +1259,7 @@ NODE *lbuttonp(NODE *args) {
 }
 
 NODE *lbutton(NODE *args) {
-    return(make_intnode(button));
+    return(make_intnode(lastbutton));
 }
 
 NODE *ltone(NODE *args) {

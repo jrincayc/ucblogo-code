@@ -239,7 +239,7 @@ extern "C" void wx_refresh();
 void LogoEventManager::ProcessEvents(int force_yield)
 {
   static int inside_yield = 0;
-  static int yield_delay = 500;  // carefully tuned fudge factor
+  static int yield_delay = 50;  // carefully tuned fudge factor
   static int foo = yield_delay;
 
   foo--;
@@ -1110,6 +1110,8 @@ void wxTerminal::LoseFocus (wxFocusEvent & event) {
 
 
 extern "C" char *backslashed_strnzcpy(char *s1, char *s2, int n);
+extern "C" int keyact_set(void);
+extern "C" void do_keyact(int);
 
 /*
  OnChar is called each time the user types a character
@@ -1137,7 +1139,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 #endif
 
   keyCode = (int)event.GetKeyCode();
-  if(logo_char_mode){
+  if (!readingInstruction && !logo_char_mode && keyact_set()) {
     if (keyCode == WXK_RETURN) {
       keyCode = '\n';
     }
@@ -1151,8 +1153,26 @@ wxTerminal::OnChar(wxKeyEvent& event)
     else {
       
     }
-    //also not sure about this (evan)
-    if (event.ControlDown()) keyCode -= 0140;
+    if (event.ControlDown()) keyCode &= 0237;
+    if (event.AltDown()) keyCode += 0200;
+
+    do_keyact(keyCode);
+  }
+  else if(logo_char_mode){
+    if (keyCode == WXK_RETURN) {
+      keyCode = '\n';
+    }
+    else if (keyCode == WXK_BACK) {
+      keyCode = 8;
+    }
+    else if (keyCode >= WXK_START) {
+	/* ignore it */
+      return;  //not sure about this (evan)
+    } 
+    else {
+      
+    }
+    if (event.ControlDown()) keyCode &= 0237;
     if (event.AltDown()) keyCode += 0200;
     if(input_index < MAXINBUFF) {
       input_buffer[input_index++] = keyCode;

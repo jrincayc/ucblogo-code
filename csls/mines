@@ -73,9 +73,9 @@ end
 
 to setup.buttons
 init.buttons
-setbutton (list -:maxxmax :maxymax+10) [60 20] [throw "newgame] ~
+setbutton (list -:maxxmax :maxymax+10) [60 20] [action.off throw "newgame] ~
           "false 0 "|NEW GAME| "G
-setbutton (list 80-:maxxmax :maxymax+10) [40 20] [throw "quit] ~
+setbutton (list 80-:maxxmax :maxymax+10) [40 20] [action.off throw "quit] ~
           "false 0 "QUIT "Q
 caption (list 160-:maxxmax-:windows :maxymax+10) [60 20] "infer:
 drawinferbuttons

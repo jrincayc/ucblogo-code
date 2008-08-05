@@ -153,7 +153,35 @@ RETSIGTYPE mouse_down()
     SIGRET
 }
 
-RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down};
+int keyact_set() {
+    NODE *line;
+
+    line = valnode__caseobj(Keyact);
+    return (line != UNBOUND && line != NIL);
+}
+
+RETSIGTYPE do_keyact(int ch) {
+    NODE *line;
+
+    readchar_lookahead_buf = ch;
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 4;
+    } else {
+	line = valnode__caseobj(Keyact);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		eval_driver(line);
+		fix_turtle_shownness();
+	    }
+	}
+    }
+    SIGRET
+}
+
+
+RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down, do_keyact};
 
 void delayed_int() {
 #ifdef SIG_TAKES_ARG

@@ -146,7 +146,7 @@ is the word X; and the variable whose name is X and whose value
 changes from 5 to 6.  Suppose we changed the behavior of MAKE so
 that it took the word after MAKE as the name of the variable to
 change; we would be unable to write INCREMENT:
-	TO INCREMENT :VAR
+	TO INCREMENT :VAR	; nonworking!
 	MAKE VAR (THING VAR)+1
 	END
 This would assign a new value to VAR, not to X.
@@ -237,9 +237,14 @@ them with shell/batch scripts.  To support this technique, Logo does not print
 its usual welcoming and parting messages if you give file arguments to the
 logo command.
 
-If the command line contains a word consisting of only a hyphen ("-"),
-then any text following the hyphen is not taken as filenames to load, but
-instead is copied into a list, accessible through the variable CommandLine.
+If a command line argument is just a hyphen, then all command line arguments
+after the hyphen are not taken as filenames, but are instead collected in a
+list, one word per argument; the buried variable COMMAND.LINE contains that
+list of arguments, or the empty list if there are none.  On my Linux system,
+if the first line of an executable shell script is
+#!/usr/local/bin/logo -
+(note the hyphen) then the script can be given command line arguments and
+they all end up in :COMMAND.LINE along with the script's path.  Experiment.
 
 If you type your interrupt character (see table below) Logo will stop what
 it's doing and return to toplevel, as if you did THROW "TOPLEVEL.  If you
@@ -284,7 +289,10 @@ a space, a square bracket, or a parenthesis.
 A word not after a quotation mark or inside square brackets is delimited
 by a space, a bracket, a parenthesis, or an infix operator +-*/=<>.  Note
 that words following colons are in this category.  Note that quote and
-colon are not delimiters.
+colon are not delimiters.  Each infix operator character is a word in
+itself, except that the two-character sequences <= >= and <> (the latter
+meaning not-equal) with no intervening space are recognized as a single
+word.
 
 A word consisting of a question mark followed by a number (e.g., ?37),
 when runparsed (i.e., where a procedure name is expected), is treated
@@ -325,6 +333,15 @@ of the comment.  For example, typing the instruction
 will print the word abcdef.  Semicolon has no special meaning in data
 lines read by READWORD or READLIST, but such a line can later be reparsed
 using RUNPARSE and then comments will be recognized.
+
+The two-character sequence #! at the beginning of a line also starts a
+comment.  Unix users can therefore write a file containing Logo commands,
+starting with the line
+
+	#! /usr/local/bin/logo
+
+(or wherever your Logo executable lives) and the file will be executable
+directly from the shell.
 
 To include an otherwise delimiting character (including semicolon or tilde)
 in a word, precede it with backslash (\).  If the last character of a line
@@ -400,12 +417,16 @@ SE thing1 thing2
 FPUT thing list
 
 	outputs a list equal to its second input with one extra member,
-	the first input, at the beginning.
+	the first input, at the beginning.  If the second input is a word,
+	then the first input must be a one-letter word, and FPUT is
+	equivalent to WORD.
 
 LPUT thing list
 
 	outputs a list equal to its second input with one extra member,
-	the first input, at the end.
+	the first input, at the end.  If the second input is a word,
+	then the first input must be a one-letter word, and LPUT is
+	equivalent to WORD with its inputs in the other order.
 
 ARRAY size
 (ARRAY size origin)
@@ -665,6 +686,13 @@ thing1 = thing2
 	the same array as their value because arrays are mutable; if, for
 	example, two variables have the same array as their values then
 	performing SETITEM on one of them will also change the other.)
+
+NOTEQUALP thing1 thing2
+NOTEQUAL? thing1 thing2
+thing1 <> thing2
+
+	outputs FALSE if the inputs are equal, TRUE otherwise.  See EQUALP
+	for the meaning of equality for different data types.
 
 BEFOREP word1 word2
 BEFORE? word1 word2
@@ -990,6 +1018,25 @@ OPENWRITE filename
 	command.  Opens the named file for writing.  If the file already
 	existed, the old version is deleted and a new, empty file created.
 
+	OPENWRITE, but not the other OPEN variants, will accept as input
+	a two-element list, in which the first element must be a variable
+	name, and the second must be a positive integer.  A character
+	buffer of the specified size will be created.  When a SETWRITE is
+	done with this same list (in the sense of .EQ, not a copy, so
+	you must do something like
+		? make "buf [foo 100]
+		? openwrite :buf
+		? setwrite :buf
+		    [...]
+		? close :buf
+	and not just
+		? openwrite [foo 100]
+		? setwrite [foo 100]
+	and so on), the printed characters are stored in the buffer;
+	when a CLOSE is done with the same list as input, the characters
+	from the buffer (treated as one long word, even if spaces and
+	newlines are included) become the value of the specified variable.
+
 OPENAPPEND filename
 
 	command.  Opens the named file for writing.  If the file already
@@ -1009,7 +1056,9 @@ OPENUPDATE filename
 
 CLOSE filename
 
-	command.  Closes the named file.
+	command.  Closes the named file.  If the file was currently the
+	reader or writer, then the reader or writer is changed to the
+	keyboard or screen, as if SETREAD [] or SETWRITE [] had been done.
 
 ALLOPEN
 
@@ -1055,15 +1104,24 @@ SETWRITE filename
 	command.  Makes the named file the write stream, used for PRINT,
 	etc.  The file must already be open with OPENWRITE, OPENAPPEND, or
 	OPENUPDATE.  If the input is the empty list, then the write stream
-	becomes the terminal, as usual.  If the input is a list, then its
-	first element must be a variable name, and its second and last
-	element must be a positive integer; a buffer of that many
-	characters will be allocated, and will become the writestream;
-	when another SETWRITE is done, the contents of the buffer (as an
-	unparsed word, which may contain newline characters) will become
-	the value of the named variable.  Changing the write stream does
+	becomes the terminal, as usual.  Changing the write stream does
 	not close the file that was previously the write stream, so it is
 	possible to alternate between files.
+
+	If the input is a list, then its first element must be a variable
+	name, and its second and last element must be a positive integer; a
+	buffer of that many characters will be allocated, and will become the
+	writestream.  If the same list (same in the .EQ sense, not a copy)
+	has been used as input to OPENWRITE, then the already-allocated
+	buffer will be used, and the writer can be changed to and from this
+	buffer, with all the characters accumulated as in a file.  When the
+	same list is used as input to CLOSE, the contents of the buffer
+	(as an unparsed word, which may contain newline characters) will
+	become the value of the named variable.  For compatibility with
+	earlier versions, if the list has not been opened when the SETWRITE
+	is done, it will be opened implicitly, but the first SETWRITE after
+	this one will implicitly close it, setting the variable and freeing
+	the allocated buffer.
 
 READER
 
@@ -1184,6 +1242,19 @@ DECREASEFONT
 	command (wxWidgets only).  Increase or decrease the size of the font
 	used in the text window to the next larger or smaller available size.
 
+SETTEXTSIZE height
+
+	command (wxWidgets only).  Set the height (pixels) of the font used
+	in the text window to the given integer input.
+
+SETTEXTFONT fontname
+
+	command (wxWidgets only).  Set the font family used in the text window
+	to the one named by the input.  Try 'Courier' or 'Monospace' as likely
+	possibilities.  Not all computers have the same fonts installed.  It's
+	a good idea to stick with monospace fonts (ones in which all
+	characters have the same width).
+
 
 ARITHMETIC
 ==========
@@ -1209,7 +1280,7 @@ MINUS num
 - num
 
 	outputs the negative of its input.  Minus sign means unary minus if
-	it is immediately preceded by something requiring an input, or
+	the previous token is an infix operator or open parenthesis, or it is
 	preceded by a space and followed by a nonspace.  There is a difference
 	in binding strength between the two forms:
 
@@ -1342,14 +1413,32 @@ num1 > num2
 
 	outputs TRUE if its first input is strictly greater than its second.
 
+LESSEQUALP num1 num2
+LESSEQUAL? num1 num2
+num1 <= num2
+
+	outputs TRUE if its first input is less than or equal to its second.
+
+GREATEREQUALP num1 num2
+GREATEREQUAL? num1 num2
+num1 >= num2
+
+	outputs TRUE if its first input is greater than or equal to its second.
+
 
 RANDOM NUMBERS
 --------------
-
 RANDOM num
+(RANDOM start end)
 
-	outputs a random nonnegative integer less than its input, which
-	must be an integer.
+	with one input, outputs a random nonnegative integer less than its
+	input, which must be a positive integer.
+
+	With two inputs, RANDOM outputs a random integer greater than or
+	equal to the first input, and less than or equal to the second
+	input.  Both inputs must be integers, and the first must be less
+	than the second.  (RANDOM 0 9) is equivalent to RANDOM 10;
+	(RANDOM 3 8) is equivalent to (RANDOM 6)+3.
 
 RERANDOM
 (RERANDOM seed)
@@ -1470,8 +1559,7 @@ on some machines but not others.  Nevertheless, the goal has been to make
 Logo programs as portable as possible, rather than to take fullest advantage
 of the capabilities of each machine.  In particular, Logo attempts to scale
 the screen so that turtle coordinates [-100 -100] and [100 100] fit on the
-graphics window, and so that the aspect ratio is 1:1, although some PC screens
-have nonstandard aspect ratios.
+graphics window, and so that the aspect ratio is 1:1.
 
 The center of the graphics window (which may or may not be the entire
 screen, depending on the machine used) is turtle location [0 0].  Positive
@@ -1480,6 +1568,9 @@ degrees clockwise from the positive Y axis.  (This differs from the common
 mathematical convention of measuring angles counterclockwise from the
 positive X axis.)  The turtle is represented as an isoceles triangle; the
 actual turtle position is at the midpoint of the base (the short side).
+However, the turtle is drawn one step behind its actual position, so that
+the display of the base of the turtle's triangle does not obscure a line
+drawn perpendicular to it (as would happen after drawing a square).
 
 Colors are, of course, hardware-dependent.  However, Logo provides partial
 hardware independence by interpreting color numbers 0 through 7 uniformly
@@ -1792,12 +1883,21 @@ PX
 	sets the pen's position to DOWN and mode to REVERSE.
 	(This may interact in hardware-dependent ways with use of color.)
 
-SETPENCOLOR colornumber
-SETPC colornumber
+SETPENCOLOR colornumber.or.rgblist
+SETPC colornumber.or.rgblist
 
 	sets the pen color to the given number, which must be a nonnegative
-	integer.  Color 0 is always black; color 7 is always white.  Other
-	colors may or may not be consistent between machines.
+	integer.  There are initial assignments for the first 16 colors:
+
+	 0  black	 1  blue	 2  green	 3  cyan
+	 4  red		 5  magenta	 6  yellow	 7 white
+	 8  brown	 9  tan		10  forest	11  aqua
+	12  salmon	13  purple	14  orange	15  grey
+
+	but other colors can be assigned to numbers by the PALETTE command.
+	Alternatively, sets the pen color to the given RGB values (a list of
+	three nonnegative integers less than 64K (65536) specifying the amount
+	of red, green, and blue in the desired color).
 
 SETPALETTE colornumber rgblist
 
@@ -1810,22 +1910,29 @@ SETPALETTE colornumber rgblist
 	probably less than 64K, but Logo scales as needed.
 
 SETPENSIZE size
+
+	sets the thickness of the pen.  The input is either a single positive
+	integer or a list of two positive integers (for horizontal and
+	vertical thickness).  Some versions pay no attention to the second
+	number, but always have a square pen.
+
 SETPENPATTERN pattern
 
-	set hardware-dependent pen characteristics.  These commands are
+	sets hardware-dependent pen characteristics.  This command is
 	not guaranteed compatible between implementations on different
 	machines.
 
 SETPEN list						(library procedure)
 
-	sets the pen's position, mode, and hardware-dependent characteristics
-	according to the information in the input list, which should be taken
-	from an earlier invocation of PEN.
+	sets the pen's position, mode, thickness, and hardware-dependent
+	characteristics according to the information in the input list, which
+	should be taken from an earlier invocation of PEN.
 
-SETBACKGROUND color
-SETBG color
+SETBACKGROUND colornumber.or.rgblist
+SETBG colornumber.or.rgblist
 
-	set the screen background color.
+	set the screen background color by slot number or RGB values.
+	See SETPENCOLOR for details.
 
 
 PEN QUERIES
@@ -1844,8 +1951,17 @@ PENMODE
 PENCOLOR
 PC
 
-	outputs a color number, a nonnegative integer that is associated
-	with a particular color by the hardware and operating system.
+	outputs a color number, a nonnegative integer that is associated with
+	a particular color, or a list of RGB values if such a list was used as
+	the most recent input to SETPENCOLOR.  There are initial assignments
+	for the first 16 colors:
+
+	 0  black	 1  blue	 2  green	 3  cyan
+	 4  red		 5  magenta	 6  yellow	 7 white
+	 8  brown	 9  tan		10  forest	11  aqua
+	12  salmon	13  purple	14  orange	15  grey
+
+	but other colors can be assigned to numbers by the PALETTE command.
 
 PALETTE colornumber
 
@@ -1853,20 +1969,16 @@ PALETTE colornumber
 	representing the amount of red, green, and blue in the color
 	associated with the given number.
 
-PENSIZE
-PENPATTERN
-
-	output hardware-specific pen information.
-
 PEN							(library procedure)
 
-	outputs a list containing the pen's position, mode, and
+	outputs a list containing the pen's position, mode, thickness, and
 	hardware-specific characteristics, for use by SETPEN.
 
 BACKGROUND
 BG
 
-	outputs the graphics background color.
+	outputs the graphics background color, either as a slot number or
+	as an RGB list, whichever way it was set.  (See PENCOLOR.)
 
 
 SAVING AND LOADING PICTURES
@@ -1894,9 +2006,45 @@ EPSPICT filename
 	an Encapsulated Postscript (EPS) representation of the state
 	of the graphics window.  This file can be imported into other
 	programs that understand EPS format.  Restrictions: the
-	drawing cannot use ARC, FILL, PENERASE, or PENREVERSE; any
+	drawing cannot use FILL, PENERASE, or PENREVERSE; any
 	such instructions will be ignored in the translation to
 	Postscript form.
+
+
+MOUSE QUERIES
+-------------
+
+
+MOUSEPOS
+
+	outputs the coordinates of the mouse, provided that it's within the
+	graphics window, in turtle coordinates.  If the mouse is outside the
+	graphics window, then the last position within the window is returned.
+	Exception:  If a mouse button is pressed within the graphics window
+	and held while the mouse is dragged outside the window, the mouse's
+	position is returned as if the window were big enough to include it.
+
+CLICKPOS
+
+	outputs the coordinates that the mouse was at when a mouse button
+	was most recently pushed, provided that that position was within the
+	graphics window, in turtle coordinates.
+
+BUTTONP
+BUTTON?
+
+	outputs TRUE if a mouse button is down and the mouse is over the
+	graphics window.  Once the button is down, BUTTONP remains true until
+	the button is released, even if the mouse is dragged out of the
+	graphics window.
+
+BUTTON
+
+	outputs 0 if no mouse button has been pushed inside the Logo window
+	since the last call to BUTTON.  Otherwise, it outputs an integer
+	between 1 and 3 indicating which button was most recently pressed.
+	Ordinarily 1 means left, 2 means right, and 3 means center, but
+	operating systems may reconfigure these.
 
 
 
@@ -2230,6 +2378,13 @@ PROCEDURES
 	contents list.  (However, procedures that require a contents list
 	as input will accept this list.)
 
+PRIMITIVES
+
+	outputs a list of the names of all primitive procedures
+	in the workspace.  Note that this is a list of names, not a
+	contents list.  (However, procedures that require a contents list
+	as input will accept this list.)
+
 NAMES
 
 	outputs a contents list consisting of an empty list (indicating
@@ -2291,6 +2446,7 @@ NODES
 INSPECTION
 ----------
 
+PRINTOUT contentslist
 PO contentslist
 
 	command.  Prints to the write stream the definitions of all
@@ -2572,6 +2728,11 @@ LOAD filename
 	LOADNOISILY is FALSE or undefined, TO commands in the file are
 	carried out silently.
 
+CSLSLOAD name
+
+	command.  Loads the named file, like LOAD, but from the directory
+	containing the Computer Science Logo Style programs instead of the
+	current user's directory.
 
 HELP name
 (HELP)
@@ -2608,9 +2769,15 @@ SETLIBLOC path
 
 SETHELPLOC path
 
-	command.  Tells Logo to look in the specified directory for the information
-	provided by the HELP command, instead of the default directory.
-	The format of a path depends on your operating system.
+	command.  Tells Logo to look in the specified directory for the
+	information provided by the HELP command, instead of the default
+	directory.  The format of a path depends on your operating system.
+
+SETCSLSLOC path
+
+	command.  Tells Logo to use the specified directory for the CSLSLOAD
+	command, instead of the default directory.  The format of a path
+	depends on your operating system.
 
 SETTEMPLOC path
 
@@ -2662,6 +2829,14 @@ A "tf" input must be the word TRUE, the word FALSE, or a list.  If it's a
 list, then it must be a Logo expression, which will be evaluated to produce
 a value that must be TRUE or FALSE.  The comparisons with TRUE and FALSE
 are always case-insensitive.
+
+A runlist can consist of either a single expression (that produces a value)
+or zero or more instructions (that do something, rather than output a value),
+depending on the context:
+
+	PRINT IFELSE :X<0 ["NEGATIVE] ["POSITIVE]  ; one value in each case
+	REPEAT 4 [PRINT "A PRINT "B]  ; two instructions
+
 
 RUN instructionlist
 
@@ -2913,6 +3088,25 @@ IGNORE value						(library procedure)
 
 		[foo baz [b c] garply b c]
 
+	A word starting with , or ,@ is treated as if the rest of the word
+	were a one-word list, e.g., ,:FOO is equivalent to ,[:FOO].
+
+	A word starting with ", (quote comma) or :, (colon comma) becomes a
+	word starting with " or : but with the result of running the
+	substitution (or its first word, if the result is a list) replacing
+	what comes after the comma.
+
+	Backquotes can be nested.  Substitution is done only for commas at
+	the same depth as the backquote in which they are found:
+
+		? show `[a `[b ,[1+2] ,[foo ,[1+3] d] e] f]
+		[a ` [b , [1+2] , [foo 4 d] e] f]
+
+		?make "name1 "x
+		?make "name2 "y
+		? show `[a `[b ,:,:name1 ,",:name2 d] e]
+		[a ` [b , [:x] , ["y] d] e]
+
 FOR forcontrol instructionlist				(library procedure)
 
 	command.  The first input must be a list containing three or four
@@ -3008,10 +3202,10 @@ COND clauses						(library procedure)
 	no clause is satisfied, COND does nothing.  Example:
 
 		to evens :numbers	; select even numbers from a list
-		cond [ [[emptyp :numbers] []]
-		       [[evenp first :numbers]	; assuming EVENP is defined
-		        [fput first :numbers evens butfirst :numbers]]
-		       [else evens butfirst :numbers] ]
+		op cond [ [[emptyp :numbers] []]
+		          [[evenp first :numbers]  ; assuming EVENP is defined
+		           fput first :numbers evens butfirst :numbers]
+		          [else evens butfirst :numbers] ]
 		end
 
 
@@ -3643,6 +3837,16 @@ so bad that Logo exits immediately.
  32	APPLY doesn't like BADTHING as input
  33	END inside multi-line instruction
  34	Really out of memory (can't be caught)
+ 35	user-generated error message (THROW "ERROR [message])
+ 36	END inside multi-line instruction
+ 37	Bad default expression for optional input: %s
+ 38	Can't use OUTPUT or STOP inside RUNRESULT
+ 39 	Assuming you meant 'FD 100', not FD100 (or similar)
+ 40	I can't open file FILENAME
+ 41	File FILENAME already open
+ 42	File FILENAME not open
+ 43	Runlist [EXPR EXPR] has more than one expression.
+
 
 SPECIAL VARIABLES
 =================
@@ -3658,6 +3862,27 @@ ALLOWGETSET						(variable)
 	exist should be taken as an implicit getter or setter procedure
 	(setter if the first three letters of the name are SET) for a variable
 	of the same name (without the SET if appropriate).
+
+BUTTONACT						(variable)
+
+	if nonempty, should be an instruction list that will be evaluated
+	whenever a mouse button is pressed.  Note that the user may have
+	released the button before the instructions are evaluated.  BUTTON
+	will still output which button was most recently pressed.  CLICKPOS
+	will output the position of the mouse cursor at the moment the
+	button was pressed; this may be different from MOUSEPOS if the
+	user moves the mouse after clicking.
+
+	Note that it's possible for the user to press a button during the
+	evaluation of the instruction list.  If this would confuse your
+	program, prevent it by temporarily setting BUTTONACT to the empty
+	list.  One easy way to do that is the following:
+
+		make "buttonact [button.action]
+
+		to button.action [:buttonact []]
+		... ; whatever you want the button to do
+		end
 
 CASEIGNOREDP						(variable)
 
@@ -3683,6 +3908,25 @@ FULLPRINTP						(variable)
 	that the printed result could be re-read by Logo to produce the same
 	value.  If FULLPRINTP is TRUE then the empty word (however it was
 	created) prints as ||.  (Otherwise it prints as nothing at all.)
+
+KEYACT							(variable)
+
+	if nonempty, should be an instruction list that will be evaluated
+	whenever a key is pressed on the keyboard.  The instruction list
+	can use READCHAR to find out what key was pressed.  Note that only
+	keys that produce characters qualify; pressing SHIFT or CONTROL
+	alone will not cause KEYACT to be evaluated.
+
+	Note that it's possible for the user to press a key during the
+	evaluation of the instruction list.  If this would confuse your
+	program, prevent it by temporarily setting KEYACT to the empty
+	list.  One easy way to do that is the following:
+
+		make "keyact [key.action]
+
+		to key.action [:keyact []]
+		... ; whatever you want the key to do
+		end
 
 LOADNOISILY						(variable)
 
@@ -3718,6 +3962,18 @@ USEALTERNATENAMES					(variable)
 
 	if TRUE, causes Logo to generate non-English words (from the
 	Messages file) instead of TRUE, FALSE, END, etc.
+
+
+Logo provides the following buried variables that can be used by programs:
+
+LOGOVERSION						(variable)
+
+	a real number indicating the Logo version number, e.g., 5.5
+
+LOGOPLATFORM						(variable)
+
+	one of the following words: wxWidgets, X11, Windows, or
+	Unix-Nographics.
 
 
 
@@ -3830,8 +4086,8 @@ defining the other-language predicates with COPYDEF, do it this way:
 
 The third input to make.french.predicate is the number of inputs that the
 predicate expects.  This solution isn't quite perfect because the infix
-predicates (=, <, >) will still output in English.  If you want them to generate
-alternate-language words, set UseAlternateNames to TRUE instead.
+predicates (=, <, >) will still output in English.  If you want them to
+generate alternate-language words, set UseAlternateNames to TRUE instead.
 
 Some of the words in this section of the Messages file are names of Logo
 primitives (OUTPUT, STOP, GOTO, TAG, IF, IFELSE, TO, .MACRO).  To translate
@@ -3844,7 +4100,7 @@ The latter are generated automatically from this manual if you have a
 Unix system, so in that case you need only translate this manual,
 maintaining the format.  (The automatic helpfile generator notices
 things like capital letters, tabs, hyphens, and equal signs at the
-beginnings of lines.)  The program makefile.c may require modification
+beginnings of lines.)  The program makehelp.c may require modification
 because a few of the primitive names are special cases (e.g., LOG10 is
 the only name with digits included).
 

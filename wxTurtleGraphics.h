@@ -208,10 +208,13 @@ public:
 
 	static int mousePosition_x;
 	static int mousePosition_y;
+	static int clickPosition_x;
+	static int clickPosition_y;
 
 	static int mouse_down_left;
 	static int mouse_down_middle;
 	static int mouse_down_right;
+	static int mouse_down_last;
 
 	static wxColour colors[NUMCOLORS+SPECIAL_COLORS];
 
