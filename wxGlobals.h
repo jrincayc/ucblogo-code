@@ -40,7 +40,7 @@
 // fonts
 extern char wx_font_family[300];
 extern int wx_font_size;	
-#define FONT_CFG(fm,sz) sz, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxString(fm)
+#define FONT_CFG(fm,sz) sz, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxString(fm,wxConvUTF8)
 
 /* wxMain */
 #define NAME_BUFFER_SIZE 300

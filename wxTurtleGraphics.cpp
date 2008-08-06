@@ -428,7 +428,7 @@ void TurtleCanvas::editCall(wxCommandEvent &e){
 		filestream = fopen(file, "w");
   }
   fclose(filestream);
-  editWindow->Load(file);
+  editWindow->Load(wxString(file,wxConvUTF8));
   //need to busy wait and handle events...
   while(editor_active) {
     if(check_wx_stop(1))
@@ -490,7 +490,7 @@ void TurtleCanvas::realClearScreen(wxDC *dc) {
     wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+
 					    SPECIAL_COLORS],wxSOLID);
     if(drawToPrinter && turtleFrame->back_ground==0){
-	    myBrush.SetColour("white");
+	    myBrush.SetColour(_T("white"));
     }
     dc->SetBackgroundMode( wxSOLID );
     dc->SetBackground( myBrush );
@@ -552,7 +552,7 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
 }
 
 void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {
-    wxString s(data);
+    wxString s(data, wxConvUTF8);
     wxCoord wid, ht;
 	
     dc->GetTextExtent(s, &wid, &ht);

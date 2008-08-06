@@ -479,6 +479,8 @@ void init(void) {
     NODE *iproc = NIL, *pname = NIL, *cnd = NIL;
     FILE *fp;
     char linebuf[100];
+    char *sugar;
+    static char sugarlib[100], sugarhelp[100], sugarcsls[100];
 #ifdef WIN32
     HKEY regKey1, regKey2, regKey3;
     int got_hklm = 0;
@@ -507,9 +509,26 @@ void init(void) {
     i = 0;
 #endif
 
-    logolib = getenv("LOGOLIB");
-    helpfiles = getenv("LOGOHELP");
-    csls = getenv("CSLS");
+    sugar = getenv("SUGAR_BUNDLE_PATH");
+    if (sugar != NULL) {
+	strcpy(sugarlib,sugar);
+	strcat(sugarlib,"/logolib");
+	logolib = sugarlib;
+	fp = fopen(logolib,"r");
+	if (fp == NULL) goto nosugar;
+	fclose(fp);
+	strcpy(sugarhelp,sugar);
+	strcat(sugarhelp,"/helpfiles");
+	helpfiles = sugarhelp;
+	strcpy(sugarcsls,sugar);
+	strcat(sugarcsls,"/csls");
+	csls = sugarcsls;
+    } else {
+nosugar:
+	logolib = getenv("LOGOLIB");
+	helpfiles = getenv("LOGOHELP");
+	csls = getenv("CSLS");
+    }
     editor = getenv("EDITOR");
 #ifdef WIN32
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software", 0,

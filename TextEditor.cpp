@@ -69,7 +69,7 @@ void TextEditor::OnFind(){
 	if(findDlg)
 		return;
 	findData = new wxFindReplaceData();
-	findDlg = new wxFindReplaceDialog(this, findData, wxString("Find..."), wxFR_NOWHOLEWORD | 
+	findDlg = new wxFindReplaceDialog(this, findData, wxString("Find...", wxConvUTF8), wxFR_NOWHOLEWORD | 
 									  wxFR_NOMATCHCASE | wxFR_NOUPDOWN );
 	findDlg->Show(TRUE);
 	
@@ -97,8 +97,8 @@ void TextEditor::OnFindDialog(wxFindDialogEvent& event)
 		loc = Find(findString, start);
 	}
 	if (loc == -1){
-		wxMessageDialog dlg(this, wxString("Not Found"),
-							wxString("Find String Not Found"),
+		wxMessageDialog dlg(this, wxString("Not Found", wxConvUTF8),
+							wxString("Find String Not Found", wxConvUTF8),
 							wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		dlg.Destroy();
@@ -224,14 +224,14 @@ void TextEditor::DoPrint(){
 	if(!wxTerminal::terminal->htmlPrinter)
 		wxTerminal::terminal->htmlPrinter = new wxHtmlEasyPrinting();
 	int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
-	wxTerminal::terminal->htmlPrinter->SetFonts("Courier","Courier", fontsizes);
+	wxTerminal::terminal->htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	wxString textString;
 	textString.Clear();
 	
 	long i;
 	for(i=0;i<GetNumberOfLines();i++){
 		textString.Append(GetLineText(i));
-		textString.Append("<BR>");
+		textString.Append(_T("<BR>"));
 	}
 	
 	wxTerminal::terminal->htmlPrinter->PrintText(textString);

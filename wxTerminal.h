@@ -221,7 +221,7 @@ public:
   wxTerminal(wxWindow* parent, wxWindowID id,
          const wxPoint& pos = wxDefaultPosition,
          int width = 81, int height = 25,
-         const wxString& name = "wxTerminal");
+         const wxString& name = _T("wxTerminal"));
 
   virtual ~wxTerminal();
   // For printing the text

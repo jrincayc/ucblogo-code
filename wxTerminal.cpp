@@ -87,7 +87,7 @@ wxMenuBar* menuBar;
 
 extern "C" void wxTextScreen();
 
-const char *argv[2] = {"UCBLogo", 0};
+const char *fooargv[2] = {"UCBLogo", 0};
 
 // This is for stopping logo asynchronously
 #ifdef SIG_TAKES_ARG
@@ -164,7 +164,7 @@ bool LogoApplication::OnInit()
 {
 
   logoFrame = new LogoFrame
-    ("Berkeley Logo");
+    (_T("Berkeley Logo"));
 
   logoFrame->Show(TRUE);
   SetTopWindow(logoFrame);
@@ -216,7 +216,7 @@ int LogoApplication::OnRun()
   
 #endif
 
-  start(1, argv);
+  start(1, fooargv);
   return 0;
 }
 
@@ -239,7 +239,7 @@ extern "C" void wx_refresh();
 void LogoEventManager::ProcessEvents(int force_yield)
 {
   static int inside_yield = 0;
-  static int yield_delay = 50;  // carefully tuned fudge factor
+  static int yield_delay = 500;  // carefully tuned fudge factor
   static int foo = yield_delay;
 
   foo--;
@@ -311,7 +311,8 @@ LogoFrame::LogoFrame (const wxChar *title,
   SetIcon(wxIcon(ucblogo));
   logoFrame = this;
   topsizer = new wxBoxSizer( wxVERTICAL );
-  wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1), TERM_COLS, TERM_ROWS,  wxString(""));
+  wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1),
+			        TERM_COLS, TERM_ROWS,  wxString(_T("")));
   turtleGraphics = new TurtleCanvas( this );
 
   wxFont f(FONT_CFG(wx_font_family, wx_font_size));
@@ -324,7 +325,8 @@ LogoFrame::LogoFrame (const wxChar *title,
   SetSize(wxSize(char_width * TERM_COLS, char_height * (TERM_ROWS + 2)));
 
 
-  editWindow = new TextEditor( this, -1, "", wxDefaultPosition, wxSize(100,60), wxTE_MULTILINE, f);
+  editWindow = new TextEditor( this, -1, _T(""), wxDefaultPosition,
+			      wxSize(100,60), wxTE_MULTILINE, f);
   wxTerminal::terminal->isEditFile=0;
   
   topsizer->Add(
@@ -456,7 +458,7 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 #endif
 			      *wxEmptyString),
 			    wxEmptyString,
-			    "Logo workspaces(*.lg)|*.lg|All files(*)|*",
+			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //			    "*",
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 			    wxSAVE|wxOVERWRITE_PROMPT|wxCHANGE_DIR
@@ -465,10 +467,10 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 #endif
 			    );
 	
-	dialog.SetFilterIndex(1);
+//	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
-	    doSave((char *)dialog.GetPath().c_str(),
+	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8),
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
@@ -488,7 +490,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 #endif
 			  *wxEmptyString),
 	 wxEmptyString,
-	 "Logo workspaces(*.lg)|*.lg|All files(*)|*",
+	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //	 "*",
 #ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
 	 wxOPEN|wxFILE_MUST_EXIST|wxCHANGE_DIR
@@ -498,7 +500,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 );
 		
 	if (dialog.ShowModal() == wxID_OK) {
-	    doLoad((char *)dialog.GetPath().c_str(),
+	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8), /*c_str(),*/
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
@@ -511,7 +513,7 @@ void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 	if(!htmlPrinter){
 		htmlPrinter = new wxHtmlEasyPrinting();
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
-		htmlPrinter->SetFonts("Courier","Courier", fontsizes);
+		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
 	wxString *textString = wxTerminal::terminal->get_text();
 	
@@ -525,11 +527,11 @@ void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	if(!htmlPrinter){
 		htmlPrinter = new wxHtmlEasyPrinting();
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
-		htmlPrinter->SetFonts("Courier","Courier", fontsizes);
+		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
 	wxString *textString = wxTerminal::terminal->get_text();
 	
-	htmlPrinter->PreviewText(*textString,wxString(""));
+	htmlPrinter->PreviewText(*textString,_T(""));
 	
 }
 
@@ -540,7 +542,7 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	int width, height, numCharX, numCharY, m_charWidth, m_charHeight;
 	wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
 	//wxClientDC dc(wxTerminal::terminal);
-	//	dc.GetMultiLineTextExtent("M", &m_charWidth, &m_charHeight,
+	//	dc.GetMultiLineTextExtent(_T("M"), &m_charWidth, &m_charHeight,
 	//			  &m_lineHeight);	
 	GetSize(&width, &height);
 	numCharX = width/m_charWidth;
@@ -1919,7 +1921,7 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
                  int x, int y, int len, unsigned char *string)
 {
   wxString
-    str(string, len);
+    str((const char *)string, wxConvUTF8, len);
 
     if(flags & BOLD)
     {
@@ -2354,21 +2356,21 @@ wxString * wxTerminal::get_text()
   //  int i;
   wxString *outputString = new wxString();
   outputString->Clear();
-  outputString->Append("<HTML>\n");
-  outputString->Append("<BODY>\n");
-  outputString->Append("<FONT SIZE=2>\n");
+  outputString->Append(_T("<HTML>\n"));
+  outputString->Append(_T("<BODY>\n"));
+  outputString->Append(_T("<FONT SIZE=2>\n"));
   wxString txt = GetChars(0,0,x_max,y_max);
-  txt.Replace("\n","<BR>\n");
+  txt.Replace(_T("\n"),_T("<BR>\n"));
   outputString->Append(txt);
   /*
   wxterm_linepos tlpos = term_lines;
   for(i=0;i<ymax;i++){
     outputString->append(textString->Mid(linenumbers[i]*MAXWIDTH),MAXWIDTH);
-    outputString->append("<BR>");		
+    outputString->append(_T("<BR>"));		
     }*/
-  outputString->Append("<\\FONT>");
-  outputString->Append("<\\BODY>");
-  outputString->Append("<\\HTML>");
+  outputString->Append(_T("<\\FONT>"));
+  outputString->Append(_T("<\\BODY>"));
+  outputString->Append(_T("<\\HTML>"));
   //  delete textString;
   return outputString;
 }
