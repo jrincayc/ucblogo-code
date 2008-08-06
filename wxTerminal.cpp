@@ -87,7 +87,7 @@ wxMenuBar* menuBar;
 
 extern "C" void wxTextScreen();
 
-const char *fooargv[2] = {"UCBLogo", 0};
+char *fooargv[2] = {"UCBLogo", 0};
 
 // This is for stopping logo asynchronously
 #ifdef SIG_TAKES_ARG
@@ -312,7 +312,7 @@ LogoFrame::LogoFrame (const wxChar *title,
   logoFrame = this;
   topsizer = new wxBoxSizer( wxVERTICAL );
   wxTerminal::terminal = new wxTerminal (this, -1, wxPoint(-1, -1),
-			        TERM_COLS, TERM_ROWS,  wxString(_T("")));
+			        TERM_COLS, TERM_ROWS,  _T(""));
   turtleGraphics = new TurtleCanvas( this );
 
   wxFont f(FONT_CFG(wx_font_family, wx_font_size));
