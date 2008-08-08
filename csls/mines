@@ -26,7 +26,7 @@ localmake "maxymax :halfsize*15
 localmake "sizechoice 3
 localmake "hardchoice 2
 localmake "sizes [5 10 15]
-localmake "hardness [18 21 28]
+localmake "hardness [38.1 44.45 59.26]
 localmake "windows ifelse :LogoPlatform="Windows [16] [0]
 if :LogoPlatform="wxWidgets [make "windows 16]
 catch "quit [forever [catch "newgame [setup :newnmines :newsize :newsize*2]]]
