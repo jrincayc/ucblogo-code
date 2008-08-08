@@ -146,15 +146,13 @@ end
 
 ; -----------------------------
 
-to action.loop
-make "buttonact [button.mouseclick]
-make "keyact [button.readkey]
+to action.loop [:buttonact [button.mouseclick]] [:keyact [button.readkey]]
 forever [wait 100]
-; forever [action.once]
 end
 
 to action.off
 ern "buttonact
+ern "keyact
 end
 
 to action.once

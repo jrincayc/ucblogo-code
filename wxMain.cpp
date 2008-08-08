@@ -83,6 +83,7 @@ extern "C" void flushFile(FILE * stream) {
 }
 
 // have the interpreter go to sleep
+extern "C" void *eval_buttonact;
 
 extern "C" void wxLogoSleep(unsigned int milli) {
   //may not work on mac according to wxWidgets doc
@@ -95,7 +96,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     return;
   }
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
-    if(check_wx_stop(1)) {  //force yielding
+    if(check_wx_stop(1) || eval_buttonact) {  //force yielding
       break;
     }
     wxMilliSleep(10);

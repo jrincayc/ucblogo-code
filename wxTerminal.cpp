@@ -470,7 +470,11 @@ void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 //	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
+#ifdef __WXMAC__
+	    doSave((char *)dialog.GetPath().c_str(),
+#else
 	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8),
+#endif
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
@@ -500,7 +504,11 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 );
 		
 	if (dialog.ShowModal() == wxID_OK) {
-	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8), /*c_str(),*/
+#ifdef __WXMAC__
+	    doLoad((char *)dialog.GetPath().c_str(),
+#else
+	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8),
+#endif
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
