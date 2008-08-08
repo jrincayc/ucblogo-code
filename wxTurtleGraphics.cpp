@@ -752,6 +752,7 @@ extern "C" void wx_refresh() {
 #if USE_MEMDC
   if(turtleGraphics) {
     turtleGraphics->Refresh();
+    turtleGraphics->Update();
   }
 #endif
 }

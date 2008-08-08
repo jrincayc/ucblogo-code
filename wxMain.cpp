@@ -99,6 +99,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     if(check_wx_stop(1) || eval_buttonact) {  //force yielding
       break;
     }
+    wx_refresh();
     wxMilliSleep(10);
   }
 }
