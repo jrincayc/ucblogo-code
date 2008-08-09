@@ -554,6 +554,7 @@ extern "C" void wxSetFontSize(int sz);
 void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	int expected;
 	
+#if 0
 	// get original size and number of characters per row and column
 	int width, height, numCharX, numCharY, m_charWidth, m_charHeight;
 	wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
@@ -565,7 +566,7 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	numCharY = height/m_charHeight;
 	
 	wxdprintf("m_charWidth: %d, m_charHeight: %d, width: %d, height: %d, numCharX: %d, numCharY: %d\n", m_charWidth, m_charHeight, width, height, numCharX, numCharY);
-	
+#endif	
 	wxFont font = wxTerminal::terminal->GetFont();
 	expected = font.GetPointSize()+1;
 	
@@ -603,7 +604,8 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 
 void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	int expected;
-	
+
+#if 0	
 	// get original size and number of characters per row and column
 	int width, height, numCharX, numCharY, m_charWidth, m_charHeight;
 	wxTerminal::terminal->GetCharSize(&m_charWidth, &m_charHeight);
@@ -613,7 +615,7 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	numCharX = width/m_charWidth;
 	numCharY = height/m_charHeight;
 	//printf("m_charWidth: %d, m_charHeight: %d, width: %d, height: %d, numCharX: %d, numCharY: %d\n", m_charWidth, m_charHeight, width, height, numCharX, numCharY);
-	
+#endif	
 	wxFont font = wxTerminal::terminal->GetFont();
 	expected = font.GetPointSize()-1;
 	
