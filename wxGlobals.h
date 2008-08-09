@@ -84,6 +84,7 @@ extern TurtleCanvas * turtleGraphics;
 // the size of the turtle graphics window
 extern "C" int getInfo(int);
 extern "C" void setInfo(int, int);
+extern wxMemoryDC *m_memDC;
 
 /* wxTextEdit */
 extern char * file; // using this is safe because the other thread is sleeping

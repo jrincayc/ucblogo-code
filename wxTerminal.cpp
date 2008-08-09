@@ -318,11 +318,16 @@ LogoFrame::LogoFrame (const wxChar *title,
   wxFont f(FONT_CFG(wx_font_family, wx_font_size));
 
   wxTerminal::terminal->SetFont(f);
-  
+
+  AdjustSize();
+#if 0  
   int char_width, char_height;
   wxTerminal::terminal->GetCharSize(&char_width, &char_height);
 
-  SetSize(wxSize(char_width * TERM_COLS, char_height * (TERM_ROWS + 2)));
+  //moving this to AdjustSize()
+  //SetSize(wxSize(char_width * TERM_COLS, char_height * (TERM_ROWS + 2)));
+  //SetClientSize(wxSize(char_width * TERM_COLS, char_height * TERM_ROWS ));
+#endif
 
 
   editWindow = new TextEditor( this, -1, _T(""), wxDefaultPosition,
@@ -349,13 +354,14 @@ LogoFrame::LogoFrame (const wxChar *title,
 		wxALL,        //   and make border all around
 		2 ); 
      
+
   topsizer->Show(wxTerminal::terminal, 1);
   topsizer->Show(turtleGraphics, 0);
   topsizer->Show(editWindow, 0);
   
   SetSizer( topsizer ); 
   
-  SetAutoLayout(true);
+  //SetAutoLayout(true);
   //topsizer->Fit(this);
   //topsizer->SetSizeHints(this);  
   
@@ -543,6 +549,8 @@ void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	
 }
 
+extern "C" void wxSetFontSize(int sz);
+
 void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	int expected;
 	
@@ -562,10 +570,15 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	expected = font.GetPointSize()+1;
 	
 	// see that we have the font we are trying to use
+	// since for some fonts, the next size is +2
 	while(font.GetPointSize() != expected && expected <= 24){
 		expected++;
 		font.SetPointSize(expected);
 	}
+
+	wxSetFontSize(expected);
+	
+#if 0
 	wxTerminal::terminal->SetFont(font);
 	editWindow->SetFont(font);
 	//wxSizeEvent event;
@@ -584,7 +597,8 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	}
 	//GetSize(&width, &height); 
 	//printf("new m_charWidth: %d, new m_charHeight: %d, new width: %d, new height: %d\n", new_m_charWidth, new_m_charHeight, width, height);
-	Layout();
+	//Layout();
+#endif
 }
 
 void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
@@ -608,6 +622,10 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 		expected--;
 		font.SetPointSize(expected);
 	}	
+
+	wxSetFontSize(expected);
+
+#if 0
 	wxTerminal::terminal->SetFont(font);
 	editWindow->SetFont(font);
 	//	wxSizeEvent event;
@@ -618,13 +636,13 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 	wxTerminal::terminal->GetCharSize(&new_m_charWidth, &new_m_charHeight);
 	//wxClientDC newdc(wxTerminal::terminal);
 	//newdc.GetTextExtent("M", &new_m_charWidth, &new_m_charHeight);
-	if (new_m_charWidth != m_charWidth || new_m_charHeight != m_charHeight) {
+	if (new_m_charWidth != m_charWidth || new_m_charHeight != m_charHeight)        {
 		SetSize(numCharX*new_m_charWidth, numCharY*new_m_charHeight); 
 	}
 	//GetSize(&width, &height); 
 	//printf("new m_charWidth: %d, new m_charHeight: %d, new width: %d, new height: %d\n", new_m_charWidth, new_m_charHeight, width, height);
-	Layout();
-	
+	//Layout();
+#endif	
 }
 
 extern void *Unbound;
@@ -639,6 +657,14 @@ extern "C" void *DecreaseFont(void *) {
     wxCommandEvent dummy;
     logoFrame->OnDecreaseFont(dummy);
     return Unbound;
+}
+ 
+void LogoFrame::AdjustSize() {
+  int char_width, char_height;	
+  wxTerminal::terminal->GetCharSize(&char_width, &char_height);
+  wxSize sz(char_width * TERM_COLS, char_height * TERM_ROWS + 5 );
+  SetClientSize(sz);
+  //Layout();
 }
 
 void LogoFrame::DoStop(wxCommandEvent& WXUNUSED(event)){
@@ -2510,12 +2536,25 @@ extern "C" void wxSetCursor(int x, int y){
 
 extern "C" void wxSetFontFamily(char *fm) {
   strcpy(wx_font_family, fm);
-  wxTerminal::terminal->SetFont(wxFont(FONT_CFG(wx_font_family, wx_font_size)));
+  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
+  wxTerminal::terminal->SetFont(f);
+  editWindow->SetFont(f);
+  //TurtleCanvas memDC
+  m_memDC->SetFont(f);
+
+  logoFrame->AdjustSize();
 }
 
 extern "C" void wxSetFontSize(int sz) {
   wx_font_size = sz;
-  wxTerminal::terminal->SetFont(wxFont(FONT_CFG(wx_font_family, wx_font_size)));
+
+  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
+  wxTerminal::terminal->SetFont(f);
+  editWindow->SetFont(f);
+  //TurtleCanvas memDC
+  m_memDC->SetFont(f);
+
+  logoFrame->AdjustSize();	
 }
 
 extern "C" void wx_enable_scrolling() {

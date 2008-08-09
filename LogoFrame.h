@@ -31,7 +31,8 @@ class LogoFrame : public wxFrame
 	LogoFrame( const wxChar *title,
                 int xpos=50, int ypos=50,
                 int width=900, int height=500);
-	
+
+        void AdjustSize();
 	void SetUpEditMenu();
 	void SetUpMenu();
 	void OnPrintText(wxCommandEvent&);
