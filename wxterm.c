@@ -200,7 +200,9 @@ NODE *lstandout(NODE *args) {
     return(make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy));
 }
 
-extern void wxSetFontFamily(char *fm);
+extern void wxSetFont(char *fm, int sz);
+extern char *wx_font_face;
+extern int wx_font_size;
 
 NODE *lsettextfont(NODE *arg) {
   char textbuf[300];                                                      
@@ -210,18 +212,16 @@ NODE *lsettextfont(NODE *arg) {
   *print_stringptr = '\0';
 
   if (NOT_THROWING) {
-    wxSetFontFamily(textbuf);
+    wxSetFont(textbuf, wx_font_size);
   }
 
   return(UNBOUND);
 }
 
-extern void wxSetFontSize(int sz);
-
 NODE *lsettextsize(NODE *arg) {
   NODE *val = integer_arg(arg);
   if (NOT_THROWING) {
-    wxSetFontSize(getint(val));
+    wxSetFont(wx_font_face, getint(val));
   }
 
   return(UNBOUND);

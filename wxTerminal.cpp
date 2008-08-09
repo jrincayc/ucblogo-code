@@ -47,9 +47,14 @@ extern int readingInstruction;
 #include "config.h"
 #include "TextEditor.h"
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
+#include <wx/fontdlg.h>
 #ifdef __WXMAC__                                                        
-#include <Carbon/Carbon.h>                                              
+    #undef wxFontDialog
+    #include "wx/mac/fontdlg.h"
+    #include <Carbon/Carbon.h>                                              
 #endif                                                                  
+
+
 
 using namespace std;
 
@@ -104,7 +109,7 @@ int logo_pause_flag = 0;
 wxTerminal *wxTerminal::terminal;
 
 //for font
-char wx_font_family[300] = "Courier";   //300 matches lsettextfont in wxterm.c
+char wx_font_face[300] = "Courier";   //300 matches lsettextfont in wxterm.c
 int wx_font_size = 12;	
 
 // ----------------------------------------------------------------------------
@@ -133,6 +138,7 @@ enum
 	Menu_Logo_Pause,
 	
 	Menu_Font = 500,
+        Menu_Font_Choose,
 	Menu_Font_Inc,
 	Menu_Font_Dec,
 	
@@ -282,6 +288,7 @@ EVT_MENU(Menu_Edit_Copy,			LogoFrame::DoCopy)
 EVT_MENU(Menu_Edit_Paste,			LogoFrame::DoPaste)
 EVT_MENU(Menu_Logo_Pause,			LogoFrame::DoPause)
 EVT_MENU(Menu_Logo_Stop,			LogoFrame::DoStop)
+EVT_MENU(Menu_Font_Choose,                      LogoFrame::OnSelectFont)
 EVT_MENU(Menu_Font_Inc,				LogoFrame::OnIncreaseFont)
 EVT_MENU(Menu_Font_Dec,				LogoFrame::OnDecreaseFont)
 EVT_MENU(Edit_Menu_File_Close_Accept,	LogoFrame::OnEditCloseAccept)
@@ -315,7 +322,7 @@ LogoFrame::LogoFrame (const wxChar *title,
 			        TERM_COLS, TERM_ROWS,  _T(""));
   turtleGraphics = new TurtleCanvas( this );
 
-  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
+  wxFont f(FONT_CFG(wx_font_face, wx_font_size));
 
   wxTerminal::terminal->SetFont(f);
 
@@ -430,6 +437,7 @@ void LogoFrame::SetUpMenu(){
 	menuBar->Append(logoMenu, _T("&Logo"));
 	
 	wxMenu *fontMenu = new wxMenu;
+	fontMenu->Append(Menu_Font_Choose, _T("Select Font..."));
 	fontMenu->Append(Menu_Font_Inc, _T("Increase Font Size \tCtrl-+"));
 	fontMenu->Append(Menu_Font_Dec, _T("Decrease Font Size \tCtrl--"));
 	menuBar->Append(fontMenu, _T("&Font"));
@@ -549,7 +557,27 @@ void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	
 }
 
-extern "C" void wxSetFontSize(int sz);
+extern "C" void wxSetFont(char *fm, int sz);
+
+void LogoFrame::OnSelectFont(wxCommandEvent& WXUNUSED(event)) {
+    wxFontData data;
+    data.SetInitialFont(wxTerminal::terminal->GetFont());
+
+    wxFontDialog dialog(this, data);
+    if ( dialog.ShowModal() == wxID_OK )
+    {
+        wxFontData retData = dialog.GetFontData();
+        wxFont font = retData.GetChosenFont();
+
+#ifdef __WXMAC__
+	wxSetFont((char *)font.GetFaceName().c_str(), 
+		  font.GetPointSize());
+#else
+	wxSetFont((char *)font.GetFaceName().char_str(wxConvUTF8), 
+		  font.GetPointSize());	
+#endif
+    }    
+}
 
 void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 	int expected;
@@ -577,7 +605,7 @@ void LogoFrame::OnIncreaseFont(wxCommandEvent& WXUNUSED(event)){
 		font.SetPointSize(expected);
 	}
 
-	wxSetFontSize(expected);
+	wxSetFont(wx_font_face, expected);
 	
 #if 0
 	wxTerminal::terminal->SetFont(font);
@@ -625,7 +653,7 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 		font.SetPointSize(expected);
 	}	
 
-	wxSetFontSize(expected);
+	wxSetFont(wx_font_face, expected);
 
 #if 0
 	wxTerminal::terminal->SetFont(font);
@@ -2536,27 +2564,21 @@ extern "C" void wxSetCursor(int x, int y){
   wxTerminal::terminal->setCursor(x,y,TRUE);
 }
 
-extern "C" void wxSetFontFamily(char *fm) {
-  strcpy(wx_font_family, fm);
-  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
-  wxTerminal::terminal->SetFont(f);
-  editWindow->SetFont(f);
-  //TurtleCanvas memDC
-  m_memDC->SetFont(f);
+extern "C" void wxSetFont(char *fm, int sz) {
 
-  logoFrame->AdjustSize();
-}
+    if(fm != wx_font_face) {
+      strcpy(wx_font_face, fm);
+    }
 
-extern "C" void wxSetFontSize(int sz) {
-  wx_font_size = sz;
+    wx_font_size = sz;
 
-  wxFont f(FONT_CFG(wx_font_family, wx_font_size));
-  wxTerminal::terminal->SetFont(f);
-  editWindow->SetFont(f);
-  //TurtleCanvas memDC
-  m_memDC->SetFont(f);
+    wxFont f(FONT_CFG(wx_font_face, wx_font_size));
+    wxTerminal::terminal->SetFont(f);
+    editWindow->SetFont(f);
+    //TurtleCanvas memDC
+    m_memDC->SetFont(f);
 
-  logoFrame->AdjustSize();	
+    logoFrame->AdjustSize();
 }
 
 extern "C" void wx_enable_scrolling() {

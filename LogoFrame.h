@@ -37,6 +37,7 @@ class LogoFrame : public wxFrame
 	void SetUpMenu();
 	void OnPrintText(wxCommandEvent&);
 	void OnPrintTextPrev(wxCommandEvent&);
+        void OnSelectFont(wxCommandEvent&);
 	void OnIncreaseFont(wxCommandEvent&);
 	void OnDecreaseFont(wxCommandEvent&);
 private:
