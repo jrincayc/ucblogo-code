@@ -18,6 +18,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 
   /* The edit event */
+#if 0
 BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EVENT_TYPE(wxEVT_EDIT_CUSTOM_COMMAND, 7777)
 END_DECLARE_EVENT_TYPES()
@@ -29,7 +30,7 @@ DECLARE_EVENT_TABLE_ENTRY( \
 						   (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
 						   (wxObject *) NULL \
 						   ),
-
+#endif
  
   /* Used for multithread event handling, as well as
      for a dummy event otherwise */
@@ -105,7 +106,9 @@ TurtleFrame *turtleFrame;
 int turtleIndex = 0;
 int putInQueue = 0;
 
+#if 0
 wxCommandEvent editEvent = wxCommandEvent(wxEVT_EDIT_CUSTOM_COMMAND);
+#endif
 char * file;
 
 // the location of the turtle
@@ -159,7 +162,9 @@ BEGIN_EVENT_TABLE(TurtleCanvas, wxWindow)
 EVT_PAINT  (TurtleCanvas::OnPaint)
 EVT_SIZE (TurtleCanvas::OnSize)
 EVT_MOTION (TurtleCanvas::OnMouseMove)
+#if 0
 EVT_EDIT_CUSTOM_COMMAND(-1, TurtleCanvas::editCall)
+#endif
 EVT_SET_FOCUS( TurtleCanvas::OnFocus)
 EVT_KILL_FOCUS(TurtleCanvas::LoseFocus)
 EVT_LEFT_DOWN(TurtleCanvas::OnLeftDown)
@@ -413,7 +418,7 @@ extern int turtle_shown;
 extern "C" void draw_turtle();
 extern int editor_active;  //from TextEditor.cpp
 
-void TurtleCanvas::editCall(wxCommandEvent &e){ 
+void TurtleCanvas::editCall(){ 
   editor_active = 1;  
   editWindow->Clear();
   topsizer->Show(wxTerminal::terminal, 0);
@@ -433,7 +438,7 @@ void TurtleCanvas::editCall(wxCommandEvent &e){
   while(editor_active) {
     if(check_wx_stop(1))
       break; 
-    wxMilliSleep(1);
+    wxMilliSleep(10);
   }
 }
 
@@ -971,8 +976,9 @@ extern "C" int wxGetLastButton () {
 extern "C" int wxEditFile(char * f){
   file = f;
   alreadyDone = 0;
-  turtleGraphics->ProcessEvent(editEvent);
-fprintf(stderr, "%d", editWindow->doSave);
+  //turtleGraphics->ProcessEvent(editEvent);
+  turtleGraphics->editCall();
+ 
   return editWindow->doSave;
 }
 

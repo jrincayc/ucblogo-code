@@ -176,7 +176,7 @@ public:
     void SetOwner (wxFrame * frame);
 	void SetDC (wxPaintDC * dc);
 	void drawLine(wxCommandEvent & e);
-    void editCall(wxCommandEvent &e);
+    void editCall();
     void logoHandle ( wxCommandEvent & e);
     void exitApplication();
     void OnFocus (wxFocusEvent & event);
