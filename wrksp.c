@@ -1509,13 +1509,14 @@ NODE *ledit(NODE *args) {
 	sprintf(tmp_filename, "%s/logo%d", tempdir, (int)getpid());
 #endif
     }
-    if (args != NIL) {
 #ifdef HAVE_WX
 	if(!isEditFile){
 		setTermInfo(EDIT_STATE,DO_LOAD);
 	}
 	isEditFile=0;
 #endif
+
+    if (args != NIL) {
 	holdstrm = writestream;
 	writestream = fopen(tmp_filename, "w");
 	if (writestream != NULL) {
