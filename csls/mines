@@ -29,7 +29,9 @@ localmake "sizes [5 10 15]
 localmake "hardness [38.1 44.45 59.26]
 localmake "windows ifelse :LogoPlatform="Windows [16] [0]
 if :LogoPlatform="wxWidgets [make "windows 16]
+norefresh
 catch "quit [forever [catch "newgame [setup :newnmines :newsize :newsize*2]]]
+refresh
 cs ct setpc 7 st
 end
 
@@ -73,7 +75,7 @@ end
 
 to setup.buttons
 init.buttons
-setbutton (list -:maxxmax :maxymax+10) [60 20] [action.off throw "newgame] ~
+setbutton (list -:maxxmax :maxymax+10) [60 20] [throw "newgame] ~
           "false 0 "|NEW GAME| "G
 setbutton (list 80-:maxxmax :maxymax+10) [40 20] [action.off throw "quit] ~
           "false 0 "QUIT "Q
@@ -372,7 +374,7 @@ make "playing "false
 make "nhidden 0
 ; print [You win!!!!]
 pu setxy :xmax+3 0	; flash screen green
-repeat 5 [action.once setpc 2 fill wait 1 action.once setpc 0 fill wait 1]
+repeat 5 [setpc 2 fill wait 0 action.once setpc 0 fill wait 0]
 end
 
 to lose
@@ -385,7 +387,7 @@ setpensize [1 1]
 make "nhidden 0
 ; print [You lose!!!!]
 pu setxy :xmax+3 0	; flash screen red
-repeat 5 [action.once setpc 4 fill wait 1 action.once setpc 0 fill wait 1]
+repeat 5 [setpc 4 fill wait 0 action.once setpc 0 fill wait 0]
 showboard "true
 end
 

@@ -1440,6 +1440,7 @@ NODE *lfilled(NODE *args) {
     unsigned int r,g,b;
     struct mypoint *points, *point;
     FLONUM x1,y1,lastx,lasty;
+    int old_refresh = refresh_p;
 
     prepare_to_draw;
     if (is_list(car(args))) {
@@ -1450,8 +1451,12 @@ NODE *lfilled(NODE *args) {
     done_drawing;
     color = getint(val);
 
+    old_refresh = refresh_p;
+    refresh_p = 1;  /* have to save polygon to fill it */
+
     if (!safe_to_save() || insidefill) {
 	err_logo(BAD_GRAPH_INIT, NIL);
+	refresh_p = old_refresh;
 	return UNBOUND;
     }
 
@@ -1482,6 +1487,7 @@ NODE *lfilled(NODE *args) {
 
     if (!safe_to_save()) {
 	err_logo(BAD_GRAPH_INIT, NIL);
+	refresh_p = old_refresh;
 	return UNBOUND;
     }
 
@@ -1581,6 +1587,13 @@ NODE *lfilled(NODE *args) {
 	}
 	doFilled(color, count+1, points);
 	free(points);
+    }
+
+    refresh_p = old_refresh;
+    if (!refresh_p) {
+	record = start;
+	record_index = start_idx;
+	record[record_index] = FINISHED;
     }
     return UNBOUND;
 }

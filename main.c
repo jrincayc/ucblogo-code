@@ -160,7 +160,20 @@ int keyact_set() {
     return (line != UNBOUND && line != NIL);
 }
 
-RETSIGTYPE do_keyact(int ch) {
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+RETSIGTYPE delayed_keyact(int sig)
+#else
+#define sig_arg 
+RETSIGTYPE delayed_keyact()
+#endif
+{
+    (void)do_keyact(readchar_lookahead_buf);
+    SIGRET
+}
+
+void do_keyact(int ch) {
     NODE *line;
 
     readchar_lookahead_buf = ch;
@@ -177,11 +190,11 @@ RETSIGTYPE do_keyact(int ch) {
 	    }
 	}
     }
-    SIGRET
 }
 
 
-RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down, do_keyact};
+RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
 
 void delayed_int() {
 #ifdef SIG_TAKES_ARG
