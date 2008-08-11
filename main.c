@@ -160,6 +160,7 @@ int keyact_set() {
     return (line != UNBOUND && line != NIL);
 }
 
+void do_keyact(int);
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
@@ -169,7 +170,7 @@ RETSIGTYPE delayed_keyact(int sig)
 RETSIGTYPE delayed_keyact()
 #endif
 {
-    (void)do_keyact(readchar_lookahead_buf);
+    do_keyact(readchar_lookahead_buf);
     SIGRET
 }
 
