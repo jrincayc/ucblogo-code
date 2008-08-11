@@ -70,6 +70,7 @@ int input_current_pos = 0;
 
 // if logo is in character mode
 int logo_char_mode;
+int reading_char_now = 0;
 // the terminal DC
 wxFont old_font;
 wxTextAttr old_style;
@@ -1205,7 +1206,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 #endif
 
   keyCode = (int)event.GetKeyCode();
-  if (!readingInstruction && !logo_char_mode && keyact_set()) {
+  if (!readingInstruction && !reading_char_now && keyact_set()) {
     if (keyCode == WXK_RETURN) {
       keyCode = '\n';
     }

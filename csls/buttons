@@ -151,7 +151,7 @@ forever [wait 100]
 end
 
 to action.off
-ern "buttonact
+ern [buttonact keyact]
 ern "keyact
 end
 
@@ -164,12 +164,12 @@ to button.readkey [:char rc] [:button 0] [:buttonact []] [:keyact []]
 foreach :buttons [
   localmake "key item 3 ?
   ifelse equalp :key "DEL [
-    if memberp (ascii :char) [8 127] [run last ? stop]
+    if memberp (ascii :char) [8 127] [run last ? action.once stop]
   ] [
     ifelse equalp :key "RET [
-      if memberp (ascii :char) [10 13] [run last ? stop]
+      if memberp (ascii :char) [10 13] [run last ? action.once stop]
     ] [
-      if equalp :char :key [run last ? stop]
+      if equalp :char :key [run last ? action.once stop]
     ]
   ]
 ]
@@ -179,7 +179,7 @@ to button.mouseclick [:mousepos clickpos] [:button button] [:char 0] ~
                      [:buttonact []] [:keyact []]
 while [buttonp] []	; wait for release of button
 foreach :buttons [
-  if apply "button.inrange ? [run last ? stop]
+  if apply "button.inrange ? [run last ? action.once stop]
 ]
 end
 

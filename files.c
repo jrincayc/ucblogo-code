@@ -29,6 +29,7 @@
 #ifdef HAVE_WX
 #define getc getFromWX_2
 #define ungetc wxUnget_c
+extern int reading_char_now;
 #endif
 
 #ifdef HAVE_TERMIO_H
@@ -532,8 +533,11 @@ NODE *lreadchar(NODE *args) {
     charmode_on();
     input_blocking++;
 #ifdef HAVE_WX
-	if (interactive && readstream==stdin)
+	if (interactive && readstream==stdin) {
+	    reading_char_now = 1;
 	    c = getFromWX();
+	    reading_char_now = 0;
+	}
 	else
 	    c = (char)getc(readstream);
 #else
@@ -622,10 +626,12 @@ NODE *lreadchars(NODE *args) {
 	strptr = strhead->str_str;
 #ifdef HAVE_WX
 	if (interactive && readstream==stdin) {
+	    reading_char_now = 1;
 	    cp=strptr;
 	    for (i=c; i != 0; --i) {
 		*cp++ = getFromWX();
 	    }
+	    reading_char_now = 0;
 	} else
 	    c = (unsigned int)fread(strptr, 1, (size_t)c, readstream);
 #else
