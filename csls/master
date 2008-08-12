@@ -83,6 +83,8 @@ foreach :guessword [apply "putguess item ? :colornums]	; Show colors.
 askexact				; Ask user for exact matches.
 make "gotnum "false
 catch "ready [action.loop]
+pu setpos [-340 150] setpc 0 filled 0 [repeat 2 [fd 20 rt 90 fd 90 rt 90]]
+setpc 7
 ifelse :guess.exact < :numsquares [	; Not all colors are exact.
   ifelse :permuting [			;   If we know all the colors,
     make "exact "false			;   compute how many are inexact
@@ -91,6 +93,8 @@ ifelse :guess.exact < :numsquares [	; Not all colors are exact.
     askinexact				;   Otherwise, ask for inexact.
     make "gotnum "false
     catch "ready [action.loop]
+    pu setpos [-340 150] setpc 0 filled 0 [repeat 2 [fd 20 rt 90 fd 90 rt 90]]
+    setpc 7
     if :guess.exact + :guess.inexact > :numsquares ~
        [check.consistency []]	; Quick error message if too many matches.
   ]
@@ -128,7 +132,7 @@ to check.consistency :str
 ; If the stream of still-possible permutations is empty, then
 ; the user has lied to us.
 if emptyp :str [ct print [Error -- inconsistent answers!]
-		repeat 2 [setbg 4 setbg 0]
+		repeat 2 [setbg 4 wait 1 setbg 0 wait 1]
 		type [Click or type anything to restart.]
 		waitforclick
 		throw "master]
@@ -150,12 +154,14 @@ output and (equalp :guess.exact exact :perm :guess.word) ~
 end
 
 to askexact
-ct type "|How many EXACT matches? |
+; ct type "|How many EXACT matches? |
+pu setpos [-340 150] label "EXACT?
 make "exact "true
 end
 
 to askinexact
-ct type "|How many INEXACT matches? |
+; ct type "|How many INEXACT matches? |
+pu setpos [-340 150] label "INEXACT?
 make "exact "false
 end
 
@@ -203,7 +209,7 @@ end
 ;;;;; =================== USER INTERFACE (DRAWING) =======================
 
 to initdraw
-ct init.buttons
+fs init.buttons
 ifelse :mysecret ~
   [colorchart 6 "ROYGBV [4 14 6 2 1 13] 150
    setbutton [-240 -30] [25 25] [clear] "false 0 "erase "DEL] ~
@@ -297,8 +303,9 @@ to getnum :num [:cursor cursor]
 ; Called for digit key or mouse click on digit button.
 make ifelse :exact ["guess.exact] ["guess.inexact] :num
 move list ifelse :exact [15] [40] 12
+setpc 0 filled 0 [repeat 4 [fd 20 rt 90]]
 setpc 7 label :num
-type :num setcursor :cursor
+; type :num setcursor :cursor
 make "gotnum "true
 end
 
