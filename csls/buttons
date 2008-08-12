@@ -147,6 +147,7 @@ end
 ; -----------------------------
 
 to action.loop [:buttonact [button.mouseclick]] [:keyact [button.readkey]]
+action.once
 forever [wait 100]
 end
 
