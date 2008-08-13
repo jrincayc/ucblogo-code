@@ -1,2 +1,9 @@
 menu, open dialog
 fast graphics
+
+filled should set mode to remember consecutive moves, not need pen down
+
+keyp should flush typeout
+
+buttons should get font size from logo
+

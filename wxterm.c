@@ -201,7 +201,7 @@ NODE *lstandout(NODE *args) {
 }
 
 extern void wxSetFont(char *fm, int sz);
-extern char *wx_font_face;
+extern char wx_font_face[];
 extern int wx_font_size;
 
 NODE *lsettextfont(NODE *arg) {
