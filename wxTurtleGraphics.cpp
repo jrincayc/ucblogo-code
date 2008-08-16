@@ -560,13 +560,15 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
 
 }
 
-
+extern FLONUM x_scale;
 extern FLONUM y_scale;
 
 extern "C" void wx_get_label_size(int *w, int *h) {
   int descent, extlead;
   m_memDC->GetTextExtent("M", w, h, &descent, &extlead);  
-  
+
+  *w = *w / x_scale;
+  *h = *h / y_scale;
 }
 
 extern "C" void wx_adjust_label_height() {
