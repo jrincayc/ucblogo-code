@@ -112,6 +112,7 @@ int last_recorded = -1;
 pen_info orig_pen;
 
 BOOLEAN refresh_p = TRUE;
+BOOLEAN doing_filled = FALSE;
 
 /************************************************************/
 
@@ -1480,7 +1481,9 @@ NODE *lfilled(NODE *args) {
 	    record_index += Four;
 	}
 
+	doing_filled = TRUE;
 	(void)evaluator(arg, begin_line);
+	doing_filled = FALSE;
     }
 
     insidefill = 0;
@@ -1668,7 +1671,7 @@ void save_line(void) {
 
 void save_move(void) {
     if (safe_to_save()) {
-	if (record_index >= Three && last_recorded == MOVEXY)
+	if (record_index >= Three && last_recorded == MOVEXY && !doing_filled)
 	    record_index -= Three;
 	last_recorded = record[record_index] = MOVEXY;
 	save_lm_helper();
