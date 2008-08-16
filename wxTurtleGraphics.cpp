@@ -994,6 +994,7 @@ extern "C" void wxFullScreen(){
     topsizer->Show(turtleGraphics, 1);
     topsizer->Show(editWindow, 0);
     topsizer->Layout();
+    wxTerminal::terminal->SetFocus();
     wxTerminal::terminal->deferUpdate(1);
     screen_mode = SCREEN_FULL;
 }
