@@ -1238,6 +1238,12 @@ NODE *lsetscrunch(NODE *args) {
 	    }
 	}
 #endif
+#ifdef HAVE_WX
+	//update the label height!
+
+	extern void wx_adjust_label_height();
+	wx_adjust_label_height();
+#endif
     }
     return(UNBOUND);
 }

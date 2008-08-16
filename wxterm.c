@@ -204,7 +204,14 @@ extern void wxSetFont(char *fm, int sz);
 extern char wx_font_face[];
 extern int wx_font_size;
 
-NODE *lsettextfont(NODE *arg) {
+NODE *lfont(NODE *arg) {
+  NODE *val;
+
+  return make_static_strnode(wx_font_face);
+
+}
+
+NODE *lsetfont(NODE *arg) {
   char textbuf[300];                                                      
   print_stringptr = textbuf;
   print_stringlen = 300;
@@ -225,4 +232,26 @@ NODE *lsettextsize(NODE *arg) {
   }
 
   return(UNBOUND);
+}
+
+
+extern void wx_adjust_label_height();
+extern int label_height;
+
+NODE *lsetlabelheight(NODE *arg) {
+  NODE *val = integer_arg(arg);
+  label_height = getint(val);
+  wx_adjust_label_height();
+
+  return(UNBOUND);
+}
+
+
+extern void wx_get_label_size(int *w, int *h);
+
+NODE *llabelsize(NODE *arg) {
+  int w,h;
+  wx_get_label_size(&w, &h);
+  return cons(make_intnode(w),
+	      cons(make_intnode(h), NIL));
 }

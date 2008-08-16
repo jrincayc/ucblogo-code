@@ -554,7 +554,10 @@ extern WindowPtr graphics_window, listener_window;
 #endif
 
 #ifdef HAVE_WX
-extern NODE *lsettextfont(NODE *);
+extern NODE *lfont(NODE *);
+extern NODE *lsetlabelheight(NODE *);
+extern NODE *llabelsize(NODE *);
+extern NODE *lsetfont(NODE *);
 extern NODE *lsettextsize(NODE *);
 #endif
 

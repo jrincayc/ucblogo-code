@@ -110,7 +110,7 @@ int logo_pause_flag = 0;
 wxTerminal *wxTerminal::terminal;
 
 //for font
-char wx_font_face[300] = "Courier";   //300 matches lsettextfont in wxterm.c
+char wx_font_face[300] = "Courier";   //300 matches lsetfont in wxterm.c
 int wx_font_size = 12;	
 
 // ----------------------------------------------------------------------------
@@ -2572,8 +2572,10 @@ extern "C" void wxSetCursor(int x, int y){
 
 extern "C" void wxSetFont(char *fm, int sz) {
 
+    int adjust_label = 0;
     if(fm != wx_font_face) {
-      strcpy(wx_font_face, fm);
+        strcpy(wx_font_face, fm);
+        adjust_label++;
     }
 
     wx_font_size = sz;
@@ -2581,8 +2583,11 @@ extern "C" void wxSetFont(char *fm, int sz) {
     wxFont f(FONT_CFG(wx_font_face, wx_font_size));
     wxTerminal::terminal->SetFont(f);
     editWindow->SetFont(f);
-    //TurtleCanvas memDC
-    m_memDC->SetFont(f);
+
+    //TurtleCanvas memDC, set size depending on scrunch!
+    if(adjust_label) {
+        turtleGraphics->SetFont(f);
+    }
 
     logoFrame->AdjustSize();
 }

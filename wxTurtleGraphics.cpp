@@ -87,6 +87,9 @@ wxColour TurtleCanvas::colors[NUMCOLORS+SPECIAL_COLORS];
 
 int R, G, B;
 
+//font information
+int label_height = 15;  // in terms of turtle steps.
+
 
 // Global print data, to remember settings during the session
 wxPrintData *g_printData = (wxPrintData*) NULL ;
@@ -555,6 +558,101 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
     dc->DrawPolygon(count, wxpoints);
     free(wxpoints);
 
+}
+
+
+extern FLONUM y_scale;
+
+extern "C" void wx_get_label_size(int *w, int *h) {
+  int descent, extlead;
+  m_memDC->GetTextExtent("M", w, h, &descent, &extlead);  
+}
+
+extern "C" void wx_adjust_label_height() {
+    //take the font name, change the size based on scrunch
+    int px_height = y_scale * label_height;
+    int descent, extlead; 
+    int cw,ch;
+
+    wxFont label_font = m_memDC->GetFont();
+    //now, initial guess for pt size is height / 1.5
+    int font_size = px_height * 3 / 2;
+    label_font.SetPointSize(font_size);
+
+    m_memDC->SetFont(label_font);	
+    m_memDC->GetTextExtent("M", &cw, &ch, &descent, &extlead);
+
+    //now... first figure out whether we undershot or overshot...
+    //this determines which direction to change the size
+
+    int tmp_height = ch;
+    wxFont tmp_font = label_font;
+    if(tmp_height < px_height) {
+        //increase the point size until we get two consecutive font sizes
+        //where one is below px_height and one is above px_height
+        int expected;
+        while(tmp_height < px_height) {
+            expected = tmp_font.GetPointSize() + 1;
+            while(tmp_font.GetPointSize() != expected && expected <= 100){
+	  	expected++;
+		tmp_font.SetPointSize(expected);
+	    }
+	    m_memDC->SetFont(tmp_font);	
+	    m_memDC->GetTextExtent("M", &cw, &tmp_height, &descent, &extlead);
+
+	    if(tmp_height >= px_height) break;
+
+	    label_font.SetPointSize(expected);
+	    ch = tmp_height;
+	}       	
+    }
+    else {
+        //same as above, but decrease instead
+        int expected;
+        while(tmp_height > px_height) {
+            expected = tmp_font.GetPointSize() - 1;
+            while(tmp_font.GetPointSize() != expected && expected >= 2){
+	  	expected--;
+		tmp_font.SetPointSize(expected);
+	    }
+	    m_memDC->SetFont(tmp_font);	
+	    m_memDC->GetTextExtent("M", &cw, &tmp_height, &descent, &extlead);
+
+	    if(tmp_height <= px_height) break;
+
+	    label_font.SetPointSize(expected);
+	    ch = tmp_height;
+	}
+    }
+    //now we have two fonts and two heights, we pick the closest one!
+    int curr_diff = ch - px_height;
+    int tmp_diff = tmp_height - px_height;
+    if(curr_diff < 0) curr_diff = -curr_diff;
+    if(tmp_diff < 0) tmp_diff = -tmp_diff;
+
+    fprintf(stderr, "ph: %d, ch: %d, th: %d \n", px_height, ch, tmp_height);
+    if(curr_diff < tmp_diff) {
+        m_memDC->SetFont(label_font);
+    }
+    else if(curr_diff > tmp_diff) {
+        m_memDC->SetFont(tmp_font);
+    }
+    else {
+        // if difference are the same, pick the smaller one
+        if(ch < tmp_height) {
+	    m_memDC->SetFont(label_font);
+        }	
+	else {
+  	    m_memDC->SetFont(tmp_font);
+	}
+    }
+}
+
+bool TurtleCanvas::SetFont(const wxFont &f) {
+    m_memDC->SetFont(f);
+    wx_adjust_label_height();
+    
+    return TRUE;
 }
 
 void TurtleCanvas::realDrawLabel(char *data, wxDC *dc) {

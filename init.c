@@ -168,6 +168,9 @@ PRIMTYPE prims[] = {
 #endif
     {"first", 1, 1, 1, PREFIX_PRIORITY, lfirst},
     {"firsts", 1, 1, 1, PREFIX_PRIORITY, lfirsts},
+#ifdef HAVE_WX
+    {"font", 0, 0, 0, PREFIX_PRIORITY, lfont},
+#endif
     {"forever", 1, 1, 1, MACRO_PRIORITY, lforever},
     {"form", 3, 3, 3, PREFIX_PRIORITY, lform},
     {"forward", 1, 1, 1, PREFIX_PRIORITY, lforward},
@@ -208,6 +211,9 @@ PRIMTYPE prims[] = {
     {"kindof", 1, 1, -1, PREFIX_PRIORITY, lkindof},
 #endif
     {"label", 1, 1, 1, PREFIX_PRIORITY, llabel},
+#ifdef HAVE_WX
+    {"labelsize", 0, 0, 0, PREFIX_PRIORITY, llabelsize},	
+#endif
     {"last", 1, 1, 1, PREFIX_PRIORITY, llast},
     {"left", 1, 1, 1, PREFIX_PRIORITY, lleft},
     {"lessp", 2, 2, 2, PREFIX_PRIORITY, llessp},
@@ -363,11 +369,17 @@ PRIMTYPE prims[] = {
     {"setbackground", 1, 1, 1, PREFIX_PRIORITY, lsetbackground},
     {"setcursor", 1, 1, 1, PREFIX_PRIORITY, lsetcursor},
     {"setcslsloc", 1, 1, 1, PREFIX_PRIORITY, lsetcslsloc},
+#ifdef HAVE_WX
+    {"setfont", 1, 1, 1, PREFIX_PRIORITY, lsetfont},
+#endif
     {"seteditor", 1, 1, 1, PREFIX_PRIORITY, lseteditor},
     {"seth", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"setheading", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"sethelploc", 1, 1, 1, PREFIX_PRIORITY, lsethelploc},
     {"setitem", 3, 3, 3, PREFIX_PRIORITY, lsetitem},
+#ifdef HAVE_WX
+    {"setlabelheight", 1, 1, 1, PREFIX_PRIORITY, lsetlabelheight},
+#endif
     {"setlibloc", 1, 1, 1, PREFIX_PRIORITY, lsetlibloc},
     {"setmargins", 1, 1, 1, PREFIX_PRIORITY, lsetmargins},
     {"setpalette", 2, 2, 2, PREFIX_PRIORITY, lsetpalette},
@@ -387,7 +399,6 @@ PRIMTYPE prims[] = {
 #endif
 #endif
 #ifdef HAVE_WX
-    {"settextfont", 1, 1, 1, PREFIX_PRIORITY, lsettextfont},
     {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
 #endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},

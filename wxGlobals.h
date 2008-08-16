@@ -40,6 +40,7 @@
 // fonts
 extern char wx_font_face[300];
 extern int wx_font_size;	
+extern int label_height;
 #define FONT_CFG(fm,sz) sz, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxString(fm,wxConvUTF8)
 
 /* wxMain */

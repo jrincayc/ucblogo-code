@@ -169,6 +169,8 @@ public:
     void OnSize(wxSizeEvent &event);
     void OnDraw(wxDC &dc);
 
+    bool SetFont(const wxFont &f);
+
     void Show(ScreenToShow show) { m_show = show; Refresh(); }
 	void internalPrepare();
 	void TurtlePrintPreview(wxCommandEvent& event);
