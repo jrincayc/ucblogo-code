@@ -7,6 +7,7 @@ to master [:numsquares 4] [:dup.ok "false] [:mysecret "true]
 ; Mastermind game program.
 ; Program is controlled by mouse clicks or keystrokes.
 if :LogoPlatform = "Windows [maximize.window "true]
+if :LogoPlatform = "wxWidgets [localmake "fontsize labelsize]
 localmake "colors "ROYGBV
 localmake "colornums [[R 4] [O 14] [Y 6] [G 2] [B 1] [V 13]]
 localmake "exact "true
@@ -210,24 +211,37 @@ end
 
 to initdraw
 fs init.buttons
+localmake "bigwidth ifelse :LogoPlatform = "wxWidgets [5*first :fontsize] [40]
+localmake "bigbutton list :bigwidth 25
+localmake "tallheight ifelse :LogoPlatform="wxWidgets [2+2*last :fontsize] [30]
+localmake "tallbutton list :bigwidth :tallheight
 ifelse :mysecret ~
-  [colorchart 6 "ROYGBV [4 14 6 2 1 13] 150
-   setbutton [-240 -30] [25 25] [clear] "false 0 "erase "DEL] ~
-  [numchart 0 150]
-setbutton [-240 -60] [25 25] [if not :winloop [guess]] "true 0 "OK "RET
-setbutton [-240 -90] [25 25] [throw "master] "false 0 [new game] "N
-setbutton [-240 -120] [25 25] [throw "quit] "false 0 "quit "Q
-setbutton [-240 -170] [40 25] [make "mysecret "true  throw "master] ~
-   :mysecret 0 [I guess] []
-setbutton [-240 -200] [40 25] [make "mysecret "false  throw "master] ~
-   (not :mysecret) 0 [Logo guess] []
-caption [-240 206] [65 29] [Number |of colors:|]
+  [colorchart 6 "ROYGBV [4 14 6 2 1 13] 165
+   setbutton [-250 -15] :bigbutton [clear] "false 0 "erase "DEL] ~
+  [numchart 0 165]
+setbutton pos0 [-250 -45] :bigbutton [if not :winloop [guess]] "true 0 "OK "RET
+setbutton nxt :tallheight :tallbutton [throw "master] "false 0 [new game] "N
+setbutton nxt 25 :bigbutton [throw "quit] "false 0 "quit "Q
+ignore nxt 10
+setbutton nxt :tallheight :tallbutton [make "mysecret "true  throw "master] ~
+   :mysecret 0 [I guess] "I
+setbutton nxt :tallheight :tallbutton [make "mysecret "false  throw "master] ~
+   (not :mysecret) 0 [Logo guess] "L
+caption [-250 206] [65 29] [Number |of colors:|]
 numsquares -170 2 6
 caption [0 206] [65 29] [Duplicates allowed:]
+ifelse :LogoPlatform = "wxWidgets [
+localmake "buttonx 5+(first :fontsize)*10
+setbutton list :buttonx 210 [25 25] [make "dup.ok "true throw "master] ~
+   :dup.ok 0 "yes []
+setbutton list :buttonx+30 210 [25 25] [make "dup.ok "false throw "master] ~
+   (not :dup.ok) 0 "no []
+] [
 setbutton [70 210] [25 25] [make "dup.ok "true throw "master] ~
    :dup.ok 0 "yes []
 setbutton [100 210] [25 25] [make "dup.ok "false throw "master] ~
    (not :dup.ok) 0 "no []
+]
 end
 
 to numsquares :xcor :num :last
@@ -239,7 +253,7 @@ end
 
 to colorchart :num :names :colors :ycor
 if :num = 0 [stop]
-setbutton (list -240 :ycor) [25 25] ~
+setbutton (list -250 :ycor) [25 25] ~
   `[putguess ",[first :names] ,[first :colors]] "false ~
   (first :colors) [] (first :names)
 colorchart :num-1 bf :names bf :colors :ycor-30
@@ -247,9 +261,19 @@ end
 
 to numchart :num :ycor
 if :num > :numsquares [stop]
-setbutton (list -240 :ycor) [25 25] ~
+setbutton (list -250 :ycor) [25 25] ~
   `[if not :winloop [getnum ,:num]] "false 0 :num :num
 numchart :num+1 :ycor-30
+end
+
+to pos0 :pos
+make "controlpos :pos
+output :pos
+end
+
+to nxt :height
+make "controlpos list (first :controlpos) ((last :controlpos) - (:height + 5))
+output :controlpos
 end
 
 to move :start

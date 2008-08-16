@@ -48,7 +48,8 @@
 ;;; drawn by the LABEL command.  Change these numbers if necessary:
 
 make "labelcharsize ifelse equalp :LogoPlatform "Windows [[8 13]] [[6 11]]
-if equalp :LogoPlatform "wxWidgets [make "labelcharsize [7 14]]
+; if equalp :LogoPlatform "wxWidgets [make "labelcharsize [7 14]]
+if equalp :LogoPlatform "wxWidgets [make "labelcharsize labelsize]
 
 ; -----------------------------
 

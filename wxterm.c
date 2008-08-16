@@ -252,6 +252,6 @@ extern void wx_get_label_size(int *w, int *h);
 NODE *llabelsize(NODE *arg) {
   int w,h;
   wx_get_label_size(&w, &h);
-  return cons(make_intnode(w),
-	      cons(make_intnode(h), NIL));
+  return cons(make_intnode(w/x_scale),
+	      cons(make_intnode(h/y_scale), NIL));
 }

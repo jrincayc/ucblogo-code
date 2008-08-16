@@ -566,6 +566,7 @@ extern FLONUM y_scale;
 extern "C" void wx_get_label_size(int *w, int *h) {
   int descent, extlead;
   m_memDC->GetTextExtent("M", w, h, &descent, &extlead);  
+  
 }
 
 extern "C" void wx_adjust_label_height() {
