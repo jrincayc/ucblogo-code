@@ -11,7 +11,6 @@ class LogoApplication : public wxApp
 	virtual bool OnInit();
 	virtual int OnExit();
         virtual int OnRun();	
-	virtual int FilterEvent(wxEvent&);
 };
 
 // This is the Event Manager for the logo application

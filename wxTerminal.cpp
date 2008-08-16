@@ -231,13 +231,6 @@ int LogoApplication::OnExit() {
   return 0;
 }
 
-int LogoApplication::FilterEvent(wxEvent& event) {
-    if (event.GetEventType() == wxEVT_CHAR &&
-	    event.GetEventObject() != editWindow)
-	event.SetEventObject(wxTerminal::terminal);
-    return -1;
-}
-
 // ----------------------------------------------------------------------------
 // LogoEventManager class
 // ----------------------------------------------------------------------------
