@@ -404,7 +404,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     }
     if(l->vis) {
       dc->DrawLine(l->x1,l->y1,l->x2,l->y2);
-      dc->DrawLine(l->x2,l->y2,l->x2,l->y2+1);	/* draw endpoint */
+      dc->DrawPoint(l->x2,l->y2);	/* draw endpoint */
 	if (!drawToPrinter && !drawToWindow) {
 	    if (l->x2 < pictureleft) pictureleft = l->x2;
 	    if (l->x2 > pictureright) pictureright = l->x2;
