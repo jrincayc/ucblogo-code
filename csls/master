@@ -133,7 +133,7 @@ to check.consistency :str
 ; the user has lied to us.
 if emptyp :str [ct print [Error -- inconsistent answers!]
 		repeat 2 [setbg 4 wait 1 setbg 0 wait 1]
-		type [Click or type anything to restart.]
+		type [Click or type anything to restart.] wait 0
 		waitforclick
 		throw "master]
 end

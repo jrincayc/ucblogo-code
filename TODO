@@ -1,13 +1,7 @@
 menu, open dialog
 fast graphics
 
-filled should set mode to remember consecutive moves, not need pen down
-
-keyp should flush typeout
-
 buttons should get font size from logo
-
-that first keypress not noticed (focus)
 
 stripped libraries (but keep jpeg for snap/stamp?)
 
