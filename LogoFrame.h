@@ -43,6 +43,7 @@ class LogoFrame : public wxFrame
 private:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 	void OnSave(wxCommandEvent& WXUNUSED(event));
+	void OnSaveAs(wxCommandEvent& WXUNUSED(event));
 	void OnLoad(wxCommandEvent& WXUNUSED(event));
 	void OnTurtlePrintPreview(wxCommandEvent& WXUNUSED(event));
 	void DoStop(wxCommandEvent& WXUNUSED(event));

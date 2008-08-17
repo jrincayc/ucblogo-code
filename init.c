@@ -356,7 +356,7 @@ PRIMTYPE prims[] = {
     {"runparse", 1, 1, 1, PREFIX_PRIORITY, lrunparse},
     {"runresult", 1, 1, 1, MACRO_PRIORITY, lrunresult},
     {"rw", 0, 0, 0, PREFIX_PRIORITY, lreadword},
-    {"save", 1, 1, 1, PREFIX_PRIORITY, lsave},
+    {"save", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lsave},
     {"savepict", 1, 1, 1, PREFIX_PRIORITY, lsavepict},
     {"screenmode", 0, 0, 0, PREFIX_PRIORITY, lscreenmode},
     {"scrunch", 0, 0, 0, PREFIX_PRIORITY, lscrunch},

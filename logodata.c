@@ -547,6 +547,7 @@ NODE *lpprop(NODE *args) {
 	    setcar(cdr(val), newval);
 	else
 	    setplist__caseobj(plname, cons(pname, cons(newval, plist)));
+	need_save = 1;
     }
     return(UNBOUND);
 }

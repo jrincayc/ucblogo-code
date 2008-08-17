@@ -122,6 +122,7 @@ enum
 	
     Menu_File = 200,
 	Menu_File_Save,
+	Menu_File_Save_As,
 	Menu_File_Load,
     Menu_File_Page_Setup,
 	Menu_File_Print_Text,
@@ -276,6 +277,7 @@ void LogoEventManager::ProcessEvents(int force_yield)
 
 BEGIN_EVENT_TABLE (LogoFrame, wxFrame)
 EVT_MENU(Menu_File_Save,				LogoFrame::OnSave)
+EVT_MENU(Menu_File_Save_As,			LogoFrame::OnSaveAs)
 EVT_MENU(Menu_File_Load,				LogoFrame::OnLoad)
 EVT_MENU(Menu_File_Page_Setup,			TurtleCanvas::OnPageSetup)
 EVT_MENU(Menu_File_Print_Text,			LogoFrame::OnPrintText)
@@ -384,10 +386,21 @@ void LogoFrame::OnCloseWindow(wxCloseEvent& event)
   Destroy();
 }
 
+extern int need_save;
 
-void LogoFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+void LogoFrame::OnQuit(wxCommandEvent& event)
 {
-  Close(TRUE);
+    if (need_save) {
+	wxMessageDialog dialog( NULL, _T("Save workspace before quitting?"),
+			       _T("Quit Logo"), wxYES_DEFAULT|wxYES_NO|wxCANCEL);
+	switch ( dialog.ShowModal() ) {
+	    case wxID_YES:
+		LogoFrame::OnSave(event);
+	    /* falls through */
+	    case wxID_NO:
+		Close(TRUE);
+	}
+    } else Close(TRUE);
 }
 
 
@@ -402,8 +415,9 @@ void LogoFrame::SetUpMenu(){
 
 	
 	wxMenu *fileMenu = new wxMenu;
-	fileMenu->Append( Menu_File_Save, _T("Save Logo Session \tCtrl-S"));
 	fileMenu->Append( Menu_File_Load, _T("Load Logo Session \tCtrl-O"));
+	fileMenu->Append( Menu_File_Save, _T("Save Logo Session \tCtrl-S"));
+	fileMenu->Append( Menu_File_Save_As, _T("Save As..."));
 	fileMenu->AppendSeparator();
 	fileMenu->Append( Menu_File_Page_Setup, _T("Page Setup"));
 	fileMenu->Append( Menu_File_Print_Text, _T("Print Text Window"));
@@ -457,10 +471,23 @@ void LogoFrame::DoPaste(wxCommandEvent& WXUNUSED(event)){
 
 extern "C" void new_line(FILE *);
 int firstloadsave = 1;
+extern void *save_name;
 
 void doSave(char * name, int length);
 void doLoad(char * name, int length);
-void LogoFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+
+extern "C" void *cons(void*, void*);
+extern "C" void lsave(void*);
+
+void LogoFrame::OnSave(wxCommandEvent& event) {
+    if (save_name != NULL) {
+	lsave(cons(save_name, NULL));
+    } else {
+	OnSaveAs(event);
+    }
+}
+
+void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
 			    (firstloadsave ?
@@ -1179,7 +1206,8 @@ extern "C" int keyact_set(void);
 extern "C" void do_keyact(int);
 
 /*
- OnChar is called each time the user types a character
+ OnChar
+ is called each time the user types a character
  in the main terminal window
  */
 

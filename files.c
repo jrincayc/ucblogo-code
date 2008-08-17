@@ -62,6 +62,8 @@ extern int getch(), kbhit();
 
 NODE *file_list = NULL;
 NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
+int need_save = 0;  /* nonzero if workspace changed since save */
+NODE *save_name = NIL;	/* filename of last save or load command */
 
 char *asciiz(NODE *arg) {
     char *out = (char *)malloc(getstrlen(arg)+1);
@@ -372,16 +374,23 @@ NODE *lerasefile(NODE *arg) {
 
 NODE *lsave(NODE *arg) {
     FILE *tmp;
+    NODE *name;
 
+    if (arg == NIL) name = save_name;
+    else name = car(arg);
     tmp = writestream;
-    writestream = open_file(car(arg), "w+");
-    if (writestream != NULL) {
-	setcar(arg, cons(lcontents(NIL), NIL));
-	lpo(car(arg));
-	fclose(writestream);
+    if (name != NIL) {
+	writestream = open_file(name, "w+");
+	if (writestream != NULL) {
+	    setcar(arg, cons(lcontents(NIL), NIL));
+	    lpo(car(arg));
+	    fclose(writestream);
+	    need_save = 0;
+	    save_name = name;
+	}
+	else
+	    err_logo(CANT_OPEN_ERROR, car(arg));
     }
-    else
-	err_logo(CANT_OPEN_ERROR, car(arg));
     writestream = tmp;
     return(UNBOUND);
 }
@@ -460,6 +469,7 @@ NODE *lcslsload(NODE *arg) {
     file_prefix = NIL;
     silent_load(car(arg),csls);
     file_prefix = save_prefix;
+    save_name = car(arg);
     return UNBOUND;
 }
 
@@ -478,6 +488,7 @@ NODE *lload(NODE *arg) {
 	    if (exec_list != NIL) eval_driver(exec_list);
 	}
 	fclose(loadstream);
+	save_name = car(arg);
 	runstartup(st);
     } else
 	err_logo(CANT_OPEN_ERROR, car(arg));

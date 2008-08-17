@@ -267,6 +267,7 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
 	if (deflt != old_default && old_default >= 0) {
 	    the_generation = cons(NIL, NIL);
 	}
+	need_save = 1;
     }
     return(UNBOUND);
 }
@@ -462,6 +463,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 	    }
 	}
 	to_pending = 0;
+	need_save = 1;
     }
     deepend_proc_name = NIL;
     return(UNBOUND);
@@ -495,6 +497,7 @@ NODE *lmake(NODE *args) {
                 err_logo(LOCAL_AND_OBJ, what);
                 return UNBOUND;
             } else {
+		need_save = 1;
                 object = varInThisObject(what, FALSE);
 		for (bindings = getvars(object); bindings != NIL;
 			    bindings = cdr(bindings)) {
@@ -506,8 +509,10 @@ NODE *lmake(NODE *args) {
             }
         } else {
             setvalnode__caseobj(what, cadr(args));
-            if (!flag__caseobj(what, IS_LOCAL_VALUE))
-                setflag__caseobj(what, HAS_GLOBAL_VALUE);
+	    if (!flag__caseobj(what, IS_LOCAL_VALUE)) {
+		setflag__caseobj(what, HAS_GLOBAL_VALUE);
+		need_save = 1;
+	    }
         }
 
         if (flag__caseobj(what, VAL_TRACED)) {
@@ -532,8 +537,10 @@ NODE *lmake(NODE *args) {
     if (NOT_THROWING) {
 	what = intern(what);
 	setvalnode__caseobj(what, cadr(args));
-	if (!flag__caseobj(what, IS_LOCAL_VALUE))
+	if (!flag__caseobj(what, IS_LOCAL_VALUE)) {
 	    setflag__caseobj(what, HAS_GLOBAL_VALUE);
+	    need_save = 1;
+	}
 	if (flag__caseobj(what, VAL_TRACED)) {
 	    NODE *tvar = maybe_quote(cadr(args));
 	    ndprintf(writestream, message_texts[TRACE_MAKE],

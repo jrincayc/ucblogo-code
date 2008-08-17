@@ -380,6 +380,8 @@ extern NODE *lsetreadpos(NODE *);
 extern NODE *lwritepos(NODE *);
 extern NODE *lsetwritepos(NODE *);
 extern int readchar_lookahead_buf;
+extern int need_save;
+extern NODE *save_name;
 
 /* coms.c */
 extern NODE *make_cont(enum labels, NODE *);

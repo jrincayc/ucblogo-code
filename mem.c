@@ -549,6 +549,7 @@ re_mark:
     mark(reader_name);
     mark(writer_name);
     mark(file_prefix);
+    mark(save_name);
 
     mark(the_generation);
     mark(Not_Enough_Node);
