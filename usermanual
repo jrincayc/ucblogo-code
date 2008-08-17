@@ -1240,20 +1240,38 @@ INCREASEFONT
 DECREASEFONT
 
 	command (wxWidgets only).  Increase or decrease the size of the font
-	used in the text window to the next larger or smaller available size.
+	used in the text and edit windows to the next larger or smaller
+	available size.
 
 SETTEXTSIZE height
 
-	command (wxWidgets only).  Set the height (pixels) of the font used
-	in the text window to the given integer input.
+	command (wxWidgets only).  Set the "point size" of the font used in
+	the text and edit windows to the given integer input.  The desired
+	size may not be available, in which case the nearest available size
+	will be used.  Note: There is only a slight correlation between these
+	integers and pixel sizes.  Our rough estimate is that the number of
+	pixels of height is about 1.5 times the point size, but it varies for
+	different fonts.  See SETLABELHEIGHT for a different approach used for
+	the graphics window.
 
-SETTEXTFONT fontname
+TEXTSIZE
 
-	command (wxWidgets only).  Set the font family used in the text window
+	(wxWidgets only) outputs the "point size" of the font used in the text
+	and edit windows.  See SETTEXTSIZE for a discussion of font sizing.
+	See LABELSIZE for a different approach used for the graphics window.
+
+SETFONT fontname
+
+	command (wxWidgets only).  Set the font family used in all windows
 	to the one named by the input.  Try 'Courier' or 'Monospace' as likely
 	possibilities.  Not all computers have the same fonts installed.  It's
 	a good idea to stick with monospace fonts (ones in which all
 	characters have the same width).
+
+FONT
+
+	(wxWidgets only) outputs the name of the font family used in all
+	windows.
 
 
 ARITHMETIC
@@ -1765,6 +1783,17 @@ LABEL text
 	takes a word or list as input, and prints the input on the
 	graphics window, starting at the turtle's position.
 
+SETLABELHEIGHT height
+
+	command (wxWidgets only).  Takes a positive integer argument and tries
+	to set the font size so that the character height (including
+	descenders) is that many turtle steps.  This will be different from
+	the number of screen pixels if SETSCRUNCH has been used.  Also, note
+	that SETSCRUNCH changes the font size to try to preserve this height
+	in turtle steps.  Note that the query operation corresponding to this
+	command is LABELSIZE, not LABELHEIGHT, because it tells you the width
+	as well as the height of characters in the current font.
+
 TEXTSCREEN
 TS
 
@@ -1807,12 +1836,16 @@ SETSCRUNCH xscale yscale
 	If your squares don't come out square, try this.  (Alternatively,
 	you can deliberately misadjust the aspect ratio to draw an ellipse.)
 
-	For Unix machines and Macintoshes, both scale factors are initially 1.
-	For DOS machines, the scale factors are initially set according
-	to what the hardware claims the aspect ratio is, but the hardware
-	sometimes lies.  The values set by SETSCRUNCH are remembered in a
-	file (called SCRUNCH.DAT) and are automatically put into effect when
-	a Logo session begins.
+	In wxWidgets only, SETSCRUNCH also changes the size of the text font
+	used for the LABEL command to try to keep the height of characters
+	scaled with the vertical turtle step size.
+
+	For Unix machines Macintoshes, and Windows machines, both scale
+	factors are initially 1.  For DOS machines, the scale factors are
+	initially set according to what the hardware claims the aspect ratio
+	is, but the hardware sometimes lies.  The values set by SETSCRUNCH are
+	remembered in a file (called SCRUNCH.DAT) and are automatically put
+	into effect when a Logo session begins.
 
 REFRESH
 
@@ -1844,6 +1877,15 @@ TURTLEMODE
 
 	outputs the word WRAP, FENCE, or WINDOW depending on the current
 	turtle mode.
+
+LABELSIZE
+
+	(wxWidgets only) outputs a list of two positive integers, the width
+	and height of characters displayed by LABEL measured in turtle steps
+	(which will be different from screen pixels if SETSCRUNCH has been
+	used).  There is no SETLABELSIZE because the width and height of a
+	font are not separately controllable, so the inverse of this operation
+	is SETLABELHEIGHT, which takes just one number for the desired height.
 
 
 PEN AND BACKGROUND CONTROL
