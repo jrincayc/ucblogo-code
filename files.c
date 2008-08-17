@@ -389,7 +389,8 @@ NODE *lsave(NODE *arg) {
 	}
 	else
 	    err_logo(CANT_OPEN_ERROR, car(arg));
-    }
+    } else
+	err_logo(NOT_ENOUGH, NIL);
     writestream = tmp;
     return(UNBOUND);
 }
