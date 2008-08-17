@@ -111,6 +111,12 @@ extern "C" void printToScreen(char c, FILE * stream)
     putc(c, stream);
     return;
   }
+
+    if (c == 0x7) {	/* ^G */
+	wxBell();
+	return;
+    }
+
   if(TurtleFrame::in_graphics_mode && !TurtleFrame::in_splitscreen)
     // we are in fullscreen mode
     wxSplitScreen();
