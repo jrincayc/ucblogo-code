@@ -382,8 +382,7 @@ NODE *lsave(NODE *arg) {
     if (name != NIL) {
 	writestream = open_file(name, "w+");
 	if (writestream != NULL) {
-	    setcar(arg, cons(lcontents(NIL), NIL));
-	    lpo(car(arg));
+	    lpo(cons(lcontents(NIL), NIL));
 	    fclose(writestream);
 	    need_save = 0;
 	    save_name = name;
