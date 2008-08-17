@@ -7,6 +7,7 @@ to master [:numsquares 4] [:dup.ok "false] [:mysecret "true]
 ; Mastermind game program.
 ; Program is controlled by mouse clicks or keystrokes.
 if :LogoPlatform = "Windows [maximize.window "true]
+window
 if :LogoPlatform = "wxWidgets [localmake "fontsize labelsize]
 localmake "colors "ROYGBV
 localmake "colornums [[R 4] [O 14] [Y 6] [G 2] [B 1] [V 13]]
@@ -84,7 +85,7 @@ foreach :guessword [apply "putguess item ? :colornums]	; Show colors.
 askexact				; Ask user for exact matches.
 make "gotnum "false
 catch "ready [action.loop]
-pu setpos [-340 150] setpc 0 filled 0 [repeat 2 [fd 20 rt 90 fd 90 rt 90]]
+pu setpos [150 205] setpc 0 filled 0 [repeat 2 [fd 35 rt 90 fd 110 rt 90]]
 setpc 7
 ifelse :guess.exact < :numsquares [	; Not all colors are exact.
   ifelse :permuting [			;   If we know all the colors,
@@ -94,7 +95,7 @@ ifelse :guess.exact < :numsquares [	; Not all colors are exact.
     askinexact				;   Otherwise, ask for inexact.
     make "gotnum "false
     catch "ready [action.loop]
-    pu setpos [-340 150] setpc 0 filled 0 [repeat 2 [fd 20 rt 90 fd 90 rt 90]]
+    pu setpos [150 205] setpc 0 filled 0 [repeat 2 [fd 35 rt 90 fd 110 rt 90]]
     setpc 7
     if :guess.exact + :guess.inexact > :numsquares ~
        [check.consistency []]	; Quick error message if too many matches.
@@ -156,13 +157,19 @@ end
 
 to askexact
 ; ct type "|How many EXACT matches? |
-pu setpos [-340 150] label "EXACT?
+; pu setpos [185 210] setpc 6 label "EXACT?
+localmake "caption.scrunch 1.5
+setbutton [152 210] [100 25] [] "true 0 "EXACT? []
+ern "caption.scrunch
 make "exact "true
 end
 
 to askinexact
 ; ct type "|How many INEXACT matches? |
-pu setpos [-340 150] label "INEXACT?
+; pu setpos [185 210] setpc 6 label "INEXACT?
+localmake "caption.scrunch 1.5
+setbutton [152 210] [100 25] [] "true 0 "INEXACT? []
+ern "caption.scrunch
 make "exact "false
 end
 
@@ -217,9 +224,9 @@ localmake "tallheight ifelse :LogoPlatform="wxWidgets [2+2*last :fontsize] [30]
 localmake "tallbutton list :bigwidth :tallheight
 ifelse :mysecret ~
   [colorchart 6 "ROYGBV [4 14 6 2 1 13] 165
-   setbutton [-250 -15] :bigbutton [clear] "false 0 "erase "DEL] ~
+   setbutton [-245 -15] :bigbutton [clear] "false 0 "erase "DEL] ~
   [numchart 0 165]
-setbutton pos0 [-250 -45] :bigbutton [if not :winloop [guess]] "true 0 "OK "RET
+setbutton pos0 [-245 -45] :bigbutton [if not :winloop [guess]] "true 0 "OK "RET
 setbutton nxt :tallheight :tallbutton [throw "master] "false 0 [new game] "N
 setbutton nxt 25 :bigbutton [throw "quit] "false 0 "quit "Q
 ignore nxt 10
@@ -227,11 +234,11 @@ setbutton nxt :tallheight :tallbutton [make "mysecret "true  throw "master] ~
    :mysecret 0 [I guess] "I
 setbutton nxt :tallheight :tallbutton [make "mysecret "false  throw "master] ~
    (not :mysecret) 0 [Logo guess] "L
-caption [-250 206] [65 29] [Number |of colors:|]
+caption [-245 206] [65 29] [Number |of colors:|]
 numsquares -170 2 6
-caption [0 206] [65 29] [Duplicates allowed:]
+caption [-10 206] [65 29] [Duplicates allowed:]
 ifelse :LogoPlatform = "wxWidgets [
-localmake "buttonx 5+(first :fontsize)*10
+localmake "buttonx ((first :fontsize)*10)-5
 setbutton list :buttonx 210 [25 25] [make "dup.ok "true throw "master] ~
    :dup.ok 0 "yes []
 setbutton list :buttonx+30 210 [25 25] [make "dup.ok "false throw "master] ~
@@ -253,7 +260,7 @@ end
 
 to colorchart :num :names :colors :ycor
 if :num = 0 [stop]
-setbutton (list -250 :ycor) [25 25] ~
+setbutton (list -245 :ycor) [25 25] ~
   `[putguess ",[first :names] ,[first :colors]] "false ~
   (first :colors) [] (first :names)
 colorchart :num-1 bf :names bf :colors :ycor-30
@@ -261,7 +268,7 @@ end
 
 to numchart :num :ycor
 if :num > :numsquares [stop]
-setbutton (list -250 :ycor) [25 25] ~
+setbutton (list -245 :ycor) [25 25] ~
   `[if not :winloop [getnum ,:num]] "false 0 :num :num
 numchart :num+1 :ycor-30
 end
@@ -284,7 +291,7 @@ to move :start
 ; Note, since :NUMGUESSES starts at 1,
 ; first frame is at [-180 170] not [-180 200].
 pu
-setpos (list (-180 + (first :start) + 220*:column + 25*(:numcolors-1))
+setpos (list (-145 + (first :start) + 210*:column + 25*(:numcolors-1))
 	     (200 + (last :start) - 30*(:numguesses - 14*:column)))
 pd
 end 
@@ -315,6 +322,7 @@ end
 ;;;;; =================== USER INTERFACE (READING) =======================
 
 to waitforclick
+action.off
 ; Wait for any key or mouse click, then return, ignoring which/where.
 if buttonp [while [buttonp] []  stop]
 if keyp [ignore rc  stop]
@@ -326,7 +334,7 @@ end
 to getnum :num [:cursor cursor]
 ; Called for digit key or mouse click on digit button.
 make ifelse :exact ["guess.exact] ["guess.inexact] :num
-move list ifelse :exact [15] [40] 12
+move list ifelse :exact [15] [35] 12
 setpc 0 filled 0 [repeat 4 [fd 20 rt 90]]
 setpc 7 label :num
 ; type :num setcursor :cursor
@@ -366,7 +374,7 @@ ifelse equal? :guess :secret [
 ] [
     move [15 12]
     setpc 7 label exact :secret :guess
-    move [40 12]
+    move [35 12]
     setpc 7 label inexact :secret :guess
     newguess
 ]

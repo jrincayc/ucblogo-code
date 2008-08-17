@@ -112,36 +112,53 @@ end
 
 to caption :corner :size :caption
 if emptyp :caption [stop]
-localmake "halfx (first :labelcharsize)/2
-localmake "y (last :labelcharsize)
+localmake "oldscrunch scrunch
+if not namep "caption.scrunch [localmake "caption.scrunch 1]
+localmake "myscrunch map [? * :caption.scrunch] :oldscrunch
+localmake "y (last :labelcharsize)*:caption.scrunch
 setpc 7
 ifelse listp :caption [
   button.offset :corner 0 ((14-:y)+((last :size)-25)/3)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label last :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
   button.offset :corner 0 ((14-:y)+:y+2*((last :size)-25)/3)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label first :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
 ] [
   button.offset :corner 0 ((17-:y)+((last :size)-17)/2)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
 ]
 end
 
 to center.caption :corner :size :caption
 if emptyp :caption [stop]
-localmake "halfx (first :labelcharsize)/2
-localmake "y (last :labelcharsize)
+localmake "oldscrunch scrunch
+if not namep "caption.scrunch [localmake "caption.scrunch 1]
+localmake "myscrunch map [? * :caption.scrunch] :oldscrunch
+localmake "halfx (first :labelcharsize)*:caption.scrunch/2
+localmake "y (last :labelcharsize)*:caption.scrunch
 setpc 7
 ifelse listp :caption [
   button.offset :corner (1+(first :size)/2-:halfx*(count last :caption)) ~
                         ((14-:y)+((last :size)-25)/3)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label last :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
   button.offset :corner (1+(first :size)/2-:halfx*(count first :caption)) ~
                         ((14-:y)+:y+2*((last :size)-25)/3)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label first :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
 ] [
   button.offset :corner (1+(first :size)/2-:halfx*(count :caption)) ~
                         ((17-:y)+((last :size)-17)/2)
+  if :caption.scrunch <> 1 [apply "setscrunch :myscrunch]
   label :caption
+  if :caption.scrunch <> 1 [apply "setscrunch :oldscrunch]
 ]
 end
 

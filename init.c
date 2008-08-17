@@ -436,6 +436,9 @@ PRIMTYPE prims[] = {
     {"test", 1, 1, 1, PREFIX_PRIORITY, ltest},
     {"text", 1, 1, 1, PREFIX_PRIORITY, ltext},
     {"textscreen", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
+#ifdef HAVE_WX
+    {"textsize", 0, 0, 0, PREFIX_PRIORITY, ltextsize},
+#endif
     {"thing", 1, 1, 1, PREFIX_PRIORITY, lthing},
     {"throw", 1, 1, 2, PREFIX_PRIORITY, lthrow},
     {"to", -1, -1, -1, PREFIX_PRIORITY, lto},

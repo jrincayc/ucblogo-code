@@ -234,6 +234,9 @@ NODE *lsettextsize(NODE *arg) {
   return(UNBOUND);
 }
 
+NODE *ltextsize(NODE *arg) {
+  return make_intnode(wx_font_size);
+}
 
 extern void wx_adjust_label_height();
 extern int label_height;
