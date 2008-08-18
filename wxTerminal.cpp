@@ -70,7 +70,7 @@ int input_current_pos = 0;
 
 //history storage
 char *cmdHistory[HIST_MAX] = {0};
-char **hist_inptr = cmdHistory, **hist_outptr = cmdHistory;
+char **hist_inptr, **hist_outptr; 
 
 #if 0
 //temporary storage of currently typed input
@@ -805,6 +805,8 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
   curr_char_pos.offset = 0;
   //curr_char_pos line_length not used!
 
+  //initializing history
+  hist_inptr = hist_outptr = cmdHistory; 
 
   m_width = width;
   m_height = height;
