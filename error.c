@@ -259,10 +259,10 @@ NODE *lpause(NODE *args) {
 #endif
 
     if (err_mesg != NIL) err_print(NULL);
- /* if (ufun != NIL) */ {
+    ndprintf(stdout, "%t\n", message_texts[PAUS_ING]);
+    if (inside_evaluator) {
 	uname = ufun;
 	ufun = NIL;
-	ndprintf(stdout, "%t\n", message_texts[PAUS_ING]);
 #ifndef TIOCSTI
 	memcpy((char *)(&sav_iblk), (char *)(&iblk_buf), sizeof(jmp_buf));
 #endif
@@ -315,7 +315,11 @@ NODE *lpause(NODE *args) {
 /*  } else {
 	stopping_flag = THROWING;
 	throw_node = theName(Name_toplevel);
- */ }
+ */
+    } else {
+	ndprintf(stdout, "? ");
+	flushFile(stdout);
+}
     return(val);
 }
 

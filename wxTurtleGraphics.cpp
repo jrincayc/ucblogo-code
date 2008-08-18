@@ -49,9 +49,9 @@ DECLARE_EVENT_TABLE_ENTRY( \
 // Globals
 // ----------------------------------------------------------------------------
 
-#ifndef WIN32
+//#ifndef WIN32
 char* LogoPlatformName="wxWidgets";
-#endif
+//#endif
 
 float fillScale;
 
