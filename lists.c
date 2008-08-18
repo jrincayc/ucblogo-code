@@ -233,7 +233,7 @@ NODE *lrawascii(NODE *args) {
     return(val);
 }
 
-NODE *lbackslashedp(NODE *args) {
+NODE *lvbarredp(NODE *args) {
     char i;
     NODE *arg;
 

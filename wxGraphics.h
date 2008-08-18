@@ -110,7 +110,7 @@ pen_info* getPen();
  */
 
 #define pen_width                xgr_pen->pw
-#define pen_height               xgr_pen->ph
+#define pen_height               xgr_pen->pw	/* not ph, which isn't set */
 #define pen_color                xgr_pen->color
 #define pen_mode                 xgr_pen->pen_md
 #define pen_vis                  xgr_pen->vis

@@ -88,8 +88,6 @@ PRIMTYPE prims[] = {
 #endif
     {"back", 1, 1, 1, PREFIX_PRIORITY, lback},
     {"background", 0, 0, 0, PREFIX_PRIORITY, lbackground},
-    {"backslashedp", 1, 1, 1, PREFIX_PRIORITY, lbackslashedp},
-    {"backslashed?", 1, 1, 1, PREFIX_PRIORITY, lbackslashedp},
     {"beforep", 2, 2, 2, PREFIX_PRIORITY, lbeforep},
     {"before?", 2, 2, 2, PREFIX_PRIORITY, lbeforep},
     {"bf", 1, 1, 1, PREFIX_PRIORITY, lbutfirst},
@@ -455,6 +453,8 @@ PRIMTYPE prims[] = {
     {"unstep", 1, 1, 1, PREFIX_PRIORITY, lunstep},
     {"untrace", 1, 1, 1, PREFIX_PRIORITY, luntrace},
     {"uppercase", 1, 1, 1, PREFIX_PRIORITY, luppercase},
+    {"vbarredp", 1, 1, 1, PREFIX_PRIORITY, lvbarredp},
+    {"vbarred?", 1, 1, 1, PREFIX_PRIORITY, lvbarredp},
     {"wait", 1, 1, 1, PREFIX_PRIORITY, lwait},
     {"window", 0, 0, 0, PREFIX_PRIORITY, lwindow},
     {"word", 0, 2, -1, PREFIX_PRIORITY, lword},

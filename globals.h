@@ -311,7 +311,7 @@ extern NODE *llist(NODE *);
 extern NODE *lemptyp(NODE *);
 extern NODE *lascii(NODE *);
 extern NODE *lrawascii(NODE *);
-extern NODE *lbackslashedp(NODE *);
+extern NODE *lvbarredp(NODE *);
 extern NODE *lchar(NODE *);
 extern NODE *lcount(NODE *);
 extern NODE *lfput(NODE *);

@@ -535,31 +535,31 @@ FLONUM wrap_down(FLONUM d, FLONUM x1, FLONUM y1, FLONUM x2, FLONUM y2) {
     return(0.0);
 }
 
-NODE *lforward(NODE *arg) {
-    NODE *val;
-    FLONUM d;
-    
-    val = numeric_arg(arg);
+FLONUM get_number(NODE *arg) {
+    NODE *val = numeric_arg(arg);
+
     if (NOT_THROWING) {
 	if (nodetype(val) == INT)
-	    d = (FLONUM)getint(val);
+	    return (FLONUM)getint(val);
 	else
-	    d = getfloat(val);
+	    return getfloat(val);
+    } else return 0.0;
+}
+
+
+NODE *lforward(NODE *arg) {
+    FLONUM d = get_number(arg);
+
+    if (NOT_THROWING) {
 	forward(d);
     }
     return(UNBOUND);
 }
 
 NODE *lback(NODE *arg) {
-    NODE *val;
-    FLONUM d;
-    
-    val = numeric_arg(arg);
+    FLONUM d = get_number(arg);
+
     if (NOT_THROWING) {
-	if (nodetype(val) == INT)
-	    d = (FLONUM)getint(val);
-	else
-	    d = getfloat(val);
 	forward(-d);
     }
     return(UNBOUND);
@@ -666,7 +666,7 @@ NODE *pos_int_vector_arg(NODE *args) {
 }
 
 NODE *rgb_arg(NODE *args) {
-	return vec_arg_helper(args,FALSE,TRUE);
+	return vec_arg_helper(args,TRUE,TRUE);
 }
 
 FLONUM towards_helper(FLONUM x, FLONUM y, FLONUM from_x, FLONUM from_y) {
@@ -1122,9 +1122,9 @@ NODE *lsetpalette(NODE *args) {
 	} else if (NOT_THROWING && ((slotnum > 7) || (slotnum < 0))) {
 		prepare_to_draw;
 		set_palette(slotnum,
-			    (unsigned int)getint(car(arg)),
-			    (unsigned int)getint(cadr(arg)),
-			    (unsigned int)getint(car(cddr(arg))));
+		    (unsigned int)(get_number(car(arg))*65536/100.0),
+		    (unsigned int)(get_number(cadr(arg))*65536/100.0),
+		    (unsigned int)(get_number(car(cddr(arg)))*65536/100.0));
 		if (pen_color == slotnum) {
 		    set_pen_color(slotnum);
 		}
@@ -1134,6 +1134,15 @@ NODE *lsetpalette(NODE *args) {
 	return(UNBOUND);
 }
 
+NODE *make_rgbnode(unsigned int val) {
+    FLONUM result=val * 100.0 / 65536.0;
+
+    if (result == round(result)) 
+	return make_intnode((FIXNUM)result);
+    else
+	return make_floatnode(result);
+}
+
 NODE *lpalette(NODE *args) {
     NODE *arg = integer_arg(args);
     unsigned int r=0, g=0, b=0;
@@ -1141,9 +1150,9 @@ NODE *lpalette(NODE *args) {
     if (getint(arg) < -SPECIAL_COLORS) err_logo(BAD_DATA_UNREC, arg);
     if (NOT_THROWING) {
 	get_palette((int)getint(arg), &r, &g, &b);
-	return cons(make_intnode((FIXNUM)r),
-			cons(make_intnode((FIXNUM)g),
-				cons(make_intnode((FIXNUM)b), NIL)));
+	return cons(make_rgbnode(r), 
+			cons(make_rgbnode(g),
+				cons(make_rgbnode(b), NIL)));
     }
     return UNBOUND;
 }

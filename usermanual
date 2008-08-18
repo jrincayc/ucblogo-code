@@ -350,26 +350,21 @@ part of the last word on the line, and the line continues onto the following
 line.  To include a backslash in a word, use \\.  If the combination
 backslash-newline is entered at the terminal, Logo will issue a backslash as
 a prompt character for the continuation line.  All of this applies to data
-lines read with READWORD or READLIST as well as to instruction lines.  A
-character entered with backslash is EQUALP to the same character without the
-backslash, but can be distinguished by the BACKSLASHEDP predicate.
-(However, BACKSLASHEDP recgnizes backslashedness only on characters for
-which it is necessary: whitespace, parentheses, brackets, infix operators,
-backslash, vertical bar, tilde, quote, question mark, colon, and semicolon.)
+lines read with READWORD or READLIST as well as to instruction lines.
 
 A line read with READRAWLINE has no special quoting mechanism; both
 backslash and vertical bar (described below) are just ordinary characters.
 
-An alternative notation to include otherwise delimiting characters in words
-is to enclose a group of characters in vertical bars.  All characters between
+An alternative notation to include otherwise delimiting characters in words is
+to enclose a group of characters in vertical bars.  All characters between
 vertical bars are treated as if they were letters.  In data read with READWORD
 the vertical bars are preserved in the resulting word.  In data read with
 READLIST (or resulting from a PARSE or RUNPARSE of a word) the vertical bars
 do not appear explicitly; all potentially delimiting characters (including
-spaces, brackets, parentheses, and infix operators) appear as though entered
-with a backslash.  Within vertical bars, backslash may still be used; the only
-characters that must be backslashed in this context are backslash and vertical
-bar themselves.
+spaces, brackets, parentheses, and infix operators) appear unmarked, but
+tokenized as though they were letters.  Within vertical bars, backslash may
+still be used; the only characters that must be backslashed in this context
+are backslash and vertical bar themselves.
 
 Characters entered between vertical bars are forever special, even if the
 word or list containing them is later reparsed with PARSE or RUNPARSE.
@@ -387,6 +382,12 @@ will print 5, but
 
 will create a variable whose name is open-parenthesis.  (Each example would
 fail if vertical bars and backslashes were interchanged.)
+
+A character entered with backslash is EQUALP to the same character without the
+backslash, but can be distinguished by the VBARREDP predicate.  (However,
+VBARREDP returns TRUE only for characters for which special treatment is
+necessary: whitespace, parentheses, brackets, infix operators, backslash,
+vertical bar, tilde, quote, question mark, colon, and semicolon.)
 
 
 DATA STRUCTURE PRIMITIVES
@@ -591,33 +592,33 @@ MDSETITEM indexlist array value				(library procedure)
 .SETFIRST list value
 
 	command.  Changes the first member of "list" to be "value".
-	WARNING: Primitives whose names start with a period are DANGEROUS.
-	Their use by non-experts is not recommended.  The use of .SETFIRST
-	can lead to circular list structures, which will get some Logo
-	primitives into infinite loops; unexpected changes to other data
-	structures that share storage with the list being modified; and
-	the loss of memory if a circular structure is released.
+
+	WARNING:  Primitives whose names start with a period are DANGEROUS.
+	Their use by non-experts is not recommended.  The use of .SETFIRST can
+	lead to circular list structures, which will get some Logo primitives
+	into infinite loops, and to unexpected changes to other data
+	structures that share storage with the list being modified.
 
 .SETBF list value
 
 	command.  Changes the butfirst of "list" to be "value".
+
 	WARNING: Primitives whose names start with a period are DANGEROUS.
-	Their use by non-experts is not recommended.  The use of .SETBF
-	can lead to circular list structures, which will get some Logo
-	primitives into infinite loops; unexpected changes to other data
-	structures that share storage with the list being modified; Logo
-	crashes and coredumps if the butfirst of a list is not itself a list;
-	and the loss of memory if a circular structure is released.
+	Their use by non-experts is not recommended.  The use of .SETBF can
+	lead to circular list structures, which will get some Logo primitives
+	into infinite loops; unexpected changes to other data structures that
+	share storage with the list being modified; or to Logo crashes and
+	coredumps if the butfirst of a list is not itself a list.
 
 .SETITEM index array value
 
 	command.  Changes the "index"th member of "array" to be "value",
 	like SETITEM, but without checking for circularity.
+
 	WARNING: Primitives whose names start with a period are DANGEROUS.
 	Their use by non-experts is not recommended.  The use of .SETITEM
 	can lead to circular arrays, which will get some Logo primitives into
-	infinite loops; and the loss of memory if a circular
-	structure is released.
+	infinite loops.
 
 PUSH stackname thing					(library procedure)
 
@@ -732,14 +733,20 @@ NUMBER? thing
 
 	outputs TRUE if the input is a number, FALSE otherwise.
 
-BACKSLASHEDP char
-BACKSLASHED? char
+VBARREDP char
+VBARRED? char
+BACKSLASHEDP char                               (library procedure)
+BACKSLASHED? char                               (library procedure)
 
 	outputs TRUE if the input character was originally entered into Logo
-	with a backslash (\) before it or within vertical bars (|) to prevent
-	its usual special syntactic meaning, FALSE otherwise.  (Outputs TRUE
-	only if the character is a backslashed space, tab, newline, or one of
-	()[]+-*/=<>":;\~?| )
+	within vertical bars (|) to prevent its usual special syntactic
+	meaning, FALSE otherwise.  (Outputs TRUE only if the character is a
+	backslashed space, tab, newline, or one of ()[]+-*/=<>":;\~?| )
+
+	The names BACKSLASHEDP and BACKSLASHED? are included in the Logo
+	library for backward compatibility with the former names of this
+	primitive, although it does *not* output TRUE for characters
+	originally entered with backslashes.
 
 
 QUERIES
@@ -756,8 +763,8 @@ ASCII char
 
 	outputs the integer (between 0 and 255) that represents the input
 	character in the ASCII code.  Interprets control characters as
-	representing backslashed punctuation, and returns the character code
-	for the corresponding punctuation character without backslash.
+	representing vbarred punctuation, and returns the character code
+	for the corresponding punctuation character without vertical bars.
 	(Compare RAWASCII.)
 
 RAWASCII char
@@ -794,17 +801,17 @@ STANDOUT thing
 
 	outputs a word that, when printed, will appear like the input but
 	displayed in standout mode (boldface, reverse video, or whatever your
-	terminal does for standout).  The word contains terminal-specific
+	version does for standout).  The word contains machine-specific
 	magic characters at the beginning and end; in between is the printed
 	form (as if displayed using TYPE) of the input.  The output is always
 	a word, even if the input is of some other type, but it may include
 	spaces and other formatting characters.  Note: a word output by
-	STANDOUT while Logo is running on one terminal will probably not have
-	the desired effect if printed on another type of terminal.
+	STANDOUT while Logo is running on one machine will probably not have
+	the desired effect if printed on another type of machine.
 
-	On the Macintosh, the way that standout works is incompatible with
-	the use of characters whose ASCII code is greater than 127.  Therefore,
-	you have a choice to make:  The instruction
+	In the Macintosh classic version, the way that standout works is
+	incompatible with the use of characters whose ASCII code is greater
+	than 127.  Therefore, you have a choice to make:  The instruction
 		CANINVERSE 0
 	disables standout, but enables the display of ASCII codes above 127,
 	and the instruction
@@ -862,7 +869,7 @@ PR thing
 (PR thing1 thing2 ...)
 
 	command.  Prints the input or inputs to the current write stream
-	(initially the terminal).  All the inputs are printed on a single
+	(initially the screen).  All the inputs are printed on a single
 	line, separated by spaces, ending with a newline.  If an input is a
 	list, square brackets are not printed around it, but brackets are
 	printed around sublists.  Braces are always printed around arrays.
@@ -900,7 +907,7 @@ RECEIVERS
 READLIST
 RL
 
-	reads a line from the read stream (initially the terminal) and
+	reads a line from the read stream (initially the keyboard) and
 	outputs that line as a list.  The line is separated into members as
 	though it were typed in square brackets in an instruction.  If the
 	read stream is a file, and the end of file is reached, READLIST
@@ -922,11 +929,7 @@ RW
 	the output word DOES include the tilde and the newline characters, so
 	that the user program can tell exactly what the user entered.
 	Vertical bars in the line are also preserved in the output.
-	Backslash characters are not preserved in the output, but the
-	character following the backslash has 128 added to its
-	representation.  Programs can use BACKSLASHEDP to check for this
-	code.  (Backslashedness is preserved only for certain
-	characters.  See BACKSLASHEDP.)
+	Backslash characters are not preserved in the output.
 
 READRAWLINE
 
@@ -944,7 +947,7 @@ RC
 	reads a single character from the read stream and outputs that
 	character as a word.  If the read stream is a file, and the end of
 	file is reached, READCHAR outputs the empty list (not the empty
-	word).  If the read stream is a terminal, echoing is turned off
+	word).  If the read stream is the keyboard, echoing is turned off
 	when READCHAR is invoked, and remains off until READLIST or READWORD
 	is invoked or a Logo prompt is printed.  Backslash, vertical bar,
 	and tilde characters have no special meaning in this context.
@@ -982,12 +985,16 @@ SHELL command
 	This is "first first" to extract the first word of the first (and
 	only) line of the shell output.
 
+	Under MacOS X, SHELL works as under Unix.  SHELL is not available
+	under Mac Classic.
+
 	Under DOS, SHELL is a command, not an operation; it sends its
 	input to a DOS command processor but does not collect the result
 	of the command.
 
-	The Macintosh, of course, is not programmable (unless you are
-	running the Unix version of UCBLogo under OS X).
+	Under Windows, the wxWidgets version of Logo behaves as under Unix (except
+	that DOS-style commands are understood; use "dir" rather than "ls").
+	The non-wxWidgets version behaves like the DOS version.
 
 
 FILE ACCESS
@@ -999,7 +1006,7 @@ SETPREFIX string
 	of filenames in OPENREAD, OPENWRITE, OPENAPPEND, OPENUPDATE, LOAD,
 	and SAVE commands.  Logo will put the appropriate separator
 	character (slash for Unix, backslash for DOS/Windows, colon for
-	MacOS) between the prefix and the filename entered by the user.
+	MacOS Classic) between the prefix and the filename entered by the user.
 	The input to SETPREFIX must be a word, unless it is the empty list,
 	to indicate that there should be no prefix.
 
@@ -1095,7 +1102,7 @@ SETREAD filename
 	command.  Makes the named file the read stream, used for READLIST,
 	etc.  The file must already be open with OPENREAD or OPENUPDATE.  If
 	the input is the empty list, then the read stream becomes the
-	terminal, as usual.  Changing the read stream does not close the
+	keyboard, as usual.  Changing the read stream does not close the
 	file that was previously the read stream, so it is possible to
 	alternate between files.
 
@@ -1104,7 +1111,7 @@ SETWRITE filename
 	command.  Makes the named file the write stream, used for PRINT,
 	etc.  The file must already be open with OPENWRITE, OPENAPPEND, or
 	OPENUPDATE.  If the input is the empty list, then the write stream
-	becomes the terminal, as usual.  Changing the write stream does
+	becomes the screen, as usual.  Changing the write stream does
 	not close the file that was previously the write stream, so it is
 	possible to alternate between files.
 
@@ -1131,7 +1138,7 @@ READER
 WRITER
 
 	outputs the name of the current write stream file, or the empty list
-	if the write stream is the terminal.
+	if the write stream is the screen.
 
 SETREADPOS charpos
 
@@ -1139,7 +1146,7 @@ SETREADPOS charpos
 	next READLIST, etc., will begin reading at the "charpos"th character
 	in the file, counting from 0.  (That is, SETREADPOS 0 will start
 	reading from the beginning of the file.)  Meaningless if the read
-	stream is the terminal.
+	stream is the screen.
 
 SETWRITEPOS charpos
 
@@ -1147,7 +1154,7 @@ SETWRITEPOS charpos
 	next PRINT, etc., will begin writing at the "charpos"th character
 	in the file, counting from 0.  (That is, SETWRITEPOS 0 will start
 	writing from the beginning of the file.)  Meaningless if the write
-	stream is the terminal.
+	stream is the screen.
 
 READPOS
 
@@ -1189,23 +1196,23 @@ KEY?
 CLEARTEXT
 CT
 
-	command.  Clears the text screen of the terminal.
+	command.  Clears the text window.
 
 SETCURSOR vector
 
 	command.  The input is a list of two numbers, the x and y
-	coordinates of a screen position (origin in the upper left
-	corner, positive direction is southeast).  The screen cursor
+	coordinates of a text window position (origin in the upper left
+	corner, positive direction is southeast).  The text cursor
 	is moved to the requested position.  This command also forces
 	the immediate printing of any buffered characters.
 
 CURSOR
 
 	outputs a list containing the current x and y coordinates of
-	the screen cursor.  Logo may get confused about the current
+	the text cursor.  Logo may get confused about the current
 	cursor position if, e.g., you type in a long line that wraps
 	around or your program prints escape codes that affect the
-	terminal strangely.
+	screen strangely.
 
 SETMARGINS vector
 
@@ -1225,16 +1232,16 @@ SETMARGINS vector
 SETTEXTCOLOR foreground background
 SETTC foreground background
 
-	command (Windows and DOS extended only).  The inputs are color
-	numbers, as for turtle graphics.  Future printing to the text window
-	will use the specified colors for foreground (the characters
+	command (non-wxWidgets Windows and DOS extended only).  The inputs are
+	color numbers, as for turtle graphics.  Future printing to the text
+	window will use the specified colors for foreground (the characters
 	printed) and background (the space under those characters).  Using
-	STANDOUT will revert to the default text window colors.  In the
-	DOS extended (ucblogo.exe) version, colors in textscreen mode are
-	limited to numbers 0-7, and the coloring applies only to text
-	printed by the program, not to the echoing of text typed by the
-	user.  Neither limitation applies to the text portion of splitscreen
-	mode, which is actually drawn as graphics internally.
+	STANDOUT will revert to the default text window colors.  In the DOS
+	extended (ucblogo.exe) version, colors in textscreen mode are limited
+	to numbers 0-7, and the coloring applies only to text printed by the
+	program, not to the echoing of text typed by the user.  Neither
+	limitation applies to the text portion of splitscreen mode, which is
+	actually drawn as graphics internally.
 
 INCREASEFONT
 DECREASEFONT
@@ -1638,13 +1645,13 @@ RT degrees
 
 SETPOS pos
 
-	moves the turtle to an absolute screen position.  The input
-	is a list of two numbers, the X and Y coordinates.
+	moves the turtle to an absolute position in the graphics window.  The
+	input is a list of two numbers, the X and Y coordinates.
 
 SETXY xcor ycor
 
-	moves the turtle to an absolute screen position.  The two
-	inputs are numbers, the X and Y coordinates.
+	moves the turtle to an absolute position in the graphics window.  The
+	two inputs are numbers, the X and Y coordinates.
 
 SETX xcor
 
@@ -1809,11 +1816,12 @@ FS
 	available in the graphics window.  The details differ among machines.
 	Compare SPLITSCREEN and TEXTSCREEN.
 
-	In the DOS version, switching from fullscreen to splitscreen loses
-	the part of the picture that's hidden by the text window.  Also,
-	since there must be a text window to allow printing (including the
+	Since there must be a text window to allow printing (including the
 	printing of the Logo prompt), Logo automatically switches from
-	fullscreen to splitscreen whenever anything is printed.  [This design
+	fullscreen to splitscreen whenever anything is printed.
+
+	In the DOS version, switching from fullscreen to splitscreen loses the
+	part of the picture that's hidden by the text window.  [This design
 	decision follows from the scarcity of memory, so that the extra memory
 	to remember an invisible part of a drawing seems too expensive.]
 
@@ -1840,23 +1848,27 @@ SETSCRUNCH xscale yscale
 	used for the LABEL command to try to keep the height of characters
 	scaled with the vertical turtle step size.
 
-	For Unix machines Macintoshes, and Windows machines, both scale
-	factors are initially 1.  For DOS machines, the scale factors are
+	For all modern computers For DOS machines, the scale factors are
 	initially set according to what the hardware claims the aspect ratio
-	is, but the hardware sometimes lies.  The values set by SETSCRUNCH are
-	remembered in a file (called SCRUNCH.DAT) and are automatically put
-	into effect when a Logo session begins.
+	is, but the hardware sometimes lies.  For DOS, the values set by
+	SETSCRUNCH are remembered in a file (called SCRUNCH.DAT) and are
+	automatically put into effect when a Logo session begins.
 
 REFRESH
 
-	tells Logo to remember the turtle's motions so that they can be
-	reconstructed in case the graphics window is overlayed.  The
-	effectiveness of this command may depend on the machine used.
+	(command) tells Logo to remember the turtle's motions so that they
+	can be used for high-resolution printing (wxWidgets) or to refresh
+	the graphics window if it is moved, resized, or overlayed
+	(non-wxWidgets).  This is the default.
 
 NOREFRESH
 
-	tells Logo not to remember the turtle's motions.  This will make
-	drawing faster, but prevents recovery if the window is overlayed.
+	(command) tells Logo not to remember the turtle's motions, which may
+	be useful to save time and memory if your program is interactive or
+	animated, rather than drawing a static picture you'll want to print
+	later (wxWidgets).  In non-wxWidgets versions, using NOREFRESH may
+	prevent Logo from restoring the graphics image after the window is
+	moved, resized, or overlayed.
 
 
 TURTLE AND WINDOW QUERIES
@@ -1923,7 +1935,7 @@ PENREVERSE
 PX
 
 	sets the pen's position to DOWN and mode to REVERSE.
-	(This may interact in hardware-dependent ways with use of color.)
+	(This may interact in system-dependent ways with use of color.)
 
 SETPENCOLOR colornumber.or.rgblist
 SETPC colornumber.or.rgblist
@@ -1938,18 +1950,17 @@ SETPC colornumber.or.rgblist
 
 	but other colors can be assigned to numbers by the PALETTE command.
 	Alternatively, sets the pen color to the given RGB values (a list of
-	three nonnegative integers less than 64K (65536) specifying the amount
-	of red, green, and blue in the desired color).
+	three nonnegative numbers less than 100 specifying the percent
+	saturation of red, green, and blue in the desired color).
 
 SETPALETTE colornumber rgblist
 
 	sets the actual color corresponding to a given number, if allowed by
 	the hardware and operating system.  Colornumber must be an integer
 	greater than or equal to 8.  (Logo tries to keep the first 8 colors
-	constant.)  The second input is a list of three nonnegative integers
-	less than 64K (65536) specifying the amount of red, green, and blue in
-	the desired color.  The actual color resolution on any screen is
-	probably less than 64K, but Logo scales as needed.
+	constant.)  The second input is a list of three nonnegative numbers
+	less than 100 specifying the percent saturation of red, green, and
+	blue in the desired color.
 
 SETPENSIZE size
 
@@ -2007,9 +2018,20 @@ PC
 
 PALETTE colornumber
 
-	outputs a list of three integers, each in the range 0-65535,
-	representing the amount of red, green, and blue in the color
-	associated with the given number.
+	outputs a list of three nonnegative numbers less than 100 specifying
+	the percent saturation of red, green, and blue in the color associated
+	with the given number.
+
+PENSIZE
+
+
+	outputs a list of two positive integers, specifying the horizontal
+	and vertical thickness of the turtle pen.  (In some implementations,
+	including wxWidgets, the two numbers are always equal.)
+
+PENPATTERN
+
+	outputs system-specific pen information.
 
 PEN							(library procedure)
 
@@ -2070,7 +2092,7 @@ CLICKPOS
 
 	outputs the coordinates that the mouse was at when a mouse button
 	was most recently pushed, provided that that position was within the
-	graphics window, in turtle coordinates.
+	graphics window, in turtle coordinates.  (wxWidgets only)
 
 BUTTONP
 BUTTON?
@@ -2161,7 +2183,7 @@ TO procname :input1 :input2 ...				(special form)
 
 	This is a rest input rather than an optional input because there
 	is no default value expression.  There can be at most one rest
-	input.  When the procedure is invoked, the value of this input
+	input.  When the procedure is invoked, the value of this inputname
 	will be a list containing all of the actual inputs provided that
 	were not used for required or optional inputs.  Example:
 
@@ -2245,11 +2267,7 @@ COPYDEF newname oldname
 	The latter may be a primitive.  If "newname" was already defined,
 	its previous definition is lost.  If "newname" was already a
 	primitive, the redefinition is not permitted unless the variable
-	REDEFP has the value TRUE.  Definitions created by COPYDEF are
-	not saved by SAVE; primitives are never saved, and user-defined
-	procedures created by COPYDEF are buried.  (You are likely to be
-	confused if you PO or POT a procedure defined with COPYDEF because
-	its title line will contain the old name.  This is why it's buried.)
+	REDEFP has the value TRUE.
 
 	Note: dialects of Logo differ as to the order of inputs to COPYDEF.
 	This dialect uses "MAKE order," not "NAME order."
@@ -2371,8 +2389,7 @@ DEFINEDP name
 DEFINED? name
 
 	outputs TRUE if the input is the name of a user-defined procedure,
-	including a library procedure.  (However, Logo does not know about
-	a library procedure until that procedure has been invoked.)
+	including a library procedure.
 
 NAMEP name
 NAME? name
