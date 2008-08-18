@@ -286,9 +286,13 @@ public:
 
   void handle_backspace();
   void handle_home();
+  void handle_end();
   void handle_clear_to_end();
   void handle_history_prev();
   void handle_history_next();
+  void handle_left();
+  void handle_right();
+
 
 
 private:

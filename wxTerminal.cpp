@@ -1264,34 +1264,25 @@ wxTerminal::OnChar(wxKeyEvent& event)
     handle_history_next();
   }
   else if  (keyCode == WXK_LEFT) { // left    
-    if(input_current_pos > 0) {
-      if (cursor_x - 1 < 0) {	  
-	//if previous char is a newline, then cursor goes to line_length
-	//otherwise, it's a wrapped line, and should go to the end
-	// just use min...
-	wxterm_linepos cpos = GetLinePosition(cursor_y - 1);
-	setCursor(min(x_max, line_of(cpos).line_length), cursor_y - 1);   
-      }   
-      else {
-	setCursor(cursor_x - 1, cursor_y);
-      }
-      input_current_pos--;
-    }
+    handle_left();
   }
   else if  (keyCode == WXK_RIGHT) { // right
-    if(input_current_pos < input_index) {
-      if (input_buffer[input_current_pos] == '\n' ||
-	  cursor_x + 1 > x_max) {
-	setCursor(0, cursor_y + 1);
-      }
-      else {
-	setCursor(cursor_x + 1, cursor_y);	  
-      }
-      input_current_pos++;
-    }
+    handle_right();
   }
   else if (keyCode == WXK_TAB) { // tab
     //do nothing for now. could be tab completion later.
+  }
+  else if  (keyCode == WXK_DELETE) { // DEL key
+    if(input_current_pos < input_index) {
+      handle_right();
+      handle_backspace();
+    }
+  }
+  else if  (keyCode == WXK_HOME) {  //HOME key
+    handle_home();
+  }
+  else if  (keyCode == WXK_END) {  //END key
+    handle_end();
   }
   else if (keyCode >= WXK_START) {
     /* ignore it */
@@ -1416,6 +1407,11 @@ void wxTerminal::handle_backspace() {
 void wxTerminal::handle_home() {
   setCursor(last_logo_x, last_logo_y);
   input_current_pos = 0;
+}
+
+void wxTerminal::handle_end() {
+  setCursor(last_input_x, last_input_y);
+  input_current_pos = input_index;
 }
 
 void wxTerminal::handle_clear_to_end() {
@@ -1562,6 +1558,36 @@ void wxTerminal::handle_history_next() {
   last_input_x = cursor_x;
   last_input_y = cursor_y;	
 }
+
+void wxTerminal::handle_left() {
+  if(input_current_pos > 0) {
+    if (cursor_x - 1 < 0) {	  
+      //if previous char is a newline, then cursor goes to line_length
+      //otherwise, it's a wrapped line, and should go to the end
+      // just use min...
+      wxterm_linepos cpos = GetLinePosition(cursor_y - 1);
+      setCursor(min(x_max, line_of(cpos).line_length), cursor_y - 1);   
+    }   
+    else {
+      setCursor(cursor_x - 1, cursor_y);
+    }
+    input_current_pos--;
+  }
+}
+
+void wxTerminal::handle_right() {
+  if(input_current_pos < input_index) {
+    if (input_buffer[input_current_pos] == '\n' ||
+	cursor_x + 1 > x_max) {
+      setCursor(0, cursor_y + 1);
+    }
+    else {
+      setCursor(cursor_x + 1, cursor_y);	  
+    }
+    input_current_pos++;
+  }
+}
+
 
 void wxTerminal::setCursor (int x, int y, bool fromLogo) {
 
