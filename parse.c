@@ -72,8 +72,10 @@ FILE *dribblestream = NULL;
 int input_blocking = 0;
 NODE *deepend_proc_name = NIL;
 
+#if 0
 char *cmdHistory[HIST_MAX] = {0};
 char **hist_inptr, **hist_outptr;
+#endif
 int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
@@ -373,6 +375,7 @@ charmode_off();
     if (phys_line == p_line) return(Null_Word); /* so emptyp works */
     ret = make_strnode(p_line, (struct string_block *)NULL, (int)strlen(p_line),
 		       this_type, strnzcpy);
+#if 0
     if (strm == stdin && !strcmp(prompt, "? ")){
 	char *histline = malloc(1+strlen(p_line));
 	strcpy(histline, p_line);
@@ -386,6 +389,7 @@ charmode_off();
 	}
 	hist_outptr = hist_inptr;
     }
+#endif
 
     //added (evan)
     readingInstruction = 0;

@@ -128,8 +128,10 @@ extern NODE *parser(NODE *, BOOLEAN);
 extern NODE *lparse(NODE *);
 extern NODE *runparse(NODE *);
 extern NODE *lrunparse(NODE *);
+#if 0
 extern char *cmdHistory[];
 extern char **hist_inptr, **hist_outptr;
+#endif
 
 /* math.c */
 extern int numberp(NODE *);

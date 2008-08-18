@@ -630,7 +630,7 @@ extern "C" void wx_adjust_label_height() {
     if(curr_diff < 0) curr_diff = -curr_diff;
     if(tmp_diff < 0) tmp_diff = -tmp_diff;
 
-    fprintf(stderr, "ph: %d, ch: %d, th: %d \n", px_height, ch, tmp_height);
+    fprintf(stderr, "ph: %d, cpt: %d, ch: %d, tpt: %d, th: %d \n", px_height, label_font.GetPointSize(), ch, tmp_font.GetPointSize(), tmp_height);
     if(curr_diff < tmp_diff) {
         m_memDC->SetFont(label_font);
     }

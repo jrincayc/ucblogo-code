@@ -33,8 +33,8 @@ class TurtleWindowPrintout: public wxPrintout
 #define WXTERM_LB_SIZE 1000
 
 struct wxterm_char_buffer {
-  unsigned char cbuf[WXTERM_CB_SIZE];       //characters
-  unsigned char mbuf[WXTERM_CB_SIZE];       //mode flags
+  char cbuf[WXTERM_CB_SIZE];       //characters
+  char mbuf[WXTERM_CB_SIZE];       //mode flags
   wxterm_char_buffer *next; //next part of buffer
 } ;
 
@@ -137,8 +137,6 @@ struct wxterm_linepos {
   int m_inputLines;
   bool m_inputReady; //whether ENTER was hit.
 
-  unsigned char
-    m_curChar;
 
   bool
     m_selecting;
@@ -260,7 +258,7 @@ public:
   void EnableScrolling(bool want_scrolling);
     
   virtual void DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
-                        int x, int y, int len, unsigned char *string);
+                        int x, int y, int len, char *string);
 
 //  virtual void MoveChars(int sx, int sy, int dx, int dy, int w, int h);
 //  virtual void ClearChars(int bg_color, int x, int y, int w, int h);
@@ -273,18 +271,25 @@ public:
   void DebugOutputBuffer();
   void InsertChar(char c);
   void NextLine();
-  virtual void PassInputToTerminal(int len, unsigned char *data);
+  virtual void PassInputToTerminal(int len, char *data);
 
   wxString *get_text();
 
   void ClearScreen();
 
   virtual void SelectPrinter(char *PrinterName);
-  virtual void PrintChars(int len, unsigned char *data);
+  virtual void PrintChars(int len, char *data);
 
 
   //TurtleCanvas passes char to here.
   void OnChar(wxKeyEvent& event);
+
+  void handle_backspace();
+  void handle_home();
+  void handle_clear_to_end();
+  void handle_history_prev();
+  void handle_history_next();
+
 
 private:
   int MapKeyCode(int keyCode);

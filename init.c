@@ -807,7 +807,7 @@ nosugar:
     Regs_Node = newnode(STACK);
     Regs_Node->n_car = (NODE *)&regs;
 
-hist_inptr = hist_outptr = cmdHistory;
+//hist_inptr = hist_outptr = cmdHistory;
 
 #ifdef OBJECTS
     obj_init();
