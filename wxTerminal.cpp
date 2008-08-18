@@ -437,19 +437,19 @@ void LogoFrame::SetUpMenu(){
 	menuBar->Append(editMenu, _T("&Edit"));
 
 	wxMenu *logoMenu = new wxMenu;
-#ifdef __WXMSW__
-	editMenu->Append(Menu_Edit_Copy, _T("Copy \tCtrl-C"));
-	editMenu->Append(Menu_Edit_Paste, _T("Paste \tCtrl-V"));
-
-	logoMenu->Append(Menu_Logo_Pause, _T("Pause \tCtrl-P"));
-	logoMenu->Append(Menu_Logo_Stop, _T("Stop \tCtrl-S"));	
-#else
+// #ifdef __WXMSW__
+// 	editMenu->Append(Menu_Edit_Copy, _T("Copy \tCtrl-C"));
+// 	editMenu->Append(Menu_Edit_Paste, _T("Paste \tCtrl-V"));
+// 
+// 	logoMenu->Append(Menu_Logo_Pause, _T("Pause \tCtrl-P"));
+// 	logoMenu->Append(Menu_Logo_Stop, _T("Stop \tCtrl-S"));	
+// #else
 	editMenu->Append(Menu_Edit_Copy, _T("Copy \tCtrl-C"));
 	editMenu->Append(Menu_Edit_Paste, _T("Paste \tCtrl-V"));
 
 	logoMenu->Append(Menu_Logo_Pause, _T("Pause \tAlt-P"));
 	logoMenu->Append(Menu_Logo_Stop, _T("Stop \tAlt-S"));
-#endif
+// #endif
 	menuBar->Append(logoMenu, _T("&Logo"));
 	
 	wxMenu *fontMenu = new wxMenu;

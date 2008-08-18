@@ -2408,6 +2408,11 @@ PLIST? name
 QUERIES
 -------
 
+Note:  All procedures whose input is indicated as "contentslist" will
+accept a single word (taken as a procedure name), a list of words (taken
+as names of procedures), or a list of three lists as described under
+the CONTENTS command above.
+
 CONTENTS
 
 	outputs a "contents list," i.e., a list of three lists containing
@@ -2471,12 +2476,6 @@ PLLIST plnamelist
 	a list of the name or names given as input.  This is useful in
 	conjunction with workspace control procedures that require a contents
 	list as input.
-
-
-Note:  All procedures whose input is indicated as "contentslist" will
-accept a single word (taken as a procedure name), a list of words (taken
-as names of procedures), or a list of three lists as described under
-the CONTENTS command above.
 
 ARITY procedurename
 
@@ -2692,7 +2691,10 @@ ED contentslist
 
 	command.  If invoked with an input, EDIT writes the definitions
 	of the named items into a temporary file and edits that file, using
-	your favorite editor as determined by the EDITOR environment
+	an editor that depends on the platform you're using.  In wxWidgets,
+	and in the MacOS Classic version, there is an editor built into Logo.
+	In the non-wxWidgets versions for Unix, MacOS X, Windows, and DOS,
+	Logo uses your favorite editor as determined by the EDITOR environment
 	variable.  If you don't have an EDITOR variable, edits the
 	definitions using jove.  If invoked without an input, EDIT edits
 	the same file left over from a previous EDIT or EDITFILE instruction.
@@ -2871,7 +2873,7 @@ GC
 .SETSEGMENTSIZE num
 
 	command.  Sets the number of nodes that Logo allocates from the
-	operating system at once to num, which mush be a positive integer.
+	operating system at once to num, which must be a positive integer.
 	The name is dotted because bad things will happen if you use a
 	number that's too small or too large for your computer.  The
 	initial value is 16,000 for most systems, but is smaller for
@@ -2933,6 +2935,10 @@ REPCOUNT
 	outputs the repetition count of the innermost current REPEAT or
 	FOREVER, starting from 1.  If no REPEAT or FOREVER is active,
 	outputs -1.
+
+	The abbreviation # can be used for REPCOUNT unless the REPEAT is
+	inside the template input to a higher order procedure such as
+	FOREACH, in which case # has a different meaning.
 
 IF tf instructionlist
 (IF tf instructionlist1 instructionlist2)

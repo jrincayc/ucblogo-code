@@ -4540,6 +4540,11 @@ rather than giving an error message.)
 * NODES::                       
 @end menu
 
+Note:  All procedures whose input is indicated as @var{contentslist} will
+accept a single word (taken as a procedure name), a list of words (taken
+as names of procedures), or a list of three lists as described under the
+@code{CONTENTS} command above.
+
 @node CONTENTS, BURIED, WORKSPACE QUERIES, WORKSPACE QUERIES
 @unnumberedsubsec contents
 @cindex contents
@@ -4665,11 +4670,6 @@ outputs a contents list consisting of two empty lists followed by a list
 of the name or names given as input.  This is useful in conjunction with
 workspace control procedures that require a contents list as input.
 
-Note:  All procedures whose input is indicated as @var{contentslist} will
-accept a single word (taken as a procedure name), a list of words (taken
-as names of procedures), or a list of three lists as described under the
-@code{CONTENTS} command above.
-
 @xref{CONTENTS} .
 
 @node ARITY, NODES, PLLIST, WORKSPACE QUERIES
@@ -4696,13 +4696,13 @@ NODES
 outputs a list of two numbers.  The first represents the number of nodes
 of memory currently in use.  The second shows the maximum number of
 nodes that have been in use at any time since the last invocation of
-NODES.  (A node is a small block of computer memory as used by Logo.
+@code{NODES}.  (A node is a small block of computer memory as used by Logo.
 Each number uses one node.  Each non-numeric word uses one node, plus
 some non-node memory for the characters in the word.  Each array takes
 one node, plus some non-node memory, as well as the memory required by
 its elements.  Each list requires one node per element, as well as the
 memory within the elements.)  If you want to track the memory use of an
-algorithm, it is best if you invoke GC at the beginning of each
+algorithm, it is best if you invoke @code{GC} at the beginning of each
 iteration, since otherwise the maximum will include storage that is
 unused but not yet collected.
 
@@ -4833,7 +4833,7 @@ POT contentslist
 command.  Prints the title lines of the named procedures and the
 definitions of the named variables and property lists.  For property
 lists, the entire list is shown on one line instead of as a series of
-PPROP instructions as in PO.
+@code{PPROP} instructions as in @code{PO}.
 
 @xref{PPROP} ,
 @ref{PO} .
@@ -4982,7 +4982,7 @@ ERN varnamelist
 @end example
 
 command.  Erases from the workspace the variable(s) named in the input.
-Abbreviates @w{@t{ERASE NAMELIST varname(list)}}.
+Abbreviates @w{@t{ERASE NAMELIST @var{varname(list)}}}.
 
 @xref{ERASE} ,
 @ref{NAMELIST} .
@@ -4997,7 +4997,7 @@ ERPL plnamelist
 @end example
 
 command.  Erases from the workspace the property list(s) named in the
-input.  Abbreviates @w{@t{ERASE PLLIST plname(list)}}.
+input.  Abbreviates @w{@t{ERASE PLLIST @var{plname(list)}}}.
 
 @xref{ERASE} ,
 @ref{PLLIST} .
@@ -5012,9 +5012,9 @@ BURY contentslist
 
 command.  Buries the procedures, variables, and property lists named in
 the input.  A buried item is not included in the lists output by
-CONTENTS, PROCEDURES, VARIABLES, and PLISTS, but is included in the list
-output by BURIED.  By implication, buried things are not printed by
-POALL or saved by SAVE.
+@code{CONTENTS}, @code{PROCEDURES}, @code{VARIABLES}, and @code{PLISTS}, but is included in the list
+output by @code{BURIED}.  By implication, buried things are not printed by
+@code{POALL} or saved by @code{SAVE}.
 
 @xref{CONTENTS} ,
 @ref{PROCEDURES} ,
@@ -5044,7 +5044,7 @@ BURYNAME varname				(library procedure)
 BURYNAME varnamelist
 @end example
 
-command.  Abbreviates @t{BURY NAMELIST varname(list)}.
+command.  Abbreviates @t{BURY NAMELIST @code{varname(list)}}.
 
 @xref{BURY} ,
 @ref{NAMELIST} .
@@ -5059,7 +5059,7 @@ UNBURY contentslist
 
 command.  Unburies the procedures, variables, and property lists named
 in the input.  That is, the named items will be returned to view in
-CONTENTS, etc.
+@code{CONTENTS}, etc.
 
 @xref{CONTENTS} .
 
@@ -5084,7 +5084,7 @@ UNBURYNAME varname				(library procedure)
 UNBURYNAME varnamelist
 @end example
 
-command.  Abbreviates @t{UNBURY NAMELIST varname(list)}.
+command.  Abbreviates @t{UNBURY NAMELIST @var{varname(list)}}.
 
 @xref{UNBURY} ,
 @ref{NAMELIST} .
@@ -5104,7 +5104,7 @@ outputs @code{TRUE} if the first procedure, variable, or property list named in
 the contents list is buried, @code{FALSE} if not.  Only the first thing in the
 list is tested; the most common use will be with a word as input, naming
 a procedure, but a contents list is allowed so that you can @code{BURIEDP [[]
-[VARIABLE]]} or @code{BURIEDP [[] [] [PROPLIST]]}.
+[@var{variable}]]} or @code{BURIEDP [[] [] [@var{proplist}]]}.
 
 
 
@@ -5118,10 +5118,10 @@ TRACE contentslist
 
 command.  Marks the named items for tracing.  A message is printed
 whenever a traced procedure is invoked, giving the actual input values,
-and whenever a traced procedure STOPs or OUTPUTs.  A message is printed
-whenever a new value is assigned to a traced variable using MAKE.  A
+and whenever a traced procedure @code{STOP}s or @code{OUTPUT}s.  A message is printed
+whenever a new value is assigned to a traced variable using @code{MAKE}.  A
 message is printed whenever a new property is given to a traced property
-list using PPROP.
+list using @code{PPROP}.
 
 @xref{STOP} ,
 @ref{OUTPUT} ,
@@ -5153,7 +5153,7 @@ outputs @code{TRUE} if the first procedure, variable, or property list named in
 the contents list is traced, @code{FALSE} if not.  Only the first thing in the
 list is tested; the most common use will be with a word as input, naming
 a procedure, but a contents list is allowed so that you can @code{TRACEDP [[]
-[VARIABLE]]} or @code{TRACEDP [[] [] [PROPLIST]]}.
+[@var{variable}]]} or @code{TRACEDP [[] [] [@var{proplist}]]}.
 
 
 @node STEP, UNSTEP, TRACEDP, WORKSPACE CONTROL
@@ -5168,7 +5168,8 @@ command.  Marks the named items for stepping.  Whenever a stepped
 procedure is invoked, each instruction line in the procedure body is
 printed before being executed, and Logo waits for the user to type a
 newline at the terminal.  A message is printed whenever a stepped
-variable name is @samp{shadowed} because a local variable of the same name is created either as a procedure input or by the LOCAL command.
+variable name is @dfn{shadowed} because a local variable of the same name is
+created either as a procedure input or by the @code{LOCAL} command.
 
 @xref{LOCAL} .
 
@@ -5198,7 +5199,7 @@ outputs @code{TRUE} if the first procedure, variable, or property list named in
 the contents list is stepped, @code{FALSE} if not.  Only the first thing in the
 list is tested; the most common use will be with a word as input, naming
 a procedure, but a contents list is allowed so that you can @code{STEPPEDP [[]
-[VARIABLE]]} or @code{STEPPEDP [[] [] [PROPLIST]]}.
+[@var{variable}]]} or @code{STEPPEDP [[] [] [@var{proplist}]]}.
 
 
 
@@ -5216,27 +5217,30 @@ ED contentslist
 (ED)
 @end example
 
-command.  If invoked with an input, EDIT writes the definitions of the
-named items into a temporary file and edits that file, using your
-favorite editor as determined by the @env{EDITOR} environment variable.
-If you don't have an @env{EDITOR} variable, edits the definitions using
-jove.  If invoked without an input, EDIT edits the same file left over
-from a previous EDIT or EDITFILE instruction.  When you leave the
-editor, Logo reads the revised definitions and modifies the workspace
-accordingly.  It is not an error if the input includes names for which
-there is no previous definition.
+command.  If invoked with an input, @code{EDIT} writes the definitions of the
+named items into a temporary file and edits that file, using an editor that
+depends on the platform you're using.  In wxWidgets, and in the MacOS Classic
+version, there is an editor built into Logo.  In the non-wxWidgets versions
+for Unix, MacOS X, Windows, and DOS, Logo uses your favorite editor as
+determined by the @env{EDITOR} environment variable.  If you don't have an
+@env{EDITOR} variable, edits the definitions using @command{jove}.  If invoked
+without an input, @code{EDIT} edits the same file left over from a previous
+@codw{EDIT} or @code{EDITFILE} instruction.  When you leave the editor, Logo
+reads the revised definitions and modifies the workspace accordingly.  It is
+not an error if the input includes names for which there is no previous
+definition.
 
 If there is a variable @code{LOADNOISILY} whose value is @code{TRUE}, then,
-after leaving the editor, TO commands in the temporary file print
-"PROCNAME defined" (where PROCNAME is the name of the procedure being
-defined); if @code{LOADNOISILY} is @code{FALSE} or undefined, TO commands in the
-file are carried out silently.
+after leaving the editor, @code{TO} commands in the temporary file print
+@samp{@var{procname} defined} (where @var{procname} is the name of the
+procedure being defined); if @code{LOADNOISILY} is @code{FALSE} or undefined,
+@code{TO} commands in the file are carried out silently.
 
 If there is an environment variable called @env{TEMP}, then Logo uses its
 value as the directory in which to write the temporary file used for
 editing.
 
-Exceptionally, the EDIT command can be used without its default input
+Exceptionally, the @code{EDIT} command can be used without its default input
 and without parentheses provided that nothing follows it on the
 instruction line.
 
@@ -5252,15 +5256,19 @@ instruction line.
 EDITFILE filename
 @end example
 
-command.  Starts the Logo editor, like EDIT, but instead of editing a
-temporary file it edits the file specified by the input.  When you leave
-the editor, Logo reads the revised file, as for EDIT.  EDITFILE also
-remembers the filename, so that a subsequent EDIT command with no input
-will re-edit the same file.
+command.  Starts the Logo editor, like @code{EDIT}, but instead of editing a
+temporary file it edits the file specified by the input.  When you leave the
+editor, Logo reads the revised file, as for @code{EDIT}.  @code{EDITFILE} also
+remembers the filename, so that a subsequent @code{EDIT} command with no input will
+re-edit the same file.
 
-EDITFILE is intended as an alternative to LOAD and SAVE.  You can
-maintain a workspace file yourself, controlling the order in which
+@code{EDITFILE} is intended as an alternative to @code{LOAD} and @code{SAVE}.
+You can maintain a workspace file yourself, controlling the order in which
 definitions appear, maintaining comments in the file, and so on.
+
+In the wxWidgets version, @code{EDITFILE} asks whether or not you want to
+load the file into Logo when you finish editing.  This allows you to use
+@code{EDITFILE} to edit data files without leaving Logo.
 
 
 @node EDALL, EDPS, EDITFILE, WORKSPACE CONTROL
@@ -5323,7 +5331,7 @@ EDN varname					(library procedure)
 EDN varnamelist
 @end example
 
-command.  Abbreviates @t{EDIT NAMELIST varname(list)}.
+command.  Abbreviates @t{EDIT NAMELIST @var{varname(list)}}.
 
 @xref{EDIT} , 
 @ref{NAMELIST} .
@@ -5337,7 +5345,7 @@ EDPL plname					(library procedure)
 EDPL plnamelist
 @end example
 
-command.  Abbreviates @t{EDIT PLLIST plname(list)}.
+command.  Abbreviates @t{EDIT PLLIST @var{plname(list)}}.
 
 @xref{EDIT} , 
 @ref{PLLIST} .
@@ -5365,6 +5373,11 @@ close :filename
 end
 @end example
 
+Exceptionally, @code{SAVE} can be used with no input and without parentheses
+if it is the last thing on the command line.  In this case, the
+filename from the most recent @code{LOAD} or @code{SAVE} command will be used.  (It
+is an error if there has been no previous @code{LOAD} or @code{SAVE}.)
+
 @node SAVEL, LOAD, SAVE, WORKSPACE CONTROL
 @unnumberedsubsec savel
 @cindex savel
@@ -5384,15 +5397,15 @@ property lists specified by @var{contentslist} to the file named @var{filename}.
 LOAD filename
 @end example
 
-command.  Reads instructions from the named file and executes them.  The
-file can include procedure definitions with TO, and these are accepted
-even if a procedure by the same name already exists.  If the file
-assigns a list value to a variable named @code{STARTUP}, then that list
-is run as an instructionlist after the file is loaded. If there is a
-variable @code{LOADNOISILY} whose value is @code{TRUE}, then TO commands in the
-file print "PROCNAME defined" (where PROCNAME is the name of the
-procedure being defined); if @code{LOADNOISILY} is @code{FALSE} or undefined, TO
-commands in the file are carried out silently.
+command.  Reads instructions from the named file and executes them.  The file
+can include procedure definitions with @code{TO}, and these are accepted even
+if a procedure by the same name already exists.  If the file assigns a list
+value to a variable named @code{STARTUP}, then that list is run as an
+instructionlist after the file is loaded. If there is a variable
+@code{LOADNOISILY} whose value is @code{TRUE}, then @code{TO} commands in the
+file print @samp{@var{procname} defined} (where @var{procname} is the name of
+the procedure being defined); if @code{LOADNOISILY} is @code{FALSE} or
+undefined, @code{TO} commands in the file are carried out silently.
 
 @xref{STARTUP} ,
 @xref{LOADNOISILY} .
@@ -5406,7 +5419,7 @@ commands in the file are carried out silently.
 CSLSLOAD name
 @end example
 
-command.  Loads the named file, like LOAD, but from the directory
+command.  Loads the named file, like @code{LOAD}, but from the directory
 containing the Computer Science Logo Style programs instead of the
 current user's directory.
 
@@ -5428,12 +5441,12 @@ primitives about which help is available.  If there is an environment
 variable @env{LOGOHELP}, then its value is taken as the directory in which to
 look for help files, instead of the default help directory.
 
-If HELP is called with the name of a defined procedure for which there
+If @code{HELP} is called with the name of a defined procedure for which there
 is no help file, it will print the title line of the procedure
 followed by lines from the procedure body that start with semicolon,
 stopping when a non-semicolon line is seen.
 
-Exceptionally, the HELP command can be used without its default input
+Exceptionally, the @code{HELP} command can be used without its default input
 and without parentheses provided that nothing follows it on the
 instruction line.
 
@@ -5471,7 +5484,7 @@ on your operating system.
 SETCSLSLOC path
 @end example
 
-command.  Tells Logo to use the specified directory for the CSLSLOAD
+command.  Tells Logo to use the specified directory for the @code{CSLSLOAD}
 command, instead of the default directory.  The format of a path
 depends on your operating system.
 
@@ -5514,15 +5527,15 @@ GC
 command.  Runs the garbage collector, reclaiming unused nodes.  Logo
 does this when necessary anyway, but you may want to use this command to
 control exactly when Logo does it.  In particular, the numbers output by
-the NODES operation will not be very meaningful unless garbage has been
-collected.  Another reason to use GC is that a garbage collection takes
+the @code{NODES} operation will not be very meaningful unless garbage has been
+collected.  Another reason to use @code{GC} is that a garbage collection takes
 a noticeable fraction of a second, and you may want to schedule
 collections for times before or after some time-critical animation.  If
-invoked with an argument (of any value), GC runs a full garbage
-collection, including GCTWA (Garbage Collect Truly Worthless Atoms,
+invoked with an argument (of any value), @code{GC} runs a full garbage
+collection, including @acronym{GCTWA} (Garbage Collect Truly Worthless Atoms,
 which means that it removes from Logo's memory words that used to be
 procedure or variable names but aren't any more); without an argument,
-GC does a generational garbage collection, which means that only
+@code{GC} does a generational garbage collection, which means that only
 recently created nodes are examined.  (The latter is usually good
 enough.)
 
@@ -5536,7 +5549,7 @@ enough.)
 @end example
 
 command.  Sets the number of nodes that Logo allocates from the
-operating system at once to num, which mush be a positive integer.
+operating system at once to @var{num}, which must be a positive integer.
 The name is dotted because bad things will happen if you use a
 number that's too small or too large for your computer.  The
 initial value is 16,000 for most systems, but is smaller for
@@ -5557,15 +5570,25 @@ allocating more memory than necessary.
 @node CONTROL, TEMPLATE-BASED ITERATION, CONTROL STRUCTURES, CONTROL STRUCTURES
 @section Control
 
-Note: in the following descriptions, an @dfn{instructionlist} can be a list
-or a word.  In the latter case, the word is parsed into list form before
-it is run.  Thus, @t{RUN READWORD} or @t{RUN READLIST} will work.  The former is slightly preferable because it allows for a continued line (with ~) that
-includes a comment (with ;) on the first line.
+Note: in the following descriptions, an @dfn{instructionlist} can be a list or
+a word.  In the latter case, the word is parsed into list form before it is
+run.  Thus, @w{@t{RUN READWORD}} or @w{@t{RUN READLIST}} will work.  The
+former is slightly preferable because it allows for a continued line (with @code{~})
+that includes a comment (with @code{;}) on the first line.
 
 A @var{tf} input must be the word @code{TRUE}, the word @code{FALSE}, or a list.  If it's a
 list, then it must be a Logo expression, which will be evaluated to produce
 a value that must be @code{TRUE} or @code{FALSE}.  The comparisons with @code{TRUE} and @code{FALSE}
 are always case-insensitive.
+
+A runlist can consist of either a single expression (that produces a value)
+or zero or more instructions (that do something, rather than output a value),
+depending on the context:
+
+@example
+PRINT IFELSE :X<0 ["NEGATIVE] ["POSITIVE]  ; one value in each case
+REPEAT 4 [PRINT "A PRINT "B]  ; two instructions
+@end example
 
 @menu
 * RUN::                         
@@ -5655,7 +5678,7 @@ FOREVER instructionlist
 @end example
 
 command.  Runs the "instructionlist" repeatedly, until something inside
-the instructionlist (such as STOP or THROW) makes it stop.
+the instructionlist (such as @code{STOP} or @code{THROW}) makes it stop.
 
 @xref{STOP} ,
 @xref{THROW} .
@@ -5669,9 +5692,13 @@ the instructionlist (such as STOP or THROW) makes it stop.
 REPCOUNT
 @end example
 
-outputs the repetition count of the innermost current REPEAT or FOREVER,
-starting from 1.  If no REPEAT or FOREVER is active, outputs --1.
+outputs the repetition count of the innermost current @code{REPEAT} or
+@code{FOREVER}, starting from 1.  If no @code{REPEAT} or @code{FOREVER}
+is active, outputs --1.
 
+The abbreviation @code{#} can be used for @code{REPCOUNT} unless the
+@code{REPEAT} is inside the template input to a higher order procedure
+such as @code{FOREACH}, in which case @code{#} has a different meaning.
 
 @node IF, IFELSE, REPCOUNT, CONTROL
 @unnumberedsubsec if
@@ -5682,16 +5709,16 @@ IF tf instructionlist
 (IF tf instructionlist1 instructionlist2)
 @end example
 
-command.  If the first input has the value @code{TRUE}, then IF runs the second
-input.  If the first input has the value @code{FALSE}, then IF does nothing.
-(If given a third input, IF acts like IFELSE, as described below.)  It
+command.  If the first input has the value @code{TRUE}, then @code{IF} runs the second
+input.  If the first input has the value @code{FALSE}, then @code{IF} does nothing.
+(If given a third input, IF acts like @code{IFELSE}, as described below.)  It
 is an error if the first input is not either @code{TRUE} or @code{FALSE}.
 
-For compatibility with earlier versions of Logo, if an IF instruction is
+For compatibility with earlier versions of Logo, if an @code{IF} instruction is
 not enclosed in parentheses, but the first thing on the instruction line
 after the second input expression is a literal list (i.e., a list in
-square brackets), the IF is treated as if it were IFELSE, but a warning
-message is given.  If this aberrant IF appears in a procedure body, the
+square brackets), the @code{IF} is treated as if it were @code{IFELSE}, but a warning
+message is given.  If this aberrant @code{IF} appears in a procedure body, the
 warning is given only the first time the procedure is invoked in each
 Logo session.
 
@@ -5704,9 +5731,9 @@ IFELSE tf instructionlist1 instructionlist2
 @end example
 
 command or operation.  If the first input has the value @code{TRUE}, then
-IFELSE runs the second input.  If the first input has the value @code{FALSE},
-then IFELSE runs the third input.  IFELSE outputs a value if the
-instructionlist contains an expression that outputs a value.
+@code{IFELSE} runs the second input.  If the first input has the value @code{FALSE},
+then @code{IFELSE} runs the third input.  @code{IFELSE} outputs a value if the
+@var{instructionlist} contains an expression that outputs a value.
 
 @node TEST, IFTRUE, IFELSE, CONTROL
 @unnumberedsubsec test
@@ -5716,10 +5743,10 @@ instructionlist contains an expression that outputs a value.
 TEST tf
 @end example
 
-command.  Remembers its input, which must be @code{TRUE} or @code{FALSE}, for use by
-later IFTRUE or IFFALSE instructions.  The effect of TEST is local to
-the procedure in which it is used; any corresponding IFTRUE or IFFALSE
-must be in the same procedure or a subprocedure.
+command.  Remembers its input, which must be @code{TRUE} or @code{FALSE}, for
+use by later @code{IFTRUE} or @code{IFFALSE} instructions.  The effect of
+@code{TEST} is local to the procedure in which it is used; any corresponding
+@code{IFTRUE} or @code{IFFALSE} must be in the same procedure or a subprocedure.
 
 @xref{IFFALSE} .
 
@@ -5733,8 +5760,8 @@ IFTRUE instructionlist
 IFT instructionlist
 @end example
 
-command.  Runs its input if the most recent TEST instruction had a @code{TRUE}
-input.  The TEST must have been in the same procedure or a
+command.  Runs its input if the most recent @code{TEST} instruction had a @code{TRUE}
+input.  The @code{TEST} must have been in the same procedure or a
 superprocedure.
 
 @node IFFALSE, STOP, IFTRUE, CONTROL
@@ -5747,8 +5774,8 @@ IFFALSE instructionlist
 IFF instructionlist
 @end example
 
-command.  Runs its input if the most recent TEST instruction had a @code{FALSE}
-input.  The TEST must have been in the same procedure or a
+command.  Runs its input if the most recent @code{TEST} instruction had a @code{FALSE}
+input.  The @code{TEST} must have been in the same procedure or a
 superprocedure.
 
 @xref{TEST} .
@@ -5777,8 +5804,8 @@ OP value
 
 command.  Ends the running of the procedure in which it appears.  That
 procedure outputs the value @var{value} to the context in which it was
-invoked.  Don't be confused: OUTPUT itself is a command, but the
-procedure that invokes OUTPUT is an operation.
+invoked.  Don't be confused: @code{OUTPUT} itself is a command, but the
+procedure that invokes @code{OUTPUT} is an operation.
 
 @node CATCH, THROW, OUTPUT, CONTROL
 @unnumberedsubsec catch
@@ -5789,20 +5816,20 @@ CATCH tag instructionlist
 @end example
 
 command or operation.  Runs its second input.  Outputs if that
-instructionlist outputs.  If, while running the instructionlist, a THROW
-instruction is executed with a tag equal to the first input
-(case-insensitive comparison), then the running of the instructionlist
-is terminated immediately.  In this case the CATCH outputs if a value
-input is given to THROW.  The @var{tag} must be a word.
+@var{instructionlist} outputs.  If, while running the instructionlist, a
+@code{THROW} instruction is executed with a tag equal to the first input
+(case-insensitive comparison), then the running of the @var{instructionlist} is
+terminated immediately.  In this case the @code{CATCH} outputs if a value input is
+given to @code{THROW}.  The @var{tag} must be a word.
 
-If the tag is the word ERROR, then any error condition that arises
-during the running of the instructionlist has the effect of THROW "ERROR
+If the tag is the word @code{ERROR}, then any error condition that arises
+during the running of the instructionlist has the effect of @w{@t{THROW "ERROR}}
 instead of printing an error message and returning to toplevel.  The
-CATCH does not output if an error is caught.  Also, during the running
+@code{CATCH} does not output if an error is caught.  Also, during the running
 of the instructionlist, the variable @code{ERRACT} is temporarily unbound.  (If
 there is an error while @code{ERRACT} has a value, that value is taken as an
 instructionlist to be run after printing the error message.  Typically
-the value of @code{ERRACT}, if any, is the list [PAUSE].)
+the value of @code{ERRACT}, if any, is the list @code{[PAUSE]}.)
 
 @xref{ERROR} ,
 @ref{ERRACT} ,
@@ -5817,11 +5844,11 @@ THROW tag
 (THROW tag value)
 @end example
 
-command.  Must be used within the scope of a CATCH with an equal tag.
-Ends the running of the instructionlist of the CATCH.  If THROW is used
-with only one input, the corresponding CATCH does not output a value.
-If THROW is used with two inputs, the second provides an output for the
-CATCH.
+command.  Must be used within the scope of a @code{CATCH} with an equal tag.
+Ends the running of the instructionlist of the @code{CATCH}.  If @code{THROW} is used
+with only one input, the corresponding @code{CATCH} does not output a value.
+If @code{THROW} is used with two inputs, the second provides an output for the
+@code{CATCH}.
 
 @w{@t{THROW "TOPLEVEL}} can be used to terminate all running procedures and
 interactive pauses, and return to the toplevel instruction prompt.

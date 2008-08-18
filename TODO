@@ -1,3 +1,5 @@
+Stop/pause on Windows should be ALT-{S,P} as on the other platforms
+
 mac: select font from menu doesn't work
 
 menu, open dialog
@@ -8,3 +10,5 @@ stripped libraries (but keep jpeg for snap/stamp?)
 editor stuff
 
 test without -O0
+
+usermanual.texi -- up to THROW "TOPLEVEL.
