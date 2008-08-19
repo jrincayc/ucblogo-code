@@ -49,6 +49,8 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
      *Minus_Sign, *Minus_Tight, *Startup, *Startuplg,
      *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
+extern char **hist_inptr, **hist_outptr;
+extern char *cmdHistory[HIST_MAX];
 
 PRIMTYPE prims[] = {
     {"*", 1, 1, 1, PREFIX_PRIORITY + 3, lmul},
@@ -807,7 +809,7 @@ nosugar:
     Regs_Node = newnode(STACK);
     Regs_Node->n_car = (NODE *)&regs;
 
-//hist_inptr = hist_outptr = cmdHistory;
+	hist_inptr = hist_outptr = cmdHistory;
 
 #ifdef OBJECTS
     obj_init();
