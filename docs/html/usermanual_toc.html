@@ -1,0 +1,565 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<html>
+<!-- Created on August, 19 2008 by texi2html 1.78 -->
+<!--
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
+
+-->
+<head>
+<title>BERKELEY LOGO 6.0: Table of Contents</title>
+
+<meta name="description" content="BERKELEY LOGO 6.0: Table of Contents">
+<meta name="keywords" content="BERKELEY LOGO 6.0: Table of Contents">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="texi2html 1.78">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+pre.display {font-family: serif}
+pre.format {font-family: serif}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: serif; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: serif; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.roman {font-family:serif; font-weight:normal;}
+span.sansserif {font-family:sans-serif; font-weight:normal;}
+ul.toc {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+<a name="SEC_Contents"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>Table of Contents</h1>
+<div class="contents">
+
+<ul class="toc">
+  <li><a name="TOC1" href="usermanual_1.html#SEC1">1. Introduction</a>
+  <ul class="toc">
+    <li><a name="TOC2" href="usermanual_1.html#SEC2">1.1 Overview</a></li>
+    <li><a name="TOC3" href="usermanual_1.html#SEC3">1.2 Getter/Setter Variable Syntax</a></li>
+    <li><a name="TOC4" href="usermanual_1.html#SEC4">1.3 Entering and Leaving Logo</a></li>
+    <li><a name="TOC5" href="usermanual_1.html#SEC5">1.4 Tokenization</a></li>
+  </ul></li>
+  <li><a name="TOC6" href="usermanual_2.html#SEC6">2. Data Structure Primitives</a>
+  <ul class="toc">
+    <li><a name="TOC7" href="usermanual_2.html#SEC7">2.1 Constructors</a>
+    <ul class="toc">
+      <li><a name="TOC8" href="usermanual_2.html#SEC8">word</a></li>
+      <li><a name="TOC9" href="usermanual_2.html#SEC9">list</a></li>
+      <li><a name="TOC10" href="usermanual_2.html#SEC10">sentence</a></li>
+      <li><a name="TOC11" href="usermanual_2.html#SEC11">fput</a></li>
+      <li><a name="TOC12" href="usermanual_2.html#SEC12">lput</a></li>
+      <li><a name="TOC13" href="usermanual_2.html#SEC13">array</a></li>
+      <li><a name="TOC14" href="usermanual_2.html#SEC14">mdarray</a></li>
+      <li><a name="TOC15" href="usermanual_2.html#SEC15">listtoarray</a></li>
+      <li><a name="TOC16" href="usermanual_2.html#SEC16">arraytolist</a></li>
+      <li><a name="TOC17" href="usermanual_2.html#SEC17">combine</a></li>
+      <li><a name="TOC18" href="usermanual_2.html#SEC18">reverse</a></li>
+      <li><a name="TOC19" href="usermanual_2.html#SEC19">gensym</a></li>
+    </ul></li>
+    <li><a name="TOC20" href="usermanual_2.html#SEC20">2.2 Data Selectors</a>
+    <ul class="toc">
+      <li><a name="TOC21" href="usermanual_2.html#SEC21">first</a></li>
+      <li><a name="TOC22" href="usermanual_2.html#SEC22">firsts</a></li>
+      <li><a name="TOC23" href="usermanual_2.html#SEC23">last</a></li>
+      <li><a name="TOC24" href="usermanual_2.html#SEC24">butfirst</a></li>
+      <li><a name="TOC25" href="usermanual_2.html#SEC25">butfirsts</a></li>
+      <li><a name="TOC26" href="usermanual_2.html#SEC26">butlast</a></li>
+      <li><a name="TOC27" href="usermanual_2.html#SEC27">item</a></li>
+      <li><a name="TOC28" href="usermanual_2.html#SEC28">mditem</a></li>
+      <li><a name="TOC29" href="usermanual_2.html#SEC29">pick</a></li>
+      <li><a name="TOC30" href="usermanual_2.html#SEC30">remove</a></li>
+      <li><a name="TOC31" href="usermanual_2.html#SEC31">remdup</a></li>
+      <li><a name="TOC32" href="usermanual_2.html#SEC32">quoted</a></li>
+    </ul></li>
+    <li><a name="TOC33" href="usermanual_2.html#SEC33">2.3 Data Mutators</a>
+    <ul class="toc">
+      <li><a name="TOC34" href="usermanual_2.html#SEC34">setitem</a></li>
+      <li><a name="TOC35" href="usermanual_2.html#SEC35">mdsetitem</a></li>
+      <li><a name="TOC36" href="usermanual_2.html#SEC36">.setfirst</a></li>
+      <li><a name="TOC37" href="usermanual_2.html#SEC37">.setbf</a></li>
+      <li><a name="TOC38" href="usermanual_2.html#SEC38">.setitem</a></li>
+      <li><a name="TOC39" href="usermanual_2.html#SEC39">push</a></li>
+      <li><a name="TOC40" href="usermanual_2.html#SEC40">pop</a></li>
+      <li><a name="TOC41" href="usermanual_2.html#SEC41">queue</a></li>
+      <li><a name="TOC42" href="usermanual_2.html#SEC42">dequeue</a></li>
+    </ul></li>
+    <li><a name="TOC43" href="usermanual_2.html#SEC43">2.4 Predicates</a>
+    <ul class="toc">
+      <li><a name="TOC44" href="usermanual_2.html#SEC44">wordp</a></li>
+      <li><a name="TOC45" href="usermanual_2.html#SEC45">listp</a></li>
+      <li><a name="TOC46" href="usermanual_2.html#SEC46">arrayp</a></li>
+      <li><a name="TOC47" href="usermanual_2.html#SEC47">emptyp</a></li>
+      <li><a name="TOC48" href="usermanual_2.html#SEC48">equalp</a></li>
+      <li><a name="TOC49" href="usermanual_2.html#SEC49">notequalp</a></li>
+      <li><a name="TOC50" href="usermanual_2.html#SEC50">beforep</a></li>
+      <li><a name="TOC51" href="usermanual_2.html#SEC51">.eq</a></li>
+      <li><a name="TOC52" href="usermanual_2.html#SEC52">memberp</a></li>
+      <li><a name="TOC53" href="usermanual_2.html#SEC53">substringp</a></li>
+      <li><a name="TOC54" href="usermanual_2.html#SEC54">numberp</a></li>
+      <li><a name="TOC55" href="usermanual_2.html#SEC55">vbarredp</a></li>
+    </ul></li>
+    <li><a name="TOC56" href="usermanual_2.html#SEC56">2.5 Queries</a>
+    <ul class="toc">
+      <li><a name="TOC57" href="usermanual_2.html#SEC57">count</a></li>
+      <li><a name="TOC58" href="usermanual_2.html#SEC58">ascii</a></li>
+      <li><a name="TOC59" href="usermanual_2.html#SEC59">rawascii</a></li>
+      <li><a name="TOC60" href="usermanual_2.html#SEC60">char</a></li>
+      <li><a name="TOC61" href="usermanual_2.html#SEC61">member</a></li>
+      <li><a name="TOC62" href="usermanual_2.html#SEC62">lowercase</a></li>
+      <li><a name="TOC63" href="usermanual_2.html#SEC63">uppercase</a></li>
+      <li><a name="TOC64" href="usermanual_2.html#SEC64">standout</a></li>
+      <li><a name="TOC65" href="usermanual_2.html#SEC65">parse</a></li>
+      <li><a name="TOC66" href="usermanual_2.html#SEC66">runparse</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC67" href="usermanual_3.html#SEC67">3. Communication</a>
+  <ul class="toc">
+    <li><a name="TOC68" href="usermanual_3.html#SEC68">3.1 Transmitters</a>
+    <ul class="toc">
+      <li><a name="TOC69" href="usermanual_3.html#SEC69">print</a></li>
+      <li><a name="TOC70" href="usermanual_3.html#SEC70">type</a></li>
+      <li><a name="TOC71" href="usermanual_3.html#SEC71">show</a></li>
+    </ul></li>
+    <li><a name="TOC72" href="usermanual_3.html#SEC72">3.2 Receivers</a>
+    <ul class="toc">
+      <li><a name="TOC73" href="usermanual_3.html#SEC73">readlist</a></li>
+      <li><a name="TOC74" href="usermanual_3.html#SEC74">readword</a></li>
+      <li><a name="TOC75" href="usermanual_3.html#SEC75">readrawline</a></li>
+      <li><a name="TOC76" href="usermanual_3.html#SEC76">readchar</a></li>
+      <li><a name="TOC77" href="usermanual_3.html#SEC77">readchars</a></li>
+      <li><a name="TOC78" href="usermanual_3.html#SEC78">shell</a></li>
+    </ul></li>
+    <li><a name="TOC79" href="usermanual_3.html#SEC79">3.3 File Access</a>
+    <ul class="toc">
+      <li><a name="TOC80" href="usermanual_3.html#SEC80">setprefix</a></li>
+      <li><a name="TOC81" href="usermanual_3.html#SEC81">prefix</a></li>
+      <li><a name="TOC82" href="usermanual_3.html#SEC82">openread</a></li>
+      <li><a name="TOC83" href="usermanual_3.html#SEC83">openwrite</a></li>
+      <li><a name="TOC84" href="usermanual_3.html#SEC84">openappend</a></li>
+      <li><a name="TOC85" href="usermanual_3.html#SEC85">openupdate</a></li>
+      <li><a name="TOC86" href="usermanual_3.html#SEC86">close</a></li>
+      <li><a name="TOC87" href="usermanual_3.html#SEC87">allopen</a></li>
+      <li><a name="TOC88" href="usermanual_3.html#SEC88">closeall</a></li>
+      <li><a name="TOC89" href="usermanual_3.html#SEC89">erasefile</a></li>
+      <li><a name="TOC90" href="usermanual_3.html#SEC90">dribble</a></li>
+      <li><a name="TOC91" href="usermanual_3.html#SEC91">nodribble</a></li>
+      <li><a name="TOC92" href="usermanual_3.html#SEC92">setread</a></li>
+      <li><a name="TOC93" href="usermanual_3.html#SEC93">setwrite</a></li>
+      <li><a name="TOC94" href="usermanual_3.html#SEC94">reader</a></li>
+      <li><a name="TOC95" href="usermanual_3.html#SEC95">writer</a></li>
+      <li><a name="TOC96" href="usermanual_3.html#SEC96">setreadpos</a></li>
+      <li><a name="TOC97" href="usermanual_3.html#SEC97">setwritepos</a></li>
+      <li><a name="TOC98" href="usermanual_3.html#SEC98">readpos</a></li>
+      <li><a name="TOC99" href="usermanual_3.html#SEC99">writepos</a></li>
+      <li><a name="TOC100" href="usermanual_3.html#SEC100">eofp</a></li>
+      <li><a name="TOC101" href="usermanual_3.html#SEC101">filep</a></li>
+    </ul></li>
+    <li><a name="TOC102" href="usermanual_3.html#SEC102">3.4 Terminal Access</a>
+    <ul class="toc">
+      <li><a name="TOC103" href="usermanual_3.html#SEC103">keyp</a></li>
+      <li><a name="TOC104" href="usermanual_3.html#SEC104">cleartext</a></li>
+      <li><a name="TOC105" href="usermanual_3.html#SEC105">setcursor</a></li>
+      <li><a name="TOC106" href="usermanual_3.html#SEC106">cursor</a></li>
+      <li><a name="TOC107" href="usermanual_3.html#SEC107">setmargins</a></li>
+      <li><a name="TOC108" href="usermanual_3.html#SEC108">settextcolor</a></li>
+      <li><a name="TOC109" href="usermanual_3.html#SEC109">increasefont</a></li>
+      <li><a name="TOC110" href="usermanual_3.html#SEC110">settextsize</a></li>
+      <li><a name="TOC111" href="usermanual_3.html#SEC111">textsize</a></li>
+      <li><a name="TOC112" href="usermanual_3.html#SEC112">setfont</a></li>
+      <li><a name="TOC113" href="usermanual_3.html#SEC113">font</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC114" href="usermanual_4.html#SEC114">4. Arithmetic</a>
+  <ul class="toc">
+    <li><a name="TOC115" href="usermanual_4.html#SEC115">4.1 Numeric Operations</a>
+    <ul class="toc">
+      <li><a name="TOC116" href="usermanual_4.html#SEC116">sum</a></li>
+      <li><a name="TOC117" href="usermanual_4.html#SEC117">difference</a></li>
+      <li><a name="TOC118" href="usermanual_4.html#SEC118">minus</a></li>
+      <li><a name="TOC119" href="usermanual_4.html#SEC119">product</a></li>
+      <li><a name="TOC120" href="usermanual_4.html#SEC120">quotient</a></li>
+      <li><a name="TOC121" href="usermanual_4.html#SEC121">remainder</a></li>
+      <li><a name="TOC122" href="usermanual_4.html#SEC122">modulo</a></li>
+      <li><a name="TOC123" href="usermanual_4.html#SEC123">int</a></li>
+      <li><a name="TOC124" href="usermanual_4.html#SEC124">round</a></li>
+      <li><a name="TOC125" href="usermanual_4.html#SEC125">sqrt</a></li>
+      <li><a name="TOC126" href="usermanual_4.html#SEC126">power</a></li>
+      <li><a name="TOC127" href="usermanual_4.html#SEC127">exp</a></li>
+      <li><a name="TOC128" href="usermanual_4.html#SEC128">log10</a></li>
+      <li><a name="TOC129" href="usermanual_4.html#SEC129">ln</a></li>
+      <li><a name="TOC130" href="usermanual_4.html#SEC130">sin</a></li>
+      <li><a name="TOC131" href="usermanual_4.html#SEC131">radsin</a></li>
+      <li><a name="TOC132" href="usermanual_4.html#SEC132">cos</a></li>
+      <li><a name="TOC133" href="usermanual_4.html#SEC133">radcos</a></li>
+      <li><a name="TOC134" href="usermanual_4.html#SEC134">arctan</a></li>
+      <li><a name="TOC135" href="usermanual_4.html#SEC135">radarctan</a></li>
+      <li><a name="TOC136" href="usermanual_4.html#SEC136">iseq</a></li>
+      <li><a name="TOC137" href="usermanual_4.html#SEC137">rseq</a></li>
+    </ul></li>
+    <li><a name="TOC138" href="usermanual_4.html#SEC138">4.2 Numeric Predicates</a>
+    <ul class="toc">
+      <li><a name="TOC139" href="usermanual_4.html#SEC139">lessp</a></li>
+      <li><a name="TOC140" href="usermanual_4.html#SEC140">greaterp</a></li>
+      <li><a name="TOC141" href="usermanual_4.html#SEC141">lessequalp</a></li>
+      <li><a name="TOC142" href="usermanual_4.html#SEC142">greaterequalp</a></li>
+    </ul></li>
+    <li><a name="TOC143" href="usermanual_4.html#SEC143">4.3 Random Numbers</a>
+    <ul class="toc">
+      <li><a name="TOC144" href="usermanual_4.html#SEC144">random</a></li>
+      <li><a name="TOC145" href="usermanual_4.html#SEC145">rerandom</a></li>
+    </ul></li>
+    <li><a name="TOC146" href="usermanual_4.html#SEC146">4.4 Print Formatting</a>
+    <ul class="toc">
+      <li><a name="TOC147" href="usermanual_4.html#SEC147">form</a></li>
+    </ul></li>
+    <li><a name="TOC148" href="usermanual_4.html#SEC148">4.5 Bitwise Operations</a>
+    <ul class="toc">
+      <li><a name="TOC149" href="usermanual_4.html#SEC149">bitand</a></li>
+      <li><a name="TOC150" href="usermanual_4.html#SEC150">bitor</a></li>
+      <li><a name="TOC151" href="usermanual_4.html#SEC151">bitxor</a></li>
+      <li><a name="TOC152" href="usermanual_4.html#SEC152">bitnot</a></li>
+      <li><a name="TOC153" href="usermanual_4.html#SEC153">ashift</a></li>
+      <li><a name="TOC154" href="usermanual_4.html#SEC154">lshift</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC155" href="usermanual_5.html#SEC155">5. Logical Operations</a>
+  <ul class="toc">
+
+    <ul class="toc">
+      <li><a name="TOC156" href="usermanual_5.html#SEC156">and</a></li>
+      <li><a name="TOC157" href="usermanual_5.html#SEC157">or</a></li>
+      <li><a name="TOC158" href="usermanual_5.html#SEC158">not</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC159" href="usermanual_6.html#SEC159">6. Graphics</a>
+  <ul class="toc">
+    <li><a name="TOC160" href="usermanual_6.html#SEC160">6.1 Turtle Motion</a>
+    <ul class="toc">
+      <li><a name="TOC161" href="usermanual_6.html#SEC161">forward</a></li>
+      <li><a name="TOC162" href="usermanual_6.html#SEC162">back</a></li>
+      <li><a name="TOC163" href="usermanual_6.html#SEC163">left</a></li>
+      <li><a name="TOC164" href="usermanual_6.html#SEC164">right</a></li>
+      <li><a name="TOC165" href="usermanual_6.html#SEC165">setpos</a></li>
+      <li><a name="TOC166" href="usermanual_6.html#SEC166">setxy</a></li>
+      <li><a name="TOC167" href="usermanual_6.html#SEC167">setx</a></li>
+      <li><a name="TOC168" href="usermanual_6.html#SEC168">sety</a></li>
+      <li><a name="TOC169" href="usermanual_6.html#SEC169">setheading</a></li>
+      <li><a name="TOC170" href="usermanual_6.html#SEC170">home</a></li>
+      <li><a name="TOC171" href="usermanual_6.html#SEC171">arc</a></li>
+    </ul></li>
+    <li><a name="TOC172" href="usermanual_6.html#SEC172">6.2 Turtle Motion Queries</a>
+    <ul class="toc">
+      <li><a name="TOC173" href="usermanual_6.html#SEC173">pos</a></li>
+      <li><a name="TOC174" href="usermanual_6.html#SEC174">xcor</a></li>
+      <li><a name="TOC175" href="usermanual_6.html#SEC175">ycor</a></li>
+      <li><a name="TOC176" href="usermanual_6.html#SEC176">heading</a></li>
+      <li><a name="TOC177" href="usermanual_6.html#SEC177">towards</a></li>
+      <li><a name="TOC178" href="usermanual_6.html#SEC178">scrunch</a></li>
+    </ul></li>
+    <li><a name="TOC179" href="usermanual_6.html#SEC179">6.3 Turtle and Window Control</a>
+    <ul class="toc">
+      <li><a name="TOC180" href="usermanual_6.html#SEC180">showturtle</a></li>
+      <li><a name="TOC181" href="usermanual_6.html#SEC181">hideturtle</a></li>
+      <li><a name="TOC182" href="usermanual_6.html#SEC182">clean</a></li>
+      <li><a name="TOC183" href="usermanual_6.html#SEC183">clearscreen</a></li>
+      <li><a name="TOC184" href="usermanual_6.html#SEC184">wrap</a></li>
+      <li><a name="TOC185" href="usermanual_6.html#SEC185">window</a></li>
+      <li><a name="TOC186" href="usermanual_6.html#SEC186">fence</a></li>
+      <li><a name="TOC187" href="usermanual_6.html#SEC187">fill</a></li>
+      <li><a name="TOC188" href="usermanual_6.html#SEC188">filled</a></li>
+      <li><a name="TOC189" href="usermanual_6.html#SEC189">label</a></li>
+      <li><a name="TOC190" href="usermanual_6.html#SEC190">setlabelheight</a></li>
+      <li><a name="TOC191" href="usermanual_6.html#SEC191">textscreen</a></li>
+      <li><a name="TOC192" href="usermanual_6.html#SEC192">fullscreen</a></li>
+      <li><a name="TOC193" href="usermanual_6.html#SEC193">splitscreen</a></li>
+      <li><a name="TOC194" href="usermanual_6.html#SEC194">setscrunch</a></li>
+      <li><a name="TOC195" href="usermanual_6.html#SEC195">refresh</a></li>
+      <li><a name="TOC196" href="usermanual_6.html#SEC196">norefresh</a></li>
+    </ul></li>
+    <li><a name="TOC197" href="usermanual_6.html#SEC197">6.4 Turtle and Window Queries</a>
+    <ul class="toc">
+      <li><a name="TOC198" href="usermanual_6.html#SEC198">shownp</a></li>
+      <li><a name="TOC199" href="usermanual_6.html#SEC199">screenmode</a></li>
+      <li><a name="TOC200" href="usermanual_6.html#SEC200">turtlemode</a></li>
+      <li><a name="TOC201" href="usermanual_6.html#SEC201">labelsize</a></li>
+    </ul></li>
+    <li><a name="TOC202" href="usermanual_6.html#SEC202">6.5 Pen and Background Control</a>
+    <ul class="toc">
+      <li><a name="TOC203" href="usermanual_6.html#SEC203">pendown</a></li>
+      <li><a name="TOC204" href="usermanual_6.html#SEC204">penup</a></li>
+      <li><a name="TOC205" href="usermanual_6.html#SEC205">penpaint</a></li>
+      <li><a name="TOC206" href="usermanual_6.html#SEC206">penerase</a></li>
+      <li><a name="TOC207" href="usermanual_6.html#SEC207">penreverse</a></li>
+      <li><a name="TOC208" href="usermanual_6.html#SEC208">setpencolor</a></li>
+      <li><a name="TOC209" href="usermanual_6.html#SEC209">setpalette</a></li>
+      <li><a name="TOC210" href="usermanual_6.html#SEC210">setpensize</a></li>
+      <li><a name="TOC211" href="usermanual_6.html#SEC211">setpenpattern</a></li>
+      <li><a name="TOC212" href="usermanual_6.html#SEC212">setpen</a></li>
+      <li><a name="TOC213" href="usermanual_6.html#SEC213">setbackground</a></li>
+    </ul></li>
+    <li><a name="TOC214" href="usermanual_6.html#SEC214">6.6 Pen Queries</a>
+    <ul class="toc">
+      <li><a name="TOC215" href="usermanual_6.html#SEC215">pendownp</a></li>
+      <li><a name="TOC216" href="usermanual_6.html#SEC216">penmode</a></li>
+      <li><a name="TOC217" href="usermanual_6.html#SEC217">pencolor</a></li>
+      <li><a name="TOC218" href="usermanual_6.html#SEC218">palette</a></li>
+      <li><a name="TOC219" href="usermanual_6.html#SEC219">pensize</a></li>
+      <li><a name="TOC220" href="usermanual_6.html#SEC220">pen</a></li>
+      <li><a name="TOC221" href="usermanual_6.html#SEC221">background</a></li>
+    </ul></li>
+    <li><a name="TOC222" href="usermanual_6.html#SEC222">6.7 Saving and Loading Pictures</a>
+    <ul class="toc">
+      <li><a name="TOC223" href="usermanual_6.html#SEC223">savepict</a></li>
+      <li><a name="TOC224" href="usermanual_6.html#SEC224">loadpict</a></li>
+      <li><a name="TOC225" href="usermanual_6.html#SEC225">epspict</a></li>
+    </ul></li>
+    <li><a name="TOC226" href="usermanual_6.html#SEC226">6.8 Mouse Queries</a>
+    <ul class="toc">
+      <li><a name="TOC227" href="usermanual_6.html#SEC227">mousepos</a></li>
+      <li><a name="TOC228" href="usermanual_6.html#SEC228">clickpos</a></li>
+      <li><a name="TOC229" href="usermanual_6.html#SEC229">buttonp</a></li>
+      <li><a name="TOC230" href="usermanual_6.html#SEC230">button</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC231" href="usermanual_7.html#SEC231">7. Workspace Management</a>
+  <ul class="toc">
+    <li><a name="TOC232" href="usermanual_7.html#SEC232">7.1 Procedure Definition</a>
+    <ul class="toc">
+      <li><a name="TOC233" href="usermanual_7.html#SEC233">to</a></li>
+      <li><a name="TOC234" href="usermanual_7.html#SEC234">define</a></li>
+      <li><a name="TOC235" href="usermanual_7.html#SEC235">text</a></li>
+      <li><a name="TOC236" href="usermanual_7.html#SEC236">fulltext</a></li>
+      <li><a name="TOC237" href="usermanual_7.html#SEC237">copydef</a></li>
+    </ul></li>
+    <li><a name="TOC238" href="usermanual_7.html#SEC238">7.2 Variable Definition</a>
+    <ul class="toc">
+      <li><a name="TOC239" href="usermanual_7.html#SEC239">make</a></li>
+      <li><a name="TOC240" href="usermanual_7.html#SEC240">name</a></li>
+      <li><a name="TOC241" href="usermanual_7.html#SEC241">local</a></li>
+      <li><a name="TOC242" href="usermanual_7.html#SEC242">localmake</a></li>
+      <li><a name="TOC243" href="usermanual_7.html#SEC243">thing</a></li>
+      <li><a name="TOC244" href="usermanual_7.html#SEC244">global</a></li>
+    </ul></li>
+    <li><a name="TOC245" href="usermanual_7.html#SEC245">7.3 Property Lists</a>
+    <ul class="toc">
+      <li><a name="TOC246" href="usermanual_7.html#SEC246">pprop</a></li>
+      <li><a name="TOC247" href="usermanual_7.html#SEC247">gprop</a></li>
+      <li><a name="TOC248" href="usermanual_7.html#SEC248">remprop</a></li>
+      <li><a name="TOC249" href="usermanual_7.html#SEC249">plist</a></li>
+    </ul></li>
+    <li><a name="TOC250" href="usermanual_7.html#SEC250">7.4 Workspace Predicates</a>
+    <ul class="toc">
+      <li><a name="TOC251" href="usermanual_7.html#SEC251">procedurep</a></li>
+      <li><a name="TOC252" href="usermanual_7.html#SEC252">primitivep</a></li>
+      <li><a name="TOC253" href="usermanual_7.html#SEC253">definedp</a></li>
+      <li><a name="TOC254" href="usermanual_7.html#SEC254">namep</a></li>
+      <li><a name="TOC255" href="usermanual_7.html#SEC255">plistp</a></li>
+    </ul></li>
+    <li><a name="TOC256" href="usermanual_7.html#SEC256">7.5 Workspace Queries</a>
+    <ul class="toc">
+      <li><a name="TOC257" href="usermanual_7.html#SEC257">contents</a></li>
+      <li><a name="TOC258" href="usermanual_7.html#SEC258">buried</a></li>
+      <li><a name="TOC259" href="usermanual_7.html#SEC259">traced</a></li>
+      <li><a name="TOC260" href="usermanual_7.html#SEC260">stepped</a></li>
+      <li><a name="TOC261" href="usermanual_7.html#SEC261">procedures</a></li>
+      <li><a name="TOC262" href="usermanual_7.html#SEC262">primitives</a></li>
+      <li><a name="TOC263" href="usermanual_7.html#SEC263">names</a></li>
+      <li><a name="TOC264" href="usermanual_7.html#SEC264">plists</a></li>
+      <li><a name="TOC265" href="usermanual_7.html#SEC265">namelist</a></li>
+      <li><a name="TOC266" href="usermanual_7.html#SEC266">pllist</a></li>
+      <li><a name="TOC267" href="usermanual_7.html#SEC267">arity</a></li>
+      <li><a name="TOC268" href="usermanual_7.html#SEC268">nodes</a></li>
+    </ul></li>
+    <li><a name="TOC269" href="usermanual_7.html#SEC269">7.6 Workspace Inspection</a>
+    <ul class="toc">
+      <li><a name="TOC270" href="usermanual_7.html#SEC270">po</a></li>
+      <li><a name="TOC271" href="usermanual_7.html#SEC271">poall</a></li>
+      <li><a name="TOC272" href="usermanual_7.html#SEC272">pops</a></li>
+      <li><a name="TOC273" href="usermanual_7.html#SEC273">pons</a></li>
+      <li><a name="TOC274" href="usermanual_7.html#SEC274">popls</a></li>
+      <li><a name="TOC275" href="usermanual_7.html#SEC275">pon</a></li>
+      <li><a name="TOC276" href="usermanual_7.html#SEC276">popl</a></li>
+      <li><a name="TOC277" href="usermanual_7.html#SEC277">pot</a></li>
+      <li><a name="TOC278" href="usermanual_7.html#SEC278">pots</a></li>
+    </ul></li>
+    <li><a name="TOC279" href="usermanual_7.html#SEC279">7.7 Workspace Control</a>
+    <ul class="toc">
+      <li><a name="TOC280" href="usermanual_7.html#SEC280">erase</a></li>
+      <li><a name="TOC281" href="usermanual_7.html#SEC281">erall</a></li>
+      <li><a name="TOC282" href="usermanual_7.html#SEC282">erps</a></li>
+      <li><a name="TOC283" href="usermanual_7.html#SEC283">erns</a></li>
+      <li><a name="TOC284" href="usermanual_7.html#SEC284">erpls</a></li>
+      <li><a name="TOC285" href="usermanual_7.html#SEC285">ern</a></li>
+      <li><a name="TOC286" href="usermanual_7.html#SEC286">erpl</a></li>
+      <li><a name="TOC287" href="usermanual_7.html#SEC287">bury</a></li>
+      <li><a name="TOC288" href="usermanual_7.html#SEC288">buryall</a></li>
+      <li><a name="TOC289" href="usermanual_7.html#SEC289">buryname</a></li>
+      <li><a name="TOC290" href="usermanual_7.html#SEC290">unbury</a></li>
+      <li><a name="TOC291" href="usermanual_7.html#SEC291">unburyall</a></li>
+      <li><a name="TOC292" href="usermanual_7.html#SEC292">unburyname</a></li>
+      <li><a name="TOC293" href="usermanual_7.html#SEC293">buriedp</a></li>
+      <li><a name="TOC294" href="usermanual_7.html#SEC294">trace</a></li>
+      <li><a name="TOC295" href="usermanual_7.html#SEC295">untrace</a></li>
+      <li><a name="TOC296" href="usermanual_7.html#SEC296">tracedp</a></li>
+      <li><a name="TOC297" href="usermanual_7.html#SEC297">step</a></li>
+      <li><a name="TOC298" href="usermanual_7.html#SEC298">unstep</a></li>
+      <li><a name="TOC299" href="usermanual_7.html#SEC299">steppedp</a></li>
+      <li><a name="TOC300" href="usermanual_7.html#SEC300">edit</a></li>
+      <li><a name="TOC301" href="usermanual_7.html#SEC301">editfile</a></li>
+      <li><a name="TOC302" href="usermanual_7.html#SEC302">edall</a></li>
+      <li><a name="TOC303" href="usermanual_7.html#SEC303">edps</a></li>
+      <li><a name="TOC304" href="usermanual_7.html#SEC304">edns</a></li>
+      <li><a name="TOC305" href="usermanual_7.html#SEC305">edpls</a></li>
+      <li><a name="TOC306" href="usermanual_7.html#SEC306">edn</a></li>
+      <li><a name="TOC307" href="usermanual_7.html#SEC307">edpl</a></li>
+      <li><a name="TOC308" href="usermanual_7.html#SEC308">save</a></li>
+      <li><a name="TOC309" href="usermanual_7.html#SEC309">savel</a></li>
+      <li><a name="TOC310" href="usermanual_7.html#SEC310">load</a></li>
+      <li><a name="TOC311" href="usermanual_7.html#SEC311">cslsload</a></li>
+      <li><a name="TOC312" href="usermanual_7.html#SEC312">help</a></li>
+      <li><a name="TOC313" href="usermanual_7.html#SEC313">seteditor</a></li>
+      <li><a name="TOC314" href="usermanual_7.html#SEC314">setlibloc</a></li>
+      <li><a name="TOC315" href="usermanual_7.html#SEC315">setcslsloc</a></li>
+      <li><a name="TOC316" href="usermanual_7.html#SEC316">sethelploc</a></li>
+      <li><a name="TOC317" href="usermanual_7.html#SEC317">settemploc</a></li>
+      <li><a name="TOC318" href="usermanual_7.html#SEC318">gc</a></li>
+      <li><a name="TOC319" href="usermanual_7.html#SEC319">.setsegmentsize</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC320" href="usermanual_8.html#SEC320">8. Control Structures</a>
+  <ul class="toc">
+    <li><a name="TOC321" href="usermanual_8.html#SEC321">8.1 Control</a>
+    <ul class="toc">
+      <li><a name="TOC322" href="usermanual_8.html#SEC322">run</a></li>
+      <li><a name="TOC323" href="usermanual_8.html#SEC323">runresult</a></li>
+      <li><a name="TOC324" href="usermanual_8.html#SEC324">repeat</a></li>
+      <li><a name="TOC325" href="usermanual_8.html#SEC325">forever</a></li>
+      <li><a name="TOC326" href="usermanual_8.html#SEC326">repcount</a></li>
+      <li><a name="TOC327" href="usermanual_8.html#SEC327">if</a></li>
+      <li><a name="TOC328" href="usermanual_8.html#SEC328">ifelse</a></li>
+      <li><a name="TOC329" href="usermanual_8.html#SEC329">test</a></li>
+      <li><a name="TOC330" href="usermanual_8.html#SEC330">iftrue</a></li>
+      <li><a name="TOC331" href="usermanual_8.html#SEC331">iffalse</a></li>
+      <li><a name="TOC332" href="usermanual_8.html#SEC332">stop</a></li>
+      <li><a name="TOC333" href="usermanual_8.html#SEC333">output</a></li>
+      <li><a name="TOC334" href="usermanual_8.html#SEC334">catch</a></li>
+      <li><a name="TOC335" href="usermanual_8.html#SEC335">throw</a></li>
+      <li><a name="TOC336" href="usermanual_8.html#SEC336">error</a></li>
+      <li><a name="TOC337" href="usermanual_8.html#SEC337">pause</a></li>
+      <li><a name="TOC338" href="usermanual_8.html#SEC338">continue</a></li>
+      <li><a name="TOC339" href="usermanual_8.html#SEC339">wait</a></li>
+      <li><a name="TOC340" href="usermanual_8.html#SEC340">bye</a></li>
+      <li><a name="TOC341" href="usermanual_8.html#SEC341">.maybeoutput</a></li>
+      <li><a name="TOC342" href="usermanual_8.html#SEC342">goto</a></li>
+      <li><a name="TOC343" href="usermanual_8.html#SEC343">tag</a></li>
+      <li><a name="TOC344" href="usermanual_8.html#SEC344">ignore</a></li>
+      <li><a name="TOC345" href="usermanual_8.html#SEC345">`</a></li>
+      <li><a name="TOC346" href="usermanual_8.html#SEC346">for</a></li>
+      <li><a name="TOC347" href="usermanual_8.html#SEC347">do.while</a></li>
+      <li><a name="TOC348" href="usermanual_8.html#SEC348">while</a></li>
+      <li><a name="TOC349" href="usermanual_8.html#SEC349">do.until</a></li>
+      <li><a name="TOC350" href="usermanual_8.html#SEC350">until</a></li>
+      <li><a name="TOC351" href="usermanual_8.html#SEC351">case</a></li>
+      <li><a name="TOC352" href="usermanual_8.html#SEC352">cond</a></li>
+    </ul></li>
+    <li><a name="TOC353" href="usermanual_8.html#SEC353">8.2 Template-based Iteration</a>
+    <ul class="toc">
+      <li><a name="TOC354" href="usermanual_8.html#SEC354">apply</a></li>
+      <li><a name="TOC355" href="usermanual_8.html#SEC355">invoke</a></li>
+      <li><a name="TOC356" href="usermanual_8.html#SEC356">foreach</a></li>
+      <li><a name="TOC357" href="usermanual_8.html#SEC357">map</a></li>
+      <li><a name="TOC358" href="usermanual_8.html#SEC358">map.se</a></li>
+      <li><a name="TOC359" href="usermanual_8.html#SEC359">filter</a></li>
+      <li><a name="TOC360" href="usermanual_8.html#SEC360">find</a></li>
+      <li><a name="TOC361" href="usermanual_8.html#SEC361">reduce</a></li>
+      <li><a name="TOC362" href="usermanual_8.html#SEC362">crossmap</a></li>
+      <li><a name="TOC363" href="usermanual_8.html#SEC363">cascade</a></li>
+      <li><a name="TOC364" href="usermanual_8.html#SEC364">cascade.2</a></li>
+      <li><a name="TOC365" href="usermanual_8.html#SEC365">transfer</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC366" href="usermanual_9.html#SEC366">9. Macros</a>
+  <ul class="toc">
+
+    <ul class="toc">
+      <li><a name="TOC367" href="usermanual_9.html#SEC367">.macro</a></li>
+      <li><a name="TOC368" href="usermanual_9.html#SEC368">.defmacro</a></li>
+      <li><a name="TOC369" href="usermanual_9.html#SEC369">macrop</a></li>
+      <li><a name="TOC370" href="usermanual_9.html#SEC370">macroexpand</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC371" href="usermanual_10.html#SEC371">10. Error Processing</a>
+  <ul class="toc">
+    <li><a name="TOC372" href="usermanual_10.html#SEC372">10.1 Error Codes</a></li>
+  </ul></li>
+  <li><a name="TOC373" href="usermanual_11.html#SEC373">11. Special Variables</a>
+  <ul class="toc">
+
+    <ul class="toc">
+      <li><a name="TOC374" href="usermanual_11.html#SEC374">allowgetset</a></li>
+      <li><a name="TOC375" href="usermanual_11.html#SEC375">buttonact</a></li>
+      <li><a name="TOC376" href="usermanual_11.html#SEC376">caseignoredp</a></li>
+      <li><a name="TOC377" href="usermanual_11.html#SEC377">commandline</a></li>
+      <li><a name="TOC378" href="usermanual_11.html#SEC378">erract</a></li>
+      <li><a name="TOC379" href="usermanual_11.html#SEC379">fullprintp</a></li>
+      <li><a name="TOC380" href="usermanual_11.html#SEC380">keyact</a></li>
+      <li><a name="TOC381" href="usermanual_11.html#SEC381">loadnoisily</a></li>
+      <li><a name="TOC382" href="usermanual_11.html#SEC382">printdepthlimit</a></li>
+      <li><a name="TOC383" href="usermanual_11.html#SEC383">printwidthlimit</a></li>
+      <li><a name="TOC384" href="usermanual_11.html#SEC384">redefp</a></li>
+      <li><a name="TOC385" href="usermanual_11.html#SEC385">startup</a></li>
+      <li><a name="TOC386" href="usermanual_11.html#SEC386">unburyonedit</a></li>
+      <li><a name="TOC387" href="usermanual_11.html#SEC387">usealternatenames</a></li>
+      <li><a name="TOC388" href="usermanual_11.html#SEC388">logoversion</a></li>
+      <li><a name="TOC389" href="usermanual_11.html#SEC389">logoplatform</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="TOC390" href="usermanual_12.html#SEC390">12. Internationalization</a></li>
+  <li><a name="TOC391" href="usermanual_13.html#SEC391">INDEX</a></li>
+</ul>
+</div>
+<hr size="1">
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<p>
+ <font size="-1">
+  This document was generated by <em>Brian Harvey</em> on <em>August, 19 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+ </font>
+ <br>
+
+</p>
+</body>
+</html>

@@ -9,4 +9,4 @@ editor stuff
 
 test without -O0
 
-usermanual.texi -- up to THROW "TOPLEVEL.
+usermanual.texi -- up to .MACRO

@@ -25,6 +25,9 @@
 @end titlepage
  
 
+@shortcontents
+@contents
+
 
 @c      Node,   Next, Previous, Up
 @node   Top, INTRODUCTION, (dir), (dir)
@@ -329,7 +332,7 @@ are both allowed.
 
 The process to start Logo depends on your operating system:
 
-@table @samp
+@table @asis
 @item Unix:
 Type the word @t{logo} to the shell.  (The directory in which you've
 installed Logo must be in your path.)
@@ -377,11 +380,11 @@ it's doing and return to top-level, as if you did @w{@t{THROW "TOPLEVEL}}.  If
 you type your quit character Logo will pause as if you did @code{PAUSE}.
 
 @example
-               wxWidgets       Unix        DOS/Windows          Mac
+            wxWidgets      Unix       DOS/Windows     Mac Classic
 
-toplevel         alt-S    usually ctrl-C     ctrl-Q      command-. (period)
+toplevel      alt-S   usually ctrl-C    ctrl-Q     command-. (period)
 
-pause            alt-P    usually ctrl-\     ctrl-W      command-, (comma)
+pause         alt-P   usually ctrl-\    ctrl-W     command-, (comma)
 @end example
 
 If you have an environment variable called @code{LOGOLIB} whose value is the
@@ -401,15 +404,15 @@ want to include some or all of the default library in it.
 @node   TOKENIZATION,  , ENTERING AND LEAVING LOGO, INTRODUCTION
 @section Tokenization
 
+Names of procedures, variables, and property lists are case-insensitive.  So
+are the special words @code{END}, @code{TRUE}, and @code{FALSE}.  Case of
+letters is preserved in everything you type, however.
+
 @cindex case-insensitive
 @cindex delimiters
 @cindex runparsing
 @cindex line-continuation
 @cindex comments
-
-Names of procedures, variables, and property lists are case-insensitive.  So
-are the special words @code{END}, @code{TRUE}, and @code{FALSE}.  Case of
-letters is preserved in everything you type, however.
 
 Within square brackets, words are delimited only by spaces and square
 brackets.  @code{[2+3]} is a list containing one word.  Note, however, that
@@ -958,7 +961,7 @@ prepended, if a word.
 SETITEM index array value
 @end example
 
-command.  Replaces the @var{index}th member of @{array} with the new @var{value}.
+command.  Replaces the @var{index}th member of @var{array} with the new @var{value}.
 Ensures that the resulting array is not circular, i.e., @var{value} may not
 be a list or array that contains @var{array}.
 
@@ -1017,7 +1020,7 @@ butfirst of a list is not itself a list.
 command.  Changes the @var{index}th member of @var{array} to be @var{value},
 like @code{SETITEM}, but without checking for circularity.
 
-WARNING: Primitives whose names start with a period are @{dangerous}.
+WARNING: Primitives whose names start with a period are @b{dangerous}.
 Their use by non-experts is not recommended.  The use of @code{.SETITEM} can
 lead to circular arrays, which will get some Logo primitives into
 infinite loops.
@@ -1045,7 +1048,7 @@ added at the front of the list.
 POP stackname					(library procedure)
 @end example
 
-outputs the most recently #code{PUSH}ed member of the stack that is the value
+outputs the most recently @code{PUSH}ed member of the stack that is the value
 of the variable whose name is @var{stackname} and removes that member from
 the stack.
 
@@ -2958,8 +2961,8 @@ hardware independence by interpreting color numbers 0 through 7 uniformly
 on all computers:
 
 @example
-	0  black        1  blue         2  green        3  cyan
-	4  red          5  magenta      6  yellow       7 white
+0  black        1  blue         2  green        3  cyan
+4  red          5  magenta      6  yellow       7 white
 @end example
 
 Where possible, Logo provides additional user-settable colors; how many
@@ -2968,8 +2971,8 @@ If at least 16 colors are available, Logo tries to provide uniform
 initial settings for the colors 8-15:
 
 @example
-	 8  brown        9  tan         10  forest      11  aqua
-	12  salmon      13  purple      14  orange      15  grey
+ 8  brown        9  tan         10  forest      11  aqua
+12  salmon      13  purple      14  orange      15  grey
 @end example
 
 Logo begins with a black background and white pen.
@@ -3238,6 +3241,7 @@ list of numbers.)
 * FILL::                        
 * FILLED::
 * LABEL::                       
+* SETLABELHEIGHT::
 * TEXTSCREEN::                  
 * FULLSCREEN::                  
 * SPLITSCREEN::                 
@@ -3405,8 +3409,8 @@ command is @code{LABELSIZE}, not @code{LABELHEIGHT}, because it tells you the wi
 as well as the height of characters in the current font.
 
 @node TEXTSCREEN, FULLSCREEN, SETLABELHEIGHT, TURTLE AND WINDOW CONTROL
-@unnumberedsubsec setlabelheight
-@cindex setlabelheight
+@unnumberedsubsec textscreen
+@cindex textscreen
 
 @example
 TEXTSCREEN
@@ -3820,10 +3824,10 @@ the most recent input to @code{SETPENCOLOR}.  There are initial assignments
 for the first 16 colors:
 
 @example
-	 0  black        1  blue         2  green        3  cyan
-	 4  red          5  magenta      6  yellow       7 white
-	 8  brown        9  tan         10  forest      11  aqua
-	12  salmon      13  purple      14  orange      15  grey
+ 0  black        1  blue         2  green        3  cyan
+ 4  red          5  magenta      6  yellow       7 white
+ 8  brown        9  tan         10  forest      11  aqua
+12  salmon      13  purple      14  orange      15  grey
 @end example
 
 but other colors can be assigned to numbers by the @code{PALETTE} command.
@@ -3887,7 +3891,7 @@ as an RGB list, whichever way it was set.  (See @code{PENCOLOR}.)
 
 @node SAVING AND LOADING PICTURES, MOUSE QUERIES, PEN QUERIES, GRAPHICS
 @comment  node-name,  next,  previous,  up
-@section saving and loading pictures
+@section Saving and Loading Pictures
 
 @menu
 * SAVEPICT::                    
@@ -3990,7 +3994,7 @@ outputs the coordinates that the mouse was at when a mouse button
 was most recently pushed, provided that that position was within the
 graphics window, in turtle coordinates.  (wxWidgets only)
 
-@node BUTTONP, BUTTON, MOUSEPOS, MOUSE QUERIES
+@node BUTTONP, BUTTON, CLICKPOS, MOUSE QUERIES
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec buttonp
 @cindex buttonp
@@ -4069,10 +4073,10 @@ This version of Logo allows variable numbers of inputs to a procedure.
 After the procedure name come four kinds of things, @emph{in this order}:
 
 @example
-	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
-	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
-	    3.   0 or 1 REST input            [:GARPLY]
-	    4.   0 or 1 DEFAULT number        5
+    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+    3.   0 or 1 REST input            [:GARPLY]
+    4.   0 or 1 DEFAULT number        5
 @end example
 
 Every procedure has a @var{minimum}, @var{default}, and @var{maximum} number of inputs.
@@ -4153,7 +4157,7 @@ empty list).  If it's invoked by saying
 @end example
 
 then @code{in1} has the value @t{A}, @code{in2} has the value @t{B},
-@code{in3} has the value @t{C}, and @code{in4} has the value @w@t{{[D E]}}.
+@code{in3} has the value @t{C}, and @code{in4} has the value @w{@t{[D E]}}.
 
 The @emph{maximum} number of inputs for a procedure is infinite if a rest input
 is given; otherwise, it is the number of required inputs plus the number
@@ -4516,7 +4520,7 @@ PLISTP name
 PLIST? name
 @end example
 
-outputs @code{TRUE} if the input is the name of a @wmph{nonempty} property list.
+outputs @code{TRUE} if the input is the name of a @emph{nonempty} property list.
 (In principle every word is the name of a property list; if you haven't
 put any properties in it, @code{PLIST} of that name outputs an empty list,
 rather than giving an error message.)
@@ -5225,7 +5229,7 @@ for Unix, MacOS X, Windows, and DOS, Logo uses your favorite editor as
 determined by the @env{EDITOR} environment variable.  If you don't have an
 @env{EDITOR} variable, edits the definitions using @command{jove}.  If invoked
 without an input, @code{EDIT} edits the same file left over from a previous
-@codw{EDIT} or @code{EDITFILE} instruction.  When you leave the editor, Logo
+@code{EDIT} or @code{EDITFILE} instruction.  When you leave the editor, Logo
 reads the revised definitions and modifies the workspace accordingly.  It is
 not an error if the input includes names for which there is no previous
 definition.
@@ -6396,7 +6400,7 @@ APPLY template inputlist
 command or operation.  Runs the @var{template}, filling its slots with the
 members of @var{inputlist.}  The number of members in @var{inputlist} must be an
 acceptable number of slots for @var{template}.  It is illegal to apply the
-primitive TO as a template, but anything else is okay.  APPLY outputs
+primitive @code{TO} as a template, but anything else is okay.  @code{APPLY} outputs
 what @var{template} outputs, if anything.
 
 @xref{TO} .
@@ -6410,7 +6414,7 @@ INVOKE template input				(library procedure)
 (INVOKE template input1 input2 ...)
 @end example
 
-command or operation.  Exactly like APPLY except that the inputs are
+command or operation.  Exactly like @code{APPLY} except that the inputs are
 provided as separate expressions rather than in a list.
 
 @node FOREACH, MAP, INVOKE, TEMPLATE-BASED ITERATION
@@ -6422,21 +6426,23 @@ FOREACH data template				(library procedure)
 (FOREACH data1 data2 ... template)
 @end example
 
-command.  Evaluates the template list repeatedly, once for each member
-of the data list.  If more than one data list are given, each of them
-must be the same length.  (The data inputs can be words, in which case
-the template is evaluated once for each character.
+command.  Evaluates the @var{template} list repeatedly, once for each member
+of the @var{data} list.  If more than one @var{data} list are given, each of them
+must be the same length.  (The @var{data} inputs can be words, in which case
+the template is evaluated once for each character.)
 
-In a template, the symbol ?REST represents the portion of the data input
-to the right of the member currently being used as the ? slot-filler.
-That is, if the data input is @w{[A B C D E]} and the template is being
-evaluated with ? replaced by B, then ?REST would be replaced by @w{[C D E]}.
-If multiple parallel slots are used, then @w{@t{(?REST 1)}} goes with ?1, etc.
+In a template, the symbol @code{?REST} represents the portion of the
+@var{data} input to the right of the member currently being used as the
+@code{?} slot-filler.  That is, if the @var{data} input is
+@w{@code{[A B C D E]}} and the template is being evaluated with @code{?}
+replaced by @code{B}, then @code{?REST} would be replaced by
+@w{@code{[C D E]}}.  If multiple parallel slots are used, then
+@w{@t{(?REST 1)}} goes with ?1, etc.
 
-In a template, the symbol # represents the position in the data input of
-the member currently being used as the ? slot-filler.  That is, if the
-data input is @w{[A B C D E]} and the template is being evaluated with ?
-replaced by B, then # would be replaced by 2.
+In a template, the symbol @code{#} represents the position in the @var{data}
+input of the member currently being used as the @code{?} slot-filler.  That is, if
+the data input is @w{@code{[A B C D E]}} and the template is being evaluated with
+@code{?} replaced by @code{B}, then @code{#} would be replaced by @code{2}.
 
 @node MAP, MAPdSE, FOREACH, TEMPLATE-BASED ITERATION
 @unnumberedsubsec map
@@ -6447,23 +6453,27 @@ MAP template data				(library procedure)
 (MAP template data1 data2 ...)
 @end example
 
-outputs a word or list, depending on the type of the data input, of the
-same length as that data input.  (If more than one data input are given,
-the output is of the same type as data1.)  Each member of the output is
-the result of evaluating the template list, filling the slots with the
-corresponding member(s) of the data input(s).  (All data inputs must be
-the same length.)  In the case of a word output, the results of the
-template evaluation must be words, and they are concatenated with WORD.
+outputs a word or list, depending on the type of the @var{data} input, of the
+same length as that @var{data} input.  (If more than one @var{data} input are
+given, the output is of the same type as @var{data1}.)  Each member of the
+output is the result of evaluating the @var{template} list, filling the slots
+with the corresponding member(s) of the @var{data} input(s).  (All @var{data}
+inputs must be the same length.)  In the case of a word output, the results of
+the template evaluation must be words, and they are concatenated with
+@code{WORD}.
 
-In a template, the symbol ?REST represents the portion of the data input
-to the right of the member currently being used as the ? slot-filler.
-That is, if the data input is @w{[A B C D E]} and the template is being
-evaluated with ? replaced by B, then ?REST would be replaced by @w{[C D E]}. If multiple parallel slots are used, then @w{@t{(?REST 1)}} goes with ?1, etc.
+In a template, the symbol @code{?REST} represents the portion of the data
+input to the right of the member currently being used as the @code{?}
+slot-filler.  That is, if the @var{data} input is @w{@code{[A B C D E]}} and
+the @var{template} is being evaluated with @code{?} replaced by @code{B}, then
+@code{?REST} would be replaced by @w{@code{[C D E]}}. If multiple parallel
+slots are used, then @w{@t{(?REST 1)}} goes with @code{?1}, etc.
 
-In a template, the symbol # represents the position in the data input of
-the member currently being used as the ? slot-filler.  That is, if the
-data input is @w{[A B C D E]} and the template is being evaluated with ?
-replaced by B, then # would be replaced by 2.
+In a template, the symbol @code{#} represents the position in the @var{data}
+input of the member currently being used as the @code{?} slot-filler.  That
+is, if the data input is @w{@code{[A B C D E]}} and the template is being
+evaluated with @code{?} replaced by @code{B}, then @code{#} would be replaced
+by @code{2}.
 
 @xref{WORD} .
 
@@ -6476,23 +6486,26 @@ MAP.SE template data				(library procedure)
 (MAP.SE template data1 data2 ...)
 @end example
 
-outputs a list formed by evaluating the template list repeatedly and
-concatenating the results using SENTENCE.  That is, the members of the
+outputs a list formed by evaluating the @var{template} list repeatedly and
+concatenating the results using @code{SENTENCE}.  That is, the members of the
 output are the members of the results of the evaluations.  The output
-list might, therefore, be of a different length from that of the data
+list might, therefore, be of a different length from that of the @var{data}
 input(s).  (If the result of an evaluation is the empty list, it
-contributes nothing to the final output.)  The data inputs may be words
+contributes nothing to the final output.)  The @var{data} inputs may be words
 or lists.
 
-In a template, the symbol ?REST represents the portion of the data input
-to the right of the member currently being used as the ? slot-filler.
-That is, if the data input is @w{[A B C D E]} and the template is being
-evaluated with ? replaced by B, then ?REST would be replaced by @w{[C D E]}. If multiple parallel slots are used, then @w{@t{(?REST 1)}} goes with ?1, etc.
+In a template, the symbol @code{?REST} represents the portion of the data
+input to the right of the member currently being used as the @code{?}
+slot-filler.  That is, if the data input is @w{@code{[A B C D E]}} and the
+template is being evaluated with @code{?} replaced by @code{B}, then
+@code{?REST} would be replaced by @w{@code{[C D E]}}. If multiple parallel
+slots are used, then @w{@t{(?REST 1)}} goes with @code{?1}, etc.
 
-In a template, the symbol # represents the position in the data input of
-the member currently being used as the ? slot-filler.  That is, if the
-data input is @w{[A B C D E]} and the template is being evaluated with ?
-replaced by B, then # would be replaced by 2.
+In a template, the symbol @code{#} represents the position in the @var{data}
+input of the member currently being used as the @code{?} slot-filler.  That
+is, if the data input is @w{@code{[A B C D E]}} and the template is being
+evaluated with @code{?} replaced by @code{B}, then @code{#} would be replaced
+by @code{2}.
 
 @xref{SENTENCE} .
 
@@ -6504,7 +6517,7 @@ replaced by B, then # would be replaced by 2.
 FILTER tftemplate data				(library procedure)
 @end example
 
-outputs a word or list, depending on the type of the data input,
+outputs a word or list, depending on the type of the @var{data} input,
 containing a subset of the members (for a list) or characters (for a
 word) of the input.  The template is evaluated once for each member or
 character of the data, and it must produce a @code{TRUE} or @code{FALSE} value.  If
@@ -6517,15 +6530,17 @@ eea
 ?
 @end example
 
-In a template, the symbol ?REST represents the portion of the data input
-to the right of the member currently being used as the ? slot-filler.
-That is, if the data input is @w{[A B C D E]} and the template is being
-evaluated with ? replaced by B, then ?REST would be replaced by @w{[C D E]}.
+In a template, the symbol @code{?REST} represents the portion of the
+@var{data} input to the right of the member currently being used as the
+@code{?} slot-filler.  That is, if the data input is @w{@code{[A B C D E]}}
+and the template is being evaluated with @code{?} replaced by @code{B}, then
+@code{?REST} would be replaced by @w{@code{[C D E]}}.
 
-In a template, the symbol # represents the position in the data input of
-the member currently being used as the ? slot-filler.  That is, if the
-data input is @w{[A B C D E]} and the template is being evaluated with ?
-replaced by B, then # would be replaced by 2.
+In a template, the symbol @code{#} represents the position in the @var{data}
+input of the member currently being used as the @code{?} slot-filler.  That
+is, if the data input is @w{@code{[A B C D E]}} and the template is being
+evaluated with @code{?} replaced by @code{B}, then @code{#} would be replaced
+by @code{2}.
 
 @node FIND, REDUCE, FILTER, TEMPLATE-BASED ITERATION
 @unnumberedsubsec find
@@ -6535,20 +6550,22 @@ replaced by B, then # would be replaced by 2.
 FIND tftemplate data				(library procedure)
 @end example
 
-outputs the first constituent of the data input (the first member of a
+outputs the first constituent of the @var{data} input (the first member of a
 list, or the first character of a word) for which the value produced by
-evaluating the template with that consituent in its slot is @code{TRUE}.  If
-there is no such constituent, the empty list is output.
+evaluating the @var{template} with that consituent in its slot is @code{TRUE}.
+If there is no such constituent, the empty list is output.
 
-In a template, the symbol ?REST represents the portion of the data input
-to the right of the member currently being used as the ? slot-filler.
-That is, if the data input is @w{[A B C D E]} and the template is being
-evaluated with ? replaced by B, then ?REST would be replaced by @w{[C D E]}.
+In a template, the symbol @code{?REST} represents the portion of the
+@var{data} input to the right of the member currently being used as the
+@code{?} slot-filler.  That is, if the data input is @w{@code{[A B C D E]}}
+and the template is being evaluated with @code{?} replaced by @code{B}, then
+@code{?REST} would be replaced by @w{@code{[C D E]}}.
 
-In a template, the symbol # represents the position in the data input of
-the member currently being used as the ? slot-filler.  That is, if the
-data input is @w{[A B C D E]} and the template is being evaluated with ?
-replaced by B, then # would be replaced by 2.
+In a template, the symbol @code{#} represents the position in the @var{data}
+input of the member currently being used as the @code{?} slot-filler.  That
+is, if the data input is @w{@code{[A B C D E]}} and the template is being
+evaluated with @code{?} replaced by @code{B}, then @code{#} would be replaced
+by @code{2}.
 
 @node REDUCE, CROSSMAP, FIND, TEMPLATE-BASED ITERATION
 @unnumberedsubsec reduce
@@ -6558,34 +6575,32 @@ replaced by B, then # would be replaced by 2.
 REDUCE template data				(library procedure)
 @end example
 
-outputs the result of applying the template to accumulate the members of
-the data input.  The template must be a two-slot function.  Typically it
-is an associative function name like "SUM.  If the data input has only
-one constituent (member in a list or character in a word), the output is
-that consituent.  Otherwise, the template is first applied with ?1
-filled with the next-to-last consitient and ?2 with the last
-constituent.  Then, if there are more constituents, the template is
-applied with ?1 filled with the next constituent to the left and ?2 with
-the result from the previous evaluation.  This process continues until
-all constituents have been used.  The data input may not be empty.
+outputs the result of applying the @var{template} to accumulate the members of
+the @var{data} input.  The template must be a two-slot function.  Typically it
+is an associative function name like @code{SUM}.  If the @var{data} input has
+only one constituent (member in a list or character in a word), the output is
+that consituent.  Otherwise, the template is first applied with @code{?1}
+filled with the next-to-last consitient and @code{?2} with the last
+constituent.  Then, if there are more constituents, the template is applied
+with @code{?1} filled with the next constituent to the left and @code{?2} with
+the result from the previous evaluation.  This process continues until all
+constituents have been used.  The data input may not be empty.
 
-Note: If the template is, like SUM, the name of a procedure that is
+Note: If the template is, like @code{SUM}, the name of a procedure that is
 capable of accepting arbitrarily many inputs, it is more efficient to
-use APPLY instead of REDUCE.  The latter is good for associative
+use @code{APPLY} instead of @code{REDUCE}.  The latter is good for associative
 procedures that have been written to accept exactly two inputs:
 
 @example
 to max :a :b
 output ifelse :a > :b [:a] [:b]
 end
-@end example
 
-@example
 print reduce "max [...]
 @end example
 
-Alternatively, REDUCE can be used to write MAX as a procedure that
-accepts any number of inputs, as SUM does:
+Alternatively, @code{REDUCE} can be used to write @code{MAX} as a procedure
+that accepts any number of inputs, as @code{SUM} does:
 
 @example
 to max [:inputs] 2
@@ -6608,11 +6623,11 @@ CROSSMAP template listlist			(library procedure)
 @end example
 
 outputs a list containing the results of template evaluations.  Each
-data list contributes to a slot in the template; the number of slots is
-equal to the number of data list inputs.  As a special case, if only one
-data list input is given, that list is taken as a list of data lists,
-and each of its members contributes values to a slot.  CROSSMAP differs
-from MAP in that instead of taking members from the data inputs in
+@var{data} list contributes to a slot in the template; the number of slots is
+equal to the number of @var{data} list inputs.  As a special case, if only one
+@var{data} list input is given, that list is taken as a list of data lists,
+and each of its members contributes values to a slot.  @code{CROSSMAP} differs
+from @code{MAP} in that instead of taking members from the data inputs in
 parallel, it takes all possible combinations of members of data inputs,
 which need not be the same length.
 
@@ -6622,7 +6637,9 @@ which need not be the same length.
 ?
 @end example
 
-For compatibility with the version in the first edition of CSLS @footnote{Computer Science Logo Style}, CROSSMAP templates may use the notation :1 instead of ?1 to indicate slots.
+For compatibility with the version in the first edition of CSLS
+@footnote{@cite{Computer Science Logo Style}}, @code{CROSSMAP} templates may
+use the notation @code{:1} instead of @code{?1} to indicate slots.
 
 @xref{MAP} .
 
@@ -6641,7 +6658,7 @@ explained below) repeatedly, with a given value filling the slot the
 first time, and the result of each application filling the slot for the
 following application.
 
-In the simplest case, CASCADE has three inputs.  The second input is a
+In the simplest case, @code{CASCADE} has three inputs.  The second input is a
 one-slot expression template.  That template is evaluated some number of
 times (perhaps zero).  On the first evaluation, the slot is filled with
 the third input; on subsequent evaluations, the slot is filled with the
@@ -6650,17 +6667,17 @@ determined by the first input.  This can be either a nonnegative
 integer, in which case the template is evaluated that many times, or a
 predicate expression template, in which case it is evaluated (with the
 same slot filler that will be used for the evaluation of the second
-input) repeatedly, and the CASCADE evaluation continues as long as the
+input) repeatedly, and the @code{CASCADE} evaluation continues as long as the
 predicate value is @code{FALSE}.  (In other words, the predicate template
 indicates the condition for stopping.)
 
-If the template is evaluated zero times, the output from CASCADE is the
-third (startvalue) input.  Otherwise, the output is the value produced
+If the template is evaluated zero times, the output from @code{CASCADE} is the
+third (@var{startvalue}) input.  Otherwise, the output is the value produced
 by the last template evaluation.
 
-CASCADE templates may include the symbol # to represent the number of
-times the template has been evaluated.  This slot is filled with 1 for
-the first evaluation, 2 for the second, and so on.
+@code{CASCADE} templates may include the symbol @code{#} to represent the
+number of times the template has been evaluated.  This slot is filled with 1
+for the first evaluation, 2 for the second, and so on.
 
 @example
 ? show cascade 5 [lput # ?] []
@@ -6672,17 +6689,16 @@ ing
 ?
 @end example
 
-Several cascaded results can be computed in parallel by providing
-additional template-startvalue pairs as inputs to CASCADE.  In this
-case, all templates (including the endtest template, if used) are
-multi-slot, with the number of slots equal to the number of pairs of
-inputs.  In each round of evaluations, ?2 represents the result of
-evaluating the second template in the previous round.  If the total
-number of inputs (including the first endtest input) is odd, then the
-output from CASCADE is the final value of the first template.  If the
-total number of inputs is even, then the last input is a template that
-is evaluated once, after the end test is satisfied, to determine the
-output from CASCADE.
+Several cascaded results can be computed in parallel by providing additional
+template-startvalue pairs as inputs to @code{CASCADE}.  In this case, all
+templates (including the endtest template, if used) are multi-slot, with the
+number of slots equal to the number of pairs of inputs.  In each round of
+evaluations, @code{?2}, for example, represents the result of evaluating the
+second template in the previous round.  If the total number of inputs
+(including the first endtest input) is odd, then the output from CASCADE is
+the final value of the first template.  If the total number of inputs is even,
+then the last input is a template that is evaluated once, after the end test
+is satisfied, to determine the output from @code{CASCADE}.
 
 @example
 to fibonacci :n
@@ -6691,9 +6707,9 @@ end
 
 to piglatin :word
 output (cascade [vowelp first ?] ~
-   [word bf ? first ?] ~
-   :word ~
-   [word ? "ay])
+                [word bf ? first ?] ~
+                :word ~
+                [word ? "ay])
 end
 @end example
 
@@ -6705,7 +6721,7 @@ end
 CASCADE.2 endtest temp1 startval1 temp2 startval2  (library procedure)
 @end example
 
-outputs the result of invoking CASCADE with the same inputs.  The only
+outputs the result of invoking @code{CASCADE} with the same inputs.  The only
 difference is that the default number of inputs is five instead of three.
 
 @node TRANSFER,  , CASCADEd2, TEMPLATE-BASED ITERATION
@@ -6716,17 +6732,17 @@ difference is that the default number of inputs is five instead of three.
 TRANSFER endtest template inbasket		(library procedure)
 @end example
 
-outputs the result of repeated evaluation of the template.  The template
+outputs the result of repeated evaluation of the @var{template}.  The template
 is evaluated once for each member of the list @var{inbasket}.  @code{TRANSFER}
 maintains an @dfn{outbasket} that is initially the empty list.  After each
 evaluation of the template, the resulting value becomes the new
 outbasket.
 
-In the template, the symbol ?IN represents the current member from the
-inbasket; the symbol ?OUT represents the entire current outbasket.
+In the template, the symbol @code{?IN} represents the current member from the
+inbasket; the symbol @code{?OUT} represents the entire current outbasket.
 Other slot symbols should not be used.
 
-If the first (endtest) input is an empty list, evaluation continues
+If the first (@var{endtest}) input is an empty list, evaluation continues
 until all inbasket members have been used.  If not, the first input must
 be a predicate expression template, and evaluation continues until
 either that template's value is @code{TRUE} or the inbasket is used up.
@@ -6737,8 +6753,8 @@ either that template's value is @code{TRUE} or the inbasket is used up.
 @chapter Macros
 
 @menu
-* dMACRO::                      MACRO       
-* dDEFMACRO::                   DEFMACRO          
+* dMACRO::
+* dDEFMACRO::
 * MACROP::                      
 * MACROEXPAND::                 
 @end menu
@@ -6754,14 +6770,14 @@ either that template's value is @code{TRUE} or the inbasket is used up.
 @end example
 
 A macro is a special kind of procedure whose output is evaluated as Logo
-instructions in the context of the macro's caller.  .MACRO is exactly
-like TO except that the new procedure becomes a macro; .DEFMACRO is
-exactly like DEFINE with the same exception.
+instructions in the context of the macro's caller.  @code{.MACRO} is exactly
+like @code{TO} except that the new procedure becomes a macro; @code{.DEFMACRO}
+is exactly like @code{DEFINE} with the same exception.
 
 Macros are useful for inventing new control structures comparable to
-REPEAT, IF, and so on.  Such control structures can almost, but not
-quite, be duplicated by ordinary Logo procedures.  For example, here is
-an ordinary procedure version of REPEAT:
+@code{REPEAT}, @code{IF}, and so on.  Such control structures can almost, but
+not quite, be duplicated by ordinary Logo procedures.  For example, here is an
+ordinary procedure version of @code{REPEAT}:
 
 @example
 to my.repeat :num :instructions
@@ -6778,63 +6794,64 @@ my.repeat 5 [print "hello]
 @end example
 
 But it doesn't work if the instructions to be carried out include
-OUTPUT, STOP, or LOCAL.  For example, consider this procedure:
+@code{OUTPUT}, @code{STOP}, or @code{LOCAL}.  For example, consider this
+procedure:
 
 @example
 to example
 print [Guess my secret word.  You get three guesses.]
 repeat 3 [type "|?? | ~
-   if readword = "secret [pr "Right! stop]]
+          if readword = "secret [pr "Right! stop]]
 print [Sorry, the word was "secret"!]
 end
 @end example
 
-This procedure works as written, but if MY.REPEAT is used instead of
-REPEAT, it won't work because the STOP will stop MY.REPEAT instead of
-stopping EXAMPLE as desired.
+This procedure works as written, but if @code{MY.REPEAT} is used instead of
+@code{REPEAT}, it won't work because the @code{STOP} will stop
+@code{MY.REPEAT} instead of stopping @code{EXAMPLE} as desired.
 
-The solution is to make MY.REPEAT a macro.  Instead of actually carrying
+The solution is to make @code{MY.REPEAT} a macro.  Instead of actually carrying
 out the computation, a macro must return a list containing Logo
 instructions.  The contents of that list are evaluated as if they
 appeared in place of the call to the macro.  Here's a macro version of
-REPEAT:
+@code{REPEAT}:
 
 @example
 .macro my.repeat :num :instructions
 if :num=0 [output []]
 output sentence :instructions ~
-   (list "my.repeat :num-1 :instructions)
+                (list "my.repeat :num-1 :instructions)
 end
 @end example
 
 Every macro is an operation --- it must always output something.  Even in
-the base case, MY.REPEAT outputs an empty instruction list.  To show how
-MY.REPEAT works, let's take the example
+the base case, @code{MY.REPEAT} outputs an empty instruction list.  To show how
+@code{MY.REPEAT} works, let's take the example
 
 @example
 my.repeat 5 [print "hello]
 @end example
 
-For this example, MY.REPEAT will output the instruction list
+For this example, @code{MY.REPEAT} will output the instruction list
 
 @example
-		[print "hello my.repeat 4 [print "hello]]
+[print "hello my.repeat 4 [print "hello]]
 @end example
 
-Logo then executes these instructions in place of the original
-invocation of MY.REPEAT; this prints @code{hello} once and invokes another
+Logo then executes these instructions in place of the original invocation of
+@code{MY.REPEAT}; this prints @code{hello} once and invokes another
 repetition.
 
 The technique just shown, although fairly easy to understand, has the
 defect of slowness because each repetition has to construct an
-instruction list for evaluation.  Another approach is to make my.repeat
+instruction list for evaluation.  Another approach is to make @code{MY.REPEAT}
 a macro that works just like the non-macro version unless the
-instructions to be repeated include OUTPUT or STOP:
+instructions to be repeated include @code{OUTPUT} or @code{STOP}:
 
 @example
 .macro my.repeat :num :instructions
 catch "repeat.catchtag ~
-   [op repeat.done runresult [repeat1 :num :instructions]]
+      [op repeat.done runresult [repeat1 :num :instructions]]
 op []
 end
 
@@ -6850,19 +6867,20 @@ op list "output quoted first :repeat.result
 end
 @end example
 
-If the instructions do not include STOP or OUTPUT, then REPEAT1 will
-reach its base case and invoke THROW.  As a result, my.repeat's last
-instruction line will output an empty list, so the second evaluation of
-the macro result will do nothing.  But if a STOP or OUTPUT happens, then
-REPEAT.DONE will output a STOP or OUTPUT instruction that will be
-re-executed in the caller's context.
+If the instructions do not include @code{STOP} or @code{OUTPUT}, then
+@code{REPEAT1} will reach its base case and invoke @code{THROW}.  As a result,
+@code{MY.REPEAT}'s last instruction line will output an empty list, so the
+evaluation of the macro result by the caller will do nothing.  But if a
+@code{STOP} or @code{OUTPUT} happens, then @code{REPEAT.DONE} will output a
+@code{STOP} or @code{OUTPUT} instruction that will be executed in the
+caller's context.
 
 The macro-defining commands have names starting with a dot because
 macros are an advanced feature of Logo; it's easy to get in trouble by
 defining a macro that doesn't terminate, or by failing to construct the
 instruction list properly.
 
-Lisp users should note that Logo macros are NOT special forms.  That is,
+Lisp users should note that Logo macros are @emph{not} special forms.  That is,
 the inputs to the macro are evaluated normally, as they would be for any
 other Logo procedure.  It's only the output from the macro that's
 handled unusually.
@@ -6871,11 +6889,11 @@ Here's another example:
 
 @example
 .macro localmake :name :value
-output (list "local~
-   word "" :name   ~
-   "apply          ~
-   ""make          ~
-   (list :name :value))
+output (list "local          ~
+             word "" :name   ~
+             "apply          ~
+             ""make          ~
+             (list :name :value))
 end
 @end example
 
@@ -6888,15 +6906,15 @@ print :garply
 end
 @end example
 
-LOCALMAKE outputs the list
+@code{LOCALMAKE} outputs the list
 
 @display
-		[local "garply apply "make [garply hello]]
+[local "garply apply "make [garply hello]]
 @end display
 
-The reason for the use of APPLY is to avoid having to decide whether or
-not the second input to MAKE requires a quotation mark before it.  (In
-this case it would --- MAKE "GARPLY "HELLO --- but the quotation mark
+The reason for the use of @code{APPLY} is to avoid having to decide whether or
+not the second input to @code{MAKE} requires a quotation mark before it.  (In
+this case it would --- @code{MAKE "GARPLY "HELLO} --- but the quotation mark
 would be wrong if the value were a list.)
 
 It's often convenient to use the @t{`} function to construct the instruction
@@ -6964,23 +6982,46 @@ end
 * ERROR CODES::                 
 @end menu
 
-If an error occurs, Logo takes the following steps.  First, if there is
-an available variable named @code{ERRACT}, Logo takes its value as an instructionlist and runs the instructions.  The operation ERROR may be used within the
-instructions (once) to examine the error condition.  If the instructionlist
-invokes PAUSE, the error message is printed before the pause happens.
-Certain errors are "recoverable"; for one of those errors, if the
-instructionlist outputs a value, that value is used in place of the
-expression that caused the error.  (If @code{ERRACT} invokes PAUSE and the user then invokes CONTINUE with an input, that input becomes the output from PAUSE and therefore the output from the @code{ERRACT} instructionlist.)
+If an error occurs, Logo takes the following steps.  First, if there is an
+available variable named @code{ERRACT}, Logo takes its value as an
+instructionlist and runs the instructions.  The operation @code{ERROR} may be
+used within the instructions (once) to examine the error condition.  If the
+instructionlist invokes @code{PAUSE}, the error message is printed before the
+pause happens.  Certain errors are @dfn{recoverable}; for one of those errors,
+if the instructionlist outputs a value, that value is used in place of the
+expression that caused the error.  (If @code{ERRACT} invokes @code{PAUSE} and
+the user then invokes @code{CONTINUE} with an input, that input becomes the
+output from @code{PAUSE} and therefore the output from the @code{ERRACT}
+instructionlist.)
 
-It is possible for an @code{ERRACT} instructionlist to produce an inappropriate value or no value where one is needed.  As a result, the same error condition could recur forever because of this mechanism.  To avoid that danger, if the same error condition occurs twice in a row from an @code{ERRACT} instructionlist without user interaction, the message "Erract loop" is printed and control returns to toplevel.  "Without user interaction" means that if @code{ERRACT} invokes PAUSE and the user provides an incorrect value, this loop prevention mechanism does not take effect and the user gets to try again.
+It is possible for an @code{ERRACT} instructionlist to produce an
+inappropriate value or no value where one is needed.  As a result, the same
+error condition could recur forever because of this mechanism.  To avoid that
+danger, if the same error condition occurs twice in a row from an
+@code{ERRACT} instructionlist without user interaction, the message
+@samp{Erract loop} is printed and control returns to toplevel.  "Without user
+interaction" means that if @code{ERRACT} invokes @code{PAUSE} and the user
+provides an incorrect value, this loop prevention mechanism does not take
+effect and the user gets to try again.
 
-During the running of the @code{ERRACT} instructionlist, @code{ERRACT} is locally unbound, so an error in the @code{ERRACT} instructions themselves will not cause a loop.  In particular, an error during a pause will not cause a pause-within-a-pause unless the user reassigns the value [PAUSE] to @code{ERRACT} during the pause.  But such an error will not return to toplevel; it will remain within the original pause loop.
+During the running of the @code{ERRACT} instructionlist, @code{ERRACT} is
+locally unbound, so an error in the @code{ERRACT} instructions themselves will
+not cause a loop.  In particular, an error during a pause will not cause a
+pause-within-a-pause unless the user reassigns the value @code{[PAUSE]} to
+@code{ERRACT} during the pause.  But such an error will not return to
+toplevel; it will remain within the original pause loop.
 
-If there is no available @code{ERRACT} value, Logo handles the error by generating an internal @w{@t{THROW "ERROR}}.  (A user program can also generate an error condition deliberately by invoking THROW.)  If this throw is not caught by
-a @w{@t{CATCH "ERROR}} in the user program, it is eventually caught either by the toplevel instruction loop or by a pause loop, which prints the error message. An invocation of @w{@t{CATCH "ERROR}} in a user program locally unbinds @code{ERRACT}, so the effect is that whichever of @code{ERRACT} and @w{@t{CATCH "ERROR}} is more local will take precedence.
+If there is no available @code{ERRACT} value, Logo handles the error by
+generating an internal @w{@t{THROW "ERROR}}.  (A user program can also
+generate an error condition deliberately by invoking @code{THROW}.)  If this
+throw is not caught by a @w{@t{CATCH "ERROR}} in the user program, it is
+eventually caught either by the toplevel instruction loop or by a pause loop,
+which prints the error message. An invocation of @w{@t{CATCH "ERROR}} in a
+user program locally unbinds @code{ERRACT}, so the effect is that whichever of
+@code{ERRACT} and @w{@t{CATCH "ERROR}} is more local will take precedence.
 
 If a floating point overflow occurs during an arithmetic operation, or a
-two-input mathematical function (like POWER) is invoked with an illegal
+two-input mathematical function (like @code{POWER}) is invoked with an illegal
 combination of inputs, the @samp{doesn't like} message refers to the second
 operand, but should be taken as meaning the combination.
 
@@ -6996,51 +7037,59 @@ operand, but should be taken as meaning the combination.
 @cindex errors
 
 Here are the numeric codes that appear as the first member of the list
-output by ERROR when an error is caught, with the corresponding messages.
+output by @code{ERROR} when an error is caught, with the corresponding messages.
 Some messages may have two different codes depending on whether or not
 the error is recoverable (that is, a substitute value can be provided
 through the @code{ERRACT} mechanism) in the specific context.  Some messages are
 warnings rather than errors; these will not be caught.  Errors 0 and 32 are
 so bad that Logo exits immediately.
 
-@display
-
-  0	Fatal internal error (can't be caught)
+@example
+  0	Fatal internal error@ @ @r{(can't be caught)}
   1	Out of memory
   2	Stack overflow
   3	Turtle out of bounds
-  4	PROC doesn't like DATUM as input (not recoverable)
-  5	PROC didn't output to PROC
-  6	Not enough inputs to PROC
-  7	PROC doesn't like DATUM as input (recoverable)
+  4	@var{proc} doesn't like @var{datum} as input@ @ @r{(not recoverable)}
+  5	@var{proc} didn't output to @var{proc}
+  6	Not enough inputs to @var{proc}
+  7	@code{proc} doesn't like @code{datum} as input@ @ @r{(recoverable)}
   8	Too much inside ()'s
-  9 	You don't say what to do with DATUM
+  9 	You don't say what to do with @var{datum}
  10	')' not found
- 11	VAR has no value
+ 11	@var{var} has no value
  12	Unexpected ')'
- 13	I don't know how to PROC (recoverable)
- 14	Can't find catch tag for THROWTAG
- 15	PROC is already defined
+ 13	I don't know how to @var{proc}@ @ @r{(recoverable)}
+ 14	Can't find catch tag for @var{throwtag}
+ 15	@var{proc} is already defined
  16	Stopped
  17	Already dribbling
  18	File system error
- 19	Assuming you mean IFELSE, not IF (warning only)
- 20	VAR shadowed by local in procedure call (warning only)
+ 19	Assuming you mean IFELSE, not IF@ @ @r{(warning only)}
+ 20	@var{var} shadowed by local in procedure call@ @ @r{(warning only)}
  21	Throw "Error
- 22	PROC is a primitive
+ 22	@var{proc} is a primitive
  23	Can't use TO inside a procedure
- 24	I don't know how to PROC (not recoverable)
+ 24	I don't know how to @var{proc}@ @ @r{(not recoverable)}
  25	IFTRUE/IFFALSE without TEST
  26	Unexpected ']'
  27	Unexpected '@}'
  28	Couldn't initialize graphics
- 29	Macro returned VALUE instead of a list
- 30	You don't say what to do with VALUE
+ 29	Macro returned @var{value} instead of a list
+ 30	You don't say what to do with @var{value}
  31	Can only use STOP or OUTPUT inside a procedure
- 32	APPLY doesn't like BADTHING as input
+ 32	APPLY doesn't like @var{badthing} as input
  33	END inside multi-line instruction
- 34	Really out of memory (can't be caught)
-@end display
+ 34	Really out of memory@ @ @r{(can't be caught)}
+ 35	user-generated error message (THROW "ERROR @var{message})
+ 36	END inside multi-line instruction
+ 37	Bad default expression for optional input: @var{expr}
+ 38	Can't use OUTPUT or STOP inside RUNRESULT
+ 39 	Assuming you meant 'FD 100', not FD100@ @ @r{(or similar)}
+ 40	I can't open file @var{filename}
+ 41	File @var{filename} already open
+ 42	File @var{filename} not open
+ 43	Runlist [@var{expr} @var{expr}] has more than one expression.
+@end example
 
 
 @node   SPECIAL VARIABLES, INTERNATIONALIZATION, ERROR PROCESSING, Top
@@ -7054,9 +7103,12 @@ except for @code{ALLOWGETSET}, @code{CASEIGNOREDP}, and
 
 @menu
 * ALLOWGETSET::                 
+* BUTTONACT::
 * CASEIGNOREDP::                
+* COMMANDLINE::
 * ERRACT::                      
 * FULLPRINTP::                  
+* KEYACT::
 * LOADNOISILY::                 
 * PRINTDEPTHLIMIT::             
 * PRINTWIDTHLIMIT::             
@@ -7064,9 +7116,11 @@ except for @code{ALLOWGETSET}, @code{CASEIGNOREDP}, and
 * STARTUP::                     
 * UNBURYONEDIT::                
 * USEALTERNATENAMES::           
+* LOGOVERSION::
+* LOGOPLATFORM::
 @end menu
 
-@node ALLOWGETSET, CASEIGNOREDP, SPECIAL VARIABLES, SPECIAL VARIABLES
+@node ALLOWGETSET, BUTTONACT, SPECIAL VARIABLES, SPECIAL VARIABLES
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec allowgetset
 @cindex allowgetset
@@ -7077,11 +7131,40 @@ ALLOWGETSET                           (variable)
 
 if @code{TRUE}, indicates that an attempt to use a procedure that doesn't exist
 should be taken as an implicit getter or setter procedure (setter if the
-first three letters of the name are SET) for a variable of the same name
-(without the SET if appropriate).
+first three letters of the name are @code{SET}) for a variable of the same name
+(without the @code{SET} if appropriate).
 
+@node BUTTONACT, CASEIGNOREDP, ALLOWGETSET, SPECIAL VARIABLES
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec buttonact
+@cindex buttonact
 
-@node CASEIGNOREDP, ERRACT, ALLOWGETSET, SPECIAL VARIABLES
+@example
+BUTTONACT                           (variable)
+@end example
+
+if nonempty, should be an instruction list that will be evaluated
+whenever a mouse button is pressed.  Note that the user may have
+released the button before the instructions are evaluated.  @code{BUTTON}
+will still output which button was most recently pressed.  @code{CLICKPOS}
+will output the position of the mouse cursor at the moment the
+button was pressed; this may be different from @code{MOUSEPOS} if the
+user moves the mouse after clicking.
+
+Note that it's possible for the user to press a button during the
+evaluation of the instruction list.  If this would confuse your
+program, prevent it by temporarily setting @code{BUTTONACT} to the empty
+list.  One easy way to do that is the following:
+
+@example
+make "buttonact [button.action]
+
+to button.action [:buttonact []]
+... ; whatever you want the button to do
+end
+@end example
+
+@node CASEIGNOREDP, COMMANDLINE, BUTTONACT, SPECIAL VARIABLES
 @unnumberedsubsec caseignoredp
 @cindex caseignoredp
 
@@ -7090,14 +7173,25 @@ CASEIGNOREDP                                (variable)
 @end example
 
 if @code{TRUE}, indicates that lower case and upper case letters should be
-considered equal by EQUALP, BEFOREP, MEMBERP, etc.  Logo initially makes
-this variable @code{TRUE}, and buries it.
+considered equal by @code{EQUALP}, @code{BEFOREP}, @code{MEMBERP}, etc.  Logo
+initially makes this variable @code{TRUE}, and buries it.
 
 @xref{EQUALP} ,
 @ref{BEFOREP} ,
 @ref{MEMBERP} .
 
-@node ERRACT, FULLPRINTP, CASEIGNOREDP, SPECIAL VARIABLES
+@node COMMANDLINE, ERRACT, CASEIGNOREDP, SPECIAL VARIABLES
+@unnumberedsubsec commandline
+@cindex commandline
+
+@example
+COMMANDLINE                                (variable)
+@end example
+
+contains any text appearing after a hyphen on the command line used
+to start Logo.
+
+@node ERRACT, FULLPRINTP, COMMANDLINE, SPECIAL VARIABLES
 @unnumberedsubsec erract
 @cindex erract
 
@@ -7106,18 +7200,17 @@ ERRACT                                      (variable)
 @end example
 
 an instructionlist that will be run in the event of an error.  Typically
-has the value [PAUSE] to allow interactive debugging.
+has the value @code{[PAUSE]} to allow interactive debugging.
 
 @xref{PAUSE} .
 
-
-@node FULLPRINTP, LOADNOISILY, ERRACT, SPECIAL VARIABLES
+@node FULLPRINTP, KEYACT, ERRACT, SPECIAL VARIABLES
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec fullprintp
 @cindex fullprintp
 
 @example
-FULLPRINTP
+FULLPRINTP                               (variable)
 @end example
 
 if @code{TRUE}, then words that were created using backslash or vertical bar
@@ -7127,8 +7220,35 @@ the printed result could be re-read by Logo to produce the same value.
 If FULLPRINTP is @code{TRUE} then the empty word (however it was created)
 prints as @code{||}.  (Otherwise it prints as nothing at all.)
 
+@node KEYACT, LOADNOISILY, FULLPRINTP, SPECIAL VARIABLES
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec keyact
+@cindex keyact
 
-@node LOADNOISILY, PRINTDEPTHLIMIT, FULLPRINTP, SPECIAL VARIABLES
+@example
+KEYACT                               (variable)
+@end example
+
+if nonempty, should be an instruction list that will be evaluated
+whenever a key is pressed on the keyboard.  The instruction list
+can use @code{READCHAR} to find out what key was pressed.  Note that only
+keys that produce characters qualify; pressing @code{SHIFT} or @code{CONTROL}
+alone will not cause @code{KEYACT} to be evaluated.
+
+Note that it's possible for the user to press a key during the
+evaluation of the instruction list.  If this would confuse your
+program, prevent it by temporarily setting @code{KEYACT} to the empty
+list.  One easy way to do that is the following:
+
+@example
+make "keyact [key.action]
+
+to key.action [:keyact []]
+... ; whatever you want the key to do
+end
+@end example
+
+@node LOADNOISILY, PRINTDEPTHLIMIT, KEYACT, SPECIAL VARIABLES
 @unnumberedsubsec loadnoisily
 @cindex loadnoisily
 
@@ -7137,7 +7257,7 @@ LOADNOISILY                                 (variable)
 @end example
 
 if @code{TRUE}, prints the names of procedures defined when loading from a file
-(including the temporary file made by EDIT).
+(including the temporary file made by @code{EDIT}).
 
 @xref{EDIT} .
 
@@ -7150,7 +7270,7 @@ PRINTDEPTHLIMIT                             (variable)
 @end example
 
 if a nonnegative integer, indicates the maximum depth of sublist
-structure that will be printed by PRINT, etc.
+structure that will be printed by @code{PRINT}, etc.
 
 @xref{PRINT} .
 
@@ -7163,7 +7283,7 @@ PRINTWIDTHLIMIT                             (variable)
 @end example
 
 if a nonnegative integer, indicates the maximum number of members in any
-one list that will be printed by PRINT, etc.
+one list that will be printed by @code{PRINT}, etc.
 
 @xref{PRINT} .
 
@@ -7175,7 +7295,8 @@ one list that will be printed by PRINT, etc.
 REDEFP                                      (variable)
 @end example
 
-if @code{TRUE}, allows primitives to be erased (ERASE) or redefined (COPYDEF).
+if @code{TRUE}, allows primitives to be erased (@code{ERASE}) or redefined
+(@code{COPYDEF}).
 
 @xref{ERASE} ,
 @ref{COPYDEF} .
@@ -7188,7 +7309,7 @@ if @code{TRUE}, allows primitives to be erased (ERASE) or redefined (COPYDEF).
 STARTUP                                     (variable)
 @end example
 
-if assigned a list value in a file loaded by LOAD, that value is run as
+if assigned a list value in a file loaded by @code{LOAD}, that value is run as
 an instructionlist after the loading.
 
 @xref{LOAD} .
@@ -7202,15 +7323,15 @@ an instructionlist after the loading.
 UNBURYONEDIT                            (variable)
 @end example
 
-if @code{TRUE}, causes any procedure defined during EDIT or LOAD to be
-unburied, so that it will be saved by a later SAVE.  Files that want to
-define and bury procedures must do it in that order.
+if @code{TRUE}, causes any procedure defined during @code{EDIT} or @code{LOAD}
+to be unburied, so that it will be saved by a later @code{SAVE}.  Files that
+want to define and bury procedures must do it in that order.
 
 @xref{EDIT} ,
 @xref{LOAD} ,
 @xref{SAVE} .
 
-@node USEALTERNATENAMES,  , UNBURYONEDIT, SPECIAL VARIABLES
+@node USEALTERNATENAMES, LOGOVERSION, UNBURYONEDIT, SPECIAL VARIABLES
 @unnumberedsubsec usealternatenames
 @cindex usealternatenames
 
@@ -7219,7 +7340,34 @@ USEALTERNATENAMES					(variable)
 @end example
 
 if @code{TRUE}, causes Logo to generate non-English words (from the
-Messages file) instead of @code{TRUE}, @code{FALSE}, END, etc.
+@file{Messages} file) instead of @code{TRUE}, @code{FALSE}, @code{END}, etc.
+
+
+
+Logo provides the following buried variables that can be used by programs:
+
+@node LOGOVERSION, LOGOPLATFORM, USEALTERNATENAMES, SPECIAL VARIABLES
+@unnumberedsubsec logoversion
+@cindex logoversion
+
+@example
+LOGOVERSION                                   (variable)
+@end example
+
+a real number indicating the Logo version number, e.g., 5.5
+
+@node LOGOPLATFORM,  , LOGOVERSION, SPECIAL VARIABLES
+@unnumberedsubsec logoplatform
+@cindex logoplatform
+
+@example
+LOGOPLATFORM                                   (variable)
+@end example
+
+one of the following words: @code{wxWidgets}, @code{X11}, @code{Windows},
+or @code{Unix-nographics}.
+
+
 
 @node INTERNATIONALIZATION, INDEX, SPECIAL VARIABLES, Top
 @chapter Internationalization
@@ -7232,13 +7380,13 @@ If you want to translate Berkeley Logo for use with another language,
 there are three main things you have to do:
 
 @example
-	1. Primitive names
-	2. Error (and other) messages
-	3. Documentation
+1. Primitive names
+2. Error (and other) messages
+3. Documentation
 @end example
 
 For primitive names, the easiest thing is to provide a startup file that
-defines aliases for the English primitive names, using COPYDEF:
+defines aliases for the English primitive names, using @code{COPYDEF}:
 
 @example
 COPYDEF "AVANT "FORWARD
@@ -7246,7 +7394,7 @@ COPYDEF "AVANT "FORWARD
 
 This should take care of it, unless your language's name for one primitive
 is spelled like the English name of a different primitive.  In that case
-you have to turn REDEFP on and be sure to copy the non-conflicting name
+you have to turn @code{REDEFP} on and be sure to copy the non-conflicting name
 before overwriting the conflicting one!
 
 "Primitives" that are actually in the Logo library, of course, can just
@@ -7257,16 +7405,17 @@ Of course Logo programs will still not look like your native language if
 the word order is dramatically different, especially if you don't put
 verbs before their objects.
 
-For error messages, there is a file named Messages in the logolib directory
-with texts of messages, one per line.  You can replace this with a file for
-your own language.  Do not add, delete, or reorder lines; Logo finds messages
-by line number.  The sequences @code{%p}, @code{%s}, and @code{%t} in these messages represent
-variable parts of the message and should not be translated.  (%p @code{PRINT}s
-the variable part, while %s @code{SHOW}s it -- that is, the difference is about
-whether or not brackets are shown surrounding a list.  %t means that the
-variable part is a C text string rather than a Logo object.)  If you want to
-change the order of two variable parts (no reorderable message has more than
-two), you would for example replace the line
+For error messages, there is a file named @file{Messages} in the
+@file{logolib} directory with texts of messages, one per line.  You can
+replace this with a file for your own language.  Do not add, delete, or
+reorder lines; Logo finds messages by line number.  The sequences @code{%p},
+@code{%s}, and @code{%t} in these messages represent variable parts of the
+message and should not be translated.  (%p @code{PRINT}s the variable part,
+while %s @code{SHOW}s it -- that is, the difference is about whether or not
+brackets are shown surrounding a list.  %t means that the variable part is a C
+text string rather than a Logo object.)  If you want to change the order of
+two variable parts (no reorderable message has more than two), you would for
+example replace the line
 
 @example
 %p doesn't like %s as input
@@ -7282,47 +7431,51 @@ The plus sign tells the message printer to reverse the order; you must
 reverse the order of %p and %s, if both are used, to match.  The plus
 sign goes just after the first percent sign in the message, which might
 not be at the beginning of the line.  The sequence @code{\n} in a message
-represents a newline; don't be fooled into thinking that the "n" is part
+represents a newline; don't be fooled into thinking that the @code{n} is part
 of the following word.
 
-Some messages appear twice in the file; this isn't a mistake.  The two
-spaces before "to" in "I don't know how  to" aren't a mistake either.
-The message containing just "%p" is for user-provided error messages
-in THROW "ERROR.  The message "  in %s\n%s" is the part of all error
-messages that indicates where the error occurred if it was inside a
-procedure; you might want to change the word "in" to your language.
-"%s defined\n" is what LOAD prints for each procedure defined if
-the variable LOADNOISILY is @code{TRUE}.  "to %p\nend\n\n" is what EDIT puts in the
-temporary file if you ask to edit a procedure that isn't already defined.
+Some messages appear twice in the file; this isn't a mistake.  The two spaces
+before @code{to} in @code{I don't know how\ \ to} aren't a mistake either.
+The message containing just @code{%p} is for user-provided error messages in
+@w{@code{THROW "ERROR}}.  The message "@code{\ \ in %s\n%s}" is the part of all
+error messages that indicates where the error occurred if it was inside a
+procedure; you might want to change the word @code{in} to your language.  
+@w{@code{%s defined\n}} is what @code{LOAD} prints for each procedure defined
+if the variable @code{LOADNOISILY} is @code{TRUE}.
+@w{"@code{to %p\nend\n\n}"} is what @code{EDIT} puts in the temporary file if
+you ask to edit a procedure that isn't already defined.
 
-Also in the Messages file are lines containing only one word each; the
-first of these is the word "true".  Some of these words are recognized by
+Also in the @file{Messages} file are lines containing only one word each; the
+first of these is the word @code{true}.  Some of these words are recognized by
 Logo in user input; some are generated by Logo; some are both.  For example,
-the words @code{TRUE} and @code{FALSE} are recognized as Boolean values by IF and IFELSE,
-and are also generated by Logo as outputs from the primitive predicates
-such as EQUALP.  The word END is recognized as the end of a procedure
-definition, and may be generated when Logo reconstructs a procedure body
-for PO or EDIT.  I've used capital letters in this paragraph for easier
-reading, but the words in the Messages file should be in lower case.
+the words @code{TRUE} and @code{FALSE} are recognized as Boolean values by
+@code{IF} and @code{IFELSE}, and are also generated by Logo as outputs from
+the primitive predicates such as @code{EQUALP}.  The word @code{END} is
+recognized as the end of a procedure definition, and may be generated when
+Logo reconstructs a procedure body for @code{PO} or @code{EDIT}.  I've used
+capital letters in this paragraph for easier reading, but the words in the
+@file{Messages} file should be in lower case.
 
-If you replace these with non-English words, Logo will *recognize* both the
+If you replace these with non-English words, Logo will @emph{recognize} both the
 English names and your alternate names.  For example, if you replace the
-word "true" with "vrai" then Logo will understand both of these:
+word @code{true} with @code{vrai} then Logo will understand both of these:
 
 @example
 IF "TRUE [PRINT "YES]
 IF "VRAI [PRINT "YES]
 @end example
 
-The variable UseAlternateNames determines whether Logo will *generate*
-other-language names -- for example, whether predicate functions return
-the other-language alternates for @code{TRUE} and @code{FALSE}.  This variable is @code{FALSE} by
-default, meaning that the English words will be generated.
+The variable @code{UseAlternateNames} determines whether Logo will
+@emph{generate} other-language names -- for example, whether predicate
+functions return the other-language alternates for @code{TRUE} and
+@code{FALSE}.  This variable is @code{FALSE} by default, meaning that the
+English words will be generated.
 
-You might wish to have English-named predicate functions generate English @code{TRUE}
-and @code{FALSE}, while other-language-named predicates generate the alternate
-words.  This can be done by leaving UseAlternateNames false, and instead of
-defining the other-language predicates with COPYDEF, do it this way:
+You might wish to have English-named predicate functions generate English
+@code{TRUE} and @code{FALSE}, while other-language-named predicates generate
+the alternate words.  This can be done by leaving @code{UseAlternateNames}
+false, and instead of defining the other-language predicates with
+@code{COPYDEF}, do it this way:
 
 @example
 to french.boolean :bool
@@ -7348,39 +7501,38 @@ false
 true
 @end example
 
-The third input to make.french.predicate is the number of inputs that the
-predicate expects.  This solution isn't quite perfect because the infix
-predicates (=, <, >) will still output in English.  If you want them to generate
-alternate-language words, set UseAlternateNames to @code{TRUE} instead.
+The third input to @code{make.french.predicate} is the number of inputs that
+the predicate expects.  This solution isn't quite perfect because the infix
+predicates (@code{=}, @code{<}, @code{>}) will still output in English.  If
+you want them to generate alternate-language words, set
+@code{UseAlternateNames} to @code{TRUE} instead.
 
-Some of the words in this section of the Messages file are names of Logo
-primitives (OUTPUT, STOP, GOTO, TAG, IF, IFELSE, TO, .MACRO).  To translate
-these names, you must use COPYDEF as described earlier, in addition to
-changing the names in Messages.  You should be consistent in these two steps.
-Don't forget the period in ".macro"!
+Some of the words in this section of the @file{Messages} file are names of
+Logo primitives (@code{OUTPUT}, @code{STOP}, @code{GOTO}, @code{TAG},
+@code{IF}, @code{IFELSE}, @code{TO}, @code{.MACRO}).  To translate these
+names, you must use @code{COPYDEF} as described earlier, in addition to
+changing the names in @file{Messages}.  You should be consistent in these two
+steps.  Don't forget the period in @code{.macro}!
 
 For documentation, there are two kinds: this manual and the help files.
 The latter are generated automatically from this manual if you have a
 Unix system, so in that case you need only translate this manual,
 maintaining the format.  (The automatic helpfile generator notices
 things like capital letters, tabs, hyphens, and equal signs at the
-beginnings of lines.)  The program makefile.c may require modification
-because a few of the primitive names are special cases (e.g., LOG10 is
+beginnings of lines.)  The program @code{makefile.c} may require modification
+because a few of the primitive names are special cases (e.g., @code{LOG10} is
 the only name with digits included).
 
 If you don't have Unix tools, you can just translate each helpfile
-individually.  A period in a primitive name is represented as a D in
-the filename; there are no files for question marks because the HELP
+individually.  A period in a primitive name is represented as a @code{D} in
+the filename; there are no files for question marks because the @code{HELP}
 command looks for the file named after the corresponding primitive
-that ends in P.
+that ends in @code{P}.
 
 
 @node   INDEX,  , INTERNATIONALIZATION, Top
 @unnumbered INDEX
 
 @printindex cp
-
-@shortcontents
-@contents
 
 @bye

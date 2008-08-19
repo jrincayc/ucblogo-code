@@ -3404,7 +3404,7 @@ FOREACH data template					(library procedure)
 	member of the data list.  If more than one data list are given,
 	each of them must be the same length.  (The data inputs can be
 	words, in which case the template is evaluated once for each
-	character.
+	character.)
 
 	In a template, the symbol ?REST represents the portion of the
 	data input to the right of the member currently being used as
@@ -3517,7 +3517,7 @@ REDUCE template data					(library procedure)
 
 	outputs the result of applying the template to accumulate the
 	members of the data input.  The template must be a two-slot
-	function.  Typically it is an associative function name like "SUM.
+	function.  Typically it is an associative function name like SUM.
 	If the data input has only one constituent (member in a list or
 	character in a word), the output is that consituent.  Otherwise,
 	the template is first applied with ?1 filled with the next-to-last
@@ -3611,13 +3611,13 @@ CASCADE endtest template startvalue			(library procedure)
 	additional template-startvalue pairs as inputs to CASCADE.  In this
 	case, all templates (including the endtest template, if used) are
 	multi-slot, with the number of slots equal to the number of pairs of
-	inputs.  In each round of evaluations, ?2 represents the result of
-	evaluating the second template in the previous round.  If the total
-	number of inputs (including the first endtest input) is odd, then
-	the output from CASCADE is the final value of the first template.
+	inputs.  In each round of evaluations, ?2, for example, represents the
+	result of evaluating the second template in the previous round.  If
+	the total number of inputs (including the first endtest input) is odd,
+	then the output from CASCADE is the final value of the first template.
 	If the total number of inputs is even, then the last input is a
-	template that is evaluated once, after the end test is satisfied,
-	to determine the output from CASCADE.
+	template that is evaluated once, after the end test is satisfied, to
+	determine the output from CASCADE.
 
 		to fibonacci :n
 		output (cascade :n [?1 + ?2] 1 [?1] 0)
@@ -3724,7 +3724,7 @@ MACROS
 	The technique just shown, although fairly easy to understand,
 	has the defect of slowness because each repetition has to
 	construct an instruction list for evaluation.  Another approach
-	is to make my.repeat a macro that works just like the non-macro
+	is to make MY.REPEAT a macro that works just like the non-macro
 	version unless the instructions to be repeated include OUTPUT
 	or STOP:
 
@@ -3746,11 +3746,11 @@ MACROS
 		end
 
 	If the instructions do not include STOP or OUTPUT, then REPEAT1 will
-	reach its base case and invoke THROW.  As a result, my.repeat's last
-	instruction line will output an empty list, so the second evaluation
-	of the macro result will do nothing.  But if a STOP or OUTPUT happens,
-	then REPEAT.DONE will output a STOP or OUTPUT instruction that will
-	be re-executed in the caller's context.
+	reach its base case and invoke THROW.  As a result, MY.REPEAT's last
+	instruction line will output an empty list, so the evaluation of the
+	macro result by the caller will do nothing.  But if a STOP or OUTPUT
+	happens, then REPEAT.DONE will output a STOP or OUTPUT instruction
+	that will be executed in the caller's context.
 
 	The macro-defining commands have names starting with a dot because
 	macros are an advanced feature of Logo; it's easy to get in trouble
@@ -3911,7 +3911,7 @@ so bad that Logo exits immediately.
  34	Really out of memory (can't be caught)
  35	user-generated error message (THROW "ERROR [message])
  36	END inside multi-line instruction
- 37	Bad default expression for optional input: %s
+ 37	Bad default expression for optional input: EXPR
  38	Can't use OUTPUT or STOP inside RUNRESULT
  39 	Assuming you meant 'FD 100', not FD100 (or similar)
  40	I can't open file FILENAME
