@@ -250,11 +250,11 @@ If you type your interrupt character (see table below) Logo will stop what
 it's doing and return to toplevel, as if you did THROW "TOPLEVEL.  If you
 type your quit character Logo will pause as if you did PAUSE.
 
-                        Unix           DOS/Windows          Mac
+               wxWidgets       Unix        DOS/Windows          Mac
 
-        toplevel    usually ctrl-C       ctrl-Q      command-. (period)
+toplevel         alt-S    usually ctrl-C     ctrl-Q      command-. (period)
 
-        pause       usually ctrl-\       ctrl-W      command-, (comma)
+pause            alt-P    usually ctrl-\     ctrl-W      command-, (comma)
 
 If you have an environment variable called LOGOLIB whose value is the name of
 a directory, then Logo will use that directory instead of the default
@@ -3030,8 +3030,9 @@ THROW tag
 
 	THROW "TOPLEVEL can be used to terminate all running procedures and
 	interactive pauses, and return to the toplevel instruction prompt.
-	Typing the system interrupt character (normally control-C for Unix,
-	control-Q for DOS, or command-period for Mac) has the same effect.
+	Typing the system interrupt character (alt-S for wxWidgets; otherwise
+	normally control-C for Unix, control-Q for DOS, or command-period for
+	Mac) has the same effect.
 
 	THROW "ERROR can be used to generate an error condition.  If the
 	error is not caught, it prints a message (THROW "ERROR) with the
@@ -3052,12 +3053,13 @@ THROW tag
 
 ERROR
 
-	outputs a list describing the error just caught, if any.  If there
-	was not an error caught since the last use of ERROR, the empty list
-	will be output.  The error list contains four members: an integer
-	code corresponding to the type of error, the text of the error
-	message, the name of the procedure in which the error occurred, and
-	the instruction line on which the error occurred.
+	outputs a list describing the error just caught, if any.  If there was
+	not an error caught since the last use of ERROR, the empty list will
+	be output.  The error list contains four members: an integer code
+	corresponding to the type of error, the text of the error message (as
+	a single word including spaces), the name of the procedure in which
+	the error occurred, and the instruction line on which the error
+	occurred.
 
 PAUSE
 
@@ -3070,12 +3072,12 @@ PAUSE
 	If the variable ERRACT exists, and an error condition occurs, the
 	contents of that variable are run as an instructionlist.  Typically
 	ERRACT is given the value [PAUSE] so that an interactive pause will
-	be entered on the event of an error.  This allows the user to check
+	be entered in the event of an error.  This allows the user to check
 	values of local variables at the time of the error.
 
-	Typing the system quit character (normally control-\ for
-	Unix, control-W for DOS, or command-comma for Mac) will also enter a
-	pause.
+	Typing the system quit character (alt-S for wxWidgets; otherwise
+	normally control-\ for Unix, control-W for DOS, or command-comma for
+	Mac) will also enter a pause.
 
 CONTINUE value
 CO value

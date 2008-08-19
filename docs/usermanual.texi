@@ -5851,21 +5851,22 @@ If @code{THROW} is used with two inputs, the second provides an output for the
 @code{CATCH}.
 
 @w{@t{THROW "TOPLEVEL}} can be used to terminate all running procedures and
-interactive pauses, and return to the toplevel instruction prompt.
-Typing the system interrupt character (normally @key{control-C} for Unix,
-@key{control-Q} for DOS, or @key{command-period} for Mac) has the same effect.
+interactive pauses, and return to the toplevel instruction prompt.  Typing the
+system interrupt character (@key{alt-S} for wxWidgets; otherwise normally
+@key{control-C} for Unix, @key{control-Q} for DOS, or @key{command-period} for
+Mac) has the same effect.
 
 @w{@t{THROW "ERROR}} can be used to generate an error condition.  If the error
-is not caught, it prints a message (THROW "ERROR) with the usual
-indication of where the error (in this case the THROW) occurred.  If a
-second input is used along with a tag of ERROR, that second input is
+is not caught, it prints a message (@w{@code{THROW "ERROR}}) with the usual
+indication of where the error (in this case the @code{THROW}) occurred.  If a
+second input is used along with a tag of @code{ERROR}, that second input is
 used as the text of the error message instead of the standard message.
 Also, in this case, the location indicated for the error will be, not
-the location of the THROW, but the location where the procedure
-containing the THROW was invoked.  This allows user-defined procedures
+the location of the @code{THROW}, but the location where the procedure
+containing the @code{THROW} was invoked.  This allows user-defined procedures
 to generate error messages as if they were primitives.  Note: in this
 case the corresponding @w{@t{CATCH "ERROR}}, if any, does not output, since the
-second input to THROW is not considered a return value.
+second input to @code{THROW} is not considered a return value.
 
 @w{@t{THROW "SYSTEM}} immediately leaves Logo, returning to the operating
 system, without printing the usual parting message and without deleting
@@ -5881,12 +5882,12 @@ any editor temporary file written by EDIT.
 ERROR
 @end example
 
-outputs a list describing the error just caught, if any.  If there was
-not an error caught since the last use of ERROR, the empty list will be
-output.  The error list contains four members: an integer code
-corresponding to the type of error, the text of the error message, the
-name of the procedure in which the error occurred, and the instruction
-line on which the error occurred.
+outputs a list describing the error just caught, if any.  If there was not an
+error caught since the last use of @code{ERROR}, the empty list will be
+output.  The error list contains four members: an integer code corresponding
+to the type of error, the text of the error message (as a single word
+including spaces), the name of the procedure in which the error occurred, and
+the instruction line on which the error occurred.
 
 @node PAUSE, CONTINUE, ERROR, CONTROL
 @unnumberedsubsec pause
@@ -5898,17 +5899,19 @@ PAUSE
 
 command or operation.  Enters an interactive pause.  The user is
 prompted for instructions, as at toplevel, but with a prompt that
-includes the name of the procedure in which PAUSE was invoked.  Local
-variables of that procedure are available during the pause.  PAUSE
-outputs if the pause is ended by a CONTINUE with an input.
+includes the name of the procedure in which @code{PAUSE} was invoked.  Local
+variables of that procedure are available during the pause.  @code{PAUSE}
+outputs if the pause is ended by a @code{CONTINUE} with an input.
 
 If the variable @code{ERRACT} exists, and an error condition occurs, the
 contents of that variable are run as an instructionlist.  Typically
-@code{ERRACT} is given the value [PAUSE] so that an interactive pause will be
-entered on the event of an error.  This allows the user to check values
+@code{ERRACT} is given the value @code{[PAUSE]} so that an interactive pause will be
+entered in the event of an error.  This allows the user to check values
 of local variables at the time of the error.
 
-Typing the system quit character (normally @key{control-\} for Unix, @key{control-W} for DOS, or @key{command-comma} for Mac) will also enter a pause.
+Typing the system quit character (@key{alt-S} for wxWidgets; otherwise
+normally @key{control-\} for Unix, @key{control-W} for DOS, or
+@key{command-comma} for Mac) will also enter a pause.
 
 @xref{ERRACT} .
 
@@ -5925,11 +5928,11 @@ CO value
 @end example
 
 command.  Ends the current interactive pause, returning to the context
-of the PAUSE invocation that began it.  If CONTINUE is given an input,
-that value is used as the output from the PAUSE.  If not, the PAUSE does
+of the @code{PAUSE} invocation that began it.  If @code{CONTINUE} is given an input,
+that value is used as the output from the @code{PAUSE}.  If not, the @code{PAUSE} does
 not output.
 
-Exceptionally, the CONTINUE command can be used without its default
+Exceptionally, the @code{CONTINUE} command can be used without its default
 input and without parentheses provided that nothing follows it on the
 instruction line.
 
@@ -5963,9 +5966,9 @@ command.  Exits from Logo; returns to the operating system.
 .MAYBEOUTPUT value				(special form)
 @end example
 
-works like OUTPUT except that the expression that provides the input
+works like @code{OUTPUT} except that the expression that provides the input
 value might not, in fact, output a value, in which case the effect is
-like STOP.  This is intended for use in control structure definitions,
+like @code{STOP}.  This is intended for use in control structure definitions,
 for cases in which you don't know whether or not some expression
 produces a value.  Example:
 
@@ -5980,7 +5983,7 @@ a b c
 abc
 @end example
 
-This is an alternative to RUNRESULT.  It's fast and easy to use, at the
+This is an alternative to @code{RUNRESULT}.  It's fast and easy to use, at the
 cost of being an exception to Logo's evaluation rules.  (Ordinarily, it
 should be an error if the expression that's supposed to provide an input
 to something doesn't have a value.)
@@ -5997,9 +6000,9 @@ to something doesn't have a value.)
 GOTO word
 @end example
 
-command.  Looks for a TAG command with the same input in the same
+command.  Looks for a @code{TAG} command with the same input in the same
 procedure, and continues running the procedure from the location of that
-TAG.  It is meaningless to use GOTO outside of a procedure.
+@code{TAG}.  It is meaningless to use @code{GOTO} outside of a procedure.
 
 @node TAG, IGNORE, GOTO, CONTROL
 @unnumberedsubsec tag
@@ -6010,8 +6013,8 @@ TAG quoted.word
 @end example
 
 command.  Does nothing.  The input must be a literal word following a
-quotation mark ("), not the result of a computation.  Tags are used by
-the GOTO command.
+quotation mark (@code{"}), not the result of a computation.  Tags are used by
+the @code{GOTO} command.
 
 @node IGNORE, back-quote, TAG, CONTROL
 @unnumberedsubsec ignore
@@ -6082,7 +6085,7 @@ FOR forcontrol instructionlist			(library procedure)
 
 command.  The first input must be a list containing three or four
 members: (1) a word, which will be used as the name of a local variable;
-(2) a word or list that will be evaluated as by RUN to determine a
+(2) a word or list that will be evaluated as by @code{RUN} to determine a
 number, the starting value of the variable; (3) a word or list that will
 be evaluated to determine a number, the limit value of the variable; (4)
 an optional word or list that will be evaluated to determine the step
@@ -6090,14 +6093,14 @@ size.  If the fourth member is missing, the step size will be 1 or --1
 depending on whether the limit value is greater than or less than the
 starting value, respectively.
 
-The second input is an instructionlist.  The effect of FOR is to run
+The second input is an instructionlist.  The effect of @code{FOR} is to run
 that instructionlist repeatedly, assigning a new value to the control
-variable (the one named by the first member of the forcontrol list) each
+variable (the one named by the first member of the @var{forcontrol} list) each
 time.  First the starting value is assigned to the control variable.
-Then the value is compared to the limit value.  FOR is complete when the
-sign of (current-limit) is the same as the sign of the step size.  (If
+Then the value is compared to the limit value.  @code{FOR} is complete when the
+sign of @code{(current - limit)} is the same as the sign of the step size.  (If
 no explicit step size is provided, the instructionlist is always run at
-least once.  An explicit step size can lead to a zero-trip FOR, e.g.,
+least once.  An explicit step size can lead to a zero-trip @code{FOR}, e.g.,
 @w{@t{FOR [I 1 0 1] ...})}. Otherwise, the instructionlist is run, then the step is added to the current value of the control variable and FOR returns to
 the comparison step.
 
@@ -6205,14 +6208,15 @@ CASE value clauses					(library procedure)
 
 command or operation.  The second input is a list of lists (clauses);
 each clause is a list whose first element is either a list of values
-or the word ELSE and whose butfirst is a Logo expression or
-instruction.  CASE examines the clauses in order.  If a clause begins
-with the word ELSE (upper or lower case), then the butfirst of that
-clause is evaluated and CASE outputs its value, if any.  If the first
+or the word @code{ELSE} and whose butfirst is a Logo expression or
+instruction.  @code{CASE} examines the clauses in order.  If a clause begins
+with the word @code{ELSE} (upper or lower case), then the butfirst of that
+clause is evaluated and @code{CASE} outputs its value, if any.  If the first
 input to CASE is a member of the first element of a clause, then the
-butfirst of that clause is evaluated and CASE outputs its value, if
-any.  If neither of these conditions is met, then CASE goes on to the
-next clause.  If no clause is satisfied, CASE does nothing.  Example:
+butfirst of that clause is evaluated and @code{CASE} outputs its value, if
+any.  If neither of these conditions is met, then @code{CASE} goes on to the
+next clause.  If no clause is satisfied, @code{CASE} does nothing.  
+Example:
 
 @example
 to vowelp :letter
@@ -6230,15 +6234,15 @@ COND clauses						(library procedure)
 
 command or operation.  The input is a list of lists (clauses); each
 clause is a list whose first element is either an expression whose
-value is @code{TRUE} or @code{FALSE}, or the word ELSE, and whose butfirst is a Logo
-expression or instruction.  COND examines the clauses in order.  If a
-clause begins with the word ELSE (upper or lower case), then the
-butfirst of that clause is evaluated and CASE outputs its value, if
+value is @code{TRUE} or @code{FALSE}, or the word @code{ELSE}, and whose butfirst is a Logo
+expression or instruction.  @code{COND} examines the clauses in order.  If a
+clause begins with the word @code{ELSE} (upper or lower case), then the
+butfirst of that clause is evaluated and @code{CASE} outputs its value, if
 any.  Otherwise, the first element of the clause is evaluated; the
 resulting value must be @code{TRUE} or @code{FALSE}.  If it's @code{TRUE}, then the
-butfirst of that clause is evaluated and COND outputs its value, if
-any.  If the value is @code{FALSE}, then COND goes on to the next clause.  If
-no clause is satisfied, COND does nothing.  Example:
+butfirst of that clause is evaluated and @code{COND} outputs its value, if
+any.  If the value is @code{FALSE}, then @code{COND} goes on to the next clause.  If
+no clause is satisfied, @code{COND} does nothing.  Example:
 
 @example
 to evens :numbers	; select even numbers from a list
@@ -6267,12 +6271,12 @@ The most commonly used form for a template is @samp{explicit-slot} form, or
 ?
 @end example
 
-In this example, the MAP tool evaluated the template [? * ?] repeatedly,
-with each of the members of the data list [2 3 4 5] substituted in turn
-for the question marks.  The same value was used for every question mark
-in a given evaluation.  Some tools allow for more than one datum to be
-substituted in parallel; in these cases the slots are indicated by ?1 for
-the first datum, ?2 for the second, and so on:
+In this example, the @code{MAP} tool evaluated the template @w{@code{[? * ?]}}
+repeatedly, with each of the members of the data list @w{@code{[2 3 4 5]}}
+substituted in turn for the question marks.  The same value was used for every
+question mark in a given evaluation.  Some tools allow for more than one datum
+to be substituted in parallel; in these cases the slots are indicated by
+@code{?1} for the first datum, @code{?2} for the second, and so on:
 
 @example
 ? show (map [(word ?1 ?2 ?1)] [a b c] [d e f])
@@ -6280,16 +6284,17 @@ the first datum, ?2 for the second, and so on:
 ?
 @end example
 
-If the template wishes to compute the datum number, the form (? 1) is
-equivalent to ?1, so (? ?1) means the datum whose number is given in
+If the template wishes to compute the datum number, the form @w{@code{(? 1)}} is
+equivalent to @code{?1}, so @w{@code{(? ?1)}} means the datum whose number is given in
 datum number 1.  Some tools allow additional slot designations, as shown
 in the individual descriptions.
 
-The second form of template is the @samp{named-procedure} form.  If the template is a word rather than a list, it is taken as the name of a procedure.  That
-procedure must accept a number of inputs equal to the number of parallel
+The second form of template is the @samp{named-procedure} form.  If the
+template is a word rather than a list, it is taken as the name of a procedure.
+That procedure must accept a number of inputs equal to the number of parallel
 data slots provided by the tool; the procedure is applied to all of the
-available data in order.  That is, if data ?1 through ?3 are available,
-the template "PROC is equivalent to @w{@t{[PROC ?1 ?2 ?3]}}.
+available data in order.  That is, if data @code{?1} through @code{?3} are
+available, the template @code{"PROC} is equivalent to @w{@t{[PROC ?1 ?2 ?3]}}.
 
 @example
 ? show (map "word [a b c] [d e f])
@@ -6301,13 +6306,14 @@ op apply "sum (map "product :a :b)
 end
 @end example
 
-The third form of template is @samp{named-slot} or @samp{lambda} form.  This form is indicated by a template list containing more than one member, whose first
-member is itself a list.  The first member is taken as a list of names;
-local variables are created with those names and given the available data
-in order as their values.  The number of names must equal the number of
-available data.  This form is needed primarily when one iteration tool must
-be used within the template list of another, and the ? notation would be
-ambiguous in the inner template.  Example:
+The third form of template is @samp{named-slot} or @samp{lambda} form.  This
+form is indicated by a template list containing more than one member, whose
+first member is itself a list.  The first member is taken as a list of names;
+local variables are created with those names and given the available data in
+order as their values.  The number of names must equal the number of available
+data.  This form is needed primarily when one iteration tool must be used
+within the template list of another, and the @code{?} notation would be ambiguous in
+the inner template.  Example:
 
 @example
 to matmul :m1 :m2 [:tm2 transpose :m2]	; multiply two matrices
@@ -6315,13 +6321,15 @@ output map [[row] map [[col] dotprod :row :col] :tm2] :m1
 end
 @end example
 
-The fourth form is @samp{procedure text} form, a variant of lambda form.  In this form, the template list contains at least two members, all of which are
-lists.  This is the form used by the DEFINE and TEXT primitives, and APPLY
-accepts it so that the text of a defined procedure can be used as a template.
+The fourth form is @samp{procedure text} form, a variant of lambda form.  In
+this form, the template list contains at least two members, all of which are
+lists.  This is the form used by the @code{DEFINE} and @code{TEXT} primitives,
+and @code{APPLY} accepts it so that the text of a defined procedure can be
+used as a template.
 
-Note:  The fourth form of template is interpreted differently from the
-others, in that Logo considers it to be an independent defined procedure
-for the purposes of OUTPUT and STOP.  For example, the following two
+Note:  The fourth form of template is interpreted differently from the others,
+in that Logo considers it to be an independent defined procedure for the
+purposes of @code{OUTPUT} and @code{STOP}.  For example, the following two
 instructions are identical:
 
 @example
@@ -6331,9 +6339,11 @@ instructions are identical:
 8
 @end example
 
-although the first instruction is in named-slot form and the second is
-in procedure-text form.  The named-slot form can be understood as telling
-Logo to evaluate the expression @w{@t{:x+3}} in place of the entire invocation of apply, with the variable x temporarily given the value 5.  The procedure-text form can be understood as invoking the procedure
+although the first instruction is in named-slot form and the second is in
+procedure-text form.  The named-slot form can be understood as telling Logo to
+evaluate the expression @w{@t{:x+3}} in place of the entire invocation of
+apply, with the variable @code{x} temporarily given the value @code{5}.  The
+procedure-text form can be understood as invoking the procedure
 
 @example
 to foo :x
@@ -6341,8 +6351,8 @@ output :x+3
 end
 @end example
 
-with input 5, but without actually giving the procedure a name.  If
-the use of OUTPUT were interchanged in these two examples, we'd get errors:
+with input @code{5}, but without actually giving the procedure a name.  If
+the use of @code{OUTPUT} were interchanged in these two examples, we'd get errors:
 
 @example
 ? print apply [[x] output :x+3] [5]
@@ -6351,12 +6361,12 @@ Can only use output inside a procedure
 You don't say what to do with 8
 @end example
 
-The named-slot form can be used with STOP or OUTPUT inside a procedure,
+The named-slot form can be used with @code{STOP} or @code{OUTPUT} inside a procedure,
 to stop the enclosing procedure.
 
 The following iteration tools are extended versions of the ones in Appendix
-B of the book @b{_Computer_Science_Logo_Style,_Volume_3: _Advanced_Topics_ by
-Brian Harvey [MIT Press, 1987]}.  The extensions are primarily to allow for
+B of the book @cite{Computer Science Logo Style, Volume 3:  Advanced Topics} by
+Brian Harvey [MIT Press, 1987].  The extensions are primarily to allow for
 variable numbers of inputs.
 
 
