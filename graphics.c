@@ -1122,9 +1122,9 @@ NODE *lsetpalette(NODE *args) {
 	} else if (NOT_THROWING && ((slotnum > 7) || (slotnum < 0))) {
 		prepare_to_draw;
 		set_palette(slotnum,
-		    (unsigned int)(get_number(car(arg))*65536/100.0),
-		    (unsigned int)(get_number(cadr(arg))*65536/100.0),
-		    (unsigned int)(get_number(car(cddr(arg)))*65536/100.0));
+		    (unsigned int)(get_number(arg)*65535/100.0),
+		    (unsigned int)(get_number(cdr(arg))*65535/100.0),
+		    (unsigned int)(get_number(cddr(arg))*65535/100.0));
 		if (pen_color == slotnum) {
 		    set_pen_color(slotnum);
 		}
@@ -1135,7 +1135,7 @@ NODE *lsetpalette(NODE *args) {
 }
 
 NODE *make_rgbnode(unsigned int val) {
-    FLONUM result=val * 100.0 / 65536.0;
+    FLONUM result=val * 100.0 / 65535.0;
 
     if (result == round(result)) 
 	return make_intnode((FIXNUM)result);

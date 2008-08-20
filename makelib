@@ -91,6 +91,24 @@ end
 
 bury "?rest
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/backslashedp
+;;; -*- logo -*-
+
+to backslashedp :char
+op vbarredp :char
+end
+
+bury "backslashedp
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/backslashed\?
+;;; -*- logo -*-
+
+to backslashed? :char
+op vbarredp :char
+end
+
+bury "backslashed?
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/buryall
 ;;; -*- logo -*-
 
