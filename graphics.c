@@ -1262,10 +1262,14 @@ NODE *lmousepos(NODE *args) {
 		cons(make_floatnode(mouse_y/y_scale), NIL)));
 }
 
+#ifdef HAVE_WX
+
 NODE *lclickpos(NODE *args) {
     return(cons(make_floatnode(click_x/x_scale),
 		cons(make_floatnode(click_y/y_scale), NIL)));
 }
+
+#endif
 
 NODE *lbuttonp(NODE *args) {
 
@@ -1275,7 +1279,11 @@ NODE *lbuttonp(NODE *args) {
 }
 
 NODE *lbutton(NODE *args) {
+#ifdef HAVE_WX
     return(make_intnode(lastbutton));
+#else
+    return(make_intnode(button));
+#endif
 }
 
 NODE *ltone(NODE *args) {

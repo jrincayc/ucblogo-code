@@ -49,8 +49,6 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
      *Minus_Sign, *Minus_Tight, *Startup, *Startuplg,
      *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
-extern char **hist_inptr, **hist_outptr;
-extern char *cmdHistory[HIST_MAX];
 
 PRIMTYPE prims[] = {
     {"*", 1, 1, 1, PREFIX_PRIORITY + 3, lmul},
@@ -117,7 +115,9 @@ PRIMTYPE prims[] = {
     {"clean", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"clearscreen", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cleartext", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
+#ifdef HAVE_WX
     {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
+#endif
     {"close", 1, 1, 1, PREFIX_PRIORITY, lclose},
     {"co", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lcontinue},
     {"contents", 0, 0, 0, PREFIX_PRIORITY, lcontents},
@@ -809,7 +809,7 @@ nosugar:
     Regs_Node = newnode(STACK);
     Regs_Node->n_car = (NODE *)&regs;
 
-	hist_inptr = hist_outptr = cmdHistory;
+//hist_inptr = hist_outptr = cmdHistory;
 
 #ifdef OBJECTS
     obj_init();

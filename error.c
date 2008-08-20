@@ -318,7 +318,11 @@ NODE *lpause(NODE *args) {
  */
     } else {
 	ndprintf(stdout, "? ");
+#ifdef HAVE_WX
 	flushFile(stdout);
+#else
+	fflush(stdout);
+#endif
 }
     return(val);
 }
