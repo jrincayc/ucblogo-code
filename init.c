@@ -533,6 +533,8 @@ void init(void) {
 	fp = fopen(logolib,"r");
 	if (fp == NULL) goto nosugar;
 	fclose(fp);
+	chdir(getenv("SUGAR_ACTIVITY_ROOT"));
+	chdir("data");
 	strcpy(sugarhelp,sugar);
 	strcat(sugarhelp,"/helpfiles");
 	helpfiles = sugarhelp;
