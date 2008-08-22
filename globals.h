@@ -104,7 +104,7 @@ extern NODE *oldyoungs;
 extern BOOLEAN inside_gc, int_during_gc;
 extern BOOLEAN addseg(void);
 extern NODETYPES nodetype(NODE *);
-extern void check_valid_oldyoung(NODE *old, NODE *new);
+extern void check_valid_oldyoung(NODE *old, NODE *n);
 extern void setobject(NODE *, NODE *);
 extern void setcar(NODE *, NODE *);
 extern void setcdr(NODE *, NODE *);
@@ -215,6 +215,10 @@ extern struct wdtrans translations[];
 extern char *LogoPlatformName;
 
 /* wrksp.c */
+#ifdef HAVE_WX
+extern char* wx_fgets(char* s, int n, FILE* stream);
+#endif
+
 extern char *editor, *editorname, *tempdir;
 extern int to_pending;
 extern NODE *ltext(NODE *);
@@ -610,7 +614,8 @@ extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
 extern NODE*IncreaseFont(void *);
 extern NODE*DecreaseFont(void *);
-extern int turtlePosition_x, turtlePosition_y;
+extern int turtlePosition_x;
+extern int turtlePosition_y;
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2
 #define	BACK_GROUND			3

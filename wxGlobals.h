@@ -38,9 +38,9 @@
 #define TERM_COLS 82
 
 // fonts
-extern char wx_font_face[300];
-extern int wx_font_size;	
-extern int label_height;
+extern "C" char wx_font_face[];
+extern "C" int wx_font_size;	
+extern "C" int label_height;
 #define FONT_CFG(fm,sz) sz, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxString(fm,wxConvUTF8)
 
 /* wxMain */

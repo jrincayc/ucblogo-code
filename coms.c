@@ -479,7 +479,7 @@ NODE *lwait(NODE *args) {
 }
 
 NODE *lshell(NODE *args) {
-#if defined(mac) | defined(__WXMSW__)
+#if defined(mac)
     printf("%s\n", message_texts[NOSHELL_MAC]);
     return(UNBOUND);
 #else    
@@ -539,7 +539,11 @@ NODE *lshell(NODE *args) {
     print_stringlen = 300;
     ndprintf((FILE *)NULL,"%p\n",car(args));
     *print_stringptr = '\0';
+#ifdef __WXMSW__
+	strm = _popen(cmdbuf,"r");
+#else
     strm = popen(cmdbuf,"r");
+#endif
     fgets(cmdbuf,300,strm);
     while (!feof(strm)) {
 	len = (int)strlen(cmdbuf);
@@ -558,7 +562,11 @@ NODE *lshell(NODE *args) {
 	}
 	fgets(cmdbuf,300,strm);
     }
+#ifdef __WXMSW__
+	_pclose(strm);
+#else
     pclose(strm);
+#endif
     return(head);
 #endif
 #endif

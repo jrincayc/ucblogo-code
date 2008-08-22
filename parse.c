@@ -63,6 +63,7 @@ extern int getch(void);
 #define getch getFromWX
 extern int check_wx_stop(int force_yield);
 extern void wx_enable_scrolling();
+extern void wx_refresh();
 #endif
 
 FILE *readstream;
@@ -228,7 +229,6 @@ NODE *reader(FILE *strm, char *prompt) {
     //readingInstruction = !strcmp(prompt, "? ");
     readingInstruction = (strm == stdin);
 #ifdef HAVE_WX
-    extern void wx_refresh();
     wx_refresh();
     if(readingInstruction) {
       wx_enable_scrolling();

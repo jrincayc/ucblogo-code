@@ -85,6 +85,11 @@ extern char **environ, *tgoto(), *tgetstr();
 
 char *termcap_ptr;
 
+char* LogoPlatformName="wxWidgets";
+char wx_font_face[300] = "Courier";   //300 matches lsetfont in wxterm.c
+int wx_font_size = 12;	
+int label_height = 15;
+
 int termcap_putter(char ch) {
     *termcap_ptr++ = ch;
     return 0;
@@ -104,6 +109,8 @@ void term_init(void) {
   
 }
 
+
+
 void setCharMode(int);
 
 void charmode_on() {
@@ -113,6 +120,28 @@ void charmode_on() {
 void charmode_off() {
   setCharMode(0);;
 }
+
+char* wx_fgets(char* s, int n, FILE* stream) {
+	char c;
+	char * orig = s;
+	if (stream != stdin) {
+	  return fgets(s, n, stream);
+	}
+  
+	 charmode_on();
+
+ 
+	 n --;
+	 c = ' ';
+  while (c != '\n' && n != 0) {
+    c = getFromWX_2(stream);
+    s[0] = c;
+    s++;
+    n--;
+  }
+  return orig;
+}
+
 
 extern void wxClearText();
 
@@ -197,12 +226,12 @@ NODE *lstandout(NODE *args) {
     print_stringlen = 300;
     ndprintf((FILE *)NULL,fmtbuf,car(args));
     *print_stringptr = '\0';
-    return(make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy));
+    return make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy);
 }
 
 extern void wxSetFont(char *fm, int sz);
-extern char wx_font_face[];
-extern int wx_font_size;
+
+
 
 NODE *lfont(NODE *arg) {
   NODE *val;
@@ -239,7 +268,6 @@ NODE *ltextsize(NODE *arg) {
 }
 
 extern void wx_adjust_label_height();
-extern int label_height;
 
 NODE *lsetlabelheight(NODE *arg) {
   NODE *val = integer_arg(arg);

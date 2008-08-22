@@ -48,7 +48,10 @@
 #include "globals.h"
 
 #ifdef HAVE_WX
-extern int drawToPrinter;
+int drawToPrinter=0;
+int turtlePosition_x=0;
+int turtlePosition_y=0;
+extern void wx_adjust_label_height();
 #endif
 
 #if defined(__RZTC__) && !defined(WIN32) /* sowings */
@@ -1137,7 +1140,7 @@ NODE *lsetpalette(NODE *args) {
 NODE *make_rgbnode(unsigned int val) {
     FLONUM result=val * 100.0 / 65535.0;
 
-    if (result == round(result)) 
+    if (result == g_round(result)) 
 	return make_intnode((FIXNUM)result);
     else
 	return make_floatnode(result);
@@ -1250,7 +1253,6 @@ NODE *lsetscrunch(NODE *args) {
 #ifdef HAVE_WX
 	//update the label height!
 
-	extern void wx_adjust_label_height();
 	wx_adjust_label_height();
 #endif
     }

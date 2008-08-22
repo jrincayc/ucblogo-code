@@ -29,7 +29,7 @@
 #ifdef HAVE_WX
 #define getc getFromWX_2
 #define ungetc wxUnget_c
-extern int reading_char_now;
+int reading_char_now = 0;
 #endif
 
 #ifdef HAVE_TERMIO_H

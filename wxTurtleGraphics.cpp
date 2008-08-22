@@ -49,10 +49,6 @@ DECLARE_EVENT_TABLE_ENTRY( \
 // Globals
 // ----------------------------------------------------------------------------
 
-//#ifndef WIN32
-char* LogoPlatformName="wxWidgets";
-//#endif
-
 float fillScale;
 
 pen_info p;
@@ -87,9 +83,6 @@ wxColour TurtleCanvas::colors[NUMCOLORS+SPECIAL_COLORS];
 
 int R, G, B;
 
-//font information
-int label_height = 15;  // in terms of turtle steps.
-
 
 // Global print data, to remember settings during the session
 wxPrintData *g_printData = (wxPrintData*) NULL ;
@@ -99,7 +92,7 @@ wxPageSetupDialogData* g_pageSetupData = (wxPageSetupDialogData*) NULL;
 
 // Used for printing
 TurtleWindowPrintout *turtlePrintout;
-int drawToPrinter=0;
+extern "C" int drawToPrinter;
 wxDC *printerDC;
 wxBitmap *tempBitmap;
 
@@ -115,8 +108,8 @@ wxCommandEvent editEvent = wxCommandEvent(wxEVT_EDIT_CUSTOM_COMMAND);
 char * file;
 
 // the location of the turtle
-int turtlePosition_x = 0;
-int turtlePosition_y = 0;
+extern "C" int turtlePosition_x;
+extern "C" int turtlePosition_y;
 
 #define LINEPAUSE 30
 
@@ -418,7 +411,7 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
 
 }
 
-extern int turtle_shown;
+extern "C" int turtle_shown;
 extern "C" void draw_turtle();
 extern int editor_active;  //from TextEditor.cpp
 
@@ -560,7 +553,7 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
 
 }
 
-extern FLONUM y_scale;
+extern "C" FLONUM y_scale;
 
 extern "C" void wx_get_label_size(int *w, int *h) {
     /* returns size in pixels; converted to turtle steps in wxterm.c */
@@ -883,7 +876,7 @@ extern "C" void wx_clear() {
     return;
 }
 
-extern char record_buffer[];
+extern "C" char record_buffer[];
 
 extern "C" void wxPrepare(){
     if (drawToPrinter || drawToWindow) {
@@ -966,7 +959,7 @@ extern "C" void wxSetPenWidth(int width){
     turtleFrame->xgr_pen.pw = width;
 }
 
-extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
+extern "C" enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 //the event calling this never seems to trigger...
 void TurtleCanvas::OnChar(wxKeyEvent& event) {

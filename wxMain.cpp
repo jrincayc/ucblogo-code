@@ -23,7 +23,7 @@ int wx_Debugging = 0;
 
 // start the application
 IMPLEMENT_APP(LogoApplication)
- 
+
 extern "C" NODE *cons(NODE *, NODE *);
 extern "C" NODE *make_static_strnode(char *);
 extern "C" NODE *lload(NODE *);
@@ -194,28 +194,6 @@ extern "C" int wxUnget_c(int c, FILE * f) {
   }
 }
 
-extern "C" char* wx_fgets(char* s, int n, FILE* stream) {
-  if (stream != stdin) {
-    return fgets(s, n, stream);
-  }
-  
-  //turn on logo char mode (evan)
-  //setCharMode(1);
-  extern void charmode_on();
-  charmode_on();
-
-  char c;
-  char * orig = s;
-  n --;
-  c = ' ';
-  while (c != '\n' && n != 0) {
-    c = getFromWX_2(stream);
-    s[0] = c;
-    s++;
-    n--;
-  }
-  return orig;
-}
 
 
 void doLoad(char * name, int length) {
@@ -246,7 +224,7 @@ void doSave(char * name, int length) {
 
 extern "C" const char* wxMacGetLibloc(){
 #ifdef __WXMAC__
-	static std::string libloc;
+	static std::string libloc; 
 	libloc=pathString;
 	libloc+="logolib";
 	return libloc.c_str();

@@ -32,7 +32,7 @@ extern std::string pathString;
 #include <wx/stdpaths.h>
 #include <ctype.h>
 
-extern int readingInstruction;
+extern "C" int readingInstruction;
 
 #include <wx/print.h>
 #include "LogoFrame.h"
@@ -43,8 +43,10 @@ extern int readingInstruction;
 #include <wx/printdlg.h>
 #include <wx/dcbuffer.h>  //buffered_DC
 #include "wxTurtleGraphics.h"
-#include "config.h"
 #include "TextEditor.h"
+#ifndef __WXMSW__
+    #include "config.h"
+#endif
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #include <wx/fontdlg.h>
 #ifdef __WXMAC__                                                        
@@ -81,7 +83,7 @@ int latest_history_stored = 0;
 
 // if logo is in character mode
 int logo_char_mode;
-int reading_char_now = 0;
+extern "C" int reading_char_now;
 // the terminal DC
 wxFont old_font;
 wxTextAttr old_style;
@@ -120,9 +122,6 @@ int logo_pause_flag = 0;
 // this is a static reference to the main terminal
 wxTerminal *wxTerminal::terminal;
 
-//for font
-char wx_font_face[300] = "Courier";   //300 matches lsetfont in wxterm.c
-int wx_font_size = 12;	
 
 // ----------------------------------------------------------------------------
 // constants
@@ -380,16 +379,15 @@ LogoFrame::LogoFrame (const wxChar *title,
   SetUpMenu();
 }
 
-
+extern "C" int wx_leave_mainloop;
 void LogoFrame::OnCloseWindow(wxCloseEvent& event)
 {
-  extern int wx_leave_mainloop;
   logo_stop_flag = 1;
   wx_leave_mainloop++;
   Destroy();
 }
 
-extern int need_save;
+extern "C" int need_save;
 
 void LogoFrame::OnQuit(wxCommandEvent& event)
 {
@@ -474,7 +472,7 @@ void LogoFrame::DoPaste(wxCommandEvent& WXUNUSED(event)){
 
 extern "C" void new_line(FILE *);
 int firstloadsave = 1;
-extern void *save_name;
+extern "C" void *save_name;
 
 void doSave(char * name, int length);
 void doLoad(char * name, int length);
@@ -641,7 +639,7 @@ void LogoFrame::OnDecreaseFont(wxCommandEvent& WXUNUSED(event)){
 
 }
 
-extern void *Unbound;
+extern "C" void *Unbound;
 
 extern "C" void *IncreaseFont(void *) {
     wxCommandEvent dummy;
@@ -931,8 +929,9 @@ wxTerminal::GetCharSize(int *cw, int *ch) {
   int descent, extlead; 
   dc.GetTextExtent("M", cw, ch, &descent, &extlead);
   //for the tails of g's and y's, if needed.
-  //  *ch += descent + extlead + 1;
-  //  *ch += descent + 1;
+#ifdef __WXMSW__
+    *ch += descent + extlead + 1;
+#endif
 }
 
 void
@@ -2073,7 +2072,10 @@ wxTerminal::RenumberLines(int new_width)
   l_pos.buf = term_lines;
   l_pos.offset = 0;
 
-  wxterm_charpos c_pos = (wxterm_charpos) { term_chars, 0, 0 };
+  wxterm_charpos c_pos;
+  c_pos.buf = term_chars;
+  c_pos.line_length = 0;
+  c_pos.offset = 0; 
   wxterm_charpos last_logo_pos = GetCharPosition(last_logo_x,last_logo_y);
 
   //IMPORTANT: 
