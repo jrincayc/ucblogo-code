@@ -619,7 +619,7 @@ NODE *cnt_list = NIL;
 NODE *cnt_last = NIL;
 int want_buried = 0;
 
-typedef enum {c_PROCS, c_VARS, c_PLISTS, c_PRIMS} CNTLSTTYP;
+typedef enum {c_PROCS, c_VARS, c_PLISTS, c_PRIMS, c_PROCSnPRIMS} CNTLSTTYP;
 CNTLSTTYP contents_list_type;
 
 #ifdef OBJECTS4
@@ -784,6 +784,12 @@ void contents_map(NODE *sym) {
 	    if (procnode__object(sym) == UNDEFINED ||
 			!is_prim(procnode__object(sym)))
 		return;
+	    break;
+	case c_PROCSnPRIMS:
+	    check_library(sym);
+	    if (procnode__object(sym) == UNDEFINED)
+		return;
+	    if (bck(flag__object(sym,flag_check))) return;
 	    break;
 	case c_VARS:
 	    flag_check <<= 1;
@@ -1026,7 +1032,7 @@ NODE *ltraced(NODE *args) {
     contents_list_type = c_VARS;
     push(get_contents(), ret);
 
-    contents_list_type = c_PROCS;
+    contents_list_type = c_PROCSnPRIMS;
     push(get_contents(), ret);
 
     cnt_list = NIL;
