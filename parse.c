@@ -34,8 +34,12 @@
 #include "globals.h"
 
 #ifdef HAVE_TERMIO_H
+#ifdef HAVE_WX
 #ifndef NEW_WIN32
 #include <termios.h>
+#endif
+#else
+#include <termio.h>
 #endif
 #else
 #ifdef HAVE_SGTTY_H

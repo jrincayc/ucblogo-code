@@ -54,7 +54,7 @@ helpfiles:
 
 helpfiles/HELPCONTENTS:	makehelp usermanual
 	./makehelp
-	sort helptemp | pr -5 -t -w80 >> helpfiles/HELPCONTENTS
+	sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
 	rm helptemp
 
 makehelp:	makehelp.c

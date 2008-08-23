@@ -76,7 +76,7 @@ char so_arr[40];
 char se_arr[40];
 
 #ifdef HAVE_TERMIO_H
-struct termios tty_cooked, tty_cbreak;
+struct termio tty_cooked, tty_cbreak;
 #else
 #ifdef HAVE_SGTTY_H
 struct sgttyb tty_cooked, tty_cbreak;

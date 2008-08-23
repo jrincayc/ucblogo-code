@@ -33,7 +33,11 @@ int reading_char_now = 0;
 #endif
 
 #ifdef HAVE_TERMIO_H
+#ifdef HAVE_WX
 #include <termios.h>
+#else
+#include <termio.h>
+#endif
 #else
 #ifdef HAVE_SGTTY_H
 #include <sgtty.h>
@@ -731,7 +735,7 @@ NODE *lkeyp(NODE *args) {
 #endif
 #else
 #ifdef FIONREAD
-	ioctl(0,FIONREAD,(char *)(&nc));
+	ioctl(0,FIONREAD,(int *)(&nc));
 #else
 	ndprintf(stdout, "%t\n", message_texts[NO_FIONREAD]);
 	nc = 1;    /* pretend there's a char so we don't loop */
