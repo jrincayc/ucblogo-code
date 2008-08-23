@@ -487,6 +487,8 @@ NODE *lshell(NODE *args) {
     NODE *arg;
     char doscmd[200];
 /*  union REGS r;     */
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     arg = car(args);
     while (!is_list(arg) && NOT_THROWING) {
@@ -509,6 +511,8 @@ NODE *lshell(NODE *args) {
 	    err_logo(FILE_ERROR,
 	      make_static_strnode
 		 ("Could not open shell (probably due to low memory)"));
+	print_stringptr = old_stringptr;
+	print_stringlen = old_stringlen;
     }
 /*
     r.h.ah = 0x3;
@@ -533,6 +537,8 @@ NODE *lshell(NODE *args) {
     NODE *head = NIL, *tail = NIL, *this;
     BOOLEAN wordmode = FALSE;
     int len;
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     if (cdr(args) != NIL) wordmode = TRUE;
     print_stringptr = cmdbuf;
@@ -544,6 +550,8 @@ NODE *lshell(NODE *args) {
 #else
     strm = popen(cmdbuf,"r");
 #endif
+    print_stringptr = old_stringptr;
+    print_stringlen = old_stringlen;
     fgets(cmdbuf,300,strm);
     while (!feof(strm)) {
 	len = (int)strlen(cmdbuf);

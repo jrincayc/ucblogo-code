@@ -953,11 +953,15 @@ NODE *lfill(NODE *args) {
 NODE *llabel(NODE *arg) {
     char textbuf[300];
     short theLength;
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     print_stringptr = textbuf;
     print_stringlen = 300;
     ndprintf((FILE *)NULL,"%p",car(arg));
     *print_stringptr = '\0';
+    print_stringptr = old_stringptr;
+    print_stringlen = old_stringlen;
 	
     if (NOT_THROWING) {
 	prepare_to_draw;

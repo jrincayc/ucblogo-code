@@ -140,6 +140,8 @@ NODE *lprefix(NODE *args) {
 FILE *open_file(NODE *arg, char *access) {
     char *fnstr;
     FILE *tstrm;
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     if (is_list(arg)) { /* print to string */
 	if (*access != 'w') {
@@ -167,12 +169,16 @@ FILE *open_file(NODE *arg, char *access) {
 	fnstr = (char *) malloc((size_t)getstrlen(arg) + 1);
     if (fnstr == NULL) {
 	err_logo(FILE_ERROR, make_static_strnode(message_texts[MEM_LOW]));
+	print_stringptr = old_stringptr;
+	print_stringlen = old_stringlen;
 	return NULL;
     }
     if (file_prefix != NIL) {
 	print_stringptr = fnstr;
 	ndprintf((FILE *)NULL, "%p%t%p", file_prefix, separator, arg);
 	*print_stringptr = '\0';
+	print_stringptr = old_stringptr;
+	print_stringlen = old_stringlen;
     } else
 	noparity_strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
     tstrm = fopen(fnstr, access);

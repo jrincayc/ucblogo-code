@@ -54,6 +54,8 @@ void err_print(char *buffer) {
     int errtype;
     NODE *errargs, *oldfullp;
     FILE *fp;
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     if (err_mesg == NIL) return;
 
@@ -89,9 +91,11 @@ void err_print(char *buffer) {
     err_mesg = NIL;
     if (buffer == NULL)
 	new_line(fp);
-    else
+    else {
 	*print_stringptr = '\0';
-
+	print_stringptr = old_stringptr;
+	print_stringlen = old_stringlen;
+    }
     setvalnode__caseobj(Fullprintp, oldfullp);
     stopping_flag = save_flag;
 }

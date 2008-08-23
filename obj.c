@@ -509,6 +509,8 @@ BOOLEAN memq(NODE *item, NODE *list) {
 NODE *lrepresentation(NODE *args) {
     NODE *license, *binding, *classbind;
     char buffer[200];
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     print_stringlen = 200;
     print_stringptr = buffer;
@@ -540,6 +542,9 @@ NODE *lrepresentation(NODE *args) {
         }
     }
     ndprintf(NULL, "}");
+    print_stringptr* = '\0';
+    print_stringptr = old_stringptr;
+    print_stringlen = old_stringlen;
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
 }
 

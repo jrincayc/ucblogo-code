@@ -724,6 +724,8 @@ NODE *lform(NODE *args) {
     int width, precision = 0;
     char result[100];
     char format[20];
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     number = float_arg(args);
     width = (int)int_arg(cdr(args));
@@ -732,6 +734,8 @@ NODE *lform(NODE *args) {
 	print_stringlen = 20;
 	ndprintf((FILE *)NULL,"%p\n",string_arg(cddr(args)));
 	*print_stringptr = '\0';
+	print_stringptr = old_stringptr;
+	print_stringlen = old_stringlen;
     } else
 	precision = (int)int_arg(cddr(args));
     if (NOT_THROWING) {

@@ -218,14 +218,18 @@ NODE *lsetmargins(NODE *args) {
 }
 
 NODE *lstandout(NODE *args) {
-  char textbuf[300];
-  char fmtbuf[100];
+    char textbuf[300];
+    char fmtbuf[100];
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     sprintf(fmtbuf,"%c%%p%c",17,17);
     print_stringptr = textbuf;
     print_stringlen = 300;
     ndprintf((FILE *)NULL,fmtbuf,car(args));
     *print_stringptr = '\0';
+    print_stringptr = old_stringptr;
+    print_stringlen = old_stringlen;
     return make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy);
 }
 

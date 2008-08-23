@@ -223,12 +223,15 @@ NODE *reader(FILE *strm, char *prompt) {
     char *phys_line, *lookfor = ender;
     NODETYPES this_type = STRING;
     NODE *ret;
+    char *old_stringptr = print_stringptr;
+    int old_stringlen = print_stringlen;
 
     fix_turtle_shownness();
 
     //readingInstruction = !strcmp(prompt, "? ");
     readingInstruction = (strm == stdin);
 #ifdef HAVE_WX
+    extern void wx_refresh();
     wx_refresh();
     if(readingInstruction) {
       wx_enable_scrolling();
@@ -238,6 +241,9 @@ NODE *reader(FILE *strm, char *prompt) {
     print_stringptr = ender;
     print_stringlen = 99;
     ndprintf(NULL, "\n%p\n", theName(Name_end));
+    *print_stringptr = '\0';
+    print_stringptr = old_stringptr;
+    print_stringlen = old_stringlen;
 
     if (!strcmp(prompt, "RW")) {	/* called by readword */
 	    prompt = "";
