@@ -235,7 +235,6 @@ NODE *reader(FILE *strm, char *prompt) {
     //readingInstruction = !strcmp(prompt, "? ");
     readingInstruction = (strm == stdin);
 #ifdef HAVE_WX
-    extern void wx_refresh();
     wx_refresh();
     if(readingInstruction) {
       wx_enable_scrolling();
