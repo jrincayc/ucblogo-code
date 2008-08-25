@@ -1,0 +1,36 @@
+Berkeley Logo version 6.0
+
+Copyright (C) 2008 by the Regents of the University of California
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+The executable file in this distribution includes libraries from the
+wxWidgets project (www.wxwidgets.org).  The Microsoft Windows version
+is distributed with runtime library mingwm10.dll, from the MinGW project
+(www.mingw.org).  Those libraries are also covered by the Gnu GPL.  We
+do not distribute their source code; you can download it from their
+respective web sites.
+
+The Macintosh version uses wxWidgets version 2.6.4, which is not the
+latest version, because the latest (2.8.4) as of this release breaks the
+ability to floodfill on the Mac.  However, in order to have a font
+selection dialog, that part of the 2.8.4 release was retrofitted into
+the 2.6.4 release.  For anyone interested in rebuilding UCBLogo on the Mac,
+the changes to 2.6.4 are in the file mac-fontmod.tar in this directory.
+
+UCBLogo's source code is maintained as a Sourceforge project; you can
+subscribe to the svn archive at
+
+	http://sourceforge.net/svn/?group_id=25943
