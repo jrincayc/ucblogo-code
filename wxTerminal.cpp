@@ -1415,7 +1415,10 @@ void wxTerminal::handle_end() {
   input_current_pos = input_index;
 }
 
+
 void wxTerminal::handle_clear_to_end() {
+#if 0
+  //old code that put spaces everyhwere...
   int xval;
   int yval;
 
@@ -1435,8 +1438,17 @@ void wxTerminal::handle_clear_to_end() {
   PassInputToTerminal(input_index-input_current_pos, &input_buffer[i]);
   
   setCursor(xval, yval); 
+#else
+  //make the current position the end of the buffer 
+  //update line structure accordingly
 
+  char_of(curr_char_pos) = '\0';
+  line_of(curr_line_pos).line_length = cursor_x;
+  y_max = cursor_y;
+#endif
 }
+
+
 
 // warning: the history buffer WRAPS around!
 // so to detect for the beginning/end, check for NULL string pointer
@@ -1482,7 +1494,6 @@ void wxTerminal::handle_history_prev() {
   handle_clear_to_end();  //clear to the old end of input_buffer
 
   input_index = hist_len;
-
 
   //cursor_x , cursor_y now at input's last location
   last_input_x = cursor_x;
@@ -2201,6 +2212,16 @@ void wxTerminal::InsertChar(char c)
   //insert a character at current location
 
   //if there is a newline at the current location and we're not inserting one
+  // scenario:
+  // Buffer: abcde\nfgh
+  //         *    X *
+  // X = current position
+  // * = line locations
+  // 
+  // After insert k:
+  //         abcdek\nfgh
+  //         *     X *
+
   if(char_of(curr_char_pos) == '\n' &&
      c != '\n') {
     // check case if we're about to insert the last character of the line
@@ -2351,6 +2372,13 @@ wxTerminal::PassInputToTerminal(int len, char *data)
 	  (data[i] == '\n' && data[i+1] == '\r')))  { //CR+LF
 	i++;
       }
+
+      // this case triggers when you do
+      // ? setcursor [0 0]
+      // and then press <ENTER>
+      // if this is commented out, it will still work, but the characters
+      // will remain in the buffer!
+
       if(new_line_length < line_of(curr_line_pos).line_length &&
 	 cursor_y < y_max) {
 	//shift all the characters down.
@@ -2374,6 +2402,7 @@ wxTerminal::PassInputToTerminal(int len, char *data)
 	  inc_charpos(pos_2);
 	}
       }
+
       line_of(curr_line_pos).line_length = new_line_length;
       
       NextLine();
