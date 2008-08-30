@@ -55,7 +55,14 @@ extern "C" int readingInstruction;
     #include <Carbon/Carbon.h>                                              
 #endif                                                                  
 
+// in Visual Studio 6.0, min and max are not defined up this point
+#ifndef max
+#define max(a,b)    (((a) > (b)) ? (a) : (b))
+#endif
 
+#ifndef min
+#define min(a,b)    (((a) < (b)) ? (a) : (b))
+#endif
 
 using namespace std;
 
