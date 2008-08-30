@@ -2065,7 +2065,7 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
 
   for(unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth){
     //clear the pixels first
-    dc.Blit(coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxCLEAR);
+    //dc.Blit(coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxCLEAR);
     dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
     //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
     //	  dc.DrawText(str, x + 1, y);
