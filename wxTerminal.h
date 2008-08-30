@@ -114,6 +114,8 @@ struct wxterm_linepos {
 
   int  m_width;
   int m_height;
+  int  m_curFG,
+    m_curBG;
  private:
   int  m_selx1,
     m_sely1,
@@ -125,8 +127,6 @@ struct wxterm_linepos {
     m_seloldy2,
     m_curX,
     m_curY,
-    m_curFG,
-    m_curBG,
     m_curFlags;
 
   //used in enableScrolling

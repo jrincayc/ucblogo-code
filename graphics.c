@@ -1127,7 +1127,7 @@ NODE *lsetpalette(NODE *args) {
 	if (slotnum < -SPECIAL_COLORS) {
 	    err_logo(BAD_DATA_UNREC, slot);
 	} else if (NOT_THROWING && ((slotnum > 7) || (slotnum < 0))) {
-		prepare_to_draw;
+//		prepare_to_draw;
 		set_palette(slotnum,
 		    (unsigned int)(get_number(arg)*65535/100.0),
 		    (unsigned int)(get_number(cdr(arg))*65535/100.0),
@@ -1135,7 +1135,7 @@ NODE *lsetpalette(NODE *args) {
 		if (pen_color == slotnum) {
 		    set_pen_color(slotnum);
 		}
-		done_drawing;
+//		done_drawing;
 		if (slotnum > max_palette_slot) max_palette_slot = slotnum;
 	}
 	return(UNBOUND);

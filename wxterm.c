@@ -290,3 +290,34 @@ NODE *llabelsize(NODE *arg) {
   return cons(make_intnode(w/x_scale),
 	      cons(make_intnode(h/y_scale), NIL));
 }
+
+extern void wxSetTextColor(FIXNUM, FIXNUM);
+
+NODE *set_text_color(NODE *args) {
+    NODE *fgcolor, *bgcolor;
+
+    if (is_list(car(args))) {
+	fgcolor = make_intnode(TEXT_FG_COLOR_OFFSET);
+	lsetpalette(cons(fgcolor,args));
+    } else {
+	fgcolor = pos_int_arg(args);
+    }
+
+    if (is_list(cadr(args))) {
+	bgcolor = make_intnode(TEXT_BG_COLOR_OFFSET);
+	lsetpalette(cons(bgcolor,cdr(args)));
+    } else {
+	bgcolor = pos_int_arg(cdr(args));
+    }
+
+    if (NOT_THROWING) {
+	wxSetTextColor(getint(fgcolor)+SPECIAL_COLORS,
+		       getint(bgcolor)+SPECIAL_COLORS);
+    }
+
+    return UNBOUND;
+}
+
+void color_init() {
+    wxSetTextColor(7+SPECIAL_COLORS, 0+SPECIAL_COLORS);
+}

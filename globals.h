@@ -568,6 +568,7 @@ extern NODE *llabelsize(NODE *);
 extern NODE *lsetfont(NODE *);
 extern NODE *lsettextsize(NODE *);
 extern NODE *ltextsize(NODE *);
+extern NODE *set_text_color(NODE *);
 #endif
 
 

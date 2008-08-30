@@ -778,6 +778,8 @@ END_EVENT_TABLE()
 
 wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 
+extern "C" void color_init(void);
+
  wxTerminal::wxTerminal(wxWindow* parent, wxWindowID id,
                const wxPoint& pos,
                int width, int height,
@@ -835,10 +837,9 @@ wxCommandEvent * haveInputEvent = new wxCommandEvent(wxEVT_MY_CUSTOM_COMMAND);
 
   GetColors(m_colors);
 
-  m_curFG = 15;
-  m_curBG = 0;
+    color_init();
   SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-  SetBackgroundColour(m_colors[0]);
+  SetBackgroundColour(TurtleCanvas::colors[m_curBG]);
   SetMinSize(wxSize(50, 50));
 
   for(i = 0; i < 16; i++)
@@ -1711,6 +1712,13 @@ void wxTerminal::OnEraseBackground(wxEraseEvent &WXUNUSED(event))
   //don't erase background.. for double buffering!
 }
 
+extern "C" void wxSetTextColor(int fg, int bg) {
+    wxTerminal::terminal->m_curFG = fg;
+    wxTerminal::terminal->m_curBG = bg;
+    wxTerminal::terminal->SetBackgroundColour(
+		TurtleCanvas::colors[wxTerminal::terminal->m_curBG]);
+}
+
 void wxTerminal::OnPaint(wxPaintEvent &WXUNUSED(event)) 
 {
 #ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
@@ -1720,7 +1728,7 @@ void wxTerminal::OnPaint(wxPaintEvent &WXUNUSED(event))
 #endif
 
   DoPrepareDC(dc);
-  dc.SetBackground(m_colors[0]);
+  dc.SetBackground(TurtleCanvas::colors[m_curBG]);
   dc.Clear();
   OnDraw(dc);
 }
@@ -2050,8 +2058,8 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
 
   int coord_x, coord_y;
   dc.SetBackgroundMode(wxSOLID);
-  dc.SetTextBackground(m_colors[bg_color]);
-  dc.SetTextForeground(m_colors[fg_color]);
+  dc.SetTextBackground(TurtleCanvas::colors[bg_color]);
+  dc.SetTextForeground(TurtleCanvas::colors[fg_color]);
   coord_y = y * m_charHeight; 
   coord_x = x * (m_charWidth);	
 
