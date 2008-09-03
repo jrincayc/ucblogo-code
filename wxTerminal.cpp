@@ -711,8 +711,8 @@ void LogoFrame::SetUpEditMenu(){
 		delete menuBar->Remove(i);
 	
 	wxMenu *fileMenu = new wxMenu;
-	fileMenu->Append( Edit_Menu_File_Close_Accept, _T("Close and Accept Changes \tCtrl-Q"));
-	fileMenu->Append( Edit_Menu_File_Close_Reject, _T("Close and Revert Changes \tCtrl-R"));
+	fileMenu->Append( Edit_Menu_File_Close_Accept, _T("Close and Accept Changes \tAlt-A"));
+	fileMenu->Append( Edit_Menu_File_Close_Reject, _T("Close and Revert Changes \tAlt-R"));
 	fileMenu->AppendSeparator();
 	fileMenu->Append( Edit_Menu_File_Page_Setup, _T("Page Setup"));
 	fileMenu->Append( Edit_Menu_File_Print_Text, _T("Print... \tCtrl-P"));
