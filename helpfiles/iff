@@ -1,0 +1,7 @@
+IFFALSE instructionlist
+IFF instructionlist
+
+	command.  Runs its input if the most recent TEST instruction had
+	a FALSE input.  The TEST must have been in the same procedure or a
+	superprocedure.
+

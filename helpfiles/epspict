@@ -1,0 +1,11 @@
+EPSPICT filename
+
+	command.  Writes a file with the specified name, containing
+	an Encapsulated Postscript (EPS) representation of the state
+	of the graphics window.  This file can be imported into other
+	programs that understand EPS format.  Restrictions: the
+	drawing cannot use FILL, PENERASE, or PENREVERSE; any
+	such instructions will be ignored in the translation to
+	Postscript form.
+
+

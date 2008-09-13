@@ -1,0 +1,5 @@
+TURTLEMODE
+
+	outputs the word WRAP, FENCE, or WINDOW depending on the current
+	turtle mode.
+

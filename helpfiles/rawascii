@@ -1,0 +1,7 @@
+RAWASCII char
+
+	outputs the integer (between 0 and 255) that represents the input
+	character in the ASCII code.  Interprets control characters as
+	representing themselves.  To find out the ASCII code of an arbitrary
+	keystroke, use RAWASCII RC.
+

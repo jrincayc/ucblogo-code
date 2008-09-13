@@ -1,0 +1,12 @@
+.SETSEGMENTSIZE num
+
+	command.  Sets the number of nodes that Logo allocates from the
+	operating system at once to num, which must be a positive integer.
+	The name is dotted because bad things will happen if you use a
+	number that's too small or too large for your computer.  The
+	initial value is 16,000 for most systems, but is smaller for
+	68000-based Macs.  Making it larger will speed up computations
+	(by reducing the number of garbage collections) at the cost of
+	allocating more memory than necessary.
+
+

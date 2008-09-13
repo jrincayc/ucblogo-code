@@ -1,0 +1,20 @@
+FIND tftemplate data					(library procedure)
+
+	outputs the first constituent of the data input (the first member
+	of a list, or the first character of a word) for which the value
+	produced by evaluating the template with that consituent in its
+	slot is TRUE.  If there is no such constituent, the empty list
+	is output.
+
+	In a template, the symbol ?REST represents the portion of the
+	data input to the right of the member currently being used as
+	the ? slot-filler.  That is, if the data input is [A B C D E]
+	and the template is being evaluated with ? replaced by B, then
+	?REST would be replaced by [C D E].
+
+	In a template, the symbol # represents the position in the data
+	input of the member currently being used as the ? slot-filler.
+	That is, if the data input is [A B C D E] and the template is
+	being evaluated with ? replaced by B, then # would be replaced
+	by 2.
+

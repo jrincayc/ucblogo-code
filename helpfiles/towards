@@ -1,0 +1,6 @@
+TOWARDS pos
+
+	outputs a number, the heading at which the turtle should be
+	facing so that it would point from its current position to
+	the position given as the input.
+

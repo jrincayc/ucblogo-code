@@ -1,0 +1,9 @@
+MDARRAY sizelist					(library procedure)
+(MDARRAY sizelist origin)
+
+	outputs a multi-dimensional array.  The first input must be a list
+	of one or more positive integers.  The second input, if present,
+	must be a single integer that applies to every dimension of the array.
+	Ex: (MDARRAY [3 5] 0) outputs a two-dimensional array whose members
+	range from [0 0] to [2 4].
+

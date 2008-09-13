@@ -1,0 +1,10 @@
+BUTTON
+
+	outputs 0 if no mouse button has been pushed inside the Logo window
+	since the last call to BUTTON.  Otherwise, it outputs an integer
+	between 1 and 3 indicating which button was most recently pressed.
+	Ordinarily 1 means left, 2 means right, and 3 means center, but
+	operating systems may reconfigure these.
+
+
+

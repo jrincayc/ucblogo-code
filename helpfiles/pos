@@ -1,0 +1,5 @@
+POS
+
+	outputs the turtle's current position, as a list of two
+	numbers, the X and Y coordinates.
+

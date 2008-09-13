@@ -1,0 +1,62 @@
+CASCADE endtest template startvalue			(library procedure)
+(CASCADE endtest tmp1 sv1 tmp2 sv2 ...)
+(CASCADE endtest tmp1 sv1 tmp2 sv2 ... finaltemplate)
+
+	outputs the result of applying a template (or several templates,
+	as explained below) repeatedly, with a given value filling the
+	slot the first time, and the result of each application filling
+	the slot for the following application.
+
+	In the simplest case, CASCADE has three inputs.  The second input
+	is a one-slot expression template.  That template is evaluated
+	some number of times (perhaps zero).  On the first evaluation,
+	the slot is filled with the third input; on subsequent evaluations,
+	the slot is filled with the result of the previous evaluation.
+	The number of evaluations is determined by the first input.  This
+	can be either a nonnegative integer, in which case the template is
+	evaluated that many times, or a predicate expression template, in
+	which case it is evaluated (with the same slot filler that will be
+	used for the evaluation of the second input) repeatedly, and the
+	CASCADE evaluation continues as long as the predicate value is
+	FALSE.  (In other words, the predicate template indicates the
+	condition for stopping.)
+
+	If the template is evaluated zero times, the output from CASCADE
+	is the third (startvalue) input.  Otherwise, the output is the
+	value produced by the last template evaluation.
+
+	CASCADE templates may include the symbol # to represent the number
+	of times the template has been evaluated.  This slot is filled with
+	1 for the first evaluation, 2 for the second, and so on.
+
+		? show cascade 5 [lput # ?] []
+		[1 2 3 4 5]
+		? show cascade [vowelp first ?] [bf ?] "spring
+		ing
+		? show cascade 5 [# * ?] 1
+		120
+		?
+
+	Several cascaded results can be computed in parallel by providing
+	additional template-startvalue pairs as inputs to CASCADE.  In this
+	case, all templates (including the endtest template, if used) are
+	multi-slot, with the number of slots equal to the number of pairs of
+	inputs.  In each round of evaluations, ?2, for example, represents the
+	result of evaluating the second template in the previous round.  If
+	the total number of inputs (including the first endtest input) is odd,
+	then the output from CASCADE is the final value of the first template.
+	If the total number of inputs is even, then the last input is a
+	template that is evaluated once, after the end test is satisfied, to
+	determine the output from CASCADE.
+
+		to fibonacci :n
+		output (cascade :n [?1 + ?2] 1 [?1] 0)
+		end
+
+		to piglatin :word
+		output (cascade [vowelp first ?] ~
+				[word bf ? first ?] ~
+				:word ~
+				[word ? "ay])
+		end
+

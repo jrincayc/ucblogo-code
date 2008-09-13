@@ -1,0 +1,140 @@
+.MACRO procname :input1 :input2 ...				(special form)
+.DEFMACRO procname text
+
+	A macro is a special kind of procedure whose output is evaluated
+	as Logo instructions in the context of the macro's caller.
+	.MACRO is exactly like TO except that the new procedure becomes
+	a macro; .DEFMACRO is exactly like DEFINE with the same exception.
+
+	Macros are useful for inventing new control structures comparable
+	to REPEAT, IF, and so on.  Such control structures can almost, but
+	not quite, be duplicated by ordinary Logo procedures.  For example,
+	here is an ordinary procedure version of REPEAT:
+
+		to my.repeat :num :instructions
+		if :num=0 [stop]
+		run :instructions
+		my.repeat :num-1 :instructions
+		end
+
+	This version works fine for most purposes, e.g.,
+
+		my.repeat 5 [print "hello]
+
+	But it doesn't work if the instructions to be carried out include
+	OUTPUT, STOP, or LOCAL.  For example, consider this procedure:
+
+		to example
+		print [Guess my secret word.  You get three guesses.]
+		repeat 3 [type "|?? | ~
+			  if readword = "secret [pr "Right! stop]]
+		print [Sorry, the word was "secret"!]
+		end
+
+	This procedure works as written, but if MY.REPEAT is used instead
+	of REPEAT, it won't work because the STOP will stop MY.REPEAT
+	instead of stopping EXAMPLE as desired.
+
+	The solution is to make MY.REPEAT a macro.  Instead of actually
+	carrying out the computation, a macro must return a list containing
+	Logo instructions.  The contents of that list are evaluated as if
+	they appeared in place of the call to the macro.  Here's a macro
+	version of REPEAT:
+
+		.macro my.repeat :num :instructions
+		if :num=0 [output []]
+		output sentence :instructions ~
+				(list "my.repeat :num-1 :instructions)
+		end
+
+	Every macro is an operation -- it must always output something.
+	Even in the base case, MY.REPEAT outputs an empty instruction
+	list.  To show how MY.REPEAT works, let's take the example
+
+		my.repeat 5 [print "hello]
+
+	For this example, MY.REPEAT will output the instruction list
+
+		[print "hello my.repeat 4 [print "hello]]
+
+	Logo then executes these instructions in place of the original
+	invocation of MY.REPEAT; this prints "hello" once and invokes
+	another repetition.
+
+	The technique just shown, although fairly easy to understand,
+	has the defect of slowness because each repetition has to
+	construct an instruction list for evaluation.  Another approach
+	is to make MY.REPEAT a macro that works just like the non-macro
+	version unless the instructions to be repeated include OUTPUT
+	or STOP:
+
+		.macro my.repeat :num :instructions
+		catch "repeat.catchtag ~
+		      [op repeat.done runresult [repeat1 :num :instructions]]
+		op []
+		end
+
+		to repeat1 :num :instructions
+		if :num=0 [throw "repeat.catchtag]
+		run :instructions
+		.maybeoutput repeat1 :num-1 :instructions
+		end
+
+		to repeat.done :repeat.result
+		if emptyp :repeat.result [op [stop]]
+		op list "output quoted first :repeat.result
+		end
+
+	If the instructions do not include STOP or OUTPUT, then REPEAT1 will
+	reach its base case and invoke THROW.  As a result, MY.REPEAT's last
+	instruction line will output an empty list, so the evaluation of the
+	macro result by the caller will do nothing.  But if a STOP or OUTPUT
+	happens, then REPEAT.DONE will output a STOP or OUTPUT instruction
+	that will be executed in the caller's context.
+
+	The macro-defining commands have names starting with a dot because
+	macros are an advanced feature of Logo; it's easy to get in trouble
+	by defining a macro that doesn't terminate, or by failing to
+	construct the instruction list properly.
+
+	Lisp users should note that Logo macros are NOT special forms.
+	That is, the inputs to the macro are evaluated normally, as they
+	would be for any other Logo procedure.  It's only the output from
+	the macro that's handled unusually.
+
+	Here's another example:
+
+		.macro localmake :name :value
+		output (list "local		~
+			     word "" :name	~
+			     "apply		~
+			     ""make		~
+			     (list :name :value))
+		end
+
+	It's used this way:
+
+		to try
+		localmake "garply "hello
+		print :garply
+		end
+
+	LOCALMAKE outputs the list
+
+		[local "garply apply "make [garply hello]]
+
+	The reason for the use of APPLY is to avoid having to decide
+	whether or not the second input to MAKE requires a quotation
+	mark before it.  (In this case it would -- MAKE "GARPLY "HELLO --
+	but the quotation mark would be wrong if the value were a list.)
+
+	It's often convenient to use the ` function to construct the
+	instruction list:
+
+		.macro localmake :name :value
+		op `[local ,[word "" :name] apply "make [,[:name] ,[:value]]]
+		end
+
+	On the other hand, ` is pretty slow, since it's tree recursive and
+	written in Logo.
+

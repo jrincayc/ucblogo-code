@@ -1,0 +1,22 @@
+STANDOUT thing
+
+	outputs a word that, when printed, will appear like the input but
+	displayed in standout mode (boldface, reverse video, or whatever your
+	version does for standout).  The word contains machine-specific
+	magic characters at the beginning and end; in between is the printed
+	form (as if displayed using TYPE) of the input.  The output is always
+	a word, even if the input is of some other type, but it may include
+	spaces and other formatting characters.  Note: a word output by
+	STANDOUT while Logo is running on one machine will probably not have
+	the desired effect if printed on another type of machine.
+
+	In the Macintosh classic version, the way that standout works is
+	incompatible with the use of characters whose ASCII code is greater
+	than 127.  Therefore, you have a choice to make:  The instruction
+		CANINVERSE 0
+	disables standout, but enables the display of ASCII codes above 127,
+	and the instruction
+		CANINVERSE 1
+	restores the default situation in which standout is enabled and the
+	extra graphic characters cannot be printed.
+

@@ -1,0 +1,9 @@
+SETPALETTE colornumber rgblist
+
+	sets the actual color corresponding to a given number, if allowed by
+	the hardware and operating system.  Colornumber must be an integer
+	greater than or equal to 8.  (Logo tries to keep the first 8 colors
+	constant.)  The second input is a list of three nonnegative numbers
+	less than 100 specifying the percent saturation of red, green, and
+	blue in the desired color.
+

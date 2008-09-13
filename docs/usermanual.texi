@@ -2220,6 +2220,12 @@ SETTEXTCOLOR foreground background
 SETTC foreground background
 @end example
 
+command (wxWidgets only).  The inputs are color numbers, or RGB color lists,
+as for turtle graphics.  The foreground and background colors for the
+textscreen/splitscreen text window are changed to the given values.  The
+change affects text already printed as well as future text printing; there is
+only one text color for the entire window.
+
 Command (non-wxWidgets Windows and DOS extended only).  The inputs are color
 numbers, as for turtle graphics.  Future printing to the text window will use
 the specified colors for foreground (the characters printed) and background

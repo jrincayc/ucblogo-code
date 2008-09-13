@@ -1,0 +1,10 @@
+ERROR
+
+	outputs a list describing the error just caught, if any.  If there was
+	not an error caught since the last use of ERROR, the empty list will
+	be output.  The error list contains four members: an integer code
+	corresponding to the type of error, the text of the error message (as
+	a single word including spaces), the name of the procedure in which
+	the error occurred, and the instruction line on which the error
+	occurred.
+

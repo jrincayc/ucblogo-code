@@ -1,0 +1,10 @@
+.SETITEM index array value
+
+	command.  Changes the "index"th member of "array" to be "value",
+	like SETITEM, but without checking for circularity.
+
+	WARNING: Primitives whose names start with a period are DANGEROUS.
+	Their use by non-experts is not recommended.  The use of .SETITEM
+	can lead to circular arrays, which will get some Logo primitives into
+	infinite loops.
+

@@ -1,0 +1,8 @@
+SETCURSOR vector
+
+	command.  The input is a list of two numbers, the x and y
+	coordinates of a text window position (origin in the upper left
+	corner, positive direction is southeast).  The text cursor
+	is moved to the requested position.  This command also forces
+	the immediate printing of any buffered characters.
+

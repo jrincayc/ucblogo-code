@@ -1,0 +1,4 @@
+YCOR							(library procedure)
+
+	outputs a number, the turtle's Y coordinate.
+

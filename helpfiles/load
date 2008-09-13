@@ -1,0 +1,13 @@
+LOAD filename
+
+	command.  Reads instructions from the named file and executes
+	them.  The file can include procedure definitions with TO, and
+	these are accepted even if a procedure by the same name already
+	exists.  If the file assigns a list value to a variable named
+	STARTUP, then that list is run as an instructionlist after the
+	file is loaded.  If there is a variable LOADNOISILY whose value
+	is TRUE, then TO commands in the file print "PROCNAME defined"
+	(where PROCNAME is the name of the procedure being defined); if
+	LOADNOISILY is FALSE or undefined, TO commands in the file are
+	carried out silently.
+

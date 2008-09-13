@@ -1,0 +1,16 @@
+SETPENCOLOR colornumber.or.rgblist
+SETPC colornumber.or.rgblist
+
+	sets the pen color to the given number, which must be a nonnegative
+	integer.  There are initial assignments for the first 16 colors:
+
+	 0  black	 1  blue	 2  green	 3  cyan
+	 4  red		 5  magenta	 6  yellow	 7 white
+	 8  brown	 9  tan		10  forest	11  aqua
+	12  salmon	13  purple	14  orange	15  grey
+
+	but other colors can be assigned to numbers by the PALETTE command.
+	Alternatively, sets the pen color to the given RGB values (a list of
+	three nonnegative numbers less than 100 specifying the percent
+	saturation of red, green, and blue in the desired color).
+

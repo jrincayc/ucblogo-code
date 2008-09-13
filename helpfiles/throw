@@ -1,0 +1,32 @@
+THROW tag
+(THROW tag value)
+
+	command.  Must be used within the scope of a CATCH with an equal
+	tag.  Ends the running of the instructionlist of the CATCH.  If
+	THROW is used with only one input, the corresponding CATCH does
+	not output a value.  If THROW is used with two inputs, the second
+	provides an output for the CATCH.
+
+	THROW "TOPLEVEL can be used to terminate all running procedures and
+	interactive pauses, and return to the toplevel instruction prompt.
+	Typing the system interrupt character (alt-S for wxWidgets; otherwise
+	normally control-C for Unix, control-Q for DOS, or command-period for
+	Mac) has the same effect.
+
+	THROW "ERROR can be used to generate an error condition.  If the
+	error is not caught, it prints a message (THROW "ERROR) with the
+	usual indication of where the error (in this case the THROW)
+	occurred.  If a second input is used along with a tag of ERROR,
+	that second input is used as the text of the error message
+	instead of the standard message.  Also, in this case, the location
+	indicated for the error will be, not the location of the THROW,
+	but the location where the procedure containing the THROW was
+	invoked.  This allows user-defined procedures to generate error
+	messages as if they were primitives.  Note: in this case the
+	corresponding CATCH "ERROR, if any, does not output, since the second
+	input to THROW is not considered a return value.
+
+	THROW "SYSTEM immediately leaves Logo, returning to the operating
+	system, without printing the usual parting message and without
+	deleting any editor temporary file written by EDIT.
+

@@ -1,0 +1,6 @@
+SUM num1 num2
+(SUM num1 num2 num3 ...)
+num1 + num2
+
+	outputs the sum of its inputs.
+

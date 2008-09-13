@@ -1,0 +1,7 @@
+REFRESH
+
+	(command) tells Logo to remember the turtle's motions so that they
+	can be used for high-resolution printing (wxWidgets) or to refresh
+	the graphics window if it is moved, resized, or overlayed
+	(non-wxWidgets).  This is the default.
+

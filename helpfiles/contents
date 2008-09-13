@@ -1,0 +1,7 @@
+CONTENTS
+
+	outputs a "contents list," i.e., a list of three lists containing
+	names of defined procedures, variables, and property lists
+	respectively.  This list includes all unburied named items in
+	the workspace.
+

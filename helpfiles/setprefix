@@ -1,0 +1,10 @@
+SETPREFIX string
+
+	command.  Sets a prefix that will be used as the implicit beginning
+	of filenames in OPENREAD, OPENWRITE, OPENAPPEND, OPENUPDATE, LOAD,
+	and SAVE commands.  Logo will put the appropriate separator
+	character (slash for Unix, backslash for DOS/Windows, colon for
+	MacOS Classic) between the prefix and the filename entered by the user.
+	The input to SETPREFIX must be a word, unless it is the empty list,
+	to indicate that there should be no prefix.
+

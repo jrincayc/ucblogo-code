@@ -1,0 +1,5 @@
+LOCALMAKE varname value				(library procedure)
+
+	command.  Makes the named variable local, like LOCAL, and
+	assigns it the given value, like MAKE.
+

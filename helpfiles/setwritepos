@@ -1,0 +1,8 @@
+SETWRITEPOS charpos
+
+	command.  Sets the file pointer of the write stream file so that the
+	next PRINT, etc., will begin writing at the "charpos"th character
+	in the file, counting from 0.  (That is, SETWRITEPOS 0 will start
+	writing from the beginning of the file.)  Meaningless if the write
+	stream is the screen.
+

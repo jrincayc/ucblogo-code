@@ -1,0 +1,6 @@
+GREATERP num1 num2
+GREATER? num1 num2
+num1 > num2
+
+	outputs TRUE if its first input is strictly greater than its second.
+

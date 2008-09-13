@@ -1,0 +1,6 @@
+RIGHT degrees
+RT degrees
+
+	turns the turtle clockwise by the specified angle, measured in
+	degrees (1/360 of a circle).
+

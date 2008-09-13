@@ -1,0 +1,8 @@
+PLLIST plname						(library procedure)
+PLLIST plnamelist
+
+	outputs a contents list consisting of two empty lists followed by
+	a list of the name or names given as input.  This is useful in
+	conjunction with workspace control procedures that require a contents
+	list as input.
+

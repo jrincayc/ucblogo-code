@@ -1,0 +1,12 @@
+RANDOM num
+(RANDOM start end)
+
+	with one input, outputs a random nonnegative integer less than its
+	input, which must be a positive integer.
+
+	With two inputs, RANDOM outputs a random integer greater than or
+	equal to the first input, and less than or equal to the second
+	input.  Both inputs must be integers, and the first must be less
+	than the second.  (RANDOM 0 9) is equivalent to RANDOM 10;
+	(RANDOM 3 8) is equivalent to (RANDOM 6)+3.
+

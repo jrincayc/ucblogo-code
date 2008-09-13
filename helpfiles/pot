@@ -1,0 +1,7 @@
+POT contentslist
+
+	command.  Prints the title lines of the named procedures and
+	the definitions of the named variables and property lists.
+	For property lists, the entire list is shown on one line
+	instead of as a series of PPROP instructions as in PO.
+

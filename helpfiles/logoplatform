@@ -1,0 +1,7 @@
+LOGOPLATFORM						(variable)
+
+	one of the following words: wxWidgets, X11, Windows, or
+	Unix-Nographics.
+
+
+

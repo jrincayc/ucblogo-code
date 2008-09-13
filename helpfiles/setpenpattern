@@ -1,0 +1,6 @@
+SETPENPATTERN pattern
+
+	sets hardware-dependent pen characteristics.  This command is
+	not guaranteed compatible between implementations on different
+	machines.
+

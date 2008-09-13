@@ -1,0 +1,15 @@
+SETMARGINS vector
+
+	command.  The input must be a list of two numbers, as for
+	SETCURSOR.  The effect is to clear the screen and then arrange for
+	all further printing to be shifted down and to the right according
+	to the indicated margins.  Specifically, every time a newline
+	character is printed (explicitly or implicitly) Logo will type
+	x_margin spaces, and on every invocation of SETCURSOR the margins
+	will be added to the input x and y coordinates.  (CURSOR will report
+	the cursor position relative to the margins, so that this shift will
+	be invisible to Logo programs.)  The purpose of this command is to
+	accommodate the display of terminal screens in lecture halls with
+	inadequate TV monitors that miss the top and left edges of the
+	screen.
+

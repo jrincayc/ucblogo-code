@@ -1,0 +1,7 @@
+SUBSTRINGP thing1 thing2
+SUBSTRING? thing1 thing2
+
+	if "thing1" or "thing2" is a list or an array, outputs FALSE.  If
+	"thing2" is a word, outputs TRUE if "thing1" is EQUALP to a
+	substring of "thing2", FALSE otherwise.
+

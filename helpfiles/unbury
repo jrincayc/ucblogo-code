@@ -1,0 +1,6 @@
+UNBURY contentslist
+
+	command.  Unburies the procedures, variables, and property lists
+	named in the input.  That is, the named items will be returned to
+	view in CONTENTS, etc.
+

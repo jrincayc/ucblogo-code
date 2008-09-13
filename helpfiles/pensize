@@ -1,0 +1,7 @@
+PENSIZE
+
+
+	outputs a list of two positive integers, specifying the horizontal
+	and vertical thickness of the turtle pen.  (In some implementations,
+	including wxWidgets, the two numbers are always equal.)
+

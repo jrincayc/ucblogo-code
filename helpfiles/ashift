@@ -1,0 +1,6 @@
+ASHIFT num1 num2
+
+	outputs "num1" arithmetic-shifted to the left by "num2" bits.
+	If num2 is negative, the shift is to the right with sign
+	extension.  The inputs must be integers.
+

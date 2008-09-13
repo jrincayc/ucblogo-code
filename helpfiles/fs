@@ -1,0 +1,16 @@
+FULLSCREEN
+FS
+
+	rearranges the size and position of windows to maximize the space
+	available in the graphics window.  The details differ among machines.
+	Compare SPLITSCREEN and TEXTSCREEN.
+
+	Since there must be a text window to allow printing (including the
+	printing of the Logo prompt), Logo automatically switches from
+	fullscreen to splitscreen whenever anything is printed.
+
+	In the DOS version, switching from fullscreen to splitscreen loses the
+	part of the picture that's hidden by the text window.  [This design
+	decision follows from the scarcity of memory, so that the extra memory
+	to remember an invisible part of a drawing seems too expensive.]
+

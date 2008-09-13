@@ -1,0 +1,9 @@
+SETREAD filename
+
+	command.  Makes the named file the read stream, used for READLIST,
+	etc.  The file must already be open with OPENREAD or OPENUPDATE.  If
+	the input is the empty list, then the read stream becomes the
+	keyboard, as usual.  Changing the read stream does not close the
+	file that was previously the read stream, so it is possible to
+	alternate between files.
+

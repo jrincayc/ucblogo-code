@@ -1,0 +1,8 @@
+ASCII char
+
+	outputs the integer (between 0 and 255) that represents the input
+	character in the ASCII code.  Interprets control characters as
+	representing vbarred punctuation, and returns the character code
+	for the corresponding punctuation character without vertical bars.
+	(Compare RAWASCII.)
+

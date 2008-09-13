@@ -1,0 +1,6 @@
+FORWARD dist
+FD dist
+
+	moves the turtle forward, in the direction that it's facing, by
+	the specified distance (measured in turtle steps).
+

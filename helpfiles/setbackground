@@ -1,0 +1,7 @@
+SETBACKGROUND colornumber.or.rgblist
+SETBG colornumber.or.rgblist
+
+	set the screen background color by slot number or RGB values.
+	See SETPENCOLOR for details.
+
+

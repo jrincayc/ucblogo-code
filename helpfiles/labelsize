@@ -1,0 +1,10 @@
+LABELSIZE
+
+	(wxWidgets only) outputs a list of two positive integers, the width
+	and height of characters displayed by LABEL measured in turtle steps
+	(which will be different from screen pixels if SETSCRUNCH has been
+	used).  There is no SETLABELSIZE because the width and height of a
+	font are not separately controllable, so the inverse of this operation
+	is SETLABELHEIGHT, which takes just one number for the desired height.
+
+

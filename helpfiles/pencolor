@@ -1,0 +1,15 @@
+PENCOLOR
+PC
+
+	outputs a color number, a nonnegative integer that is associated with
+	a particular color, or a list of RGB values if such a list was used as
+	the most recent input to SETPENCOLOR.  There are initial assignments
+	for the first 16 colors:
+
+	 0  black	 1  blue	 2  green	 3  cyan
+	 4  red		 5  magenta	 6  yellow	 7 white
+	 8  brown	 9  tan		10  forest	11  aqua
+	12  salmon	13  purple	14  orange	15  grey
+
+	but other colors can be assigned to numbers by the PALETTE command.
+

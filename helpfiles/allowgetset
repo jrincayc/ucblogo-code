@@ -1,0 +1,7 @@
+ALLOWGETSET						(variable)
+
+	if TRUE, indicates that an attempt to use a procedure that doesn't
+	exist should be taken as an implicit getter or setter procedure
+	(setter if the first three letters of the name are SET) for a variable
+	of the same name (without the SET if appropriate).
+

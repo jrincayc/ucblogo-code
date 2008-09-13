@@ -1,0 +1,24 @@
+SETWRITE filename
+
+	command.  Makes the named file the write stream, used for PRINT,
+	etc.  The file must already be open with OPENWRITE, OPENAPPEND, or
+	OPENUPDATE.  If the input is the empty list, then the write stream
+	becomes the screen, as usual.  Changing the write stream does
+	not close the file that was previously the write stream, so it is
+	possible to alternate between files.
+
+	If the input is a list, then its first element must be a variable
+	name, and its second and last element must be a positive integer; a
+	buffer of that many characters will be allocated, and will become the
+	writestream.  If the same list (same in the .EQ sense, not a copy)
+	has been used as input to OPENWRITE, then the already-allocated
+	buffer will be used, and the writer can be changed to and from this
+	buffer, with all the characters accumulated as in a file.  When the
+	same list is used as input to CLOSE, the contents of the buffer
+	(as an unparsed word, which may contain newline characters) will
+	become the value of the named variable.  For compatibility with
+	earlier versions, if the list has not been opened when the SETWRITE
+	is done, it will be opened implicitly, but the first SETWRITE after
+	this one will implicitly close it, setting the variable and freeing
+	the allocated buffer.
+

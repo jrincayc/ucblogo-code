@@ -1,0 +1,105 @@
+TO procname :input1 :input2 ...				(special form)
+
+	command.  Prepares Logo to accept a procedure definition.  The
+	procedure will be named "procname" and there must not already
+	be a procedure by that name.  The inputs will be called "input1"
+	etc.  Any number of inputs are allowed, including none.  Names
+	of procedures and inputs are case-insensitive.
+
+	Unlike every other Logo procedure, TO takes as its inputs the
+	actual words typed in the instruction line, as if they were
+	all quoted, rather than the results of evaluating expressions
+	to provide the inputs.  (That's what "special form" means.)
+
+	This version of Logo allows variable numbers of inputs to a
+	procedure.  After the procedure name come four kinds of
+	things, *in this order*:
+
+	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+	    3.   0 or 1 REST input            [:GARPLY]
+	    4.   0 or 1 DEFAULT number        5
+
+	Every procedure has a MINIMUM, DEFAULT, and MAXIMUM
+	number of inputs.  (The latter can be infinite.)
+
+	The MINIMUM number of inputs is the number of required inputs,
+	which must come first.  A required input is indicated by the
+
+			:inputname
+
+	notation.
+
+	After all the required inputs can be zero or more optional inputs,
+	each of which is represented by the following notation:
+
+			[:inputname default.value.expression]
+
+	When the procedure is invoked, if actual inputs are not supplied
+	for these optional inputs, the default value expressions are
+	evaluated to set values for the corresponding input names.  The
+	inputs are processed from left to right, so a default value
+	expression can be based on earlier inputs.  Example:
+
+			to proc :inlist [:startvalue first :inlist]
+
+	If the procedure is invoked by saying
+
+			proc [a b c]
+
+	then the variable INLIST will have the value [A B C] and the
+	variable STARTVALUE will have the value A.  If the procedure
+	is invoked by saying
+
+			(proc [a b c] "x)
+
+	then INLIST will have the value [A B C] and STARTVALUE will
+	have the value X.
+
+	After all the required and optional input can come a single "rest"
+	input, represented by the following notation:
+
+			[:inputname]
+
+	This is a rest input rather than an optional input because there
+	is no default value expression.  There can be at most one rest
+	input.  When the procedure is invoked, the value of this inputname
+	will be a list containing all of the actual inputs provided that
+	were not used for required or optional inputs.  Example:
+
+			to proc :in1 [:in2 "foo] [:in3 "baz] [:in4]
+
+	If this procedure is invoked by saying
+
+			proc "x
+
+	then IN1 has the value X, IN2 has the value FOO, IN3 has the value
+	BAZ, and IN4 has the value [] (the empty list).  If it's invoked
+	by saying
+
+			(proc "a "b "c "d "e)
+
+	then IN1 has the value A, IN2 has the value B, IN3 has the value C,
+	and IN4 has the value [D E].
+
+	The MAXIMUM number of inputs for a procedure is infinite if a
+	rest input is given; otherwise, it is the number of required
+	inputs plus the number of optional inputs.
+
+	The DEFAULT number of inputs for a procedure, which is the number
+	of inputs that it will accept if its invocation is not enclosed
+	in parentheses, is ordinarily equal to the minimum number.  If
+	you want a different default number you can indicate that by
+	putting the desired default number as the last thing on the
+	TO line.  example:
+
+			to proc :in1 [:in2 "foo] [:in3] 3
+
+	This procedure has a minimum of one input, a default of three
+	inputs, and an infinite maximum.
+
+	Logo responds to the TO command by entering procedure definition
+	mode.  The prompt character changes from "?" to ">" and whatever
+	instructions you type become part of the definition until you
+	type a line containing only the word END.
+

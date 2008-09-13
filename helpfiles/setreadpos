@@ -1,0 +1,8 @@
+SETREADPOS charpos
+
+	command.  Sets the file pointer of the read stream file so that the
+	next READLIST, etc., will begin reading at the "charpos"th character
+	in the file, counting from 0.  (That is, SETREADPOS 0 will start
+	reading from the beginning of the file.)  Meaningless if the read
+	stream is the screen.
+

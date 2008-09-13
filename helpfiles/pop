@@ -1,0 +1,6 @@
+POP stackname						(library procedure)
+
+	outputs the most recently PUSHed member of the stack that is the
+	value of the variable whose name is "stackname" and removes that
+	member from the stack.
+

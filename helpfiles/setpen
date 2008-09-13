@@ -1,0 +1,6 @@
+SETPEN list						(library procedure)
+
+	sets the pen's position, mode, thickness, and hardware-dependent
+	characteristics according to the information in the input list, which
+	should be taken from an earlier invocation of PEN.
+

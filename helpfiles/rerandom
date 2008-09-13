@@ -1,0 +1,12 @@
+RERANDOM
+(RERANDOM seed)
+
+	command.  Makes the results of RANDOM reproducible.  Ordinarily
+	the sequence of random numbers is different each time Logo is
+	used.  If you need the same sequence of pseudo-random numbers
+	repeatedly, e.g. to debug a program, say RERANDOM before the
+	first invocation of RANDOM.  If you need more than one repeatable
+	sequence, you can give RERANDOM an integer input; each possible
+	input selects a unique sequence of numbers.
+
+

@@ -1,0 +1,21 @@
+SETSCRUNCH xscale yscale
+
+	adjusts the aspect ratio and scaling of the graphics display.
+	After this command is used, all further turtle motion will be
+	adjusted by multiplying the horizontal and vertical extent of
+	the motion by the two numbers given as inputs.  For example,
+	after the instruction "SETSCRUNCH 2 1" motion at a heading of
+	45 degrees will move twice as far horizontally as vertically.
+	If your squares don't come out square, try this.  (Alternatively,
+	you can deliberately misadjust the aspect ratio to draw an ellipse.)
+
+	In wxWidgets only, SETSCRUNCH also changes the size of the text font
+	used for the LABEL command to try to keep the height of characters
+	scaled with the vertical turtle step size.
+
+	For all modern computers For DOS machines, the scale factors are
+	initially set according to what the hardware claims the aspect ratio
+	is, but the hardware sometimes lies.  For DOS, the values set by
+	SETSCRUNCH are remembered in a file (called SCRUNCH.DAT) and are
+	automatically put into effect when a Logo session begins.
+

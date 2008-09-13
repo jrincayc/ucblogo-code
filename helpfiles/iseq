@@ -1,0 +1,9 @@
+ISEQ from to						(library procedure)
+
+	outputs a list of the integers from FROM to TO, inclusive.
+
+		? show iseq 3 7
+		[3 4 5 6 7]
+		? show iseq 7 3
+		[7 6 5 4 3]
+

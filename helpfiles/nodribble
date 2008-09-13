@@ -1,0 +1,5 @@
+NODRIBBLE
+
+	command.  Stops copying information into the dribble file, and
+	closes the file.
+

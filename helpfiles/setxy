@@ -1,0 +1,5 @@
+SETXY xcor ycor
+
+	moves the turtle to an absolute position in the graphics window.  The
+	two inputs are numbers, the X and Y coordinates.
+

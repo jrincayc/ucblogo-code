@@ -1,0 +1,8 @@
+OUTPUT value
+OP value
+
+	command.  Ends the running of the procedure in which it appears.
+	That procedure outputs the value "value" to the context in which
+	it was invoked.  Don't be confused: OUTPUT itself is a command,
+	but the procedure that invokes OUTPUT is an operation.
+

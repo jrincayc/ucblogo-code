@@ -1,0 +1,9 @@
+MOUSEPOS
+
+	outputs the coordinates of the mouse, provided that it's within the
+	graphics window, in turtle coordinates.  If the mouse is outside the
+	graphics window, then the last position within the window is returned.
+	Exception:  If a mouse button is pressed within the graphics window
+	and held while the mouse is dragged outside the window, the mouse's
+	position is returned as if the window were big enough to include it.
+

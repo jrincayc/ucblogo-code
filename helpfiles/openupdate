@@ -1,0 +1,11 @@
+OPENUPDATE filename
+
+	command.  Opens the named file for reading and writing.  The read and
+	write position is initially set to the end of the old file, if any.
+	Note: each open file has only one position, for both reading and
+	writing.  If a file opened for update is both READER and WRITER at
+	the same time, then SETREADPOS will also affect WRITEPOS and vice
+	versa.  Also, if you alternate reading and writing the same file,
+	you must SETREADPOS between a write and a read, and SETWRITEPOS
+	between a read and a write.
+

@@ -1,0 +1,9 @@
+TRACE contentslist
+
+	command.  Marks the named items for tracing.  A message is printed
+	whenever a traced procedure is invoked, giving the actual input
+	values, and whenever a traced procedure STOPs or OUTPUTs.  A
+	message is printed whenever a new value is assigned to a traced
+	variable using MAKE.  A message is printed whenever a new property
+	is given to a traced property list using PPROP.
+

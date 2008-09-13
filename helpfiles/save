@@ -1,0 +1,21 @@
+SAVE filename
+
+	command.  Saves the definitions of all unburied procedures,
+	variables, and nonempty property lists in the named file.
+	Equivalent to
+
+			to save :filename
+			local "oldwriter
+			make "oldwriter writer
+			openwrite :filename
+			setwrite :filename
+			poall
+			setwrite :oldwriter
+			close :filename
+			end
+
+	Exceptionally, SAVE can be used with no input and without parentheses
+	if it is the last thing on the command line.  In this case, the
+	filename from the most recent LOAD or SAVE command will be used.  (It
+	is an error if there has been no previous LOAD or SAVE.)
+

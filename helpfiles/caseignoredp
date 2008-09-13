@@ -1,0 +1,6 @@
+CASEIGNOREDP						(variable)
+
+	if TRUE, indicates that lower case and upper case letters should be
+	considered equal by EQUALP, BEFOREP, MEMBERP, etc.  Logo initially
+	makes this variable TRUE, and buries it.
+

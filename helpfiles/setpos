@@ -1,0 +1,5 @@
+SETPOS pos
+
+	moves the turtle to an absolute position in the graphics window.  The
+	input is a list of two numbers, the X and Y coordinates.
+

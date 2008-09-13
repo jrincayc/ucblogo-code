@@ -1,0 +1,10 @@
+NOREFRESH
+
+	(command) tells Logo not to remember the turtle's motions, which may
+	be useful to save time and memory if your program is interactive or
+	animated, rather than drawing a static picture you'll want to print
+	later (wxWidgets).  In non-wxWidgets versions, using NOREFRESH may
+	prevent Logo from restoring the graphics image after the window is
+	moved, resized, or overlayed.
+
+

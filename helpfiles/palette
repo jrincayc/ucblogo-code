@@ -1,0 +1,6 @@
+PALETTE colornumber
+
+	outputs a list of three nonnegative numbers less than 100 specifying
+	the percent saturation of red, green, and blue in the color associated
+	with the given number.
+

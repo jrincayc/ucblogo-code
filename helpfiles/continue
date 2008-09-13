@@ -1,0 +1,14 @@
+CONTINUE value
+CO value
+(CONTINUE)
+(CO)
+
+	command.  Ends the current interactive pause, returning to the
+	context of the PAUSE invocation that began it.  If CONTINUE is
+	given an input, that value is used as the output from the PAUSE.
+	If not, the PAUSE does not output.
+
+	Exceptionally, the CONTINUE command can be used without its default
+	input and without parentheses provided that nothing follows it on
+	the instruction line.
+

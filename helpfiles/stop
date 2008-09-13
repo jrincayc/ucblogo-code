@@ -1,0 +1,6 @@
+STOP
+
+	command.  Ends the running of the procedure in which it appears.
+	Control is returned to the context in which that procedure was
+	invoked.  The stopped procedure does not output a value.
+

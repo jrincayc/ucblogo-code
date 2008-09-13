@@ -1,0 +1,6 @@
+PENREVERSE
+PX
+
+	sets the pen's position to DOWN and mode to REVERSE.
+	(This may interact in system-dependent ways with use of color.)
+

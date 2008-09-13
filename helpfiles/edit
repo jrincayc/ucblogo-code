@@ -1,0 +1,32 @@
+EDIT contentslist
+ED contentslist
+(EDIT)
+(ED)
+
+	command.  If invoked with an input, EDIT writes the definitions
+	of the named items into a temporary file and edits that file, using
+	an editor that depends on the platform you're using.  In wxWidgets,
+	and in the MacOS Classic version, there is an editor built into Logo.
+	In the non-wxWidgets versions for Unix, MacOS X, Windows, and DOS,
+	Logo uses your favorite editor as determined by the EDITOR environment
+	variable.  If you don't have an EDITOR variable, edits the
+	definitions using jove.  If invoked without an input, EDIT edits
+	the same file left over from a previous EDIT or EDITFILE instruction.
+	When you leave the editor, Logo reads the revised definitions and
+	modifies the workspace accordingly.  It is not an error if the
+	input includes names for which there is no previous definition.
+
+	If there is a variable LOADNOISILY whose value is TRUE, then, after
+	leaving the editor, TO commands in the temporary file print "PROCNAME
+	defined" (where PROCNAME is the name of the procedure being defined);
+	if LOADNOISILY is FALSE or undefined, TO commands in the file are
+	carried out silently.
+
+	If there is an environment variable called TEMP, then Logo uses
+	its value as the directory in which to write the temporary file
+	used for editing.
+
+	Exceptionally, the EDIT command can be used without its default
+	input and without parentheses provided that nothing follows it on
+	the instruction line.
+

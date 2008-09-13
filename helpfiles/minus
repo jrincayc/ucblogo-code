@@ -1,0 +1,11 @@
+MINUS num
+- num
+
+	outputs the negative of its input.  Minus sign means unary minus if
+	the previous token is an infix operator or open parenthesis, or it is
+	preceded by a space and followed by a nonspace.  There is a difference
+	in binding strength between the two forms:
+
+		MINUS 3 + 4	means	-(3+4)
+		- 3 + 4		means	(-3)+4
+

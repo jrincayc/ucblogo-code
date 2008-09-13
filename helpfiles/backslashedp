@@ -1,0 +1,15 @@
+VBARREDP char
+VBARRED? char
+BACKSLASHED? char                               (library procedure)
+
+	outputs TRUE if the input character was originally entered into Logo
+	within vertical bars (|) to prevent its usual special syntactic
+	meaning, FALSE otherwise.  (Outputs TRUE only if the character is a
+	backslashed space, tab, newline, or one of ()[]+-*/=<>":;\~?| )
+
+	The names BACKSLASHEDP and BACKSLASHED? are included in the Logo
+	library for backward compatibility with the former names of this
+	primitive, although it does *not* output TRUE for characters
+	originally entered with backslashes.
+
+

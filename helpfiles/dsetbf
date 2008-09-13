@@ -1,0 +1,11 @@
+.SETBF list value
+
+	command.  Changes the butfirst of "list" to be "value".
+
+	WARNING: Primitives whose names start with a period are DANGEROUS.
+	Their use by non-experts is not recommended.  The use of .SETBF can
+	lead to circular list structures, which will get some Logo primitives
+	into infinite loops; unexpected changes to other data structures that
+	share storage with the list being modified; or to Logo crashes and
+	coredumps if the butfirst of a list is not itself a list.
+

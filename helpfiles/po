@@ -1,0 +1,7 @@
+PRINTOUT contentslist
+PO contentslist
+
+	command.  Prints to the write stream the definitions of all
+	procedures, variables, and property lists named in the input
+	contents list.
+

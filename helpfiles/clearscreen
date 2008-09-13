@@ -1,0 +1,6 @@
+CLEARSCREEN
+CS
+
+	erases the graphics window and sends the turtle to its initial
+	position and heading.  Like HOME and CLEAN together.
+

@@ -1,0 +1,5 @@
+POPLS							(library procedure)
+
+	command.  Prints the contents of all unburied nonempty property
+	lists in the workspace.  Abbreviates PO PLISTS.
+

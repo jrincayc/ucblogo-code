@@ -1,0 +1,6 @@
+CSLSLOAD name
+
+	command.  Loads the named file, like LOAD, but from the directory
+	containing the Computer Science Logo Style programs instead of the
+	current user's directory.
+

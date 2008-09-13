@@ -1,0 +1,7 @@
+NOTEQUALP thing1 thing2
+NOTEQUAL? thing1 thing2
+thing1 <> thing2
+
+	outputs FALSE if the inputs are equal, TRUE otherwise.  See EQUALP
+	for the meaning of equality for different data types.
+

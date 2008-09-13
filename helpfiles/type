@@ -1,0 +1,20 @@
+TYPE thing
+(TYPE thing1 thing2 ...)
+
+	command.  Prints the input or inputs like PRINT, except that no
+	newline character is printed at the end and multiple inputs are not
+	separated by spaces.  Note: printing to the terminal is ordinarily
+	"line buffered"; that is, the characters you print using TYPE will
+	not actually appear on the screen until either a newline character
+	is printed (for example, by PRINT or SHOW) or Logo tries to read
+	from the keyboard (either at the request of your program or after an
+	instruction prompt).  This buffering makes the program much faster
+	than it would be if each character appeared immediately, and in most
+	cases the effect is not disconcerting.  To accommodate programs that
+	do a lot of positioned text display using TYPE, Logo will force
+	printing whenever SETCURSOR is invoked.  This solves most buffering
+	problems.  Still, on occasion you may find it necessary to force the
+	buffered characters to be printed explicitly; this can be done using
+	the WAIT command.  WAIT 0 will force printing without actually
+	waiting.
+

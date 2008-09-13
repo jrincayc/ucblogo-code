@@ -1,0 +1,10 @@
+.SETFIRST list value
+
+	command.  Changes the first member of "list" to be "value".
+
+	WARNING:  Primitives whose names start with a period are DANGEROUS.
+	Their use by non-experts is not recommended.  The use of .SETFIRST can
+	lead to circular list structures, which will get some Logo primitives
+	into infinite loops, and to unexpected changes to other data
+	structures that share storage with the list being modified.
+

@@ -1,0 +1,17 @@
+NODES
+
+	outputs a list of two numbers.  The first represents the number of
+	nodes of memory currently in use.  The second shows the maximum
+	number of nodes that have been in use at any time since the last
+	invocation of NODES.  (A node is a small block of computer memory
+	as used by Logo.  Each number uses one node.  Each non-numeric
+	word uses one node, plus some non-node memory for the characters
+	in the word.  Each array takes one node, plus some non-node
+	memory, as well as the memory required by its elements.  Each
+	list requires one node per element, as well as the memory within
+	the elements.)  If you want to track the memory use of an
+	algorithm, it is best if you invoke GC at the beginning of each
+	iteration, since otherwise the maximum will include storage that
+	is unused but not yet collected.
+
+

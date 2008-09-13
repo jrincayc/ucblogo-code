@@ -1,0 +1,10 @@
+REPCOUNT
+
+	outputs the repetition count of the innermost current REPEAT or
+	FOREVER, starting from 1.  If no REPEAT or FOREVER is active,
+	outputs -1.
+
+	The abbreviation # can be used for REPCOUNT unless the REPEAT is
+	inside the template input to a higher order procedure such as
+	FOREACH, in which case # has a different meaning.
+
