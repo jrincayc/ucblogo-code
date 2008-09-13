@@ -1,0 +1,25 @@
+;;; -*- logo -*-
+
+.macro foreach [:foreach.inputs] 2
+catch "foreach.catchtag ~
+      [op foreach.done runresult ~
+	    [foreach1 bl :foreach.inputs last :foreach.inputs 1]]
+op []
+end
+
+to foreach1 :template.lists :foreach.template :template.number
+if emptyp first :template.lists [throw "foreach.catchtag]
+apply :foreach.template firsts :template.lists
+.maybeoutput foreach1 bfs :template.lists :foreach.template :template.number+1
+end
+
+to foreach.done :foreach.result
+if emptyp :foreach.result [op [stop]]
+op (list "output "first (list first :foreach.result))
+end
+
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [foreach foreach1 foreach.done ?rest]

@@ -1,0 +1,8 @@
+;;; -*- logo -*-
+
+to mditem :index :array
+if emptyp :index [op :array]
+op mditem bf :index item first :index :array
+end
+
+bury "mditem

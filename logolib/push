@@ -1,0 +1,7 @@
+;;; -*- logo -*-
+
+to push :the.stack.name :the.item.value
+make :the.stack.name fput :the.item.value thing :the.stack.name
+end
+
+bury "push

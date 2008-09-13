@@ -1,0 +1,7 @@
+;;; -*- logo -*-
+
+to mdsetitem :index :array :val
+setitem last :index (mditem bl :index :array) :val
+end
+
+bury "mdsetitem

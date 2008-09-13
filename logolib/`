@@ -1,0 +1,70 @@
+;;; -*- logo -*-
+
+to ` :backq.list [:backq.depth 0]
+if emptyp :backq.list [op []]
+if equalp first :backq.list "` ~
+   [op fput "`
+            fput  (` first bf :backq.list :backq.depth+1)
+                  (` bf bf :backq.list :backq.depth)]
+if and wordp first :backq.list equalp first first :backq.list ", ~
+   [op backq.unquote (bf first :backq.list) (bf :backq.list) :backq.depth]
+if and wordp first :backq.list memberp first first :backq.list [" :] ~
+   [op backq.word (first first :backq.list) (bf first :backq.list)
+                  (bf :backq.list) :backq.depth]
+if wordp first :backq.list ~
+   [op fput first :backq.list (` bf :backq.list :backq.depth)]
+op fput (` first :backq.list :backq.depth) (` bf :backq.list :backq.depth)
+end
+
+to backq.word :backq.symbol :backq.word :backq.rest :backq.depth
+if emptyp :backq.word ~
+   [output fput :backq.symbol (` :backq.rest :backq.depth)]
+if not equalp first :backq.word ", ~
+   [output fput (word :backq.symbol :backq.word)
+                (` :backq.rest :backq.depth)]
+localmake "result backq.unquote (bf :backq.word) :backq.rest :backq.depth
+if wordp :result [output word :backq.symbol :result]
+output fput (word :backq.symbol first :result) bf :result
+end
+
+to backq.unquote :unquote.symbol :unquote.rest :unquote.depth
+localmake "unquote.splicing "false
+if not emptyp :unquote.symbol [
+   if equalp first :unquote.symbol "@ [
+      make "unquote.splicing "true
+      make "unquote.symbol butfirst :unquote.symbol
+]]
+if :unquote.depth=0 [
+  if emptyp :unquote.symbol
+     [output backq.combine run first :unquote.rest
+                           (` bf :unquote.rest :unquote.depth)]
+  output backq.combine run :unquote.symbol (` :unquote.rest :unquote.depth)
+]
+if emptyp :unquote.symbol ~
+   [output fput (ifelse :unquote.splicing [",@] [",])
+                fput (` first :unquote.rest :unquote.depth-1)
+                     (` bf :unquote.rest :unquote.depth)]
+if backq.all.commas :unquote.symbol ~
+   [output fput (ifelse :unquote.splicing [",@] [",])
+                fput (` (list :unquote.symbol first :unquote.rest)
+                        :unquote.depth-1)
+                     (` bf :unquote.rest :unquote.depth)]
+output fput (ifelse :unquote.splicing [",@] [",]) ~
+            fput (` (list :unquote.symbol) :unquote.depth-1) ~
+                 (` :unquote.rest :unquote.depth)
+end
+
+to backq.combine :this :those
+output ifelse :unquote.splicing [se :this :those] [fput :this :those]
+end
+
+to backq.all.commas :word
+if emptyp :word [output "true]
+if equalp first :word ", ~
+   [if emptyp butfirst :word [output "true]
+    if equalp first butfirst :word "@ [output backq.all.commas bf bf :word]
+    output backq.all.commas butfirst :word]
+output "false
+end
+
+bury [` backq.word backq.unquote backq.combine backq.all.commas]
