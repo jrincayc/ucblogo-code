@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+To build Logo under *nix, do this:
+	./configure
+	make
+
 The executable file in this distribution includes libraries from the
 wxWidgets project (www.wxwidgets.org).  The Microsoft Windows version
 is distributed with runtime library mingwm10.dll, from the MinGW project

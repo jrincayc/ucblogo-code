@@ -447,14 +447,14 @@ void silent_load(NODE *arg, char *prefix) {
 			     getstrptr(arg), getstrlen(arg));
 	if (prefix == NULL)
 	  strcat(load_path, ".lg");
-#ifdef WIN32
+/* #ifdef WIN32 */
 	else if (arg != NIL) {
 	    char *cp;
 	    for (cp = load_path; *cp != '\0'; cp++)
 		if (*cp == '?') *cp = 'Q';
 	}
 	/*  strcpy(load_path, eight_dot_three(load_path));  */
-#endif	
+/* #endif */
     }
     tmp_stream = loadstream;
     tmp_line = current_line;
