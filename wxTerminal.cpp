@@ -348,7 +348,7 @@ LogoFrame::LogoFrame (const wxChar *title,
 
 
   editWindow = new TextEditor( this, -1, _T(""), wxDefaultPosition,
-			      wxSize(100,60), wxTE_MULTILINE, f);
+			      wxSize(100,60), wxTE_MULTILINE|wxTE_RICH, f);
   wxTerminal::terminal->isEditFile=0;
   
   topsizer->Add(
