@@ -21,14 +21,14 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 
 HDRS	= globals.h logo.h xgraphics.h
 
-all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
+logo:	$(OBJS)
+	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+
+everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
 #logo-mode
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
-
-logo:	$(OBJS)
-	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
 
 svn.c:	$(SRCS)
 	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
