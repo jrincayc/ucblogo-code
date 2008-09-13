@@ -731,6 +731,7 @@ void LogoFrame::SetUpEditMenu(){
 	editMenu->Append(Edit_Menu_Edit_Find_Next, _T("Find Next \tCtrl-G"));
 	
 	wxMenu *fontMenu = new wxMenu;
+	fontMenu->Append(Menu_Font_Choose, _T("Select Font..."));
 	fontMenu->Append(Menu_Font_Inc, _T("Increase Font Size \tCtrl-+"));
 	fontMenu->Append(Menu_Font_Dec, _T("Decrease Font Size \tCtrl--"));
 	menuBar->Append(fontMenu, _T("&Font"));
@@ -2620,6 +2621,7 @@ extern "C" void wxSetFont(char *fm, int sz) {
     wx_font_size = sz;
 
     wxFont f(FONT_CFG(wx_font_face, wx_font_size));
+
     wxTerminal::terminal->SetFont(f);
     editWindow->SetFont(f);
 

@@ -590,6 +590,7 @@ extern "C" void wx_adjust_label_height() {
 	  	expected++;
 		tmp_font.SetPointSize(expected);
 	    }
+	    if (expected == 100) break;
 	    m_memDC->SetFont(tmp_font);	
 	    m_memDC->GetTextExtent("M", &cw, &tmp_height, &descent, &extlead);
 
@@ -608,6 +609,7 @@ extern "C" void wx_adjust_label_height() {
 	  	expected--;
 		tmp_font.SetPointSize(expected);
 	    }
+	    if (expected == 2) break;
 	    m_memDC->SetFont(tmp_font);	
 	    m_memDC->GetTextExtent("M", &cw, &tmp_height, &descent, &extlead);
 
