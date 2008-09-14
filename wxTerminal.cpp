@@ -323,6 +323,8 @@ END_EVENT_TABLE()
 
 #include "ucblogo.xpm"
 
+extern "C" void wxSetTextColor(int fg, int bg);
+
 //this should compute the size based on the chosen font!
 LogoFrame::LogoFrame (const wxChar *title,
  int xpos, int ypos,
@@ -346,7 +348,7 @@ LogoFrame::LogoFrame (const wxChar *title,
 
   AdjustSize();
 
-
+    wxSetTextColor(7+SPECIAL_COLORS, 0+SPECIAL_COLORS);
   editWindow = new TextEditor( this, -1, _T(""), wxDefaultPosition,
 			      wxSize(100,60), wxTE_MULTILINE|wxTE_RICH, f);
   wxTerminal::terminal->isEditFile=0;

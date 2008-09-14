@@ -47,6 +47,9 @@
 
 #ifdef HAVE_TERMCAP_H
 #include <termcap.h>
+#ifdef HAVE_SGTTY_H
+#include <sgtty.h>
+#endif
 #else
 #ifdef HAVE_TERMLIB_H
 #include <termlib.h>
