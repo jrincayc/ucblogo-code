@@ -17,6 +17,7 @@ public:
 	void OnCloseReject();
 	bool Load(const wxString& filename);
 	void SetFont(wxFont font);
+	void SetThisFont(wxCommandEvent&);
 	
 	int stateFlag;
 	int doSave;

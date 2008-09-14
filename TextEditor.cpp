@@ -20,6 +20,7 @@
 
 BEGIN_EVENT_TABLE (TextEditor, wxTextCtrl)
 EVT_CHAR(TextEditor::OnChar)  
+EVT_TEXT(wxID_ANY, TextEditor::SetThisFont)
 EVT_FIND(wxID_ANY, TextEditor::OnFindDialog)
 EVT_CLOSE(TextEditor::OnCloseEvent)
 END_EVENT_TABLE()
@@ -49,6 +50,15 @@ void TextEditor::SetFont(wxFont font){
 	}
 }
 
+void TextEditor::SetThisFont(wxCommandEvent& event) {
+	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, this->font));
+	if(this->IsShown()){
+		SetStyle(0,GetLastPosition(), wxTextAttr(wxNullColour,wxNullColour,this->font));
+		Refresh();
+		Update();
+	}
+}
+
 /* Loads the given filename into the text editor*/
 bool TextEditor::Load(const wxString& filename){
 	file = filename;
@@ -56,7 +66,6 @@ bool TextEditor::Load(const wxString& filename){
 	SetFont(font);
 	return true;
 }
-
 
 void TextEditor::OnFindNext(){
 	wxFindDialogEvent event;
