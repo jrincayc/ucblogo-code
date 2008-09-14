@@ -56,9 +56,12 @@ void TextEditor::SetFont(wxFont font){
 }
 
 void TextEditor::SetThisFont(wxCommandEvent& event) {
-	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, this->font));
+	SetDefaultStyle(wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
+				   TurtleCanvas::colors[wxTerminal::terminal->m_curBG], this->font));
 	if(this->IsShown()){
-		SetStyle(0,GetLastPosition(), wxTextAttr(wxNullColour,wxNullColour,this->font));
+		SetStyle(0,GetLastPosition(),
+			 wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
+				    TurtleCanvas::colors[wxTerminal::terminal->m_curBG],this->font));
 		Refresh();
 		Update();
 	}
