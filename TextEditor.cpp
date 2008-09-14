@@ -42,9 +42,14 @@ wxTextCtrl(f, a, s, p, sz, b)
 
 void TextEditor::SetFont(wxFont font){
 	this->font = font;
-	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, font));
+	SetDefaultStyle(wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
+				   TurtleCanvas::colors[wxTerminal::terminal->m_curBG], font));
 	if(this->IsShown()){
-		SetStyle(0,GetLastPosition(), wxTextAttr(wxNullColour,wxNullColour,font));
+		SetStyle(0,GetLastPosition(),
+			 wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
+				    TurtleCanvas::colors[wxTerminal::terminal->m_curBG],font));
+    SetBackgroundColour(
+		TurtleCanvas::colors[wxTerminal::terminal->m_curBG]);
 		Refresh();
 		Update();
 	}
