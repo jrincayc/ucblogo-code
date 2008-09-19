@@ -446,7 +446,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		setprocs(current_object,
 			 cons(make_procnode(body_list, body_words, minimum,
                                                deflt, maximum),
-			        getprocs(current_object)));
+											   getprocs(current_object)));}
 #else
 	    setprocnode__caseobj(proc_name,
 				 make_procnode(body_list, body_words, minimum,

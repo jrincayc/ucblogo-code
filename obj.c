@@ -542,7 +542,7 @@ NODE *lrepresentation(NODE *args) {
         }
     }
     ndprintf(NULL, "}");
-    print_stringptr* = '\0';
+    print_stringptr = '\0';
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
