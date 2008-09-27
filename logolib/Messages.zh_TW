@@ -1,4 +1,4 @@
-; UCBLogo message file version 5.5
+; UCBLogo message file version 6.0
 ; Error messages -- position in this file corresponds to error number
 ; Lines starting with semicolon don't count in the line numbering
 ;  and may be added at will.
@@ -46,7 +46,7 @@ END 在多列指令之內
 檔案 %p 已經開啟
 檔案 %p 沒有開啟
 Runlist %s has more than one expression
-; Variable name %s is defined both dynamically and in current object
+Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 謝謝你使用 Logo。
 祝你今天愉快。

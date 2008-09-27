@@ -1,7 +1,7 @@
 ; French version of Berkeley Logo messages file 5.5
-;
-;
-;
+; Error messages -- position in this file corresponds to error number
+; Lines starting with semicolon don't count in the line numbering
+;  and may be added at will.
 Logo : erreur interne fatale
 Plus assez de mémoire
 Débordement de pile
@@ -46,6 +46,7 @@ Impossible d'ouvrir fichier %p
 Fichier %p déjà ouvert
 Fichier %p non ouvert
 Runlist %s a plus qu'une expression
+Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 Merci d'utiliser Logo.
 Bonne journée!

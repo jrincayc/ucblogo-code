@@ -1,4 +1,7 @@
-; Spanish version of Berkeley Logo messages file 5.5
+; Spanish version of Berkeley Logo messages file 6.0
+; Error messages -- position in this file corresponds to error number
+; Lines starting with semicolon don't count in the line numbering
+;  and may be added at will.
 Logo: Error Interno Fatal.
 no hay espacio
 desborde de pila
@@ -43,6 +46,8 @@ No puedo abrir archivo %p
 Archivo %p ya está abierto
 Archivo %p no está abierto
 Runlist %s has more than one expression
+Variable name %s is defined both dynamically and in current object
+; Non-error messages (no numeric error code for these)
 Gracias por usar Logo.
 Que tengas un buen día.
 Lo lamento, no hay 'shell' en la Mac.
