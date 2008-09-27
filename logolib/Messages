@@ -46,7 +46,7 @@ I can't open file %p
 File %p already open
 File %p not open
 Runlist %s has more than one expression
-; Variable name %s is defined both dynamically and in current object
+Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 Thank you for using Logo.
 Have a nice day.

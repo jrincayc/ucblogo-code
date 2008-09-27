@@ -23,11 +23,12 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
-/* #define OBJECTS */
+ //#define OBJECTS 
 
 /* #define MEM_DEBUG */
 
 #define ecma	/* for European extended character set using parity bit */
+
 
 #ifdef WIN32
 #define ibm
@@ -229,9 +230,11 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		BAD_DEFAULT, RUNRES_STOP, MISSING_SPACE,
 		CANT_OPEN_ERROR, ALREADY_OPEN_ERROR, NOT_OPEN_ERROR,
 		RUNNABLE_ARG,
-#ifdef OBJECTS
+// I removed conditional inclusion of LOCAL_AND_OBJ because
+// it the messages text file does not have the ability to 
+// conditionally include the text for the message, resulting
+// in a shift by 1 when compiled with OBJECTS
 		LOCAL_AND_OBJ,
-#endif
     /* below this point aren't actually error codes, just messages */
 		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,
 		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,

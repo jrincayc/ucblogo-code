@@ -1,4 +1,7 @@
 ; French version of Berkeley Logo messages file 5.5
+;
+;
+;
 Logo : erreur interne fatale
 Plus assez de mémoire
 Débordement de pile
@@ -43,6 +46,7 @@ Impossible d'ouvrir fichier %p
 Fichier %p déjà ouvert
 Fichier %p non ouvert
 Runlist %s a plus qu'une expression
+; Non-error messages (no numeric error code for these)
 Merci d'utiliser Logo.
 Bonne journée!
 Désolé, pas de shell sur le Mac.
