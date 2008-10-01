@@ -420,56 +420,67 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
     }
 
     if (NOT_THROWING) {
-	body_words = cons(find_to(current_line), NIL);
-	lastnode2 = body_words;
-	body_list = cons(forms, NIL);
-	lastnode = body_list;
-	to_pending++;    /* for int or quit signal */
-	while (NOT_THROWING && to_pending && (!feof(loadstream))) {
-	    tnode = cons(reader(loadstream, "> "), NIL);
-	    if ((feof(loadstream))) {
-		tnode = cons(theName(Name_end), NIL);
-	    }
-	    setcdr(lastnode2, tnode);
-	    lastnode2 = tnode;
-	    tnode = cons(parser(car(tnode), TRUE), NIL);
-	    if (car(tnode) != NIL && isName(caar(tnode), Name_end))
-		break;
-	    else if (car(tnode) != NIL) {
-		setcdr(lastnode, tnode);
-		lastnode = tnode;
-	    }
-	}
-	if (to_pending && NOT_THROWING) {
+		body_words = cons(find_to(current_line), NIL);
+		lastnode2 = body_words;
+		body_list = cons(forms, NIL);
+		lastnode = body_list;
+		to_pending++;    /* for int or quit signal */
+
+		while (NOT_THROWING && to_pending && (!feof(loadstream))) {
+			tnode = cons(reader(loadstream, "> "), NIL);
+
+			if ((feof(loadstream))) {
+				tnode = cons(theName(Name_end), NIL);
+			}
+
+			setcdr(lastnode2, tnode);
+			lastnode2 = tnode;
+			tnode = cons(parser(car(tnode), TRUE), NIL);
+
+			if (car(tnode) != NIL && isName(caar(tnode), Name_end)){
+				break;
+			} else if (car(tnode) != NIL) {
+				setcdr(lastnode, tnode);
+				lastnode = tnode;
+			}
+		}
+		if (to_pending && NOT_THROWING) {
 #ifdef OBJECT
-	    if (current_object != logo_object) {
-		setprocs(current_object,
-			 cons(make_procnode(body_list, body_words, minimum,
-                                               deflt, maximum),
-											   getprocs(current_object)));}
+			if (current_object != logo_object) {
+				setprocs(current_object,
+				 cons(make_procnode(body_list, body_words, minimum,
+												   deflt, maximum),
+												   getprocs(current_object)));
+			}else{
+				setprocnode__caseobj(proc_name,
+						 make_procnode(body_list, body_words, minimum,
+								   deflt, maximum));
+			}
 #else
-	    setprocnode__caseobj(proc_name,
-				 make_procnode(body_list, body_words, minimum,
-					       deflt, maximum));
-	    if (macro_flag)
-		setflag__caseobj(proc_name, PROC_MACRO);
-	    else
-		clearflag__caseobj(proc_name, PROC_MACRO);
+			setprocnode__caseobj(proc_name,
+					 make_procnode(body_list, body_words, minimum,
+							   deflt, maximum));
+			if (macro_flag)
+				setflag__caseobj(proc_name, PROC_MACRO);
+			else
+				clearflag__caseobj(proc_name, PROC_MACRO);
 #endif
-	    if (deflt != old_default && old_default >= 0) {
-		the_generation = cons(NIL, NIL);
-	    }
-	    if (loadstream == stdin || varTrue(LoadNoisily)) {
-		ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
-	    }
-	    if (loadstream != stdin && varTrue(UnburyOnEdit)) {
-		clearflag__caseobj(proc_name, PROC_BURIED);
-	    }
+			if (deflt != old_default && old_default >= 0) {
+				the_generation = cons(NIL, NIL);
+			}
+			if (loadstream == stdin || varTrue(LoadNoisily)) {
+				ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
+			}
+			if (loadstream != stdin && varTrue(UnburyOnEdit)) {
+				clearflag__caseobj(proc_name, PROC_BURIED);
+			}
+		}
+
+		to_pending = 0;
+		need_save = 1;
 	}
-	to_pending = 0;
-	need_save = 1;
-    }
-    deepend_proc_name = NIL;
+    
+	deepend_proc_name = NIL;
     return(UNBOUND);
 }
 
@@ -626,11 +637,17 @@ int want_buried = 0;
 typedef enum {c_PROCS, c_VARS, c_PLISTS, c_PRIMS, c_PROCSnPRIMS} CNTLSTTYP;
 CNTLSTTYP contents_list_type;
 
-#ifdef OBJECTS4
+#ifdef OBJECTS //OBJECTS4
+
 /* For ancestry lists */
 typedef enum {NORMAL, ANCESTRY} LSTFORM;
 /* For type of list wanted */
 typedef enum {ACCESSIBLE, OWNED, INHERITED} LSTTYP;
+
+void contents_map(NODE *sym);
+NODE *mergesrt(NODE *nd);
+void putname(NODE *name, NODE *obj, LSTFORM format);
+void special_contents_map(NODE *sym, LSTFORM format);
 
 /* Depending on the current contents_list_type, this returns the variables
    or procedures of the current object. Signals error if plists  */
@@ -697,7 +714,8 @@ NODE *get_special_contents(LSTFORM format, LSTTYP type) {
         }
         /* if accessible, then remove the shadowed vars/procs */
         if (type == ACCESSIBLE) {
-            cnt_list = removeShadowed(cnt_list);
+			// TODO: Find removeShadowed
+            //cnt_list = removeShadowed(cnt_list);
         }
         }
     }
@@ -718,9 +736,9 @@ void putname(NODE *name, NODE *obj, LSTFORM format) {
     NODE *newNode;
 
     if (format == NORMAL)
-    newNode = name;
+		newNode = name;
     else
-    newNode = cons(name, cons(obj, NIL));
+		newNode = cons(name, cons(obj, NIL));
 
     if (cnt_list == NIL) {
         cnt_list = cons(newNode, NIL);
@@ -737,34 +755,34 @@ void special_contents_map(NODE *sym, LSTFORM format) {
 
     if (want_buried) flag_check = want_buried;
     switch(contents_list_type) {
-    case c_PROCS:
-	check_library(sym);
-        if (procnode__object(sym) == UNDEFINED ||
-            is_prim(procnode__object(sym)))
-        return;
-        if (bck(flag__object(sym,flag_check))) return;
-        break;
-    case c_VARS:
-        flag_check <<= 1;
-        if (valnode__object(sym) == UNBOUND) return;
-        if (bck(flag__object(sym,flag_check))) return;
-        break;
-    case c_PLISTS:
-        err_logo(BAD_DATA, contents_list_type);
+		case c_PROCS:
+			check_library(sym);
+			if (procnode__object(sym) == UNDEFINED ||
+					is_prim(procnode__object(sym)))
+				return;
+		    if (bck(flag__object(sym,flag_check))) 
+				return;
+			break;
+		case c_VARS:
+			flag_check <<= 1;
+			if (valnode__object(sym) == UNBOUND) return;
+			if (bck(flag__object(sym,flag_check))) return;
+			break;
+		case c_PLISTS:
+			err_logo(BAD_DATA, UNBOUND); //contents_list_type
     }
     putname(canonical__object(sym), logo_object, format);
-    }
 }
 
 /* checks if the car of the item is equal to the car of something in
    alist */
 BOOLEAN carequal(NODE *item, NODE *alist) {
     while (alist != NIL) {
-        if (car(item) == caar(alist)
-            return true;
+        if (car(item) == caar(alist))
+            return TRUE;
         alist = cdr(alist);
     }
-    return false;
+    return FALSE;
 }
 #endif
 
@@ -879,7 +897,7 @@ NODE *get_contents() {
     return(cnt_list);
 }
 
-#ifdef OBJECTS4
+#ifdef OBJECTS //OBJECTS4
 
 /* calls to new special_contents */
 NODE *lcontents(NODE *args) {
