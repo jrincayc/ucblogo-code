@@ -24,7 +24,6 @@ MAKE "Tests.Constructors [
   Tests.Constructors.FPut
   Tests.Constructors.LPut
   Tests.Constructors.Array
-  Tests.Constructors.ArrayMulti
   Tests.Constructors.MDArray
   Tests.Constructors.MDArrayMulti
  ]
