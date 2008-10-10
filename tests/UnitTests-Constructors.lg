@@ -1,0 +1,130 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;             Constructors               ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Constructors] [Tests.Constructors.Setup]
+
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Constructors [
+  ;list tests here
+  Tests.Constructors.Word
+  Tests.Constructors.List
+  Tests.Constructors.ListMany
+  Tests.Constructors.Sentence
+  Tests.Constructors.SentenceMany
+  Tests.Constructors.FPut
+  Tests.Constructors.LPut
+  Tests.Constructors.Array
+  Tests.Constructors.ArrayMulti
+  Tests.Constructors.MDArray
+  Tests.Constructors.MDArrayMulti
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Constructors.Setup
+  RunTests :Tests.Constructors
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.Constructors.Word
+  MAKE "x WORD "1 "2
+  OUTPUT (AND [WORD? :x]
+              [equal? :x "12])
+end
+
+
+to Tests.Constructors.List
+  MAKE "x list "1 "2
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 2])
+end
+
+
+to Tests.Constructors.ListMany
+  MAKE "x (list "1 "2 "3 "4)
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 4])
+end
+
+
+to Tests.Constructors.Sentence
+  MAKE "x se "1 "2
+  MAKE "y SENTENCE "3 "4
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 2]
+              [LIST? :y]
+              [EQUAL? COUNT :y 2])
+end
+
+
+to Tests.Constructors.SentenceMany
+  MAKE "x (se "1 "2 "3 "4 "5)
+  MAKE "y (SENTENCE "3 "4 "5 "6 "7)
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 5]
+              [LIST? :y]
+              [EQUAL? COUNT :y 5])
+end
+
+to Tests.Constructors.FPut
+  MAKE "x LIST "4 "5
+  MAKE "X FPUT "1 :x 
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 3]
+              [EQUAL? FIRST :x "1]
+              [EQUAL? LAST :x "5])
+end
+
+
+to Tests.Constructors.LPut
+  MAKE "x LIST "4 "5
+  MAKE "x LPUT "1 :x 
+  OUTPUT (AND [LIST? :x]
+              [EQUAL? COUNT :x 3]
+              [EQUAL? FIRST :x "4]
+              [EQUAL? LAST :x "1])
+end
+
+
+to Tests.Constructors.Array
+  MAKE "x ARRAY 2
+  OUTPUT (AND [ARRAY? :x])
+end
+
+to Tests.Constructors.MDArray
+  MAKE "x MDARRAY 2
+  OUTPUT (AND [ARRAY? :x])
+end
+
+to Tests.Constructors.MDArrayMulti
+  MAKE "y (MDARRAY [2 2] 0)
+  OUTPUT (AND [ARRAY? :y])
+end
+
+

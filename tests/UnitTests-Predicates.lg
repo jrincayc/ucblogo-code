@@ -1,0 +1,99 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;         Predicates Test Suite          ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Predicates] [Tests.Predicates.Setup]
+
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Predicates [
+  ;list tests here
+  Tests.Predicates.LessP
+  Tests.Predicates.Less?
+  Tests.Predicates.GreaterP
+  Tests.Predicates.Greater?
+  Tests.Predicates.LessEqualP
+  Tests.Predicates.LessEqual?
+  Tests.Predicates.GreaterEqualP
+  Tests.Predicates.GreaterEqual?
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Predicates.Setup
+  RunTests :Tests.Predicates
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.Predicates.LessP
+  OUTPUT (AND [LESSP 1 2]
+              [LESSP 0 1]
+              [LESSP -1 0])
+end
+
+to Tests.Predicates.Less?
+  OUTPUT (AND [LESS? 1 2]
+              [LESS? 0 1]
+              [LESS? -1 0])
+end
+
+to Tests.Predicates.GreaterP
+  OUTPUT (AND [GreaterP 2 1]
+              [GreaterP 1 0]
+              [GreaterP 0 -1])
+end
+
+to Tests.Predicates.Greater?
+  OUTPUT (AND [Greater? 2 1]
+              [Greater? 1 0]
+              [Greater? 0 -1])
+end
+
+
+to Tests.Predicates.LessEqualP
+  OUTPUT (AND [LessEqualP 2 2]
+              [LessEqualP 0 1]
+              [LessEqualP -3 -3])
+end
+
+to Tests.Predicates.LessEqual?
+  OUTPUT (AND [LessEqual? 2 2]
+              [LessEqual? 0 1]
+              [LessEqual? -3 -3])
+end
+
+to Tests.Predicates.GreaterEqualP
+  OUTPUT (AND [GreaterEqualP 2 2]
+              [GreaterEqualP 1 0]
+              [GreaterEqualP -1 -1])
+end
+
+to Tests.Predicates.GreaterEqual?
+  OUTPUT (AND [GreaterEqual? 2 2]
+              [GreaterEqual? 1 0]
+              [GreaterEqual? -1 -1])
+end

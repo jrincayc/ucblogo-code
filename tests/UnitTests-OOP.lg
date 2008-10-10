@@ -1,0 +1,180 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;             OOP TEST SUITE             ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [OOP Tests] [Tests.OOP.Setup]
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.OOP [
+  Tests.OOP.Ask
+  Tests.OOP.Exist
+  Tests.OOP.Make
+  Tests.OOP.MakeMany
+  Tests.OOP.OneOf
+  Tests.OOP.OneOfCheckVar
+  Tests.OOP.OverrideExist
+  Tests.OOP.Parents
+  Tests.OOP.TalkTo
+  
+  ;; The following are strictly regression tests
+
+  Tests.OOP.ChildWontChangeParent
+  Tests.OOP.MemberFunctionOverride
+ ]
+
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.OOP.Setup
+  RunTests :Tests.OOP
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS & OBJECTS               ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to ignore :value
+end
+
+make "ABase kindof logo
+ask :ABase [to Exist]
+  have "avar
+  make "avar 1
+end
+
+make "ExistChild kindof logo
+ask :ExistChild [to Exist]
+  make "avar 2
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to safecheck :obj :var :expected
+  make "success 0
+  CATCH "Error [ignore (ask thing :obj [thing :var]) make "success 1]
+  OUTPUT IFELSE [equal? :success 0] [equal? 0 1] [equal? (ask thing :obj [thing :var]) 1]
+end
+
+to Tests.OOP.Ask
+  make "bob kindof logo
+  make "dummy ask :bob [self]
+  OUTPUT EQUAL? 1 1
+end
+
+to Tests.OOP.Exist
+  make "bob oneof :ABase
+  OUTPUT EQUAL? (ASK :bob [:avar]) 1
+end
+
+to Tests.OOP.Make
+  make "bob kindof logo
+  OUTPUT Equal? 1 1
+end
+
+to Tests.OOP.MakeMany
+  make "loqi kindof logo
+  make "geetha kindof logo
+  make "chaidan (kindof :loqi :geetha)
+  OUTPUT equal? (Count ask :chaidan [parents])  2
+end
+
+to Tests.OOP.OneOf
+  make "bob oneof :ABase
+  OUTPUT Equal? 1 1
+end
+
+to Tests.OOP.OneOfCheckVar
+  make "bob oneof :ABase
+  OUTPUT EQUAL? (ASK :bob [:avar]) 1
+end
+
+to Tests.OOP.OverrideExist
+  make "bob kindof :ExistChild
+  ask :bob [exist]
+  ;OUTPUT safecheck "bob "avar 2
+  OUTPUT Equal? (ask :bob [:avar]) 2
+end
+
+to Tests.OOP.Parents
+  make "bob kindof logo
+  make "jim kindof :bob
+  OUTPUT AND (ask :jim [parents]) = (list :bob) (ask :bob [parents]) = (list Logo)
+end
+
+
+to Tests.OOP.TalkTo
+  make "bob kindof logo
+  ask :bob [have "hat]
+  ask :bob [make "hat "red]
+  talkto :bob
+  make "result equal? :hat "red
+  talkto Logo
+  OUTPUT :result
+end
+
+
+;; This regression tests verifies
+;; that when you change a child value
+;; the parent value remains unchanged
+
+to Tests.OOP.ChildWontChangeParent
+  make "bob oneof Logo
+  ask :bob [have "hat]
+  ask :bob [make "hat "blue]
+  make "joe oneof :bob
+  ask :joe [make "hat "red]
+  OUTPUT (ask :bob [:hat]) <> (ask :joe [:hat])
+end
+
+
+;; This is setup for the next test
+;; When an object has a function with the
+;; same name as its parent's, the child's method
+;; should be called, not the parent's method
+
+make "MemRegr KindOf Logo
+to OOP.Regr.foo
+  OUTPUT 1
+end
+
+ask :MemRegr [to OOP.Regr.foo]
+  OUTPUT 0
+end
+
+to Tests.OOP.MemberFunctionOverride
+  OUTPUT equal? (ASK :MemRegr [OOP.Regr.foo]) 0
+end
+
+
+;; TODO: Need to test the TO proc on objects
+;;       but logo doesn't like it when you use
+;;       TO inside a TO
+
+;; Syntax to test
+;;	Usual.Method (inside an object proc call)
+;;	Overriding methods (by redefining exsiting methods)
+;;	Exist / overriding Exist
+;;	Usual.Exist (inside overriden exist)
+;;	Make "OBj OneOf :OtherObj (a combination of KindOf and Exist)
+;;	Make "NewObj (OneOf :Obj "prop value) -- initialize with specific values
+;;	HaveMake "Name Value (have combined with make)
+;;	
+

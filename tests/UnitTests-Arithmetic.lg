@@ -1,0 +1,196 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;        Arithmetic Test Suite           ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Arithmetic Tests] [Tests.Arithmetic.Setup]
+
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Arithmetic [
+  ;list tests here
+  Tests.Arithmetic.Add
+  Tests.Arithmetic.Sum
+  Tests.Arithmetic.Subtract
+  Tests.Arithmetic.Difference
+  Tests.Arithmetic.Minus
+  Tests.Arithmetic.Negative
+  Tests.Arithmetic.Multiply
+  Tests.Arithmetic.Product
+  Tests.Arithmetic.Divide
+  Tests.Arithmetic.Quotient
+  Tests.Arithmetic.Remainder
+  Tests.Arithmetic.Modulo
+  Tests.Arithmetic.Int
+  Tests.Arithmetic.Round
+  Tests.Arithmetic.Sqrt
+  Tests.Arithmetic.Power
+  Tests.Arithmetic.Exp
+  Tests.Arithmetic.Log10
+  
+  ; Incomplete:
+  ;Tests.Arithmetic.Ln
+  ;Tests.Arithmetic.Sin
+  ;Tests.Arithmetic.RadSin
+  ;Tests.Arithmetic.Cos
+  ;Tests.Arithmetic.RadCos
+  ;Tests.Arithmetic.ArcTan
+  ;Tests.Arithmetic.ISeq
+  ;Tests.Arithmetic.RSeq
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Arithmetic.Setup
+  RunTests :Tests.Arithmetic
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.Arithmetic.Add
+  OUTPUT EQUAL? 1 + 1 2
+end
+
+to Tests.Arithmetic.Sum
+  OUTPUT EQUAL? (SUM 1 2 3 -1) 5
+end
+
+to Tests.Arithmetic.Subtract
+  OUTPUT (AND [EQUAL? 1 - 1 0]
+              [EQUAL? -1 - 1 -2])
+end
+
+to Tests.Arithmetic.Difference
+  OUTPUT EQUAL? (DIFFERENCE 1 1) 0
+end
+
+to Tests.Arithmetic.Minus
+  OUTPUT EQUAL? (MINUS 1) -1
+end
+
+to Tests.Arithmetic.Negative
+  OUTPUT EQUAL? -1 -1
+end
+
+to Tests.Arithmetic.Product
+  OUTPUT EQUAL? (PRODUCT 1 2 3 4) 24
+end
+
+to Tests.Arithmetic.Multiply
+  OUTPUT (AND [EQUAL? 1 * 100 100]
+              [EQUAL? 2 * 3 6]
+              [EQUAL? 2 * 0 0]
+              [EQUAL? -1 * 5 -5])
+end
+
+to Tests.Arithmetic.Divide
+  OUTPUT EQUAL? 10 / 2 5
+end
+
+to Tests.Arithmetic.Quotient
+  OUTPUT (AND [EQUAL? (QUOTIENT 10 2) 5]
+              [EQUAL? (QUOTIENT 10) 0.1])
+end
+
+to Tests.Arithmetic.Remainder
+  OUTPUT (AND [EQUAL? (REMAINDER 9 2) 1]
+              [EQUAL? (REMAINDER 10 10) 0])
+end
+
+to Tests.Arithmetic.Modulo
+  OUTPUT (AND [EQUAL? (MODULO 9 2) 1]
+              [EQUAL? (MODULO 10 10) 0])
+end
+
+
+to Tests.Arithmetic.Int
+  OUTPUT (AND [EQUAL? (INT 9.2) 9]
+              [EQUAL? (INT 9.9) 9])
+end
+
+to Tests.Arithmetic.Round
+  OUTPUT (AND [EQUAL? (ROUND 9.2) 9]
+              [EQUAL? (ROUND 9.9) 10])
+end
+
+to Tests.Arithmetic.SQRT
+  OUTPUT (AND [EQUAL? (SQRT 9) 3]
+              [EQUAL? (SQRT 441) 21])
+end
+
+
+to Tests.Arithmetic.POWER
+  OUTPUT (AND [EQUAL? (POWER 3 2) 9]
+              [EQUAL? (POWER 21 2) 441])
+end
+
+
+to Tests.Arithmetic.EXP
+  OUTPUT (AND [EQUAL? (EXP 0) 1]
+              [EQUAL? (EXP 1) 2.71828182845904523536])
+end
+
+to Tests.Arithmetic.LOG10
+  OUTPUT (AND [EQUAL? (LOG10 1) 0]
+              [EQUAL? (LOG10 10) 1]
+	      [EQUAL? (LOG10 100) 2]
+              [EQUAL? (LOG10 1000) 3])
+end
+
+to Tests.Arithmetic.LN
+  OUTPUT (AND [EQUAL? (LN 10) 4.6051701859880913680359829093687]
+              [EQUAL? (LN 100) 4.6051701859880913680359829093687])
+end
+
+to Tests.Arithmetic.Sin
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.RadSin
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.Cos
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.RadCos
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.ArcTan
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.RadArcTan
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.ISeq
+  OUTPUT EQUAL? 0 1
+end
+
+to Tests.Arithmetic.RSeq
+  OUTPUT EQUAL? 0 1
+end
