@@ -27,6 +27,7 @@ MAKE "Tests.OOP [
 
   Tests.OOP.ChildWontChangeParent
   Tests.OOP.MemberFunctionOverride
+  Tests.OOP.CaseSensitiveMemberVars
  ]
 
 
@@ -144,6 +145,14 @@ to Tests.OOP.ChildWontChangeParent
   OUTPUT (ask :bob [:hat]) <> (ask :joe [:hat])
 end
 
+
+to Tests.OOP.CaseSensitiveMemberVars
+  make "bob something
+  ask :bob [have "aVarIable]
+  ask :bob [make "aVarIable 1]
+  ask :bob [make "avariable 2]
+  OUTPUT equal? (ask :bob [:avariable]) 2
+end
 
 ;; This is setup for the next test
 ;; When an object has a function with the
