@@ -515,6 +515,8 @@ struct segment {
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
 #define flag__caseobj(c,f) (int)((obflags__caseobj(c))->n_int & (f))
 #define flag__object(o,f) (int)((obflags__object(o))->n_int & (f))
+#define setflag__object(c,f) ((obflags__object(c))->n_int |= (f))
+#define clearflag__object(c,f) ((obflags__object(c))->n_int &= ~(f))
 #define is_macro(c) (flag__caseobj(c, PROC_MACRO))
 
 #define push(obj, stack)    stack = cons(obj, stack)

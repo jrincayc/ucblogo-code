@@ -520,7 +520,15 @@ apply_dispatch:
     /* Load in the procedure's definition and decide whether it's a compound
      * procedure or a primitive procedure.
      */
+#ifdef OBJECTS
+    extern NODE* procValue(NODE*);
+    
+    proc = procValue(fun);
+#else
     proc = procnode__caseobj(fun);
+#endif
+
+    //proc = procnode__caseobj(fun);
     if (is_macro(fun)) {
 	num2save(val_status,tailcall);
 	save2(didnt_get_output,current_unode);

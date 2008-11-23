@@ -55,6 +55,12 @@ int wxEditFile(char *);
 #endif
 #endif
 
+#ifdef OBJECTS
+extern NODE* get_var(NODE*, NODE*);
+extern NODE* get_proc(NODE*, NODE*);
+extern NODE* set_proc(NODE*, NODE*, NODE*);
+#endif
+
 char *editor, *editorname, *tempdir;
 int to_pending = 0;
 
@@ -159,20 +165,23 @@ BOOLEAN all_lists(NODE *val) {
 #ifdef OBJECTS
 
 BOOLEAN proc_exists(NODE *name) {
-    if (current_object == logo_object)
-	return procnode__caseobj(name) != UNDEFINED;
-    else
-	return assoc(name, getprocs(current_object)) != NIL;
+  return get_proc(name, current_object) != UNDEFINED;
+
+  //  if (current_object == logo_object)
+  //	return procnode__caseobj(name) != UNDEFINED;
+  //  else
+  //	return assoc(name, getprocs(current_object)) != NIL;
 }
 
 BOOLEAN prim_exists(NODE *name) {
-    NODE *binding;
+  NODE *proc_node = get_proc(name, current_object);
+  return (proc_node == UNDEFINED ? FALSE : is_prim(proc_node));
 
-    if (current_object == logo_object)
-	return is_prim(procnode__caseobj(name));
-    else
-	binding = assoc(name, getprocs(current_object));
-	return (binding==NIL ? FALSE : is_prim(getobject(binding)));
+  //  if (current_object == logo_object)
+  //	return is_prim(procnode__caseobj(name));
+  // else
+  //    binding = assoc(name, getprocs(current_object));
+  //    return (binding==NIL ? FALSE : is_prim(getobject(binding)));
 }
 
 int find_old_default(NODE *name) {
@@ -446,41 +455,70 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		}
 		if (to_pending && NOT_THROWING) {
 #ifdef OBJECT
-			if (current_object != logo_object) {
-				setprocs(current_object,
-				 cons(make_procnode(body_list, body_words, minimum,
-												   deflt, maximum),
-												   getprocs(current_object)));
-			}else{
-				setprocnode__caseobj(proc_name,
-						 make_procnode(body_list, body_words, minimum,
-								   deflt, maximum));
-			}
-#else
-			setprocnode__caseobj(proc_name,
+		  // proc is a hash-table entry
+		  NODE* proc_obj;
+		  proc_obj = set_proc(proc_name, 
+				      make_procnode(body_list, 
+						    body_words, 
+						    minimum,
+						    deflt, maximum),
+				      current_object);
+		  
+		  if (macro_flag)
+		    setflag__object(proc_obj, PROC_MACRO);
+		  else
+		    clearflag__object(proc_obj, PROC_MACRO);
+		  
+		  if (deflt != old_default && old_default >= 0) {
+		    the_generation = cons(NIL, NIL);
+		  }
+		  if (loadstream == stdin || varTrue(LoadNoisily)) {
+		    ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
+		  }
+		  if (loadstream != stdin && varTrue(UnburyOnEdit)) {
+		    clearflag__object(proc_obj, PROC_BURIED);
+		  }
+
+		  /*if (current_object != logo_object) {
+		    setprocs(current_object,
+			     cons(proc_name, getprocs(current_object)));
+		    setobject(getprocs(current_object), 
+			      make_procnode(body_list, 
+					    body_words, 
+					    minimum,
+					    deflt, maximum));
+		  }else{
+		    setprocnode__caseobj(proc_name,
 					 make_procnode(body_list, body_words, minimum,
-							   deflt, maximum));
-			if (macro_flag)
-				setflag__caseobj(proc_name, PROC_MACRO);
-			else
-				clearflag__caseobj(proc_name, PROC_MACRO);
+						       deflt, maximum));
+						       }*/
+#else
+		  setprocnode__caseobj(proc_name,
+				       make_procnode(body_list, body_words, minimum,
+						     deflt, maximum));
+		  if (macro_flag)
+		    setflag__caseobj(proc_name, PROC_MACRO);
+		  else
+		    clearflag__caseobj(proc_name, PROC_MACRO);
+
+		  if (deflt != old_default && old_default >= 0) {
+		    the_generation = cons(NIL, NIL);
+		  }
+		  if (loadstream == stdin || varTrue(LoadNoisily)) {
+		    ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
+		  }
+		  if (loadstream != stdin && varTrue(UnburyOnEdit)) {
+		    clearflag__caseobj(proc_name, PROC_BURIED);
+		  }
 #endif
-			if (deflt != old_default && old_default >= 0) {
-				the_generation = cons(NIL, NIL);
-			}
-			if (loadstream == stdin || varTrue(LoadNoisily)) {
-				ndprintf(stdout, message_texts[LOAD_DEF], proc_name);
-			}
-			if (loadstream != stdin && varTrue(UnburyOnEdit)) {
-				clearflag__caseobj(proc_name, PROC_BURIED);
-			}
+		  
 		}
 
 		to_pending = 0;
 		need_save = 1;
-	}
+    }
     
-	deepend_proc_name = NIL;
+    deepend_proc_name = NIL;
     return(UNBOUND);
 }
 
@@ -501,46 +539,58 @@ NODE *lmacro(NODE *args) {
  */
 
 NODE *lmake(NODE *args) {
-    NODE *what, *object, *bindings, *binding;
+  NODE *what, *object, *bindings, *binding;
 
-    what = name_arg(args);
-    if (NOT_THROWING) {
-        what = intern(what);
+  what = name_arg(args);
+ 
+  if (NOT_THROWING) {
+    what = intern(what);
 
-        if (varInObjectHierarchy(what, FALSE) != (NODE *)(-1)) {
-            if (flag__caseobj(what, IS_LOCAL_VALUE)) {
-                err_logo(LOCAL_AND_OBJ, what);
-                return UNBOUND;
-            } else {
-		need_save = 1;
-                object = varInThisObject(what, FALSE);
-		for (bindings = getvars(object); bindings != NIL;
-			    bindings = cdr(bindings)) {
-                    if (car(bindings) == what) {
-                        setobject(bindings, cadr(args));
-			break;
-                    }
-                }
-            }
-        } else {
-            setvalnode__caseobj(what, cadr(args));
-	    if (!flag__caseobj(what, IS_LOCAL_VALUE)) {
-		setflag__caseobj(what, HAS_GLOBAL_VALUE);
-		need_save = 1;
-	    }
-        }
+    if (varInObjectHierarchy(what, FALSE) != (NODE *)(-1)) {
+      if (flag__caseobj(what, IS_LOCAL_VALUE)) {
+	err_logo(LOCAL_AND_OBJ, what);
+	return UNBOUND;
+      } else {
+	need_save = 1;
+	object = varInThisObject(what, FALSE);
 
-        if (flag__caseobj(what, VAL_TRACED)) {
-            NODE *tvar = maybe_quote(cadr(args));
-            ndprintf(writestream, message_texts[TRACE_MAKE],
-                    make_quote(what), tvar);
-            if (ufun != NIL) {
-                ndprintf(writestream,message_texts[ERROR_IN],ufun,this_line);
-            }
-            new_line(writestream);
-        }
+	// assertion, object should never = NIL at this point
+ 
+	binding = get_var(what, object);
+	
+	/* for (bindings = getvars(object); bindings != NIL;
+	   bindings = cdr(bindings)) {
+	   if (car(bindings) == what) {
+	   setobject(bindings, cadr(args));
+	   break;
+	   }
+	   }*/
+      }
+    } else {
+      binding = object__caseobj(what);
+      //setvalnode__caseobj(what, cadr(args));
+      if (!flag__caseobj(what, IS_LOCAL_VALUE)) {
+	setflag__caseobj(what, HAS_GLOBAL_VALUE);
+	need_save = 1;
+      }
     }
-    return(UNBOUND);
+
+    // at this piont we should have a hash table entry
+    // in the binding variable
+    setvalnode__object(binding, cadr(args));
+	
+    
+    if (flag__object(binding, VAL_TRACED)) {
+      NODE *tvar = maybe_quote(cadr(args));
+      ndprintf(writestream, message_texts[TRACE_MAKE],
+	       make_quote(what), tvar);
+      if (ufun != NIL) {
+	ndprintf(writestream,message_texts[ERROR_IN],ufun,this_line);
+      }
+      new_line(writestream);
+    }
+  }
+  return(UNBOUND);
 }
 
 #else /* OBJECTS */

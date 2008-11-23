@@ -142,7 +142,7 @@ to Tests.OOP.ChildWontChangeParent
   ask :bob [make "hat "blue]
   make "joe oneof :bob
   ask :joe [make "hat "red]
-  OUTPUT (ask :bob [:hat]) <> (ask :joe [:hat])
+  OUTPUT (ask :bob [:hat]) = (ask :joe [:hat])
 end
 
 
