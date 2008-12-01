@@ -160,7 +160,7 @@ NODE* get_proc(NODE* name, NODE* oop_obj){
     // points to the proc's cannonical name and the
     // object points to the hash table entry, which
     // contains the proc-node internally
-    NODE* proc = assoc(name, getprocs(current_object));
+    NODE* proc = assoc(name, getprocs(oop_obj));
     if (proc == NIL){
       return UNDEFINED;
     }else{
@@ -179,7 +179,7 @@ NODE* set_proc(NODE* name, NODE* procnode, NODE* oop_obj){
 
     NODE* binding = make_object(lownd, procnode, UNBOUND, NIL,name);
     setprocs(oop_obj, cons(name, getprocs(oop_obj)));
-    setobject(getprocs(oop_obj), procnode);
+    setobject(getprocs(oop_obj), binding); //procnode);
     return binding;
   }else{
     setprocnode__caseobj(name, procnode);
@@ -639,21 +639,36 @@ NODE *varInThisObject(NODE *name, BOOLEAN includeLogo) {
 
 /* Returns the procedure associated with name.
  */
+extern void dbprint(NODE*);
+
 NODE *procValue(NODE *name) {
     NODE *result, *parentList;
 
-    result = assoc(name, getprocs(current_object));
-    if (result != NIL) return getobject(result);
+    result = get_proc(name, current_object);
+
+    //dbprint(NIL);
+    //dbprint(current_object);
+    //dbprint(name);
+    //dbprint(result);
+
+    if (result != UNDEFINED) {
+      return result;
+    }
 
     for (parentList = parent_list(current_object);
-        parentList != NIL && result == NIL;
-        parentList = cdr(parentList)) {
-    result = assoc(name, getprocs(car(parentList)));
+	 parentList != NIL && result == UNDEFINED;
+	 parentList = cdr(parentList)) {
+      
+      result = get_proc(name, car(parentList));
+      //dbprint(car(parentList));
+      //dbprint(result);
     }
-    if (result != NIL) return getobject(result);
 
-    result = intern(name);
-    return procnode__caseobj(result);
+    // result should be UNDEFINED or a proc at this point
+    return result;
+
+    //result = intern(name);
+    return UNDEFINED; //procnode__caseobj(result);
 }
 
 /*

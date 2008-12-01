@@ -460,17 +460,27 @@ void silent_load(NODE *arg, char *prefix) {
     tmp_line = current_line;
     loadstream = fopen(load_path, "r");
     if (loadstream != NULL) {
-	while (!(feof(loadstream)) && NOT_THROWING) {
-	    current_line = reader(loadstream, "");
-	    exec_list =parser(current_line, TRUE);
-	    if (exec_list != NIL) eval_driver(exec_list);
-	}
-	fclose(loadstream);
-	runstartup(st);
+#ifdef OBJECTS
+      // make sure the library executes
+      // in the context of the logo object
+      NODE* temp_object = current_object;
+      current_object = logo_object;
+#endif
+      while (!(feof(loadstream)) && NOT_THROWING) {
+	current_line = reader(loadstream, "");
+	exec_list =parser(current_line, TRUE);
+	if (exec_list != NIL) eval_driver(exec_list);
+      }
+      fclose(loadstream);
+      runstartup(st);
+#ifdef OBJECTS
+      // restore the old current object
+      current_object = temp_object;
+#endif
     } else if (arg == NIL || prefix == csls)
-	err_logo(CANT_OPEN_ERROR,
-		 make_strnode(load_path, NULL, strlen(load_path), STRING,
-			      strnzcpy));
+      err_logo(CANT_OPEN_ERROR,
+	       make_strnode(load_path, NULL, strlen(load_path), STRING,
+			    strnzcpy));
     loadstream = tmp_stream;
     current_line = tmp_line;
 }

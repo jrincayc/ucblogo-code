@@ -522,7 +522,6 @@ apply_dispatch:
      */
 #ifdef OBJECTS
     extern NODE* procValue(NODE*);
-    
     proc = procValue(fun);
 #else
     proc = procnode__caseobj(fun);

@@ -36,8 +36,9 @@ void check_library(NODE *first) {
 	first != Null_Word)
 	    silent_load(first, NULL);    /* try ./<first>.lg */
     if (procnode__caseobj(first) == UNDEFINED && NOT_THROWING &&
-	first != Null_Word)
-	    silent_load(first, logolib); /* try <logolib>/<first> */
+	first != Null_Word){
+      silent_load(first, logolib); /* try <logolib>/<first> */
+    }
 }
 
 /* Set the line pointer for a tree.
