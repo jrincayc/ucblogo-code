@@ -114,6 +114,7 @@ void term_init(void) {
 #ifdef unix
     char *emacs; /* emacs change */
     int term_sg;
+    int tgetent_result;
 #endif
 
 #ifdef WIN32
@@ -146,41 +147,48 @@ void term_init(void) {
 #endif
     }
     tty_charmode = 0;
-    tgetent(bp, getenv("TERM"));
 
-    /* emacs changes */
+    /* The following section assumes
+     * x_max, y_max, cm_arr, cl_arr, so_arr, se_arr
+     * are preinitialized to 0 */
 
-    emacs = getenv("EMACS");
-
-    /* check if started from emacs */
-    if (!emacs || *emacs != 't') { /* read from termcap */
+    /* query terminal information from termcap database, if available */
+    tgetent_result = tgetent(bp, getenv("TERM"));
+    if (tgetent_result == 1) {
       x_max = tgetnum("co");
       y_max = tgetnum("li");
+
+      term_sg = tgetnum("sg");
+
+      x_coord = y_coord = 0;
+      termcap_getter("cm", cm_arr);
+      termcap_getter("cl", cl_arr);
+
+      if (term_sg <= 0) {
+          termcap_getter("so", so_arr);
+          termcap_getter("se", se_arr);
+      } else { /* no standout modes */
+	so_arr[0] = se_arr[0] = '\0';
+      }
     }
-    else { /* read environment variables */
+    
+    /* emacs detection */
+    emacs = getenv("EMACS");
+    if (emacs && *emacs == 't') { /* started from emacs */
+      emacs = getenv("EMACS");
       emacs = getenv("COLUMNS");
       if (!emacs) x_max = 0;
       else x_max = atoi(emacs);
       emacs = getenv("LINES");
       if (!emacs) y_max = 0;
       else y_max = atoi(emacs);
-    } 
+    }
+    /* end emacs detection */
 
-    /* end emacs changes */
-
+    /* if we still don't know our size, set some defaults */
     if (x_max <= 0) x_max = 80;
     if (y_max <= 0) y_max = 24;
-    term_sg = tgetnum("sg");
 
-    x_coord = y_coord = 0;
-    termcap_getter("cm", cm_arr);
-    termcap_getter("cl", cl_arr);
-
-    if (term_sg <= 0) {
-	termcap_getter("so", so_arr);
-	termcap_getter("se", se_arr);
-    } else	/* don't mess with stupid standout modes */
-	so_arr[0] = se_arr[0] = '\0';
 #endif
 #endif
 }
