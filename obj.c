@@ -641,34 +641,39 @@ NODE *varInThisObject(NODE *name, BOOLEAN includeLogo) {
  */
 extern void dbprint(NODE*);
 
+
+/* Searches the parents for the given proc
+ * if found, returns the proc 
+ * if not found, returns UNDEFINED
+ */
+NODE *getInheritedProc(NODE *name){
+    NODE *result, *parentList;
+
+    // initialize the return value
+    // incase there are no parents
+    result = UNDEFINED;
+
+    for (parentList = parent_list(current_object);
+	 parentList != NIL && result == UNDEFINED;
+	 parentList = cdr(parentList)) {
+      result = get_proc(name, car(parentList));
+    }
+
+    // result should be UNDEFINED or a proc at this point
+    return result;
+}
+
 NODE *procValue(NODE *name) {
     NODE *result, *parentList;
 
     result = get_proc(name, current_object);
 
-    //dbprint(NIL);
-    //dbprint(current_object);
-    //dbprint(name);
-    //dbprint(result);
-
     if (result != UNDEFINED) {
       return result;
     }
 
-    for (parentList = parent_list(current_object);
-	 parentList != NIL && result == UNDEFINED;
-	 parentList = cdr(parentList)) {
-      
-      result = get_proc(name, car(parentList));
-      //dbprint(car(parentList));
-      //dbprint(result);
-    }
-
-    // result should be UNDEFINED or a proc at this point
-    return result;
-
-    //result = intern(name);
-    return UNDEFINED; //procnode__caseobj(result);
+    // search all parents, will return UNDEFINED if not found
+    return getInheritedProc(name);
 }
 
 /*

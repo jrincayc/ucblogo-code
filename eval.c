@@ -527,7 +527,6 @@ apply_dispatch:
     proc = procnode__caseobj(fun);
 #endif
 
-    //proc = procnode__caseobj(fun);
     if (is_macro(fun)) {
 	num2save(val_status,tailcall);
 	save2(didnt_get_output,current_unode);
@@ -535,6 +534,30 @@ apply_dispatch:
 	    /* We want a value, but not as actual arg */
 	newcont(macro_return);
     }
+
+#ifdef OBJECTS
+    if (proc == UNDEFINED) {	/* for usual.foo support */
+      /* The function(fun) may be of the form usual.foo, in which case
+       * "usual." should be stripped away, and "foo" should be 
+       * resolved in the parent(s) of the current object
+       */
+      NODE *string = cnv_node_to_strnode(fun);
+
+      // first rule out all words shorter than 8 chars
+      if (getstrlen(string) > 6) {
+	// check to see if name begins with "usual."
+	if (!low_strncmp(getstrptr(string), "usual.", 6)){
+	  proc = getInheritedProc(make_strnode(getstrptr(string) + 6,
+					       getstrhead(string),
+					       getstrlen(string) - 6,
+					       nodetype(string),
+					       strnzcpy));
+	}
+      }
+    }
+#endif
+
+
     if (proc == UNDEFINED) {	/* 5.0 punctuationless variables */
 	if (!varTrue(AllowGetSet)) {    /* No getter/setter allowed, punt */
 	    val = err_logo(DK_HOW, fun);
