@@ -13,11 +13,11 @@ LINKER = @LINKER@
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o svn.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
+	  print.o wrksp.o nographics.o svn.o obj.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
-	  print.c wrksp.c nographics.c @WXSRCFILES@ @TERMFILE@ @GRAPHICSFILE@
+	  print.c wrksp.c nographics.c obj.c @WXSRCFILES@ @TERMFILE@ @GRAPHICSFILE@
 
 HDRS	= globals.h logo.h xgraphics.h
 
@@ -70,7 +70,7 @@ ship:
 #	cd emacs; $(MAKE) ship
 	cd docs; $(MAKE) ship
 
-install: all
+install: everything
 	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls; do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp logo $(BINDIR)/.
 	cp -f logolib/* $(LIBLOC)/logolib/.
