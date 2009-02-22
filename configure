@@ -733,7 +733,7 @@ GRAPHICSFILE=" xgraphics.c "
 #Alan input
 # If wx is enabled, then x will be disabled.
 if test "$wx_enable" = maybe; then
-if test -x /usr/local/bin/wx-config ; then
+if test "-x /usr/local/bin/wx-config" -o "-x `which wx-config`"  ; then
     wx_enable='yes';
     echo "Found wx, activating it as default" ;
 fi
@@ -748,6 +748,8 @@ if test "$wx_enable" = yes; then
     elif test -x /usr/local/bin/wx-config ; then
 	echo "checking valid wx installation"
 	wx_config_path='/usr/local/bin/wx-config';
+    elif test -x `which wx-config` ; then
+      wx_config_path=`which wx-config`
     else
 	echo "configure: error: cannot find wx-config" 1>&2; exit 1;
     fi
