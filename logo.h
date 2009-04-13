@@ -23,7 +23,7 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
- //#define OBJECTS 
+// #define OBJECTS 
 
 /* #define MEM_DEBUG */
 
@@ -635,6 +635,11 @@ struct registers {
     FIXNUM r_repcount;	    /* count for repeat */
     FIXNUM r_user_repcount;
     FIXNUM r_ift_iff_flag;
+#ifdef OBJECTS
+    FIXNUM r_usual_parent;
+    FIXNUM r_usual_caller;
+#endif
+
 };
 
 /* definitions for evaluator registers */
@@ -660,6 +665,11 @@ struct registers {
 #define repcount (regs.r_repcount)
 #define user_repcount (regs.r_user_repcount)
 #define ift_iff_flag (regs.r_ift_iff_flag)
+
+#ifdef OBJECTS
+#define usual_parent (regs.r_usual_parent)
+#define usual_caller (regs.r_usual_caller)
+#endif
 
 #define exp expresn
 #endif

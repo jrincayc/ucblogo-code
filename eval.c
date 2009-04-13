@@ -536,22 +536,35 @@ apply_dispatch:
     }
 
 #ifdef OBJECTS
+    
     if (proc == UNDEFINED) {	/* for usual.foo support */
       /* The function(fun) may be of the form usual.foo, in which case
        * "usual." should be stripped away, and "foo" should be 
        * resolved in the parent(s) of the current object
        */
+      extern NODE *parent_list(NODE *obj);
       NODE *string = cnv_node_to_strnode(fun);
 
       // first rule out all words shorter than 8 chars
       if (getstrlen(string) > 6) {
 	// check to see if name begins with "usual."
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
-	  proc = getInheritedProc(make_strnode(getstrptr(string) + 6,
+	  usual_caller = current_object;
+	  NODE* parent = (NODE*)0;
+	  proc = getInheritedProcWithParent(make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
 					       getstrlen(string) - 6,
 					       nodetype(string),
-					       strnzcpy));
+					       strnzcpy),
+					    usual_parent,
+					    &parent);
+	 
+	  // if a proc was found, usual_parent needs to be updated
+	  // to avoid infinite loops when usual is called multiple times
+	  if (proc != UNDEFINED) {
+	    dbprint(parent);
+	    usual_parent = parent;
+	  }
 	}
       }
     }
@@ -1300,6 +1313,7 @@ withobject_continuation:
     save2(current_unode,current_object);
     newcont(withobject_followup);
     current_object = car(val);
+    usual_parent = current_object;
     newcont(cont__cont(cdr(val)));
     list = val = val__cont(cdr(val));
     val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
@@ -1309,6 +1323,7 @@ withobject_followup:
     restore2(current_unode,current_object);
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
+    usual_parent = current_object;
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {

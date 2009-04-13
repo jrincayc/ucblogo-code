@@ -641,22 +641,45 @@ NODE *varInThisObject(NODE *name, BOOLEAN includeLogo) {
  */
 extern void dbprint(NODE*);
 
-
-/* Searches the parents for the given proc
- * if found, returns the proc 
- * if not found, returns UNDEFINED
+/*
+ * Finds an inherited procedure, returns it and also sets
+ * the parent handle to the parent the proc came from
  */
-NODE *getInheritedProc(NODE *name){
+NODE *getInheritedProcWithParent(NODE *name, NODE *obj, NODE **parent){
     NODE *result, *parentList;
 
     // initialize the return value
     // incase there are no parents
     result = UNDEFINED;
 
-    for (parentList = parent_list(current_object);
+    for (parentList = parent_list(obj);
 	 parentList != NIL && result == UNDEFINED;
 	 parentList = cdr(parentList)) {
       result = get_proc(name, car(parentList));
+      *parent = car(parentList);      
+    }
+
+    // result should be UNDEFINED or a proc at this point
+    return result;
+}
+
+
+/* Searches the parents for the given proc
+ * if found, returns the proc 
+ * if not found, returns UNDEFINED
+ */
+NODE *getInheritedProc(NODE *name, NODE *obj){
+    NODE *result, *parentList;
+
+    // initialize the return value
+    // incase there are no parents
+    result = UNDEFINED;
+
+    for (parentList = parent_list(obj);
+	 parentList != NIL && result == UNDEFINED;
+	 parentList = cdr(parentList)) {
+      result = get_proc(name, car(parentList));
+      //if (result != UNDEFINED) break;
     }
 
     // result should be UNDEFINED or a proc at this point
@@ -673,7 +696,7 @@ NODE *procValue(NODE *name) {
     }
 
     // search all parents, will return UNDEFINED if not found
-    return getInheritedProc(name);
+    return getInheritedProc(name, current_object);
 }
 
 /*
