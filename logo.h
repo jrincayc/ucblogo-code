@@ -636,8 +636,8 @@ struct registers {
     FIXNUM r_user_repcount;
     FIXNUM r_ift_iff_flag;
 #ifdef OBJECTS
-    FIXNUM r_usual_parent;
-    FIXNUM r_usual_caller;
+    NODE *r_usual_parent;
+    NODE *r_usual_caller;
 #endif
 
 };

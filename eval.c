@@ -521,8 +521,12 @@ apply_dispatch:
      * procedure or a primitive procedure.
      */
 #ifdef OBJECTS
-    extern NODE* procValue(NODE*);
-    proc = procValue(fun);
+    extern NODE* procValueWithParent(NODE*, NODE**);
+    NODE* parent = (NODE*)0;
+    proc = procValueWithParent(fun, &parent);
+    if (proc != UNDEFINED && parent != 0){ 
+      usual_parent = parent;
+    }
 #else
     proc = procnode__caseobj(fun);
 #endif

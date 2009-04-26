@@ -22,12 +22,14 @@ MAKE "Tests.OOP [
   Tests.OOP.OverrideExist
   Tests.OOP.Parents
   Tests.OOP.TalkTo
+  Tests.OOP.Usual
   
   ;; The following are strictly regression tests
 
   Tests.OOP.ChildWontChangeParent
   Tests.OOP.MemberFunctionOverride
   Tests.OOP.CaseSensitiveMemberVars
+  Tests.OOP.OverriddenMethods
  ]
 
 
@@ -131,6 +133,35 @@ to Tests.OOP.TalkTo
   OUTPUT :result
 end
 
+;; Syntax to test
+;;	Usual.Method (inside an object proc call)
+;;	Overriding methods (by redefining exsiting methods)
+;;	Exist / overriding Exist
+;;	Usual.Exist (inside overriden exist)
+;;	Make "OBj OneOf :OtherObj (a combination of KindOf and Exist)
+;;	Make "NewObj (OneOf :Obj "prop value) -- initialize with specific values
+;;	HaveMake "Name Value (have combined with make)
+
+
+make "Usual1 something
+ask :Usual1 [to foo]
+  op "True
+end
+Make "Usual2 kindof :Usual1
+ask :Usual2 [to foo]
+  op usual.foo
+end  
+
+
+to Tests.OOP.Usual
+   OUTPUT equalp (ask :Usual2 [foo]) "True
+end
+
+
+;; -------------------------------------------------
+;; REGRESSION TESTS
+;; -------------------------------------------------
+
 
 ;; This regression tests verifies
 ;; that when you change a child value
@@ -152,6 +183,22 @@ to Tests.OOP.CaseSensitiveMemberVars
   ask :bob [make "aVarIable 1]
   ask :bob [make "avariable 2]
   OUTPUT equal? (ask :bob [:avariable]) 2
+end
+
+
+  make "a something
+  ask :a [to foo :x]
+    output :x
+    end
+  make "b kindof :a
+  ask :b [to foo]
+    OUTPUT usual.foo "True
+    end
+
+to Tests.OOP.OverriddenMethods
+  make "c kindof :b
+  (ask :c [make "baz foo])
+  OUTPUT equal? (ask :c [:baz]) "True
 end
 
 ;; This is setup for the next test
@@ -176,14 +223,4 @@ end
 ;; TODO: Need to test the TO proc on objects
 ;;       but logo doesn't like it when you use
 ;;       TO inside a TO
-
-;; Syntax to test
-;;	Usual.Method (inside an object proc call)
-;;	Overriding methods (by redefining exsiting methods)
-;;	Exist / overriding Exist
-;;	Usual.Exist (inside overriden exist)
-;;	Make "OBj OneOf :OtherObj (a combination of KindOf and Exist)
-;;	Make "NewObj (OneOf :Obj "prop value) -- initialize with specific values
-;;	HaveMake "Name Value (have combined with make)
-;;	
 

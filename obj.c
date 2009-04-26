@@ -656,7 +656,9 @@ NODE *getInheritedProcWithParent(NODE *name, NODE *obj, NODE **parent){
 	 parentList != NIL && result == UNDEFINED;
 	 parentList = cdr(parentList)) {
       result = get_proc(name, car(parentList));
-      *parent = car(parentList);      
+      if (parent != 0){
+	*parent = car(parentList);      
+      }
     }
 
     // result should be UNDEFINED or a proc at this point
@@ -679,24 +681,32 @@ NODE *getInheritedProc(NODE *name, NODE *obj){
 	 parentList != NIL && result == UNDEFINED;
 	 parentList = cdr(parentList)) {
       result = get_proc(name, car(parentList));
-      //if (result != UNDEFINED) break;
     }
 
     // result should be UNDEFINED or a proc at this point
     return result;
+
+    //return getInheritedProcWithParent(name, obj, (NODE**)0);
+}
+
+NODE *procValueWithParent(NODE *name, NODE **owner){
+  NODE *result, *parentList;
+
+  result = get_proc(name, current_object);
+
+  if (result != UNDEFINED) {
+    if (owner != 0){
+      *owner = current_object;
+    }
+    return result;
+  }
+  
+  // search all parents, will return UNDEFINED if not found
+  return getInheritedProcWithParent(name, current_object, owner);
 }
 
 NODE *procValue(NODE *name) {
-    NODE *result, *parentList;
-
-    result = get_proc(name, current_object);
-
-    if (result != UNDEFINED) {
-      return result;
-    }
-
-    // search all parents, will return UNDEFINED if not found
-    return getInheritedProc(name, current_object);
+  return procValueWithParent(name, (NODE**)0);
 }
 
 /*
