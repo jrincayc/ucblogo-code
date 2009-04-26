@@ -566,8 +566,7 @@ apply_dispatch:
 	  // if a proc was found, usual_parent needs to be updated
 	  // to avoid infinite loops when usual is called multiple times
 	  if (proc != UNDEFINED) {
-	    dbprint(parent);
-	    usual_parent = parent;
+      	    usual_parent = parent;
 	  }
 	}
       }

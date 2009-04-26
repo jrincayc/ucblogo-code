@@ -23,6 +23,7 @@ MAKE "Tests.OOP [
   Tests.OOP.Parents
   Tests.OOP.TalkTo
   Tests.OOP.Usual
+  Tests.OOP.UsualChain
   
   ;; The following are strictly regression tests
 
@@ -147,16 +148,24 @@ make "Usual1 something
 ask :Usual1 [to foo]
   op "True
 end
+
 Make "Usual2 kindof :Usual1
 ask :Usual2 [to foo]
   op usual.foo
 end  
 
+make "Usual3 kindof :Usual2
+ask :Usual3 [to foo]
+  op usual.foo
+end
 
 to Tests.OOP.Usual
    OUTPUT equalp (ask :Usual2 [foo]) "True
 end
 
+to Tests.OOP.UsualChain
+   OUTPUT equalp (ask :Usual3 [foo]) "True
+end
 
 ;; -------------------------------------------------
 ;; REGRESSION TESTS
