@@ -1,3 +1,16 @@
+ucblogo (5.5-3) unstable; urgency=medium
+
+  * QA upload.
+  * Set maintainer to the QA group.
+  * Fix FTBFS with glibc 2.22 (closes: #811956)
+  * Fix keyp on 64-bit architectures (closes: #744802)
+  * Use debhelper compat 9, no dh migration though.
+  * Don't ignore make errors.
+  * Pass dpkg-buildflags to configure.
+  * Drop an article from the short description.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Fri, 25 Mar 2016 04:56:19 +0100
+
 ucblogo (5.5-2.1) unstable; urgency=low
 
   * Non-maintainer upload.

@@ -4,25 +4,27 @@
 
 build:
 	dh_testdir
-	./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib
-	$(MAKE) LIBLOC=/usr/share/ucblogo CFLAGS="-O2 -Wall -g" 
+	$(shell dpkg-buildflags --export=cmdline) \
+		./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib
+	$(MAKE) LIBLOC=/usr/share/ucblogo
 	touch build
 
 clean:
 	dh_testdir
-	$(MAKE) -i clean || $(MAKE) -i -f makefile.in clean
-	-rm -f build
-	-rm -f makefile config.h config.cache config.log config.status \
+	$(MAKE) clean || $(MAKE) -f makefile.in clean
+	rm -f build
+	rm -f makefile config.h config.cache config.log config.status \
 		core logo makehelp helpfiles/HELPCONTENTS
-	-rm -rf *~ debian/ucblogo debian/*~ debian/files* debian/substvars
+	rm -rf *~ debian/ucblogo debian/*~ debian/files* debian/substvars
 	# -rm -rf helpfiles
 	dh_clean
 
-binary-indep: build
-# None
-	@echo 'No architecture independend package components.'; false
+build-indep:
+binary-indep:
 
-binary binary-arch: build
+build-arch: build
+binary: binary-arch
+binary-arch: build
 	dh_testdir
 	dh_testroot
 	dh_clean

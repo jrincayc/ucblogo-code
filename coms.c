@@ -20,9 +20,9 @@
  */
 
 #define WANT_EVAL_REGS 1
+#include <math.h>
 #include "logo.h"
 #include "globals.h"
-#include <math.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
