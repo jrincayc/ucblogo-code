@@ -1,0 +1,8 @@
+makehelp
+logo
+helpfiles/HELPCONTENTS
+config.cache
+config.log
+config.status
+config.h
+makefile

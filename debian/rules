@@ -1,60 +1,16 @@
 #!/usr/bin/make -f
-#
-# debian/rules for ucblogo package
 
-build:
-	dh_testdir
-	$(shell dpkg-buildflags --export=cmdline) \
-		./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib --wx-enable --wx-config_path=/usr/bin/wx-config
-	$(MAKE) LIBLOC=/usr/share/ucblogo
-	touch build
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DH_ALWAYS_EXCLUDE=CVS:.svn
 
-clean:
-	dh_testdir
-	$(MAKE) clean || $(MAKE) -f makefile.in clean
-	rm -f build
-	rm -f makefile config.h config.cache config.log config.status \
-		core logo makehelp helpfiles/HELPCONTENTS
-	rm -rf *~ debian/ucblogo debian/*~ debian/files* debian/substvars
-	# -rm -rf helpfiles
-	dh_clean
+%:
+	dh $@ --parallel
 
-build-indep:
-binary-indep:
+override_dh_auto_configure:
+	dh_auto_configure -- --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib --wx-enable --wx-config_path=/usr/bin/wx-config
 
-build-arch: build
-binary: binary-arch
-binary-arch: build
-	dh_testdir
-	dh_testroot
-	dh_clean
+override_dh_auto_build:
+	dh_auto_build -- LIBLOC=/usr/share/ucblogo
 
-	dh_installdirs
-	# install -s logo debian/ucblogo/usr/bin/ucblogo
-	# cp -r helpfiles/* debian/ucblogo/usr/share/ucblogo/helpfiles/.
-	# cp -r logolib/* debian/ucblogo/usr/share/ucblogo/logolib/.
-	# cp -r csls/* debian/ucblogo/usr/share/ucblogo/csls/.
-
-	$(MAKE) install BINDIR=debian/ucblogo/usr/bin LIBLOC=debian/ucblogo/usr/share/ucblogo
-	mv debian/ucblogo/usr/bin/logo debian/ucblogo/usr/bin/ucblogo
-	ln -s ucblogo debian/ucblogo/usr/bin/logo
-
-	dh_installman debian/ucblogo.1
-	ln -s ucblogo.1.gz debian/ucblogo/usr/share/man/man1/logo.1.gz
-
-	cp -a docs/html debian/ucblogo/usr/share/doc/ucblogo/html
-	cp docs/*.pdf debian/ucblogo/usr/share/doc/ucblogo
-
-	dh_installdocs README
-	cp usermanual debian/ucblogo/usr/share/doc/ucblogo/usermanual.txt
-	dh_installchangelogs
-
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
+override_dh_auto_install:
+	# don't use upstream Makefile for installing
