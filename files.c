@@ -701,7 +701,7 @@ NODE *leofp(NODE *args) {
 
 NODE *lkeyp(NODE *args) {
 #if defined(unix) | defined(__WXMSW__)
-    long nc;
+    int nc;
 #endif
     int c;
 #ifdef WIN32
