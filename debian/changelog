@@ -5,15 +5,20 @@ ucblogo (6.0-1) UNRELEASED; urgency=low
     - wxWidgets support
   * Convert to dh-style build.
   * Convert to source format 3.0 (quilt).
-  * Refresh patches.
-  * Import patch to fix building on 64 bit architectures.
-  * Add patch for reproducible building. (Closes: #790232)
-  * Amend ftbfs patch for new failing file.
-  * Bump Standards-Version to 3.9.8.
-  * Add Homepage field.
-  * Strip unavailable svn information.
   * Convert to DEP5 copyright.
-  * Include info documentation. (Closes: #681403)
+  * debian/patches:
+    - Refresh patches.
+    - Import patch to fix building on 64 bit architectures.
+    - Add patch for reproducible building. (Closes: #790232)
+    - Amend ftbfs patch for new failing file.
+    - Strip unavailable svn information.
+  * debian/control:
+    - Bump Standards-Version to 3.9.8.
+    - Add Homepage field.
+  * Documentation:
+    - Include info manual. (Closes: #681403)
+    - Rebuild documentation.
+    - Register at doc-base.
 
  -- Reiner Herrmann <reiner@reiner-h.de>  Sun, 10 Apr 2016 21:52:25 +0200
 
