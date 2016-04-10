@@ -5,7 +5,7 @@
 build:
 	dh_testdir
 	$(shell dpkg-buildflags --export=cmdline) \
-		./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib
+		./configure --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib --wx-enable --wx-config_path=/usr/bin/wx-config
 	$(MAKE) LIBLOC=/usr/share/ucblogo
 	touch build
 

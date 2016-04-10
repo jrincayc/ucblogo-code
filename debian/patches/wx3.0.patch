@@ -1,0 +1,24 @@
+From: Jan Rękorajski <baggins@pld-linux.org>
+Subject: fix build with wxWidgets 3.0
+Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff;h=4ffabd4aa70fe812d395dbabbdbb9cefcd3a4c9f
+
+--- a/wxTerminal.cpp
++++ b/wxTerminal.cpp
+@@ -506,7 +506,7 @@
+ #else
+ 			      wxStandardPaths::Get().GetDocumentsDir() :
+ #endif
+-			      *wxEmptyString),
++			      ""),
+ 			    wxEmptyString,
+ 			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
+ //			    "*",
+@@ -542,7 +542,7 @@
+ #else
+ 	    wxStandardPaths::Get().GetDocumentsDir() :
+ #endif
+-			  *wxEmptyString),
++			  ""),
+ 	 wxEmptyString,
+ 	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
+ //	 "*",

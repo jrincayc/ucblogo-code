@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.9.8
 Homepage: http://www.cs.berkeley.edu/~bh/logo.html
-Build-Depends: debhelper (>= 9), libncurses-dev, libx11-dev, libsm-dev, libice-dev
+Build-Depends: debhelper (>= 9), libncurses-dev, libx11-dev, libsm-dev, libice-dev, libwxgtk3.0-dev
 
 Package: ucblogo
 Architecture: any
