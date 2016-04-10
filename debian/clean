@@ -1,5 +1,5 @@
 makehelp
-logo
+{ucb,}logo
 helpfiles/HELPCONTENTS
 config.{cache,log,status,h}
 makefile

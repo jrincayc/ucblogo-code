@@ -1,4 +1,4 @@
-logo		usr/bin
+ucblogo		usr/bin
 logolib/*	usr/share/ucblogo/logolib
 helpfiles/*	usr/share/ucblogo/helpfiles
 csls/*		usr/share/ucblogo/csls

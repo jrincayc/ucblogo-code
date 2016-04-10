@@ -1,14 +1,20 @@
 Author: Reiner Herrmann <reiner@reiner-h.de>
 Description: Rename Makefile target to 'all'
+ - rename binary to ucblogo
 
 --- a/makefile.in
 +++ b/makefile.in
-@@ -24,7 +24,7 @@
- logo:	$(OBJS)
- 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+@@ -21,10 +21,10 @@
+ 
+ HDRS	= globals.h logo.h xgraphics.h
+ 
+-logo:	$(OBJS)
+-	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
++ucblogo:	$(OBJS)
++	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o ucblogo
  
 -everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
-+all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
++all:	ucblogo logolib/Messages helpfiles helpfiles/HELPCONTENTS
  #logo-mode
  
  mem.o:	mem.c
