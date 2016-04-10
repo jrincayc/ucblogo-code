@@ -15,3 +15,16 @@ Bug-Debian: https://bugs.debian.org/811956
  #ifdef HAVE_UNISTD_H
  #include <unistd.h>
  #endif
+--- a/graphics.c
++++ b/graphics.c
+@@ -24,9 +24,9 @@
+ #endif /* WIN32 */
+  
+ #define WANT_EVAL_REGS 1
++#include <math.h>
+ #include "logo.h"
+ /*   #include "globals.h"   has been moved further down */
+-#include <math.h>
+ 
+ #ifdef HAVE_WX
+ #include "wxGraphics.h"
