@@ -5,3 +5,4 @@ wx3.0.patch
 fix_ftbfs_lp64.patch
 strip_svn_version.patch
 reproducible_build.patch
+documentation.patch

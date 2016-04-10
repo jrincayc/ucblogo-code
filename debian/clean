@@ -1,8 +1,7 @@
 makehelp
 logo
 helpfiles/HELPCONTENTS
-config.cache
-config.log
-config.status
-config.h
+config.{cache,log,status,h}
 makefile
+docs/html/*
+docs/*.{aux,cp,cps,dvi,ps,pdf,info,toc,log}

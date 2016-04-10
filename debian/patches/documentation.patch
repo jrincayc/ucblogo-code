@@ -1,0 +1,59 @@
+Author: Reiner Herrmann <reiner@reiner-h.de>
+Description: Some documentation fixes
+ - HTML files are generated in docs directory, not in usermanual/
+ - add @dircategory / @direntry (found by Lintian)
+ - fix wrong section level
+
+--- a/docs/makefile
++++ b/docs/makefile
+@@ -24,8 +24,7 @@
+ html/usermanual_1.html: usermanual.texi
+ 	for d in html; do [ -d $$d ] || mkdir -p $$d || exit 1; done
+ 	texi2html --expand tex --split chapter --no-iftex usermanual.texi
+-	mv usermanual/*.html html
+-	rmdir usermanual
++	mv usermanual*.html html
+ 
+ ship:
+ 	-rm -f *.{aux,cp,cps,dvi,fn,ky,log,pg,toc,tp,vr}
+--- a/docs/usermanual.texi
++++ b/docs/usermanual.texi
+@@ -5,6 +5,11 @@
+ @setchapternewpage odd
+ @c %**end of header
+ 
++@dircategory Education
++@direntry
++* UCBLogo: (ucblogo).	Logo Programming Language
++@end direntry
++
+ @iftex
+ @vsize = 8.9 in
+ @parskip = 7 pt
+@@ -2875,7 +2875,7 @@
+ 
+ 
+ @node  AND, OR, LOGICAL OPERATIONS, LOGICAL OPERATIONS
+-@unnumberedsubsec and
++@unnumberedsec and
+ @cindex and
+ 
+ @example
+@@ -6766,7 +6766,7 @@
+ @end menu
+ 
+ @node dMACRO, dDEFMACRO, MACROS, MACROS
+-@unnumberedsubsec .macro
++@unnumberedsec .macro
+ @cindex .macro
+ @cindex .defmacro
+ 
+@@ -7128,7 +7128,7 @@
+ 
+ @node ALLOWGETSET, BUTTONACT, SPECIAL VARIABLES, SPECIAL VARIABLES
+ @comment  node-name,  next,  previous,  up
+-@unnumberedsubsec allowgetset
++@unnumberedsec allowgetset
+ @cindex allowgetset
+ 
+ @example
