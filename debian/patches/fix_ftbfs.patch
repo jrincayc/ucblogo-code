@@ -1,0 +1,17 @@
+Author: Adam Borowski <kilobyte@angband.pl>
+Description: Fix FTBFS with glibc 2.22
+Bug-Debian: https://bugs.debian.org/811956
+
+--- a/coms.c
++++ b/coms.c
+@@ -20,9 +20,9 @@
+  */
+ 
+ #define WANT_EVAL_REGS 1
++#include <math.h>
+ #include "logo.h"
+ #include "globals.h"
+-#include <math.h>
+ #ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif

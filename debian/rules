@@ -39,7 +39,7 @@ binary-arch: build
 	mv debian/ucblogo/usr/bin/logo debian/ucblogo/usr/bin/ucblogo
 	ln -s ucblogo debian/ucblogo/usr/bin/logo
 
-	dh_installman ucblogo.1
+	dh_installman debian/ucblogo.1
 	ln -s ucblogo.1.gz debian/ucblogo/usr/share/man/man1/logo.1.gz
 
 	cp -a docs/html debian/ucblogo/usr/share/doc/ucblogo/html

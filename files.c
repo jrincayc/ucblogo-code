@@ -626,7 +626,7 @@ NODE *leofp(NODE *args) {
 
 NODE *lkeyp(NODE *args) {
 #ifdef unix
-    int nc;
+    long nc;
 #endif
     int c;
 #ifdef WIN32

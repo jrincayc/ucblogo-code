@@ -1,0 +1,15 @@
+Author: Panu Kalliokoski <panu.kalliokoski@gmail.com>
+Description: fix keyp on 64-bit architectures
+Bug-Debian: https://bugs.debian.org/744802
+
+--- a/files.c
++++ b/files.c
+@@ -626,7 +626,7 @@
+ 
+ NODE *lkeyp(NODE *args) {
+ #ifdef unix
+-    long nc;
++    int nc;
+ #endif
+     int c;
+ #ifdef WIN32
