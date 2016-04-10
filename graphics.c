@@ -23,9 +23,9 @@
 #endif /* WIN32 */
  
 #define WANT_EVAL_REGS 1
+#include <math.h>
 #include "logo.h"
 /*   #include "globals.h"   has been moved further down */
-#include <math.h>
 
 #ifdef HAVE_WX
 #include "wxGraphics.h"
