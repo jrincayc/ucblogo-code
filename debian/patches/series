@@ -2,3 +2,4 @@ fix_ftbfs.patch
 fix_keyp_64bit.patch
 makefile_changes.patch
 wx3.0.patch
+fix_ftbfs_lp64.patch
