@@ -4,8 +4,8 @@ Bug-Debian: https://bugs.debian.org/811956
 
 --- a/coms.c
 +++ b/coms.c
-@@ -20,9 +20,9 @@
-  */
+@@ -25,9 +25,9 @@
+ #endif
  
  #define WANT_EVAL_REGS 1
 +#include <math.h>

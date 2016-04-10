@@ -1,39 +1,19 @@
 --- a/makefile.in
 +++ b/makefile.in
-@@ -5,7 +5,7 @@
- prefix = @prefix@
- BINDIR        = $(prefix)/bin
- LIBLOC        = $(prefix)/lib/logo
--MAKE = @MAKE@
-+#MAKE = @MAKE@
+@@ -24,7 +24,7 @@
+ logo:	$(OBJS)
+ 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
  
- # LIBLOC      = `pwd`
- 
-@@ -19,7 +19,7 @@
- 
- HDRS	= globals.h logo.h xgraphics.h
- 
--all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS logo-mode make-docs
-+all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS # make-docs logo-mode
+-everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
++all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
+ #logo-mode
  
  mem.o:	mem.c
- 	$(CC) $(CFLAGS) -O0 -c mem.c
-@@ -56,7 +56,7 @@
- 
- clean:
- 	rm -f *.o libloc.c
--	cd emacs; $(MAKE) clean
-+	cd emacs; [ ! -f makefile ] || $(MAKE) clean
- 
- ship:
- 	rm -f config.h config.cache config.log config.status
-@@ -70,8 +70,8 @@
- 	cp -f logolib/* $(LIBLOC)/logolib/.
+@@ -77,7 +77,7 @@
  	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
  	cp -f csls/* $(LIBLOC)/csls/.
--	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
+ #	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 -	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
-+	# (cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 +	# (cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
  #	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
  

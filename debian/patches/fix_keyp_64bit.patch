@@ -4,10 +4,10 @@ Bug-Debian: https://bugs.debian.org/744802
 
 --- a/files.c
 +++ b/files.c
-@@ -626,7 +626,7 @@
+@@ -689,7 +689,7 @@
  
  NODE *lkeyp(NODE *args) {
- #ifdef unix
+ #if defined(unix) | defined(__WXMSW__)
 -    long nc;
 +    int nc;
  #endif
