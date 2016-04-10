@@ -1,0 +1,14 @@
+Author: Reiner Herrmann <reiner@reiner-h.de>
+Description: Rename Makefile target to 'all'
+
+--- a/makefile.in
++++ b/makefile.in
+@@ -24,7 +24,7 @@
+ logo:	$(OBJS)
+ 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+ 
+-everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
++all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
+ #logo-mode
+ 
+ mem.o:	mem.c
