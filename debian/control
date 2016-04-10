@@ -3,6 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.9.7
+Homepage: http://www.cs.berkeley.edu/~bh/logo.html
 Build-Depends: debhelper (>= 9), libncurses-dev, libx11-dev, libsm-dev, libice-dev
 
 Package: ucblogo
