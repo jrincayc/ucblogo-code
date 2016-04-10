@@ -1,0 +1,31 @@
+Author: Reiner Herrmann <reiner@reiner-h.de>
+Description: Don't include unavailable svn info in version
+
+--- a/main.c
++++ b/main.c
+@@ -270,14 +270,10 @@
+       if (1 || isatty(1))   // fix this.  for interactive from menu bar.
+ #endif
+       {
+-#ifdef HAVE_WX
+-	extern char *SVN;
+-#endif
+ 	char version[20];
+ 	lcleartext(NIL);
+ #ifdef HAVE_WX
+ 	strcpy(version,"6.0");
+-	strcat(version,SVN);
+ #else
+ 	strcpy(version,"5.6");
+ #endif
+--- a/makefile.in
++++ b/makefile.in
+@@ -13,7 +13,7 @@
+ 
+ OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
+ 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
+-	  print.o wrksp.o nographics.o svn.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
++	  print.o wrksp.o nographics.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
+ 
+ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
+ 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
