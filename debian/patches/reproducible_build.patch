@@ -1,0 +1,14 @@
+Author: Reiner Herrmann <reiner@reiner-h.de>
+Description: use C locale for sorting to get reproducible build
+
+--- a/makefile.in
++++ b/makefile.in
+@@ -54,7 +54,7 @@
+ 
+ helpfiles/HELPCONTENTS:	makehelp usermanual
+ 	./makehelp
+-	sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
++	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
+ 	rm helptemp
+ 
+ makehelp:	makehelp.c
