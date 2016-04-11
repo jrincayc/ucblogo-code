@@ -1,6 +1,0 @@
-POTS							(library procedure)
-
-	command.  Prints the title lines of all unburied procedures
-	in the workspace.  Abbreviates POT PROCEDURES.
-
-

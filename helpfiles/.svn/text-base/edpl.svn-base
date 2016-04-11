@@ -1,5 +1,0 @@
-EDPL plname						(library procedure)
-EDPL plnamelist
-
-	command.  Abbreviates EDIT PLLIST plname(list).
-

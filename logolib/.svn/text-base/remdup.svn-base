@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-to remdup :list
-output filter [not memberp ? ?rest] :list
-end
-
-bury "remdup

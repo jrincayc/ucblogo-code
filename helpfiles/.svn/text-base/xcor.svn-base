@@ -1,4 +1,0 @@
-XCOR							(library procedure)
-
-	outputs a number, the turtle's X coordinate.
-

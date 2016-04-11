@@ -1,5 +1,0 @@
-PENDOWN
-PD
-
-	sets the pen's position to DOWN, without changing its mode.
-
