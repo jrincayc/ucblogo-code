@@ -1,0 +1,5 @@
+ERALL							(library procedure)
+
+	command.  Erases all unburied procedures, variables, and property
+	lists from the workspace.  Abbreviates ERASE CONTENTS.
+

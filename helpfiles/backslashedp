@@ -1,0 +1,10 @@
+BACKSLASHEDP char
+BACKSLASHED? char
+
+	outputs TRUE if the input character was originally entered into Logo
+	with a backslash (\) before it or within vertical bars (|) to prevent
+	its usual special syntactic meaning, FALSE otherwise.  (Outputs TRUE
+	only if the character is a backslashed space, tab, newline, or one of
+	()[]+-*/=<>":;\~?| )
+
+

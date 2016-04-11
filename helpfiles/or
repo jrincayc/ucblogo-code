@@ -1,0 +1,8 @@
+OR tf1 tf2
+(OR tf1 tf2 tf3 ...)
+
+	outputs TRUE if any input is TRUE, otherwise FALSE.  All inputs
+	must be TRUE or FALSE.  (Comparison is case-insensitive regardless
+	of the value of CASEIGNOREDP.  That is, "true" or "True" or "TRUE"
+	are all the same.)
+

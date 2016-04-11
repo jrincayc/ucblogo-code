@@ -1,0 +1,5 @@
+to invoke :function [:inputs] 2
+.maybeoutput apply :function :inputs
+end
+
+bury "invoke

@@ -1,0 +1,15 @@
+HELP name
+(HELP)
+
+	command.  Prints information from the reference manual about
+	the primitive procedure named by the input.  With no input,
+	lists all the primitives about which help is available.
+	If there is an environment variable LOGOHELP, then its value
+	is taken as the directory in which to look for help files,
+	instead of the default help directory.
+
+	Exceptionally, the HELP command can be used without its default
+	input and without parentheses provided that nothing follows it on
+	the instruction line.
+
+

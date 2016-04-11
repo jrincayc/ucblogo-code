@@ -1,0 +1,17 @@
+EDIT contentslist
+ED contentslist
+(EDIT)
+(ED)
+
+	command.  Edits the definitions of the named items, using your
+	favorite editor as determined by the EDITOR environment variable.
+	If you don't have an EDITOR variable, edits the definitions using
+	jove.  If invoked without an argument, EDIT edits the same
+	temporary file left over from a previous EDIT instruction.
+	When you leave the editor, Logo reads the revised definitions
+	and modifies the workspace accordingly.
+
+	Exceptionally, the EDIT command can be used without its default
+	input and without parentheses provided that nothing follows it on
+	the instruction line.
+

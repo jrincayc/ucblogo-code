@@ -1,0 +1,4 @@
+BITNOT num
+
+	outputs the bitwise NOT of its input, which must be an integer.
+

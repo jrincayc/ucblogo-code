@@ -1,0 +1,585 @@
+BOOLEAN	logo.h	166
+CNTLSTTYP	wrksp.c	365
+CTRLTYPE	logo.h	291
+ERR_TYPES	logo.h	164
+Get_node_pen_mode	xgraphics.c	/^NODE *Get_node_pen_mode(GC mode)$/
+Mmain	main.c	/^main(int argc, char *argv[])$/
+NODETYPES	logo.h	94
+_reref	mem.c	/^NODE *_reref(NODE *proc_var, NODE *newval)$/
+addseg	mem.c	/^void addseg()$/
+addsep	wrksp.c	/^char *addsep(char *path)$/
+aggregate	logo.h	/^#define aggregate(nd)	(nodetype(nd) & NT_AGGR)$/
+append	eval.c	/^NODE *append(NODE *a, NODE *b) {$/
+assign	eval.c	/^#define assign(to, from)    (to = reref(to, from))/
+backslashed	logo.h	/^#define backslashed(nd)	(nodetype(nd) & NT_BACKSL)/
+bck	wrksp.c	/^int bck(int flag)$/
+bcopy	error.c	/^bcopy(from,to,len)$/
+bfable_arg	lists.c	/^NODE *bfable_arg(NODE *args)$/
+binary	math.c	/^NODE *binary(NODE *args, char fcn)$/
+bodylist__procnode	logo.h	/^#define bodylist__procnode(p)   cdar(p)$/
+bodywords__procnode	logo.h	/^#define bodywords__procnode(p)  cadr(p)$/
+bury_helper	wrksp.c	/^NODE *bury_helper(NODE *arg, int flag)$/
+caar	logo.h	/^#define caar(node)              ((node)->n_car->n_/
+cadr	logo.h	/^#define cadr(node)              ((node)->n_cdr->n_/
+canonical__object	logo.h	/^#define canonical__object(o)    car(o)$/
+cap_strnzcpy	logodata.c	/^char *cap_strnzcpy(char *s1, char *s2, int n)$/
+capital	logodata.c	/^#define capital(c)    ((c) - 'a' + 'A')$/
+car	logo.h	/^#define car(node)               ((node)->n_car)$/
+case_compare	intern.c	/^int case_compare(NODE *nd1, NODE *nd2)$/
+caselist__object	logo.h	/^#define caselist__object(o)     cdr(cddr(cddr(o)))/
+caselistptr__object	logo.h	/^#define caselistptr__object(o)  cddr(cddr(o))$/
+cdar	logo.h	/^#define cdar(node)              ((node)->n_car->n_/
+cddr	logo.h	/^#define cddr(node)              ((node)->n_cdr->n_/
+cdr	logo.h	/^#define cdr(node)               ((node)->n_cdr)$/
+char_arg	lists.c	/^NODE *char_arg(NODE *args)$/
+charmode_off	term.c	/^void charmode_off() {$/
+charmode_on	term.c	/^void charmode_on() {$/
+check_proctype	wrksp.c	/^NODE *check_proctype(NODE *args, int wanted)$/
+check_reserve_tank	mem.c	/^void check_reserve_tank() {$/
+check_x_high	graphics.c	/^check_x_high()$/
+check_x_low	graphics.c	/^check_x_low()$/
+circular	lists.c	/^int circular(NODE *arr, NODE *new)$/
+clear_alloced_records	mem.c	/^void clear_alloced_records(NODE *nd)$/
+clearflag__caseobj	logo.h	/^#define clearflag__caseobj(c,f) ((obflags__caseobj/
+clearparity	logo.h	/^#define clearparity(ch)		ecma_clear(ch)$/
+cnv_node_to_numnode	logodata.c	/^NODE *cnv_node_to_numnode(NODE *ndi)$/
+cnv_node_to_strnode	logodata.c	/^NODE *cnv_node_to_strnode(NODE *nd)$/
+colon_strnzcpy	logodata.c	/^char *colon_strnzcpy(char *s1, char *s2, int n)$/
+compare_node	math.c	/^int compare_node(NODE *n1, NODE *n2, BOOLEAN ignor/
+compare_numnodes	math.c	/^int compare_numnodes(NODE *n1, NODE *n2)$/
+cons	mem.c	/^NODE *cons(NODE *x, NODE *y)$/
+cons_list	logodata.c	/^NODE *cons_list(int dummy, ...)$/
+cont__cont	logo.h	/^#define cont__cont(c)		(int)car(c)$/
+contents_map	wrksp.c	/^void contents_map(NODE *sym)$/
+copy_list	logodata.c	/^NODE *copy_list(NODE *arg)$/
+cs_helper	graphics.c	/^cs_helper(int centerp)$/
+cut_error	graphics.c	/^FLONUM cut_error(FLONUM n)$/
+debprint	error.c	/^int debprint(NODE *foo) {$/
+decrefcnt	logo.h	/^#define decrefcnt(node)         (--((node)->ref_co/
+decstrrefcnt	logo.h	/^#define decstrrefcnt(sh)        (--(*sh))$/
+define_helper	wrksp.c	/^NODE *define_helper(NODE *args, BOOLEAN macro_flag/
+deref	logo.h	/^#define deref(o)	if (o != NIL && decrefcnt(o) == 0/
+dfltargs__procnode	logo.h	/^#define dfltargs__procnode(p)   cadr(cddr(p))$/
+do_ctrl_c	main.c	/^void _far _cdecl do_ctrl_c(void) {$/
+do_enum	logo.h	/^#define do_enum(x) x,$/
+do_list	logo.h	/^#define do_list(x) \\$/
+draw_string	xgraphics.h	/^#define draw_string(s)           checkX;\\$/
+draw_turtle	graphics.c	/^void draw_turtle()$/
+draw_turtle_helper	graphics.c	/^draw_turtle_helper()$/
+ecma_clear	logodata.c	/^char ecma_clear(int ch)$/
+ecma_get	logodata.c	/^int ecma_get(int ch)$/
+ecma_set	logodata.c	/^char ecma_set(int ch)$/
+equalp_help	math.c	/^BOOLEAN equalp_help(NODE *arg1, NODE *arg2, BOOLEA/
+err_eval_driver	eval.c	/^NODE *err_eval_driver(NODE *seq) {$/
+err_logo	error.c	/^NODE *err_logo(ERR_TYPES error_type, NODE *error_d/
+err_print	error.c	/^void err_print()$/
+errchk	math.c	/^#define errchk(x) {errno = 0; x; if (errno) err_lo/
+eval_driver	eval.c	/^void eval_driver(NODE *line) {$/
+evaluator	eval.c	/^NODE *evaluator(NODE *list, enum labels where) {$/
+even_p	logo.h	/^#define even_p(x) !(x & 0x1)$/
+expand_slash	wrksp.c	/^char *expand_slash(NODE *wd) {$/
+fill_reserve_tank	mem.c	/^void fill_reserve_tank() {$/
+find_case	intern.c	/^NODE *find_case(NODE *strnd, NODE *obj)$/
+find_file	files.c	/^FILE *find_file(NODE *arg, BOOLEAN remove)$/
+find_instance	intern.c	/^NODE *find_instance(NODE *lownd)$/
+find_limit	print.c	/^int find_limit(NODE *nd)$/
+flag__caseobj	logo.h	/^#define flag__caseobj(c,f) (int)((obflags__caseobj/
+flag__object	logo.h	/^#define flag__object(o,f) (int)((obflags__object(o/
+float_arg	lists.c	/^FLONUM float_arg(NODE *args)$/
+formals__procnode	logo.h	/^#define formals__procnode(p)    caar(p)$/
+forward	graphics.c	/^void forward(FLONUM d)$/
+forward_helper	graphics.c	/^forward_helper(FLONUM d)$/
+g_round	graphics.c	/^FIXNUM g_round(FLONUM n)$/
+gather_args	paren.c	/^NODE *gather_args(NODE *proc, NODE **args, BOOLEAN/
+gather_some_args	paren.c	/^NODE *gather_some_args(int min, int max, NODE **ar/
+gc	mem.c	/^void gc(NODE *nd)$/
+gcref	logo.h	/^#define gcref(o)	if (o != NIL && getrefcnt(o) == 0/
+generation__tree	logo.h	/^#define generation__tree(t)	car(treepair__tree(t))/
+get_bodywords	wrksp.c	/^NODE *get_bodywords(NODE *proc, NODE *name)$/
+get_contents	wrksp.c	/^NODE *get_contents()$/
+get_mouse_x	xgraphics.c	/^int get_mouse_x()$/
+get_mouse_y	xgraphics.c	/^int get_mouse_y()$/
+get_palette	xgraphics.h	/^#define get_palette(x,y,z,w)	 nop()$/
+get_pen_pattern	xgraphics.h	/^#define get_pen_pattern(p)       nop()$/
+getarrdim	logo.h	/^#define getarrdim(node)		((node)->n_dim)$/
+getarrorg	logo.h	/^#define getarrorg(node)		((node)->n_org)$/
+getarrptr	logo.h	/^#define getarrptr(node)		((node)->n_array)$/
+getfloat	logo.h	/^#define getfloat(node)          ((node)->n_float)$/
+getint	logo.h	/^#define getint(node)            ((node)->n_int)$/
+getobject	logo.h	/^#define getobject(node)         ((node)->n_obj)$/
+getparity	logo.h	/^#define getparity(ch)		ecma_get(ch)$/
+getprimdflt	logo.h	/^#define getprimdflt(node)       ((node)->n_pdef)$/
+getprimfun	logo.h	/^#define getprimfun(node)        ((node)->n_pfun)$/
+getprimmax	logo.h	/^#define getprimmax(node)        ((node)->n_pmax)$/
+getprimmin	logo.h	/^#define getprimmin(node)        ((node)->n_pmin)$/
+getprimpri	logo.h	/^#define getprimpri(node)        ((node)->n_ppri)$/
+getprop	logodata.c	/^NODE *getprop(NODE *plist, NODE *name, BOOLEAN bef/
+getrefcnt	logo.h	/^#define getrefcnt(node)         ((node)->ref_count/
+getstrhead	logo.h	/^#define getstrhead(node)        ((node)->n_head)$/
+getstrlen	logo.h	/^#define getstrlen(node)         ((node)->n_len)$/
+getstrptr	logo.h	/^#define getstrptr(node)         ((node)->n_str)$/
+getstrrefcnt	logo.h	/^#define getstrrefcnt(sh)        (*sh)$/
+handle_oflo	math.c	/^void handle_oflo(int sig) {$/
+hash	intern.c	/^FIXNUM hash(char *s, int len)$/
+increfcnt	logo.h	/^#define increfcnt(node)         (((node)->ref_coun/
+incstrrefcnt	logo.h	/^#define incstrrefcnt(sh)        ((*sh)++)$/
+infixs	parse.c	/^#define infixs(ch)      (ch == '*' || ch == '\/' ||/
+init	eval.c	/^#define init(to, from)	    (to = valref(from))$/
+int_arg	lists.c	/^FIXNUM int_arg(NODE *args)$/
+integer_arg	lists.c	/^NODE *integer_arg(NODE *args)$/
+intern	intern.c	/^NODE *intern(NODE *nd)$/
+into_line	parse.c	/^#define into_line(chr) {if (phys_line >= p_end) { /
+is_cont	logo.h	/^#define is_cont(nd)	(nodetype(nd) == CONT)$/
+is_list	logo.h	/^#define is_list(nd)	(nodetype(nd) & NT_LIST)$/
+is_macro	logo.h	/^#define is_macro(c) (flag__caseobj(c, PROC_MACRO))/
+is_number	logo.h	/^#define is_number(nd)	(nodetype(nd) & NT_NUMBER)$/
+is_prim	logo.h	/^#define is_prim(nd)	(nodetype(nd) & NT_PRIM)$/
+is_string	logo.h	/^#define is_string(nd)	(nodetype(nd) & NT_STRING)$/
+is_tailform	logo.h	/^#define is_tailform(nd)	(nodetype(nd) == TAILFORM)/
+is_tree	logo.h	/^#define is_tree(nd)	(nodetype(nd) & NT_TREE)$/
+is_word	logo.h	/^#define is_word(nd)	(nodetype(nd) & NT_WORD)$/
+isdigit	math.c	/^#define isdigit(dig)    (dig >= '0' && dig <= '9')/
+l_eq	math.c	/^NODE *l_eq(NODE *args)$/
+l_setbf	lists.c	/^NODE *l_setbf(NODE *args)$/
+l_setfirst	lists.c	/^NODE *l_setfirst(NODE *args)$/
+l_setitem	lists.c	/^NODE *l_setitem(NODE *args) {$/
+label	xgraphics.h	/^#define label(s, len)            checkX;\\$/
+ladd	math.c	/^NODE *ladd(NODE *args)$/
+lallopen	files.c	/^NODE *lallopen()$/
+land	coms.c	/^NODE *land(NODE *args)$/
+lapply	eval.c	/^NODE *lapply(NODE *args) {$/
+larc	graphics.c	/^NODE *larc(NODE *arg)$/
+larray	lists.c	/^NODE *larray(NODE *args)$/
+larrayp	lists.c	/^NODE *larrayp(NODE *arg)$/
+lascii	lists.c	/^NODE *lascii(NODE *args)$/
+lashift	math.c	/^NODE *lashift(NODE *args)$/
+latan	math.c	/^NODE *latan(NODE *args)$/
+lback	graphics.c	/^NODE *lback(NODE *arg)$/
+lbackground	graphics.c	/^NODE *lbackground()$/
+lbackslashedp	lists.c	/^NODE *lbackslashedp(NODE *args)$/
+lbeforep	math.c	/^NODE *lbeforep(NODE *args)$/
+lbfs	lists.c	/^NODE *lbfs(NODE *args)$/
+lbitand	math.c	/^NODE *lbitand(NODE *args)$/
+lbitnot	math.c	/^NODE *lbitnot(NODE *args)$/
+lbitor	math.c	/^NODE *lbitor(NODE *args)$/
+lbitxor	math.c	/^NODE *lbitxor(NODE *args)$/
+lburied	wrksp.c	/^NODE *lburied()$/
+lbury	wrksp.c	/^NODE *lbury(NODE *arg)$/
+lbutfirst	lists.c	/^NODE *lbutfirst(NODE *args)$/
+lbutlast	lists.c	/^NODE *lbutlast(NODE *args)$/
+lbuttonp	graphics.c	/^NODE *lbuttonp()$/
+lbye	coms.c	/^NODE *lbye()$/
+lcatch	coms.c	/^NODE *lcatch(NODE *args)$/
+lchar	lists.c	/^NODE *lchar(NODE *args)$/
+lclean	graphics.c	/^NODE *lclean()$/
+lclearscreen	graphics.c	/^NODE *lclearscreen()$/
+lcleartext	term.c	/^NODE *lcleartext()$/
+lclose	files.c	/^NODE *lclose(NODE *arg)$/
+lcontents	wrksp.c	/^NODE *lcontents()$/
+lcontinue	error.c	/^NODE *lcontinue(NODE *args)$/
+lcopydef	wrksp.c	/^NODE *lcopydef(NODE *args)$/
+lcos	math.c	/^NODE *lcos(NODE *args)$/
+lcount	lists.c	/^NODE *lcount(NODE *args)$/
+lcursor	term.c	/^NODE *lcursor()$/
+ldefine	wrksp.c	/^NODE *ldefine(NODE *args)$/
+ldefinedp	wrksp.c	/^NODE *ldefinedp(NODE *args)$/
+ldefmacro	wrksp.c	/^NODE *ldefmacro(NODE *args)$/
+ldivide	math.c	/^NODE *ldivide(NODE *args)$/
+ldribble	files.c	/^NODE *ldribble(NODE *arg)$/
+ledit	wrksp.c	/^NODE *ledit(NODE *args)$/
+lemptyp	lists.c	/^NODE *lemptyp(NODE *arg)$/
+leofp	files.c	/^NODE *leofp()$/
+lequalp	math.c	/^NODE *lequalp(NODE *args)$/
+lerase	wrksp.c	/^NODE *lerase(NODE *arg)$/
+lerasefile	files.c	/^NODE *lerasefile(NODE *arg)$/
+lerror	error.c	/^NODE *lerror()$/
+lexp	math.c	/^NODE *lexp(NODE *args)$/
+lfence	graphics.c	/^NODE *lfence()$/
+lfill	graphics.c	/^NODE *lfill()$/
+lfirst	lists.c	/^NODE *lfirst(NODE *args)$/
+lfirsts	lists.c	/^NODE *lfirsts(NODE *args)$/
+lforever	coms.c	/^NODE *lforever(NODE *args)$/
+lform	lists.c	/^NODE *lform(NODE *args)$/
+lforward	graphics.c	/^NODE *lforward(NODE *arg)$/
+lfput	lists.c	/^NODE *lfput(NODE *args)$/
+lfullscreen	graphics.c	/^NODE *lfullscreen()$/
+lfulltext	wrksp.c	/^NODE *lfulltext(NODE *args)$/
+lgprop	logodata.c	/^NODE *lgprop(NODE *args)$/
+lgreaterp	math.c	/^NODE *lgreaterp(NODE *args)$/
+lheading	graphics.c	/^NODE *lheading()$/
+lhelp	wrksp.c	/^NODE *lhelp(args)$/
+lhideturtle	graphics.c	/^NODE *lhideturtle()$/
+lhome	graphics.c	/^NODE *lhome()$/
+lif	coms.c	/^NODE *lif(NODE *args)	\/* macroized *\/$/
+lifelse	coms.c	/^NODE *lifelse(NODE *args)    \/* macroized *\/$/
+liffalse	coms.c	/^NODE *liffalse(NODE *args)$/
+liftrue	coms.c	/^NODE *liftrue(NODE *args)$/
+line_to	xgraphics.h	/^#define line_to(a,b)             checkX;\\$/
+linteg	math.c	/^NODE *linteg(NODE *args)$/
+list_arg	lists.c	/^NODE *list_arg(NODE *args)$/
+list_to_array	parse.c	/^NODE *list_to_array(NODE *list)$/
+litem	lists.c	/^NODE *litem(NODE *args)$/
+lkeyp	files.c	/^NODE *lkeyp()$/
+llabel	graphics.c	/^NODE *llabel(NODE *arg)$/
+llast	lists.c	/^NODE *llast(NODE *args)$/
+lleft	graphics.c	/^NODE *lleft(NODE *arg)$/
+llessp	math.c	/^NODE *llessp(NODE *args)$/
+llist	lists.c	/^NODE *llist(NODE *args)$/
+llistp	lists.c	/^NODE *llistp(NODE *arg)$/
+lln	math.c	/^NODE *lln(NODE *args)$/
+lload	files.c	/^NODE *lload(NODE *arg)$/
+llocal	wrksp.c	/^NODE *llocal(NODE *args)$/
+llog10	math.c	/^NODE *llog10(NODE *args)$/
+llowercase	logodata.c	/^NODE *llowercase(NODE *args)$/
+llput	lists.c	/^NODE *llput(NODE *args)$/
+llshift	math.c	/^NODE *llshift(NODE *args)$/
+lmacro	wrksp.c	/^NODE *lmacro(NODE *args)$/
+lmacrop	wrksp.c	/^NODE *lmacrop(NODE *args)$/
+lmake	wrksp.c	/^NODE *lmake(NODE *args)$/
+lmember	lists.c	/^NODE *lmember(NODE *args)$/
+lmemberp	lists.c	/^NODE *lmemberp(NODE *args)$/
+lmousepos	graphics.c	/^NODE *lmousepos()$/
+lmul	math.c	/^NODE *lmul(NODE *args)$/
+lnamep	wrksp.c	/^NODE *lnamep(NODE *args)$/
+lnames	wrksp.c	/^NODE *lnames()$/
+lnodribble	files.c	/^NODE *lnodribble()$/
+lnorefresh	graphics.c	/^NODE *lnorefresh()$/
+lnot	coms.c	/^NODE *lnot(NODE *args)$/
+lnumberp	lists.c	/^NODE *lnumberp(NODE *arg)$/
+logo_pause	main.c	/^void logo_pause(int sig)$/
+logo_stop	main.c	/^void logo_stop(int sig)$/
+logofill	xgraphics.c	/^void logofill() {}$/
+lopen	files.c	/^NODE *lopen(NODE *arg, char *mode)$/
+lopenappend	files.c	/^NODE *lopenappend(NODE *arg)$/
+lopenread	files.c	/^NODE *lopenread(NODE *arg)$/
+lopenupdate	files.c	/^NODE *lopenupdate(NODE *arg)$/
+lopenwrite	files.c	/^NODE *lopenwrite(NODE *arg)$/
+lor	coms.c	/^NODE *lor(NODE *args)$/
+loutput	coms.c	/^NODE *loutput(NODE *arg)$/
+low_strncmp	logodata.c	/^int low_strncmp(char *s1, char *s2, int n)$/
+low_strnzcpy	logodata.c	/^char *low_strnzcpy(char *s1, char *s2, int n)$/
+lower_p	logodata.c	/^#define lower_p(ch)	(islower((ch) & 0377))$/
+lpalette	graphics.c	/^NODE *lpalette(NODE *args) {$/
+lparse	parse.c	/^NODE *lparse(NODE *args)$/
+lpause	error.c	/^NODE *lpause()$/
+lpencolor	graphics.c	/^NODE *lpencolor()$/
+lpendown	graphics.c	/^NODE *lpendown()$/
+lpendownp	graphics.c	/^NODE *lpendownp()$/
+lpenerase	graphics.c	/^NODE *lpenerase()$/
+lpenmode	graphics.c	/^NODE *lpenmode()$/
+lpenpaint	graphics.c	/^NODE *lpenpaint()$/
+lpenpattern	graphics.c	/^NODE *lpenpattern()$/
+lpenreverse	graphics.c	/^NODE *lpenreverse()$/
+lpensize	graphics.c	/^NODE *lpensize()$/
+lpenup	graphics.c	/^NODE *lpenup()$/
+lplist	logodata.c	/^NODE *lplist(NODE *args)$/
+lplists	wrksp.c	/^NODE *lplists()$/
+lpo	wrksp.c	/^NODE *lpo(NODE *arg)$/
+lpos	graphics.c	/^NODE *lpos()$/
+lpot	wrksp.c	/^NODE *lpot(NODE *arg)$/
+lpower	math.c	/^NODE *lpower(NODE *args)$/
+lpprop	logodata.c	/^NODE *lpprop(NODE *args)$/
+lprimitivep	wrksp.c	/^NODE *lprimitivep(NODE *args)$/
+lprint	print.c	/^NODE *lprint(NODE *args)$/
+lprocedurep	wrksp.c	/^NODE *lprocedurep(NODE *args)$/
+lprocedures	wrksp.c	/^NODE *lprocedures()$/
+lqm	eval.c	/^NODE *lqm(NODE *args) {$/
+lradatan	math.c	/^NODE *lradatan(NODE *args)$/
+lradcos	math.c	/^NODE *lradcos(NODE *args)$/
+lradsin	math.c	/^NODE *lradsin(NODE *args)$/
+lrandom	math.c	/^NODE *lrandom(NODE *arg)$/
+lrawascii	lists.c	/^NODE *lrawascii(NODE *args)$/
+lreadchar	files.c	/^NODE *lreadchar()$/
+lreadchars	files.c	/^NODE *lreadchars(NODE *args)$/
+lreader	files.c	/^NODE *lreader()$/
+lreadlist	files.c	/^NODE *lreadlist()$/
+lreadpos	files.c	/^NODE *lreadpos()$/
+lreadword	files.c	/^NODE *lreadword()$/
+lrefresh	graphics.c	/^NODE *lrefresh()$/
+lremainder	math.c	/^NODE *lremainder(NODE *args)$/
+lremprop	logodata.c	/^NODE *lremprop(NODE *args)$/
+lrepeat	coms.c	/^NODE *lrepeat(NODE *args)$/
+lrerandom	math.c	/^NODE *lrerandom(NODE *arg)$/
+lright	graphics.c	/^NODE *lright(NODE *arg)$/
+lround	math.c	/^NODE *lround(NODE *args)$/
+lrun	coms.c	/^NODE *lrun(NODE *args)    \/* macroized *\/$/
+lrunparse	parse.c	/^NODE *lrunparse(NODE *args)$/
+lrunresult	coms.c	/^NODE *lrunresult(NODE *args)$/
+lsave	files.c	/^NODE *lsave(NODE *arg)$/
+lscrunch	graphics.c	/^NODE *lscrunch()$/
+lsentence	lists.c	/^NODE *lsentence(NODE *args)$/
+lsetbackground	graphics.c	/^NODE *lsetbackground(NODE *arg)$/
+lsetcursor	term.c	/^NODE *lsetcursor(NODE *args)$/
+lsetheading	graphics.c	/^NODE *lsetheading(NODE *arg)$/
+lsetitem	lists.c	/^NODE *lsetitem(NODE *args) {$/
+lsetmargins	term.c	/^NODE *lsetmargins(NODE *args)$/
+lsetpalette	graphics.c	/^NODE *lsetpalette(NODE *args) {$/
+lsetpencolor	graphics.c	/^NODE *lsetpencolor(NODE *arg)$/
+lsetpenpattern	graphics.c	/^NODE *lsetpenpattern(NODE *args)$/
+lsetpensize	graphics.c	/^NODE *lsetpensize(NODE *args)$/
+lsetpos	graphics.c	/^NODE *lsetpos(NODE *args)$/
+lsetread	files.c	/^NODE *lsetread(NODE *arg)$/
+lsetreadpos	files.c	/^NODE *lsetreadpos(NODE *arg)$/
+lsetscrunch	graphics.c	/^NODE *lsetscrunch(NODE *args)$/
+lsetwrite	files.c	/^NODE *lsetwrite(NODE *arg)$/
+lsetwritepos	files.c	/^NODE *lsetwritepos(NODE *arg)$/
+lsetx	graphics.c	/^NODE *lsetx(NODE *args)$/
+lsetxy	graphics.c	/^NODE *lsetxy(NODE *args)$/
+lsety	graphics.c	/^NODE *lsety(NODE *args)$/
+lshell	coms.c	/^NODE *lshell(NODE *args)$/
+lshow	print.c	/^NODE *lshow(NODE *args)$/
+lshownp	graphics.c	/^NODE *lshownp()$/
+lshowturtle	graphics.c	/^NODE *lshowturtle()$/
+lsin	math.c	/^NODE *lsin(NODE *args)$/
+lsplitscreen	graphics.c	/^NODE *lsplitscreen()$/
+lsqrt	math.c	/^NODE *lsqrt(NODE *args)$/
+lstandout	term.c	/^NODE *lstandout(NODE *args)$/
+lstep	wrksp.c	/^NODE *lstep(NODE *arg)$/
+lstop	coms.c	/^NODE *lstop()$/
+lsub	math.c	/^NODE *lsub(NODE *args)$/
+lsubstringp	lists.c	/^NODE *lsubstringp(NODE *args)$/
+ltest	coms.c	/^NODE *ltest(NODE *args)$/
+ltext	wrksp.c	/^NODE *ltext(NODE *args)$/
+ltextscreen	graphics.c	/^NODE *ltextscreen()$/
+lthing	wrksp.c	/^NODE *lthing(NODE *args)$/
+lthrow	coms.c	/^NODE *lthrow(NODE *arg)$/
+lto	wrksp.c	/^NODE *lto(NODE *args)$/
+ltone	graphics.c	/^NODE *ltone(args)$/
+ltowards	graphics.c	/^NODE *ltowards(NODE *args)$/
+ltrace	wrksp.c	/^NODE *ltrace(NODE *arg)$/
+ltype	print.c	/^NODE *ltype(NODE *args)$/
+lunbury	wrksp.c	/^NODE *lunbury(NODE *arg)$/
+lunstep	wrksp.c	/^NODE *lunstep(NODE *arg)$/
+luntrace	wrksp.c	/^NODE *luntrace(NODE *arg)$/
+luppercase	logodata.c	/^NODE *luppercase(NODE *args)$/
+lwait	coms.c	/^NODE *lwait(NODE *args)$/
+lwindow	graphics.c	/^NODE *lwindow()$/
+lword	lists.c	/^NODE *lword(NODE *args)$/
+lwordp	lists.c	/^NODE *lwordp(NODE *arg)$/
+lwrap	graphics.c	/^NODE *lwrap()$/
+lwritepos	files.c	/^NODE *lwritepos()$/
+lwriter	files.c	/^NODE *lwriter()$/
+make_array	logodata.c	/^NODE *make_array(int len)$/
+make_case	intern.c	/^NODE *make_case(NODE *casestrnd, NODE *obj)$/
+make_caseobj	logodata.c	/^NODE *make_caseobj(NODE *cstrnd, NODE *obj)$/
+make_colon	logodata.c	/^NODE *make_colon(NODE *cnd)$/
+make_cont	coms.c	/^NODE *make_cont(enum labels cont, NODE *val) {$/
+make_floatnode	logodata.c	/^NODE *make_floatnode(FLONUM f)$/
+make_instance	intern.c	/^NODE *make_instance(NODE *casend, NODE *lownd)$/
+make_intnode	logodata.c	/^NODE *make_intnode(FIXNUM i)$/
+make_line	paren.c	/^void make_line(NODE *tree, NODE *line) {$/
+make_object	intern.c	/^NODE *make_object(NODE *canonical, NODE *proc, NOD/
+make_procnode	wrksp.c	/^NODE *make_procnode(NODE *lst, NODE *wrds, short m/
+make_quote	logodata.c	/^NODE *make_quote(NODE *qnd)$/
+make_runparse	logodata.c	/^void make_runparse(NODE *ndi)$/
+make_static_strnode	logodata.c	/^NODE *make_static_strnode(char *strptr)$/
+make_strnode	logodata.c	/^NODE *make_strnode(char *strptr, char *strhead, in/
+make_tree	paren.c	/^void make_tree(NODE *list) {$/
+make_tree_from_body	paren.c	/^void make_tree_from_body(NODE *body) {$/
+map_oblist	intern.c	/^void map_oblist(void (*fcn)())$/
+matherr	math.c	/^int matherr(struct exception *x)$/
+maxargs__procnode	logo.h	/^#define maxargs__procnode(p)    car(cddr(cddr(p)))/
+maybe_quote	logodata.c	/^NODE *maybe_quote(NODE *nd)$/
+memberp_help	lists.c	/^NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLE/
+mend_nosemi	logodata.c	/^char *mend_nosemi(char *s1, char *s2, int n)$/
+mend_strnzcpy	logodata.c	/^char *mend_strnzcpy(char *s1, char *s2, int n)$/
+merge	wrksp.c	/^NODE *merge(NODE *a, NODE *b)$/
+mergepairs	wrksp.c	/^NODE *mergepairs(NODE *nd) {$/
+mergesort	wrksp.c	/^NODE *mergesort(NODE *nd)$/
+minargs__procnode	logo.h	/^#define minargs__procnode(p)    car(cddr(p))$/
+mixrestore	eval.c	/^#define mixrestore(reg1,reg2) deref(reg2); reg2=ge/
+mixsave	eval.c	/^#define mixsave(reg1,reg2)  (numpush(reg1,&stack),/
+mode_type	logo.h	78
+move_to	xgraphics.h	/^#define move_to(a,b)             checkX;\\$/
+ms_listlist	wrksp.c	/^void ms_listlist(NODE *nd)$/
+name_arg	wrksp.c	/^NODE *name_arg(NODE *args) {$/
+nameis	eval.c	/^#define nameis(x,y)	    ((object__caseobj(x)) == (/
+ndprintf	print.c	/^void ndprintf(FILE *strm, char *fmt, ...)$/
+new_line	print.c	/^void new_line(FILE *strm)$/
+newcont	eval.c	/^#define newcont(tag)	    (numsave(cont), cont = (F/
+newnode	mem.c	/^NODE *newnode(NODETYPES type)$/
+node__colon	logo.h	/^#define node__colon(c)          car(c)$/
+node__quote	logo.h	/^#define node__quote(q)          car(q)$/
+nodetype	mem.c	/^NODETYPES nodetype(NODE *nd)$/
+nop	xgraphics.c	/^void nop()$/
+noparity_strncmp	logodata.c	/^int noparity_strncmp(char *s1, char *s2, int n)$/
+noparity_strnzcpy	logodata.c	/^char *noparity_strnzcpy(char *s1, char *s2, int n)/
+noparitylow_strncmp	logodata.c	/^int noparitylow_strncmp(char *s1, char *s2, int n)/
+noparitylow_strnzcpy	logodata.c	/^char *noparitylow_strnzcpy(char *s1, char *s2, int/
+not_local	eval.c	/^int not_local(NODE *name, NODE *sp) {$/
+num2restore	eval.c	/^#define num2restore(reg1,reg2) (reg2=(FIXNUM)getob/
+num2save	eval.c	/^#define num2save(reg1,reg2) (numpush(reg1,&stack),/
+numberp	math.c	/^int numberp(NODE *snd)$/
+numeric_arg	graphics.c	/^NODE *numeric_arg(NODE *args)$/
+numpop	eval.c	/^void numpop(NODE **stack) {$/
+numpush	eval.c	/^void numpush(FIXNUM obj, NODE **stack) {$/
+numrestore	eval.c	/^#define numrestore(register) (register=(FIXNUM)car/
+numsave	eval.c	/^#define numsave(register)   numpush(register, &sta/
+obflags__caseobj	logo.h	/^#define obflags__caseobj(c)	obflags__object(object/
+obflags__object	logo.h	/^#define obflags__object(o)	car(cddr(cddr(o)))$/
+object__caseobj	logo.h	/^#define object__caseobj(c)      cdr(c)$/
+one_list	wrksp.c	/^NODE *one_list(NODE *nd)$/
+open_file	files.c	/^FILE *open_file(NODE *arg, char *access)$/
+p_info_x	xgraphics.h	/^#define p_info_x(p)              (p.xpos)$/
+p_info_y	xgraphics.h	/^#define p_info_y(p)              (p.ypos)$/
+paren_expr	paren.c	/^NODE *paren_expr(NODE **expr, BOOLEAN inparen) {$/
+paren_infix	paren.c	/^NODE *paren_infix(NODE *left_arg, NODE **rest, int/
+paren_line	paren.c	/^NODE *paren_line(NODE *line) {$/
+parens	parse.c	/^#define parens(ch)      (ch == '(' || ch == ')' ||/
+parsed__runparse	logo.h	/^#define parsed__runparse(rn)    getobject(rn)$/
+parser	parse.c	/^NODE *parser(NODE *nd, BOOLEAN semi)$/
+parser_iterate	parse.c	/^NODE *parser_iterate(char **inln, char *inlimit, c/
+pen_info	xgraphics.h	105
+pfmod	graphics.c	/^double pfmod(double x, double y) {$/
+placate_x	xgraphics.c	/^void placate_x()$/
+plain_xor_pen	xgraphics.h	/^#define plain_xor_pen()          pen_reverse$/
+plist__caseobj	logo.h	/^#define plist__caseobj(c)	plist__object(object__ca/
+plist__object	logo.h	/^#define plist__object(o)        cadr(cddr(o))$/
+po_helper	wrksp.c	/^NODE *po_helper(NODE *arg, int just_titles)	\/* >0 /
+pop	logo.h	/^#define pop(stack)	    spop(&stack)$/
+pos_int_arg	coms.c	/^NODE *pos_int_arg(NODE *args)$/
+pos_int_vector_arg	graphics.c	/^NODE *pos_int_vector_arg(NODE *args) {$/
+prepare_to_exit	coms.c	/^void prepare_to_exit(BOOLEAN okay)$/
+print_alloced_pointers	mem.c	/^void print_alloced_pointers(void)$/
+print_char	print.c	/^void print_char(FILE *strm, char ch)$/
+print_help	print.c	/^void print_help(FILE *strm, NODE *nd)$/
+print_nobrak	print.c	/^void print_nobrak(FILE *strm, NODE *nd)$/
+print_node	print.c	/^void print_node(FILE *strm, NODE *nd)$/
+print_space	print.c	/^void print_space(FILE *strm)$/
+priority	paren.c	/^int priority(NODE *proc_obj) {$/
+procnode__caseobj	logo.h	/^#define procnode__caseobj(c)    procnode__object(o/
+procnode__object	logo.h	/^#define procnode__object(o)     cadr(o)$/
+push	logo.h	/^#define push(obj, stack)    spush(obj, &stack)$/
+quote_strnzcpy	logodata.c	/^char *quote_strnzcpy(char *s1, char *s2, int n)$/
+rd_getc	parse.c	/^int rd_getc(FILE *strm)$/
+rd_print_prompt	parse.c	/^void rd_print_prompt(char *str)$/
+reader	parse.c	/^NODE *reader(FILE *strm, char *prompt)$/
+real_print_help	print.c	/^void real_print_help(FILE *strm, NODE *ndlist, int/
+real_print_node	print.c	/^void real_print_node(FILE *strm, NODE *nd, int dep/
+real_window_init	xgraphics.c	/^void real_window_init()$/
+record_alloced_pointer	mem.c	/^void record_alloced_pointer(NODE *nd)$/
+record_freed_pointer	mem.c	/^void record_freed_pointer(NODE *nd)$/
+redraw_graphics	graphics.c	/^void redraw_graphics()$/
+ref	logo.h	/^#define ref(o)		if (o != NIL) increfcnt(o)$/
+reref	logo.h	/^#define reref(o1, o2)   _reref(o1, o2)$/
+reset_args	eval.c	/^void reset_args(NODE *old_stack) {$/
+resize_record	graphics.c	/^void resize_record(int dh, int dv)$/
+restore	eval.c	/^#define restore(register)   (assign(register, car(/
+restore2	eval.c	/^#define restore2(reg1,reg2) (assign(reg2,getobject/
+restore_pen	xgraphics.h	/^#define restore_pen(p)           memcpy(((char *)(/
+reverse	eval.c	/^NODE *reverse(NODE *list) {$/
+rgb_arg	graphics.c	/^NODE *rgb_arg(NODE *args) {$/
+right	graphics.c	/^void right(FLONUM a)$/
+runnable_arg	coms.c	/^NODE *runnable_arg(NODE *args) {$/
+runparse	parse.c	/^NODE *runparse(NODE *ndlist)$/
+runparse_node	parse.c	/^NODE *runparse_node(NODE *nd, NODE **ndsptr)$/
+runparsed	logo.h	/^#define runparsed(nd)	(nodetype(nd) & NT_RUNP)$/
+runstartup	files.c	/^void runstartup(NODE *oldst)$/
+safe_to_save	graphics.c	/^BOOLEAN safe_to_save()$/
+save	eval.c	/^#define save(register)	    push(register, stack)$/
+save2	eval.c	/^#define save2(reg1,reg2)    (push(reg1,stack),seto/
+save_color	graphics.c	/^save_color()$/
+save_line	graphics.c	/^save_line()$/
+save_lm_helper	graphics.c	/^save_lm_helper ()$/
+save_mode	graphics.c	/^save_mode()$/
+save_move	graphics.c	/^save_move()$/
+save_pattern	graphics.c	/^save_pattern()$/
+save_pen	xgraphics.h	/^#define save_pen(p)              memcpy(((char *)(/
+save_size	graphics.c	/^save_size()$/
+save_string	graphics.c	/^save_string(s)$/
+save_vis	graphics.c	/^save_vis()$/
+set_back_ground	xgraphics.h	/^#define set_back_ground(c)	 nop()$/
+set_list_pen_pattern	xgraphics.h	/^#define set_list_pen_pattern(p)  nop()$/
+set_palette	xgraphics.h	/^#define set_palette(x,y,z,w)	 nop()$/
+set_pen_color	xgraphics.h	/^#define set_pen_color(c)         checkX;\\$/
+set_pen_height	xgraphics.h	/^#define set_pen_height(h)        nop()$/
+set_pen_mode	xgraphics.h	/^#define set_pen_mode(m)          orig_pen.pm=(m)$/
+set_pen_pattern	xgraphics.h	/^#define set_pen_pattern(p)       nop()$/
+set_pen_vis	xgraphics.h	/^#define set_pen_vis(v)           orig_pen.vis=(v)$/
+set_pen_width	xgraphics.h	/^#define set_pen_width(w)         nop()$/
+set_pen_x	xgraphics.h	/^#define set_pen_x(x)             nop()$/
+set_pen_y	xgraphics.h	/^#define set_pen_y(y)             nop()$/
+setarrdim	logo.h	/^#define setarrdim(node,len)	((node)->n_dim = (len)/
+setarrorg	logo.h	/^#define setarrorg(node,org)	((node)->n_org = (org)/
+setarrptr	logo.h	/^#define setarrptr(node,ptr)	((node)->n_array = (pt/
+setbodywords__procnode	logo.h	/^#define setbodywords__procnode(p,v) setcar(cdr(p),/
+setcar	mem.c	/^void setcar(NODE *nd, NODE *newcar)$/
+setcdr	mem.c	/^void setcdr(NODE *nd, NODE *newcdr)$/
+setflag__caseobj	logo.h	/^#define setflag__caseobj(c,f) ((obflags__caseobj(c/
+setfloat	logo.h	/^#define setfloat(node,num)      ((node)->n_float =/
+setgeneration__tree	logo.h	/^#define setgeneration__tree(t, g) setcar(treepair_/
+setint	logo.h	/^#define setint(node,num)        ((node)->n_int = (/
+setitem_helper	lists.c	/^NODE *setitem_helper(NODE *args, BOOLEAN safe)$/
+setobject	mem.c	/^void setobject(NODE *nd, NODE *newobj)$/
+setparity	logo.h	/^#define setparity(ch)		ecma_set(ch)$/
+setplist__caseobj	logo.h	/^#define setplist__caseobj(c,v)	setplist__object(ob/
+setplist__object	logo.h	/^#define setplist__object(o,v)	setcar(cdr(cddr(o)),/
+setpos_helper	graphics.c	/^void setpos_helper(NODE *xnode, NODE *ynode)$/
+setprimdflt	logo.h	/^#define setprimdflt(node,num)   ((node)->n_pdef = /
+setprimfun	logo.h	/^#define setprimfun(node,fun)    ((node)->n_pfun = /
+setprimmax	logo.h	/^#define setprimmax(node,num)    ((node)->n_pmax = /
+setprimmin	logo.h	/^#define setprimmin(node,num)    ((node)->n_pmin = /
+setprimpri	logo.h	/^#define setprimpri(node,num)    ((node)->n_ppri = /
+setprocnode__caseobj	logo.h	/^#define setprocnode__caseobj(c,v) setprocnode__obj/
+setprocnode__object	logo.h	/^#define setprocnode__object(o,v) setcar(cdr(o), v)/
+setrefcnt	logo.h	/^#define setrefcnt(node,val)     ((node)->ref_count/
+setstrhead	logo.h	/^#define setstrhead(node,ptr)    ((node)->n_head = /
+setstrlen	logo.h	/^#define setstrlen(node,len)     ((node)->n_len = (/
+setstrptr	logo.h	/^#define setstrptr(node,ptr)     ((node)->n_str = (/
+setstrrefcnt	logo.h	/^#define setstrrefcnt(sh, v)     (*sh = (v))$/
+settree__tree	logo.h	/^#define settree__tree(t, v)	settreepair__tree(t, c/
+settreepair__tree	logo.h	/^#define settreepair__tree(t, v)	setobject(t, v)$/
+settype	logo.h	/^#define settype(node, type)     ((node)->node_type/
+setvalnode__caseobj	logo.h	/^#define setvalnode__caseobj(c,v) setvalnode__objec/
+setvalnode__object	logo.h	/^#define setvalnode__object(o,v) setcar(cddr(o), v)/
+silent_load	files.c	/^void silent_load(NODE *arg, char *prefix)$/
+spop	eval.c	/^void spop(NODE **stack) {$/
+spush	eval.c	/^void spush(NODE *obj, NODE **stack) {$/
+string_arg	lists.c	/^NODE *string_arg(NODE *args)$/
+strnode__caseobj	logo.h	/^#define strnode__caseobj(co)    car(co)$/
+strnzcpy	logodata.c	/^char *strnzcpy(char *s1, char *s2, int n)$/
+tell_shadow	eval.c	/^void tell_shadow(NODE *arg) {$/
+term_init	term.c	/^void term_init()$/
+termcap_getter	term.c	/^void termcap_getter(char *cap, char *buf)$/
+termcap_putter	term.c	/^void termcap_putter(char ch)$/
+text__procnode	logo.h	/^#define text__procnode(p)	car(p)$/
+three_lists	wrksp.c	/^void three_lists(NODE *arg, NODE **proclst, NODE */
+to_helper	wrksp.c	/^NODE *to_helper(NODE *args, BOOLEAN macro_flag)$/
+tone	xgraphics.h	/^#define tone(p,d)                nop()$/
+torf	math.c	/^NODE *torf(BOOLEAN tf) {$/
+torf_arg	coms.c	/^int torf_arg(NODE *args)$/
+towards_helper	graphics.c	/^FLONUM towards_helper(FLONUM x, FLONUM y, FLONUM f/
+tree__line	logo.h	/^#define tree__line(l)		l$/
+tree__tree	logo.h	/^#define tree__tree(t)		cdr(treepair__tree(t))$/
+treepair__tree	logo.h	/^#define treepair__tree(t)	getobject(t)$/
+type_help	print.c	/^void type_help(NODE *args, int sp)$/
+typename	print.c	/^char *typename(NODE *nd) {$/
+unblock_input	main.c	/^unblock_input() {$/
+unbury_helper	wrksp.c	/^NODE *unbury_helper(NODE *arg, int flag)$/
+uncapital	logodata.c	/^#define uncapital(c)    ((c) - 'A' + 'a')$/
+unparsed__line	logo.h	/^#define unparsed__line(l)	getobject(l)$/
+unparsed__runparse	logo.h	/^#define unparsed__runparse(rn)  rn$/
+unparsed__tree	logo.h	/^#define unparsed__tree(t)	t$/
+unref	mem.c	/^NODE *unref(NODE *ret_var)$/
+untreeify	paren.c	/^void untreeify(NODE *node) {$/
+untreeify_line	paren.c	/^void untreeify_line(NODE *line) {$/
+untreeify_proc	paren.c	/^void untreeify_proc(NODE *procname) {$/
+update_coords	print.c	/^void update_coords(char ch)$/
+upper_p	logodata.c	/^#define upper_p(ch)	(isupper((ch) & 0377))$/
+use_reserve_tank	mem.c	/^void use_reserve_tank() {$/
+val__cont	logo.h	/^#define val__cont(c)		cdr(c)$/
+valnode__caseobj	logo.h	/^#define valnode__caseobj(c)	valnode__object(object/
+valnode__colon	logo.h	/^#define valnode__colon(c)       valnode__caseobj(n/
+valnode__object	logo.h	/^#define valnode__object(o)      cadr(cdr(o))$/
+valref	init.c	/^NODE* valref(NODE *p) {$/
+vec_arg_helper	graphics.c	/^NODE *vec_arg_helper(NODE *args, BOOLEAN floatok, /
+vector_arg	graphics.c	/^NODE *vector_arg(NODE *args) {$/
+vref	logo.h	/^#define vref(o)		((o != NIL) ? ((increfcnt(o)) , o/
+white_space	parse.c	/^#define white_space(ch) (ch == ' ' || ch == '\\t' |/
+word_strnzcpy	logodata.c	/^char *word_strnzcpy(char *s1, NODE *kludge, int n)/
+wrap_down	graphics.c	/^int wrap_down(FLONUM d, FLONUM x1, FLONUM y1, FLON/
+wrap_left	graphics.c	/^int wrap_left(FLONUM d, FLONUM x1, FLONUM y1, FLON/
+wrap_right	graphics.c	/^int wrap_right(FLONUM d, FLONUM x1, FLONUM y1, FLO/
+wrap_up	graphics.c	/^int wrap_up(FLONUM d, FLONUM x1, FLONUM y1, FLONUM/
+x_window_init	xgraphics.c	/^void x_window_init(int argc, char **argv)$/
+zrd_print_prompt	parse.c	/^void zrd_print_prompt(char *str) {$/

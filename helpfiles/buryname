@@ -1,0 +1,5 @@
+BURYNAME varname					(library procedure)
+BURYNAME varnamelist
+
+	command.  Abbreviates BURY NAMELIST varname(list).
+

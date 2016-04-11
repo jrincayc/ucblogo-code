@@ -1,0 +1,10 @@
+to filter :filter.template :template.list [:template.number 1] ~
+          [:template.lists (list :template.list)]
+if emptyp :template.list [op :template.list]
+if apply :filter.template (list first :template.list) ~
+   [op combine (first :template.list) ~
+               (filter :filter.template bf :template.list :template.number+1)]
+op (filter :filter.template bf :template.list :template.number+1)
+end
+
+bury "filter

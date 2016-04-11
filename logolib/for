@@ -1,0 +1,31 @@
+.macro for :for.values :for.instr ~
+   [:for.var first :for.values] ~
+   [:for.initial run first bf :for.values] ~
+   [:for.final run first bf bf :for.values] ~
+   [:for.step forstep] ~
+   [:for.tester (ifelse :for.step < 0 ~
+                        [[:for.initial < :for.final]] ~
+                        [[:for.initial > :for.final]])]
+local :for.var
+catch "for.catchtag [op for.done runresult [forloop :for.initial]]
+op []
+end
+
+to forloop :for.initial
+make :for.var :for.initial
+if run :for.tester [throw "for.catchtag]
+run :for.instr
+.maybeoutput forloop (:for.initial + :for.step)
+end
+
+to for.done :for.result
+if emptyp :for.result [op [stop]]
+op list "output quoted first :for.result
+end
+
+to forstep
+if equalp count :for.values 4 [op run last :for.values]
+op ifelse :for.initial > :for.final [-1] [1]
+end
+
+bury [for forstep forloop for.done]

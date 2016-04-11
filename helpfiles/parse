@@ -1,0 +1,6 @@
+PARSE word
+
+	outputs the list that would result if the input word were entered
+	in response to a READLIST operation.  That is, PARSE READWORD has
+	the same value as READLIST for the same characters read.
+

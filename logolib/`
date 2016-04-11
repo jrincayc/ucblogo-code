@@ -1,0 +1,11 @@
+to ` :backq.list
+if emptyp :backq.list [op []]
+if equalp first :backq.list ", ~
+   [op fput run first bf :backq.list ` bf bf :backq.list]
+if equalp first :backq.list ",@ ~
+   [op se run first bf :backq.list ` bf bf :backq.list]
+if wordp first :backq.list [op fput first :backq.list ` bf :backq.list]
+op fput ` first :backq.list ` bf :backq.list
+end
+
+bury "`

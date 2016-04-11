@@ -1,0 +1,7 @@
+to reduce :reduce.function :reduce.list
+if emptyp bf :reduce.list [op first :reduce.list]
+op apply :reduce.function (list (first :reduce.list) ~
+                                (reduce :reduce.function bf :reduce.list))
+end
+
+bury "reduce

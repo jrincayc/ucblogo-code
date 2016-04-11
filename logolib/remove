@@ -1,0 +1,5 @@
+to remove :thing :list
+output filter [not equalp ? :thing] :list
+end
+
+bury "remove

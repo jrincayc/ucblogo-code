@@ -1,0 +1,6 @@
+ARRAYTOLIST array					(library procedure)
+
+	outputs a list whose members are the elements of the input array.
+	The first member of the output is the first element of the array,
+	regardless of the array's origin.
+

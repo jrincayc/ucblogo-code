@@ -1,0 +1,8 @@
+APPLY template inputlist
+
+	command or operation.  Runs the "template," filling its slots with
+	the members of "inputlist."  The number of members in "inputlist"
+	must be an acceptable number of slots for "template."  It is
+	illegal to apply the primitive TO as a template, but anything else
+	is okay.  APPLY outputs what "template" outputs, if anything.
+

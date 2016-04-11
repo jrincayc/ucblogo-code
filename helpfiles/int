@@ -1,0 +1,17 @@
+INT num
+
+	outputs its input with fractional part removed, i.e., an integer
+	with the same sign as the input, whose absolute value is the
+	largest integer less than or equal to the absolute value of
+	the input.
+
+	Note:  Inside the computer numbers are represented in two different
+	forms, one for integers and one for numbers with fractional parts.
+	However, on most computers the largest number that can be represented
+	in integer format is smaller than the largest integer that can be
+	represented (even with exact precision) in floating-point (fraction)
+	format.  The INT operation will always output a number whose value
+	is mathematically an integer, but if its input is very large the output
+	may not be in integer format.  In that case, operations like REMAINDER
+	that require an integer input will not accept this number.
+

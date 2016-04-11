@@ -1,0 +1,9 @@
+SETWRITE filename
+
+	command.  Makes the named file the write stream, used for PRINT,
+	etc.  The file must already be open with OPENWRITE, OPENAPPEND, or
+	OPENUPDATE.  If the input is the empty list, then the write stream
+	becomes the terminal, as usual.  Changing the write stream does not
+	close the file that was previously the write stream, so it is
+	possible to alternate between files.
+

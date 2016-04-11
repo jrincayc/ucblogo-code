@@ -1,0 +1,19 @@
+to crossmap :cm.template [:cm.lists] 2
+if emptyp bf :cm.lists [op cm1 first :cm.lists 1 []]
+op cm1 :cm.lists 1 []
+end
+
+to cm1 :cm.lists :cm.level :template.vars
+if emptyp :cm.lists [op (list apply :cm.template :template.vars)]
+op cm2 first :cm.lists
+end
+
+to cm2 :cm.thislist
+if emptyp :cm.thislist [op []]
+local :cm.level
+make :cm.level first :cm.thislist
+op se (cm1 bf :cm.lists :cm.level+1 lput first :cm.thislist :template.vars) ~
+      (cm2 bf :cm.thislist)
+end
+
+bury [crossmap cm1 cm2]

@@ -1,0 +1,5 @@
+UNBURYNAME varname					(library procedure)
+UNBURYNAME varnamelist
+
+	command.  Abbreviates UNBURY NAMELIST varname(list).
+

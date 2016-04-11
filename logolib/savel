@@ -1,0 +1,9 @@
+to savel :cont :file [:oldwr writer]
+openwrite :file
+setwrite :file
+po :cont
+setwrite :oldwr
+close :file
+end
+
+bury "savel

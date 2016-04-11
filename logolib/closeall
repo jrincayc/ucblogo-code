@@ -1,0 +1,5 @@
+to closeall
+foreach allopen [close ?]
+end
+
+bury "closeall

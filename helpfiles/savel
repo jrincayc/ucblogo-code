@@ -1,0 +1,6 @@
+SAVEL contentslist filename				(library procedure)
+
+	command.  Saves the definitions of the procedures, variables, and
+	property lists specified by "contentslist" to the file named
+	"filename".
+

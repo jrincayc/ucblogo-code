@@ -1,0 +1,63 @@
+PROGRAM CARDS(OUTPUT);
+ {SHUFFLE A DECK OF CARDS}
+
+VAR RANKS:ARRAY [0..51] OF INTEGER;
+    SUITS:ARRAY [0..51] OF CHAR;
+    I:INTEGER;
+
+PROCEDURE SHOWDECK;
+ {PRINT THE DECK ARRAYS}
+
+   BEGIN {SHOWDECK}
+      FOR I := 0 TO 51 DO
+         BEGIN
+            IF I MOD 13 = 0 THEN WRITELN;
+            WRITE(RANKS[I]:3,SUITS[I]);
+         END;
+      WRITELN;
+      WRITELN
+   END; {SHOWDECK}
+
+PROCEDURE DECK;
+ {CREATE THE DECK IN ORDER}
+
+   VAR I,J:INTEGER;
+       SUITNAMES:PACKED ARRAY [0..3] OF CHAR;
+
+   BEGIN {DECK}
+      SUITNAMES := 'HSDC';
+      FOR I := 0 TO 12 DO
+         FOR J := 0 TO 3 DO
+            BEGIN
+               RANKS[13*J+I] := I+1;
+               SUITS[13*J+I] := SUITNAMES[J]
+            END;
+      WRITELN('THE INITIAL DECK:');
+      SHOWDECK
+   END; {DECK}
+
+PROCEDURE SHUFFLE;
+ {SHUFFLE THE DECK RANDOMLY}
+
+   VAR RANK,I,J:INTEGER;
+       SUIT:CHAR;
+
+   BEGIN {SHUFFLE}
+      FOR I := 51 DOWNTO 1 DO {FOR EACH CARD IN THE DECK}
+         BEGIN
+            J := RANDOM(I+1); {PICK A RANDOM CARD BEFORE IT}
+            RANK := RANKS[I]; {INTERCHANGE RANKS}
+            RANKS[I] := RANKS[J];
+            RANKS[J] := RANK;
+            SUIT := SUITS[I]; {INTERCHANGE SUITS}
+            SUITS[I] := SUITS[J];
+            SUITS[J] := SUIT
+         END;
+      WRITELN('THE SHUFFLED DECK:');
+      SHOWDECK
+   END; {SHUFFLE}
+
+BEGIN {MAIN PROGRAM}
+   DECK;
+   SHUFFLE
+END.

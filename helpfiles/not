@@ -1,0 +1,5 @@
+NOT tf
+
+	outputs TRUE if the input is FALSE, and vice versa.
+
+

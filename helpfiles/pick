@@ -1,0 +1,4 @@
+PICK list						(library procedure)
+
+	outputs a randomly chosen member of the input list.
+

@@ -1,0 +1,9 @@
+to pon :names
+ignore error
+catch "error [po namelist :names]
+local "err
+make "err error
+if not emptyp :err [(throw "error first bf :err)]
+end
+
+bury "pon

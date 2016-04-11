@@ -1,0 +1,4 @@
+CLOSE filename
+
+	command.  Closes the named file.
+

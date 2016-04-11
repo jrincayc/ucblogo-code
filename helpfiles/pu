@@ -1,0 +1,5 @@
+PENUP
+PU
+
+	sets the pen's position to UP, without changing its mode.
+

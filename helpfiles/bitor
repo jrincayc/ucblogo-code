@@ -1,0 +1,5 @@
+BITOR num1 num2
+(BITOR num1 num2 num3 ...)
+
+	outputs the bitwise OR of its inputs, which must be integers.
+

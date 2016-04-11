@@ -1,0 +1,19 @@
+CATCH tag instructionlist
+
+	command or operation.  Runs its second input.  Outputs if that
+	instructionlist outputs.  If, while running the instructionlist,
+	a THROW instruction is executed with a tag equal to the first
+	input (case-insensitive comparison), then the running of the
+	instructionlist is terminated immediately.  In this case the CATCH
+	outputs if a value input is given to THROW.  The tag must be a word.
+
+	If the tag is the word ERROR, then any error condition that arises
+	during the running of the instructionlist has the effect of THROW
+	"ERROR instead of printing an error message and returning to
+	toplevel.  The CATCH does not output if an error is caught.  Also,
+	during the running of the instructionlist, the variable ERRACT is
+	temporarily unbound.  (If there is an error while ERRACT has a
+	value, that value is taken as an instructionlist to be run after
+	printing the error message.  Typically the value of ERRACT, if any,
+	is the list [PAUSE].)
+

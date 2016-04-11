@@ -1,0 +1,18 @@
+IF tf instructionlist
+(IF tf instructionlist1 instructionlist2)
+
+	command.  If the first input has the value TRUE, then IF runs
+	the second input.  If the first input has the value FALSE, then
+	IF does nothing.  (If given a third input, IF acts like IFELSE,
+	as described below.)  It is an error if the first input is not
+	either TRUE or FALSE.
+
+	For compatibility with earlier versions of Logo, if an IF
+	instruction is not enclosed in parentheses, but the first thing
+	on the instruction line after the second input expression is a
+	literal list (i.e., a list in square brackets), the IF is
+	treated as if it were IFELSE, but a warning message is given.
+	If this aberrant IF appears in a procedure body, the warning is
+	given only the first time the procedure is invoked in each Logo
+	session.
+

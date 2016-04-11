@@ -1,0 +1,15 @@
+MACROEXPAND expr					(library procedure)
+
+	takes as its input a Logo expression that invokes a macro (that is,
+	one that begins with the name of a macro) and outputs the the Logo
+	expression into which the macro would translate the input expression.
+
+
+		.macro localmake :name :value
+		op `[local ,[word "" :name] apply "make [,[:name] ,[:value]]]
+		end
+
+		? show macroexpand [localmake "pi 3.14159]
+		[local "pi apply "make [pi 3.14159]]
+
+

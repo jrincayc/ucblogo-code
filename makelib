@@ -1,0 +1,666 @@
+mkdir logolib
+cat << "ENDOFFILE" > logolib/#
+to #
+op :template.number
+end
+
+bury "#
+ENDOFFILE
+chmod a-w logolib/#
+cat << "ENDOFFILE" > logolib/\`
+to ` :backq.list
+if emptyp :backq.list [op []]
+if equalp first :backq.list ", ~
+   [op fput run first bf :backq.list ` bf bf :backq.list]
+if equalp first :backq.list ",@ ~
+   [op se run first bf :backq.list ` bf bf :backq.list]
+if wordp first :backq.list [op fput first :backq.list ` bf :backq.list]
+op fput ` first :backq.list ` bf :backq.list
+end
+
+bury "`
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/\?rest
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury "?rest
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/arraytolist
+to arraytolist :array [:dim count :array] [:limit :dim + first :array]
+op cascade :dim [fput item (:limit - #) :array ?] []
+end
+
+bury "arraytolist
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/buryall
+to buryall
+bury contents
+end
+
+bury "buryall
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/buryname
+to buryname :names
+bury namelist :names
+end
+
+bury "buryname
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/cascade
+to cascade :cascade.limit [:cascade.inputs] 3
+if numberp :cascade.limit ~
+   [if lessp :cascade.limit 0 ~
+       [(throw "error (se [cascade doesn't like] :cascade.limit [as input]))] ~
+    make "cascade.limit `[greaterp :template.number ,[int :cascade.limit]]]
+local [cascade.templates template.vars cascade.final]
+make "cascade.templates []
+make "template.vars []
+make "cascade.final [?1]
+cascade.setup :cascade.inputs
+op cascade1 1 :template.vars
+end
+
+to cascade.setup :inputs
+if emptyp :inputs [stop]
+if emptyp bf :inputs [make "cascade.final first :inputs stop]
+make "cascade.templates lput first :inputs :cascade.templates
+make "template.vars lput first bf :inputs :template.vars
+cascade.setup bf bf :inputs
+end
+
+to cascade1 :template.number :template.vars
+if apply :cascade.limit :template.vars [op apply :cascade.final :template.vars]
+op cascade1 (:template.number+1) (cascade.eval :cascade.templates)
+end
+
+to cascade.eval :cascade.templates
+if emptyp :cascade.templates [op []]
+op fput (apply first :cascade.templates :template.vars) ~
+        (cascade.eval bf :cascade.templates)
+end
+
+bury [cascade cascade.setup cascade1 cascade.eval]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/cascade.2
+to cascade.2 [:cascade2.inputs] 5
+op apply "cascade :cascade2.inputs
+end
+
+bury "cascade.2
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/closeall
+to closeall
+foreach allopen [close ?]
+end
+
+bury "closeall
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/combine
+to combine :this :those
+if wordp :those [output word :this :those]
+output fput :this :those
+end
+
+bury "combine
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/crossmap
+to crossmap :cm.template [:cm.lists] 2
+if emptyp bf :cm.lists [op cm1 first :cm.lists 1 []]
+op cm1 :cm.lists 1 []
+end
+
+to cm1 :cm.lists :cm.level :template.vars
+if emptyp :cm.lists [op (list apply :cm.template :template.vars)]
+op cm2 first :cm.lists
+end
+
+to cm2 :cm.thislist
+if emptyp :cm.thislist [op []]
+local :cm.level
+make :cm.level first :cm.thislist
+op se (cm1 bf :cm.lists :cm.level+1 lput first :cm.thislist :template.vars) ~
+      (cm2 bf :cm.thislist)
+end
+
+bury [crossmap cm1 cm2]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/dequeue
+to dequeue :the.queue.name
+local "result
+make "result first thing :the.queue.name
+make :the.queue.name butfirst thing :the.queue.name
+output :result
+end
+
+bury "dequeue
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/do.until
+.macro do.until :until.instr :until.cond
+op se :until.instr (list "until :until.cond :until.instr)
+end
+
+bury "do.until
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/do.while
+.macro do.while :while.instr :while.cond
+op se :while.instr (list "while :while.cond :while.instr)
+end
+
+bury "do.while
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edall
+to edall
+edit contents
+end
+
+bury "edall
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edn
+to edn :names
+edit namelist :names
+end
+
+bury "edn
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edns
+to edns
+edit names
+end
+
+bury "edns
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edpl
+to edpl :names
+edit pllist :names
+end
+
+bury "edpl
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edpls
+to edpls
+edit plists
+end
+
+bury "edpls
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/edps
+to edps
+edit procedures
+end
+
+bury "edps
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/erall
+to erall
+erase contents
+end
+
+bury "erall
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/ern
+to ern :names
+erase namelist :names
+end
+
+bury "ern
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/erns
+to erns
+erase names
+end
+
+bury "erns
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/erpl
+to erpl :names
+erase pllist :names
+end
+
+bury "erpl
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/erpls
+to erpls
+erase plists
+end
+
+bury "erpls
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/erps
+to erps
+erase procedures
+end
+
+bury "erps
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/filter
+to filter :filter.template :template.list [:template.number 1] ~
+          [:template.lists (list :template.list)]
+if emptyp :template.list [op :template.list]
+if apply :filter.template (list first :template.list) ~
+   [op combine (first :template.list) ~
+               (filter :filter.template bf :template.list :template.number+1)]
+op (filter :filter.template bf :template.list :template.number+1)
+end
+
+bury "filter
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/find
+to find :find.template :template.list [:template.number 1] ~
+        [:template.lists (list :template.list)]
+if emptyp :template.list [op []]
+if apply :find.template (list first :template.list) [op first :template.list]
+op (find :find.template bf :template.list :template.number+1)
+end
+
+bury "find
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/for
+.macro for :for.values :for.instr ~
+   [:for.var first :for.values] ~
+   [:for.initial run first bf :for.values] ~
+   [:for.final run first bf bf :for.values] ~
+   [:for.step forstep] ~
+   [:for.tester (ifelse :for.step < 0 ~
+                        [[:for.initial < :for.final]] ~
+                        [[:for.initial > :for.final]])]
+local :for.var
+catch "for.catchtag [op for.done runresult [forloop :for.initial]]
+op []
+end
+
+to forloop :for.initial
+make :for.var :for.initial
+if run :for.tester [throw "for.catchtag]
+run :for.instr
+.maybeoutput forloop (:for.initial + :for.step)
+end
+
+to for.done :for.result
+if emptyp :for.result [op [stop]]
+op list "output quoted first :for.result
+end
+
+to forstep
+if equalp count :for.values 4 [op run last :for.values]
+op ifelse :for.initial > :for.final [-1] [1]
+end
+
+bury [for forstep forloop for.done]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/foreach
+.macro foreach [:foreach.inputs] 2
+catch "foreach.catchtag ~
+      [op foreach.done runresult ~
+	    [foreach1 bl :foreach.inputs last :foreach.inputs 1]]
+op []
+end
+
+to foreach1 :template.lists :foreach.template :template.number
+if emptyp first :template.lists [throw "foreach.catchtag]
+apply :foreach.template firsts :template.lists
+.maybeoutput foreach1 bfs :template.lists :foreach.template :template.number+1
+end
+
+to foreach.done :foreach.result
+if emptyp :foreach.result [op [stop]]
+op list "output quoted first :foreach.result
+end
+
+bury [foreach foreach1 foreach.done]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/gensym
+to gensym
+if not namep "gensym.number [make "gensym.number 0]
+make "gensym.number :gensym.number + 1
+output word "g :gensym.number
+end
+
+bury [[gensym] [gensym.number]]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/ignore
+to ignore :stuff
+end
+
+bury "ignore
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/invoke
+to invoke :function [:inputs] 2
+.maybeoutput apply :function :inputs
+end
+
+bury "invoke
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/listtoarray
+to listtoarray :list [:origin 1]
+local "array
+make "array (array count :list :origin)
+listtoarray1 :list :origin
+output :array
+end
+
+to listtoarray1 :list :index
+if emptyp :list [stop]
+setitem :index :array first :list
+listtoarray1 bf :list :index+1
+end
+
+bury [listtoarray listtoarray1]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/macroexpand
+to macroexpand :expr
+local [name inputlist macro.result]
+make "name first :expr
+make "inputlist bf :expr
+if not macrop :name [(throw "error (se :name [is not a macro.]))]
+define "%%%$%macro.procedure text :name
+make "macro.result apply "%%%$%macro.procedure :inputlist
+erase "%%%$%macro.procedure
+op :macro.result
+end
+
+bury "macroexpand
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/map
+to map :map.template [:template.lists] 2
+op map1 :template.lists 1
+end
+
+to map1 :template.lists :template.number
+if emptyp first :template.lists [output first :template.lists]
+output combine (apply :map.template firsts :template.lists) ~
+               (map1 bfs :template.lists :template.number+1)
+end
+
+bury [map map1]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/map.se
+to map.se :map.se.template [:template.lists] 2
+op map.se1 :template.lists 1
+end
+
+to map.se1 :template.lists :template.number
+if emptyp first :template.lists [output []]
+output sentence (apply :map.se.template firsts :template.lists) ~
+                (map.se1 bfs :template.lists :template.number+1)
+end
+
+bury [map.se map.se1]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/mdarray
+to mdarray :sizes [:origin 1]
+local "array
+make "array (array first :sizes :origin)
+if not emptyp bf :sizes ~
+   [for [i :origin [:origin + (first :sizes) - 1]] ~
+        [setitem :i :array (mdarray bf :sizes :origin)]]
+output :array
+end
+
+bury "mdarray
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/mditem
+to mditem :index :array
+if emptyp :index [op :array]
+op mditem bf :index item first :index :array
+end
+
+bury "mditem
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/mdsetitem
+to mdsetitem :index :array :val
+setitem last :index (mditem bl :index :array) :val
+end
+
+bury "mdsetitem
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/name
+to name :name.value.input :name.variable.input
+make :name.variable.input :name.value.input
+end
+
+bury "name
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/namelist
+to namelist :names
+if wordp :names [output list [] (list :names)]
+output list [] :names
+end
+
+bury "namelist
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pen
+to pen
+op (list (ifelse pendownp ["pendown] ["penup]) ~
+         penmode pensize pencolor penpattern)
+end
+
+bury [pen]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pick
+to pick :list
+output item (1+random count :list) :list
+end
+
+bury "pick
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pllist
+to pllist :names
+if wordp :names [output (list [] [] (list :names))]
+output (list [] [] :names)
+end
+
+bury "pllist
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/poall
+to poall
+po contents
+end
+
+bury "poall
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pon
+to pon :names
+ignore error
+catch "error [po namelist :names]
+local "err
+make "err error
+if not emptyp :err [(throw "error first bf :err)]
+end
+
+bury "pon
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pons
+to pons
+po names
+end
+
+bury "pons
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pop
+to pop :the.stack.name
+local "result
+make "result first thing :the.stack.name
+make :the.stack.name butfirst thing :the.stack.name
+output :result
+end
+
+bury "pop
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/popl
+to popl :names
+ignore error
+catch "error [po pllist :names]
+local "err
+make "err error
+if not emptyp :err [(throw "error first bf :err)]
+end
+
+bury "popl
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/popls
+to popls
+po plists
+end
+
+bury "popls
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pops
+to pops
+po procedures
+end
+
+bury "pops
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/pots
+to pots
+pot procedures
+end
+
+bury "pots
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/push
+to push :the.stack.name :the.item.value
+make :the.stack.name fput :the.item.value thing :the.stack.name
+end
+
+bury "push
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/queue
+to queue :the.queue.name :the.item.value
+make :the.queue.name lput :the.item.value thing :the.queue.name
+end
+
+bury "queue
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/quoted
+to quoted :stuff
+if wordp :stuff [op word "" :stuff]
+op :stuff
+end
+
+bury "quoted
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/reduce
+to reduce :reduce.function :reduce.list
+if emptyp bf :reduce.list [op first :reduce.list]
+op apply :reduce.function (list (first :reduce.list) ~
+                                (reduce :reduce.function bf :reduce.list))
+end
+
+bury "reduce
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/remdup
+to remdup :list
+output filter [not memberp ? ?rest] :list
+end
+
+bury "remdup
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/remove
+to remove :thing :list
+output filter [not equalp ? :thing] :list
+end
+
+bury "remove
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/reverse
+to reverse :in [:out ifelse listp :in [[]] ["]]
+if emptyp :in [output :out]
+output (reverse bf :in combine first :in :out)
+end
+
+bury "reverse
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/savel
+to savel :cont :file [:oldwr writer]
+openwrite :file
+setwrite :file
+po :cont
+setwrite :oldwr
+close :file
+end
+
+bury "savel
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/setpen
+to setpen :pen_data
+ifelse equalp first :pen_data "penup [penup] [pendown]
+ifelse equalp first bf :pen_data "reverse ~
+       [penreverse] ~
+       [ifelse equalp first bf :pen_data "erase ~
+               [penerase] ~
+               [penpaint]
+setpensize first bf bf :pen_data
+setpencolor first bf bf bf :pen_data
+setpenpattern first bf bf bf bf :pen_data
+end
+
+bury [setpen]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/transfer
+to transfer :transfer.limit :transfer.template :transfer.init
+output cascade.2 (ifelse emptyp :transfer.limit ~
+                         [[emptyp ?2]] ~
+                         [list "transfer.end.test :transfer.limit]) ~
+                 :transfer.template [] [butfirst ?2] :transfer.init
+end
+
+to transfer.end.test :the.condition.expression
+if emptyp ?2 [output "true]
+output run :the.condition.expression
+end
+
+to ?in
+output first ?2
+end
+
+to ?out
+output ?1
+end
+
+bury [transfer transfer.end.test ?in ?out]
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/unburyall
+to unburyall
+unbury buried
+end
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/unburyname
+to unburyname :names
+unbury namelist :names
+end
+
+bury "unburyname
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/until
+.macro until :until.cond :until.instr
+if run :until.cond [op []]
+op se :until.instr (list "until :until.cond :until.instr)
+end
+
+bury "until
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/while
+.macro while :while.cond :while.instr
+if not run :while.cond [op []]
+op se :while.instr (list "while :while.cond :while.instr)
+end
+
+bury "while
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/xcor
+to xcor
+output first pos
+end
+
+bury "xcor
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/ycor
+to ycor
+output last pos
+end
+
+bury "ycor
+ENDOFFILE

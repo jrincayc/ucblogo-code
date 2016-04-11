@@ -1,0 +1,11 @@
+to map.se :map.se.template [:template.lists] 2
+op map.se1 :template.lists 1
+end
+
+to map.se1 :template.lists :template.number
+if emptyp first :template.lists [output []]
+output sentence (apply :map.se.template firsts :template.lists) ~
+                (map.se1 bfs :template.lists :template.number+1)
+end
+
+bury [map.se map.se1]

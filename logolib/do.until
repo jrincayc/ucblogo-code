@@ -1,0 +1,5 @@
+.macro do.until :until.instr :until.cond
+op se :until.instr (list "until :until.cond :until.instr)
+end
+
+bury "do.until

@@ -1,0 +1,5 @@
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury "?rest

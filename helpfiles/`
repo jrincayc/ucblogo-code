@@ -1,0 +1,17 @@
+` list							(library procedure)
+
+	outputs a list equal to its input but with certain substitutions.
+	If a member of the input list is the word "," (comma) then the
+	following member should be an instructionlist that produces an
+	output when run.  That output value replaces the comma and the
+	instructionlist.  If a member of the input list is the word ",@"
+	(comma atsign) then the following member should be an instructionlist
+	that outputs a list when run.  The members of that list replace the
+	,@ and the instructionlist.  Example:
+
+		show `[foo baz ,[bf [a b c]] garply ,@[bf [a b c]]]
+
+	will print
+
+		[foo baz [b c] garply b c]
+

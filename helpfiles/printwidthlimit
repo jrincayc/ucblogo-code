@@ -1,0 +1,5 @@
+PRINTWIDTHLIMIT
+
+	if a nonnegative integer, indicates the maximum number of elements
+	in any one list that will be printed by PRINT, etc.
+

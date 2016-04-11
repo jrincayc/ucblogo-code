@@ -1,0 +1,4 @@
+REDEFP
+
+	if TRUE, allows primitives to be erased (ERASE) or redefined (COPYDEF).
+

@@ -1,0 +1,6 @@
+LEFT degrees
+LT degrees
+
+	turns the turtle counterclockwise by the specified angle, measured
+	in degrees (1/360 of a circle).
+

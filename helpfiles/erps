@@ -1,0 +1,5 @@
+ERPS							(library procedure)
+
+	command.  Erases all unburied procedures from the workspace.
+	Abbreviates ERASE PROCEDURES.
+

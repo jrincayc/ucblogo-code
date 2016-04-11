@@ -1,0 +1,5 @@
+GPROP plistname propname
+
+	outputs the value of the "propname" property in the "plistname"
+	property list, or the empty list if there is no such property.
+

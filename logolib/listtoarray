@@ -1,0 +1,14 @@
+to listtoarray :list [:origin 1]
+local "array
+make "array (array count :list :origin)
+listtoarray1 :list :origin
+output :array
+end
+
+to listtoarray1 :list :index
+if emptyp :list [stop]
+setitem :index :array first :list
+listtoarray1 bf :list :index+1
+end
+
+bury [listtoarray listtoarray1]

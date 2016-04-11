@@ -1,0 +1,5 @@
+LAST wordorlist
+
+	if the input is a word, outputs the last character of the word.
+	If the input is a list, outputs the last member of the list.
+

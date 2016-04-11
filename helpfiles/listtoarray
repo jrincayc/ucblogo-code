@@ -1,0 +1,6 @@
+LISTTOARRAY list					(library procedure)
+(LISTTOARRAY list origin)
+
+	outputs an array of the same size as the input list, whose elements
+	are the members of the input list.
+

@@ -1,0 +1,7 @@
+PRIMITIVEP name
+PRIMITIVE? name
+
+	outputs TRUE if the input is the name of a primitive procedure
+	(one built into Logo).  Note that some of the procedures
+	described in this document are library procedures, not primitives.
+
