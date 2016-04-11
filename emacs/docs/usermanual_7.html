@@ -1,0 +1,2540 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on July, 24  2001 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>BERKELEY LOGO: WORKSPACE MANAGEMENT</TITLE>
+
+<META NAME="description" CONTENT="BERKELEY LOGO: WORKSPACE MANAGEMENT">
+<META NAME="keywords" CONTENT="BERKELEY LOGO: WORKSPACE MANAGEMENT">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC213"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_6.html#SEC212"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_6.html#SEC151"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 7. Workspace Management </H1>
+<!--docid::SEC213::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC214">7.1 Procedure Definition</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC220">7.2 Variable Definition</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC226">7.3 Property Lists</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC231">7.4 Workspace Predicates</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC237">7.5 Workspace Queries</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC248">7.6 Workspace Inspection</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC258">7.7 Workspace Control</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="PROCEDURE DEFINITION"></A>
+<HR SIZE="6">
+<A NAME="SEC214"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC215"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.1 Procedure Definition </H2>
+<!--docid::SEC214::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC215">to</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC216">define</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC217">text</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC218">fulltext</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC219">copydef</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="TO"></A>
+<HR SIZE="6">
+<A NAME="SEC215"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC216"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> to </H3>
+<!--docid::SEC215::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>TO procname :input1 :input2 ...			(special form)
+</pre></td></tr></table></P><P>
+
+command.  Prepares Logo to accept a procedure definition.  The procedure
+will be named <CODE>procname</CODE> and there must not already be a procedure by
+that name.  The inputs will be called <CODE>input1</CODE> etc.  Any number of
+inputs are allowed, including none.  Names of procedures and inputs are
+case-insensitive.
+</P><P>
+
+Unlike every other Logo procedure, TO takes as its inputs the actual
+words typed in the instruction line, as if they were all quoted, rather
+than the results of evaluating expressions to provide the inputs.
+(That's what <B>"special form"</B> means.)
+</P><P>
+
+This version of Logo allows variable numbers of inputs to a procedure.
+After the procedure name come four kinds of things, *in this order*:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+	    3.   0 or 1 REST input            [:GARPLY]
+	    4.   0 or 1 DEFAULT number        5
+</pre></td></tr></table></P><P>
+
+Every procedure has a MINIMUM, DEFAULT, and MAXIMUM number of inputs.
+(The latter can be infinite.)
+</P><P>
+
+The MINIMUM number of inputs is the number of required inputs, which
+must come first.  A required input is indicated by the
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>:inputname
+</pre></td></tr></table></P><P>
+
+notation.
+</P><P>
+
+After all the required inputs can be zero or more optional inputs,
+each of which is represented by the following notation:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>[:inputname default.value.expression]
+</pre></td></tr></table></P><P>
+
+When the procedure is invoked, if actual inputs are not supplied for
+these optional inputs, the default value expressions are evaluated to
+set values for the corresponding input names.  The inputs are processed
+from left to right, so a default value expression can be based on
+earlier inputs.  Example:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to proc :inlist [:startvalue first :inlist]
+</pre></td></tr></table></P><P>
+
+If the procedure is invoked by saying
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>proc [a b c]
+</pre></td></tr></table></P><P>
+
+then the variable <CODE>inlist</CODE> will have the value [A B C] and the variable <CODE>startvalue</CODE> will have the value A.  If the procedure is invoked by saying
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>(proc [a b c] "x)
+</pre></td></tr></table></P><P>
+
+then <CODE>inlist</CODE> will have the value [A B C] and <CODE>startvalue</CODE> will have the value X.
+</P><P>
+
+After all the required and optional input can come a single <CODE>rest</CODE>
+input, represented by the following notation:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>[:inputname]
+</pre></td></tr></table></P><P>
+
+This is a rest input rather than an optional input because there is no
+default value expression.  There can be at most one rest input.  When
+the procedure is invoked, the value of this input will be a list
+containing all of the actual inputs provided that were not used for
+required or optional inputs.  Example:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to proc :in1 [:in2 "foo] [:in3 "baz] [:in4]
+</pre></td></tr></table></P><P>
+
+If this procedure is invoked by saying
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>proc "x
+</pre></td></tr></table></P><P>
+
+then <CODE>in1</CODE> has the value X, <CODE>in2</CODE> has the value FOO, <CODE>in3</CODE> has the value BAZ,and <CODE>in4</CODE> has the value <TT>[]</TT> (the empty list).  If it's invoked by saying
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>(proc "a "b "c "d "e)
+</pre></td></tr></table></P><P>
+
+then <CODE>in1</CODE> has the value A, <CODE>in2</CODE> has the value B, <CODE>in3</CODE> has the value C, and <CODE>in4</CODE> has the value [D E].
+</P><P>
+
+The MAXIMUM number of inputs for a procedure is infinite if a rest input
+is given; otherwise, it is the number of required inputs plus the number
+of optional inputs.
+</P><P>
+
+The DEFAULT number of inputs for a procedure, which is the number of
+inputs that it will accept if its invocation is not enclosed in
+parentheses, is ordinarily equal to the minimum number.  If you want a
+different default number you can indicate that by putting the desired
+default number as the last thing on the TO line.  example:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to proc :in1 [:in2 "foo] [:in3] 3
+</pre></td></tr></table></P><P>
+
+This procedure has a minimum of one input, a default of three inputs,
+and an infinite maximum.
+</P><P>
+
+Logo responds to the TO command by entering procedure definition mode.
+The prompt character changes from <CODE>?</CODE> to <CODE>&#62;</CODE> and whatever instructions you type become part of the definition until you type a line containing
+only the word END.
+</P><P>
+
+<A NAME="DEFINE"></A>
+<HR SIZE="6">
+<A NAME="SEC216"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC215"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC217"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> define </H3>
+<!--docid::SEC216::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>DEFINE procname text
+</pre></td></tr></table></P><P>
+
+command.  Defines a procedure with name <CODE>procname</CODE> and text <CODE>text</CODE>.  If
+there is already a procedure with the same name, the new definition
+replaces the old one.  The text input must be a list whose members are
+lists.  The first member is a list of inputs; it looks like a TO line
+but without the word TO, without the procedure name, and without the
+colons before input names.  In other words, the members of this first
+sublist are words for the names of required inputs and lists for the
+names of optional or rest inputs.  The remaining sublists of the text
+input make up the body of the procedure, with one sublist for each
+instruction line of the body.  (There is no END line in the text input.)
+It is an error to redefine a primitive procedure unless the variable
+<VAR>REDEFP</VAR> has the value TRUE.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC351">redefp</A> .
+</P><P>
+
+<A NAME="TEXT"></A>
+<HR SIZE="6">
+<A NAME="SEC217"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC216"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC218"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> text </H3>
+<!--docid::SEC217::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>TEXT procname
+</pre></td></tr></table></P><P>
+
+outputs the text of the procedure named <CODE>procname</CODE> in the form expected
+by DEFINE: a list of lists, the first of which describes the inputs to
+the procedure and the rest of which are the lines of its body.  The text
+does not reflect formatting information used when the procedure was
+defined, such as continuation lines and extra spaces.
+</P><P>
+
+<A NAME="FULLTEXT"></A>
+<HR SIZE="6">
+<A NAME="SEC218"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC217"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC219"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> fulltext </H3>
+<!--docid::SEC218::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>FULLTEXT procname
+</pre></td></tr></table></P><P>
+
+outputs a representation of the procedure <CODE>procname</CODE> in which formatting
+information is preserved.  If the procedure was defined with TO, EDIT,
+or LOAD, then the output is a list of words.  Each word represents one
+entire line of the definition in the form output by READWORD, including
+extra spaces and continuation lines.  The last member of the output
+represents the END line.  If the procedure was defined with DEFINE, then
+the output is a list of lists.  If these lists are printed, one per
+line, the result will look like a definition using TO.  Note: the output
+from FULLTEXT is not suitable for use as input to DEFINE!
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC215">to</A> ,
+<A HREF="usermanual_7.html#SEC279">edit</A> ,
+<A HREF="usermanual_7.html#SEC289">load</A> ,
+<A HREF="usermanual_7.html#SEC216">define</A> .
+</P><P>
+
+<A NAME="COPYDEF"></A>
+<HR SIZE="6">
+<A NAME="SEC219"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC218"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> copydef </H3>
+<!--docid::SEC219::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>COPYDEF newname oldname
+</pre></td></tr></table></P><P>
+
+command.  Makes <CODE>newname</CODE> a procedure identical to <CODE>oldname</CODE>.  The
+latter may be a primitive.  If <CODE>newname</CODE> was already defined, its
+previous definition is lost.  If <CODE>newname</CODE> was already a primitive, the
+redefinition is not permitted unless the variable <VAR>REDEFP</VAR> has the value
+TRUE.  Definitions created by COPYDEF are not saved by SAVE; primitives
+are never saved, and user-defined procedures created by COPYDEF are
+buried.  (You are likely to be confused if you PO or POT a procedure
+defined with COPYDEF because its title line will contain the old name.
+This is why it's buried.)
+</P><P>
+
+Note: dialects of Logo differ as to the order of inputs to COPYDEF.
+This dialect uses "MAKE order," not "NAME order."
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC351">redefp</A> ,
+<A HREF="usermanual_7.html#SEC287">save</A> ,
+<A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC256">pot</A> .
+</P><P>
+
+<A NAME="VARIABLE DEFINITION"></A>
+<HR SIZE="6">
+<A NAME="SEC220"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC219"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC221"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.2 Variable Definition </H2>
+<!--docid::SEC220::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC221">make</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC222">name</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC223">local</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC224">localmake</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC225">thing</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="MAKE"></A>
+<HR SIZE="6">
+<A NAME="SEC221"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC222"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> make </H3>
+<!--docid::SEC221::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>MAKE varname value
+</pre></td></tr></table></P><P>
+
+command.  Assigns the value <CODE>value</CODE> to the variable named <CODE>varname</CODE>,
+which must be a word.  Variable names are case-insensitive.  If a
+variable with the same name already exists, the value of that variable
+is changed.  If not, a new global variable is created.
+</P><P>
+
+<A NAME="NAME"></A>
+<HR SIZE="6">
+<A NAME="SEC222"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC221"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC223"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> name </H3>
+<!--docid::SEC222::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>NAME value varname				(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Same as MAKE but with the inputs in reverse order.
+</P><P>
+
+<A NAME="LOCAL"></A>
+<HR SIZE="6">
+<A NAME="SEC223"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC222"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC224"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> local </H3>
+<!--docid::SEC223::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>LOCAL varname
+LOCAL varnamelist
+(LOCAL varname1 varname2 ...)
+</pre></td></tr></table></P><P>
+
+command.  Accepts as inputs one or more words, or a list of words.  A
+variable is created for each of these words, with that word as its name.
+The variables are local to the currently running procedure.  Logo
+variables follow dynamic scope rules; a variable that is local to a
+procedure is available to any subprocedure invoked by that procedure.
+The variables created by LOCAL have no initial value; they must be
+assigned a value (e.g., with MAKE) before the procedure attempts to read
+their value.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC221">make</A> .
+</P><P>
+
+<A NAME="LOCALMAKE"></A>
+<HR SIZE="6">
+<A NAME="SEC224"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC223"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC225"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> localmake </H3>
+<!--docid::SEC224::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>LOCALMAKE varname value				(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Makes the named variable local, like LOCAL, and assigns it the
+given value, like MAKE.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC223">local</A> ,
+See section <A HREF="usermanual_7.html#SEC221">make</A> .
+</P><P>
+
+<A NAME="THING"></A>
+<HR SIZE="6">
+<A NAME="SEC225"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC224"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC214"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> thing </H3>
+<!--docid::SEC225::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>THING varname
+:quoted.varname
+</pre></td></tr></table></P><P>
+
+outputs the value of the variable whose name is the input.  If there is
+more than one such variable, the innermost local variable of that name
+is chosen.  The colon notation is an abbreviation not for THING but for
+the combination
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>thing "
+</pre></td></tr></table></P><P>
+
+so that <TT>:FOO</TT> means <TT>THING "FOO</TT>.
+</P><P>
+
+<A NAME="PROPERTY LISTS"></A>
+<HR SIZE="6">
+<A NAME="SEC226"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC225"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC227"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.3 Property Lists </H2>
+<!--docid::SEC226::-->
+<P>
+
+Note: Names of property lists are always case-insensitive.  Names of
+individual properties are case-sensitive or case-insensitive depending
+on the value of <VAR>CASEIGNOREDP</VAR>, which is TRUE by default.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC345">caseignoredp</A> .
+</P><P>
+
+In principle, every possible name is the name of a property list, which
+is initially empty.  So Logo never gives a "no such property list" error,
+as it would for undefined procedure or variable names.  But the primitive
+procedures that deal with "all" property lists (CONTENTS, PLISTS, etc.)
+list only nonempty ones.  To "erase" a property list <A HREF="usermanual_7.html#SEC259">erase</A>
+means to make it empty, removing all properties from it.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC227">pprop</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC228">gprop</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC229">remprop</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC230">plist</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="PPROP"></A>
+<HR SIZE="6">
+<A NAME="SEC227"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC228"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pprop </H3>
+<!--docid::SEC227::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PPROP plistname propname value
+</pre></td></tr></table></P><P>
+
+command.  Adds a property to the <CODE>plistname</CODE> property list with name
+<CODE>propname</CODE> and value <CODE>value</CODE>.
+</P><P>
+
+<A NAME="GPROP"></A>
+<HR SIZE="6">
+<A NAME="SEC228"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC227"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC229"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> gprop </H3>
+<!--docid::SEC228::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>GPROP plistname propname
+</pre></td></tr></table></P><P>
+
+outputs the value of the <CODE>propname</CODE> property in the <CODE>plistname</CODE> property
+list, or the empty list if there is no such property.
+</P><P>
+
+<A NAME="REMPROP"></A>
+<HR SIZE="6">
+<A NAME="SEC229"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC228"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC230"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> remprop </H3>
+<!--docid::SEC229::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>REMPROP plistname propname
+</pre></td></tr></table></P><P>
+
+command.  Removes the property named <CODE>propname</CODE> from the property list
+named <CODE>plistname</CODE>.
+</P><P>
+
+<A NAME="PLIST"></A>
+<HR SIZE="6">
+<A NAME="SEC230"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC229"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC220"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> plist </H3>
+<!--docid::SEC230::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PLIST plistname
+</pre></td></tr></table></P><P>
+
+outputs a list whose odd-numbered members are the names, and whose
+even-numbered members are the values, of the properties in the property
+list named <CODE>plistname</CODE>.  The output is a copy of the actual property
+list; changing properties later will not magically change a list output
+earlier by PLIST.
+</P><P>
+
+<A NAME="WORKSPACE PREDICATES"></A>
+<HR SIZE="6">
+<A NAME="SEC231"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC230"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC232"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.4 Workspace Predicates </H2>
+<!--docid::SEC231::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC232">procedurep</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC233">primitivep</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC234">definedp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC235">namep</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC236">plistp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="PROCEDUREP"></A>
+<HR SIZE="6">
+<A NAME="SEC232"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC233"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> procedurep </H3>
+<!--docid::SEC232::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PROCEDUREP name
+PROCEDURE? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the input is the name of a procedure.
+</P><P>
+
+<A NAME="PRIMITIVEP"></A>
+<HR SIZE="6">
+<A NAME="SEC233"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC232"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC234"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> primitivep </H3>
+<!--docid::SEC233::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PRIMITIVEP name
+PRIMITIVE? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the input is the name of a primitive procedure (one
+built into Logo).  Note that some of the procedures described in this
+document are library procedures, not primitives.
+</P><P>
+
+<A NAME="DEFINEDP"></A>
+<HR SIZE="6">
+<A NAME="SEC234"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC233"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC235"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> definedp </H3>
+<!--docid::SEC234::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>DEFINEDP name
+DEFINED? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the input is the name of a user-defined procedure,
+including a library procedure.  (However, Logo does not know about a
+library procedure until that procedure has been invoked.)
+</P><P>
+
+<A NAME="NAMEP"></A>
+<HR SIZE="6">
+<A NAME="SEC235"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC234"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC236"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> namep </H3>
+<!--docid::SEC235::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>NAMEP name
+NAME? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the input is the name of a variable.
+</P><P>
+
+<A NAME="PLISTP"></A>
+<HR SIZE="6">
+<A NAME="SEC236"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC235"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC226"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> plistp </H3>
+<!--docid::SEC236::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PLISTP name
+PLIST? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the input is the name of a *nonempty* property list.
+(In principle every word is the name of a property list; if you haven't
+put any properties in it, PLIST of that name outputs an empty list,
+rather than giving an error message.)
+</P><P>
+
+<A NAME="WORKSPACE QUERIES"></A>
+<HR SIZE="6">
+<A NAME="SEC237"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC236"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC238"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.5 Workspace Queries </H2>
+<!--docid::SEC237::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC238">contents</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC239">buried</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC240">traced</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC241">stepped</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC242">procedures</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC243">names</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC244">plists</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC245">namelist</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC246">pllist</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC247">nodes</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="CONTENTS"></A>
+<HR SIZE="6">
+<A NAME="SEC238"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC239"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> contents </H3>
+<!--docid::SEC238::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>CONTENTS
+</pre></td></tr></table></P><P>
+
+outputs a "contents list," i.e., a list of three lists containing names
+of defined procedures, variables, and property lists respectively.  This
+list includes all unburied named items in the workspace.
+</P><P>
+
+<A NAME="BURIED"></A>
+<HR SIZE="6">
+<A NAME="SEC239"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC238"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC240"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> buried </H3>
+<!--docid::SEC239::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>BURIED
+</pre></td></tr></table></P><P>
+
+outputs a contents list including all buried named items in the
+workspace.
+</P><P>
+
+<A NAME="TRACED"></A>
+<HR SIZE="6">
+<A NAME="SEC240"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC239"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC241"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> traced </H3>
+<!--docid::SEC240::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>TRACED
+</pre></td></tr></table></P><P>
+
+outputs a contents list including all traced named items in the
+workspace.
+</P><P>
+
+<A NAME="STEPPED"></A>
+<HR SIZE="6">
+<A NAME="SEC241"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC240"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC242"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> stepped </H3>
+<!--docid::SEC241::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>STEPPED
+</pre></td></tr></table></P><P>
+
+outputs a contents list including all stepped named items in the
+workspace.
+</P><P>
+
+<A NAME="PROCEDURES"></A>
+<HR SIZE="6">
+<A NAME="SEC242"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC241"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC243"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> procedures </H3>
+<!--docid::SEC242::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PROCEDURES
+</pre></td></tr></table></P><P>
+
+outputs a list of the names of all unburied user-defined procedures in
+the workspace.  Note that this is a list of names, not a contents list.
+(However, procedures that require a contents list as input will accept
+this list.)
+</P><P>
+
+<A NAME="NAMES"></A>
+<HR SIZE="6">
+<A NAME="SEC243"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC242"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC244"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> names </H3>
+<!--docid::SEC243::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>NAMES
+</pre></td></tr></table></P><P>
+
+outputs a contents list consisting of an empty list (indicating no
+procedure names) followed by a list of all unburied variable names in
+the workspace.
+</P><P>
+
+<A NAME="PLISTS"></A>
+<HR SIZE="6">
+<A NAME="SEC244"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC243"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC245"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> plists </H3>
+<!--docid::SEC244::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PLISTS
+</pre></td></tr></table></P><P>
+
+outputs a contents list consisting of two empty lists (indicating no
+procedures or variables) followed by a list of all unburied nonempty property
+lists in the workspace.
+</P><P>
+
+<A NAME="NAMELIST"></A>
+<HR SIZE="6">
+<A NAME="SEC245"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC244"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC246"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> namelist </H3>
+<!--docid::SEC245::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>NAMELIST varname				(library procedure)
+NAMELIST varnamelist
+</pre></td></tr></table></P><P>
+
+outputs a contents list consisting of an empty list followed by a list
+of the name or names given as input.  This is useful in conjunction with
+workspace control procedures that require a contents list as input.
+</P><P>
+
+<A NAME="PLLIST"></A>
+<HR SIZE="6">
+<A NAME="SEC246"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC245"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC247"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pllist </H3>
+<!--docid::SEC246::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PLLIST plname					(library procedure)
+PLLIST plnamelist
+</pre></td></tr></table></P><P>
+
+outputs a contents list consisting of two empty lists followed by a list
+of the name or names given as input.  This is useful in conjunction with
+workspace control procedures that require a contents list as input.
+</P><P>
+
+Note:  All procedures whose input is indicated as <CODE>contentslist</CODE> will
+accept a single word (taken as a procedure name), a list of words (taken
+as names of procedures), or a list of three lists as described under the
+CONTENTS command above.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="NODES"></A>
+<HR SIZE="6">
+<A NAME="SEC247"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC246"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC231"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> nodes </H3>
+<!--docid::SEC247::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>NODES
+</pre></td></tr></table></P><P>
+
+outputs a list of two numbers.  The first represents the number of nodes
+of memory currently in use.  The second shows the maximum number of
+nodes that have been in use at any time since the last invocation of
+NODES.  (A node is a small block of computer memory as used by Logo.
+Each number uses one node.  Each non-numeric word uses one node, plus
+some non-node memory for the characters in the word.  Each array takes
+one node, plus some non-node memory, as well as the memory required by
+its elements.  Each list requires one node per element, as well as the
+memory within the elements.)  If you want to track the memory use of an
+algorithm, it is best if you invoke GC at the beginning of each
+iteration, since otherwise the maximum will include storage that is
+unused but not yet collected.
+</P><P>
+
+<A NAME="WORKSPACE INSPECTION"></A>
+<HR SIZE="6">
+<A NAME="SEC248"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC247"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC249"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.6 Workspace Inspection </H2>
+<!--docid::SEC248::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC249">po</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC250">poall</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC251">pops</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC252">pons</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC253">popls</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC254">pon</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC255">popl</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC256">pot</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC257">pots</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="PO"></A>
+<HR SIZE="6">
+<A NAME="SEC249"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC250"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> po </H3>
+<!--docid::SEC249::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PO contentslist
+</pre></td></tr></table></P><P>
+
+command.  Prints to the write stream the definitions of all procedures,
+variables, and property lists named in the input contents list.
+</P><P>
+
+<A NAME="POALL"></A>
+<HR SIZE="6">
+<A NAME="SEC250"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC249"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC251"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> poall </H3>
+<!--docid::SEC250::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POALL						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Prints all unburied definitions in the workspace.  Abbreviates
+<TT>PO CONTENTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="POPS"></A>
+<HR SIZE="6">
+<A NAME="SEC251"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC250"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC252"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pops </H3>
+<!--docid::SEC251::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POPS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Prints the definitions of all unburied procedures in the
+workspace.  Abbreviates <TT>PO PROCEDURES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC242">procedures</A> .
+</P><P>
+
+<A NAME="PONS"></A>
+<HR SIZE="6">
+<A NAME="SEC252"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC251"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC253"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pons </H3>
+<!--docid::SEC252::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PONS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Prints the definitions of all unburied variables in the
+workspace.  Abbreviates <TT>PO NAMES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC243">names</A> .
+</P><P>
+
+<A NAME="POPLS"></A>
+<HR SIZE="6">
+<A NAME="SEC253"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC252"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC254"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> popls </H3>
+<!--docid::SEC253::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POPLS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Prints the contents of all unburied nonempty property lists in the
+workspace.  Abbreviates <TT>PO PLISTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC244">plists</A> .
+</P><P>
+
+<A NAME="PON"></A>
+<HR SIZE="6">
+<A NAME="SEC254"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC253"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC255"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pon </H3>
+<!--docid::SEC254::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PON varname					(library procedure)
+PON varnamelist
+</pre></td></tr></table></P><P>
+
+command.  Prints the definitions of the named variable(s).  
+<BR>
+Abbreviates <TT>PO NAMELIST varname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC245">namelist</A> .
+</P><P>
+
+<A NAME="POPL"></A>
+<HR SIZE="6">
+<A NAME="SEC255"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC254"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC256"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> popl </H3>
+<!--docid::SEC255::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POPL plname					(library procedure)
+POPL plnamelist
+</pre></td></tr></table></P><P>
+
+command.  Prints the definitions of the named property list(s).
+<BR>
+Abbreviates <TT>PO PLLIST plname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC249">po</A> ,
+<A HREF="usermanual_7.html#SEC246">pllist</A> .
+</P><P>
+
+<A NAME="POT"></A>
+<HR SIZE="6">
+<A NAME="SEC256"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC255"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC257"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pot </H3>
+<!--docid::SEC256::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POT contentslist
+</pre></td></tr></table></P><P>
+
+command.  Prints the title lines of the named procedures and the
+definitions of the named variables and property lists.  For property
+lists, the entire list is shown on one line instead of as a series of
+PPROP instructions as in PO.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC227">pprop</A> ,
+<A HREF="usermanual_7.html#SEC249">po</A> .
+</P><P>
+
+<A NAME="POTS"></A>
+<HR SIZE="6">
+<A NAME="SEC257"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC256"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC237"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> pots </H3>
+<!--docid::SEC257::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>POTS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Prints the title lines of all unburied procedures in the
+workspace.  Abbreviates <TT>POT PROCEDURES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC242">procedures</A> .
+</P><P>
+
+<A NAME="WORKSPACE CONTROL"></A>
+<HR SIZE="6">
+<A NAME="SEC258"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC257"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC259"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC213"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.7 Workspace Control </H2>
+<!--docid::SEC258::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC259">erase</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC260">erall</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC261">erps</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC262">erns</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC263">erpls</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC264">ern</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC265">erpl</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC266">bury</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC267">buryall</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC268">buryname</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC269">unbury</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC270">unburyall</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC271">unburyname</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC272">buriedp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC273">trace</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC274">untrace</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC275">tracedp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC276">step</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC277">unstep</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC278">steppedp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC279">edit</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC280">editfile</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC281">edall</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC282">edps</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC283">edns</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC284">edpls</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC285">edn</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC286">edpl</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC287">save</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC288">savel</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC289">load</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC290">help</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_7.html#SEC291">gc</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="ERASE"></A>
+<HR SIZE="6">
+<A NAME="SEC259"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC260"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erase </H3>
+<!--docid::SEC259::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERASE contentslist
+ER contentslist
+</pre></td></tr></table></P><P>
+
+command.  Erases from the workspace the procedures, variables, and
+property lists named in the input.  Primitive procedures may not be
+erased unless the variable <VAR>REDEFP</VAR> has the value TRUE.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC351">redefp</A> .
+</P><P>
+
+<A NAME="ERALL"></A>
+<HR SIZE="6">
+<A NAME="SEC260"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC259"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC261"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erall </H3>
+<!--docid::SEC260::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERALL
+</pre></td></tr></table></P><P>
+
+command.  Erases all unburied procedures, variables, and property lists
+from the workspace.  Abbreviates <TT>ERASE CONTENTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="ERPS"></A>
+<HR SIZE="6">
+<A NAME="SEC261"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC260"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC262"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erps </H3>
+<!--docid::SEC261::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERPS
+</pre></td></tr></table></P><P>
+
+command.  Erases all unburied procedures from the workspace.
+<BR>
+Abbreviates <TT>ERASE PROCEDURES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC242">procedures</A> .
+</P><P>
+
+<A NAME="ERNS"></A>
+<HR SIZE="6">
+<A NAME="SEC262"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC261"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC263"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erns </H3>
+<!--docid::SEC262::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERNS
+</pre></td></tr></table></P><P>
+
+command.  Erases all unburied variables from the workspace.  Abbreviates
+<TT>ERASE NAMES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC243">names</A> .
+</P><P>
+
+<A NAME="ERPLS"></A>
+<HR SIZE="6">
+<A NAME="SEC263"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC262"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC264"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erpls </H3>
+<!--docid::SEC263::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERPLS
+</pre></td></tr></table></P><P>
+
+command.  Erases all unburied property lists from the workspace.
+<BR>
+Abbreviates <TT>ERASE PLISTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC244">plists</A> .
+</P><P>
+
+<A NAME="ERN"></A>
+<HR SIZE="6">
+<A NAME="SEC264"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC263"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC265"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> ern </H3>
+<!--docid::SEC264::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERN varname					(library procedure)
+ERN varnamelist
+</pre></td></tr></table></P><P>
+
+command.  Erases from the workspace the variable(s) named in the input.
+Abbreviates <TT>ERASE NAMELIST varname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC245">namelist</A> .
+</P><P>
+
+<A NAME="ERPL"></A>
+<HR SIZE="6">
+<A NAME="SEC265"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC264"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC266"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erpl </H3>
+<!--docid::SEC265::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERPL plname					(library procedure)
+ERPL plnamelist
+</pre></td></tr></table></P><P>
+
+command.  Erases from the workspace the property list(s) named in the
+input.  Abbreviates <TT>ERASE PLLIST plname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC246">pllist</A> .
+</P><P>
+
+<A NAME="BURY"></A>
+<HR SIZE="6">
+<A NAME="SEC266"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC265"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC267"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> bury </H3>
+<!--docid::SEC266::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>BURY contentslist
+</pre></td></tr></table></P><P>
+
+command.  Buries the procedures, variables, and property lists named in
+the input.  A buried item is not included in the lists output by
+CONTENTS, PROCEDURES, VARIABLES, and PLISTS, but is included in the list
+output by BURIED.  By implication, buried things are not printed by
+POALL or saved by SAVE.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> ,
+<A HREF="usermanual_7.html#SEC242">procedures</A> ,
+<A HREF="usermanual_7.html#SEC252">pons</A> ,
+<A HREF="usermanual_7.html#SEC244">plists</A> ,
+<A HREF="usermanual_7.html#SEC250">poall</A> ,
+<A HREF="usermanual_7.html#SEC287">save</A> .
+</P><P>
+
+<A NAME="BURYALL"></A>
+<HR SIZE="6">
+<A NAME="SEC267"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC266"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC268"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> buryall </H3>
+<!--docid::SEC267::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>BURYALL                                         (library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>BURY CONTENTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="BURYNAME"></A>
+<HR SIZE="6">
+<A NAME="SEC268"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC267"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC269"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> buryname </H3>
+<!--docid::SEC268::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>BURYNAME varname				(library procedure)
+BURYNAME varnamelist
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>BURY NAMELIST varname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC266">bury</A> ,
+<A HREF="usermanual_7.html#SEC245">namelist</A> .
+</P><P>
+
+<A NAME="UNBURY"></A>
+<HR SIZE="6">
+<A NAME="SEC269"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC268"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC270"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> unbury </H3>
+<!--docid::SEC269::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNBURY contentslist
+</pre></td></tr></table></P><P>
+
+command.  Unburies the procedures, variables, and property lists named
+in the input.  That is, the named items will be returned to view in
+CONTENTS, etc.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="UNBURYALL"></A>
+<HR SIZE="6">
+<A NAME="SEC270"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC269"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC271"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> unburyall </H3>
+<!--docid::SEC270::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNBURYALL					(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>UNBURY BURIED</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC239">buried</A> .
+</P><P>
+
+<A NAME="UNBURYNAME"></A>
+<HR SIZE="6">
+<A NAME="SEC271"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC270"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC272"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> unburyname </H3>
+<!--docid::SEC271::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNBURYNAME varname				(library procedure)
+UNBURYNAME varnamelist
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>UNBURY NAMELIST varname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC269">unbury</A> ,
+<A HREF="usermanual_7.html#SEC245">namelist</A> .
+</P><P>
+
+<A NAME="BURIEDP"></A>
+<HR SIZE="6">
+<A NAME="SEC272"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC271"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC273"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> buriedp </H3>
+<!--docid::SEC272::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>BURIEDP contentslist
+BURIED? contentslist
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is buried, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can <CODE>BURIEDP [[]
+[VARIABLE]]</CODE> or <CODE>BURIEDP [[] [] [PROPLIST]]</CODE>.
+</P><P>
+
+<A NAME="TRACE"></A>
+<HR SIZE="6">
+<A NAME="SEC273"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC272"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC274"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> trace </H3>
+<!--docid::SEC273::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>TRACE contentslist
+</pre></td></tr></table></P><P>
+
+command.  Marks the named items for tracing.  A message is printed
+whenever a traced procedure is invoked, giving the actual input values,
+and whenever a traced procedure STOPs or OUTPUTs.  A message is printed
+whenever a new value is assigned to a traced variable using MAKE.  A
+message is printed whenever a new property is given to a traced property
+list using PPROP.
+</P><P>
+
+See section <A HREF="usermanual_8.html#SEC304">stop</A> ,
+<A HREF="usermanual_8.html#SEC305">output</A> ,
+<A HREF="usermanual_7.html#SEC221">make</A> ,
+<A HREF="usermanual_7.html#SEC227">pprop</A> .
+</P><P>
+
+<A NAME="UNTRACE"></A>
+<HR SIZE="6">
+<A NAME="SEC274"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC273"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC275"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> untrace </H3>
+<!--docid::SEC274::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNTRACE contentslist
+</pre></td></tr></table></P><P>
+
+command.  Turns off tracing for the named items.
+</P><P>
+
+<A NAME="TRACEDP"></A>
+<HR SIZE="6">
+<A NAME="SEC275"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC274"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC276"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> tracedp </H3>
+<!--docid::SEC275::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>TRACEDP contentslist
+TRACED? contentslist
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is traced, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can <CODE>TRACEDP [[]
+[VARIABLE]]</CODE> or <CODE>TRACEDP [[] [] [PROPLIST]]</CODE>.
+</P><P>
+
+<A NAME="STEP"></A>
+<HR SIZE="6">
+<A NAME="SEC276"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC275"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC277"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> step </H3>
+<!--docid::SEC276::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>STEP contentslist
+</pre></td></tr></table></P><P>
+
+command.  Marks the named items for stepping.  Whenever a stepped
+procedure is invoked, each instruction line in the procedure body is
+printed before being executed, and Logo waits for the user to type a
+newline at the terminal.  A message is printed whenever a stepped
+variable name is <SAMP>`shadowed'</SAMP> because a local variable of the same name is created either as a procedure input or by the LOCAL command.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC223">local</A> .
+</P><P>
+
+<A NAME="UNSTEP"></A>
+<HR SIZE="6">
+<A NAME="SEC277"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC276"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC278"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> unstep </H3>
+<!--docid::SEC277::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNSTEP contentslist
+</pre></td></tr></table></P><P>
+
+command.  Turns off stepping for the named items.
+</P><P>
+
+<A NAME="STEPPEDP"></A>
+<HR SIZE="6">
+<A NAME="SEC278"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC277"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC279"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> steppedp </H3>
+<!--docid::SEC278::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>STEPPEDP contentslist
+STEPPED? contentslist
+</pre></td></tr></table></P><P>
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is stepped, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can <CODE>STEPPEDP [[]
+[VARIABLE]]</CODE> or <CODE>STEPPEDP [[] [] [PROPLIST]]</CODE>.
+</P><P>
+
+<A NAME="EDIT"></A>
+<HR SIZE="6">
+<A NAME="SEC279"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC278"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC280"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edit </H3>
+<!--docid::SEC279::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDIT contentslist
+ED contentslist
+(EDIT)
+(ED)
+</pre></td></tr></table></P><P>
+
+command.  If invoked with an input, EDIT writes the definitions of the
+named items into a temporary file and edits that file, using your
+favorite editor as determined by the <VAR>EDITOR</VAR> environment variable.
+If you don't have an <VAR>EDITOR</VAR> variable, edits the definitions using
+jove.  If invoked without an input, EDIT edits the same file left over
+from a previous EDIT or EDITFILE instruction.  When you leave the
+editor, Logo reads the revised definitions and modifies the workspace
+accordingly.  It is not an error if the input includes names for which
+there is no previous definition.
+</P><P>
+
+If there is a variable <VAR>LOADNOISILY</VAR> whose value is TRUE, then,
+after leaving the editor, TO commands in the temporary file print
+"PROCNAME defined" (where PROCNAME is the name of the procedure being
+defined); if <VAR>LOADNOISILY</VAR> is FALSE or undefined, TO commands in the
+file are carried out silently.
+</P><P>
+
+If there is an environment variable called <VAR>TEMP</VAR>, then Logo uses its
+value as the directory in which to write the temporary file used for
+editing.
+</P><P>
+
+Exceptionally, the EDIT command can be used without its default input
+and without parentheses provided that nothing follows it on the
+instruction line.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC348">loadnoisily</A> ,
+See section <A HREF="usermanual_7.html#SEC280">editfile</A> .
+</P><P>
+
+<A NAME="EDITFILE"></A>
+<HR SIZE="6">
+<A NAME="SEC280"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC279"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC281"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> editfile </H3>
+<!--docid::SEC280::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDITFILE filename
+</pre></td></tr></table></P><P>
+
+command.  Starts the Logo editor, like EDIT, but instead of editing a
+temporary file it edits the file specified by the input.  When you leave
+the editor, Logo reads the revised file, as for EDIT.  EDITFILE also
+remembers the filename, so that a subsequent EDIT command with no input
+will re-edit the same file.
+</P><P>
+
+EDITFILE is intended as an alternative to LOAD and SAVE.  You can
+maintain a workspace file yourself, controlling the order in which
+definitions appear, maintaining comments in the file, and so on.
+</P><P>
+
+<A NAME="EDALL"></A>
+<HR SIZE="6">
+<A NAME="SEC281"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC280"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC282"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edall </H3>
+<!--docid::SEC281::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDALL						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT CONTENTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC238">contents</A> .
+</P><P>
+
+<A NAME="EDPS"></A>
+<HR SIZE="6">
+<A NAME="SEC282"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC281"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC283"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edps </H3>
+<!--docid::SEC282::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDPS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT PROCEDURES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> ,
+<A HREF="usermanual_7.html#SEC242">procedures</A> .
+</P><P>
+
+<A NAME="EDNS"></A>
+<HR SIZE="6">
+<A NAME="SEC283"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC282"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC284"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edns </H3>
+<!--docid::SEC283::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDNS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT NAMES</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> ,
+<A HREF="usermanual_7.html#SEC243">names</A> .
+</P><P>
+
+<A NAME="EDPLS"></A>
+<HR SIZE="6">
+<A NAME="SEC284"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC283"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC285"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edpls </H3>
+<!--docid::SEC284::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDPLS						(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT PLISTS</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> ,
+<A HREF="usermanual_7.html#SEC244">plists</A> .
+</P><P>
+
+<A NAME="EDN"></A>
+<HR SIZE="6">
+<A NAME="SEC285"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC284"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC286"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edn </H3>
+<!--docid::SEC285::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDN varname					(library procedure)
+EDN varnamelist
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT NAMELIST varname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> , 
+<A HREF="usermanual_7.html#SEC245">namelist</A> .
+</P><P>
+
+<A NAME="EDPL"></A>
+<HR SIZE="6">
+<A NAME="SEC286"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC285"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC287"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> edpl </H3>
+<!--docid::SEC286::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>EDPL plname					(library procedure)
+EDPL plnamelist
+</pre></td></tr></table></P><P>
+
+command.  Abbreviates <TT>EDIT PLLIST plname(list)</TT>.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> , 
+<A HREF="usermanual_7.html#SEC246">pllist</A> .
+</P><P>
+
+<A NAME="SAVE"></A>
+<HR SIZE="6">
+<A NAME="SEC287"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC286"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC288"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> save </H3>
+<!--docid::SEC287::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>SAVE filename
+</pre></td></tr></table></P><P>
+
+command.  Saves the definitions of all unburied procedures, variables,
+and nonempty property lists in the named file.  Equivalent to
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to save :filename
+local "oldwriter
+make "oldwriter writer
+openwrite :filename
+setwrite :filename
+poall
+setwrite :oldwriter
+close :filename
+end
+</pre></td></tr></table></P><P>
+
+<A NAME="SAVEL"></A>
+<HR SIZE="6">
+<A NAME="SEC288"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC287"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC289"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> savel </H3>
+<!--docid::SEC288::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>SAVEL contentslist filename			(library procedure)
+</pre></td></tr></table></P><P>
+
+command.  Saves the definitions of the procedures, variables, and
+property lists specified by <CODE>contentslist</CODE> to the file named <CODE>filename</CODE>.
+</P><P>
+
+<A NAME="LOAD"></A>
+<HR SIZE="6">
+<A NAME="SEC289"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC288"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC290"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> load </H3>
+<!--docid::SEC289::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>LOAD filename
+</pre></td></tr></table></P><P>
+
+command.  Reads instructions from the named file and executes them.  The
+file can include procedure definitions with TO, and these are accepted
+even if a procedure by the same name already exists.  If the file
+assigns a list value to a variable named <VAR>STARTUP</VAR>, then that list
+is run as an instructionlist after the file is loaded. If there is a
+variable <VAR>LOADNOISILY</VAR> whose value is TRUE, then TO commands in the
+file print "PROCNAME defined" (where PROCNAME is the name of the
+procedure being defined); if <VAR>LOADNOISILY</VAR> is FALSE or undefined, TO
+commands in the file are carried out silently.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC352">startup</A> ,
+See section <A HREF="usermanual_11.html#SEC348">loadnoisily</A> .
+</P><P>
+
+<A NAME="HELP"></A>
+<HR SIZE="6">
+<A NAME="SEC290"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC289"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC291"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> help </H3>
+<!--docid::SEC290::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>HELP name
+(HELP)
+</pre></td></tr></table></P><P>
+
+command.  Prints information from the reference manual about the
+primitive procedure named by the input.  With no input, lists all the
+primitives about which help is available.  If there is an environment
+variable <VAR>LOGOHELP</VAR>, then its value is taken as the directory in which to
+look for help files, instead of the default help directory.
+</P><P>
+
+Exceptionally, the HELP command can be used without its default input
+and without parentheses provided that nothing follows it on the
+instruction line.
+</P><P>
+
+<A NAME="GC"></A>
+<HR SIZE="6">
+<A NAME="SEC291"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC290"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC258"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> gc </H3>
+<!--docid::SEC291::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>GC
+(GC anything)
+</pre></td></tr></table></P><P>
+
+command.  Runs the garbage collector, reclaiming unused nodes.  Logo
+does this when necessary anyway, but you may want to use this command to
+control exactly when Logo does it.  In particular, the numbers output by
+the NODES operation will not be very meaningful unless garbage has been
+collected.  Another reason to use GC is that a garbage collection takes
+a noticeable fraction of a second, and you may want to schedule
+collections for times before or after some time-critical animation.  If
+invoked with an argument (of any value), GC runs a full garbage
+collection, including GCTWA (Garbage Collect Truly Worthless Atoms,
+which means that it removes from Logo's memory words that used to be
+procedure or variable names but aren't any more); without an argument,
+GC does a generational garbage collection, which means that only
+recently created nodes are examined.  (The latter is usually good
+enough.)
+</P><P>
+
+<A NAME="CONTROL STRUCTURES"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_7.html#SEC248"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC292"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Brian Harvey</I> on <I>July, 24  2001</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

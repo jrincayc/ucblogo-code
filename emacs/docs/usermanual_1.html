@@ -1,0 +1,570 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on July, 24  2001 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>BERKELEY LOGO: INTRODUCTION</TITLE>
+
+<META NAME="description" CONTENT="BERKELEY LOGO: INTRODUCTION">
+<META NAME="keywords" CONTENT="BERKELEY LOGO: INTRODUCTION">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC1"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC2"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<A NAME="INTRODUCTION"></A>
+<H1> 1. Introduction </H1>
+<!--docid::SEC1::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_1.html#SEC2">1.1 Overview</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_1.html#SEC3">1.2 Getter/Setter Variable Syntax</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_1.html#SEC4">1.3 Entering and Leaving Logo</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_1.html#SEC5">1.4 Tokenization</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="OVERVIEW"></A>
+<HR SIZE="6">
+<A NAME="SEC2"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC3"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 1.1 Overview </H2>
+<!--docid::SEC2::-->
+<P>
+
+<A NAME="IDX1"></A>
+<A NAME="IDX2"></A>
+</P><P>
+
+Copyright (C) 1993 by the Regents of the University of California
+</P><P>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+</P><P>
+
+This program is distributed in the hope that it will be useful,
+but <VAR>WITHOUT ANY WARRANTY</VAR>; without even the implied warranty of
+<VAR>MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE</VAR>. See the
+GNU General Public License for more details.
+</P><P>
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+</P><P>
+
+This is a program that is still being written.  Many things are missing,
+including adequate documentation.  This manual assumes that you already know
+how to program in Logo, and merely presents the details of this new
+implementation.  
+</P><P>
+
+Read Computer_Science_Logo_Style, Volume_1:_
+_Symbolic_Computing_ by Brian Harvey (MIT Press, 1997) for a tutorial
+on Logo programming with emphasis on symbolic computation.
+</P><P>
+
+Here are the special features of this dialect of Logo:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">
+Source file compatible among Unix, DOS, Windows, and Mac platforms.
+
+Random-access arrays.
+
+Variable number of inputs to user-defined procedures.
+
+Mutators for list structure (dangerous).
+
+Pause on error, and other improvements to error handling.
+
+Comments and continuation lines; formatting is preserved when
+procedure definitions are saved or edited.
+
+Terrapin-style tokenization (e.g., [2+3] is a list with one member)
+but LCSI-style syntax (no special forms except TO).  The best of
+both worlds.
+
+First-class instruction and expression templates (see APPLY).
+
+Macros.
+</pre></td></tr></table></P><P>
+
+Features <STRONG>not</STRONG> found in Berkeley Logo include robotics, music, GUIs, animation,
+parallelism, and multimedia.  For those, buy a commercial version.
+</P><P>
+
+<A NAME="GETTER/SETTER VARIBLE SYNTAX"></A>
+<HR SIZE="6">
+<A NAME="SEC3"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC2"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC4"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 1.2 Getter/Setter Variable Syntax </H2>
+<!--docid::SEC3::-->
+<P>
+
+Logo distinguishes <VAR>PROCEDURES</VAR> from <VAR>VARIABLES</VAR>.  A procedure
+is a set of instructions to carry out some computation; a variable is a
+named container that holds a data value such as a number, word, list, or
+array.
+</P><P>
+
+In traditional Logo syntax, a non-numeric word typed without punctuation
+represents a request to invoke the procedure named by that word.  A word
+typed with a preceding quotation mark represents the word itself.  For
+example, in the instruction
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	PRINT FIRST "WORD
+</pre></td></tr></table>the procedures named <CODE>FIRST</CODE> and <CODE>PRINT</CODE> are invoked, but the
+procedure named <VAR>WORD</VAR> is not invoked; the word <VAR>W-O-R-D</VAR> is the
+input to FIRST.
+</P><P>
+
+What about variables?  There are two things one can do with a variable:
+give it a value, and find out its value.  To give a variable a value,
+Logo provides the primitive procedure <CODE>MAKE</CODE>, which requires two
+inputs: the name of the variable and the new value to be assigned.  The
+first input, the name of the variable, is just a word, and if (as is
+almost always the case) the programmer wants to assign a value to a
+specific variable whose name is known in advance, that input is quoted,
+just as any known specific word would be:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	MAKE "MY.VAR FIRST "WORD
+</pre></td></tr></table>gives the variable named <VAR>MY.VAR</VAR> the value W (the first letter of
+WORD).
+</P><P>
+
+To find the value of a variable, Logo provides the primitive procedure
+<CODE>THING</CODE>, which takes a variable name as its input, and outputs the value
+of the accessible variable with that name.  Thus
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	PRINT THING "MY.VAR
+</pre></td></tr></table>will print W (supposing the <CODE>MAKE</CODE> above has been done).  Since finding
+the value of a specific, known variable name is such a common operation,
+Logo also provides an abbreviated notation that combines <CODE>THING</CODE> with quote:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	PRINT :MY.VAR
+</pre></td></tr></table>The colon (which Logo old-timers pronounce "dots") replaces <CODE>THING</CODE>
+and <CODE>"</CODE> in the earlier version of the instruction.
+</P><P>
+
+Newcomers to Logo often complain about the need for all this punctuation.
+In particular, Logo programmers who learned about dots and quotes without
+also learning about <CODE>THING</CODE> wonder why an instruction such as
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	MAKE "NEW.VAR :OLD.VAR
+</pre></td></tr></table>uses two different punctuation marks to identify the two variables.
+(Having read the paragraphs above, you will understand that actually
+both variable names are quoted, but the procedure <CODE>THING</CODE> is
+invoked to find the value of <VAR>OLD.VAR</VAR>, since it's that value, not
+<VAR>OLD.VAR</VAR>'s name, that <CODE>MAKE</CODE> needs to know.  It wouldn't make
+sense to ask for <CODE>THING</CODE> of <VAR>NEW.VAR</VAR>, since we haven't given
+<VAR>NEW.VAR</VAR> a value yet.)
+</P><P>
+
+Although Logo's punctuation rules make sense once understood, they
+do form a barrier to entry for the Logo beginner.  Why, then, couldn't
+Logo be designed so that an unpunctuated word would represent a
+procedure if there is a procedure by that name, or a variable if
+there is a variable by that name?  Then we could say
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	PRINT MY.VAR
+</pre></td></tr></table>and Logo would realize that <VAR>MY.VAR</VAR> is the name of a variable, not
+of a procedure.  The traditional reason not to use this convention
+is that Logo allows the same word to name a procedure and a variable
+at the same time.  This is most often important for words that name
+data types, as in the following procedure:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	TO PLURAL :WORD
+	OUTPUT WORD :WORD "S
+	END
+</pre></td></tr></table>Here the name <VAR>WORD</VAR> is a natural choice for the input to <CODE>PLURAL</CODE>, since
+it describes the kind of input that <CODE>PLURAL</CODE> expects.  Within the procedure,
+we use <CODE>WORD</CODE> to represent Logo's primitive procedure that combines two
+input words to form a new, longer word; we use <CODE>:WORD</CODE> to represent the
+variable containing the input, whatever actual word is given when
+PLURAL is invoked.
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	? PRINT PLURAL "COMPUTER
+	COMPUTERS
+</pre></td></tr></table></P><P>
+
+However, if a Logo instruction includes an unquoted word that is
+<STRONG>not</STRONG> the name of a procedure, Logo could look for a variable of
+that name instead.  This would allow a "punctuationless" Logo, <STRONG>* PROVIDED THAT USERS WHO WANT TO WORK WITHOUT COLONS FOR VARIABLES CHOOSE VARIABLE NAMES THAT ARE NOT ALSO PROCEDURE NAMES. *</STRONG>
+</P><P>
+
+What about assigning a value to a variable?  Could we do without the
+quotation mark on <CODE>MAKE</CODE>'s first input?  Alas, no.  Although the
+first input to <CODE>MAKE</CODE> is <STRONG>usually</STRONG> a constant, known
+variable name, sometimes it isn't, as in this example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	TO INCREMENT :VAR
+	MAKE :VAR (THING :VAR)+1	; Note: it's not "VAR here!
+	END
+
+	? MAKE "X 5
+	? INCREMENT "X
+	? PRINT :X
+	6
+</pre></td></tr></table>The procedure <CODE>INCREMENT</CODE> takes a variable name as its input and
+changes the value of that variable.  In this example there are two
+variables; the variable whose name is <VAR>VAR</VAR>, and whose value is the
+word X; and the variable whose name is <VAR>X</VAR> and whose value changes
+from 5 to 6.  Suppose we changed the behavior of <CODE>MAKE</CODE> so that it
+took the word after <CODE>MAKE</CODE> as the name of the variable to change;
+we would be unable to write <CODE>INCREMENT</CODE>:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	TO INCREMENT :VAR
+	MAKE VAR (THING VAR)+1
+	END
+</pre></td></tr></table>This would assign a new value to <VAR>VAR</VAR>, not to <VAR>X</VAR>.
+</P><P>
+
+What we can do is to allow an <STRONG>alternative</STRONG> to <CODE>MAKE</CODE>, a
+"setter" procedure for a particular variable.  The notation will be
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	? SETFOO 7
+	? PRINT FOO
+	7
+</pre></td></tr></table><CODE>SETFOO</CODE> is a "setter procedure" that takes one input (in this case
+the input 7) and assigns its value to the variable named FOO.
+</P><P>
+
+Berkeley Logo allows users to choose either the traditional notation, in
+which case the same name can be used both for a procedure and for a
+variable, or the getter/setter notation, in which variable <VAR>FOO</VAR> is
+set with <CODE>SETFOO</CODE> and examined with <VAR>FOO</VAR>, but the same name
+can't be used for procedure and variable.
+</P><P>
+
+Here is how this choice is allowed: Berkeley Logo uses traditional
+notation, with procedures distinct from variables.  However, if there is
+a variable named <VAR>AllowGetSet</VAR> whose value is TRUE (which
+there is, by default, when Logo starts up), then if a Logo instruction
+refers to a <STRONG>nonexistent</STRONG> procedure (so that the error message
+"I don't know how to ..." would result), Logo tries the following two
+steps:
+<A NAME="IDX3"></A>
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">	1.  If the name is at least four characters long, and the
+	first three characters are the letters SET (upper or lower
+	case), and if the name is followed in the instruction by
+	another value, then Logo will invoke <CODE>MAKE</CODE> with its first
+	input being the name without the SET, and its second input
+	being the following value.
+
+	2.  If step 1's conditions are not met, but the name is
+	the name of an accessible variable, then Logo will invoke
+	<CODE>THING</CODE> with that name as input, to find the variable's value.
+</pre></td></tr></table></P><P>
+
+Note one possible disadvantage of the getter/setter notation: a spelling
+error in the name of one of the primitives starting SET (e.g.,
+<CODE>SETHEADING</CODE>) will not be caught as an error, but will instead
+create a new variable.
+</P><P>
+
+One final point:  The <CODE>TO</CODE> command in Logo has always been a special
+case; the rest of the line starting with TO is not evaluated as
+ordinary Logo expressions are.  In particular, the colons used to
+mark the names of inputs to the procedure do not cause <CODE>THING</CODE> to be
+invoked.  They are merely mnemonic aids, reminding the Logo user
+that these words are names of variables.  (Arguably, this nonstantard
+behavior of TO adds to Logo beginners' confusion about colons.)
+To a programmer using colonless variable references, the colons in
+the TO line are unnecessary and meaningless.  Berkeley Logo therefore
+makes the colons optional:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	TO FOO :IN1 :IN2
+</pre></td></tr></table>and
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>	TO FOO IN1 IN2
+</pre></td></tr></table>are both allowed.
+</P><P>
+
+<A NAME="ENTERING AND LEAVING LOGO"></A>
+<HR SIZE="6">
+<A NAME="SEC4"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC3"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC5"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 1.3 Entering and Leaving Logo </H2>
+<!--docid::SEC4::-->
+<P>
+
+<A NAME="IDX4"></A>
+<A NAME="IDX5"></A>
+</P><P>
+
+The process to start Logo depends on your operating system:
+</P><P>
+
+<DL COMPACT>
+<DT><SAMP>`Unix:'</SAMP>
+<DD>Type the word <TT>logo</TT> to the shell.  (The directory in which you've
+installed Logo must be in your path.)
+<P>
+
+<DT><SAMP>`DOS:'</SAMP>
+<DD>Change directories to the one containing Logo (probably
+<VAR>C:\UCBLOGO</VAR>).  Then type <TT>UCBLOGO</TT> for the large memory
+version, or <TT>BL</TT> for the 640K version.
+<P>
+
+<DT><SAMP>`Mac:'</SAMP>
+<DD>Double-click on the LOGO icon within the "UCB Logo" folder. 
+<P>
+
+<DT><SAMP>`Windows:'</SAMP>
+<DD>Double-click on the UCBWLOGO icon in the UCBLOGO folder.
+</DL>
+<P>
+
+To leave Logo, enter the command <TT>bye</TT>.
+</P><P>
+
+Under Unix or DOS, if you include one or more filenames on the command line
+when starting Logo, those files will be loaded before the interpreter starts
+reading commands from your terminal.  If you load a file that executes some
+program that includes a <CODE>bye</CODE> command, Logo will run that program and exit.
+You can therefore write stand-alone programs in Logo and run them with
+shell/batch scripts.  To support this technique, Logo does not print its
+usual welcoming and parting messages if you give file arguments to the logo
+command.
+</P><P>
+
+If you type your interrupt character (see table below) Logo will stop what it's doing and return to top-level, as if you did <TT>THROW "TOPLEVEL</TT>.  If you type your quit character Logo will pause as if you did PAUSE.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>                Unix           DOS/Windows          Mac
+
+toplevel    usually ctrl-C       ctrl-Q      command-. (period)
+
+pause       usually ctrl-\       ctrl-W      command-, (comma)
+</pre></td></tr></table></P><P>
+
+If you have an environment variable called <VAR>LOGOLIB</VAR> whose value is the name of a directory, then Logo will use that directory instead of the default
+library.  If you invoke a procedure that has not been defined, Logo first
+looks for a file in the current directory named proc.lg where <CODE>proc</CODE> is the
+procedure name in lower case letters.  If such a file exists, Logo loads
+that file.  If the missing procedure is still undefined, or if there is no
+such file, Logo then looks in the library directory for a file named proc
+(no <CODE>.lg</CODE>) and, if it exists, loads it.  If neither file contains a
+definition for the procedure, then Logo signals an error.  Several
+procedures that are primitive in most versions of Logo are included in the
+default library, so if you use a different library you may want to include
+some or all of the default library in it.
+</P><P>
+
+<A NAME="TOKENIZATION"></A>
+<HR SIZE="6">
+<A NAME="SEC5"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC4"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 1.4 Tokenization </H2>
+<!--docid::SEC5::-->
+<P>
+
+<A NAME="IDX6"></A>
+<A NAME="IDX7"></A>
+<A NAME="IDX8"></A>
+<A NAME="IDX9"></A>
+<A NAME="IDX10"></A>
+</P><P>
+
+Names of procedures, variables, and property lists are case-insensitive.  So
+are the special words END, TRUE, and FALSE.  Case of letters is preserved
+in everything you type, however.
+</P><P>
+
+Within square brackets, words are delimited only by spaces and square
+brackets.  [2+3] is a list containing one word.  Note, however, that the
+Logo primitives that interpret such a list as a Logo instruction or
+expression (RUN, IF, etc.) reparse the list as if it had not been typed
+inside brackets.
+</P><P>
+
+After a quotation mark outside square brackets, a word is delimited by
+a space, a square bracket, or a parenthesis.
+</P><P>
+
+A word not after a quotation mark or inside square brackets is delimited
+by a space, a bracket, a parenthesis, or an infix operator
+<TT>+-*/=&#60;&#62;</TT>.  Note that words following colons are in this category.
+Note that quote and colon are not delimiters.
+</P><P>
+
+A word consisting of a question mark followed by a number (e.g., ?37),
+when runparsed (i.e., where a procedure name is expected), is treated
+as if it were the sequence
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>( ? 37 )
+</pre></td></tr></table></P><P>
+
+making the number an input to the ? procedure.  (See the discussion of
+templates, below.)  This special treatment does not apply to words read
+as data, to words with a non-number following the question mark, or if
+the question mark is backslashed.
+</P><P>
+
+A line (an instruction line or one read by READLIST or READWORD) can be
+continued onto the following line if its last character is a tilde (~).
+READWORD preserves the tilde and the newline; READLIST does not.
+</P><P>
+
+Lines read with READRAWLINE are never continued.
+</P><P>
+
+An instruction line or a line read by READLIST (but not by READWORD)
+is automatically continued to the next line, as if ended with a tilde,
+if there are unmatched brackets, parentheses, braces, or vertical bars
+pending.  However, it's an error if the continuation line contains
+only the word END; this is to prevent runaway procedure definitions.
+Lines explicitly continued with a tilde avoid this restriction.
+</P><P>
+
+If a line being typed interactively on the keyboard is continued, either
+with a tilde or automatically, Logo will display a tilde as a prompt
+character for the continuation line.
+</P><P>
+
+A semicolon begins a comment in an instruction line.  Logo ignores
+characters from the semicolon to the end of the line.  A tilde as the
+last character still indicates a continuation line, but not a continuation
+of the comment.  For example, typing the instruction
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>print "abc;comment ~
+def
+</pre></td></tr></table></P><P>
+
+will print the word abcdef.  Semicolon has no special meaning in data
+lines read by READWORD or READLIST, but such a line can later be reparsed
+using RUNPARSE and then comments will be recognized.
+</P><P>
+
+To include an otherwise delimiting character (including semicolon or tilde)
+in a word, precede it with backslash (\).  If the last character of a line
+is a backslash, then the newline character following the backslash will be
+part of the last word on the line, and the line continues onto the following
+line.  To include a backslash in a word, use \\.  If the combination
+backslash-newline is entered at the terminal, Logo will issue a backslash as
+a prompt character for the continuation line.  All of this applies to data
+lines read with READWORD or READLIST as well as to instruction lines.  A
+character entered with backslash is EQUALP to the same character without the
+backslash, but can be distinguished by the BACKSLASHEDP predicate.
+(However, BACKSLASHEDP recognizes backslashedness only on characters for
+which it is necessary: whitespace, parentheses, brackets, infix operators,
+backslash, vertical bar, tilde, quote, question mark, colon, and semicolon.)
+</P><P>
+
+A line read with READRAWLINE has no special quoting mechanism; both
+backslash and vertical bar (described below) are just ordinary characters.
+</P><P>
+
+An alternative notation to include otherwise delimiting characters in words
+is to enclose a group of characters in vertical bars.  All characters between
+vertical bars are treated as if they were letters.  In data read with READWORD
+the vertical bars are preserved in the resulting word.  In data read with
+READLIST (or resulting from a PARSE or RUNPARSE of a word) the vertical bars
+do not appear explicitly; all potentially delimiting characters (including
+spaces, brackets, parentheses, and infix operators) appear as though entered
+with a backslash.  Within vertical bars, backslash may still be used; the only
+characters that must be backslashed in this context are backslash and vertical
+bar themselves.
+</P><P>
+
+Characters entered between vertical bars are forever special, even if the
+word or list containing them is later reparsed with PARSE or RUNPARSE.
+Characters typed after a backslash are treated somewhat differently:  When a
+quoted word containing a backslashed character is runparsed, the backslashed
+character loses its special quality and acts thereafter as if typed normally.
+This distinction is important only if you are building a Logo expression out
+of parts, to be RUN later, and want to use parentheses.  For example,
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PRINT RUN (SE "\( 2 "+ 3 "\))
+</pre></td></tr></table></P><P>
+
+will print 5, but
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>RUN (SE "MAKE ""|(| 2)
+</pre></td></tr></table></P><P>
+
+will create a variable whose name is open-parenthesis.  (Each example would
+fail if vertical bars and backslashes were interchanged.)
+</P><P>
+
+<A NAME="DATA STRUCTURE PRIMITIVES"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Brian Harvey</I> on <I>July, 24  2001</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

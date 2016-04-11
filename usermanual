@@ -25,7 +25,7 @@ on Logo programming with emphasis on symbolic computation.
 
 Here are the special features of this dialect of Logo:
 
-	Source file compatible among Unix, DOS, and Mac platforms.
+	Source file compatible among Unix, DOS, Windows, and Mac platforms.
 
 	Random-access arrays.
 
@@ -48,6 +48,159 @@ Here are the special features of this dialect of Logo:
 
 Features *not* found in Berkeley Logo include robotics, music, GUIs, animation,
 parallelism, and multimedia.  For those, buy a commercial version.
+
+
+GETTER/SETTER VARIBLE SYNTAX
+============================
+
+Logo distinguishes PROCEDURES from VARIABLES.  A procedure is a set of
+instructions to carry out some computation; a variable is a named
+container that holds a data value such as a number, word, list, or array.
+
+In traditional Logo syntax, a non-numeric word typed without punctuation
+represents a request to invoke the procedure named by that word.  A word
+typed with a preceding quotation mark represents the word itself.  For
+example, in the instruction
+	PRINT FIRST "WORD
+the procedures named FIRST and PRINT are invoked, but the procedure
+named WORD is not invoked; the word W-O-R-D is the input to FIRST.
+
+What about variables?  There are two things one can do with a variable:
+give it a value, and find out its value.  To give a variable a value,
+Logo provides the primitive procedure MAKE, which requires two inputs:
+the name of the variable and the new value to be assigned.  The first
+input, the name of the variable, is just a word, and if (as is almost
+always the case) the programmer wants to assign a value to a specific
+variable whose name is known in advance, that input is quoted, just
+as any known specific word would be:
+	MAKE "MY.VAR FIRST "WORD
+gives the variable named MY.VAR the value W (the first letter of WORD).
+
+To find the value of a variable, Logo provides the primitive procedure
+THING, which takes a variable name as its input, and outputs the value
+of the accessible variable with that name.  Thus
+	PRINT THING "MY.VAR
+will print W (supposing the MAKE above has been done).  Since finding
+the value of a specific, known variable name is such a common operation,
+Logo also provides an abbreviated notation that combines THING with quote:
+	PRINT :MY.VAR
+The colon (which Logo old-timers pronounce "dots") replaces THING and "
+in the earlier version of the instruction.
+
+Newcomers to Logo often complain about the need for all this punctuation.
+In particular, Logo programmers who learned about dots and quotes without
+also learning about THING wonder why an instruction such as
+	MAKE "NEW.VAR :OLD.VAR
+uses two different punctuation marks to identify the two variables.
+(Having read the paragraphs above, you will understand that actually
+both variable names are quoted, but the procedure THING is invoked to
+find the value of OLD.VAR, since it's that value, not OLD.VAR's name,
+that MAKE needs to know.  It wouldn't make sense to ask for THING of
+NEW.VAR, since we haven't given NEW.VAR a value yet.)
+
+Although Logo's punctuation rules make sense once understood, they
+do form a barrier to entry for the Logo beginner.  Why, then, couldn't
+Logo be designed so that an unpunctuated word would represent a
+procedure if there is a procedure by that name, or a variable if
+there is a variable by that name?  Then we could say
+	PRINT MY.VAR
+and Logo would realize that MY.VAR is the name of a variable, not
+of a procedure.  The traditional reason not to use this convention
+is that Logo allows the same word to name a procedure and a variable
+at the same time.  This is most often important for words that name
+data types, as in the following procedure:
+	TO PLURAL :WORD
+	OUTPUT WORD :WORD "S
+	END
+Here the name WORD is a natural choice for the input to PLURAL, since
+it describes the kind of input that PLURAL expects.  Within the procedure,
+we use WORD to represent Logo's primitive procedure that combines two
+input words to form a new, longer word; we use :WORD to represent the
+variable containing the input, whatever actual word is given when
+PLURAL is invoked.
+	? PRINT PLURAL "COMPUTER
+	COMPUTERS
+
+However, if a Logo instruction includes an unquoted word that is *not*
+the name of a procedure, Logo could look for a variable of that name
+instead.  This would allow a "punctuationless" Logo, ** PROVIDED THAT
+USERS WHO WANT TO WORK WITHOUT COLONS FOR VARIABLES CHOOSE VARIABLE
+NAMES THAT ARE NOT ALSO PROCEDURE NAMES. **
+
+What about assigning a value to a variable?  Could we do without
+the quotation mark on MAKE's first input?  Alas, no.  Although the
+first input to MAKE is *usually* a constant, known variable name,
+sometimes it isn't, as in this example:
+	TO INCREMENT :VAR
+	MAKE :VAR (THING :VAR)+1	; Note: it's not "VAR here!
+	END
+
+	? MAKE "X 5
+	? INCREMENT "X
+	? PRINT :X
+	6
+The procedure INCREMENT takes a variable name as its input and
+changes the value of that variable.  In this example there are
+two variables; the variable whose name is VAR, and whose value
+is the word X; and the variable whose name is X and whose value
+changes from 5 to 6.  Suppose we changed the behavior of MAKE so
+that it took the word after MAKE as the name of the variable to
+change; we would be unable to write INCREMENT:
+	TO INCREMENT :VAR
+	MAKE VAR (THING VAR)+1
+	END
+This would assign a new value to VAR, not to X.
+
+What we can do is to allow an *alternative* to MAKE, a "setter"
+procedure for a particular variable.  The notation will be
+	? SETFOO 7
+	? PRINT FOO
+	7
+SETFOO is a "setter procedure" that takes one input (in this case
+the input 7) and assigns its value to the variable named FOO.
+
+Berkeley Logo allows users to choose either the traditional notation,
+in which case the same name can be used both for a procedure and for
+a variable, or the getter/setter notation, in which variable FOO is
+set with SETFOO and examined with FOO, but the same name can't be
+used for procedure and variable.
+
+Here is how this choice is allowed:  Berkeley Logo uses traditional notation,
+with procedures distinct from variables.  However, if there is a variable
+named AllowGetSet whose value is TRUE (which there is, by default, when
+Logo starts up), then if a Logo instruction refers to a *nonexistent*
+procedure (so that the error message "I don't know how to ..." would result),
+Logo tries the following two steps:
+
+	1.  If the name is at least four characters long, and the
+	first three characters are the letters SET (upper or lower
+	case), and if the name is followed in the instruction by
+	another value, then Logo will invoke MAKE with its first
+	input being the name without the SET, and its second input
+	being the following value.
+
+	2.  If step 1's conditions are not met, but the name is
+	the name of an accessible variable, then Logo will invoke
+	THING with that name as input, to find the variable's value.
+
+Note one possible disadvantage of the getter/setter notation: a spelling
+error in the name of one of the primitives starting SET (e.g., SETHEADING)
+will not be caught as an error, but will instead create a new variable.
+
+One final point:  The TO command in Logo has always been a special
+case; the rest of the line starting with TO is not evaluated as
+ordinary Logo expressions are.  In particular, the colons used to
+mark the names of inputs to the procedure do not cause THING to be
+invoked.  They are merely mnemonic aids, reminding the Logo user
+that these words are names of variables.  (Arguably, this nonstantard
+behavior of TO adds to Logo beginners' confusion about colons.)
+To a programmer using colonless variable references, the colons in
+the TO line are unnecessary and meaningless.  Berkeley Logo therefore
+makes the colons optional:
+	TO FOO :IN1 :IN2
+and
+	TO FOO IN1 IN2
+are both allowed.
 
 
 ENTERING AND LEAVING LOGO
@@ -137,6 +290,8 @@ A line (an instruction line or one read by READLIST or READWORD) can be
 continued onto the following line if its last character is a tilde (~).
 READWORD preserves the tilde and the newline; READLIST does not.
 
+Lines read with READRAWLINE are never continued.
+
 An instruction line or a line read by READLIST (but not by READWORD)
 is automatically continued to the next line, as if ended with a tilde,
 if there are unmatched brackets, parentheses, braces, or vertical bars
@@ -173,6 +328,9 @@ backslash, but can be distinguished by the BACKSLASHEDP predicate.
 (However, BACKSLASHEDP recgnizes backslashedness only on characters for
 which it is necessary: whitespace, parentheses, brackets, infix operators,
 backslash, vertical bar, tilde, quote, question mark, colon, and semicolon.)
+
+A line read with READRAWLINE has no special quoting mechanism; both
+backslash and vertical bar (described below) are just ordinary characters.
 
 An alternative notation to include otherwise delimiting characters in words
 is to enclose a group of characters in vertical bars.  All characters between
@@ -259,13 +417,13 @@ MDARRAY sizelist					(library procedure)
 	Ex: (MDARRAY [3 5] 0) outputs a two-dimensional array whose members
 	range from [0 0] to [2 4].
 
-LISTTOARRAY list					(library procedure)
+LISTTOARRAY list
 (LISTTOARRAY list origin)
 
 	outputs an array of the same size as the input list, whose members
 	are the members of the input list.
 
-ARRAYTOLIST array					(library procedure)
+ARRAYTOLIST array
 
 	outputs a list whose members are the members of the input array.
 	The first member of the output is the first member of the array,
@@ -651,6 +809,14 @@ will be treated as if it were 10 when applied to words.  This limit
 applies not only to the top-level printed datum but to any substructures
 within it.
 
+If there is a variable named FULLPRINTP whose value is TRUE, then words that
+were created using backslash or vertical bar (to include characters that
+would otherwise not be treated as part of a word) are printed with the
+backslashes or vertical bars shown, so that the printed result could be
+re-read by Logo to produce the same value.  If FULLPRINTP is TRUE then
+the empty word (however it was created) prints as ||.  (Otherwise it prints
+as nothing at all.)
+
 PRINT thing
 PR thing
 (PRINT thing1 thing2 ...)
@@ -723,6 +889,16 @@ RW
 	code.  (Backslashedness is preserved only for certain
 	characters.  See BACKSLASHEDP.)
 
+READRAWLINE
+
+	reads a line from the read stream and outputs that line as a word.
+	The output is a single word even if the line contains spaces,
+	brackets, etc.  If the read stream is a file, and the end of file is
+	reached, READRAWLINE outputs the empty list (not the empty word).
+	READRAWLINE outputs the exact string of characters as they appear
+	in the line, with no special meaning for backslash, vertical bar,
+	tilde, or any other formatting characters.
+
 READCHAR
 RC
 
@@ -776,6 +952,21 @@ SHELL command
 
 FILE ACCESS
 -----------
+
+SETPREFIX string
+
+	command.  Sets a prefix that will be used as the implicit beginning
+	of filenames in OPENREAD, OPENWRITE, OPENAPPEND, OPENUPDATE, LOAD,
+	and SAVE commands.  Logo will put the appropriate separator
+	character (slash for Unix, backslash for DOS/Windows, colon for
+	MacOS) between the prefix and the filename entered by the user.
+	The input to SETPREFIX must be a word, unless it is the empty list,
+	to indicate that there should be no prefix.
+
+PREFIX
+
+	outputs the current file prefix, or [] if there is no prefix.
+	See SETPREFIX.
 
 OPENREAD filename
 
@@ -1033,16 +1224,6 @@ INT num
 	with the same sign as the input, whose absolute value is the
 	largest integer less than or equal to the absolute value of
 	the input.
-
-	Note:  Inside the computer numbers are represented in two different
-	forms, one for integers and one for numbers with fractional parts.
-	However, on most computers the largest number that can be represented
-	in integer format is smaller than the largest integer that can be
-	represented (even with exact precision) in floating-point (fraction)
-	format.  The INT operation will always output a number whose value
-	is mathematically an integer, but if its input is very large the output
-	may not be in integer format.  In that case, operations like REMAINDER
-	that require an integer input will not accept this number.
 
 ROUND num
 
@@ -1330,17 +1511,17 @@ SETY ycor
 	absolute vertical coordinate.  The input is the new Y
 	coordinate.
 
-HOME
-
-	moves the turtle to the center of the screen.  Equivalent to
-	SETPOS [0 0].
-
 SETHEADING degrees
 SETH degrees
 
 	turns the turtle to a new absolute heading.  The input is
 	a number, the heading in degrees clockwise from the positive
 	Y axis.
+
+HOME
+
+	moves the turtle to the center of the screen.  Equivalent to
+	SETPOS [0 0] SETHEADING 0.
 
 ARC angle radius
 
@@ -1681,7 +1862,15 @@ TO procname :input1 :input2 ...				(special form)
 	to provide the inputs.  (That's what "special form" means.)
 
 	This version of Logo allows variable numbers of inputs to a
-	procedure.  Every procedure has a MINIMUM, DEFAULT, and MAXIMUM
+	procedure.  After the procedure name come four kinds of
+	things, *in this order*:
+
+	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+	    3.   0 or 1 REST input            [:GARPLY]
+	    4.   0 or 1 DEFAULT number        5
+
+	Every procedure has a MINIMUM, DEFAULT, and MAXIMUM
 	number of inputs.  (The latter can be infinite.)
 
 	The MINIMUM number of inputs is the number of required inputs,
@@ -1692,7 +1881,7 @@ TO procname :input1 :input2 ...				(special form)
 	notation.
 
 	After all the required inputs can be zero or more optional inputs,
-	represented by the following notation:
+	each of which is represented by the following notation:
 
 			[:inputname default.value.expression]
 
@@ -1728,19 +1917,20 @@ TO procname :input1 :input2 ...				(special form)
 	will be a list containing all of the actual inputs provided that
 	were not used for required or optional inputs.  Example:
 
-			to proc :in1 [:in2 "foo] [:in3]
+			to proc :in1 [:in2 "foo] [:in3 "baz] [:in4]
 
 	If this procedure is invoked by saying
 
 			proc "x
 
-	then IN1 has the value X, IN2 has the value FOO, and IN3 has
-	the value [] (the empty list).  If it's invoked by saying
+	then IN1 has the value X, IN2 has the value FOO, IN3 has the value
+	BAZ, and IN4 has the value [] (the empty list).  If it's invoked
+	by saying
 
-			(proc "a "b "c "d)
+			(proc "a "b "c "d "e)
 
-	then IN1 has the value A, IN2 has the value B, and IN3 has the
-	value [C D].
+	then IN1 has the value A, IN2 has the value B, IN3 has the value C,
+	and IN4 has the value [D E].
 
 	The MAXIMUM number of inputs for a procedure is infinite if a
 	rest input is given; otherwise, it is the number of required
@@ -1870,6 +2060,13 @@ Note: Names of property lists are always case-insensitive.  Names of
 individual properties are case-sensitive or case-insensitive depending
 on the value of CASEIGNOREDP, which is TRUE by default.
 
+In principle, every possible name is the name of a property list, which
+is initially empty.  So Logo never gives a "no such property list" error,
+as it would for undefined procedure or variable names.  But the primitive
+procedures that deal with "all" property lists (CONTENTS, PLISTS, etc.)
+list only nonempty ones.  To "erase" a property list (see ERASE below)
+means to make it empty, removing all properties from it.
+
 PPROP plistname propname value
 
 	command.  Adds a property to the "plistname" property list
@@ -1921,6 +2118,14 @@ NAME? name
 
 	outputs TRUE if the input is the name of a variable.
 
+PLISTP name
+PLIST? name
+
+	outputs TRUE if the input is the name of a *nonempty* property list.
+	(In principle every word is the name of a property list; if you haven't
+	put any properties in it, PLIST of that name outputs an empty list,
+	rather than giving an error message.)
+
 
 QUERIES
 -------
@@ -1935,6 +2140,16 @@ CONTENTS
 BURIED
 
 	outputs a contents list including all buried named items in
+	the workspace.
+
+TRACED
+
+	outputs a contents list including all traced named items in
+	the workspace.
+
+STEPPED
+
+	outputs a contents list including all stepped named items in
 	the workspace.
 
 PROCEDURES
@@ -1954,7 +2169,7 @@ PLISTS
 
 	outputs a contents list consisting of two empty lists (indicating
 	no procedures or variables) followed by a list of all unburied
-	property lists in the workspace.
+	nonempty property lists in the workspace.
 
 NAMELIST varname					(library procedure)
 NAMELIST varnamelist
@@ -2021,8 +2236,8 @@ PONS							(library procedure)
 
 POPLS							(library procedure)
 
-	command.  Prints the contents of all unburied property lists in
-	the workspace.  Abbreviates PO PLISTS.
+	command.  Prints the contents of all unburied nonempty property
+	lists in the workspace.  Abbreviates PO PLISTS.
 
 PON varname						(library procedure)
 PON varnamelist
@@ -2123,6 +2338,15 @@ UNBURYNAME varnamelist
 
 	command.  Abbreviates UNBURY NAMELIST varname(list).
 
+BURIEDP contentslist
+BURIED? contentslist
+
+	outputs TRUE if the first procedure, variable, or property list named
+	in the contents list is buried, FALSE if not.  Only the first thing in
+	the list is tested; the most common use will be with a word as input,
+	naming a procedure, but a contents list is allowed so that you can
+	BURIEDP [[] [VARIABLE]] or BURIEDP [[] [] [PROPLIST]].
+
 TRACE contentslist
 
 	command.  Marks the named items for tracing.  A message is printed
@@ -2135,6 +2359,15 @@ TRACE contentslist
 UNTRACE contentslist
 
 	command.  Turns off tracing for the named items.
+
+TRACEDP contentslist
+TRACED? contentslist
+
+	outputs TRUE if the first procedure, variable, or property list named
+	in the contents list is traced, FALSE if not.  Only the first thing in
+	the list is tested; the most common use will be with a word as input,
+	naming a procedure, but a contents list is allowed so that you can
+	TRACEDP [[] [VARIABLE]] or TRACEDP [[] [] [PROPLIST]].
 
 STEP contentslist
 
@@ -2150,6 +2383,15 @@ UNSTEP contentslist
 
 	command.  Turns off stepping for the named items.
 
+STEPPEDP contentslist
+STEPPED? contentslist
+
+	outputs TRUE if the first procedure, variable, or property list named
+	in the contents list is stepped, FALSE if not.  Only the first thing
+	in the list is tested; the most common use will be with a word as
+	input, naming a procedure, but a contents list is allowed so that you
+	can STEPPEDP [[] [VARIABLE]] or STEPPEDP [[] [] [PROPLIST]].
+
 EDIT contentslist
 ED contentslist
 (EDIT)
@@ -2164,6 +2406,12 @@ ED contentslist
 	When you leave the editor, Logo reads the revised definitions and
 	modifies the workspace accordingly.  It is not an error if the
 	input includes names for which there is no previous definition.
+
+	If there is a variable LOADNOISILY whose value is TRUE, then, after
+	leaving the editor, TO commands in the temporary file print "PROCNAME
+	defined" (where PROCNAME is the name of the procedure being defined);
+	if LOADNOISILY is FALSE or undefined, TO commands in the file are
+	carried out silently.
 
 	If there is an environment variable called TEMP, then Logo uses
 	its value as the directory in which to write the temporary file
@@ -2214,7 +2462,8 @@ EDPL plnamelist
 SAVE filename
 
 	command.  Saves the definitions of all unburied procedures,
-	variables, and property lists in the named file.  Equivalent to
+	variables, and nonempty property lists in the named file.
+	Equivalent to
 
 			to save :filename
 			local "oldwriter
@@ -2239,7 +2488,11 @@ LOAD filename
 	these are accepted even if a procedure by the same name already
 	exists.  If the file assigns a list value to a variable named
 	STARTUP, then that list is run as an instructionlist after the
-	file is loaded.
+	file is loaded.  If there is a variable LOADNOISILY whose value
+	is TRUE, then TO commands in the file print "PROCNAME defined"
+	(where PROCNAME is the name of the procedure being defined); if
+	LOADNOISILY is FALSE or undefined, TO commands in the file are
+	carried out silently.
 
 
 HELP name
@@ -2305,10 +2558,16 @@ REPEAT num instructionlist
 
 	command.  Runs the "instructionlist" repeatedly, "num" times.
 
+FOREVER instructionlist
+
+	command.  Runs the "instructionlist" repeatedly, until something
+	inside the instructionlist (such as STOP or THROW) makes it stop.
+
 REPCOUNT
 
-	outputs the repetition count of the innermost current REPEAT,
-	starting from 1.  If no REPEAT is active, outputs -1.
+	outputs the repetition count of the innermost current REPEAT or
+	FOREVER, starting from 1.  If no REPEAT or FOREVER is active,
+	outputs -1.
 
 IF tf instructionlist
 (IF tf instructionlist1 instructionlist2)
@@ -3225,41 +3484,138 @@ SPECIAL VARIABLES
 =================
 
 Logo takes special action if any of the following variable names exists.
-They follow the normal scoping rules, so a procedure can locally set one
-of them to limit the scope of its effect.  Initially, no variables exist
-except CASEIGNOREDP, which is TRUE and buried.
+They follow the normal scoping rules, so a procedure can locally set one of
+them to limit the scope of its effect.  Initially, no variables exist except
+ALLOWGETSET, CASEIGNOREDP, and UNBURYONEDIT, which are TRUE and buried.
 
-CASEIGNOREDP
+ALLOWGETSET						(variable)
+
+	if TRUE, indicates that an attempt to use a procedure that doesn't
+	exist should be taken as an implicit getter or setter procedure
+	(setter if the first three letters of the name are SET) for a variable
+	of the same name (without the SET if appropriate).
+
+CASEIGNOREDP						(variable)
 
 	if TRUE, indicates that lower case and upper case letters should be
 	considered equal by EQUALP, BEFOREP, MEMBERP, etc.  Logo initially
 	makes this variable TRUE, and buries it.
 
-ERRACT
+ERRACT							(variable)
 
 	an instructionlist that will be run in the event of an error.
 	Typically has the value [PAUSE] to allow interactive debugging.
 
-LOADNOISILY
+FULLPRINTP						(variable)
+
+	if TRUE, then words that were created using backslash or vertical bar
+	(to include characters that would otherwise not be treated as part of
+	a word) are printed with the backslashes or vertical bars shown, so
+	that the printed result could be re-read by Logo to produce the same
+	value.  If FULLPRINTP is TRUE then the empty word (however it was
+	created) prints as ||.  (Otherwise it prints as nothing at all.)
+
+LOADNOISILY						(variable)
 
 	if TRUE, prints the names of procedures defined when loading
 	from a file (including the temporary file made by EDIT).
 
-PRINTDEPTHLIMIT
+PRINTDEPTHLIMIT						(variable)
 
 	if a nonnegative integer, indicates the maximum depth of sublist
 	structure that will be printed by PRINT, etc.
 
-PRINTWIDTHLIMIT
+PRINTWIDTHLIMIT						(variable)
 
 	if a nonnegative integer, indicates the maximum number of members
 	in any one list that will be printed by PRINT, etc.
 
-REDEFP
+REDEFP							(variable)
 
 	if TRUE, allows primitives to be erased (ERASE) or redefined (COPYDEF).
 
-STARTUP
+STARTUP							(variable)
 
 	if assigned a list value in a file loaded by LOAD, that value is
 	run as an instructionlist after the loading.
+
+UNBURYONEDIT						(variable)
+
+	if TRUE, causes any procedure defined during EDIT or LOAD to be
+	unburied, so that it will be saved by a later SAVE.  Files that
+	want to define and bury procedures must do it in that order.
+
+
+INTERNATIONALIZATION
+====================
+
+Berkeley Logo has limited support for non-English-speaking users.
+Alas, there is no Unicode support, and high-bit-on ASCII codes work in
+some contexts but not others.
+
+If you want to translate Berkeley Logo for use with another language,
+there are three main things you have to do:
+	1. Primitive names
+	2. Error (and other) messages
+	3. Documentation
+
+For primitive names, the easiest thing is to provide a startup file that
+defines aliases for the English primitive names, using COPYDEF:
+	COPYDEF "AVANT "FORWARD
+This should take care of it, unless your language's name for one primitive
+is spelled like the English name of a different primitive.  In that case
+you have to turn REDEFP on and be sure to copy the non-conflicting name
+before overwriting the conflicting one!
+
+"Primitives" that are actually in the Logo library, of course, can just
+be replaced or augmented with native-language-named Logo procedures and
+filenames.
+
+Of course Logo programs will still not look like your native language if
+the word order is dramatically different, especially if you don't put
+verbs before their objects.
+
+For error messages, there is a file named Messages in the logolib directory
+with texts of messages, one per line.  You can replace this with a file for
+your own language.  Do not add, delete, or reorder lines; Logo finds messages
+by line number.  The sequences %p, %s, and %t in these messages represent
+variable parts of the message and should not be translated.  (%p PRINTs
+the variable part, while %s SHOWs it -- that is, the difference is about
+whether or not brackets are shown surrounding a list.  %t means that the
+variable part is a C text string rather than a Logo object.)  If you want to
+change the order of two variable parts (no reorderable message has more than
+two), you would for example replace the line
+	%p doesn't like %s as input
+with
+	%+s is a lousy input to %p
+The plus sign tells the message printer to reverse the order; you must
+reverse the order of %p and %s, if both are used, to match.  The plus
+sign goes just after the first percent sign in the message, which might
+not be at the beginning of the line.  The sequence \n in a message
+represents a newline; don't be fooled into thinking that the "n" is part
+of the following word.
+
+Some messages appear twice in the file; this isn't a mistake.  The two
+spaces before "to" in "I don't know how  to" aren't a mistake either.
+The message containing just "%p" is for user-provided error messages
+in THROW "ERROR.  The message "  in %s\n%s" is the part of all error
+messages that indicates where the error occurred if it was inside a
+procedure; you might want to change the word "in" to your language.
+"%s defined\n" is what LOAD prints for each procedure defined if
+LOADNOISILY is TRUE.  "to %p\nend\n\n" is what EDIT puts in the
+temporary file if you ask to edit a procedure that isn't already defined.
+
+For documentation, there are two kinds: this manual and the help files.
+The latter are generated automatically from this manual if you have a
+Unix system, so in that case you need only translate this manual,
+maintaining the format.  (The automatic helpfile generator notices
+things like capital letters, tabs, hyphens, and equal signs at the
+beginnings of lines.)  The program makefile.c may require modification
+because a few of the primitive names are special cases (e.g., LOG10 is
+the only name with digits included).
+
+If you don't have Unix tools, you can just translate each helpfile
+individually.  A period in a primitive name is represented as a D in
+the filename; there are no files for question marks because the HELP
+command looks for the file named after the corresponding primitive
+that ends in P.

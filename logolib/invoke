@@ -1,7 +1,7 @@
 ;;; -*- logo -*-
 
-to invoke :function [:inputs] 2
-.maybeoutput apply :function :inputs
+to invoke :invoked.function [:invoke.inputs] 2
+.maybeoutput apply :invoked.function :invoke.inputs
 end
 
 bury "invoke

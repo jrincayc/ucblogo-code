@@ -18,6 +18,9 @@
  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+ 
+#include <QuickDraw.h>
+extern WindowPtr graphics_window, listener_window;  /* mak */
 
 #define GR_SIZE 30000
 

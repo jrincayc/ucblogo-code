@@ -3,4 +3,3 @@ NAME? name
 
 	outputs TRUE if the input is the name of a variable.
 
-

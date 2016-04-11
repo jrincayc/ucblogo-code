@@ -1,152 +1,481 @@
-BOOLEAN	logo.h	206
-CNTLSTTYP	wrksp.c	392
-CTRLTYPE	logo.h	335
-ERR_TYPES	logo.h	201
+!_TAG_FILE_FORMAT	1	/original ctags format/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/darren@hiebert.com/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://darren.hiebert.com/ctags/	/official site/
+!_TAG_PROGRAM_VERSION	3.4	/with C, C++, Eiffel, Fortran, and Java  support/
+ALREADY_DEFINED	logo.h	/^		NO_CATCH_TAG, ALREADY_DEFINED, STOP_ERROR, ALREADY_DRIBBLING,$/
+ALREADY_DRIBBLING	logo.h	/^		NO_CATCH_TAG, ALREADY_DEFINED, STOP_ERROR, ALREADY_DRIBBLING,$/
+ALREADY_OPEN	logo.h	/^		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,$/
+APPLY_BAD_DATA	logo.h	/^		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,$/
+ARC	graphics.c	/^#define ARC	/
+ARRAY	logo.h	/^#define ARRAY	/
+AT_TOPLEVEL	logo.h	/^		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,$/
+AllowGetSet	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+BACKSLASH_STRING	logo.h	/^#define BACKSLASH_STRING /
+BAD_DATA	logo.h	/^		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,$/
+BAD_DATA_UNREC	logo.h	/^		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,$/
+BAD_GRAPH_INIT	logo.h	/^		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,$/
+BC	term.c	/^char *BC;$/
+BOOLEAN	logo.h	/^#define BOOLEAN /
+BOOLEAN	logo.h	/^typedef int BOOLEAN;$/
+BORDER	xgraphics.h	/^#define BORDER	/
+Big	graphics.c	/^#define Big /
+CANT_GC	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+CANT_OPEN	logo.h	/^		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,$/
+CANT_STOP	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+CASEOBJ	logo.h	/^#define CASEOBJ	/
+CNTLSTTYP	wrksp.c	/^typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;$/
+COLON	logo.h	/^#define COLON	/
+CONS	logo.h	/^#define CONS	/
+CONSOLE	globals.h	/^#undef CONSOLE$/
+CONT	logo.h	/^#define CONT	/
+CTRLTYPE	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+Caseignoredp	init.c	/^     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
+DEEPEND	logo.h	/^		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,$/
+DEEPEND_NONAME	logo.h	/^		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,$/
+DEFAULT_HEIGHT	xgraphics.h	/^#define DEFAULT_HEIGHT /
+DEFAULT_WIDTH	xgraphics.h	/^#define DEFAULT_WIDTH /
+DIDNT_OUTPUT	logo.h	/^		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,$/
+DK_HOW	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN, DK_HOW,$/
+DK_HOW_UNREC	logo.h	/^		NOT_INSIDE, DK_HOW_UNREC, NO_TEST, UNEXPECTED_BRACKET,$/
+DK_WHAT	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN, DK_HOW,$/
+DK_WHAT_UP	logo.h	/^		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,$/
+Dotsvalue	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
+EMPTY_PROC	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
+END_OF_LIST	logo.h	/^#define END_OF_LIST /
+ERRACT_LOOP	logo.h	/^		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,$/
+ERROR_IN	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
+ERR_MACRO	logo.h	/^		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,$/
+ERR_TYPES	logo.h	/^		MAX_MESSAGE} ERR_TYPES;	    \/* MAX_MESSAGE must be last *\/$/
+EVENT_MASK	xgraphics.h	/^#define EVENT_MASK /
+EXIT_NOW	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
+End	init.c	/^     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
+Erract	init.c	/^     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
+Error	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+FALSE	logo.h	/^#define FALSE	/
+FALSE	term.c	/^#define FALSE	/
+FALSE	term.c	/^#undef FALSE$/
+FATAL	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
+FILE_ERROR	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+FILLERUP	graphics.c	/^#define FILLERUP /
+FIXNUM	logo.h	/^#define FIXNUM /
+FLOATT	logo.h	/^#define FLOATT	/
+FLONUM	logo.h	/^#define FLONUM /
+FONT	xgraphics.h	/^#define FONT	/
+False	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+False	xgraphics.h	/^#undef False$/
+Fullprintp	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
+GCMAX	mem.c	/^#define GCMAX /
+GR_SIZE	xgraphics.h	/^#define GR_SIZE /
 Get_node_pen_mode	xgraphics.c	/^NODE *Get_node_pen_mode(GC mode)$/
-Mmain	main.c	/^int main(int argc, char *argv[]) {$/
-NODETYPES	logo.h	132
+Goto	init.c	/^     *Goto, *Tag;$/
+HASH_LEN	logo.h	/^#define HASH_LEN /
+HAVE_MEMCPY	logo.h	/^#define HAVE_MEMCPY$/
+IF_WARNING	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+INFIX	logo.h	/^#define INFIX	/
+INT	logo.h	/^#define INT	/
+IS_PRIM	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+If	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+Ifelse	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+LABEL	graphics.c	/^#define LABEL /
+LINE	logo.h	/^#define LINE	/
+LINEXY	graphics.c	/^#define LINEXY /
+LOAD_DEF	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
+Left_Paren	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+Listvalue	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
+LoadNoisily	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+MACRO	logo.h	/^#define MACRO	/
+MACRO_PRIORITY	logo.h	/^#define MACRO_PRIORITY	/
+MACRO_RETURN	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+MAXLOGOINT	logo.h	/^#define MAXLOGOINT	/
+MAX_MESSAGE	logo.h	/^		MAX_MESSAGE} ERR_TYPES;	    \/* MAX_MESSAGE must be last *\/$/
+MAX_NUMBER	logo.h	/^#define MAX_NUMBER /
+MAX_PHYS_LINE	logo.h	/^#define MAX_PHYS_LINE /
+MAYBE_PRIORITY	logo.h	/^#define MAYBE_PRIORITY	/
+MEM_LOW	logo.h	/^		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,$/
+MORE_HELP	logo.h	/^		NO_HELP, NO_HELPON, MORE_HELP,$/
+MOVEXY	graphics.c	/^#define MOVEXY /
+Macro	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+Make	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
+Minus_Sign	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+Minus_Tight	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+NICE_DAY	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
+NIL	logo.h	/^#define NIL /
+NODE	logo.h	/^} NODE;$/
+NODETYPES	logo.h	/^typedef short NODETYPES;$/
+NOSHELL_MAC	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
+NOT_ENOUGH	logo.h	/^		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,$/
+NOT_INSIDE	logo.h	/^		NOT_INSIDE, DK_HOW_UNREC, NO_TEST, UNEXPECTED_BRACKET,$/
+NOT_OPEN	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+NOT_THROWING	logo.h	/^#define NOT_THROWING /
+NO_CATCH_TAG	logo.h	/^		NO_CATCH_TAG, ALREADY_DEFINED, STOP_ERROR, ALREADY_DRIBBLING,$/
+NO_FILE	logo.h	/^		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,$/
+NO_FIONREAD	logo.h	/^		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,$/
+NO_HELP	logo.h	/^		NO_HELP, NO_HELPON, MORE_HELP,$/
+NO_HELPON	logo.h	/^		NO_HELP, NO_HELPON, MORE_HELP,$/
+NO_TEST	logo.h	/^		NOT_INSIDE, DK_HOW_UNREC, NO_TEST, UNEXPECTED_BRACKET,$/
+NO_VALUE	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN, DK_HOW,$/
+NTFREE	logo.h	/^#define NTFREE	/
+NT_AGGR	logo.h	/^#define NT_AGGR	/
+NT_ARRAY	logo.h	/^#define NT_ARRAY	/
+NT_BACKSL	logo.h	/^#define NT_BACKSL	/
+NT_CASEOBJ	logo.h	/^#define NT_CASEOBJ	/
+NT_COLON	logo.h	/^#define NT_COLON	/
+NT_CONT	logo.h	/^#define NT_CONT	/
+NT_EMPTY	logo.h	/^#define NT_EMPTY	/
+NT_FLOAT	logo.h	/^#define NT_FLOAT	/
+NT_INFIX	logo.h	/^#define NT_INFIX	/
+NT_LINE	logo.h	/^#define NT_LINE	/
+NT_LIST	logo.h	/^#define NT_LIST	/
+NT_MACRO	logo.h	/^#define NT_MACRO	/
+NT_NUMBER	logo.h	/^#define NT_NUMBER	/
+NT_PRIM	logo.h	/^#define NT_PRIM	/
+NT_PUNCT	logo.h	/^#define NT_PUNCT	/
+NT_RUNP	logo.h	/^#define NT_RUNP	/
+NT_STRING	logo.h	/^#define NT_STRING	/
+NT_TAILFORM	logo.h	/^#define NT_TAILFORM	/
+NT_TREE	logo.h	/^#define NT_TREE	/
+NT_VBAR	logo.h	/^#define NT_VBAR	/
+NT_WORD	logo.h	/^#define NT_WORD	/
+NUMCOLORS	xgraphics.h	/^#define NUMCOLORS /
+NUM_GENS	mem.c	/^#define NUM_GENS /
+Not_Enough_Node	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+Null_Word	init.c	/^NODE *Null_Word = NIL;$/
+OK_NO_ARG	logo.h	/^#define OK_NO_ARG	/
+OUTPUT	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+OUTPUT_PRIORITY	logo.h	/^#define OUTPUT_PRIORITY	/
+OUT_OF_MEM	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
+OUT_OF_MEM_UNREC	logo.h	/^		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,$/
+One	graphics.c	/^#define One /
+Op	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+Output	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+PAREN_MISMATCH	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN, DK_HOW,$/
+PAUS_ING	logo.h	/^		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,$/
+PC	term.c	/^char PC;$/
+PENMODE_ERASE	graphics.c	/^#define PENMODE_ERASE	/
+PENMODE_PAINT	graphics.c	/^#define PENMODE_PAINT	/
+PENMODE_REVERSE	graphics.c	/^#define PENMODE_REVERSE	/
+PERMANENT	logo.h	/^#define PERMANENT	/
+PLIST_BURIED	logo.h	/^#define PLIST_BURIED	/
+PLIST_STEPPED	logo.h	/^#define PLIST_STEPPED	/
+PLIST_TRACED	logo.h	/^#define PLIST_TRACED	/
+PNIL	logo.h	/^#define	PNIL	/
+POT_PLIST	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
+PREFIX_PRIORITY	logo.h	/^#define PREFIX_PRIORITY /
+PRIM	logo.h	/^#define PRIM	/
+PRIMTYPE	init.c	/^} PRIMTYPE;$/
+PROC_BURIED	logo.h	/^#define PROC_BURIED	/
+PROC_MACRO	logo.h	/^#define PROC_MACRO	/
+PROC_STEPPED	logo.h	/^#define PROC_STEPPED	/
+PROC_TRACED	logo.h	/^#define PROC_TRACED	/
+PUNBOUND	logo.h	/^#define PUNBOUND	/
+Pause	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+Printdepthlimit	init.c	/^     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
+Printwidthlimit	init.c	/^     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,$/
+QUOTE	logo.h	/^#define QUOTE	/
+Query	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+RETSIGTYPE	logo.h	/^#define RETSIGTYPE /
+RUN	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+RUNNING	logo.h	/^#define RUNNING /
+RUN_PARSE	logo.h	/^#define RUN_PARSE	/
+Redefp	init.c	/^     *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,$/
+Right_Paren	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+SAFEINT	logo.h	/^#define SAFEINT	/
+SEG_SIZE	logo.h	/^#define SEG_SIZE	/
+SEG_SIZE	logo.h	/^#define SEG_SIZE /
+SETPENCOLOR	graphics.c	/^#define SETPENCOLOR /
+SETPENMODE	graphics.c	/^#define SETPENMODE /
+SETPENPATTERN	graphics.c	/^#define SETPENPATTERN /
+SETPENSIZE	graphics.c	/^#define SETPENSIZE /
+SETPENVIS	graphics.c	/^#define SETPENVIS /
+SHADOW_WARN	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+SIGQUIT	globals.h	/^#define SIGQUIT /
+SIGQUIT	main.c	/^#define SIGQUIT /
+SIGRET	logo.h	/^#define SIGRET /
+SIG_TAKES_ARG	logo.h	/^#define SIG_TAKES_ARG$/
+STACK_OVERFLOW	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
+STDC_HEADERS	logo.h	/^#define STDC_HEADERS$/
+STOP	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+STOPPING	logo.h	/^#define STOPPING /
+STOP_ERROR	logo.h	/^		NO_CATCH_TAG, ALREADY_DEFINED, STOP_ERROR, ALREADY_DRIBBLING,$/
+STOP_PRIORITY	logo.h	/^#define STOP_PRIORITY	/
+STRING	logo.h	/^#define STRING	/
+Startup	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+Stop	init.c	/^     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,$/
+System	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+TAILFORM	logo.h	/^#define TAILFORM	/
+TAIL_PRIORITY	logo.h	/^#define TAIL_PRIORITY	/
+THANK_YOU	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
+THROWING	logo.h	/^typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;$/
+TOO_MUCH	logo.h	/^		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,$/
+TRACE_MAKE	logo.h	/^		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,$/
+TRACE_OUTPUTS	logo.h	/^		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,$/
+TRACE_PPROP	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+TRACE_STOPS	logo.h	/^		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,$/
+TREE	logo.h	/^#define TREE	/
+TRUE	logo.h	/^#define TRUE	/
+TRUE	term.c	/^#define TRUE	/
+TRUE	term.c	/^#undef TRUE$/
+TURTLE_OUT_OF_BOUNDS	logo.h	/^typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,$/
+TYPE_EXIT	logo.h	/^		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,$/
+Tag	init.c	/^     *Goto, *Tag;$/
+Three	graphics.c	/^#define Three /
+To	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+Toplevel	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+True	init.c	/^NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,$/
+True	xgraphics.h	/^#undef True$/
+Two	graphics.c	/^#define Two /
+UNBOUND	logo.h	/^#define UNBOUND /
+UNDEFINED	logo.h	/^#define UNDEFINED /
+UNEXPECTED_BRACE	logo.h	/^		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,$/
+UNEXPECTED_BRACKET	logo.h	/^		NOT_INSIDE, DK_HOW_UNREC, NO_TEST, UNEXPECTED_BRACKET,$/
+UNEXPECTED_PAREN	logo.h	/^		DK_WHAT, PAREN_MISMATCH, NO_VALUE, UNEXPECTED_PAREN, DK_HOW,$/
+UP	term.c	/^char *UP;$/
+USER_ERR	logo.h	/^		FILE_ERROR, IF_WARNING, SHADOW_WARN, USER_ERR, IS_PRIM,$/
+USER_ERR_MESSAGE	logo.h	/^		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,$/
+Unbound	init.c	/^     *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,$/
+UnburyOnEdit	init.c	/^     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,$/
+VAL_BURIED	logo.h	/^#define VAL_BURIED	/
+VAL_STEPPED	logo.h	/^#define VAL_STEPPED	/
+VAL_TRACED	logo.h	/^#define VAL_TRACED	/
+VBAR_STRING	logo.h	/^#define VBAR_STRING	/
+WELCOME_TO	logo.h	/^		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,$/
+WIN32_DEBUG	globals.h	/^#undef WIN32_DEBUG$/
+WORDSIZE	logo.h	/^#define WORDSIZE	/
+_LOGO_H	logo.h	/^#define _LOGO_H$/
+__RZTC__	logo.h	/^#undef __RZTC__$/
+__ZORT__	logo.h	/^#define __ZORT__$/
+__ZORT__	logo.h	/^#undef __ZORT__$/
 addseg	mem.c	/^BOOLEAN addseg(void) {$/
 addsep	wrksp.c	/^char *addsep(char *path) {$/
-aggregate	logo.h	/^#define aggregate(nd)	(nodetype(nd) & NT_AGGR)$/
+aggregate	logo.h	/^#define aggregate(/
 all_lists	wrksp.c	/^BOOLEAN all_lists(NODE *val) {$/
 anonymous_function	wrksp.c	/^NODE *anonymous_function(NODE *text) {$/
 append	eval.c	/^NODE *append(NODE *a, NODE *b) {$/
-backslashed	logo.h	/^#define backslashed(nd)	(nodetype(nd) & NT_BACKSL)/
+back_ground	xgraphics.c	/^int back_ground;$/
+backslashed	logo.h	/^#define backslashed(/
 bck	wrksp.c	/^int bck(int flag) {$/
+bf3	eval.c	/^NODE *bf3(NODE *name) {$/
 bfable_arg	lists.c	/^NODE *bfable_arg(NODE *args) {$/
+bg	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
 binary	math.c	/^NODE *binary(NODE *args, char fcn) {$/
-bodylist__procnode	logo.h	/^#define bodylist__procnode(p)   cdar(p)$/
-bodywords__procnode	logo.h	/^#define bodywords__procnode(p)  cadr(p)$/
-bury_helper	wrksp.c	/^NODE *bury_helper(NODE *arg, int flag) {$/
-caar	logo.h	/^#define caar(node)              ((node)->n_car->n_/
-cadr	logo.h	/^#define cadr(node)              ((node)->n_cdr->n_/
-canonical__object	logo.h	/^#define canonical__object(o)    car(o)$/
+bodylist__procnode	logo.h	/^#define bodylist__procnode(/
+bodywords__procnode	logo.h	/^#define bodywords__procnode(/
+boldmode	print.c	/^BOOLEAN boldmode = 0;$/
+bottom_stack	main.c	/^NODE **bottom_stack; \/*GC*\/$/
+bp	term.c	/^char bp[1024];$/
+bury_helper	wrksp.c	/^NODE *bury_helper(NODE *arg, int flag, int setp) {$/
+button	xgraphics.h	/^#define button /
+c_PLISTS	wrksp.c	/^typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;$/
+c_PROCS	wrksp.c	/^typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;$/
+c_VARS	wrksp.c	/^typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;$/
+caar	logo.h	/^#define caar(/
+cadr	logo.h	/^#define cadr(/
+canonical__object	logo.h	/^#define canonical__object(/
 cap_strnzcpy	logodata.c	/^char *cap_strnzcpy(char *s1, char *s2, int n) {$/
-capital	logodata.c	/^#define capital(c)    ((c) - 'a' + 'A')$/
-car	logo.h	/^#define car(node)               ((node)->n_car)$/
+capital	logodata.c	/^#define capital(/
+car	logo.h	/^#define car(/
 case_compare	intern.c	/^int case_compare(NODE *nd1, NODE *nd2) {$/
-caselist__object	logo.h	/^#define caselist__object(o)     cdr(cddr(cddr(o)))/
-caselistptr__object	logo.h	/^#define caselistptr__object(o)  cddr(cddr(o))$/
-cdar	logo.h	/^#define cdar(node)              ((node)->n_car->n_/
-cddr	logo.h	/^#define cddr(node)              ((node)->n_cdr->n_/
-cdr	logo.h	/^#define cdr(node)               ((node)->n_cdr)$/
+caselist__object	logo.h	/^#define caselist__object(/
+caselistptr__object	logo.h	/^#define caselistptr__object(/
+cdar	logo.h	/^#define cdar(/
+cddr	logo.h	/^#define cddr(/
+cdr	logo.h	/^#define cdr(/
 char_arg	lists.c	/^NODE *char_arg(NODE *args) {$/
 charmode_off	term.c	/^void charmode_off() {$/
 charmode_on	term.c	/^void charmode_on() {$/
+checkX	xgraphics.h	/^#define checkX /
 check_oldyoung	mem.c	/^void check_oldyoung(NODE *old, NODE *new) {$/
 check_proctype	wrksp.c	/^NODE *check_proctype(NODE *args, int wanted) {$/
 check_reserve_tank	mem.c	/^void check_reserve_tank(void) {$/
+check_throwing	logo.h	/^#define check_throwing /
 check_valid_oldyoung	mem.c	/^void check_valid_oldyoung(NODE *old, NODE *new) {$/
 check_x_high	graphics.c	/^void check_x_high(void) {$/
 check_x_low	graphics.c	/^void check_x_low(void) {$/
 circular	lists.c	/^int circular(NODE *arr, NODE *new) {$/
-clearflag__caseobj	logo.h	/^#define clearflag__caseobj(c,f) ((obflags__caseobj/
-clearparity	logo.h	/^#define clearparity(ch)		ecma_clear(ch)$/
+cl_arr	term.c	/^char cl_arr[40];$/
+clear_screen	xgraphics.h	/^#define clear_screen	/
+clearflag__caseobj	logo.h	/^#define clearflag__caseobj(/
+clearparity	logo.h	/^#define clearparity(/
+cm_arr	term.c	/^char cm_arr[40];$/
+cnt_last	wrksp.c	/^NODE *cnt_last = NIL;$/
+cnt_list	wrksp.c	/^NODE *cnt_list = NIL;$/
 cnv_node_to_numnode	logodata.c	/^NODE *cnv_node_to_numnode(NODE *ndi) {$/
 cnv_node_to_strnode	logodata.c	/^NODE *cnv_node_to_strnode(NODE *nd) {$/
 colon_strnzcpy	logodata.c	/^char *colon_strnzcpy(char *s1, char *s2, int n) {$/
-compare_node	math.c	/^int compare_node(NODE *n1, NODE *n2, BOOLEAN ignor/
+color	xgraphics.c	/^XColor color[NUMCOLORS];$/
+color	xgraphics.h	/^  int color;$/
+colorname	xgraphics.c	/^char *colorname[NUMCOLORS] = {$/
+compare_node	math.c	/^int compare_node(NODE *n1, NODE *n2, BOOLEAN ignorecase) {$/
 compare_numnodes	math.c	/^int compare_numnodes(NODE *n1, NODE *n2) {$/
 cons	mem.c	/^NODE *cons(NODE *x, NODE *y) {$/
 cons_list	logodata.c	/^NODE *cons_list(int dummy, ...) {$/
-cont__cont	logo.h	/^#define cont__cont(c)		(FIXNUM)car(c)$/
+cont__cont	logo.h	/^#define cont__cont(/
+contents_list_type	wrksp.c	/^CNTLSTTYP contents_list_type;$/
 contents_map	wrksp.c	/^void contents_map(NODE *sym) {$/
 copy_list	logodata.c	/^NODE *copy_list(NODE *arg) {$/
 cs_helper	graphics.c	/^void cs_helper(int centerp) {    $/
+current_gc	mem.c	/^long int current_gc = 0;$/
+current_line	main.c	/^NODE *current_line = NIL;$/
+current_mode	graphics.c	/^mode_type current_mode = wrapmode;$/
 cut_error	graphics.c	/^FLONUM cut_error(FLONUM n) {$/
-decstrrefcnt	logo.h	/^#define decstrrefcnt(sh)        (--((sh)->str_refc/
-define_helper	wrksp.c	/^NODE *define_helper(NODE *args, BOOLEAN macro_flag/
-dfltargs__procnode	logo.h	/^#define dfltargs__procnode(p)   cadr(cddr(p))$/
+dbprint	print.c	/^void dbprint(NODE *data) {$/
+decstrrefcnt	logo.h	/^#define decstrrefcnt(/
+deep_copy	eval.c	/^NODE *deep_copy(NODE *exp) {$/
+deepend_proc_name	parse.c	/^NODE *deepend_proc_name = NIL;$/
+defargs	init.c	/^    short defargs;$/
+define_helper	wrksp.c	/^NODE *define_helper(NODE *args, BOOLEAN macro_flag) {$/
+degrad	math.c	/^FLONUM degrad = 0.017453292520;$/
+degrad	math.c	/^FLONUM degrad = 3.141592653589793227020265931059839203954\/180.0;$/
+dfltargs__procnode	logo.h	/^#define dfltargs__procnode(/
+didnt_get_output	eval.c	/^*didnt_get_output  = NIL,   \/* the name of the proc that wanted the OP *\/$/
+didnt_output_name	eval.c	/^*didnt_output_name = NIL,   \/* the name of the proc that didn't OP *\/$/
+do_arc	graphics.c	/^void do_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,$/
+do_case	eval.c	/^#define do_case(/
 do_ctrl_c	main.c	/^void _far _cdecl do_ctrl_c(void) {$/
-do_enum	logo.h	/^#define do_enum(x) x,$/
+do_enum	logo.h	/^#define do_enum(/
 do_gc	mem.c	/^void do_gc(BOOLEAN full) {$/
-do_list	logo.h	/^#define do_list(x) \\$/
-draw_string	xgraphics.h	/^#define draw_string(s)           XDrawString(dpy,w/
+do_list	logo.h	/^    do_list(do_enum)$/
+do_list	logo.h	/^#define do_list(/
+done_drawing	xgraphics.h	/^#define done_drawing /
+done_drawing_turtle	xgraphics.h	/^#define done_drawing_turtle /
+dont_fix_ift	eval.c	/^FIXNUM	    dont_fix_ift = 0;$/
+dpy	xgraphics.c	/^Display    *dpy;		\/* X server connection   *\/$/
+draw_gc	xgraphics.c	/^GC          draw_gc,            \/* GC to draw with       *\/$/
+draw_string	xgraphics.h	/^#define draw_string(/
 draw_turtle	graphics.c	/^void draw_turtle(void) {$/
 draw_turtle_helper	graphics.c	/^void draw_turtle_helper(void) {$/
+dribblestream	parse.c	/^FILE *dribblestream = NULL;$/
+dummy	xgraphics.c	/^XColor dummy;$/
+ecma	logo.h	/^#define ecma	/
+ecma_array	logodata.c	/^char ecma_array[128];$/
+ecma_begin	logo.h	/^#define ecma_begin	/
 ecma_clear	logodata.c	/^char ecma_clear(int ch) {$/
 ecma_get	logodata.c	/^int ecma_get(int ch) {$/
 ecma_set	logodata.c	/^char ecma_set(int ch) {$/
-equalp_help	math.c	/^BOOLEAN equalp_help(NODE *arg1, NODE *arg2, BOOLEA/
-erall_helper	wrksp.c	/^NODE *erall_helper(BOOLEAN procs, BOOLEAN vals, BO/
-erase_screen	xgraphics.h	/^#define erase_screen()		 XClearWindow(dpy, win)$/
+ecma_size	logodata.c	/^int ecma_size = sizeof(special_chars)-1;$/
+editor	wrksp.c	/^char *editor, *editorname, *tempdir;$/
+editorname	wrksp.c	/^char *editor, *editorname, *tempdir;$/
+equalp_help	math.c	/^BOOLEAN equalp_help(NODE *arg1, NODE *arg2, BOOLEAN ignc) {$/
+erall_helper	wrksp.c	/^NODE *erall_helper(BOOLEAN procs, BOOLEAN vals, BOOLEAN plists) {$/
+erase_gc	xgraphics.c	/^            erase_gc,           \/* Erase gc.             *\/$/
+erase_screen	xgraphics.h	/^#define erase_screen(/
 err_eval_driver	eval.c	/^NODE *err_eval_driver(NODE *seq) {$/
-err_logo	error.c	/^NODE *err_logo(ERR_TYPES error_type, NODE *error_d/
+err_logo	error.c	/^NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {$/
+err_mesg	error.c	/^NODE *err_mesg = NIL;$/
 err_print	error.c	/^void err_print(void) {$/
-errchk	math.c	/^#define errchk(x) {errno = 0; x; if (errno) err_lo/
+erract_errtype	error.c	/^ERR_TYPES erract_errtype;$/
+errchk	math.c	/^#define errchk(/
 eval_driver	eval.c	/^void eval_driver(NODE *line) {$/
 evaluator	eval.c	/^NODE *evaluator(NODE *list, enum labels where) {$/
-even_p	logo.h	/^#define even_p(x) !(x & 0x1)$/
+even_p	logo.h	/^#define even_p(/
 expand_slash	wrksp.c	/^char *expand_slash(NODE *wd) {$/
+fencemode	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
+file_list	files.c	/^NODE *file_list = NULL;$/
+file_prefix	files.c	/^NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;$/
 fill_reserve_tank	mem.c	/^void fill_reserve_tank(void) {$/
 find_case	intern.c	/^NODE *find_case(NODE *strnd, NODE *obj) {$/
 find_file	files.c	/^FILE *find_file(NODE *arg, BOOLEAN remove) {$/
 find_instance	intern.c	/^NODE *find_instance(NODE *lownd) {$/
-find_limit	print.c	/^int find_limit(NODE *nd) {$/
+find_limit	print.c	/^int find_limit(NODE *nd, int forced) {$/
 fixhelp	wrksp.c	/^char *fixhelp(char *ptr, int len) {$/
-flag__caseobj	logo.h	/^#define flag__caseobj(c,f) (int)((obflags__caseobj/
-flag__object	logo.h	/^#define flag__object(o,f) (int)((obflags__object(o/
+flag__caseobj	logo.h	/^#define flag__caseobj(/
+flag__object	logo.h	/^#define flag__object(/
 flatten	eval.c	/^NODE *flatten(NODE *a) {$/
 float_arg	lists.c	/^FLONUM float_arg(NODE *args) {$/
-formals__procnode	logo.h	/^#define formals__procnode(p)    caar(p)$/
+floodfill	xgraphics.c	/^void floodfill( XImage *img, int x, int y, unsigned long$/
+force_printdepth	print.c	/^int force_printwidth = -1, force_printdepth = -1;$/
+force_printwidth	print.c	/^int force_printwidth = -1, force_printdepth = -1;$/
+formals__procnode	logo.h	/^#define formals__procnode(/
 forward	graphics.c	/^void forward(FLONUM d) {$/
 forward_helper	graphics.c	/^void forward_helper(FLONUM d) {$/
+free_list	mem.c	/^NODE *free_list = NIL;                \/* global ptr to free node list *\/$/
+freed_threshold	mem.c	/^#define freed_threshold /
+full_screen	xgraphics.h	/^#define full_screen /
+fun	eval.c	/^*fun		= NIL,  \/* current function name *\/$/
 g_round	graphics.c	/^FIXNUM g_round(FLONUM n) {$/
-gather_args	paren.c	/^NODE *gather_args(NODE *proc, NODE **args, BOOLEAN/
-gather_some_args	paren.c	/^NODE *gather_some_args(int min, int max, NODE **ar/
+gather_args	paren.c	/^NODE *gather_args(NODE *newfun, NODE *proc, NODE **args, BOOLEAN inparen,$/
+gather_some_args	paren.c	/^NODE *gather_some_args(int min, int max, NODE **args, BOOLEAN inparen,$/
 gc	mem.c	/^void gc(BOOLEAN no_error) {$/
+gc_age_threshold	mem.c	/^#define gc_age_threshold /
 gc_inc	mem.c	/^void gc_inc () {$/
-generation__line	logo.h	/^#define generation__line(l)	(generation__tree(unpa/
-generation__tree	logo.h	/^#define generation__tree(t)	(car(treepair__tree(t)/
+gc_overflow_flag	mem.c	/^long int gc_overflow_flag = 0;$/
+gc_stack_malloced	mem.c	/^long int gc_stack_malloced = 0;$/
+gc_stack_size	mem.c	/^long int gc_stack_size = GCMAX;$/
+gcbottom	mem.c	/^NODE **gcbottom = gcstack;$/
+gcstack	mem.c	/^NODE *gcstack[GCMAX];$/
+gctop	mem.c	/^NODE **gctop = gcstack;$/
+gen_age	logo.h	/^    int gen_age; \/* How many times to GC at this generation *\/$/
+generation	mem.c	/^NODE *generation[NUM_GENS] = {NIL};$/
+generation__line	logo.h	/^#define generation__line(/
+generation__tree	logo.h	/^#define generation__tree(/
 get_bodywords	wrksp.c	/^NODE *get_bodywords(NODE *proc, NODE *name) {$/
 get_contents	wrksp.c	/^NODE *get_contents() {$/
 get_mouse_x	xgraphics.c	/^int get_mouse_x()$/
 get_mouse_y	xgraphics.c	/^int get_mouse_y()$/
-get_palette	xgraphics.h	/^#define get_palette(x,y,z,w)	 nop()$/
-get_pen_pattern	xgraphics.h	/^#define get_pen_pattern(p)       nop()$/
-getarrdim	logo.h	/^#define getarrdim(node)		((node)->n_dim)$/
-getarrorg	logo.h	/^#define getarrorg(node)		((node)->n_org)$/
-getarrptr	logo.h	/^#define getarrptr(node)		((node)->n_array)$/
-getfloat	logo.h	/^#define getfloat(node)          ((node)->n_float)$/
-getint	logo.h	/^#define getint(node)            ((node)->n_int)$/
-getobject	logo.h	/^#define getobject(node)         ((node)->n_obj)$/
-getparity	logo.h	/^#define getparity(ch)		ecma_get(ch)$/
-getprimdflt	logo.h	/^#define getprimdflt(node)       ((node)->n_pdef)$/
-getprimfun	logo.h	/^#define getprimfun(node)        ((node)->n_pfun)$/
-getprimmax	logo.h	/^#define getprimmax(node)        ((node)->n_pmax)$/
-getprimmin	logo.h	/^#define getprimmin(node)        ((node)->n_pmin)$/
-getprimpri	logo.h	/^#define getprimpri(node)        ((node)->n_ppri)$/
-getprop	logodata.c	/^NODE *getprop(NODE *plist, NODE *name, BOOLEAN bef/
-getstrhead	logo.h	/^#define getstrhead(node)        ((node)->n_head)$/
-getstrlen	logo.h	/^#define getstrlen(node)         ((node)->n_len)$/
-getstrptr	logo.h	/^#define getstrptr(node)         ((node)->n_str)$/
-getstrrefcnt	logo.h	/^#define getstrrefcnt(sh)        ((sh)->str_refcnt)/
-handle_oflo	math.c	/^void handle_oflo(int sig) {$/
+get_node_pen_mode	xgraphics.h	/^#define get_node_pen_mode /
+get_node_pen_pattern	xgraphics.h	/^#define get_node_pen_pattern /
+get_palette	xgraphics.h	/^#define get_palette(/
+get_pen_pattern	xgraphics.h	/^#define get_pen_pattern(/
+getarrdim	logo.h	/^#define getarrdim(/
+getarrorg	logo.h	/^#define getarrorg(/
+getarrptr	logo.h	/^#define getarrptr(/
+getfloat	logo.h	/^#define getfloat(/
+getint	logo.h	/^#define getint(/
+getobject	logo.h	/^#define getobject(/
+getparity	logo.h	/^#define getparity(/
+getprimdflt	logo.h	/^#define getprimdflt(/
+getprimfun	logo.h	/^#define getprimfun(/
+getprimmax	logo.h	/^#define getprimmax(/
+getprimmin	logo.h	/^#define getprimmin(/
+getprimpri	logo.h	/^#define getprimpri(/
+getprop	logodata.c	/^NODE *getprop(NODE *plist, NODE *name, BOOLEAN before)$/
+getstrhead	logo.h	/^#define getstrhead(/
+getstrlen	logo.h	/^#define getstrlen(/
+getstrptr	logo.h	/^#define getstrptr(/
+getstrrefcnt	logo.h	/^#define getstrrefcnt(/
+handle_oflo	math.c	/^RETSIGTYPE handle_oflo(int sig) {$/
+handling_oflo	math.c	/^BOOLEAN handling_oflo = FALSE;$/
 hash	intern.c	/^FIXNUM hash(char *s, int len) {$/
-incstrrefcnt	logo.h	/^#define incstrrefcnt(sh)        (((sh)->str_refcnt/
-infixs	parse.c	/^#define infixs(ch)      (ch == '*' || ch == '\/' ||/
+hash_table	intern.c	/^NODE *hash_table[HASH_LEN] = {NIL};$/
+have_x	xgraphics.c	/^int have_x = -1;$/
+helpfiles	eval.c	/^char	    *logolib, *helpfiles;$/
+helploc	libloc.c	/^char *helploc="\/usr\/local\/lib\/logo\/helpfiles";$/
+iblk_buf	main.c	/^jmp_buf iblk_buf;$/
+ibm	logo.h	/^#define ibm$/
+ift_iff_flag	coms.c	/^FIXNUM ift_iff_flag = -1;$/
+incstrrefcnt	logo.h	/^#define incstrrefcnt(/
+infixs	parse.c	/^#define infixs(/
 init	init.c	/^void init(void) {$/
+input_blocking	parse.c	/^int input_blocking = 0;$/
+inside_gc	mem.c	/^BOOLEAN inside_gc = 0, int_during_gc = 0;$/
 int_arg	lists.c	/^FIXNUM int_arg(NODE *args) {$/
+int_during_gc	mem.c	/^BOOLEAN inside_gc = 0, int_during_gc = 0;$/
 integer_arg	lists.c	/^NODE *integer_arg(NODE *args) {$/
 inter_gen_mark	mem.c	/^NODE **inter_gen_mark (NODE **prev) {$/
+interactive	term.c	/^int interactive, tty_charmode;$/
 intern	intern.c	/^NODE *intern(NODE *nd) {$/
 intern_p	init.c	/^NODE *intern_p(NODE *caseobj) {$/
-into_line	parse.c	/^#define into_line(chr) {if (phys_line >= p_end) { /
-is_cont	logo.h	/^#define is_cont(nd)	(nodetype(nd) == CONT)$/
-is_list	logo.h	/^#define is_list(nd)	(nodetype(nd) & NT_LIST)$/
-is_macro	logo.h	/^#define is_macro(c) (flag__caseobj(c, PROC_MACRO))/
-is_number	logo.h	/^#define is_number(nd)	(nodetype(nd) & NT_NUMBER)$/
-is_prim	logo.h	/^#define is_prim(nd)	(nodetype(nd) & NT_PRIM)$/
-is_string	logo.h	/^#define is_string(nd)	(nodetype(nd) & NT_STRING)$/
-is_tailform	logo.h	/^#define is_tailform(nd)	(nodetype(nd) == TAILFORM)/
-is_tree	logo.h	/^#define is_tree(nd)	(nodetype(nd) & NT_TREE)$/
-is_word	logo.h	/^#define is_word(nd)	(nodetype(nd) & NT_WORD)$/
-isdigit	math.c	/^#define isdigit(dig)    (dig >= '0' && dig <= '9')/
+internal_penmode	graphics.c	/^int internal_penmode = PENMODE_PAINT;$/
+into_line	parse.c	/^#define into_line(/
+is_cont	logo.h	/^#define is_cont(/
+is_list	logo.h	/^#define is_list(/
+is_macro	logo.h	/^#define is_macro(/
+is_number	logo.h	/^#define is_number(/
+is_prim	logo.h	/^#define is_prim(/
+is_setter	paren.c	/^int is_setter(NODE *name) {$/
+is_string	logo.h	/^#define is_string(/
+is_tailform	logo.h	/^#define is_tailform(/
+is_tree	logo.h	/^#define is_tree(/
+is_word	logo.h	/^#define is_word(/
+isdigit	math.c	/^#define isdigit(/
 l_eq	math.c	/^NODE *l_eq(NODE *args) {$/
 l_setbf	lists.c	/^NODE *l_setbf(NODE *args) {$/
 l_setfirst	lists.c	/^NODE *l_setfirst(NODE *args) {$/
 l_setitem	lists.c	/^NODE *l_setitem(NODE *args) {$/
-label	xgraphics.h	/^#define label(s)                 XDrawString(dpy,w/
+label	xgraphics.h	/^#define label(/
+labels	logo.h	/^enum labels {$/
 ladd	math.c	/^NODE *ladd(NODE *args) {$/
 lallopen	files.c	/^NODE *lallopen(NODE *args) {$/
 land	coms.c	/^NODE *land(NODE *args) {$/
@@ -154,8 +483,12 @@ lapply	eval.c	/^NODE *lapply(NODE *args) {$/
 larc	graphics.c	/^NODE *larc(NODE *arg) {$/
 larray	lists.c	/^NODE *larray(NODE *args) {$/
 larrayp	lists.c	/^NODE *larrayp(NODE *arg) {$/
+larraytolist	lists.c	/^NODE *larraytolist(NODE *args) {$/
 lascii	lists.c	/^NODE *lascii(NODE *args) {$/
 lashift	math.c	/^NODE *lashift(NODE *args) {$/
+last_call	eval.c	/^*last_call	= NIL,	\/* the last proc called *\/$/
+last_line	eval.c	/^*last_line	= NIL,	\/* the line that called this one *\/$/
+last_ufun	eval.c	/^*last_ufun	= NIL,	\/* the function that called this one *\/$/
 latan	math.c	/^NODE *latan(NODE *args) {$/
 lback	graphics.c	/^NODE *lback(NODE *arg) {$/
 lbackground	graphics.c	/^NODE *lbackground(NODE *args) {$/
@@ -167,6 +500,7 @@ lbitnot	math.c	/^NODE *lbitnot(NODE *args) {$/
 lbitor	math.c	/^NODE *lbitor(NODE *args) {$/
 lbitxor	math.c	/^NODE *lbitxor(NODE *args) {$/
 lburied	wrksp.c	/^NODE *lburied(NODE *args) {$/
+lburiedp	wrksp.c	/^NODE *lburiedp(NODE *arg) {$/
 lbury	wrksp.c	/^NODE *lbury(NODE *arg) {$/
 lbutfirst	lists.c	/^NODE *lbutfirst(NODE *args) {$/
 lbutlast	lists.c	/^NODE *lbutlast(NODE *args) {$/
@@ -190,8 +524,10 @@ ldefmacro	wrksp.c	/^NODE *ldefmacro(NODE *args) {$/
 ldivide	math.c	/^NODE *ldivide(NODE *args) {$/
 ldribble	files.c	/^NODE *ldribble(NODE *arg) {$/
 ledit	wrksp.c	/^NODE *ledit(NODE *args) {$/
+leditfile	wrksp.c	/^NODE *leditfile(NODE *args) {$/
 lemptyp	lists.c	/^NODE *lemptyp(NODE *arg) {$/
 leofp	files.c	/^NODE *leofp(NODE *args) {$/
+lepspict	graphics.c	/^NODE *lepspict(NODE *args) {$/
 lequalp	math.c	/^NODE *lequalp(NODE *args) {$/
 lerall	wrksp.c	/^NODE *lerall(NODE *args) {$/
 lerase	wrksp.c	/^NODE *lerase(NODE *arg) {$/
@@ -219,11 +555,12 @@ lheading	graphics.c	/^NODE *lheading(NODE *args) {$/
 lhelp	wrksp.c	/^NODE *lhelp(NODE *args) {$/
 lhideturtle	graphics.c	/^NODE *lhideturtle(NODE *args) {$/
 lhome	graphics.c	/^NODE *lhome(NODE *args) {$/
+libloc	libloc.c	/^char *libloc="\/usr\/local\/lib\/logo\/logolib";$/
 lif	coms.c	/^NODE *lif(NODE *args) {	\/* macroized *\/$/
 lifelse	coms.c	/^NODE *lifelse(NODE *args) {    \/* macroized *\/$/
 liffalse	coms.c	/^NODE *liffalse(NODE *args) {$/
 liftrue	coms.c	/^NODE *liftrue(NODE *args) {$/
-line_to	xgraphics.h	/^#define line_to(a,b)             if(xgr_pen.vis==0/
+line_to	xgraphics.h	/^#define line_to(/
 linteg	math.c	/^NODE *linteg(NODE *args) {$/
 list_arg	lists.c	/^NODE *list_arg(NODE *args) {$/
 list_to_array	parse.c	/^NODE *list_to_array(NODE *list) {$/
@@ -235,8 +572,10 @@ lleft	graphics.c	/^NODE *lleft(NODE *arg) {$/
 llessp	math.c	/^NODE *llessp(NODE *args) {$/
 llist	lists.c	/^NODE *llist(NODE *args) {$/
 llistp	lists.c	/^NODE *llistp(NODE *arg) {$/
+llisttoarray	lists.c	/^NODE *llisttoarray(NODE *args) {$/
 lln	math.c	/^NODE *lln(NODE *args) {$/
 lload	files.c	/^NODE *lload(NODE *arg) {$/
+lloadpict	graphics.c	/^NODE *lloadpict(NODE *args) {$/
 llocal	wrksp.c	/^NODE *llocal(NODE *args) {$/
 llog10	math.c	/^NODE *llog10(NODE *args) {$/
 llowercase	logodata.c	/^NODE *llowercase(NODE *args) {$/
@@ -257,9 +596,12 @@ lnodribble	files.c	/^NODE *lnodribble(NODE *args) {$/
 lnorefresh	graphics.c	/^NODE *lnorefresh(NODE *args) {$/
 lnot	coms.c	/^NODE *lnot(NODE *args) {$/
 lnumberp	lists.c	/^NODE *lnumberp(NODE *arg) {$/
-logo_pause	main.c	/^void logo_pause(int sig)$/
-logo_stop	main.c	/^void logo_stop(int sig)$/
-logofill	xgraphics.c	/^void logofill() {}$/
+loadstream	parse.c	/^FILE *loadstream;$/
+logo_node	logo.h	/^typedef struct logo_node {$/
+logo_pause	main.c	/^RETSIGTYPE logo_pause()$/
+logo_stop	main.c	/^RETSIGTYPE logo_stop()$/
+logofill	xgraphics.c	/^void logofill() {$/
+logolib	eval.c	/^char	    *logolib, *helpfiles;$/
 lopen	files.c	/^NODE *lopen(NODE *arg, char *mode) {$/
 lopenappend	files.c	/^NODE *lopenappend(NODE *arg) {$/
 lopenread	files.c	/^NODE *lopenread(NODE *arg) {$/
@@ -269,7 +611,7 @@ lor	coms.c	/^NODE *lor(NODE *args) {$/
 loutput	coms.c	/^NODE *loutput(NODE *arg) {$/
 low_strncmp	logodata.c	/^int low_strncmp(char *s1, char *s2, int n) {$/
 low_strnzcpy	logodata.c	/^char *low_strnzcpy(char *s1, char *s2, int n) {$/
-lower_p	logodata.c	/^#define lower_p(ch)	(islower((ch) & 0377))$/
+lower_p	logodata.c	/^#define lower_p(/
 lpalette	graphics.c	/^NODE *lpalette(NODE *args) {$/
 lparse	parse.c	/^NODE *lparse(NODE *args) {$/
 lpause	error.c	/^NODE *lpause(NODE *args) {$/
@@ -284,12 +626,14 @@ lpenreverse	graphics.c	/^NODE *lpenreverse(NODE *args) {$/
 lpensize	graphics.c	/^NODE *lpensize(NODE *args) {$/
 lpenup	graphics.c	/^NODE *lpenup(NODE *args) {$/
 lplist	logodata.c	/^NODE *lplist(NODE *args) {$/
+lplistp	wrksp.c	/^NODE *lplistp(NODE *args) {$/
 lplists	wrksp.c	/^NODE *lplists(NODE *args) {$/
 lpo	wrksp.c	/^NODE *lpo(NODE *arg) {$/
 lpos	graphics.c	/^NODE *lpos(NODE *args) {$/
 lpot	wrksp.c	/^NODE *lpot(NODE *arg) {$/
 lpower	math.c	/^NODE *lpower(NODE *args) {$/
 lpprop	logodata.c	/^NODE *lpprop(NODE *args) {$/
+lprefix	files.c	/^NODE *lprefix(NODE *args) {$/
 lprimitivep	wrksp.c	/^NODE *lprimitivep(NODE *args) {$/
 lprint	print.c	/^NODE *lprint(NODE *args) {$/
 lprocedurep	wrksp.c	/^NODE *lprocedurep(NODE *args) {$/
@@ -305,6 +649,7 @@ lreadchars	files.c	/^NODE *lreadchars(NODE *args) {$/
 lreader	files.c	/^NODE *lreader(NODE *args) {$/
 lreadlist	files.c	/^NODE *lreadlist(NODE *args) {$/
 lreadpos	files.c	/^NODE *lreadpos(NODE *args) {$/
+lreadrawline	files.c	/^NODE *lreadrawline(NODE *args) {$/
 lreadword	files.c	/^NODE *lreadword(NODE *args) {$/
 lrefresh	graphics.c	/^NODE *lrefresh(NODE *args) {$/
 lremainder	math.c	/^NODE *lremainder(NODE *args) {$/
@@ -318,6 +663,7 @@ lrun	coms.c	/^NODE *lrun(NODE *args) {    \/* macroized *\/$/
 lrunparse	parse.c	/^NODE *lrunparse(NODE *args) {$/
 lrunresult	coms.c	/^NODE *lrunresult(NODE *args) {$/
 lsave	files.c	/^NODE *lsave(NODE *arg) {$/
+lsavepict	graphics.c	/^NODE *lsavepict(NODE *args) {$/
 lscrunch	graphics.c	/^NODE *lscrunch(NODE *args) {$/
 lsentence	lists.c	/^NODE *lsentence(NODE *args) {$/
 lsetbackground	graphics.c	/^NODE *lsetbackground(NODE *arg) {$/
@@ -330,6 +676,7 @@ lsetpencolor	graphics.c	/^NODE *lsetpencolor(NODE *arg) {$/
 lsetpenpattern	graphics.c	/^NODE *lsetpenpattern(NODE *args) {    $/
 lsetpensize	graphics.c	/^NODE *lsetpensize(NODE *args) {$/
 lsetpos	graphics.c	/^NODE *lsetpos(NODE *args) {$/
+lsetprefix	files.c	/^NODE *lsetprefix(NODE *args) {$/
 lsetread	files.c	/^NODE *lsetread(NODE *arg) {$/
 lsetreadpos	files.c	/^NODE *lsetreadpos(NODE *arg) {$/
 lsetscrunch	graphics.c	/^NODE *lsetscrunch(NODE *args) {$/
@@ -347,6 +694,8 @@ lsplitscreen	graphics.c	/^NODE *lsplitscreen(NODE *args) {$/
 lsqrt	math.c	/^NODE *lsqrt(NODE *args) {$/
 lstandout	term.c	/^NODE *lstandout(NODE *args) {$/
 lstep	wrksp.c	/^NODE *lstep(NODE *arg) {$/
+lstepped	wrksp.c	/^NODE *lstepped(NODE *args) {$/
+lsteppedp	wrksp.c	/^NODE *lsteppedp(NODE *arg) {$/
 lstop	coms.c	/^NODE *lstop(NODE *args) {$/
 lsub	math.c	/^NODE *lsub(NODE *args) {$/
 lsubstringp	lists.c	/^NODE *lsubstringp(NODE *args) {$/
@@ -360,6 +709,8 @@ lto	wrksp.c	/^NODE *lto(NODE *args) {$/
 ltone	graphics.c	/^NODE *ltone(NODE *args) {$/
 ltowards	graphics.c	/^NODE *ltowards(NODE *args) {$/
 ltrace	wrksp.c	/^NODE *ltrace(NODE *arg) {$/
+ltraced	wrksp.c	/^NODE *ltraced(NODE *args) {$/
+ltracedp	wrksp.c	/^NODE *ltracedp(NODE *arg) {$/
 ltype	print.c	/^NODE *ltype(NODE *args) {$/
 lunbury	wrksp.c	/^NODE *lunbury(NODE *arg) {$/
 lunstep	wrksp.c	/^NODE *lunstep(NODE *arg) {$/
@@ -372,7 +723,9 @@ lwordp	lists.c	/^NODE *lwordp(NODE *arg) {$/
 lwrap	graphics.c	/^NODE *lwrap(NODE *args) {$/
 lwritepos	files.c	/^NODE *lwritepos(NODE *args) {$/
 lwriter	files.c	/^NODE *lwriter(NODE *args) {$/
-make_array	logodata.c	/^NODE *make_array(int len) {$/
+mac	logo.h	/^#define mac$/
+main	main.c	/^int main(int argc, char *argv[]) {$/
+make_array	logodata.c	/^NODE *make_array(FIXNUM len) {$/
 make_case	intern.c	/^NODE *make_case(NODE *casestrnd, NODE *obj) {$/
 make_caseobj	logodata.c	/^NODE *make_caseobj(NODE *cstrnd, NODE *obj) {$/
 make_colon	logodata.c	/^NODE *make_colon(NODE *cnd) {$/
@@ -381,214 +734,414 @@ make_floatnode	logodata.c	/^NODE *make_floatnode(FLONUM f) {$/
 make_instance	intern.c	/^NODE *make_instance(NODE *casend, NODE *lownd) {$/
 make_intnode	logodata.c	/^NODE *make_intnode(FIXNUM i) {$/
 make_line	paren.c	/^void make_line(NODE *tree, NODE *line) {$/
-make_object	intern.c	/^NODE *make_object(NODE *canonical, NODE *proc, NOD/
-make_procnode	wrksp.c	/^NODE *make_procnode(NODE *lst, NODE *wrds, int min/
+make_object	intern.c	/^NODE *make_object(NODE *canonical, NODE *proc, NODE *val,$/
+make_procnode	wrksp.c	/^NODE *make_procnode(NODE *lst, NODE *wrds, int min, int df, int max) {$/
 make_quote	logodata.c	/^NODE *make_quote(NODE *qnd) {$/
 make_runparse	logodata.c	/^void make_runparse(NODE *ndi) {$/
 make_static_strnode	logodata.c	/^NODE *make_static_strnode(char *strptr) {$/
-make_strnode	logodata.c	/^NODE *make_strnode(char *strptr, struct string_blo/
+make_strnode	logodata.c	/^NODE *make_strnode(char *strptr, struct string_block *strhead, int len,$/
 make_tree	paren.c	/^void make_tree(NODE *list) {$/
 make_tree_from_body	paren.c	/^void make_tree_from_body(NODE *body) {$/
 map_oblist	intern.c	/^void map_oblist(void (*fcn)()) {$/
 mark	mem.c	/^void mark(NODE* nd) {$/
-math_init	math.c	/^void math_init() {$/
+mark_gc	logo.h	/^    long int mark_gc;	\/* when marked *\/$/
+mark_gcstack	mem.c	/^NODE **mark_gcstack = gcstack;$/
+mark_gen_gc	mem.c	/^int mark_gen_gc;$/
 matherr	math.c	/^int matherr(struct exception *x) {$/
-maxargs__procnode	logo.h	/^#define maxargs__procnode(p)    car(cddr(cddr(p)))/
+max_gen	mem.c	/^int next_gen_gc = 0, max_gen = 0;$/
+max_palette_slot	graphics.c	/^int max_palette_slot = 0;$/
+maxargs	init.c	/^    short maxargs;$/
+maxargs__procnode	logo.h	/^#define maxargs__procnode(/
 maybe_quote	logodata.c	/^NODE *maybe_quote(NODE *nd) {$/
-memberp_help	lists.c	/^NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLE/
-memcpy	error.c	/^void memcpy(char *to, char *from, int len) {$/
+mem_allocated	mem.c	/^long int mem_allocated = 0, mem_freed = 0;$/
+mem_freed	mem.c	/^long int mem_allocated = 0, mem_freed = 0;$/
+mem_max	mem.c	/^long int mem_nodes = 0, mem_max = 0;	\/* for Logo NODES primitive *\/$/
+mem_nodes	mem.c	/^long int mem_nodes = 0, mem_max = 0;	\/* for Logo NODES primitive *\/$/
+memberp_help	lists.c	/^NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {$/
+memcpy	error.c	/^void memcpy(char *to, char *from, size_t len) {$/
 mend_nosemi	logodata.c	/^char *mend_nosemi(char *s1, char *s2, int n) {$/
 mend_strnzcpy	logodata.c	/^char *mend_strnzcpy(char *s1, char *s2, int n) {$/
 merge	wrksp.c	/^NODE *merge(NODE *a, NODE *b) {$/
 mergepairs	wrksp.c	/^void mergepairs(NODE *nd) {$/
-mergesrt	wrksp.c	/^NODE *mergesrt(NODE *nd) {    \/* spelled funny to /
-minargs__procnode	logo.h	/^#define minargs__procnode(p)    car(cddr(p))$/
-mixrestore	eval.c	/^#define mixrestore(reg1,reg2)	(numrestore(reg1), r/
-mixsave	eval.c	/^#define mixsave(reg1,reg2)  (numsave(reg1), save(r/
-mmark	mem.c	/^#define mmark(child) {if ((child)->my_gen < nd->my/
-mode_type	logo.h	103
-move_to	xgraphics.h	/^#define move_to(a,b)             xgr_pen.xpos=(a);/
+mergesrt	wrksp.c	/^NODE *mergesrt(NODE *nd) {    \/* spelled funny to avoid library conflict *\/$/
+message_texts	error.c	/^char *message_texts[MAX_MESSAGE];$/
+minargs	init.c	/^    short minargs;$/
+minargs__procnode	logo.h	/^#define minargs__procnode(/
+mixrestore	eval.c	/^#define mixrestore(/
+mixsave	eval.c	/^#define mixsave(/
+mmark	mem.c	/^#define mmark(/
+mode_type	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
+mouse_x	xgraphics.h	/^#define mouse_x /
+mouse_y	xgraphics.h	/^#define mouse_y /
+move_to	xgraphics.h	/^#define move_to(/
 ms_listlist	wrksp.c	/^void ms_listlist(NODE *nd) {$/
+my_gen	logo.h	/^    int my_gen; \/* Nodes's Generation *\/ \/*GC*\/$/
+n_array	logo.h	/^#define n_array	/
+n_car	logo.h	/^#define n_car /
+n_cdr	logo.h	/^#define n_cdr /
+n_dim	logo.h	/^#define n_dim	/
+n_float	logo.h	/^#define n_float /
+n_head	logo.h	/^#define n_head /
+n_int	logo.h	/^#define n_int /
+n_len	logo.h	/^#define n_len /
+n_obj	logo.h	/^#define n_obj /
+n_org	logo.h	/^#define n_org	/
+n_pdef	logo.h	/^#define n_pdef /
+n_pfun	logo.h	/^#define n_pfun /
+n_pmax	logo.h	/^#define n_pmax /
+n_pmin	logo.h	/^#define n_pmin /
+n_ppri	logo.h	/^#define n_ppri /
+n_str	logo.h	/^#define n_str /
+name	init.c	/^    char *name;$/
 name_arg	wrksp.c	/^NODE *name_arg(NODE *args) {$/
+narray	logo.h	/^	} narray;$/
+narray_data	logo.h	/^	    struct logo_node **narray_data;$/
+narray_dim	logo.h	/^	    FIXNUM narray_dim;$/
+narray_origin	logo.h	/^	    FIXNUM narray_origin;$/
+ncar	logo.h	/^	    struct logo_node *ncar;$/
+ncdr	logo.h	/^	    struct logo_node *ncdr;$/
+ncons	logo.h	/^	} ncons;$/
+ndef_args	logo.h	/^	    short ndef_args;$/
 ndprintf	print.c	/^void ndprintf(FILE *strm, char *fmt, ...) {$/
 new_line	print.c	/^void new_line(FILE *strm) {$/
-newcont	eval.c	/^#define newcont(tag)	    (numsave(cont), cont = (F/
+newcont	eval.c	/^#define newcont(/
 newnode	mem.c	/^NODE *newnode(NODETYPES type) {$/
-node__colon	logo.h	/^#define node__colon(c)          car(c)$/
-node__quote	logo.h	/^#define node__quote(q)          car(q)$/
+next	logo.h	/^	struct segment *next;$/
+next	logo.h	/^    struct logo_node *next; \/* Link together nodes of the same age *\/ \/*GC*\/$/
+next_gen_gc	mem.c	/^int next_gen_gc = 0, max_gen = 0;$/
+nfloat	logo.h	/^	FLONUM nfloat;$/
+nint	logo.h	/^	FIXNUM nint;$/
+nmax_args	logo.h	/^	    short nmax_args;$/
+nmin_args	logo.h	/^	    short nmin_args;$/
+nobj	logo.h	/^	    struct logo_node *nobj;         \/* used only for oblist etc *\/$/
+node__colon	logo.h	/^#define node__colon(/
+node__quote	logo.h	/^#define node__quote(/
+node_type	logo.h	/^    NODETYPES node_type;$/
+nodes	logo.h	/^	struct logo_node nodes[SEG_SIZE];$/
 nodetype	mem.c	/^NODETYPES nodetype(NODE *nd) {$/
+nop	nographics.c	/^void nop()$/
 nop	xgraphics.c	/^void nop() {$/
 noparity_strncmp	logodata.c	/^int noparity_strncmp(char *s1, char *s2, int n) {$/
-noparity_strnzcpy	logodata.c	/^char *noparity_strnzcpy(char *s1, char *s2, int n)/
-noparitylow_strncmp	logodata.c	/^int noparitylow_strncmp(char *s1, char *s2, int n)/
-noparitylow_strnzcpy	logodata.c	/^char *noparitylow_strnzcpy(char *s1, char *s2, int/
+noparity_strnzcpy	logodata.c	/^char *noparity_strnzcpy(char *s1, char *s2, int n) {$/
+noparitylow_strncmp	logodata.c	/^int noparitylow_strncmp(char *s1, char *s2, int n) {$/
+noparitylow_strnzcpy	logodata.c	/^char *noparitylow_strnzcpy(char *s1, char *s2, int n) {$/
 not_local	eval.c	/^int not_local(NODE *name, NODE *sp) {$/
-num2restore	eval.c	/^#define num2restore(reg1,reg2) (reg2=(FIXNUM)getob/
-num2save	eval.c	/^#define num2save(reg1,reg2) (numpush(reg1,&numstac/
+nprim	logo.h	/^	} nprim;$/
+nprim_fun	logo.h	/^	    struct logo_node * (*nprim_fun) ();$/
+npriority	logo.h	/^	    short npriority;$/
+nstring	logo.h	/^	} nstring;$/
+nstring_head	logo.h	/^	    struct string_block *nstring_head;$/
+nstring_len	logo.h	/^	    FIXNUM nstring_len;$/
+nstring_ptr	logo.h	/^	    char *nstring_ptr;$/
+num2restore	eval.c	/^#define num2restore(/
+num2save	eval.c	/^#define num2save(/
+num_examined	mem.c	/^long int num_examined;$/
 numberp	math.c	/^int numberp(NODE *snd) {$/
 numeric_arg	graphics.c	/^NODE *numeric_arg(NODE *args) {$/
 numpush	eval.c	/^void numpush(FIXNUM obj, NODE **stack) {$/
-numrestore	eval.c	/^#define numrestore(register) (register=(FIXNUM)car/
-numsave	eval.c	/^#define numsave(register)   numpush(register,&nums/
-obflags__caseobj	logo.h	/^#define obflags__caseobj(c)	obflags__object(object/
-obflags__object	logo.h	/^#define obflags__object(o)	car(cddr(cddr(o)))$/
-object__caseobj	logo.h	/^#define object__caseobj(c)      cdr(c)$/
+numrestore	eval.c	/^#define numrestore(/
+numsave	eval.c	/^#define numsave(/
+nunion	logo.h	/^    } nunion;$/
+obflags__caseobj	logo.h	/^#define obflags__caseobj(/
+obflags__object	logo.h	/^#define obflags__object(/
+object__caseobj	logo.h	/^#define object__caseobj(/
+oflo_buf	math.c	/^jmp_buf oflo_buf;$/
+oldyoung_next	logo.h	/^    struct logo_node *oldyoung_next;$/
+oldyoungs	mem.c	/^NODE *oldyoungs = NIL;$/
 one_list	wrksp.c	/^NODE *one_list(NODE *nd) {$/
 open_file	files.c	/^FILE *open_file(NODE *arg, char *access) {$/
-p_info_x	xgraphics.h	/^#define p_info_x(p)              (p.xpos)$/
-p_info_y	xgraphics.h	/^#define p_info_y(p)              (p.ypos)$/
+orig_pen	graphics.c	/^pen_info orig_pen;$/
+ospeed	term.c	/^short ospeed;$/
+out_of_bounds	graphics.c	/^BOOLEAN out_of_bounds = FALSE;$/
+output_node	eval.c	/^*output_node    = NIL;	\/* the output of the current function *\/$/
+p_end	parse.c	/^char *p_line = 0, *p_end;$/
+p_info_x	xgraphics.h	/^#define p_info_x(/
+p_info_y	xgraphics.h	/^#define p_info_y(/
+p_len	parse.c	/^int p_len = MAX_PHYS_LINE;$/
+p_line	parse.c	/^char *p_line = 0, *p_end;$/
 paren_expr	paren.c	/^NODE *paren_expr(NODE **expr, BOOLEAN inparen) {$/
-paren_infix	paren.c	/^NODE *paren_infix(NODE *left_arg, NODE **rest, int/
+paren_infix	paren.c	/^NODE *paren_infix(NODE *left_arg, NODE **rest, int old_pri, BOOLEAN inparen) {$/
 paren_line	paren.c	/^NODE *paren_line(NODE *line) {$/
-parens	parse.c	/^#define parens(ch)      (ch == '(' || ch == ')' ||/
-parsed__runparse	logo.h	/^#define parsed__runparse(rn)    getobject(rn)$/
+parens	parse.c	/^#define parens(/
+parsed__runparse	logo.h	/^#define parsed__runparse(/
 parser	parse.c	/^NODE *parser(NODE *nd, BOOLEAN semi) {$/
-parser_iterate	parse.c	/^NODE *parser_iterate(char **inln, char *inlimit, s/
-pen_info	xgraphics.h	120
+parser_iterate	parse.c	/^NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,$/
+pc	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+pen_color	xgraphics.h	/^#define pen_color /
+pen_down	xgraphics.h	/^#define pen_down /
+pen_erase	xgraphics.h	/^#define pen_erase /
+pen_height	xgraphics.h	/^#define pen_height /
+pen_info	xgraphics.h	/^} pen_info;$/
+pen_mode	xgraphics.h	/^#define pen_mode /
+pen_reverse	xgraphics.h	/^#define pen_reverse /
+pen_vis	xgraphics.h	/^#define pen_vis /
+pen_width	xgraphics.h	/^#define pen_width /
+pen_x	xgraphics.h	/^#define pen_x /
+pen_y	xgraphics.h	/^#define pen_y /
 pfmod	graphics.c	/^double pfmod(double x, double y) {$/
+ph	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+ph	xgraphics.h	/^  int ph;$/
 placate_x	xgraphics.c	/^void placate_x()$/
-plain_xor_pen	xgraphics.h	/^#define plain_xor_pen()          pen_reverse$/
-plist__caseobj	logo.h	/^#define plist__caseobj(c)	plist__object(object__ca/
-plist__object	logo.h	/^#define plist__object(o)        cadr(cddr(o))$/
-po_helper	wrksp.c	/^NODE *po_helper(NODE *arg, int just_titles) {	\/* >/
-pop	logo.h	/^#define pop(stack)	    spop(&stack)$/
+plain_xor_pen	xgraphics.h	/^#define plain_xor_pen(/
+plist__caseobj	logo.h	/^#define plist__caseobj(/
+plist__object	logo.h	/^#define plist__object(/
+pm	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+pm	xgraphics.h	/^  GC  pm;$/
+po_helper	wrksp.c	/^NODE *po_helper(NODE *arg, int just_titles) {	\/* >0 for POT, <0 for EDIT *\/$/
+pop	logo.h	/^#define pop(/
 pos_int_arg	coms.c	/^NODE *pos_int_arg(NODE *args) {$/
 pos_int_vector_arg	graphics.c	/^NODE *pos_int_vector_arg(NODE *args) {$/
+prepare_to_draw	xgraphics.h	/^#define prepare_to_draw /
+prepare_to_draw_turtle	xgraphics.h	/^#define prepare_to_draw_turtle /
 prepare_to_exit	coms.c	/^void prepare_to_exit(BOOLEAN okay) {$/
+prim	init.c	/^    NODE *(*prim) ();$/
+priminfo	init.c	/^typedef struct priminfo {$/
+prims	init.c	/^PRIMTYPE prims[] = {$/
 print_char	print.c	/^void print_char(FILE *strm, char ch) {$/
 print_help	print.c	/^void print_help(FILE *strm, NODE *nd) {$/
 print_nobrak	print.c	/^void print_nobrak(FILE *strm, NODE *nd) {$/
 print_node	print.c	/^void print_node(FILE *strm, NODE *nd) {$/
 print_space	print.c	/^void print_space(FILE *strm) {$/
+print_stringlen	print.c	/^int print_stringlen;$/
+print_stringptr	print.c	/^char *print_stringptr;$/
+priority	init.c	/^    short priority;$/
 priority	paren.c	/^int priority(NODE *proc_obj) {$/
 prname	mem.c	/^void prname(NODE *foo) {$/
-procnode__caseobj	logo.h	/^#define procnode__caseobj(c)    procnode__object(o/
-procnode__object	logo.h	/^#define procnode__object(o)     cadr(o)$/
-push	logo.h	/^#define push(obj, stack)    spush(obj, &stack)$/
+procnode__caseobj	logo.h	/^#define procnode__caseobj(/
+procnode__object	logo.h	/^#define procnode__object(/
+ps_string	graphics.c	/^void ps_string(FILE *fp, char *p) {$/
+push	logo.h	/^#define push(/
+pv	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+pw	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+pw	xgraphics.h	/^  int pw;$/
+px	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+py	nographics.c	/^int pw, ph, pc, pm, pv, px, py, bg;$/
+qm_list	eval.c	/^NODE *qm_list = NIL;	\/* question mark list *\/$/
 quote_strnzcpy	logodata.c	/^char *quote_strnzcpy(char *s1, char *s2, int n) {$/
 rd_getc	parse.c	/^int rd_getc(FILE *strm) {$/
 rd_print_prompt	parse.c	/^void rd_print_prompt(char *str) {$/
+rd_putc	globals.h	/^#define rd_putc /
 reader	parse.c	/^NODE *reader(FILE *strm, char *prompt) {$/
-real_print_help	print.c	/^void real_print_help(FILE *strm, NODE *ndlist, int/
-real_print_node	print.c	/^void real_print_node(FILE *strm, NODE *nd, int dep/
+reader_name	files.c	/^NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;$/
+readstream	parse.c	/^FILE *readstream;$/
+real_print_help	print.c	/^void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {$/
+real_print_node	print.c	/^void real_print_node(FILE *strm, NODE *nd, int depth, int width) {$/
 real_window_init	xgraphics.c	/^void real_window_init()$/
+record	graphics.c	/^char record[GR_SIZE];$/
+record_index	graphics.c	/^FIXNUM record_index = 0;$/
 redraw_graphics	graphics.c	/^void redraw_graphics(void) {$/
+refresh_p	graphics.c	/^BOOLEAN refresh_p = TRUE;$/
+reserve_tank	mem.c	/^NODE *reserve_tank = NIL;$/
 reset_args	eval.c	/^void reset_args(NODE *old_stack) {$/
 resize_record	graphics.c	/^void resize_record(int dh, int dv) {$/
-restore	eval.c	/^#define restore(register)   (register = car(stack)/
-restore2	eval.c	/^#define restore2(reg1,reg2) (reg2 = getobject(stac/
-restore_pen	xgraphics.h	/^#define restore_pen(p)           memcpy(((char *)(/
+restore	eval.c	/^#define restore(/
+restore2	eval.c	/^#define restore2(/
+restore_palette	graphics.c	/^void restore_palette(FILE *fp) {$/
+restore_pen	xgraphics.c	/^void restore_pen(pen_info *p) {$/
 reverse	eval.c	/^NODE *reverse(NODE *list) {$/
+reverse_gc	xgraphics.c	/^            reverse_gc;         \/* GC to reverse things. *\/$/
 rgb_arg	graphics.c	/^NODE *rgb_arg(NODE *args) {$/
+rgbprint	graphics.c	/^void rgbprint(FILE *fp, int cnum) {$/
 right	graphics.c	/^void right(FLONUM a) {$/
+runhelp	coms.c	/^NODE *runhelp(NODE *args) {$/
 runnable_arg	coms.c	/^NODE *runnable_arg(NODE *args) {$/
 runparse	parse.c	/^NODE *runparse(NODE *ndlist) {$/
 runparse_node	parse.c	/^NODE *runparse_node(NODE *nd, NODE **ndsptr) {$/
-runparsed	logo.h	/^#define runparsed(nd)	(nodetype(nd) & NT_RUNP)$/
+runparsed	logo.h	/^#define runparsed(/
 runstartup	files.c	/^void runstartup(NODE *oldst) {$/
 safe_to_save	graphics.c	/^BOOLEAN safe_to_save(void) {$/
-save	eval.c	/^#define save(register)	    push(register, stack)$/
-save2	eval.c	/^#define save2(reg1,reg2)    (push(reg1,stack),stac/
+save	eval.c	/^#define save(/
+save2	eval.c	/^#define save2(/
+save_arc	graphics.c	/^void save_arc(FLONUM count, FLONUM ang, FLONUM radius, FLONUM delta,$/
+save_argc	xgraphics.c	/^int save_argc;$/
+save_argv	xgraphics.c	/^char ** save_argv;$/
 save_color	graphics.c	/^void save_color(void) {$/
 save_line	graphics.c	/^void save_line(void) {$/
 save_lm_helper	graphics.c	/^void save_lm_helper (void) {$/
 save_mode	graphics.c	/^void save_mode(void) {$/
 save_move	graphics.c	/^void save_move(void) {$/
+save_palette	graphics.c	/^void save_palette(FILE *fp) {$/
 save_pattern	graphics.c	/^void save_pattern(void) {$/
-save_pen	xgraphics.h	/^#define save_pen(p)              memcpy(((char *)(/
+save_pen	xgraphics.c	/^void save_pen(pen_info *p) {$/
 save_size	graphics.c	/^void save_size(void) {$/
 save_string	graphics.c	/^void save_string(char *s, int len) {$/
 save_vis	graphics.c	/^void save_vis(void) {$/
-set_back_ground	xgraphics.h	/^#define set_back_ground(c)       back_ground=c%NUM/
-set_list_pen_pattern	xgraphics.h	/^#define set_list_pen_pattern(p)  nop()$/
-set_palette	xgraphics.h	/^#define set_palette(x,y,z,w)	 nop()$/
-set_pen_color	xgraphics.h	/^#define set_pen_color(c)         draw_turtle();\\$/
-set_pen_height	xgraphics.h	/^#define set_pen_height(h)        XSetLineAttribute/
-set_pen_mode	xgraphics.h	/^#define set_pen_mode(m)          xgr_pen.pm=(m)$/
-set_pen_pattern	xgraphics.h	/^#define set_pen_pattern(p)       nop()$/
-set_pen_vis	xgraphics.h	/^#define set_pen_vis(v)           xgr_pen.vis=(v)$/
-set_pen_width	xgraphics.h	/^#define set_pen_width(w)         XSetLineAttribute/
-set_pen_x	xgraphics.h	/^#define set_pen_x(x)             nop()$/
-set_pen_y	xgraphics.h	/^#define set_pen_y(y)             nop()$/
-setarrdim	logo.h	/^#define setarrdim(node,len)	((node)->n_dim = (len)/
-setarrorg	logo.h	/^#define setarrorg(node,org)	((node)->n_org = (org)/
-setarrptr	logo.h	/^#define setarrptr(node,ptr)	((node)->n_array = (pt/
-setbodywords__procnode	logo.h	/^#define setbodywords__procnode(p,v) setcar(cdr(p),/
+screen	xgraphics.c	/^int         screen;$/
+screen_bottom	xgraphics.h	/^#define screen_bottom /
+screen_height	xgraphics.c	/^int screen_height = DEFAULT_HEIGHT;$/
+screen_left	xgraphics.h	/^#define screen_left /
+screen_right	xgraphics.h	/^#define screen_right /
+screen_top	xgraphics.h	/^#define screen_top /
+screen_width	xgraphics.c	/^int screen_width  = DEFAULT_WIDTH;$/
+screen_x_center	xgraphics.h	/^#define screen_x_center /
+screen_x_coord	xgraphics.h	/^#define screen_x_coord /
+screen_y_center	xgraphics.h	/^#define screen_y_center /
+screen_y_coord	xgraphics.h	/^#define screen_y_coord /
+se_arr	term.c	/^char se_arr[40];$/
+segment	logo.h	/^struct segment {$/
+segment_list	mem.c	/^struct segment *segment_list = NULL;  \/* global ptr to segment list *\/$/
+separator	libloc.c	/^char *separator="\/";$/
+set_back_ground	xgraphics.h	/^#define set_back_ground(/
+set_list_pen_pattern	xgraphics.h	/^#define set_list_pen_pattern(/
+set_palette	xgraphics.h	/^#define set_palette(/
+set_pen_color	xgraphics.h	/^#define set_pen_color(/
+set_pen_height	xgraphics.h	/^#define set_pen_height(/
+set_pen_mode	xgraphics.h	/^#define set_pen_mode(/
+set_pen_pattern	xgraphics.h	/^#define set_pen_pattern(/
+set_pen_vis	xgraphics.h	/^#define set_pen_vis(/
+set_pen_width	xgraphics.h	/^#define set_pen_width(/
+set_pen_x	xgraphics.h	/^#define set_pen_x(/
+set_pen_y	xgraphics.h	/^#define set_pen_y(/
+setarrdim	logo.h	/^#define setarrdim(/
+setarrorg	logo.h	/^#define setarrorg(/
+setarrptr	logo.h	/^#define setarrptr(/
+setbodywords__procnode	logo.h	/^#define setbodywords__procnode(/
 setcar	mem.c	/^void setcar(NODE *nd, NODE *newcar) {$/
 setcdr	mem.c	/^void setcdr(NODE *nd, NODE *newcdr) {$/
-setflag__caseobj	logo.h	/^#define setflag__caseobj(c,f) ((obflags__caseobj(c/
-setfloat	logo.h	/^#define setfloat(node,num)      ((node)->n_float =/
-setgeneration__tree	logo.h	/^#define setgeneration__tree(t, g) setcar(treepair_/
-setint	logo.h	/^#define setint(node,num)        ((node)->n_int = (/
+setflag__caseobj	logo.h	/^#define setflag__caseobj(/
+setfloat	logo.h	/^#define setfloat(/
+setgeneration__tree	logo.h	/^#define setgeneration__tree(/
+setint	logo.h	/^#define setint(/
 setitem_helper	lists.c	/^NODE *setitem_helper(NODE *args, BOOLEAN safe) {$/
 setobject	mem.c	/^void setobject(NODE *nd, NODE *newobj) {$/
-setparity	logo.h	/^#define setparity(ch)		ecma_set(ch)$/
-setplist__caseobj	logo.h	/^#define setplist__caseobj(c,v)	setplist__object(ob/
-setplist__object	logo.h	/^#define setplist__object(o,v)	setcar(cdr(cddr(o)),/
-setpos_bynumber	graphics.c	/^void setpos_bynumber(FLONUM target_x, FLONUM targe/
-setpos_commonpart	graphics.c	/^void setpos_commonpart(FLONUM target_x, FLONUM tar/
+setparity	logo.h	/^#define setparity(/
+setplist__caseobj	logo.h	/^#define setplist__caseobj(/
+setplist__object	logo.h	/^#define setplist__object(/
+setpos_bynumber	graphics.c	/^void setpos_bynumber(FLONUM target_x, FLONUM target_y) {$/
+setpos_commonpart	graphics.c	/^void setpos_commonpart(FLONUM target_x, FLONUM target_y) {$/
 setpos_helper	graphics.c	/^void setpos_helper(NODE *xnode, NODE *ynode) {$/
-setprimdflt	logo.h	/^#define setprimdflt(node,num)   ((node)->n_pdef = /
-setprimfun	logo.h	/^#define setprimfun(node,fun)    ((node)->n_pfun = /
-setprimmax	logo.h	/^#define setprimmax(node,num)    ((node)->n_pmax = /
-setprimmin	logo.h	/^#define setprimmin(node,num)    ((node)->n_pmin = /
-setprimpri	logo.h	/^#define setprimpri(node,num)    ((node)->n_ppri = /
-setprocnode__caseobj	logo.h	/^#define setprocnode__caseobj(c,v) setprocnode__obj/
-setprocnode__object	logo.h	/^#define setprocnode__object(o,v) setcar(cdr(o), v)/
-setstrhead	logo.h	/^#define setstrhead(node,ptr)    ((node)->n_head = /
-setstrlen	logo.h	/^#define setstrlen(node,len)     ((node)->n_len = (/
-setstrptr	logo.h	/^#define setstrptr(node,ptr)     ((node)->n_str = (/
-setstrrefcnt	logo.h	/^#define setstrrefcnt(sh, v)     ((sh)->str_refcnt /
-settree__tree	logo.h	/^#define settree__tree(t, v)	settreepair__tree(t, c/
-settreepair__tree	logo.h	/^#define settreepair__tree(t, v)	setobject(t, v)$/
-settype	logo.h	/^#define settype(node, type)     ((node)->node_type/
-setvalnode__caseobj	logo.h	/^#define setvalnode__caseobj(c,v) setvalnode__objec/
-setvalnode__object	logo.h	/^#define setvalnode__object(o,v) setcar(cddr(o), v)/
+setprimdflt	logo.h	/^#define setprimdflt(/
+setprimfun	logo.h	/^#define setprimfun(/
+setprimmax	logo.h	/^#define setprimmax(/
+setprimmin	logo.h	/^#define setprimmin(/
+setprimpri	logo.h	/^#define setprimpri(/
+setprocnode__caseobj	logo.h	/^#define setprocnode__caseobj(/
+setprocnode__object	logo.h	/^#define setprocnode__object(/
+setstrhead	logo.h	/^#define setstrhead(/
+setstrlen	logo.h	/^#define setstrlen(/
+setstrptr	logo.h	/^#define setstrptr(/
+setstrrefcnt	logo.h	/^#define setstrrefcnt(/
+settree__tree	logo.h	/^#define settree__tree(/
+settreepair__tree	logo.h	/^#define settreepair__tree(/
+settype	logo.h	/^#define settype(/
+setvalnode__caseobj	logo.h	/^#define setvalnode__caseobj(/
+setvalnode__object	logo.h	/^#define setvalnode__object(/
+sig_arg	main.c	/^#define sig_arg /
+sig_arg	math.c	/^#define sig_arg /
 silent_load	files.c	/^void silent_load(NODE *arg, char *prefix) {$/
-spop	eval.c	/^void spop(NODE **stack) {$/
-spush	eval.c	/^void spush(NODE *obj, NODE **stack) {$/
+so_arr	term.c	/^char so_arr[40];$/
+special_chars	logodata.c	/^char special_chars[] = " \\t\\n(?????+++~)[]-*\/=<>\\"\\\\:;|{}";$/
+split_screen	xgraphics.h	/^#define split_screen /
+sq	graphics.c	/^#define sq(/
+stopping_flag	eval.c	/^CTRLTYPE    stopping_flag = RUN;$/
+str_refcnt	logo.h	/^    unsigned FIXNUM str_refcnt;$/
+str_str	logo.h	/^    char str_str[1];	    \/* This array will be of variable length really *\/$/
 string_arg	lists.c	/^NODE *string_arg(NODE *args) {$/
-strnode__caseobj	logo.h	/^#define strnode__caseobj(co)    car(co)$/
+string_block	logo.h	/^struct string_block {$/
+strnode__caseobj	logo.h	/^#define strnode__caseobj(/
 strnzcpy	logodata.c	/^char *strnzcpy(char *s1, char *s2, int n) {$/
+tailcall	eval.c	/^FIXNUM	    tailcall; \/* 0 in sequence, 1 for tail, -1 for arg *\/$/
 tell_shadow	eval.c	/^void tell_shadow(NODE *arg) {$/
+tempdir	wrksp.c	/^char *editor, *editorname, *tempdir;$/
+temploc	libloc.c	/^char *temploc="\/tmp";$/
 term_init	term.c	/^void term_init(void) {$/
 termcap_getter	term.c	/^void termcap_getter(char *cap, char *buf) {$/
+termcap_ptr	term.c	/^char *termcap_ptr;$/
 termcap_putter	term.c	/^int termcap_putter(char ch) {$/
-text__procnode	logo.h	/^#define text__procnode(p)	car(p)$/
-three_lists	wrksp.c	/^void three_lists(NODE *arg, NODE **proclst, NODE */
+text__procnode	logo.h	/^#define text__procnode(/
+text_screen	xgraphics.h	/^#define text_screen /
+the_generation	paren.c	/^NODE *the_generation;$/
+this_line	eval.c	/^*this_line	= NIL,	\/* the current instruction line *\/$/
+three_lists	wrksp.c	/^void three_lists(NODE *arg, NODE **proclst, NODE **varlst, NODE **plistlst) {$/
+throw_node	error.c	/^NODE *throw_node = NIL;$/
+tmp_filename	wrksp.c	/^char tmp_filename[500] = "";$/
 to_helper	wrksp.c	/^NODE *to_helper(NODE *args, BOOLEAN macro_flag) {$/
-tone	xgraphics.h	/^#define tone(p,d)                nop()$/
+to_pending	wrksp.c	/^int to_pending = 0;$/
+tone	xgraphics.h	/^#define tone(/
 torf	math.c	/^NODE *torf(BOOLEAN tf) {$/
 torf_arg	coms.c	/^int torf_arg(NODE *args) {$/
-towards_helper	graphics.c	/^FLONUM towards_helper(FLONUM x, FLONUM y, FLONUM f/
-tree__line	logo.h	/^#define tree__line(l)		l$/
-tree__tree	logo.h	/^#define tree__tree(t)		cdr(treepair__tree(t))$/
-treepair__tree	logo.h	/^#define treepair__tree(t)	(getobject(t))$/
+total_turtle_bottom_max	graphics.c	/^#define total_turtle_bottom_max /
+towards_helper	graphics.c	/^FLONUM towards_helper(FLONUM x, FLONUM y, FLONUM from_x, FLONUM from_y) {$/
+trace_level	eval.c	/^static int trace_level = 0;	\/* indentation level when tracing *\/$/
+tree__line	logo.h	/^#define tree__line(/
+tree__tree	logo.h	/^#define tree__tree(/
+tree_dk_how	paren.c	/^BOOLEAN tree_dk_how;$/
+treepair__tree	logo.h	/^#define treepair__tree(/
+tty_cbreak	term.c	/^struct sgttyb tty_cooked, tty_cbreak;$/
+tty_cbreak	term.c	/^struct termio tty_cooked, tty_cbreak;$/
+tty_charmode	term.c	/^int interactive, tty_charmode;$/
+tty_cooked	term.c	/^struct sgttyb tty_cooked, tty_cbreak;$/
+tty_cooked	term.c	/^struct termio tty_cooked, tty_cbreak;$/
+turtle_bottom_max	xgraphics.h	/^#define turtle_bottom_max /
+turtle_half_bottom	xgraphics.h	/^#define turtle_half_bottom /
+turtle_heading	graphics.c	/^FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;$/
+turtle_height	xgraphics.h	/^#define turtle_height /
+turtle_left_max	xgraphics.h	/^#define turtle_left_max /
+turtle_right_max	xgraphics.h	/^#define turtle_right_max /
+turtle_shown	graphics.c	/^BOOLEAN turtle_shown = TRUE;$/
+turtle_side	xgraphics.h	/^#define turtle_side /
+turtle_top_max	xgraphics.h	/^#define turtle_top_max /
+turtle_x	graphics.c	/^FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;$/
+turtle_y	graphics.c	/^FLONUM turtle_x = 0.0, turtle_y = 0.0, turtle_heading = 0.0;$/
 type_help	print.c	/^void type_help(NODE *args, int sp) {$/
+ufun	eval.c	/^*ufun		= NIL,	\/* current user-defined function name *\/$/
 unblock_input	main.c	/^void unblock_input(void) {$/
 unbury_helper	wrksp.c	/^NODE *unbury_helper(NODE *arg, int flag) {$/
-uncapital	logodata.c	/^#define uncapital(c)    ((c) - 'A' + 'a')$/
-unparsed__line	logo.h	/^#define unparsed__line(l)	(getobject(l))$/
-unparsed__runparse	logo.h	/^#define unparsed__runparse(rn)  rn$/
-unparsed__tree	logo.h	/^#define unparsed__tree(t)	t$/
+uncapital	logodata.c	/^#define uncapital(/
+unix	logo.h	/^#define unix$/
+unparsed__line	logo.h	/^#define unparsed__line(/
+unparsed__runparse	logo.h	/^#define unparsed__runparse(/
+unparsed__tree	logo.h	/^#define unparsed__tree(/
 untreeify	paren.c	/^void untreeify(NODE *node) {$/
+untreeify_body	paren.c	/^void untreeify_body(NODE *body) {$/
 untreeify_line	paren.c	/^void untreeify_line(NODE *line) {$/
-untreeify_proc	paren.c	/^void untreeify_proc(NODE *procname) {$/
+untreeify_proc	paren.c	/^void untreeify_proc(NODE *proc) {$/
+up_gc	xgraphics.c	/^            up_gc,              \/* Do nothing gc.        *\/$/
 update_coords	print.c	/^void update_coords(char ch) {$/
-upper_p	logodata.c	/^#define upper_p(ch)	(isupper((ch) & 0377))$/
+upper_p	logodata.c	/^#define upper_p(/
+upvar	eval.c	/^*upvar		= NIL,  \/* for LOCAL, one stack frame up *\/$/
 use_reserve_tank	mem.c	/^void use_reserve_tank(void) {$/
-val__cont	logo.h	/^#define val__cont(c)		cdr(c)$/
+user_repcount	eval.c	/^FIXNUM	    user_repcount = -1;$/
+val__cont	logo.h	/^#define val__cont(/
+val_status	eval.c	/^FIXNUM	    val_status;	    \/* 0 means no value allowed (body of cmd),$/
 valid_pointer	mem.c	/^BOOLEAN valid_pointer (volatile NODE *ptr_val) {$/
-valnode__caseobj	logo.h	/^#define valnode__caseobj(c)	valnode__object(object/
-valnode__colon	logo.h	/^#define valnode__colon(c)       valnode__caseobj(n/
-valnode__object	logo.h	/^#define valnode__object(o)      cadr(cdr(o))$/
-vec_arg_helper	graphics.c	/^NODE *vec_arg_helper(NODE *args, BOOLEAN floatok, /
+valnode__caseobj	logo.h	/^#define valnode__caseobj(/
+valnode__colon	logo.h	/^#define valnode__colon(/
+valnode__object	logo.h	/^#define valnode__object(/
+var	eval.c	/^*var		= NIL,	\/* frame pointer into var_stack *\/$/
+var_stack	eval.c	/^*var_stack	= NIL,	\/* the stack of variables and their bindings *\/$/
+vec_arg_helper	graphics.c	/^NODE *vec_arg_helper(NODE *args, BOOLEAN floatok, BOOLEAN three) {$/
 vector_arg	graphics.c	/^NODE *vector_arg(NODE *args) {$/
-white_space	parse.c	/^#define white_space(ch) (ch == ' ' || ch == '\\t' |/
-word_strnzcpy	logodata.c	/^char *word_strnzcpy(char *s1, NODE *kludge, int n)/
-wrap_down	graphics.c	/^FLONUM wrap_down(FLONUM d, FLONUM x1, FLONUM y1, F/
-wrap_left	graphics.c	/^FLONUM wrap_left(FLONUM d, FLONUM x1, FLONUM y1, F/
-wrap_right	graphics.c	/^FLONUM wrap_right(FLONUM d, FLONUM x1, FLONUM y1, /
-wrap_up	graphics.c	/^FLONUM wrap_up(FLONUM d, FLONUM x1, FLONUM y1, FLO/
+vis	xgraphics.h	/^  int vis;$/
+wanna_x	graphics.c	/^FLONUM wanna_x = 0.0, wanna_y = 0.0;$/
+wanna_y	graphics.c	/^FLONUM wanna_x = 0.0, wanna_y = 0.0;$/
+want_buried	wrksp.c	/^int want_buried = 0;$/
+white_space	parse.c	/^#define white_space(/
+win	xgraphics.c	/^Window      win;		\/* Window ID             *\/$/
+windowmode	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
+word_strnzcpy	logodata.c	/^char *word_strnzcpy(char *s1, NODE *kludge, int n) {  \/* KLUDGE! *\/$/
+wrap_down	graphics.c	/^FLONUM wrap_down(FLONUM d, FLONUM x1, FLONUM y1, FLONUM x2, FLONUM y2) {$/
+wrap_left	graphics.c	/^FLONUM wrap_left(FLONUM d, FLONUM x1, FLONUM y1, FLONUM x2, FLONUM y2) {$/
+wrap_right	graphics.c	/^FLONUM wrap_right(FLONUM d, FLONUM x1, FLONUM y1, FLONUM x2, FLONUM y2) {$/
+wrap_up	graphics.c	/^FLONUM wrap_up(FLONUM d, FLONUM x1, FLONUM y1, FLONUM x2, FLONUM y2) {$/
+wrapmode	logo.h	/^typedef enum {wrapmode, fencemode, windowmode} mode_type;$/
+writer_name	files.c	/^NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;$/
+writestream	parse.c	/^FILE *writestream;$/
+x_coord	term.c	/^int x_coord, y_coord, x_max, y_max;$/
+x_margin	print.c	/^int x_margin=0, y_margin=0;$/
+x_max	term.c	/^int x_coord, y_coord, x_max, y_max;$/
+x_mouse_x	xgraphics.c	/^int x_mouse_x, x_mouse_y;$/
+x_mouse_y	xgraphics.c	/^int x_mouse_x, x_mouse_y;$/
+x_scale	graphics.c	/^FLONUM x_scale = 1.0, y_scale = 1.0;$/
+x_window	logo.h	/^#define x_window$/
 x_window_init	xgraphics.c	/^void x_window_init(int argc, char **argv)$/
+xgr_pen	xgraphics.c	/^pen_info xgr_pen;$/
+xpos	xgraphics.h	/^  int xpos;$/
+xwmh	xgraphics.c	/^XWMHints xwmh = {$/
+y_coord	term.c	/^int x_coord, y_coord, x_max, y_max;$/
+y_margin	print.c	/^int x_margin=0, y_margin=0;$/
+y_max	term.c	/^int x_coord, y_coord, x_max, y_max;$/
+y_scale	graphics.c	/^FLONUM x_scale = 1.0, y_scale = 1.0;$/
+ypos	xgraphics.h	/^  int ypos;$/
+zrd_print_prompt	parse.c	/^#define zrd_print_prompt /
 zrd_print_prompt	parse.c	/^void zrd_print_prompt(char *str) {$/

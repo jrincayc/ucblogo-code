@@ -1,0 +1,367 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on July, 24  2001 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>BERKELEY LOGO: SPECIAL VARIABLES</TITLE>
+
+<META NAME="description" CONTENT="BERKELEY LOGO: SPECIAL VARIABLES">
+<META NAME="keywords" CONTENT="BERKELEY LOGO: SPECIAL VARIABLES">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC343"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC342"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC344"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC341"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 11. Special Variables </H1>
+<!--docid::SEC343::-->
+<P>
+
+Logo takes special action if any of the following variable names exists.
+They follow the normal scoping rules, so a procedure can locally set one
+of them to limit the scope of its effect.  Initially, no variables exist
+except <VAR>ALLOWGETSET</VAR>, <VAR>CASEIGNOREDP</VAR>, and
+<VAR>UNBURYONEDIT</VAR>, which is TRUE and buried.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC344">allowgetset</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC345">caseignoredp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC346">erract</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC347">fullprintp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC348">loadnoisily</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC349">printdepthlimit</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC350">printwidthlimit</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC351">redefp</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC352">startup</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_11.html#SEC353">unburyonedit</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="ALLOWGETSET"></A>
+<HR SIZE="6">
+<A NAME="SEC344"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC345"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> allowgetset </H3>
+<!--docid::SEC344::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ALLOWGETSET                           (variable)
+</pre></td></tr></table></P><P>
+
+if TRUE, indicates that an attempt to use a procedure that doesn't exist
+should be taken as an implicit getter or setter procedure (setter if the
+first three letters of the name are SET) for a variable of the same name
+(without the SET if appropriate).
+</P><P>
+
+<A NAME="CASEIGNOREDP"></A>
+<HR SIZE="6">
+<A NAME="SEC345"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC344"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC346"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> caseignoredp </H3>
+<!--docid::SEC345::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>CASEIGNOREDP                                (variable)
+</pre></td></tr></table></P><P>
+
+if TRUE, indicates that lower case and upper case letters should be
+considered equal by EQUALP, BEFOREP, MEMBERP, etc.  Logo initially makes
+this variable TRUE, and buries it.
+</P><P>
+
+See section <A HREF="usermanual_2.html#SEC48">equalp</A> ,
+<A HREF="usermanual_2.html#SEC49">beforep</A> ,
+<A HREF="usermanual_2.html#SEC51">memberp</A> .
+</P><P>
+
+<A NAME="ERRACT"></A>
+<HR SIZE="6">
+<A NAME="SEC346"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC345"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC347"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> erract </H3>
+<!--docid::SEC346::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ERRACT                                      (variable)
+</pre></td></tr></table></P><P>
+
+an instructionlist that will be run in the event of an error.  Typically
+has the value [PAUSE] to allow interactive debugging.
+</P><P>
+
+See section <A HREF="usermanual_8.html#SEC309">pause</A> .
+</P><P>
+
+<A NAME="FULLPRINTP"></A>
+<HR SIZE="6">
+<A NAME="SEC347"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC346"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC348"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> fullprintp </H3>
+<!--docid::SEC347::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>FULLPRINTP
+</pre></td></tr></table></P><P>
+
+if TRUE, then words that were created using backslash or vertical bar
+(to include characters that would otherwise not be treated as part of a
+word) are printed with the backslashes or vertical bars shown, so that
+the printed result could be re-read by Logo to produce the same value.
+If FULLPRINTP is TRUE then the empty word (however it was created)
+prints as <CODE>||</CODE>.  (Otherwise it prints as nothing at all.)
+</P><P>
+
+<A NAME="LOADNOISILY"></A>
+<HR SIZE="6">
+<A NAME="SEC348"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC347"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC349"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> loadnoisily </H3>
+<!--docid::SEC348::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>LOADNOISILY                                 (variable)
+</pre></td></tr></table></P><P>
+
+if TRUE, prints the names of procedures defined when loading from a file
+(including the temporary file made by EDIT).
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> .
+</P><P>
+
+<A NAME="PRINTDEPTHLIMIT"></A>
+<HR SIZE="6">
+<A NAME="SEC349"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC348"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC350"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> printdepthlimit </H3>
+<!--docid::SEC349::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PRINTDEPTHLIMIT                             (variable)
+</pre></td></tr></table></P><P>
+
+if a nonnegative integer, indicates the maximum depth of sublist
+structure that will be printed by PRINT, etc.
+</P><P>
+
+See section <A HREF="usermanual_3.html#SEC68">print</A> .
+</P><P>
+
+<A NAME="PRINTWIDTHLIMIT"></A>
+<HR SIZE="6">
+<A NAME="SEC350"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC349"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC351"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> printwidthlimit </H3>
+<!--docid::SEC350::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>PRINTWIDTHLIMIT                             (variable)
+</pre></td></tr></table></P><P>
+
+if a nonnegative integer, indicates the maximum number of members in any
+one list that will be printed by PRINT, etc.
+</P><P>
+
+See section <A HREF="usermanual_3.html#SEC68">print</A> .
+</P><P>
+
+<A NAME="REDEFP"></A>
+<HR SIZE="6">
+<A NAME="SEC351"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC350"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC352"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> redefp </H3>
+<!--docid::SEC351::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>REDEFP                                      (variable)
+</pre></td></tr></table></P><P>
+
+if TRUE, allows primitives to be erased (ERASE) or redefined (COPYDEF).
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC259">erase</A> ,
+<A HREF="usermanual_7.html#SEC219">copydef</A> .
+</P><P>
+
+<A NAME="STARTUP"></A>
+<HR SIZE="6">
+<A NAME="SEC352"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC351"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC353"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> startup </H3>
+<!--docid::SEC352::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>STARTUP                                     (variable)
+</pre></td></tr></table></P><P>
+
+if assigned a list value in a file loaded by LOAD, that value is run as
+an instructionlist after the loading.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC289">load</A> .
+</P><P>
+
+<A NAME="UNBURYONEDIT"></A>
+<HR SIZE="6">
+<A NAME="SEC353"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC352"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> unburyonedit </H3>
+<!--docid::SEC353::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>UNBURYONEDIT                            (variable)
+</pre></td></tr></table></P><P>
+
+if TRUE, causes any procedure defined during EDIT or LOAD to be
+unburied, so that it will be saved by a later SAVE.  Files that want to
+define and bury procedures must do it in that order.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC279">edit</A> ,
+See section <A HREF="usermanual_7.html#SEC289">load</A> ,
+See section <A HREF="usermanual_7.html#SEC287">save</A> .
+</P><P>
+
+<A NAME="INDEX"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Brian Harvey</I> on <I>July, 24  2001</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

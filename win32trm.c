@@ -66,6 +66,9 @@ int cur_line = 0, cur_index = 0, read_index, hpos = 0, margin, cur_len;
 int char_mode = 0, input_line = 0, input_index = 0;
 
 int line_avail = FALSE, char_avail = FALSE;
+char *winPasteText = NULL, *winPastePtr = NULL;
+char *myScreen = NULL;
+int maxXChar, maxYChar;
 
 /* Default font behavior set here: OEM_FIXED_FONT, ANSI_FIXED_FONT, or default */
 BOOLEAN oemfont = FALSE;
@@ -157,6 +160,7 @@ void win32_advance_line(void) {
     ypos = ((tm.tmHeight + tm.tmExternalLeading) * y_coord);
 
     if ((ypos + 2 * (tm.tmHeight + tm.tmExternalLeading)) >= r.bottom) {
+	memmove(myScreen, myScreen+maxXChar, maxXChar*(maxYChar-1));
         ScrollDC(ConDC, 0, - (tm.tmHeight + tm.tmExternalLeading),
 		       &r, &r, NULL, &inv);
         FillRect(ConDC, &inv, textbrush);
@@ -219,6 +223,8 @@ char *eight_dot_three(char *in) {
         strncpy(last, &in[index], strlen(in) - index);
         last[strlen(in) - index] = '\0';
     }
+    for (fear = last; *fear != '\0'; fear++)
+        if (*fear == '?') *fear = 'Q';
     fear = eight_dot_three_helper(last);
     strcat(out, fear);
     free(last);
@@ -260,6 +266,7 @@ void win32_clear_text(void) {
      */
 
     // GetClientRect(hConWnd, &r);
+    memset(myScreen, ' ',maxXChar*maxYChar);
     FillRect(ConDC, &allRect, textbrush);
     FillRect(memConDC, &allRect, textbrush);
 }
@@ -351,12 +358,25 @@ void win32_text_cursor(void) {
     update_coords('\b');
 }
 
+void DrawBoxOutline(POINT ptBeg, POINT ptEnd) {
+    SetROP2(ConDC, R2_NOT);
+    SelectObject(ConDC, GetStockObject(NULL_BRUSH));
+    Rectangle(ConDC, ptBeg.x, ptBeg.y, ptEnd.x, ptEnd.y);
+}
+
 LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 				   LPARAM lParam) {
     HFONT hfont;
     PAINTSTRUCT ps;
     RECT rect;
     TEXTMETRIC tm;
+    HGLOBAL hClipMemory, hCopyText;
+    PSTR pClipMemory, copyText;
+    static int fBlocking=FALSE, haveBlock=FALSE;
+    static POINT ptBeg, ptEnd;
+    static int chBegX, chBegY, chEndX, chEndY;
+    char *copyPtr;
+    int i,j;
 
     switch (message) {
         case WM_CREATE:
@@ -385,12 +405,56 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
             FillRect(memConDC, &allRect, textbrush);
             GetClientRect(hConWnd, &rect);
             GetTextMetrics(ConDC, &tm);
+	    maxXChar = maxX / tm.tmAveCharWidth;
+	    maxYChar = maxY / (tm.tmHeight + tm.tmExternalLeading);
+	    myScreen = (char *)malloc(maxXChar * maxYChar);
+	    memset(myScreen, ' ',maxXChar*maxYChar);
             ibm_plain_mode();
             break;
+	case WM_LBUTTONDOWN:
+	    if (haveBlock) DrawBoxOutline(ptBeg, ptEnd);
+	    GetTextMetrics(memConDC, &tm);
+	    ptEnd.x = LOWORD(lParam);
+	    ptEnd.y = HIWORD(lParam);
+	    ptEnd.x = (ptEnd.x/tm.tmAveCharWidth) * tm.tmAveCharWidth;
+	    ptEnd.y = (ptEnd.y/(tm.tmHeight + tm.tmExternalLeading))
+			* (tm.tmHeight + tm.tmExternalLeading);
+	    ptBeg.x = ptEnd.x;
+	    ptBeg.y = ptEnd.y;
+	    DrawBoxOutline(ptBeg, ptEnd);
+	    SetCapture(hwnd);
+	    fBlocking = TRUE;
+	    haveBlock = FALSE;
+	    return 0;
+	case WM_MOUSEMOVE:
+	    GetTextMetrics(memConDC, &tm);
+	    if (fBlocking) {
+		DrawBoxOutline(ptBeg, ptEnd);
+		ptEnd.x = LOWORD(lParam);
+		ptEnd.y = HIWORD(lParam);
+		ptEnd.x = (ptEnd.x/tm.tmAveCharWidth) * tm.tmAveCharWidth;
+		ptEnd.y = (ptEnd.y/(tm.tmHeight + tm.tmExternalLeading))
+			    * (tm.tmHeight + tm.tmExternalLeading);
+		DrawBoxOutline(ptBeg, ptEnd);
+	    }
+	    return 0;
+	case WM_LBUTTONUP:
+	    if (fBlocking) {
+		ReleaseCapture();
+		fBlocking = FALSE;
+		haveBlock=TRUE;
+		chBegX = ptBeg.x/tm.tmAveCharWidth;
+		chBegY = ptBeg.y/(tm.tmHeight + tm.tmExternalLeading);
+		chEndX = ptEnd.x/tm.tmAveCharWidth;
+		chEndY = ptEnd.y/(tm.tmHeight + tm.tmExternalLeading);
+	    }
+	    return 0;
         case WM_CHAR:
+	    if (haveBlock) DrawBoxOutline(ptBeg, ptEnd);
             if (char_mode) {
 	        buffered_char = (char)wParam;
 	        char_avail++;
+		haveBlock = FALSE;
 	        return 0;
             }
 	    print_space(stdout);	    // flush cursor
@@ -408,8 +472,9 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 		}
             } else if ((char) wParam == '\r') {    // line ready, let's go!
 	        print_char(stdout, '\n');
-
+		haveBlock = FALSE;
 	        win32_lines[cur_line][cur_index++] = '\n'; // reader code expects \n
+		win32_lines[cur_line][cur_index] = '\0';
 	        cur_len = cur_index;
 	        read_line = (char *)malloc((strlen(win32_lines[cur_line]) + 1) *
 				                sizeof(char));
@@ -421,6 +486,7 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 	        cur_index = 0;
 	        return 0;
             } else if ((char)wParam == 17 || (char)wParam == 23) {
+		haveBlock = FALSE;
 	        print_char(stdout, '\n');
 	        read_line = (char *)malloc(sizeof(char));
 	        *read_line = (char)wParam;
@@ -428,7 +494,52 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 	        read_index = 0;
 	        cur_index = 0;
 	        return 0;
+	    } else if ((char)wParam == 3 && haveBlock) { /* ^C for copy */
+		int temp;
+		haveBlock = FALSE;
+		if (chEndX < chBegX) {
+		    temp = chEndX;
+		    chEndX = chBegX;
+		    chBegX = temp;
+		}
+		if (chEndY < chBegY) {
+		    temp = chEndY;
+		    chEndY = chBegY;
+		    chBegY = temp;
+		}
+		hCopyText = GlobalAlloc(GHND,
+					(chEndY-chBegY)*(2+chEndX-chBegX)+1);
+		copyText = GlobalLock(hCopyText);
+		copyPtr = copyText;
+		for (i=chBegY; i<chEndY; i++) {
+		    for (j=chBegX; j<chEndX; j++)
+			*copyPtr++ = myScreen[i*maxXChar + j];
+		    *copyPtr++ = '\r';
+		    *copyPtr++ = '\n';
+		}
+		GlobalUnlock(hCopyText);
+		if (OpenClipboard(hwnd)) {
+		    EmptyClipboard();
+		    SetClipboardData(CF_TEXT,hCopyText);
+		    CloseClipboard();
+		}
+		return 0;
+	    } else if ((char)wParam == 22) {	/* ^V for paste */
+		haveBlock = FALSE;
+		if (OpenClipboard(hwnd)) {
+		    hClipMemory = GetClipboardData(CF_TEXT);
+		    if (hClipMemory != NULL) {
+			winPasteText = (char *)malloc(GlobalSize(hClipMemory));
+			pClipMemory = GlobalLock(hClipMemory);
+			strcpy(winPasteText, pClipMemory);
+			winPastePtr = winPasteText;
+		    }
+		    GlobalUnlock(hClipMemory);
+		    CloseClipboard();
+		    winDoPaste();
+		}
             } else {
+		haveBlock = FALSE;
 	        win32_lines[cur_line][cur_index++] = (char) wParam;
 	        print_char(stdout, (char) wParam);
 		win32_text_cursor();
@@ -437,9 +548,11 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
        case WM_USER:
             InvalidateRect(hConWnd, NULL, 1);
        case WM_PAINT:
+	    haveBlock = FALSE;
             BeginPaint(hConWnd, &ps);
-            GetClientRect(ps.hdc, &rect);
-            BitBlt(ps.hdc, 0, 0, rect.right, rect.bottom, memConDC, 0, 0, SRCCOPY);
+            GetClientRect(hConWnd /* ps.hdc */ , &rect);
+            BitBlt(ps.hdc, 0, 0, rect.right, rect.bottom, memConDC, 0, 0,
+		   SRCCOPY);
             EndPaint(hConWnd, &ps);
             break;
         case WM_DESTROY:  /* end program */
@@ -581,6 +694,33 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     return 0;
 }
 
+void winDoPaste(void) {
+    char ch = *winPastePtr++;
+    while (ch != '\0') {
+	if (ch == '\r') {
+	    print_char(stdout, '\n');
+	    win32_lines[cur_line][cur_index++] = '\n';
+	    cur_len = cur_index;
+	    read_line = (char *)malloc((strlen(win32_lines[cur_line]) + 1) *
+					    sizeof(char));
+	    strncpy(read_line, win32_lines[cur_line], cur_index + 1);
+	    line_avail = 1;
+	    read_index = 0;
+	    if (++cur_line >= NUM_LINES)
+		cur_line %= NUM_LINES;  // wrap around
+	    cur_index = 0;
+	    return;
+	}
+	if (ch != 3 && ch != 22 && ch != '\n') {
+	    win32_lines[cur_line][cur_index++] = ch;
+	    print_char(stdout, ch);
+	}
+	ch = *winPastePtr++;
+    }
+    free(winPasteText);
+    winPasteText = NULL;
+}
+
 NODE *win32_get_node_pen_pattern(void) {
     return cons(make_intnode(-1), NIL);
 }
@@ -661,8 +801,7 @@ void label(char *str) {
 }
 
 void plain_xor_pen(void) {
-    SetROP2(memGraphDC, R2_XORPEN);
-    SetROP2(GraphDC, R2_XORPEN);
+    win32_set_pen_mode(WIN_PEN_REVERSE);
 }
 
 BOOLEAN check_ibm_stop(void) {
@@ -1070,6 +1209,9 @@ void CharOut(int c) {
     char nog[3];
 
     sprintf(nog, "%c", c);
+
+    if (x_coord < maxXChar && y_coord < maxYChar)
+	myScreen[(y_coord * maxXChar) + x_coord] = c;
 
     GetTextMetrics(memConDC, &tm);
     xpos = tm.tmAveCharWidth * x_coord;

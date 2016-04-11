@@ -29,6 +29,7 @@
 #include <GestaltEqu.h>
 #include <Palettes.h>
 #include <Files.h>
+#include <Fonts.h>
 
 char windowtitle[100];
 FILE *graphics, *console;
@@ -73,13 +74,17 @@ BOOLEAN check_mac_stop(void) {
 	err_logo(STACK_OVERFLOW, NIL);
 	return(1);
     }
-    GetKeys(&the_key_map);
+    GetKeys((unsigned long *)&the_key_map);
     if (the_key_map[5] & 128 && the_key_map[6] & 128) {
 		    /* period and command are down */
 	if (!gotkey) {
 	    gotkey = 1;
 	    FlushEvents(everyEvent, 0);
+#ifdef SIG_TAKES_ARG
+	    logo_stop(0);
+#else
 	    logo_stop();
+#endif
 	    return 1;
 	}
     } else if (the_key_map[5] & 8 && the_key_map[6] & 128) {
@@ -87,7 +92,11 @@ BOOLEAN check_mac_stop(void) {
 	if (!gotkey) {
 	    gotkey = 1;
 	    FlushEvents(everyEvent, 0);
+#ifdef SIG_TAKES_ARG
+	    logo_pause(0);
+#else
 	    logo_pause();
+#endif
 	}
     } else
 	gotkey = 0;
@@ -105,10 +114,10 @@ void term_init_mac(void) {
     tty_charmode = 0;
     x_max = 80;
     y_max = 24;
-    console_options.title = windowtitle;
+    console_options.title = (unsigned char *)windowtitle;
     console_options.top-= 5;
     console_options.left-= 5;
-    strncpy(console_options.title, "\pGraphics", 9);
+    strncpy((char *)console_options.title, (char const *)"\pGraphics", 9);
 	want_color = 1;
     graphics = fopenc();
 	want_color = 0;
@@ -125,7 +134,7 @@ void term_init_mac(void) {
 
     console_options.top+= 10;
     console_options.left+= 10;
-    strncpy(console_options.title, "\pBerkeley Logo", 14);
+    strncpy((char *)console_options.title, (char const *)"\pBerkeley Logo", 14);
     console = fopenc();
     lregulartext(NIL);
     cinverse(1,stdout);
@@ -365,7 +374,7 @@ void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
 }
 
 void set_pen_pattern(char *pat) {
-	PenPat(pat);
+	PenPat((struct Pattern *)pat);
 }
 
 void set_list_pen_pattern(NODE *arg) {
@@ -379,9 +388,46 @@ void set_list_pen_pattern(NODE *arg) {
 	p_arr[count] = (char)getint(temp);
 	cur_num = cdr(cur_num);
     }
-    PenPat(p_arr);
+    PenPat((struct Pattern *)p_arr);
 }
 
+#ifdef SYMANTEC_C
+union myPattU {
+	char patt_ch[8];
+	struct Pattern patt_p;
+};
+
+typedef union myPattU myPatt;
+
+void get_pen_pattern(char *pat) {
+    PenState oil;
+    int count;
+    myPatt my_patt;
+
+    GetPenState(&oil);
+    my_patt.patt_p = oil.pnPat;
+    for (count = 0; count < 8; count++)
+	 *(char *)(pat + count) = my_patt.patt_ch[count];
+}
+
+NODE *Get_node_pen_pattern() {
+    PenState oil;
+    int count;
+    myPatt my_patt;
+
+    GetPenState(&oil);
+    my_patt.patt_p = oil.pnPat;
+    return(cons(make_intnode((FIXNUM)(my_patt.patt_ch[0])),
+	    cons(make_intnode((FIXNUM)(my_patt.patt_ch[1])),
+	     cons(make_intnode((FIXNUM)(my_patt.patt_ch[2])),
+	      cons(make_intnode((FIXNUM)(my_patt.patt_ch[3])),
+	       cons(make_intnode((FIXNUM)(my_patt.patt_ch[4])),
+		cons(make_intnode((FIXNUM)(my_patt.patt_ch[5])),
+		 cons(make_intnode((FIXNUM)(my_patt.patt_ch[6])),
+		  cons(make_intnode((FIXNUM)(my_patt.patt_ch[7])),
+		   NIL)))))))));
+}
+#else
 void get_pen_pattern(char *pat) {
     PenState oil;
     int count;
@@ -406,6 +452,7 @@ NODE *Get_node_pen_pattern() {
 		  cons(make_intnode((FIXNUM)(oil.pnPat[7])),
 		   NIL)))))))));
 }
+#endif
 
 NODE *Get_node_pen_mode() {
     switch(pen_mode) {
@@ -430,7 +477,7 @@ void label(char *s) {
 	default	       : tmode = srcCopy; break;    /* can't happen */
     }
     TextFont(monaco); TextSize(9); TextMode(tmode);
-    DrawString(s);
+    DrawString((unsigned char const *)s);
     SetPort(savePort);
 }
 
@@ -482,7 +529,7 @@ void t_screen(void) {
     console_options.nrows = 25;
     console_options.left = 15;
     console_options.top = 55;
-    strncpy(console_options.title, "\pBerkeley Logo", 14);
+    strncpy((char *)console_options.title, (char *)"\pBerkeley Logo", 14);
     lnewconsole(NIL);
 
     MoveWindow(myWindow, 15, 55, TRUE);
@@ -507,7 +554,7 @@ void s_screen(void) {
     console_options.nrows = 6;
     console_options.left = 5;
     console_options.top = v + 6;
-    strncpy(console_options.title, "\pBerkeley Logo", 14);
+    strncpy((char *)console_options.title, (char *)"\pBerkeley Logo", 14);
     lnewconsole(NIL);
 
     MoveWindow(myWindow, 5, v, TRUE);
@@ -532,7 +579,7 @@ void f_screen(void) {
     console_options.nrows = 0;
     console_options.left = 5;
     console_options.top = v + 52;
-    strncpy(console_options.title, "\pBerkeley Logo", 14);
+    strncpy((char *)console_options.title, (char *)"\pBerkeley Logo", 14);
     lnewconsole(NIL);
 
     MoveWindow(myWindow, 5, v, TRUE);
@@ -567,8 +614,14 @@ FIXNUM mickey_y(void) {
     return((FIXNUM)(graphics_window->portRect.bottom/2 - the_mouse.v));
 }
 
+#ifdef SYMANTEC_C
+SndChannelPtr SoundChannel = NIL;
+#endif
+
 /* see Inside Macintosh vol. 2 pp. 237-241 for pitch values */
 void tone(FIXNUM pitch, FIXNUM duration) {
+
+#ifndef SYMANTEC_C
     struct { int mode;
 	     int freq;
 	     int amp;
@@ -582,6 +635,31 @@ void tone(FIXNUM pitch, FIXNUM duration) {
     
     StartSound(&sound_rec, (long)8, (char *)(-1));
     while (!SoundDone()) ;
+#endif
+
+#ifdef SYMANTEC_C
+	SndCommand MyCommand;
+	SCStatus ChannelStatus;
+	
+	pitch = (int) 60+((log(pitch/261.625))/(log(twelfthRootTwo)));
+	duration *= 34;  /* ticks to half-milliseconds */
+	if (duration>0 && duration<65536 && pitch >=0 && pitch<128) {
+		if (SoundChannel == NIL) {
+			SndNewChannel(&SoundChannel, squareWaveSynth,
+						  initMono+initChanLeft, (ProcPtr)NIL);
+		}
+		if (SoundChannel != NIL) {
+			MyCommand.cmd = freqDurationCmd;
+			MyCommand.param1 = duration;
+			MyCommand.param2 = pitch;
+			SndDoImmediate(SoundChannel, &MyCommand);
+			ChannelStatus.scChannelBusy = true;
+			while (ChannelStatus.scChannelBusy == true)
+				SndChannelStatus(SoundChannel, sizeof(ChannelStatus),
+								 &ChannelStatus);
+		}
+	}
+#endif
 }
 
 /************************************************************/
@@ -601,7 +679,6 @@ void c_to_pascal_string(char *str, int len) {
 void fixMacType(NODE *arg) {
     char *fnstr;
     FSSpec theFSSpec;
-    long dir = 0L;
 
     arg = cnv_node_to_strnode(car(arg));
     if (arg == UNBOUND) return;
@@ -612,6 +689,6 @@ void fixMacType(NODE *arg) {
     }
     noparity_strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
     c_to_pascal_string(fnstr, getstrlen(arg));
-    FSMakeFSSpec(-1, dir, fnstr, &theFSSpec);
+    FSMakeFSSpec(0, 0L, (unsigned char *)fnstr, &theFSSpec);
     HCreate(theFSSpec.vRefNum, theFSSpec.parID, theFSSpec.name, '????', 'EPSF');
 }

@@ -642,6 +642,54 @@ NODE *larray(NODE *args) {
     return UNBOUND;
 }
 
+NODE *llisttoarray(NODE *args) {
+    int len = 0, org = 1, i;
+    NODE *p, *arr = UNBOUND;
+
+    while (car(args) != NIL && !is_list(car(args)) && NOT_THROWING) {
+	setcar(args, err_logo(BAD_DATA, car(args)));
+    }
+
+    if (cdr(args) != NIL) {
+	p = cnv_node_to_numnode(car(cdr(args)));
+	while (nodetype(p) != INT && NOT_THROWING) {
+	    setcar(cdr(args), err_logo(BAD_DATA, car(cdr(args))));
+	    p = cnv_node_to_numnode(car(cdr(args)));
+	}
+    }
+
+    if (NOT_THROWING) {
+	for (p = car(args); p != NIL; p = cdr(p)) len++;
+
+	if (cdr(args) != NIL)
+	    org = getint(car(cdr(args)));
+	arr = make_array(len);
+	setarrorg(arr,org);
+
+	i = 0;
+	for (p = car(args); p != NIL; p = cdr(p))
+	    (getarrptr(arr))[i++] = car(p);
+    }
+    return(arr);
+}
+
+NODE *larraytolist(NODE *args) {
+    NODE *p = NIL, *arg;
+    int i;
+
+    while (nodetype(car(args)) != ARRAY && NOT_THROWING) {
+	setcar(args, err_logo(BAD_DATA, car(args)));
+    }
+
+    if (NOT_THROWING) {
+	arg = car(args);
+	for (i = getarrdim(arg) - 1; i >= 0; i--)
+	    p = cons(getarrptr(arg)[i], p);
+	return p;
+    }
+    return UNBOUND;
+}
+
 FLONUM float_arg(NODE *args) {
     NODE *arg = car(args), *val;
 

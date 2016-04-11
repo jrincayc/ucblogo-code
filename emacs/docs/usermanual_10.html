@@ -1,0 +1,163 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on July, 24  2001 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>BERKELEY LOGO: ERROR PROCESSING</TITLE>
+
+<META NAME="description" CONTENT="BERKELEY LOGO: ERROR PROCESSING">
+<META NAME="keywords" CONTENT="BERKELEY LOGO: ERROR PROCESSING">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC341"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC340"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC342"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC336"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 10. Error Processing </H1>
+<!--docid::SEC341::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_10.html#SEC342">10.1 Error Codes</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+If an error occurs, Logo takes the following steps.  First, if there is
+an available variable named <VAR>ERRACT</VAR>, Logo takes its value as an instructionlist and runs the instructions.  The operation ERROR may be used within the
+instructions (once) to examine the error condition.  If the instructionlist
+invokes PAUSE, the error message is printed before the pause happens.
+Certain errors are "recoverable"; for one of those errors, if the
+instructionlist outputs a value, that value is used in place of the
+expression that caused the error.  (If <VAR>ERRACT</VAR> invokes PAUSE and the user then invokes CONTINUE with an input, that input becomes the output from PAUSE and therefore the output from the <VAR>ERRACT</VAR> instructionlist.)
+</P><P>
+
+It is possible for an <VAR>ERRACT</VAR> instructionlist to produce an inappropriate value or no value where one is needed.  As a result, the same error condition could recur forever because of this mechanism.  To avoid that danger, if the same error condition occurs twice in a row from an <VAR>ERRACT</VAR> instructionlist without user interaction, the message "Erract loop" is printed and control returns to toplevel.  "Without user interaction" means that if <VAR>ERRACT</VAR> invokes PAUSE and the user provides an incorrect value, this loop prevention mechanism does not take effect and the user gets to try again.
+</P><P>
+
+During the running of the <VAR>ERRACT</VAR> instructionlist, <VAR>ERRACT</VAR> is locally unbound, so an error in the <VAR>ERRACT</VAR> instructions themselves will not cause a loop.  In particular, an error during a pause will not cause a pause-within-a-pause unless the user reassigns the value [PAUSE] to <VAR>ERRACT</VAR> during the pause.  But such an error will not return to toplevel; it will remain within the original pause loop.
+</P><P>
+
+If there is no available <VAR>ERRACT</VAR> value, Logo handles the error by generating an internal <TT>THROW "ERROR</TT>.  (A user program can also generate an error condition deliberately by invoking THROW.)  If this throw is not caught by
+a <TT>CATCH "ERROR</TT> in the user program, it is eventually caught either by the toplevel instruction loop or by a pause loop, which prints the error message. An invocation of <TT>CATCH "ERROR</TT> in a user program locally unbinds <VAR>ERRACT</VAR>, so the effect is that whichever of <VAR>ERRACT</VAR> and <TT>CATCH "ERROR</TT> is more local will take precedence.
+</P><P>
+
+If a floating point overflow occurs during an arithmetic operation, or a
+two-input mathematical function (like POWER) is invoked with an illegal
+combination of inputs, the <SAMP>`doesn't like'</SAMP> message refers to the second
+operand, but should be taken as meaning the combination.
+</P><P>
+
+See section <A HREF="usermanual_11.html#SEC346">erract</A> ,
+<A HREF="usermanual_8.html#SEC307">throw</A> ,
+<A HREF="usermanual_8.html#SEC308">error</A> ,
+<A HREF="usermanual_8.html#SEC306">catch</A> ,
+<A HREF="usermanual_8.html#SEC309">pause</A> ,
+<A HREF="usermanual_8.html#SEC310">continue</A> .
+</P><P>
+
+<A NAME="ERROR CODES"></A>
+<HR SIZE="6">
+<A NAME="SEC342"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC341"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC341"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC341"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 10.1 Error Codes </H2>
+<!--docid::SEC342::-->
+<P>
+
+Here are the numeric codes that appear as the first member of the list
+output by ERROR when an error is caught, with the corresponding messages.
+Some messages may have two different codes depending on whether or not
+the error is recoverable (that is, a substitute value can be provided
+through the <VAR>ERRACT</VAR> mechanism) in the specific context.  Some messages are
+warnings rather than errors; these will not be caught.  Errors 0 and 32 are
+so bad that Logo exits immediately.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">
+  0	Fatal internal error (can't be caught)
+  1	Out of memory
+  2	Stack overflow
+  3	Turtle out of bounds
+  4	PROC doesn't like DATUM as input (not recoverable)
+  5	PROC didn't output to PROC
+  6	Not enough inputs to PROC
+  7	PROC doesn't like DATUM as input (recoverable)
+  8	Too much inside ()'s
+  9 	You don't say what to do with DATUM
+ 10	')' not found
+ 11	VAR has no value
+ 12	Unexpected ')'
+ 13	I don't know how to PROC (recoverable)
+ 14	Can't find catch tag for THROWTAG
+ 15	PROC is already defined
+ 16	Stopped
+ 17	Already dribbling
+ 18	File system error
+ 19	Assuming you mean IFELSE, not IF (warning only)
+ 20	VAR shadowed by local in procedure call (warning only)
+ 21	Throw "Error
+ 22	PROC is a primitive
+ 23	Can't use TO inside a procedure
+ 24	I don't know how to PROC (not recoverable)
+ 25	IFTRUE/IFFALSE without TEST
+ 26	Unexpected ']'
+ 27	Unexpected '}'
+ 28	Couldn't initialize graphics
+ 29	Macro returned VALUE instead of a list
+ 30	You don't say what to do with VALUE
+ 31	Can only use STOP or OUTPUT inside a procedure
+ 32	APPLY doesn't like BADTHING as input
+ 33	END inside multi-line instruction
+ 34	Really out of memory (can't be caught)
+</pre></td></tr></table></P><P>
+
+<A NAME="SPECIAL VARIABLES"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC341"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_11.html#SEC343"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Brian Harvey</I> on <I>July, 24  2001</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

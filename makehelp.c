@@ -10,6 +10,7 @@ main() {
     FILE *in=fopen("usermanual", "r");
     FILE *fp, *fp2;
     FILE *toc=fopen("helpfiles/HELPCONTENTS", "w");
+    FILE *tmp=fopen("helptemp", "w");
     char ch, *cp, *np, *tp;
     int intab, three, col=5;
 
@@ -25,7 +26,8 @@ main() {
 
     while (!feof(in)) {
 	for (cp = line, np = &name[10], tp = tocname;
-	     (ch = *cp) == '.' || (ch >= 'A' && ch <= 'Z') || ch == '`';
+	     (ch = *cp) == '.' || (ch >= 'A' && ch <= 'Z') || ch == '`'
+		    || ch == '0' || ch == '1';
 	     cp++) {
 	  *tp++ = tolower(ch);
 	  if (ch == '.') ch='d';
@@ -43,8 +45,9 @@ main() {
 	    continue;
 	}
 
+	line2[1] = 'x';
 	fgets(line2, 100, in);
-	if ((ch = line2[0]) == '-' || ch == '=') {
+	if ((ch = line2[1]) == '-' || ch == '=') {
 	    fgets(line, 100, in);
 	    continue;
 	}
@@ -55,14 +58,10 @@ main() {
 	    exit(1);
 	}
 
-	if (--col == 0) {
-	    col = 5;
-	    fprintf(toc, "%-16s\n", tocname);
-	} else {
-	    fprintf(toc, "%-16s", tocname);
-	}
+	fprintf(tmp, "%s\n", tocname);
 
 	three = 0;
+	ch = line2[0];
 	if (ch == '.' || (ch >= 'A' && ch <= 'Z')) {
 	    for (cp = line2, np = &name2[10], tp = tocname;
 		 (ch = *cp) == '.' || (ch >= 'A' && ch <= 'Z') || ch == '?';
@@ -116,7 +115,8 @@ main() {
 	fclose(fp);
 	if (fp2) fclose(fp2);
     }
-    fprintf(toc, "\n");
+    fprintf(tmp, ".defmacro\n");    /* looks like abbrev for .macro */
+    fclose(tmp);
     fclose(toc);
     exit(0);
 }

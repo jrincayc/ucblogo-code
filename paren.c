@@ -44,15 +44,17 @@ void untreeify_line(NODE *line) {
     }
 }
 
-void untreeify_proc(NODE *proc) {
-
-    NODE *body = bodylist__procnode(proc);
+void untreeify_body(NODE *body) {
     NODE *body_ptr;
 
     for (body_ptr = body; body_ptr != NIL; body_ptr = cdr(body_ptr)) {
 	untreeify_line(car(body_ptr));
     }
     untreeify(body);
+}
+
+void untreeify_proc(NODE *proc) {
+    untreeify_body(bodylist__procnode(proc));
 }
 
 /* Treeify a body by appending the trees of the lines.
@@ -64,6 +66,7 @@ void make_tree_from_body(NODE *body) {
     if (body == NIL ||
 	(is_tree(body) && generation__tree(body) == the_generation))
 	    return;
+    if (is_tree(body)) untreeify_body(body);
     for (body_ptr = body; body_ptr != NIL; body_ptr = cdr(body_ptr)) {
 	tree = car(body_ptr);
 	if (tree == NIL) continue;  /* skip blank line */
@@ -78,7 +81,7 @@ void make_tree_from_body(NODE *body) {
 		setcdr(end_ptr, tree);
 	    if (generation__tree(car(body_ptr)) == UNBOUND)
 		setgeneration__tree(body, UNBOUND);
-/*	    untreeify(car(body_ptr));	*/   /* from mac, why? */
+/*	    untreeify(car(body_ptr));	*/
 	    while (cdr(tree) != NIL)
 		tree = cdr(tree);
 	    end_ptr = tree;
@@ -113,6 +116,9 @@ void make_tree(NODE *list) {
     }
 }
 
+NODE *gather_args(NODE *, NODE *, NODE **, BOOLEAN, NODE **);
+NODE *paren_infix(NODE *, NODE **, int, BOOLEAN);
+NODE *gather_some_args(int, int, NODE **, BOOLEAN, NODE **);
 
 /* Fully parenthesize a complete line, i.e. transform it from a flat list
  * to a tree.
@@ -132,6 +138,14 @@ NODE *paren_line(NODE *line) {
     return retval;
 }
 
+/* See if an unknown procedure name starts with SET */
+int is_setter(NODE *name) {
+    NODE *string = cnv_node_to_strnode(name);
+
+    if (getstrlen(string) < 4) return FALSE;
+    return !low_strncmp(getstrptr(string), "set", 3);
+}
+
 /* Parenthesize an expression.  Set expr to the node after the first full
  * expression.
  */ 
@@ -139,8 +153,6 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
     NODE *first = NIL, *tree = NIL, *proc, *retval;
     NODE **ifnode = (NODE **)NIL;
-    NODE *gather_args(NODE *, NODE **, BOOLEAN, NODE **);
-    NODE *paren_infix(NODE *, NODE **, int, BOOLEAN);
 
     if (*expr == NIL) {
 	if (inparen) err_logo(PAREN_MISMATCH, NIL);
@@ -154,16 +166,21 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    tree = paren_infix(tree, expr, -1, TRUE);
 	    if (*expr == NIL)
 		err_logo(PAREN_MISMATCH, NIL);
-	    else if (car(*expr) != Right_Paren)
-	    {
+	    else if (car(*expr) != Right_Paren) {
 		int parens;
 
-		if (NOT_THROWING) err_logo(TOO_MUCH, NIL);	/* throw the rest away */
-		for (parens = 0; *expr; pop(*expr))
+		tree_dk_how=1;   /* throw the rest away */
+		for (parens = 0; *expr; pop(*expr)) {
 		    if (car(*expr) == Left_Paren)
 			parens++;
 		    else if (car(*expr) == Right_Paren)
-			if (parens-- == 0) break;
+			if (parens-- == 0) {
+			    pop(*expr);
+			    break;
+			}
+		}
+		tree = cons(Not_Enough_Node, NIL);  /* tell eval */
+		err_logo(TOO_MUCH, NIL);
 	    }
 	    else
 		pop(*expr);
@@ -183,9 +200,16 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		first != Null_Word)
 		    silent_load(first, logolib); /* try <logolib>/<first> */
 	    proc = procnode__caseobj(first);
-	    if (proc == UNDEFINED && NOT_THROWING) {
-		retval = cons(first, NIL);
-		tree_dk_how = TRUE;
+	    if (proc == UNDEFINED) {
+		if (is_setter(first)) {
+		    retval = gather_some_args(0, 1, expr, inparen, ifnode);
+		    if (retval != UNBOUND) {
+			retval = cons(first, retval);
+		    }
+		} else {
+		    retval = cons(first, NIL);
+		    tree_dk_how = TRUE;
+		}
 	    } else if (nodetype(proc) == INFIX && NOT_THROWING) {
 		err_logo(NOT_ENOUGH, first);
 		retval = cons(first, NIL);
@@ -194,7 +218,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		if (first == If) {
 		    ifnode = &first;
 		}
-		retval = gather_args(proc, expr, inparen, ifnode);
+		retval = gather_args(first, proc, expr, inparen, ifnode);
 		if (retval != UNBOUND) {
 		    retval = cons(first, retval);
 		}
@@ -211,10 +235,10 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 /* Gather the correct number of arguments to proc into a list.  Set args to
  * immediately after the last arg.
  */ 
-NODE *gather_args(NODE *proc, NODE **args, BOOLEAN inparen, NODE **ifnode) {
-
+NODE *gather_args(NODE *newfun, NODE *proc, NODE **args, BOOLEAN inparen,
+		  NODE **ifnode) {
     int min, max;
-    NODE *gather_some_args(int, int, NODE **, BOOLEAN, NODE **);
+    NODE *oldfun, *result;
     
     if (nodetype(proc) == CONS) {
 	min = (inparen ? getint(minargs__procnode(proc))
@@ -224,7 +248,11 @@ NODE *gather_args(NODE *proc, NODE **args, BOOLEAN inparen, NODE **ifnode) {
     } else { /* primitive */
 	min = (inparen ? getprimmin(proc) : getprimdflt(proc));
 	if (min < 0) {	    /* special form */
-	    return (*getprimfun(proc))(*args);
+	    oldfun = fun;
+	    fun = newfun;
+	    result = (*getprimfun(proc))(*args);
+	    fun = oldfun;
+	    return result;
 	}
     /* Kludge follows to allow EDIT and CO without input without paren */ 
 	if (getprimmin(proc) == OK_NO_ARG) min = 0;

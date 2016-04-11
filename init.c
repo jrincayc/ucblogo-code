@@ -22,6 +22,7 @@
 #include "logo.h"
 #include "globals.h"
 #include <string.h>
+#include <time.h>
 
 typedef struct priminfo {
     char *name;
@@ -34,7 +35,8 @@ typedef struct priminfo {
 
 NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,
      *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
-     *Printwidthlimit, *Pause, *LoadNoisily,
+     *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
+     *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
      *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,
      *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,
      *Goto, *Tag;
@@ -64,6 +66,7 @@ PRIMTYPE prims[] = {
     {"arctan", 1, 1, 2, PREFIX_PRIORITY, latan},
     {"array", 1, 1, 2, PREFIX_PRIORITY, larray},
     {"arrayp", 1, 1, 1, PREFIX_PRIORITY, larrayp},
+    {"arraytolist", 1, 1, 1, PREFIX_PRIORITY, larraytolist},
     {"array?", 1, 1, 1, PREFIX_PRIORITY, larrayp},
     {"ascii", 1, 1, 1, PREFIX_PRIORITY, lascii},
     {"ashift", 2, 2, 2, PREFIX_PRIORITY, lashift},
@@ -83,6 +86,8 @@ PRIMTYPE prims[] = {
     {"bk", 1, 1, 1, PREFIX_PRIORITY, lback},
     {"bl", 1, 1, 1, PREFIX_PRIORITY, lbutlast},
     {"buried", 0, 0, 0, PREFIX_PRIORITY, lburied},
+    {"buriedp", 1, 1, 1, PREFIX_PRIORITY, lburiedp},
+    {"buried?", 1, 1, 1, PREFIX_PRIORITY, lburiedp},
     {"bury", 1, 1, 1, PREFIX_PRIORITY, lbury},
     {"butfirst", 1, 1, 1, PREFIX_PRIORITY, lbutfirst},
     {"butfirsts", 1, 1, 1, PREFIX_PRIORITY, lbfs},
@@ -169,6 +174,7 @@ PRIMTYPE prims[] = {
     {"less?", 2, 2, 2, PREFIX_PRIORITY, llessp},
     {"list", 0, 2, -1, PREFIX_PRIORITY, llist},
     {"listp", 1, 1, 1, PREFIX_PRIORITY, llistp},
+    {"listtoarray", 1, 1, 2, PREFIX_PRIORITY, llisttoarray},
     {"list?", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"ln", 1, 1, 1, PREFIX_PRIORITY, lln},
     {"load", 1, 1, 1, PREFIX_PRIORITY, lload},
@@ -222,6 +228,8 @@ PRIMTYPE prims[] = {
     {"pensize", 0, 0, 0, PREFIX_PRIORITY, lpensize},
     {"penup", 0, 0, 0, PREFIX_PRIORITY, lpenup},
     {"plist", 1, 1, 1, PREFIX_PRIORITY, lplist},
+    {"plistp", 1, 1, 1, PREFIX_PRIORITY, lplistp},
+    {"plist?", 1, 1, 1, PREFIX_PRIORITY, lplistp},
     {"plists", 0, 0, 0, PREFIX_PRIORITY, lplists},
     {"po", 1, 1, 1, PREFIX_PRIORITY, lpo},
     {"pos", 0, 0, 0, PREFIX_PRIORITY, lpos},
@@ -230,6 +238,7 @@ PRIMTYPE prims[] = {
     {"pprop", 3, 3, 3, PREFIX_PRIORITY, lpprop},
     {"ppt", 0, 0, 0, PREFIX_PRIORITY, lpenpaint},
     {"pr", 0, 1, -1, PREFIX_PRIORITY, lprint},
+    {"prefix", 0, 0, 0, PREFIX_PRIORITY, lprefix},
     {"primitivep", 1, 1, 1, PREFIX_PRIORITY, lprimitivep},
     {"primitive?", 1, 1, 1, PREFIX_PRIORITY, lprimitivep},
     {"print", 0, 1, -1, PREFIX_PRIORITY, lprint},
@@ -252,6 +261,7 @@ PRIMTYPE prims[] = {
     {"reader", 0, 0, 0, PREFIX_PRIORITY, lreader},
     {"readlist", 0, 0, 0, PREFIX_PRIORITY, lreadlist},
     {"readpos", 0, 0, 0, PREFIX_PRIORITY, lreadpos},
+    {"readrawline", 0, 0, 0, PREFIX_PRIORITY, lreadrawline},
     {"readword", 0, 0, 0, PREFIX_PRIORITY, lreadword},
     {"refresh", 0, 0, 0, PREFIX_PRIORITY, lrefresh},
     {"remainder", 2, 2, 2, PREFIX_PRIORITY, lremainder},
@@ -285,6 +295,7 @@ PRIMTYPE prims[] = {
     {"setpenpattern", 1, 1, 1, PREFIX_PRIORITY, lsetpenpattern},
     {"setpensize", 1, 1, 1, PREFIX_PRIORITY, lsetpensize},
     {"setpos", 1, 1, 1, PREFIX_PRIORITY, lsetpos},
+    {"setprefix", 1, 1, 1, PREFIX_PRIORITY, lsetprefix},
     {"setread", 1, 1, 1, PREFIX_PRIORITY, lsetread},
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
@@ -310,6 +321,8 @@ PRIMTYPE prims[] = {
     {"standout", 1, 1, 1, PREFIX_PRIORITY, lstandout},
     {"step", 1, 1, 1, PREFIX_PRIORITY, lstep},
     {"stepped", 0, 0, 0, PREFIX_PRIORITY, lstepped},
+    {"steppedp", 1, 1, 1, PREFIX_PRIORITY, lsteppedp},
+    {"stepped?", 1, 1, 1, PREFIX_PRIORITY, lsteppedp},
     {"stop", 0, 0, 0, STOP_PRIORITY, lstop},
     {"substringp", 2, 2, 2, PREFIX_PRIORITY, lsubstringp},
     {"substring?", 2, 2, 2, PREFIX_PRIORITY, lsubstringp},
@@ -325,6 +338,8 @@ PRIMTYPE prims[] = {
     {"towards", 1, 1, 1, PREFIX_PRIORITY, ltowards},
     {"trace", 1, 1, 1, PREFIX_PRIORITY, ltrace},
     {"traced", 0, 0, 0, PREFIX_PRIORITY, ltraced},
+    {"tracedp", 1, 1, 1, PREFIX_PRIORITY, ltracedp},
+    {"traced?", 1, 1, 1, PREFIX_PRIORITY, ltracedp},
     {"ts", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
     {"type", 0, 1, -1, PREFIX_PRIORITY, ltype},
     {"unbury", 1, 1, 1, PREFIX_PRIORITY, lunbury},
@@ -363,17 +378,22 @@ NODE *intern_p(NODE *caseobj) {
 }
 
 void init(void) {
-    extern long time();
     int i = 0;
     NODE *proc = NIL, *pname = NIL, *cnd = NIL;
+    FILE *fp;
+    char linebuf[100];
+
+    readstream = stdin;
+    writestream = stdout;
+    loadstream = stdin;
 
     fill_reserve_tank();
     oldyoungs = Unbound = newnode(PUNBOUND);
 
 #ifdef HAVE_SRANDOM
-    srandom((int)time((long *)NULL));
+    srandom((int)time((time_t *)NULL));
 #else
-    srand((int)time((long *)NULL));
+    srand((int)time((time_t *)NULL));
 #endif
 #ifdef ecma
     for (i=0; i<128; i++)
@@ -438,6 +458,18 @@ void init(void) {
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
+    AllowGetSet = intern_p(make_static_strnode("allowgetset"));
+    setvalnode__caseobj(AllowGetSet, True);
+    setflag__caseobj(AllowGetSet, VAL_BURIED);
+    Fullprintp = intern_p(make_static_strnode("fullprintp"));
+    setvalnode__caseobj(Fullprintp, False);
+    setflag__caseobj(Fullprintp, VAL_BURIED);
+    UnburyOnEdit = intern_p(make_static_strnode("unburyonedit"));
+    setvalnode__caseobj(UnburyOnEdit, True);
+    setflag__caseobj(UnburyOnEdit, VAL_BURIED);
+    Make = intern_p(make_static_strnode("make"));
+    Listvalue = cons(intern_p(make_static_strnode("value")),NIL);
+    Dotsvalue = make_colon(car(Listvalue));
     Pause = intern_p(make_static_strnode("pause"));
     Startup = intern_p(make_static_strnode("startup"));
     Output = intern_p(make_static_strnode("output"));
@@ -447,4 +479,18 @@ void init(void) {
     Tag = intern_p(make_static_strnode("Tag"));
     the_generation = cons(NIL, NIL);
     Not_Enough_Node = cons(NIL, NIL);
+
+    sprintf(linebuf,"%s%sMessages", logolib, separator);
+    fp = fopen(linebuf, "r");
+    if (fp == NULL) {
+	printf("Error -- Can't read Messages file.\n");
+	exit(1);
+    }
+    for (i=0; i<MAX_MESSAGE; i++) {
+	fgets(linebuf, 99, fp);
+	linebuf[strlen(linebuf)-1] = '\0';
+	message_texts[i] = (char *) malloc(1+strlen(linebuf));
+	strcpy(message_texts[i], linebuf);
+    }
+    fclose(fp);
 }

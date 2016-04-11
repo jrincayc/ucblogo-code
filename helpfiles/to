@@ -12,7 +12,15 @@ TO procname :input1 :input2 ...				(special form)
 	to provide the inputs.  (That's what "special form" means.)
 
 	This version of Logo allows variable numbers of inputs to a
-	procedure.  Every procedure has a MINIMUM, DEFAULT, and MAXIMUM
+	procedure.  After the procedure name come four kinds of
+	things, *in this order*:
+
+	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+	    3.   0 or 1 REST input            [:GARPLY]
+	    4.   0 or 1 DEFAULT number        5
+
+	Every procedure has a MINIMUM, DEFAULT, and MAXIMUM
 	number of inputs.  (The latter can be infinite.)
 
 	The MINIMUM number of inputs is the number of required inputs,
@@ -23,7 +31,7 @@ TO procname :input1 :input2 ...				(special form)
 	notation.
 
 	After all the required inputs can be zero or more optional inputs,
-	represented by the following notation:
+	each of which is represented by the following notation:
 
 			[:inputname default.value.expression]
 
@@ -59,19 +67,20 @@ TO procname :input1 :input2 ...				(special form)
 	will be a list containing all of the actual inputs provided that
 	were not used for required or optional inputs.  Example:
 
-			to proc :in1 [:in2 "foo] [:in3]
+			to proc :in1 [:in2 "foo] [:in3 "baz] [:in4]
 
 	If this procedure is invoked by saying
 
 			proc "x
 
-	then IN1 has the value X, IN2 has the value FOO, and IN3 has
-	the value [] (the empty list).  If it's invoked by saying
+	then IN1 has the value X, IN2 has the value FOO, IN3 has the value
+	BAZ, and IN4 has the value [] (the empty list).  If it's invoked
+	by saying
 
-			(proc "a "b "c "d)
+			(proc "a "b "c "d "e)
 
-	then IN1 has the value A, IN2 has the value B, and IN3 has the
-	value [C D].
+	then IN1 has the value A, IN2 has the value B, IN3 has the value C,
+	and IN4 has the value [D E].
 
 	The MAXIMUM number of inputs for a procedure is infinite if a
 	rest input is given; otherwise, it is the number of required

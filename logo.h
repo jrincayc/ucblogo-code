@@ -29,9 +29,15 @@
 
 #ifdef WIN32
 #define ibm
-#undef __ZTC__
+#undef __RZTC__
 #define HAVE_MEMCPY
 #define SIG_TAKES_ARG
+#endif
+
+#ifdef __ZTC__
+#ifndef THINK_C
+#define __RZTC__
+#endif
 #endif
 
 #ifdef THINK_C
@@ -43,7 +49,7 @@
 #define ibm
 #endif
 
-#ifdef __ZTC__
+#ifdef __RZTC__
 #define ibm
 #define HAVE_MEMCPY
 #define SIG_TAKES_ARG
@@ -103,7 +109,7 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     (NODE *) 2
 #define HASH_LEN        1021	/* a prime number */
-#ifdef __ZTC__
+#ifdef __RZTC__
 #define SEG_SIZE	2000
 #else
 #ifdef THINK_C
@@ -192,7 +198,15 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		NOT_INSIDE, DK_HOW_UNREC, NO_TEST, UNEXPECTED_BRACKET,
 		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,
 		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,
-		OUT_OF_MEM_UNREC} ERR_TYPES;
+		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,
+    /* below this point aren't actually error codes, just messages */
+		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,
+		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,
+		NO_FILE, NO_FIONREAD, MEM_LOW, CANT_OPEN, ALREADY_OPEN,
+		NOT_OPEN, TRACE_PPROP, WELCOME_TO, CANT_STOP, CANT_GC,
+		EXIT_NOW, LOAD_DEF, TRACE_MAKE, EMPTY_PROC, POT_PLIST,
+		NO_HELP, NO_HELPON, MORE_HELP,
+		MAX_MESSAGE} ERR_TYPES;	    /* MAX_MESSAGE must be last */
 
 #ifdef WIN32
 #define BOOLEAN int
@@ -420,6 +434,7 @@ struct segment {
     x(accumulate_arg) x(compound_apply_continue) \
     x(set_args_continue) x(macro_return) \
     x(qm_continue) \
+    x(run_continuation) \
     x(runresult_continuation) x(runresult_followup) \
     x(repeat_continuation) x(repeat_followup) \
     x(catch_continuation) x(catch_followup) x(after_lambda) \

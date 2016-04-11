@@ -31,7 +31,7 @@
 #include "macterm.h"
 #elif defined(WIN32)
 #include "win32trm.h"
-#elif defined(__ZTC__)
+#elif defined(__RZTC__)
 #include <fg.h>
 #include "ztcterm.h"
 #elif defined(x_window)
@@ -44,7 +44,7 @@
 
 #include "globals.h"
 
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__RZTC__) && !defined(WIN32) /* sowings */
 #define total_turtle_bottom_max (-(MaxY/2))
 #else
 #define total_turtle_bottom_max turtle_bottom_max
@@ -339,10 +339,30 @@ wraploop:
 	line_to(rx2, ry2);
 	save_line();
     } else {
-	if (newd = wrap_right(d, x1, y1, x2, y2)) goto wraploop;
-	if (newd = wrap_left(d, x1, y1, x2, y2)) goto wraploop;
-	if (newd = wrap_up(d, x1, y1, x2, y2)) goto wraploop;
-	if (newd = wrap_down(d, x1, y1, x2, y2)) goto wraploop;
+	if (rx2 > screen_right && g_round(x1) == screen_right) {
+	    move_to(screen_left, g_round(y1));
+	    turtle_x = turtle_left_max;
+	    goto wraploop;
+	}
+	if (ry2 < screen_top && g_round(y1) == screen_top) {
+	    move_to(g_round(x1), screen_bottom);
+	    turtle_y = turtle_bottom_max;
+	    goto wraploop;
+	}
+	if (rx2 < screen_left && g_round(x1) == screen_left) {
+	    move_to(screen_right, g_round(y1));
+	    turtle_x = turtle_right_max;
+	    goto wraploop;
+	}
+	if (ry2 > screen_bottom && g_round(y1) == screen_bottom) {
+	    move_to(g_round(x1), screen_top);
+	    turtle_y = turtle_top_max;
+	    goto wraploop;
+	}
+	if ((newd = wrap_right(d, x1, y1, x2, y2)) != 0.0) goto wraploop;
+	if ((newd = wrap_left(d, x1, y1, x2, y2)) != 0.0) goto wraploop;
+	if ((newd = wrap_up(d, x1, y1, x2, y2)) != 0.0) goto wraploop;
+	if ((newd = wrap_down(d, x1, y1, x2, y2)) != 0.0) goto wraploop;
     }
 
     if (internal_penmode == PENMODE_REVERSE && pen_vis == 0 && d < 0.0) {
@@ -1041,7 +1061,7 @@ NODE *lsetscrunch(NODE *args) {
 			       (FLONUM)getint(ynode);
 	draw_turtle();
 	done_drawing;
-#ifdef __ZTC__
+#ifdef __RZTC__
 	{
 	    FILE *fp = fopen("scrunch.dat","r");
 	    if (fp != NULL) {
@@ -1359,7 +1379,7 @@ void redraw_graphics(void) {
     int lastx, lasty;
     pen_info saved_pen;
     BOOLEAN saved_shown;
-#if defined(__ZTC__) && !defined(WIN32)
+#if defined(__RZTC__) && !defined(WIN32)
     BOOLEAN save_splitscreen = in_splitscreen;
 #endif
    
@@ -1377,7 +1397,7 @@ void redraw_graphics(void) {
     save_pen(&saved_pen);
     restore_pen(&orig_pen);
 
-#if defined(__ZTC__) && !defined(WIN32)
+#if defined(__RZTC__) && !defined(WIN32)
     full_screen;
 #endif
 
@@ -1412,7 +1432,7 @@ void redraw_graphics(void) {
 		r_index += Three;
 		break;
 	    case (LABEL) :
-		draw_string(record + r_index + One+1);
+ 		draw_string((unsigned char *)(record + r_index + One+1));
 		move_to(lastx, lasty);
 		r_index += (One+2 + record[r_index + One] + (One-1)) & ~(One-1);
 		break;
@@ -1464,7 +1484,7 @@ void redraw_graphics(void) {
     restore_pen(&saved_pen);
     turtle_shown = saved_shown;
 
-#if defined(__ZTC__) && !defined(WIN32)
+#if defined(__RZTC__) && !defined(WIN32)
     if (save_splitscreen) {split_screen;}
 #endif
 
@@ -1562,6 +1582,7 @@ NODE *lloadpict(NODE *args) {
     lopenread(args);
 #endif
     if (NOT_THROWING) {
+	prepare_to_draw;
 	fp = (FILE *)file_list->n_obj;
 	restore_palette(fp);
 	fread(&record_index, sizeof(FIXNUM), 1, fp);
@@ -1578,6 +1599,7 @@ NODE *lloadpict(NODE *args) {
 		cnt = fread(p, 1, want, fp);
 		if (ferror(fp) || cnt <= 0) {
 			record_index = 0;
+			done_drawing;
 			err_logo(FILE_ERROR,
 					 make_static_strnode("File bad format"));
 			lclose(args);
@@ -1589,6 +1611,7 @@ NODE *lloadpict(NODE *args) {
 	fread(&bg, sizeof(int), 1, fp);
 	lclose(args);
 	set_back_ground((FIXNUM)bg);
+	done_drawing;
 	return UNBOUND;
     }
 }

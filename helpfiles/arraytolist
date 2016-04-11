@@ -1,4 +1,4 @@
-ARRAYTOLIST array					(library procedure)
+ARRAYTOLIST array
 
 	outputs a list whose members are the members of the input array.
 	The first member of the output is the first member of the array,

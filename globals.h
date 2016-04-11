@@ -161,8 +161,9 @@ extern NODE *intern(NODE *);
 /* print.c */
 extern int print_stringlen;
 extern char *print_stringptr;
+extern int force_printwidth, force_printdepth;
 extern int x_margin, y_margin;
-extern BOOLEAN print_backslashes;
+extern NODE *Fullprintp;
 extern void update_coords(char);
 extern void print_char(FILE *, char);
 extern void print_space(FILE *);
@@ -179,7 +180,8 @@ extern NODE *lprint(NODE *);
 /* init.c */
 extern NODE *True, *False, *Left_Paren, *Right_Paren, *Toplevel, *System, *Error;
 extern NODE *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit;
-extern NODE *Printwidthlimit, *Pause, *LoadNoisily;
+extern NODE *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet;
+extern NODE *UnburyOnEdit, *Make, *Listvalue, *Dotsvalue;
 extern NODE *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node;
 extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop;
 extern NODE *Goto, *Tag;
@@ -216,6 +218,9 @@ extern NODE *lerpls(NODE *);
 extern NODE *lbury(NODE *);
 extern NODE *ltrace(NODE *);
 extern NODE *lstep(NODE *);
+extern NODE *lburiedp(NODE *);
+extern NODE *ltracedp(NODE *);
+extern NODE *lsteppedp(NODE *);
 extern NODE *lunbury(NODE *);
 extern NODE *luntrace(NODE *);
 extern NODE *lunstep(NODE *);
@@ -225,6 +230,7 @@ extern NODE *leditfile(NODE *);
 extern NODE *lthing(NODE *);
 extern NODE *lnamep(NODE *);
 extern NODE *lprocedurep(NODE *);
+extern NODE *lplistp(NODE *);
 extern NODE *lprimitivep(NODE *);
 extern NODE *ldefinedp(NODE *);
 extern NODE *lmacrop(NODE *);
@@ -232,6 +238,7 @@ extern NODE *lcopydef(NODE *);
 extern NODE *lhelp(NODE *);
 
 /* error.c */
+extern char *message_texts[];
 extern NODE *throw_node;
 extern NODE *err_mesg;
 extern ERR_TYPES erract_errtype;
@@ -243,7 +250,8 @@ extern NODE *lcontinue(NODE *);
 
 /* eval.c */
 extern NODE *fun, *ufun, *last_ufun, *this_line, *last_line, *didnt_get_output;
-extern NODE *var, *var_stack, *output_node, *last_call, *didnt_output_name;
+extern NODE *var, *upvar, *var_stack;
+extern NODE  *output_node, *last_call, *didnt_output_name;
 extern CTRLTYPE stopping_flag;
 extern char *logolib, *helpfiles;
 extern FIXNUM tailcall, val_status, dont_fix_ift, user_repcount;
@@ -287,13 +295,15 @@ extern NODE *litem(NODE *);
 extern NODE *lsetitem(NODE *);
 extern NODE *l_setitem(NODE *);
 extern NODE *larray(NODE *);
+extern NODE *larraytolist(NODE *);
+extern NODE *llisttoarray(NODE *);
 extern NODE *lform(NODE *);
 extern NODE *l_setfirst(NODE *);
 extern NODE *l_setbf(NODE *);
 
 /* files.c */
 extern NODE *file_list;
-extern NODE *reader_name, *writer_name;
+extern NODE *reader_name, *writer_name, *file_prefix;
 extern NODE *ldribble(NODE *);
 extern NODE *lnodribble(NODE *);
 extern NODE *lopenread(NODE *);
@@ -310,8 +320,11 @@ extern NODE *lerasefile(NODE *);
 extern NODE *lsave(NODE *);
 extern void silent_load(NODE *, char *);
 extern NODE *lload(NODE *);
+extern NODE *lsetprefix(NODE *);
+extern NODE *lprefix(NODE *);
 extern NODE *lreadlist(NODE *);
 extern NODE *lreadword(NODE *);
+extern NODE *lreadrawline(NODE *);
 extern NODE *lreadchar(NODE *);
 extern NODE *lreadchars(NODE *);
 extern NODE *leofp(NODE *);
@@ -457,10 +470,12 @@ extern NODE *lregulartext(NODE *);
 extern NODE *lcaninverse(NODE *);
 
 extern BOOLEAN mac_edit();
+#ifndef SYMANTEC_C
 extern WindowPtr graphics_window, listener_window;
 #endif
+#endif
 
-#ifdef __ZTC__   /* ztcterm.c */
+#ifdef __RZTC__   /* ztcterm.c */
 extern BOOLEAN in_graphics_mode, in_splitscreen;
 extern int ibm_screen_bottom;
 #include <fg.h>
@@ -525,6 +540,8 @@ extern void draw_string(char *);
 extern int win32_screen_bottom(void);
 extern void win32_text_cursor(void);
 extern NODE *set_text_color(NODE *);
+extern void winDoPaste(void);
+extern char *winPasteText;
 
 #define SIGQUIT SIGABRT
 
