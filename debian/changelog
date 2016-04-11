@@ -1,4 +1,4 @@
-ucblogo (6.0-1) UNRELEASED; urgency=low
+ucblogo (6.0+dfsg-1) UNRELEASED; urgency=low
 
   * QA upload.
   * New upstream release (Closes: #557432, LP: #580666).
