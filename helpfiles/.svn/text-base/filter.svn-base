@@ -1,0 +1,25 @@
+FILTER tftemplate data					(library procedure)
+
+	outputs a word or list, depending on the type of the data input,
+	containing a subset of the members (for a list) or characters (for
+	a word) of the input.  The template is evaluated once for each
+	member or character of the data, and it must produce a TRUE or
+	FALSE value.  If the value is TRUE, then the corresponding input
+	constituent is included in the output.
+
+		? print filter "vowelp "elephant
+		eea
+		?
+
+	In a template, the symbol ?REST represents the portion of the
+	data input to the right of the member currently being used as
+	the ? slot-filler.  That is, if the data input is [A B C D E]
+	and the template is being evaluated with ? replaced by B, then
+	?REST would be replaced by [C D E].
+
+	In a template, the symbol # represents the position in the data
+	input of the member currently being used as the ? slot-filler.
+	That is, if the data input is [A B C D E] and the template is
+	being evaluated with ? replaced by B, then # would be replaced
+	by 2.
+

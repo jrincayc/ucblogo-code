@@ -1,0 +1,5 @@
+IGNORE value						(library procedure)
+
+	command.  Does nothing.  Used when an expression is evaluated for
+	a side effect and its actual value is unimportant.
+

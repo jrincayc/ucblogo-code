@@ -1,0 +1,97 @@
+CC	= gcc
+CFLAGS	= -g -O -DHAVE_WX    -O0
+CXX     = g++
+CXXFLAGS =  -DHAVE_WX -I/usr/local/lib/wx/include/mac-ansi-release-static-2.8 -I/usr/local/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXMAC__
+LDFLAGS	= 
+LIBS  =   -lm  -L/usr/local/lib  `wx-config --libs`  -lz -ldl -lm  -ltermcap 
+prefix = /usr/local
+BINDIR        = $(prefix)/bin
+LIBLOC        = $(prefix)/lib/logo
+LINKER = $(CXX)
+
+# LIBLOC      = `pwd`
+
+OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
+	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
+	  print.o wrksp.o nographics.o actions.o states.o utils.o vt52_states.o keytrans.o wxMain.o wxTerminal.o wxTurtleGraphics.o  gterm.o TextEditor.o wxterm.o 
+
+SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
+	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
+	  print.c wrksp.c nographics.c actions.cpp states.cpp utils.cpp vt52_states.cpp keytrans.cpp wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  gterm.cpp TextEditor.cpp wxterm.c 
+
+HDRS	= globals.h logo.h xgraphics.h
+
+all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS logo-mode 
+
+mem.o:	mem.c
+	$(CC) $(CFLAGS) -O0 -c mem.c
+
+logo:	$(OBJS)
+	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+
+tags:	$(SRCS)
+	ctags --format=1 -N $(SRCS) $(HDRS)
+# 	ctags -t $(SRCS) $(HDRS)
+
+libloc.c:
+	echo 'char *libloc="'$(LIBLOC)'/logolib";' > libloc.c
+	echo 'char *helploc="'$(LIBLOC)'/helpfiles";' >> libloc.c
+	echo 'char *cslsloc="'$(LIBLOC)'/csls";' >> libloc.c
+	echo 'char *temploc="/tmp";' >> libloc.c
+	echo 'char *separator="/";' >> libloc.c
+
+logolib/Messages:	makelib Messages
+	chmod +x makelib
+	./makelib
+	cp -f Messages logolib
+
+helpfiles:
+	mkdir helpfiles
+
+helpfiles/HELPCONTENTS:	makehelp usermanual
+	./makehelp
+	sort helptemp | pr -5 -t -w80 >> helpfiles/HELPCONTENTS
+	rm helptemp
+
+makehelp:	makehelp.c
+	$(CC) -o makehelp makehelp.c
+
+clean:
+	rm -f *.o libloc.c
+	cd emacs; $(MAKE) clean
+
+ship:
+	rm -f config.h config.cache config.log config.status
+	rm -f makefile makehelp logo *.o libloc.c
+	cd emacs; $(MAKE) ship
+	cd docs; $(MAKE) ship
+
+install: all
+	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls; do [ -d $$d ] || mkdir -p $$d || exit 1; done
+	cp logo $(BINDIR)/.
+	cp -f logolib/* $(LIBLOC)/logolib/.
+	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
+	cp -f csls/* $(LIBLOC)/csls/.
+	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
+	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
+#	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
+
+logo-mode: 
+	(cd emacs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE))
+#	@prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE)
+
+make-docs:
+	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) $(MAKE) all)
+
+make mac: all
+	mkdir UCBLogo.app
+	mkdir UCBLogo.app/Contents
+	cp Info.plist UCBLogo.app/Contents/
+	cp PkgInfo UCBLogo.app/Contents/
+	cp pbdevelopment.plist UCBLogo.app/Contents/
+	mkdir UCBLogo.app/Contents/Resources
+	cp -r csls UCBLogo.app/Contents/Resources/
+	cp -r helpfiles UCBLogo.app/Contents/Resources/
+	cp -r logolib UCBLogo.app/Contents/Resources/
+	mkdir UCBLogo.app/Contents/MacOS/
+	mv logo UCBLogo.app/Contents/MacOS/UCBLogo

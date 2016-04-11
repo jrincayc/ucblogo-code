@@ -1,0 +1,9 @@
+FULLPRINTP						(variable)
+
+	if TRUE, then words that were created using backslash or vertical bar
+	(to include characters that would otherwise not be treated as part of
+	a word) are printed with the backslashes or vertical bars shown, so
+	that the printed result could be re-read by Logo to produce the same
+	value.  If FULLPRINTP is TRUE then the empty word (however it was
+	created) prints as ||.  (Otherwise it prints as nothing at all.)
+

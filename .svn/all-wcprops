@@ -1,0 +1,491 @@
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svnroot/ucblogo/!svn/ver/206/
+END
+intern.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/1/intern.c
+END
+coms.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/184/coms.c
+END
+gpl
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svnroot/ucblogo/!svn/ver/1/gpl
+END
+logo-Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svnroot/ucblogo/!svn/ver/1/logo-Info.plist
+END
+wxMain.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/181/wxMain.cpp
+END
+init.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/191/init.c
+END
+changes.txt
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/changes.txt
+END
+wxGlobals.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/181/wxGlobals.h
+END
+term.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/206/term.c
+END
+.gdb_history
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/1/.gdb_history
+END
+Messages.zh_TW
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/1/Messages.zh_TW
+END
+logologo.png
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/167/logologo.png
+END
+wxterm.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/191/wxterm.c
+END
+diffscript.pl
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/1/diffscript.pl
+END
+makehelp.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/1/makehelp.c
+END
+general-public-license
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/ucblogo/!svn/ver/1/general-public-license
+END
+ztcterm.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/1/ztcterm.c
+END
+math.c
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svnroot/ucblogo/!svn/ver/42/math.c
+END
+error.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/184/error.c
+END
+mac-makefile
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/1/mac-makefile
+END
+makefile.cygwin
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svnroot/ucblogo/!svn/ver/120/makefile.cygwin
+END
+nographics.c
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/167/nographics.c
+END
+ztcterm.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/1/ztcterm.h
+END
+wxTerminal.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/191/wxTerminal.h
+END
+makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/200/makefile.in
+END
+nographics.h
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/1/nographics.h
+END
+files.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/198/files.c
+END
+configure.in
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/1/configure.in
+END
+wrksp.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/184/wrksp.c
+END
+logo.icns
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/53/logo.icns
+END
+kdbgrc.logo
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/kdbgrc.logo
+END
+PkgInfo
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/167/PkgInfo
+END
+mem.c
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svnroot/ucblogo/!svn/ver/160/mem.c
+END
+config.h.in
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/config.h.in
+END
+LogoFrame.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/160/LogoFrame.h
+END
+makelib
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/182/makelib
+END
+wxTurtleGraphics.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svnroot/ucblogo/!svn/ver/191/wxTurtleGraphics.h
+END
+wxGraphics.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/168/wxGraphics.h
+END
+xgraphics.c
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/xgraphics.c
+END
+logodata.c
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/160/logodata.c
+END
+Messages.fr
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/Messages.fr
+END
+xgraphics.h
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/xgraphics.h
+END
+ucblogo.dsp
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/193/ucblogo.dsp
+END
+configure
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/90/configure
+END
+TextEditor.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/202/TextEditor.h
+END
+graphics.c
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/191/graphics.c
+END
+evaluator.ps
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/1/evaluator.ps
+END
+ucblogo.dsw
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/193/ucblogo.dsw
+END
+plm
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svnroot/ucblogo/!svn/ver/1/plm
+END
+newtermnotes
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/119/newtermnotes
+END
+obj.c
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svnroot/ucblogo/!svn/ver/183/obj.c
+END
+tags
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svnroot/ucblogo/!svn/ver/189/tags
+END
+wxTurtleGraphics.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/ucblogo/!svn/ver/199/wxTurtleGraphics.cpp
+END
+macterm.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/1/macterm.c
+END
+gpl_text.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/1/gpl_text.h
+END
+TextEditor.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/ucblogo/!svn/ver/206/TextEditor.cpp
+END
+macterm.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/1/macterm.h
+END
+lists.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/183/lists.c
+END
+gpl.html
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/1/gpl.html
+END
+Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/1/Info.plist
+END
+paren.c
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svnroot/ucblogo/!svn/ver/1/paren.c
+END
+logo.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/191/logo.h
+END
+Messages.sp
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/1/Messages.sp
+END
+wxMain.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/1/wxMain.h
+END
+mac-fontmod.tar
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svnroot/ucblogo/!svn/ver/186/mac-fontmod.tar
+END
+logologo.ico
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/ucblogo/!svn/ver/166/logologo.ico
+END
+parse.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/ucblogo/!svn/ver/185/parse.c
+END
+ucblogo.xpm
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/113/ucblogo.xpm
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/198/README
+END
+pbdevelopment.plist
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svnroot/ucblogo/!svn/ver/1/pbdevelopment.plist
+END
+main.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/184/main.c
+END
+TODO
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svnroot/ucblogo/!svn/ver/199/TODO
+END
+win32trm.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/1/win32trm.c
+END
+Messages
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/1/Messages
+END
+ucblogo.bmp
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svnroot/ucblogo/!svn/ver/167/ucblogo.bmp
+END
+eval.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/184/eval.c
+END
+globals.h
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svnroot/ucblogo/!svn/ver/191/globals.h
+END
+win32trm.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/ucblogo/!svn/ver/1/win32trm.h
+END
+wxTerminal.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/ucblogo/!svn/ver/206/wxTerminal.cpp
+END
+usermanual
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svnroot/ucblogo/!svn/ver/191/usermanual
+END
+print.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svnroot/ucblogo/!svn/ver/76/print.c
+END

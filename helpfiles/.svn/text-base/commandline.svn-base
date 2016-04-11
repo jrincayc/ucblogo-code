@@ -1,0 +1,5 @@
+COMMANDLINE						(variable)
+
+	contains any text appearing after a hyphen on the command line
+	used to start Logo.
+

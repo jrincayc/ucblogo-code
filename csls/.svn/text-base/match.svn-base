@@ -1,0 +1,165 @@
+to match :pat :sen
+local [special.var special.pred special.buffer in.list]
+if or wordp :pat wordp :sen [output "false]
+if emptyp :pat [output emptyp :sen]
+if listp first :pat [output special fput "!: :pat :sen]
+if memberp first first :pat [? # ! & @ ^] [output special :pat :sen]
+if emptyp :sen [output "false]
+if equalp first :pat first :sen [output match butfirst :pat butfirst :sen]
+output "false
+end
+
+;; Parsing quantifiers
+
+to special :pat :sen
+set.special parse.special butfirst first :pat "
+output run word "match first first :pat
+end
+
+to parse.special :word :var
+if emptyp :word [output list :var "always]
+if equalp first :word ": [output list :var butfirst :word]
+output parse.special butfirst :word word :var first :word
+end
+
+to set.special :list
+make "special.var first :list
+make "special.pred last :list
+if emptyp :special.var [make "special.var "special.buffer]
+if memberp :special.pred [in anyof] [set.in]
+if not emptyp :special.pred [stop]
+make "special.pred first butfirst :pat
+make "pat fput first :pat butfirst butfirst :pat
+end
+
+to set.in
+make "in.list first butfirst :pat
+make "pat fput first :pat butfirst butfirst :pat
+end
+
+;; Exactly one match
+
+to match!
+if emptyp :sen [output "false]
+if not try.pred [output "false]
+make :special.var first :sen
+output match butfirst :pat butfirst :sen
+end
+
+;; Zero or one match
+
+to match?
+make :special.var []
+if emptyp :sen [output match butfirst :pat :sen]
+if not try.pred [output match butfirst :pat :sen]
+make :special.var first :sen
+if match butfirst :pat butfirst :sen [output "true]
+make :special.var []
+output match butfirst :pat :sen
+end
+
+;; Zero or more matches
+
+to match#
+make :special.var []
+output #test #gather :sen
+end
+
+to #gather :sen
+if emptyp :sen [output :sen]
+if not try.pred [output :sen]
+make :special.var lput first :sen thing :special.var
+output #gather butfirst :sen
+end
+
+to #test :sen
+if match butfirst :pat :sen [output "true]
+if emptyp thing :special.var [output "false]
+output #test2 fput last thing :special.var :sen
+end
+
+to #test2 :sen
+make :special.var butlast thing :special.var
+output #test :sen
+end
+
+;; One or more matches
+
+to match&
+output &test match#
+end
+
+to &test :tf
+if emptyp thing :special.var [output "false]
+output :tf
+end
+
+;; Zero or more matches (as few as possible)
+
+to match^
+make :special.var []
+output ^test :sen
+end
+
+to ^test :sen
+if match butfirst :pat :sen [output "true]
+if emptyp :sen [output "false]
+if not try.pred [output "false]
+make :special.var lput first :sen thing :special.var
+output ^test butfirst :sen
+end
+
+;; Match words in a group
+
+to match@
+make :special.var :sen
+output @test []
+end
+
+to @test :sen
+if @try.pred [if match butfirst :pat :sen [output "true]]
+if emptyp thing :special.var [output "false]
+output @test2 fput last thing :special.var :sen
+end
+
+to @test2 :sen
+make :special.var butlast thing :special.var
+output @test :sen
+end
+
+;; Applying the predicates
+
+to try.pred
+if listp :special.pred [output match :special.pred first :sen]
+output run list :special.pred quoted first :sen
+end
+
+to quoted :thing
+if listp :thing [output :thing]
+output word "" :thing
+end
+
+to @try.pred
+if listp :special.pred [output match :special.pred thing :special.var]
+output run list :special.pred thing :special.var
+end
+
+;; Special predicates
+
+to always :x
+output "true
+end
+
+to in :word
+output memberp :word :in.list
+end
+
+to anyof :sen
+output anyof1 :sen :in.list
+end
+
+to anyof1 :sen :pats
+if emptyp :pats [output "false]
+if match first :pats :sen [output "true]
+output anyof1 :sen butfirst :pats
+end

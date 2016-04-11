@@ -1,0 +1,6 @@
+USEALTERNATENAMES					(variable)
+
+	if TRUE, causes Logo to generate non-English words (from the
+	Messages file) instead of TRUE, FALSE, END, etc.
+
+

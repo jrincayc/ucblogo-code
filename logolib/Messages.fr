@@ -42,6 +42,7 @@ Supposant que vous voulez dire '%p' et non %p
 Impossible d'ouvrir fichier %p
 Fichier %p déjà ouvert
 Fichier %p non ouvert
+Runlist %s a plus qu'une expression
 Merci d'utiliser Logo.
 Bonne journée!
 Désolé, pas de shell sur le Mac.

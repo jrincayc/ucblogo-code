@@ -1,0 +1,7 @@
+LPUT thing list
+
+	outputs a list equal to its second input with one extra member,
+	the first input, at the end.  If the second input is a word,
+	then the first input must be a one-letter word, and LPUT is
+	equivalent to WORD with its inputs in the other order.
+

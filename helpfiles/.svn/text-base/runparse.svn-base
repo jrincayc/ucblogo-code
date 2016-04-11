@@ -1,0 +1,8 @@
+RUNPARSE wordorlist
+
+	outputs the list that would result if the input word or list were
+	entered as an instruction line; characters such as infix operators
+	and parentheses are separate members of the output.  Note that
+	sublists of a runparsed list are not themselves runparsed.
+
+

@@ -1,0 +1,6 @@
+SETHELPLOC path
+
+	command.  Tells Logo to look in the specified directory for the
+	information provided by the HELP command, instead of the default
+	directory.  The format of a path depends on your operating system.
+

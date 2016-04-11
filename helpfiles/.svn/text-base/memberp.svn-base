@@ -1,0 +1,8 @@
+MEMBERP thing1 thing2
+MEMBER? thing1 thing2
+
+	if "thing2" is a list or an array, outputs TRUE if "thing1" is EQUALP
+	to a member of "thing2", FALSE otherwise.  If "thing2" is
+	a word, outputs TRUE if "thing1" is a one-character word EQUALP to a
+	character of "thing2", FALSE otherwise.
+

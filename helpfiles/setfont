@@ -1,0 +1,8 @@
+SETFONT fontname
+
+	command (wxWidgets only).  Set the font family used in all windows
+	to the one named by the input.  Try 'Courier' or 'Monospace' as likely
+	possibilities.  Not all computers have the same fonts installed.  It's
+	a good idea to stick with monospace fonts (ones in which all
+	characters have the same width).
+

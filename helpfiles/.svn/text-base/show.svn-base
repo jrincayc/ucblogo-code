@@ -1,0 +1,7 @@
+SHOW thing
+(SHOW thing1 thing2 ...)
+
+	command.  Prints the input or inputs like PRINT, except that
+	if an input is a list it is printed inside square brackets.
+
+

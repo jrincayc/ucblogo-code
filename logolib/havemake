@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-.macro havemake :name :value
-output (list "have (word "" :name) "apply ""make (list :name :value))
-end
-
-bury "havemake

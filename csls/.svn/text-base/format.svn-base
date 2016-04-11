@@ -1,0 +1,157 @@
+to format :from :to
+openread :from
+openwrite :to
+setread :from
+setwrite :to
+init.vars
+loop
+setread []
+setwrite []
+close :from
+close :to
+end
+
+to init.vars
+make "pageheight 66
+make "topmar 6
+make "lines 54
+make "leftmar 7
+make "width 65
+make "filltab 5
+make "nofilltab 0
+make "parskip 1
+make "spacing 1
+make "started "false
+make "filling "true
+make "printed 0
+make "inline []
+end
+
+to loop
+forever [if process nextword [stop]]
+end
+
+;; Add a word to the output file, starting a new line if necessary
+
+to process :word
+if listp :word [output "true]
+if not :started [start]
+if (:linecount+1+count :word) > :width [putline]
+addword :word
+output "false
+end
+
+to addword :word
+if not emptyp :line [make "linecount :linecount+1]
+make "line lput :word :line
+make "linecount :linecount+count :word
+end
+
+to putline
+repeat :leftmar+:indent [type "| |]
+putwords :line ((count :line)-1) (:width-:linecount)
+newline
+skip :spacing
+end
+
+to putwords :line :spaces :filler
+local "perword
+if emptyp :line [stop]
+type first :line
+make "perword ifelse :spaces > 0 [int ((:filler+:spaces-1)/:spaces)] [0]
+if :filler > 0 [repeat :perword [type "| |]]
+type "| |
+putwords (butfirst :line) (:spaces-1) (:filler-:perword)
+end
+
+;; Get the next input word, reading a new line if necessary
+
+to nextword
+if not emptyp :inline [output extract.word]
+if not :filling [break]
+make "inline readword
+if listp :inline [break output []]
+if emptyp :inline [break output nextword]
+if equalp first :inline "|*| ~
+   [run butfirst :inline
+    make "inline "]
+make "inline skipspaces :inline
+output nextword
+end
+
+to extract.word
+local "result
+make "result firstword :inline
+make "inline skipfirst :inline
+output :result
+end
+
+to firstword :word
+if emptyp :word [output "]
+if equalp first :word "| | [output "]
+output word (first :word) (firstword butfirst :word)
+end
+
+to skipfirst :word
+if emptyp :word [output "]
+if equalp first :word "| | [output skipspaces :word]
+output skipfirst butfirst :word
+end
+
+to skipspaces :word
+if emptyp :word [output "]
+if equalp first :word "| | [output skipspaces butfirst :word]
+output :word
+end
+
+;; Formatting helpers
+
+to start
+make "started "true
+repeat :topmar [print []]
+newindent
+end
+
+to newindent
+newline
+make "indent ifelse :filling [:filltab] [:nofilltab]
+make "linecount :indent
+end
+
+to newline
+make "line []
+make "indent 0
+make "linecount 0
+end
+
+to break
+if emptyp :line [stop]
+make "linecount :width
+putline
+newindent
+if :filling [skip :parskip]
+end
+
+;; Formatting commands to be invoked by the user
+
+to skip :howmany
+break
+repeat :howmany [print []]
+make "printed :printed+:howmany
+if :printed < :lines [stop]
+repeat :pageheight-:printed [print []]
+make "printed 0
+end
+
+to nofill
+break
+make "filling "false
+newindent
+end
+
+to yesfill
+break
+if not :filling [skip :parskip]
+make "filling "true
+newindent
+end

@@ -1,0 +1,5 @@
+ALLOPEN
+
+	outputs a list whose members are the names of all files currently open.
+	This list does not include the dribble file, if any.
+

@@ -1,0 +1,5 @@
+LOADNOISILY						(variable)
+
+	if TRUE, prints the names of procedures defined when loading
+	from a file (including the temporary file made by EDIT).
+

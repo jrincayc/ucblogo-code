@@ -1,0 +1,9 @@
+PLIST plistname
+
+	outputs a list whose odd-numbered members are the names, and
+	whose even-numbered members are the values, of the properties
+	in the property list named "plistname".  The output is a copy
+	of the actual property list; changing properties later will not
+	magically change a list output earlier by PLIST.
+
+

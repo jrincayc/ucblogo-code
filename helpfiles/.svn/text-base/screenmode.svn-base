@@ -1,0 +1,5 @@
+SCREENMODE
+
+	outputs the word TEXTSCREEN, SPLITSCREEN, or FULLSCREEN depending
+	on the current screen mode.
+

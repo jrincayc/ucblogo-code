@@ -1,0 +1,31 @@
+program tower;
+ {This program solves the 5-disk tower of hanoi problem.}
+
+procedure hanoi(number:integer;from,onto,other:char);
+ {Recursive procedure that solves a subproblem of the original problem,
+ moving some number of disks, not necessarily 5.  To move n disks, it
+ must get the topmost n-1 out of the way, move the nth to the target
+ stack, then move the n-1 to the target stack.}
+
+  procedure movedisk(number:integer;from,onto:char);
+   {This procedure moves one single disk.  It assumes that the move is
+   legal, i.e., the disk is at the top of its stack and the target stack
+   has no smaller disks already.  Procedure hanoi is responsible for
+   making sure that's all true.}
+
+    begin {movedisk}
+      writeln('Move disk ',number:1,' from ',from,' to ',onto)
+    end; {movedisk}
+
+  begin {hanoi}
+    if number <> 0 then
+       begin
+         hanoi(number-1,from,other,onto);
+         movedisk(number,from,onto);
+         hanoi(number-1,other,onto,from)
+       end
+  end; {hanoi}
+
+begin {main program}
+  hanoi(5,'a','b','c')
+end.

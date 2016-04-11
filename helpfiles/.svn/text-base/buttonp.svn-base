@@ -1,0 +1,8 @@
+BUTTONP
+BUTTON?
+
+	outputs TRUE if a mouse button is down and the mouse is over the
+	graphics window.  Once the button is down, BUTTONP remains true until
+	the button is released, even if the mouse is dragged out of the
+	graphics window.
+

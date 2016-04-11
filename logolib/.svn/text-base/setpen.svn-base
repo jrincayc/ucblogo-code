@@ -1,0 +1,15 @@
+;;; -*- logo -*-
+
+to setpen :pen_data
+ifelse equalp first bf :pen_data "reverse ~
+       [penreverse] ~
+       [ifelse equalp first bf :pen_data "erase ~
+               [penerase] ~
+               [penpaint]]
+ifelse equalp first :pen_data "penup [penup] [pendown]
+setpensize first bf bf :pen_data
+setpencolor first bf bf bf :pen_data
+setpenpattern first bf bf bf bf :pen_data
+end
+
+bury [setpen]

@@ -1,0 +1,11 @@
+SETTEXTSIZE height
+
+	command (wxWidgets only).  Set the "point size" of the font used in
+	the text and edit windows to the given integer input.  The desired
+	size may not be available, in which case the nearest available size
+	will be used.  Note: There is only a slight correlation between these
+	integers and pixel sizes.  Our rough estimate is that the number of
+	pixels of height is about 1.5 times the point size, but it varies for
+	different fonts.  See SETLABELHEIGHT for a different approach used for
+	the graphics window.
+

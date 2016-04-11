@@ -1,0 +1,10 @@
+;;; -*- logo -*-
+
+to pop :the.stack.name
+local "result
+make "result first thing :the.stack.name
+make :the.stack.name butfirst thing :the.stack.name
+output :result
+end
+
+bury "pop

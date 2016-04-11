@@ -1,0 +1,6 @@
+GENSYM							(library procedure)
+
+	outputs a unique word each time it's invoked.  The words are of the
+	form G1, G2, etc.
+
+

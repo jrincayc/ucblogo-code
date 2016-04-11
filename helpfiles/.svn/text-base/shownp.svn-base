@@ -1,0 +1,6 @@
+SHOWNP
+SHOWN?
+
+	outputs TRUE if the turtle is shown (visible), FALSE if the
+	turtle is hidden.  See SHOWTURTLE and HIDETURTLE.
+

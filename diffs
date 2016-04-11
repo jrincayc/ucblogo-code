@@ -1,0 +1,410 @@
+149c149
+< 	TO INCREMENT :VAR	; nonworking!
+---
+> 	TO INCREMENT :VAR
+225,227c225,231
+< After initialization, Logo looks for a file in the current working directory
+< named startup.lg and, if one is found, executes the Logo instructions in it.
+< Then, under Unix, DOS, or Windows, if you include one or more filenames on the
+---
+> On startup, Logo looks for a file named "startup.lg" in the system Logo
+> library and, if found, loads it.  Then it looks for "startup.lg" in the
+> user's home directory, or the current directory, depending on the operating
+> system, and loads that.  These startup files can be used to predefine
+> procedures, e.g., to provide non-English names for primitive procedures.
+> 
+> Under Unix, DOS, or Windows, if you include one or more filenames on the
+236,243c240,242
+< If a command line argument is just a hyphen, then all command line arguments
+< after the hyphen are not taken as filenames, but are instead collected in a
+< list, one word per argument; the buried variable COMMAND.LINE contains that
+< list of arguments, or the empty list if there are none.  On my Linux system,
+< if the first line of an executable shell script is
+< #!/usr/local/bin/logo -
+< (note the hyphen) then the script can be given command line arguments and
+< they all end up in :COMMAND.LINE along with the script's path.  Experiment.
+---
+> If the command line contains a word consisting of only a hyphen ("-"),
+> then any text following the hyphen is not taken as filenames to load, but
+> instead is copied into a list, accessible through the variable CommandLine.
+288,291c287
+< colon are not delimiters.  Each infix operator character is a word in
+< itself, except that the two-character sequences <= >= and <> (the latter
+< meaning not-equal) with no intervening space are recognized as a single
+< word.
+---
+> colon are not delimiters.
+333,341d328
+< The two-character sequence #! at the beginning of a line also starts a
+< comment.  Unix users can therefore write a file containing Logo commands,
+< starting with the line
+< 
+< 	#! /usr/local/bin/logo
+< 
+< (or wherever your Logo executable lives) and the file will be executable
+< directly from the shell.
+< 
+416,418c403
+< 	the first input, at the beginning.  If the second input is a word,
+< 	then the first input must be a one-letter word, and FPUT is
+< 	equivalent to WORD.
+---
+> 	the first input, at the beginning.
+423,425c408
+< 	the first input, at the end.  If the second input is a word,
+< 	then the first input must be a one-letter word, and LPUT is
+< 	equivalent to WORD with its inputs in the other order.
+---
+> 	the first input, at the end.
+686,692d668
+< NOTEQUALP thing1 thing2
+< NOTEQUAL? thing1 thing2
+< thing1 <> thing2
+< 
+< 	outputs FALSE if the inputs are equal, TRUE otherwise.  See EQUALP
+< 	for the meaning of equality for different data types.
+< 
+1017,1035d992
+< 	OPENWRITE, but not the other OPEN variants, will accept as input
+< 	a two-element list, in which the first element must be a variable
+< 	name, and the second must be a positive integer.  A character
+< 	buffer of the specified size will be created.  When a SETWRITE is
+< 	done with this same list (in the sense of .EQ, not a copy, so
+< 	you must do something like
+< 		? make "buf [foo 100]
+< 		? openwrite :buf
+< 		? setwrite :buf
+< 		    [...]
+< 		? close :buf
+< 	and not just
+< 		? openwrite [foo 100]
+< 		? setwrite [foo 100]
+< 	and so on), the printed characters are stored in the buffer;
+< 	when a CLOSE is done with the same list as input, the characters
+< 	from the buffer (treated as one long word, even if spaces and
+< 	newlines are included) become the value of the specified variable.
+< 
+1055,1057c1012
+< 	command.  Closes the named file.  If the file was currently the
+< 	reader or writer, then the reader or writer is changed to the
+< 	keyboard or screen, as if SETREAD [] or SETWRITE [] had been done.
+---
+> 	command.  Closes the named file.
+1103c1058,1064
+< 	becomes the terminal, as usual.  Changing the write stream does
+---
+> 	becomes the terminal, as usual.  If the input is a list, then its
+> 	first element must be a variable name, and its second and last
+> 	element must be a positive integer; a buffer of that many
+> 	characters will be allocated, and will become the writestream;
+> 	when another SETWRITE is done, the contents of the buffer (as an
+> 	unparsed word, which may contain newline characters) will become
+> 	the value of the named variable.  Changing the write stream does
+1107,1121d1067
+< 	If the input is a list, then its first element must be a variable
+< 	name, and its second and last element must be a positive integer; a
+< 	buffer of that many characters will be allocated, and will become the
+< 	writestream.  If the same list (same in the .EQ sense, not a copy)
+< 	has been used as input to OPENWRITE, then the already-allocated
+< 	buffer will be used, and the writer can be changed to and from this
+< 	buffer, with all the characters accumulated as in a file.  When the
+< 	same list is used as input to CLOSE, the contents of the buffer
+< 	(as an unparsed word, which may contain newline characters) will
+< 	become the value of the named variable.  For compatibility with
+< 	earlier versions, if the list has not been opened when the SETWRITE
+< 	is done, it will be opened implicitly, but the first SETWRITE after
+< 	this one will implicitly close it, setting the variable and freeing
+< 	the allocated buffer.
+< 
+1234a1181,1186
+> INCREASEFONT
+> DECREASEFONT
+> 
+> 	command (wxWidgets only).  Increase or decrease the size of the font
+> 	used in the text window to the next larger or smaller available size.
+> 
+1260c1212
+< 	the previous token is an infix operator or open parenthesis, or it is
+---
+> 	it is immediately preceded by something requiring an input, or
+1393,1404d1344
+< LESSEQUALP num1 num2
+< LESSEQUAL? num1 num2
+< num1 <= num2
+< 
+< 	outputs TRUE if its first input is less than or equal to its second.
+< 
+< GREATEREQUALP num1 num2
+< GREATEREQUAL? num1 num2
+< num1 >= num2
+< 
+< 	outputs TRUE if its first input is greater than or equal to its second.
+< 
+1410d1349
+< (RANDOM start end)
+1412,1419c1351,1352
+< 	with one input, outputs a random nonnegative integer less than its
+< 	input, which must be a positive integer.
+< 
+< 	With two inputs, RANDOM outputs a random integer greater than or
+< 	equal to the first input, and less than or equal to the second
+< 	input.  Both inputs must be integers, and the first must be less
+< 	than the second.  (RANDOM 0 9) is equivalent to RANDOM 10;
+< 	(RANDOM 3 8) is equivalent to (RANDOM 6)+3.
+---
+> 	outputs a random nonnegative integer less than its input, which
+> 	must be an integer.
+1540c1473,1474
+< graphics window, and so that the aspect ratio is 1:1.
+---
+> graphics window, and so that the aspect ratio is 1:1, although some PC screens
+> have nonstandard aspect ratios.
+1549,1551d1482
+< However, the turtle is drawn one step behind its actual position, so that
+< the display of the base of the turtle's triangle does not obscure a line
+< drawn perpendicular to it (as would happen after drawing a square).
+1731a1663,1671
+> FILLED color instructions
+> 
+> 	runs the instructions, remembering all points visited by turtle
+> 	motion commands, starting *and ending* with the turtle's initial
+> 	position.  Then draws (ignoring penmode) the resulting polygon,
+> 	in the current pen color, filling the polygon with the given color,
+> 	which can be a color number or an RGB list.  The instruction list
+> 	cannot include another FILLED invocation.
+> 
+1855,1856c1795,1796
+< SETPENCOLOR colornumber.or.rgblist
+< SETPC colornumber.or.rgblist
+---
+> SETPENCOLOR colornumber
+> SETPC colornumber
+1859,1869c1799,1800
+< 	integer.  There are initial assignments for the first 16 colors:
+< 
+< 	 0  black	 1  blue	 2  green	 3  cyan
+< 	 4  red		 5  magenta	 6  yellow	 7 white
+< 	 8  brown	 9  tan		10  forest	11  aqua
+< 	12  salmon	13  purple	14  orange	15  grey
+< 
+< 	but other colors can be assigned to numbers by the PALETTE command.
+< 	Alternatively, sets the pen color to the given RGB values (a list of
+< 	three nonnegative integers less than 64K (65536) specifying the amount
+< 	of red, green, and blue in the desired color).
+---
+> 	integer.  Color 0 is always black; color 7 is always white.  Other
+> 	colors may or may not be consistent between machines.
+1882,1887d1812
+< 
+< 	sets the thickness of the pen.  The input is either a single positive
+< 	integer or a list of two positive integers (for horizontal and
+< 	vertical thickness).  Some versions pay no attention to the second
+< 	number, but always have a square pen.
+< 
+1890c1815
+< 	sets hardware-dependent pen characteristics.  This command is
+---
+> 	set hardware-dependent pen characteristics.  These commands are
+1896,1898c1821,1823
+< 	sets the pen's position, mode, thickness, and hardware-dependent
+< 	characteristics according to the information in the input list, which
+< 	should be taken from an earlier invocation of PEN.
+---
+> 	sets the pen's position, mode, and hardware-dependent characteristics
+> 	according to the information in the input list, which should be taken
+> 	from an earlier invocation of PEN.
+1900,1901c1825,1826
+< SETBACKGROUND colornumber.or.rgblist
+< SETBG colornumber.or.rgblist
+---
+> SETBACKGROUND color
+> SETBG color
+1903,1904c1828
+< 	set the screen background color by slot number or RGB values.
+< 	See SETPENCOLOR for details.
+---
+> 	set the screen background color.
+1923,1934c1847,1848
+< 	outputs a color number, a nonnegative integer that is associated with
+< 	a particular color, or a list of RGB values if such a list was used as
+< 	the most recent input to SETPENCOLOR.  There are initial assignments
+< 	for the first 16 colors:
+< 
+< 	 0  black	 1  blue	 2  green	 3  cyan
+< 	 4  red		 5  magenta	 6  yellow	 7 white
+< 	 8  brown	 9  tan		10  forest	11  aqua
+< 	12  salmon	13  purple	14  orange	15  grey
+< 
+< 	but other colors can be assigned to numbers by the PALETTE command.
+< 
+---
+> 	outputs a color number, a nonnegative integer that is associated
+> 	with a particular color by the hardware and operating system.
+1943,1947d1856
+< 
+< 	outputs a list of two positive integers, specifying the horizontal
+< 	and vertical thickness of the turtle pen.  (In some implementations
+< 	the two numbers may always be equal.)
+< 
+1950c1859
+< 	outputs hardware-specific pen information.
+---
+> 	output hardware-specific pen information.
+1954c1863
+< 	outputs a list containing the pen's position, mode, thickness, and
+---
+> 	outputs a list containing the pen's position, mode, and
+1960,1961c1869
+< 	outputs the graphics background color, either as a slot number or
+< 	as an RGB list, whichever way it was set.  (See PENCOLOR.)
+---
+> 	outputs the graphics background color.
+1989c1897
+< 	drawing cannot use PENERASE or PENREVERSE; any
+---
+> 	drawing cannot use ARC, FILL, PENERASE, or PENREVERSE; any
+1994,2023d1901
+< MOUSE QUERIES
+< -------------
+< 
+< 
+< MOUSEPOS
+< 
+< 	outputs the coordinates of the mouse, provided that it's within the
+< 	graphics window, in turtle coordinates.  If the mouse is outside the
+< 	graphics window, then the last position within the window is returned.
+< 	Exception:  If a mouse button is pressed within the graphics window
+< 	and held while the mouse is dragged outside the window, the mouse's
+< 	position is returned as if the window were big enough to include it.
+< 
+< 
+< BUTTONP
+< BUTTON?
+< 
+< 	outputs TRUE if a mouse button is down and the mouse is over the
+< 	graphics window.  Once the button is down, BUTTONP remains true until
+< 	the button is released, even if the mouse is dragged out of the
+< 	graphics window.
+< 
+< BUTTON
+< 
+< 	outputs 0 if BUTTONP would output FALSE; otherwise, it outputs an
+< 	integer between 1 and 3 indicating which button was pressed.
+< 	Ordinarily 1 means left, 2 means right, and 3 means center, but
+< 	operating systems may reconfigure these.
+< 
+< 
+2180c2058,2062
+< 	REDEFP has the value TRUE.
+---
+> 	REDEFP has the value TRUE.  Definitions created by COPYDEF are
+> 	not saved by SAVE; primitives are never saved, and user-defined
+> 	procedures created by COPYDEF are buried.  (You are likely to be
+> 	confused if you PO or POT a procedure defined with COPYDEF because
+> 	its title line will contain the old name.  This is why it's buried.)
+2351,2357d2232
+< PRIMITIVES
+< 
+< 	outputs a list of the names of all primitive procedures
+< 	in the workspace.  Note that this is a list of names, not a
+< 	contents list.  (However, procedures that require a contents list
+< 	as input will accept this list.)
+< 
+2419d2293
+< PRINTOUT contentslist
+2701,2705d2574
+< CSLSLOAD name
+< 
+< 	command.  Loads the named file, like LOAD, but from the directory
+< 	containing the Computer Science Logo Style programs instead of the
+< 	current user's directory.
+2742,2750c2611,2613
+< 	command.  Tells Logo to look in the specified directory for the
+< 	information provided by the HELP command, instead of the default
+< 	directory.  The format of a path depends on your operating system.
+< 
+< SETCSLSLOC path
+< 
+< 	command.  Tells Logo to use the specified directory for the CSLSLOAD
+< 	command, instead of the default directory.  The format of a path
+< 	depends on your operating system.
+---
+> 	command.  Tells Logo to look in the specified directory for the information
+> 	provided by the HELP command, instead of the default directory.
+> 	The format of a path depends on your operating system.
+2803,2810d2665
+< A runlist can consist of either a single expression (that produces a value)
+< or zero or more instructions (that do something, rather than output a value),
+< depending on the context:
+< 
+< 	PRINT IFELSE :X<0 ["NEGATIVE] ["POSITIVE]  ; one value in each case
+< 	REPEAT 4 [PRINT "A PRINT "B]  ; two instructions
+< 
+< 
+3061,3079d2915
+< 	A word starting with , or ,@ is treated as if the rest of the word
+< 	were a one-word list, e.g., ,:FOO is equivalent to ,[:FOO].
+< 
+< 	A word starting with ", (quote comma) or :, (colon comma) becomes a
+< 	word starting with " or : but with the result of running the
+< 	substitution (or its first word, if the result is a list) replacing
+< 	what comes after the comma.
+< 
+< 	Backquotes can be nested.  Substitution is done only for commas at
+< 	the same depth as the backquote in which they are found:
+< 
+< 		? show `[a `[b ,[1+2] ,[foo ,[1+3] d] e] f]
+< 		[a ` [b , [1+2] , [foo 4 d] e] f]
+< 
+< 		?make "name1 "x
+< 		?make "name2 "y
+< 		? show `[a `[b ,:,:name1 ,",:name2 d] e]
+< 		[a ` [b , [:x] , ["y] d] e]
+< 
+3175,3178c3011,3014
+< 		op cond [ [[emptyp :numbers] []]
+< 		          [[evenp first :numbers]  ; assuming EVENP is defined
+< 		           fput first :numbers evens butfirst :numbers]
+< 		          [else evens butfirst :numbers] ]
+---
+> 		cond [ [[emptyp :numbers] []]
+> 		       [[evenp first :numbers]	; assuming EVENP is defined
+> 		        [fput first :numbers evens butfirst :numbers]]
+> 		       [else evens butfirst :numbers] ]
+3810,3818d3645
+<  35	user-generated error message (THROW "ERROR [message])
+<  36	END inside multi-line instruction
+<  37	Bad default expression for optional input: %s
+<  38	Can't use OUTPUT or STOP inside RUNRESULT
+<  39 	Assuming you meant 'FD 100', not FD100 (or similar)
+<  40	I can't open file FILENAME
+<  41	File FILENAME already open
+<  42	File FILENAME not open
+<  43	Runlist [EXPR EXPR] has more than one expression.
+3840a3668,3672
+> COMMANDLINE						(variable)
+> 
+> 	contains any text appearing after a hyphen on the command line
+> 	used to start Logo.
+> 
+3891,3900d3722
+< Logo provides the following buried variables that can be used by programs:
+< 
+< LOGOVERSION						(variable)
+< 
+< 	a real number indicating the Logo version number, e.g., 5.5
+< 
+< LOGOPLATFORM						(variable)
+< 
+< 	one of the following words: X11, Windows, or Unix-Nographics.
+< 
+4011,4012c3833,3834
+< predicates (=, <, >) will still output in English.  If you want them to
+< generate alternate-language words, set UseAlternateNames to TRUE instead.
+---
+> predicates (=, <, >) will still output in English.  If you want them to generate
+> alternate-language words, set UseAlternateNames to TRUE instead.
+4025c3847
+< beginnings of lines.)  The program makehelp.c may require modification
+---
+> beginnings of lines.)  The program makefile.c may require modification

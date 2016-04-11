@@ -1,0 +1,4 @@
+WRITEPOS
+
+	outputs the file position of the current write stream file.
+

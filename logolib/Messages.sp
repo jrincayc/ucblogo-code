@@ -42,6 +42,7 @@ Asumo que querías decir '%p', no %p
 No puedo abrir archivo %p
 Archivo %p ya está abierto
 Archivo %p no está abierto
+Runlist %s has more than one expression
 Gracias por usar Logo.
 Que tengas un buen día.
 Lo lamento, no hay 'shell' en la Mac.

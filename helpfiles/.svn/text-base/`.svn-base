@@ -1,0 +1,36 @@
+` list							(library procedure)
+
+	outputs a list equal to its input but with certain substitutions.
+	If a member of the input list is the word "," (comma) then the
+	following member should be an instructionlist that produces an
+	output when run.  That output value replaces the comma and the
+	instructionlist.  If a member of the input list is the word ",@"
+	(comma atsign) then the following member should be an instructionlist
+	that outputs a list when run.  The members of that list replace the
+	,@ and the instructionlist.  Example:
+
+		show `[foo baz ,[bf [a b c]] garply ,@[bf [a b c]]]
+
+	will print
+
+		[foo baz [b c] garply b c]
+
+	A word starting with , or ,@ is treated as if the rest of the word
+	were a one-word list, e.g., ,:FOO is equivalent to ,[:FOO].
+
+	A word starting with ", (quote comma) or :, (colon comma) becomes a
+	word starting with " or : but with the result of running the
+	substitution (or its first word, if the result is a list) replacing
+	what comes after the comma.
+
+	Backquotes can be nested.  Substitution is done only for commas at
+	the same depth as the backquote in which they are found:
+
+		? show `[a `[b ,[1+2] ,[foo ,[1+3] d] e] f]
+		[a ` [b , [1+2] , [foo 4 d] e] f]
+
+		?make "name1 "x
+		?make "name2 "y
+		? show `[a `[b ,:,:name1 ,",:name2 d] e]
+		[a ` [b , [:x] , ["y] d] e]
+

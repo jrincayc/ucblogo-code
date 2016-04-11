@@ -1,0 +1,1181 @@
+to student :prob
+say [The problem to be solved is] :prob
+make "prob map.se [depunct ?] :prob
+localmake "orgprob :prob
+student1 :prob ~
+         [[[the perimeter of ! rectangle]
+           [twice the sum of the length and width of the rectangle]]
+          [[two numbers] [one of the numbers and the other number]]
+          [[two numbers] [one number and the other number]]]
+end
+
+to student1 :prob :idioms
+local [simsen shelf aunits units wanted ans var lasteqn
+       ref eqt1 beg end idiom reply]
+make "prob idioms :prob
+if match [^ two numbers #] :prob ~
+   [make "idiom find [match (sentence "^beg first ? "#end) :orgprob] :idioms ~
+    tryidiom stop]
+while [match [^beg the the #end] :prob] [make "prob (sentence :beg "the :end)]
+say [With mandatory substitutions the problem is] :prob
+ifelse match [# @:in [[as old as] [age] [years old]] #] :prob ~
+       [ageprob] [make "simsen bracket :prob]
+lsay [The simple sentences are] :simsen
+foreach [aunits wanted ans var lasteqn ref units] [make ? []]
+make "shelf filter [not emptyp ?] map.se [senform ?] :simsen
+lsay [The equations to be solved are] :shelf
+make "units remdup :units
+if trysolve :shelf :wanted :units :aunits [print [The problem is solved.] stop]
+make "eqt1 remdup geteqns :var
+if not emptyp :eqt1 [lsay [Using the following known relationships] :eqt1]
+student2 :eqt1
+end
+
+to student2 :eqt1
+make "var remdup sentence (map.se [varterms ?] :eqt1) :var
+make "eqt1 sentence :eqt1 vartest :var
+if not emptyp :eqt1 ~
+   [if trysolve (sentence :shelf :eqt1) :wanted :units :aunits
+       [print [The problem is solved.] stop]]
+make "idiom find [match (sentence "^beg first ? "#end) :orgprob] :idioms
+if not emptyp :idiom [tryidiom stop]
+lsay [Do you know any more relationships among these variables?] :var
+make "reply readlist
+if equalp :reply [yes] [print [Tell me.] make "reply readlist]
+if equalp :reply [no] [print [] print [I can't solve this problem.] stop]
+make "reply map.se [depunct ?] :reply
+if dlm last :reply [make "reply butlast :reply]
+if not match [^beg is #end] :reply [print [I don't understand that.] stop]
+make "shelf sentence :shelf :eqt1
+student2 (list (list "equal opform :beg opform :end))
+end
+
+;; Mandatory substitutions
+
+to depunct :word
+if emptyp :word [output []]
+if equalp first :word "$ [output sentence "$ depunct butfirst :word]
+if equalp last :word "% [output sentence depunct butlast :word "percent]
+if memberp last :word [. ? |;| ,] [output sentence depunct butlast :word last :word]
+if emptyp butfirst :word [output :word]
+if equalp last2 :word "'s [output sentence depunct butlast butlast :word "s]
+output :word
+end
+
+to last2 :word
+output word (last butlast :word) (last :word)
+end
+
+to idioms :sent
+local "number
+output changes :sent ~
+    [[[the sum of] ["sum]] [[square of] ["square]] [[of] ["numof]]
+     [[how old] ["what]] [[is equal to] ["is]]
+     [[years younger than] [[less than]]] [[years older than] ["plus]]
+     [[percent less than] ["perless]] [[less than] ["lessthan]]
+     [[these] ["the]] [[more than] ["plus]]
+     [[first two numbers] [[the first number and the second number]]]
+     [[three numbers]
+      [[the first number and the second number and the third number]]]
+     [[one half] [0.5]] [[twice] [[2 times]]]
+     [[$ !number] [sentence :number "dollars]] [[consecutive to] [[1 plus]]]
+     [[larger than] ["plus]] [[per cent] ["percent]] [[how many] ["howm]]
+     [[is multiplied by] ["ismulby]] [[is divided by] ["isdivby]]
+     [[multiplied by] ["times]] [[divided by] ["divby]]]
+end
+
+to changes :sent :list
+localmake "keywords map.se [findkey first ?] :list
+output changes1 :sent :list :keywords
+end
+
+to findkey :pattern
+if equalp first :pattern "!:in [output first butfirst :pattern]
+if equalp first :pattern "?:in [output sentence (item 2 :pattern) (item 3 :pattern)]
+output first :pattern
+end
+
+to changes1 :sent :list :keywords
+if emptyp :sent [output []]
+if memberp first :sent :keywords [output changes2 :sent :list :keywords]
+output fput first :sent changes1 butfirst :sent :list :keywords
+end
+
+to changes2 :sent :list :keywords
+changes3 :list :list
+output fput first :sent changes1 butfirst :sent :list :keywords
+end
+
+to changes3 :biglist :nowlist
+if emptyp :nowlist [stop]
+if changeone first :nowlist [changes3 :biglist :biglist stop]
+changes3 :biglist butfirst :nowlist
+end
+
+to changeone :change
+local "end
+if not match (sentence first :change [#end]) :sent [output "false]
+make "sent run (sentence "sentence last :change ":end)
+output "true
+end
+
+;; Division into simple sentences
+
+to bracket :prob
+output bkt1 finddelim :prob
+end
+
+to finddelim :sent
+output finddelim1 :sent [] []
+end
+
+to finddelim1 :in :out :simples
+if emptyp :in ~
+   [ifelse emptyp :out [output :simples] [output lput (sentence :out ".) :simples]]
+if dlm first :in ~
+   [output finddelim1 (nocap butfirst :in) []
+                      (lput (sentence :out first :in) :simples)]
+output finddelim1 (butfirst :in) (sentence :out first :in) :simples
+end
+
+to nocap :words
+if emptyp :words [output []]
+if personp first :words [output :words]
+output sentence (lowercase first :words) butfirst :words
+end
+
+to bkt1 :problist
+local [first word rest]
+if emptyp :problist [output []]
+if not memberp ", first :problist ~
+   [output fput first :problist bkt1 butfirst :problist]
+if match [if ^first , !word:qword #rest] first :problist ~
+   [output bkt1 fput (sentence :first ".)
+                     fput (sentence :word :rest) butfirst :problist]
+if match [^first , and #rest] first :problist ~
+   [output fput (sentence :first ".) (bkt1 fput :rest butfirst :problist)]
+output fput first :problist bkt1 butfirst :problist
+end
+
+;; Age problems
+
+to ageprob
+local [beg end sym who num subj ages]
+while [match [^beg as old as #end] :prob] [make "prob sentence :beg :end]
+while [match [^beg years old #end] :prob] [make "prob sentence :beg :end]
+while [match [^beg will be when #end] :prob] ~
+      [make "sym gensym
+       make "prob (sentence :beg "in :sym [years . in] :sym "years :end)]
+while [match [^beg was when #end] :prob] ~
+      [make "sym gensym
+       make "prob (sentence :beg :sym [years ago .] :sym [years ago] :end)]
+while [match [^beg !who:personp will be in !num years #end] :prob] ~
+      [make "prob (sentence :beg :who [s age in] :num "years #end)]
+while [match [^beg was #end] :prob] [make "prob (sentence :beg "is :end)]
+while [match [^beg will be #end] :prob] [make "prob (sentence :beg "is :end)]
+while [match [^beg !who:personp is now #end] :prob] ~
+      [make "prob (sentence :beg :who [s age now] :end)]
+while [match [^beg !num years from now #end] :prob] ~
+      [make "prob (sentence :beg "in :num "years :end)]
+make "prob ageify :prob
+ifelse match [^ !who:personp ^end s age #] :prob ~
+       [make "subj sentence :who :end] [make "subj "someone]
+make "prob agepron :prob
+make "end :prob
+make "ages []
+while [match [^ !who:personp ^beg age #end] :end] ~
+      [push "ages (sentence "and :who :beg "age)]
+make "ages butfirst reduce "sentence remdup :ages
+while [match [^beg their ages #end] :prob] [make "prob (sentence :beg :ages :end)]
+make "simsen map [agesen ?] bracket :prob
+end
+
+to ageify :sent
+if emptyp :sent [output []]
+if not personp first :sent [output fput first :sent ageify butfirst :sent]
+catch "error [if equalp first butfirst :sent "s
+                 [output fput first :sent ageify butfirst :sent]]
+output (sentence first :sent [s age] ageify butfirst :sent)
+end
+
+to agepron :sent
+if emptyp :sent [output []]
+if not pronoun first :sent [output fput first :sent agepron butfirst :sent]
+if posspro first :sent [output (sentence :subj "s agepron butfirst :sent)]
+output (sentence :subj [s age] agepron butfirst :sent)
+end
+
+to agesen :sent
+local [when rest num]
+make "when []
+if match [in !num years #rest] :sent ~
+   [make "when sentence "pluss :num make "sent :rest]
+if match [!num years ago #rest] :sent ~
+   [make "when sentence "minuss :num make "sent :rest]
+output agewhen :sent
+end
+
+to agewhen :sent
+if emptyp :sent [output []]
+if not equalp first :sent "age [output fput first :sent agewhen butfirst :sent]
+if match [in !num years #rest] butfirst :sent ~
+   [output (sentence [age pluss] :num agewhen :rest)]
+if match [!num years ago #rest] butfirst :sent ~
+   [output (sentence [age minuss] :num agewhen :rest)]
+if equalp "now first butfirst :sent ~
+   [output sentence "age agewhen butfirst butfirst :sent]
+output (sentence "age :when agewhen butfirst :sent)
+end
+
+;; Translation from sentences into equations
+
+to senform :sent
+make "lasteqn senform1 :sent
+output :lasteqn
+end
+
+to senform1 :sent
+local [one two verb1 verb2 stuff1 stuff2 factor]
+if emptyp :sent [output []]
+if match [^ what are ^one and ^two !:dlm] :sent ~
+   [output fput (qset :one) (senform (sentence [what are] :two "?))]
+if match [^ what !:in [is are] #one !:dlm] :sent ~
+   [output (list qset :one)]
+if match [^ howm !one is #two !:dlm] :sent ~
+   [push "aunits (list :one) output (list qset :two)]
+if match [^ howm ^one do ^two have !:dlm] :sent ~
+   [output (list qset (sentence [the number of] :one :two "have))]
+if match [^ howm ^one does ^two have !:dlm] :sent ~
+   [output (list qset (sentence [the number of] :one :two "has))]
+if match [^ find ^one and #two] :sent ~
+   [output fput (qset :one) (senform sentence "find :two)]
+if match [^ find #one !:dlm] :sent [output (list qset :one)]
+make "sent filter [not article ?] :sent
+if match [^one ismulby #two] :sent ~
+   [push "ref (list "product opform :one opform :two) output []]
+if match [^one isdivby #two] :sent ~
+   [push "ref (list "quotient opform :one opform :two) output []]
+if match [^one is increased by #two] :sent ~
+   [push "ref (list "sum opform :one opform :two) output []]
+if match [^one is #two] :sent ~
+   [output (list (list "equal opform :one opform :two))]
+if match [^one !verb1:verb ^factor as many ^stuff1 as
+          ^two !verb2:verb ^stuff2 !:dlm] ~
+         :sent ~
+   [if emptyp :stuff2 [make "stuff2 :stuff1]
+    output (list (list "equal ~
+                   opform (sentence [the number of] :stuff1 :one :verb1) ~
+                   opform (sentence :factor [the number of] :stuff2 :two :verb2)))]
+if match [^one !verb1:verb !factor:numberp #stuff1 !:dlm] :sent ~
+   [output (list (list "equal ~
+                   opform (sentence [the number of] :stuff1 :one :verb1) ~
+                   opform (list :factor)))]
+say [This sentence form is not recognized:] :sent
+throw "error
+end
+
+to qset :sent
+localmake "opform opform filter [not article ?] :sent
+if not operatorp first :opform ~
+   [queue "wanted :opform queue "ans list :opform oprem :sent output []]
+localmake "gensym gensym
+queue "wanted :gensym
+queue "ans list :gensym oprem :sent
+output (list "equal :gensym opform (filter [not article ?] :sent))
+end
+
+to oprem :sent
+output map [ifelse equalp ? "numof ["of] [?]] :sent
+end
+
+to opform :expr
+local [left right op]
+if match [^left !op:op2 #right] :expr [output optest :op :left :right]
+if match [^left !op:op1 #right] :expr [output optest :op :left :right]
+if match [^left !op:op0 #right] :expr [output optest :op :left :right]
+if match [#left !:dlm] :expr [make "expr :left]
+output nmtest filter [not article ?] :expr
+end
+
+to optest :op :left :right
+output run (list (word "tst. :op) :left :right)
+end
+
+to tst.numof :left :right
+if numberp last :left [output (list "product opform :left opform :right)]
+output opform (sentence :left "of :right)
+end
+
+to tst.divby :left :right
+output (list "quotient opform :left opform :right)
+end
+
+to tst.tothepower :left :right
+output (list "expt opform :left opform :right)
+end
+
+to expt :num :pow
+if :pow < 1 [output 1]
+output :num * expt :num :pow - 1
+end
+
+to tst.per :left :right
+output (list "quotient ~
+          opform :left ~
+          opform (ifelse numberp first :right [:right] [fput 1 :right]))
+end
+
+to tst.lessthan :left :right
+output opdiff opform :right opform :left
+end
+
+to opdiff :left :right
+output (list "sum :left (list "minus :right))
+end
+
+to tst.minus :left :right
+if emptyp :left [output list "minus opform :right]
+output opdiff opform :left opform :right
+end
+
+to tst.minuss :left :right
+output tst.minus :left :right
+end
+
+to tst.sum :left :right
+local [one two three]
+if match [^one and ^two and #three] :right ~
+   [output (list "sum opform :one opform (sentence "sum :two "and :three))]
+if match [^one and #two] :right ~
+   [output (list "sum opform :one opform :two)]
+say [sum used wrong:] :right
+throw "error
+end
+
+to tst.squared :left :right
+output list "square opform :left
+end
+
+to tst.difference :left :right
+local [one two]
+if match [between ^one and #two] :right [output opdiff opform :one opform :two]
+say [Incorrect use of difference:] :right
+throw "error
+end
+
+to tst.plus :left :right
+output (list "sum opform :left opform :right)
+end
+
+to tst.pluss :left :right
+output tst.plus :left :right
+end
+
+to square :x
+output :x * :x
+end
+
+to tst.square :left :right
+output list "square opform :right
+end
+
+to tst.percent :left :right
+if not numberp last :left ~
+   [say [Incorrect use of percent:] :left throw "error]
+output opform (sentence butlast :left ((last :left) / 100) :right)
+end
+
+to tst.perless :left :right
+if not numberp last :left ~
+   [say [Incorrect use of percent:] :left throw "error]
+output (list "product ~
+          (opform sentence butlast :left ((100 - (last :left)) / 100)) ~
+          opform :right)
+end
+
+to tst.times :left :right
+if emptyp :left [say [Incorrect use of times:] :right throw "error]
+output (list "product opform :left opform :right)
+end
+
+to nmtest :expr
+if match [& !:numberp #] :expr [say [argument error:] :expr throw "error]
+if and (equalp first :expr 1) (1 < count :expr) ~
+   [make "expr (sentence 1 plural (first butfirst :expr) (butfirst butfirst :expr))]
+if and (numberp first :expr) (1 < count :expr) ~
+   [push "units (list first butfirst :expr) ~
+    output (list "product (first :expr) (opform butfirst :expr))]
+if numberp first :expr [output first :expr]
+if memberp "this :expr [output this :expr]
+if not memberp :expr :var [push "var :expr]
+output :expr
+end
+
+to this :expr
+if not emptyp :ref [output pop "ref]
+if not emptyp :lasteqn [output first butfirst last :lasteqn]
+if equalp first :expr "this [make "expr butfirst :expr]
+push "var :expr
+output :expr
+end
+
+;; Solving the equations
+
+to trysolve :shelf :wanted :units :aunits
+local "solution
+make "solution solve :wanted :shelf (ifelse emptyp :aunits [:units] [:aunits])
+output pranswers :ans :solution
+end
+
+to solve :wanted :eqt :terms
+output solve.reduce solver :wanted :terms [] [] "insufficient
+end
+
+to solve.reduce :soln
+if emptyp :soln [output []]
+if wordp :soln [output :soln]
+if emptyp butfirst :soln [output :soln]
+local "part
+make "part solve.reduce butfirst :soln
+output fput (list (first first :soln) (subord last first :soln :part)) :part
+end
+
+to solver :wanted :terms :alis :failed :err
+local [one result restwant]
+if emptyp :wanted [output :err]
+make "one solve1 (first :wanted) ~
+                 (sentence butfirst :wanted :failed :terms) ~
+                 :alis :eqt [] "insufficient
+if wordp :one ~
+   [output solver (butfirst :wanted) :terms :alis (fput first :wanted :failed) :one]
+make "restwant (sentence :failed butfirst :wanted)
+if emptyp :restwant [output :one]
+make "result solver :restwant :terms :one [] "insufficient
+if listp :result [output :result]
+output solver (butfirst :wanted) :terms :alis (fput first :wanted :failed) :one
+end
+
+to solve1 :x :terms :alis :eqns :failed :err
+local [thiseq vars extras xterms others result]
+if emptyp :eqns [output :err]
+make "thiseq subord (first :eqns) :alis
+make "vars varterms :thiseq
+if not memberp :x :vars ~
+   [output solve1 :x :terms :alis (butfirst :eqns) (fput first :eqns :failed) :err]
+make "xterms fput :x :terms
+make "extras setminus :vars :xterms
+make "eqt remove (first :eqns) :eqt
+if not emptyp :extras ~
+   [make "others solver :extras :xterms :alis [] "insufficient
+    ifelse wordp :others
+           [make "eqt sentence :failed :eqns
+            output solve1 :x :terms :alis (butfirst :eqns)
+                      (fput first :eqns :failed) :others]
+           [make "alis :others
+            make "thiseq subord (first :eqns) :alis]]
+make "result solveq :x :thiseq
+if listp :result [output lput :result :alis]
+make "eqt sentence :failed :eqns
+output solve1 :x :terms :alis (butfirst :eqns) (fput first :eqns :failed) :result
+end
+
+to solveq :var :eqn
+local [left right]
+make "left first butfirst :eqn
+ifelse occvar :var :left ~
+   [make "right last :eqn] [make "right :left make "left last :eqn]
+output solveq1 :left :right "true
+end
+
+to solveq1 :left :right :bothtest
+if :bothtest [if occvar :var :right [output solveqboth :left :right]]
+if equalp :left :var [output list :var :right]
+if wordp :left [output "unsolvable]
+local "oper
+make "oper first :left
+if memberp :oper [sum product minus quotient] [output run (list word "solveq. :oper)]
+output "unsolvable
+end
+
+to solveqboth :left :right
+if not equalp first :right "sum [output solveq1 (subterm :left :right) 0 "false]
+output solveq.rplus :left butfirst :right []
+end
+
+to solveq.rplus :left :right :newright
+if emptyp :right [output solveq1 :left (simone "sum :newright) "false]
+if occvar :var first :right ~
+   [output solveq.rplus (subterm :left first :right) butfirst :right :newright]
+output solveq.rplus :left butfirst :right (fput first :right :newright)
+end
+
+to solveq.sum
+if emptyp butfirst butfirst :left [output solveq1 first butfirst :left :right "true]
+output solveq.sum1 butfirst :left :right []
+end
+
+to solveq.sum1 :left :right :newleft
+if emptyp :left [output solveq.sum2]
+if occvar :var first :left ~
+   [output solveq.sum1 butfirst :left :right fput first :left :newleft]
+output solveq.sum1 butfirst :left (subterm :right first :left) :newleft
+end
+
+to solveq.sum2
+if emptyp butfirst :newleft [output solveq1 first :newleft :right "true]
+localmake "factor factor :newleft :var
+if equalp first :factor "unknown [output "unsolvable]
+if equalp last :factor 0 [output "unsolvable]
+output solveq1 first :factor (divterm :right last :factor) "true
+end
+
+to solveq.minus
+output solveq1 (first butfirst :left) (minusin :right) "false
+end
+
+to solveq.product
+output solveq.product1 :left :right
+end
+
+to solveq.product1 :left :right
+if emptyp butfirst butfirst :left [output solveq1 (first butfirst :left) :right "true]
+if not occvar :var first butfirst :left ~
+   [output solveq.product1 (fput "product butfirst butfirst :left)
+                           (divterm :right first butfirst :left)]
+localmake "rest simone "product butfirst butfirst :left
+if occvar :var :rest [output "unsolvable]
+output solveq1 (first butfirst :left) (divterm :right :rest) "false
+end
+
+to solveq.quotient
+if occvar :var first butfirst :left ~
+   [output solveq1 (first butfirst :left) (simtimes list :right last :left) "true]
+output solveq1 (simtimes list :right last :left) (first butfirst :left) "true
+end
+
+to denom :fract :addends
+make "addends simplus :addends
+localmake "den last :fract
+if not equalp first :addends "quotient ~
+   [output simdiv list (simone "sum
+                               (remop "sum list (distribtimes (list :addends) :den)
+                                                first butfirst :fract))
+                       :den]
+if equalp :den last :addends ~
+   [output simdiv (simplus list (first butfirst :fract) (first butfirst :addends))
+                  :den]
+localmake "lowterms simdiv list :den last :addends
+output simdiv list (simplus (simtimes list first butfirst :fract last :lowterms)
+                            (simtimes list first butfirst :addends
+                                           first butfirst :lowterms)) ~
+                   (simtimes list first butfirst :lowterms last :addends)
+end
+
+to distribtimes :trms :multiplier
+output simplus map [simtimes (list ? :multiplier)] :trms
+end
+
+to distribx :expr
+local [oper args]
+if emptyp :expr [output :expr]
+make "oper first :expr
+if not operatorp :oper [output :expr]
+make "args map [distribx ?] butfirst :expr
+if reduce "and map [numberp ?] :args [output run (sentence [(] :oper :args [)])]
+if equalp :oper "sum [output simplus :args]
+if equalp :oper "minus [output minusin first :args]
+if equalp :oper "product [output simtimes :args]
+if equalp :oper "quotient [output simdiv :args]
+output fput :oper :args
+end
+
+to divterm :dividend :divisor
+if equalp :dividend 0 [output 0]
+output simdiv list :dividend :divisor
+end
+
+to factor :exprs :var
+local "trms
+make "trms map [factor1 :var ?] :exprs
+if memberp "unknown :trms [output fput "unknown :exprs]
+output list :var simplus :trms
+end
+
+to factor1 :var :expr
+localmake "negvar minusin :var
+if equalp :var :expr [output 1]
+if equalp :negvar :expr [output -1]
+if emptyp :expr [output "unknown]
+if equalp first :expr "product [output factor2 butfirst :expr]
+if not equalp first :expr "quotient [output "unknown]
+localmake "dividend first butfirst :expr
+if equalp :var :dividend [output (list "quotient 1 last :expr)]
+if not equalp first :dividend "product [output "unknown]
+localmake "result factor2 butfirst :dividend
+if equalp :result "unknown [output "unknown]
+output (list "quotient :result last :expr)
+end
+
+to factor2 :trms
+if memberp :var :trms [output simone "product (remove :var :trms)]
+if memberp :negvar :trms [output minusin simone "product (remove :negvar :trms)]
+output "unknown
+end
+
+to maybeadd :num :rest
+if equalp :num 0 [output :rest]
+output fput :num :rest
+end
+
+to maybemul :num :rest
+if equalp :num 1 [output :rest]
+output fput :num :rest
+end
+
+to minusin :expr
+if emptyp :expr [output -1]
+if equalp first :expr "sum [output fput "sum map [minusin ?] butfirst :expr]
+if equalp first :expr "minus [output last :expr]
+if memberp first :expr [product quotient] ~
+   [output fput first :expr
+                (fput (minusin first butfirst :expr) butfirst butfirst :expr)]
+if numberp :expr [output minus :expr]
+output list "minus :expr
+end
+
+to occvar :var :expr
+if emptyp :expr [output "false]
+if wordp :expr [output equalp :var :expr]
+if operatorp first :expr [output not emptyp find [occvar :var ?] butfirst :expr]
+output equalp :var :expr
+end
+
+to remfactor :num :den
+foreach butfirst :num [remfactor1 ?]
+output (list "quotient (simone "product butfirst :num) (simone "product butfirst :den))
+end
+
+to remfactor1 :expr
+local "neg
+if memberp :expr :den ~
+   [make "num remove :expr :num  make "den remove :expr :den  stop]
+make "neg minusin :expr
+if not memberp :neg :den [stop]
+make "num remove :expr :num
+make "den minusin remove :neg :den
+end
+
+to remop :oper :exprs
+output map.se [ifelse equalp first ? :oper [butfirst ?] [(list ?)]] :exprs
+end
+
+to simdiv :list
+local [num den numop denop]
+make "num first :list
+make "den last :list
+if equalp :num :den [output 1]
+if numberp :den [output simtimes (list (quotient 1 :den) :num)]
+make "numop first :num
+make "denop first :den
+if equalp :numop "quotient ~
+   [output simdiv list (first butfirst :num) (simtimes list last :num :den)]
+if equalp :denop "quotient ~
+   [output simdiv list (simtimes list :num last :den) (first butfirst :den)]
+if and equalp :numop "product equalp :denop "product [output remfactor :num :den]
+if and equalp :numop "product memberp :den :num [output remove :den :num]
+output fput "quotient :list
+end
+
+to simone :oper :trms
+if emptyp :trms [output ifelse equalp :oper "product [1] [0]]
+if emptyp butfirst :trms [output first :trms]
+output fput :oper :trms
+end
+
+to simplus :exprs
+make "exprs remop "sum :exprs
+localmake "factor [unknown]
+catch "simplus ~
+      [foreach :terms ~
+               [make "factor (factor :exprs ?) ~
+                if not equalp first :factor "unknown [throw "simplus]]]
+if not equalp first :factor "unknown [output fput "product remop "product :factor]
+localmake "nums 0
+localmake "nonnums []
+localmake "quick []
+catch "simplus [simplus1 :exprs]
+if not emptyp :quick [output :quick]
+if not equalp :nums 0 [push "nonnums :nums]
+output simone "sum :nonnums
+end
+
+to simplus1 :exprs
+if emptyp :exprs [stop]
+simplus2 first :exprs
+simplus1 butfirst :exprs
+end
+
+to simplus2 :pos
+local "neg
+make "neg minusin :pos
+if numberp :pos [make "nums sum :pos :nums stop]
+if memberp :neg butfirst :exprs [make "exprs remove :neg :exprs stop]
+if equalp first :pos "quotient ~
+   [make "quick (denom :pos (maybeadd :nums sentence :nonnums butfirst :exprs)) ~
+    throw "simplus]
+push "nonnums :pos
+end
+
+to simtimes :exprs
+local [nums nonnums quick]
+make "nums 1
+make "nonnums []
+make "quick []
+catch "simtimes [foreach remop "product :exprs [simtimes1 ?]]
+if not emptyp :quick [output :quick]
+if equalp :nums 0 [output 0]
+if not equalp :nums 1 [push "nonnums :nums]
+output simone "product :nonnums
+end
+
+to simtimes1 :expr
+if equalp :expr 0 [make "nums 0 throw "simtimes]
+if numberp :expr [make "nums product :expr :nums stop]
+if equalp first :expr "sum ~
+   [make "quick distribtimes (butfirst :expr)
+                             (simone "product maybemul :nums sentence :nonnums ?rest)
+    throw "simtimes]
+if equalp first :expr "quotient ~
+   [make "quick
+          simdiv (list (simtimes (list (first butfirst :expr)
+                                       (simone "product
+                                               maybemul :nums
+                                                        sentence :nonnums ?rest)))
+                       (last :expr))
+    throw "simtimes]
+push "nonnums :expr
+end
+
+to subord :expr :alist
+output distribx subord1 :expr :alist
+end
+
+to subord1 :expr :alist
+if emptyp :alist [output :expr]
+output subord (substop (last first :alist) (first first :alist) :expr) ~
+              (butfirst :alist)
+end
+
+to substop :val :var :expr
+if emptyp :expr [output []]
+if equalp :expr :var [output :val]
+if not operatorp first :expr [output :expr]
+output fput first :expr map [substop :val :var ?] butfirst :expr
+end
+
+to subterm :minuend :subtrahend
+if equalp :minuend 0 [output minusin :subtrahend]
+if equalp :minuend :subtrahend [output 0]
+output simplus (list :minuend minusin :subtrahend)
+end
+
+to varterms :expr
+if emptyp :expr [output []]
+if numberp :expr [output []]
+if wordp :expr [output (list :expr)]
+if operatorp first :expr [output map.se [varterms ?] butfirst :expr]
+output (list :expr)
+end
+
+;; Printing the solutions
+
+to pranswers :ans :solution
+print []
+if equalp :solution "unsolvable ~
+   [print [Unable to solve this set of equations.] output "false]
+if equalp :solution "insufficient ~
+   [print [The equations were insufficient to find a solution.] output "false]
+localmake "gotall "true
+foreach :ans [if prans ? :solution [make "gotall "false]]
+if not :gotall [print [] print [Unable to solve this set of equations.]]
+output :gotall
+end
+
+to prans :ans :solution
+localmake "result find [equalp first ? first :ans] :solution
+if emptyp :result [output "true]
+print (sentence cap last :ans "is unitstring last :result)
+print []
+output "false
+end
+
+to unitstring :expr
+if numberp :expr [output roundoff :expr]
+if equalp first :expr "product ~
+   [output sentence (unitstring first butfirst :expr)
+                    (reduce "sentence butfirst butfirst :expr)]
+if (and (listp :expr)
+         (not numberp first :expr)
+         (not operatorp first :expr)) ~
+   [output (sentence 1 (singular first :expr) (butfirst :expr))]
+output :expr
+end
+
+to roundoff :num
+if (abs (:num - round :num)) < 0.0001 [output round :num]
+output :num
+end
+
+to abs :num
+output ifelse (:num < 0) [-:num] [:num]
+end
+
+;; Using known relationships
+
+to geteqns :vars
+output map.se [gprop varkey ? "eqns] :vars
+end
+
+to varkey :var
+local "word
+if match [number of !word #] :var [output :word]
+output first :var
+end
+
+;; Assuming equality of similar variables
+
+to vartest :vars
+if emptyp :vars [output []]
+local [var beg end]
+make "var first :vars
+output (sentence (ifelse match [^beg !:pronoun #end] :var
+                         [vartest1 :var (sentence :beg "& :end) butfirst :vars]
+                         [[]])
+                 (vartest1 :var (sentence "# :var "#) butfirst :vars)
+                 (vartest butfirst :vars))
+end
+
+to vartest1 :target :pat :vars
+output map [varequal :target ?] filter [match :pat ?] :vars
+end
+
+to varequal :target :var
+print []
+print [Assuming that]
+print (sentence (list :target) [is equal to] (list :var))
+output (list "equal :target :var)
+end
+
+;; Optional substitutions
+
+to tryidiom
+make "prob (sentence :beg last :idiom :end)
+while [match (sentence "^beg first :idiom "#end) :prob] ~
+      [make "prob (sentence :beg last :idiom :end)]
+say [The problem with an idiomatic substitution is] :prob
+student1 :prob (remove :idiom :idioms)
+end
+
+;; Utility procedures
+
+to qword :word
+output memberp :word [find what howm how]
+end
+
+to dlm :word
+output memberp :word [. ? |;|]
+end
+
+to article :word
+output memberp :word [a an the]
+end
+
+to verb :word
+output memberp :word [have has get gets weigh weighs]
+end
+
+to personp :word
+output memberp :word [Mary Ann Bill Tom Sally Frank father uncle]
+end
+
+to pronoun :word
+output memberp :word [he she it him her they them his her its]
+end
+
+to posspro :word
+output memberp :word [his her its]
+end
+
+to op0 :word
+output memberp :word [pluss minuss squared tothepower per sum difference numof]
+end
+
+to op1 :word
+output memberp :word [times divby square]
+end
+
+to op2 :word
+output memberp :word [plus minus lessthan percent perless]
+end
+
+to operatorp :word
+output memberp :word [sum minus product quotient expt square equal]
+end
+
+to plural :word
+localmake "plural gprop :word "plural
+if not emptyp :plural [output :plural]
+if not emptyp gprop :word "sing [output :word]
+if equalp last :word "s [output :word]
+output word :word "s
+end
+
+to singular :word
+localmake "sing gprop :word "sing
+if not emptyp :sing [output :sing]
+if not emptyp gprop :word "plural [output :word]
+if equalp last :word "s [output butlast :word]
+output :word
+end
+
+to setminus :big :little
+output filter [not memberp ? :little] :big
+end
+
+to say :herald :text
+print []
+print :herald
+print []
+print :text
+print []
+end
+
+to lsay :herald :text
+print []
+print :herald
+print []
+foreach :text [print cap ? print []]
+end
+
+to cap :sent
+if emptyp :sent [output []]
+output sentence (word uppercase first first :sent butfirst first :sent) ~
+                butfirst :sent
+end
+
+;; The pattern matcher
+
+to match :pat :sen
+if prematch :pat :sen [output rmatch :pat :sen]
+output "false
+end
+
+to prematch :pat :sen
+if emptyp :pat [output "true]
+if listp first :pat [output prematch butfirst :pat :sen]
+if memberp first first :pat [! @ # ^ & ?] [output prematch butfirst :pat :sen]
+if emptyp :sen [output "false]
+localmake "rest member first :pat :sen
+if not emptyp :rest [output prematch butfirst :pat :rest]
+output "false
+end
+
+to rmatch :pat :sen
+local [special.var special.pred special.buffer in.list]
+if or wordp :pat wordp :sen [output "false]
+if emptyp :pat [output emptyp :sen]
+if listp first :pat [output special fput "!: :pat :sen]
+if memberp first first :pat [? # ! & @ ^] [output special :pat :sen]
+if emptyp :sen [output "false]
+if equalp first :pat first :sen [output rmatch butfirst :pat butfirst :sen]
+output "false
+end
+
+to special :pat :sen
+set.special parse.special butfirst first :pat "
+output run word "match first first :pat
+end
+
+to parse.special :word :var
+if emptyp :word [output list :var "always]
+if equalp first :word ": [output list :var butfirst :word]
+output parse.special butfirst :word word :var first :word
+end
+
+to set.special :list
+make "special.var first :list
+make "special.pred last :list
+if emptyp :special.var [make "special.var "special.buffer]
+if memberp :special.pred [in anyof] [set.in]
+if not emptyp :special.pred [stop]
+make "special.pred first butfirst :pat
+make "pat fput first :pat butfirst butfirst :pat
+end
+
+to set.in
+make "in.list first butfirst :pat
+make "pat fput first :pat butfirst butfirst :pat
+end
+
+to match!
+if emptyp :sen [output "false]
+if not try.pred [output "false]
+make :special.var first :sen
+output rmatch butfirst :pat butfirst :sen
+end
+
+to match?
+make :special.var []
+if emptyp :sen [output rmatch butfirst :pat :sen]
+if not try.pred [output rmatch butfirst :pat :sen]
+make :special.var first :sen
+if rmatch butfirst :pat butfirst :sen [output "true]
+make :special.var []
+output rmatch butfirst :pat :sen
+end
+
+to match#
+make :special.var []
+output #test #gather :sen
+end
+
+to #gather :sen
+if emptyp :sen [output :sen]
+if not try.pred [output :sen]
+make :special.var lput first :sen thing :special.var
+output #gather butfirst :sen
+end
+
+to #test :sen
+if rmatch butfirst :pat :sen [output "true]
+if emptyp thing :special.var [output "false]
+output #test2 fput last thing :special.var :sen
+end
+
+to #test2 :sen
+make :special.var butlast thing :special.var
+output #test :sen
+end
+
+to match&
+output &test match#
+end
+
+to &test :tf
+if emptyp thing :special.var [output "false]
+output :tf
+end
+
+to match^
+make :special.var []
+output ^test :sen
+end
+
+to ^test :sen
+if rmatch butfirst :pat :sen [output "true]
+if emptyp :sen [output "false]
+if not try.pred [output "false]
+make :special.var lput first :sen thing :special.var
+output ^test butfirst :sen
+end
+
+to match@
+make :special.var :sen
+output @test []
+end
+
+to @test :sen
+if @try.pred [if rmatch butfirst :pat :sen [output "true]]
+if emptyp thing :special.var [output "false]
+output @test2 fput last thing :special.var :sen
+end
+
+to @test2 :sen
+make :special.var butlast thing :special.var
+output @test :sen
+end
+
+to try.pred
+if listp :special.pred [output rmatch :special.pred first :sen]
+output run list :special.pred quoted first :sen
+end
+
+to quoted :thing
+if listp :thing [output :thing]
+output word "" :thing
+end
+
+to @try.pred
+if listp :special.pred [output rmatch :special.pred thing :special.var]
+output run list :special.pred thing :special.var
+end
+
+to always :x
+output "true
+end
+
+to in :word
+output memberp :word :in.list
+end
+
+to anyof :sen
+output anyof1 :sen :in.list
+end
+
+to anyof1 :sen :pats
+if emptyp :pats [output "false]
+if rmatch first :pats :sen [output "true]
+output anyof1 :sen butfirst :pats
+end
+
+;; Sample word problems
+
+make "ann [Mary is twice as old as Ann was when Mary was as old as Ann is now.
+  If Mary is 24 years old, how old is Ann?]
+make "guns [The number of soldiers the Russians have is
+  one half of the number of guns they have. They have 7000 guns.
+  How many soldiers do they have?]
+make "jet [The distance from New York to Los Angeles is 3000 miles.
+  If the average speed of a jet plane is 600 miles per hour,
+  find the time it takes to travel from New York to Los Angeles by jet.]
+make "nums [A number is multiplied by 6 . This product is increased by 44 .
+  This result is 68 . Find the number.]
+make "radio [The price of a radio is $69.70.
+  If this price is 15 percent less than the marked price, find the marked price.]
+make "sally [The sum of Sally's share of some money and Frank's share is $4.50.
+  Sally's share is twice Frank's. Find Frank's and Sally's share.]
+make "ship [The gross weight of a ship is 20000 tons.
+  If its net weight is 15000 tons, what is the weight of the ships cargo?]
+make "span [If 1 span is 9 inches, and 1 fathom is 6 feet,
+  how many spans is 1 fathom?]
+make "sumtwo [The sum of two numbers is 96,
+  and one number is 16 larger than the other number. Find the two numbers.]
+make "tom [If the number of customers Tom gets is
+  twice the square of 20 per cent of the number of advertisements he runs,
+  and the number of advertisements he runs is 45,
+  what is the number of customers Tom gets?]
+make "uncle [Bill's father's uncle is twice as old as Bill's father.
+  2 years from now Bill's father will be 3 times as old as Bill.
+  The sum of their ages is 92 . Find Bill's age.]
+
+;; Initial data base
+
+pprop "distance "eqns ~
+  [[equal [distance] [product [speed] [time]]]
+   [equal [distance] [product [gas consumtion] [number of gallons of gas used]]]]
+pprop "feet "eqns ~
+  [[equal [product 1 [feet]] [product 12 [inches]]]
+   [equal [product 1 [yards]] [product 3 [feet]]]]
+pprop "feet "sing "foot
+pprop "foot "plural "feet
+pprop "gallons "eqns ~
+  [[equal [distance] [product [gas consumtion] [number of gallons of gas used]]]]
+pprop "gas "eqns ~
+  [[equal [distance] [product [gas consumtion] [number of gallons of gas used]]]]
+pprop "inch "plural "inches
+pprop "inches "eqns [[equal [product 1 [feet]] [product 12 [inches]]]]
+pprop "people "sing "person
+pprop "person "plural "people
+pprop "speed "eqns [[equal [distance] [product [speed] [time]]]]
+pprop "time "eqns [[equal [distance] [product [speed] [time]]]]
+pprop "yards "eqns [[equal [product 1 [yards]] [product 3 [feet]]]]

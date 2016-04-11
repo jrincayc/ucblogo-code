@@ -1,0 +1,5 @@
+PEN							(library procedure)
+
+	outputs a list containing the pen's position, mode, thickness, and
+	hardware-specific characteristics, for use by SETPEN.
+

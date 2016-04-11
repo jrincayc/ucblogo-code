@@ -1,0 +1,79 @@
+to playfair :keyword :message
+local [matrix a b c d e f g h i j k l m n o p q r s t u v w x y z]
+setkeyword jtoi lowercase :keyword
+output encode (reduce "word :message)
+end
+
+;; Prepare the code array
+
+to setkeyword :word
+make "matrix reorder word :word (remove :word "abcdefghiklmnopqrstuvwxyz)
+make "j :i
+end
+
+to remove :letters :string
+if emptyp :string [output "]
+if memberp first :string :letters [output remove :letters bf :string]
+output word first :string remove :letters bf :string
+end
+
+to reorder :string
+output reorder1 :string (mdarray [5 5]) 1 1
+end
+
+to reorder1 :string :array :row :column
+if :row=6 [output :array]
+if :column=6 [output reorder1 :string :array :row+1 1]
+mdsetitem (list :row :column) :array first :string
+make first :string (list :row :column)
+output reorder1 (butfirst :string) :array :row :column+1
+end
+
+;; Encode the message
+
+to encode :message
+if emptyp :message [output "]
+if emptyp butfirst :message [output paircode first :message "q]
+if equalp (jtoi first :message) (jtoi first butfirst :message) ~
+   [output word (paircode first :message "q) (encode butfirst :message)]
+output word (paircode first :message first butfirst :message) ~
+            (encode butfirst butfirst :message)
+end
+
+to paircode :one :two
+local [row1 column1 row2 column2]
+make "row1 first thing :one
+make "column1 last thing :one
+make "row2 first thing :two
+make "column2 last thing :two
+if :row1 = :row2 ~
+   [output letters (list :row1 rotate (:column1+1)) ~
+                   (list :row1 rotate (:column2+1))]
+if :column1 = :column2 ~
+   [output letters (list rotate (:row1+1) :column1)  ~
+                   (list rotate (:row2+1) :column1)]
+output letters (list :row1 :column2) (list :row2 :column1)
+end
+
+to rotate :index
+output ifelse :index = 6 [1] [:index]
+end
+
+to letters :one :two
+output word letter :one letter :two
+end
+
+to letter :rowcol
+output itoj mditem :rowcol :matrix
+end
+
+;; I and J conversion
+
+to jtoi :word
+output map [ifelse equalp ? "j ["i] [?]] :word
+end
+
+to itoj :letter
+if :letter = "i [if (random 3) = 0 [output "j]]
+output :letter
+end

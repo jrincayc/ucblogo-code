@@ -1,0 +1,7 @@
+COUNT thing
+
+	outputs the number of characters in the input, if the input is a word;
+	outputs the number of members in the input, if it is a list
+	or an array.  (For an array, this may or may not be the index of the
+	last member, depending on the array's origin.)
+

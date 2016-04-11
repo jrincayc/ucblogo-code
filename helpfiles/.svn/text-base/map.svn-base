@@ -1,0 +1,25 @@
+MAP template data					(library procedure)
+(MAP template data1 data2 ...)
+
+	outputs a word or list, depending on the type of the data input,
+	of the same length as that data input.  (If more than one data
+	input are given, the output is of the same type as data1.)  Each
+	member of the output is the result of evaluating the template
+	list, filling the slots with the corresponding member(s) of the
+	data input(s).  (All data inputs must be the same length.)  In the
+	case of a word output, the results of the template evaluation must
+	be words, and they are concatenated with WORD.
+
+	In a template, the symbol ?REST represents the portion of the
+	data input to the right of the member currently being used as
+	the ? slot-filler.  That is, if the data input is [A B C D E]
+	and the template is being evaluated with ? replaced by B, then
+	?REST would be replaced by [C D E].  If multiple parallel slots
+	are used, then (?REST 1) goes with ?1, etc.
+
+	In a template, the symbol # represents the position in the data
+	input of the member currently being used as the ? slot-filler.
+	That is, if the data input is [A B C D E] and the template is
+	being evaluated with ? replaced by B, then # would be replaced
+	by 2.
+

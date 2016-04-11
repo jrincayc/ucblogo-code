@@ -1,0 +1,7 @@
+TEST tf
+
+	command.  Remembers its input, which must be TRUE or FALSE, for use
+	by later IFTRUE or IFFALSE instructions.  The effect of TEST is local
+	to the procedure in which it is used; any corresponding IFTRUE or
+	IFFALSE must be in the same procedure or a subprocedure.
+

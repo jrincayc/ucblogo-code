@@ -1,0 +1,5 @@
+ARRAYP thing
+ARRAY? thing
+
+	outputs TRUE if the input is an array, FALSE otherwise.
+

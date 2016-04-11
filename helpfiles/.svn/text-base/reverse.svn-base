@@ -1,0 +1,5 @@
+REVERSE list						(library procedure)
+
+	outputs a list whose members are the members of the input list, in
+	reverse order.
+

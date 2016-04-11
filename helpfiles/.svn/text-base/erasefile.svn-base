@@ -1,0 +1,6 @@
+ERASEFILE filename
+ERF filename
+
+	command.  Erases (deletes, removes) the named file, which should not
+	currently be open.
+

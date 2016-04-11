@@ -1,0 +1,6 @@
+REMDUP list						(library procedure)
+
+	outputs a copy of "list" with duplicate members removed.  If two or
+	more members of the input are equal, the rightmost of those members
+	is the one that remains in the output.
+

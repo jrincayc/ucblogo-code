@@ -1,0 +1,21 @@
+BUTTONACT						(variable)
+
+	if nonempty, should be an instruction list that will be evaluated
+	whenever a mouse button is pressed.  Note that the user may have
+	released the button before the instructions are evaluated.  BUTTON
+	will still output which button was most recently pressed.  CLICKPOS
+	will output the position of the mouse cursor at the moment the
+	button was pressed; this may be different from MOUSEPOS if the
+	user moves the mouse after clicking.
+
+	Note that it's possible for the user to press a button during the
+	evaluation of the instruction list.  If this would confuse your
+	program, prevent it by temporarily setting BUTTONACT to the empty
+	list.  One easy way to do that is the following:
+
+		make "buttonact [button.action]
+
+		to button.action [:buttonact []]
+		... ; whatever you want the button to do
+		end
+

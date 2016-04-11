@@ -1,0 +1,4 @@
+LOG10 num
+
+	outputs the common logarithm of the input.
+

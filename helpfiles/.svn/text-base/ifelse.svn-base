@@ -1,0 +1,7 @@
+IFELSE tf instructionlist1 instructionlist2
+
+	command or operation.  If the first input has the value TRUE, then
+	IFELSE runs the second input.  If the first input has the value FALSE,
+	then IFELSE runs the third input.  IFELSE outputs a value if the
+	instructionlist contains an expression that outputs a value.
+

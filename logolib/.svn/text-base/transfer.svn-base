@@ -1,0 +1,23 @@
+;;; -*- logo -*-
+
+to transfer :transfer.limit :transfer.template :transfer.init
+output cascade.2 (ifelse emptyp :transfer.limit ~
+                         [[emptyp ?2]] ~
+                         [list "transfer.end.test :transfer.limit]) ~
+                 :transfer.template [] [butfirst ?2] :transfer.init
+end
+
+to transfer.end.test :the.condition.expression
+if emptyp ?2 [output "true]
+output run :the.condition.expression
+end
+
+to ?in
+output first ?2
+end
+
+to ?out
+output ?1
+end
+
+bury [transfer transfer.end.test ?in ?out]

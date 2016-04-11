@@ -1,0 +1,7 @@
+SCRUNCH
+
+	outputs a list containing two numbers, the X and Y scrunch
+	factors, as used by SETSCRUNCH.  (But note that SETSCRUNCH
+	takes two numbers as inputs, not one list of numbers.)
+
+

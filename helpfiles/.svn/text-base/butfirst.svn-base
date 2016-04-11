@@ -1,0 +1,7 @@
+BUTFIRST wordorlist
+BF wordorlist
+
+	if the input is a word, outputs a word containing all but the first
+	character of the input.  If the input is a list, outputs a list
+	containing all but the first member of the input.
+

@@ -1,0 +1,5 @@
+PREFIX
+
+	outputs the current file prefix, or [] if there is no prefix.
+	See SETPREFIX.
+

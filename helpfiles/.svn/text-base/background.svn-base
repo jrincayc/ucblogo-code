@@ -1,0 +1,7 @@
+BACKGROUND
+BG
+
+	outputs the graphics background color, either as a slot number or
+	as an RGB list, whichever way it was set.  (See PENCOLOR.)
+
+
