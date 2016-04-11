@@ -1,6 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Berkeley Logo
 Source: http://www.cs.berkeley.edu/~bh/downloads/
+Files-Excluded: .nfs000000000123876700000013 .gdb_history logo makehelp */CVS */.svn config.cache config.log config.status
 
 Files: *
 Copyright: 1993-2008 Regents of the University of California
