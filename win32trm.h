@@ -111,10 +111,7 @@ typedef struct { int    h;
 #define pen_erase win32_pen_erase()
 #define pen_down win32_pen_down()
 
-#define button FALSE
-
-/*#define mouse_x mickey_x() */
-/*#define mouse_y mickey_y() */
+#define button (w_button)
 
 #define full_screen win32_con_full_screen()
 #define split_screen win32_con_split_screen()
@@ -151,6 +148,8 @@ extern int win32_screen_right();
 extern pen_info turtlePen;
 extern void MoveCursor(int, int), win32_receive_char(char);
 extern void win32_parse_line(char*);
+extern FIXNUM mouse_x, mouse_y;
+extern int w_button;
 
 /* prototypes added by sowings */
 extern BOOLEAN safe_to_save();

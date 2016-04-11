@@ -71,19 +71,33 @@ int numberp(NODE *snd) {
 
 NODE *lrandom(NODE *arg) {
 	NODE *val;
-	long r;
+	long r, base, range;
 
 	val = pos_int_arg(arg);
 	if (NOT_THROWING) {
+	    if (cdr(arg)==0) {	/* (random 10) => (0, 10) */
+		base = 0;
+		range = getint(val);
+	    } else {		/* (random 3 10) => (3, 8) */
+		base = getint(val);
+		val = pos_int_arg(arg);
+		if (NOT_THROWING) { /* (random 0 9) <=> (random 10) */
+		    range = getint(val);
+		    range = range + 1 - base;
+		}
+	    }
+	}
+	if (NOT_THROWING) {
 #ifdef HAVE_SRANDOM
-		r = (getint(val) == 0 ? 0 : random() % getint(val));
+	    r = (range <= 0 ? 0 : random() % range);
 #else
-	        r = (((long)rand()) << 15) | rand();
-		r = (getint(val) == 0 ? 0 : r % getint(val));
+	    r = (((long)rand()) << 15) | rand();
+	    r = (range <= 0 ? 0 : r % range);
 #endif
-		val = newnode(INT);
-		setint(val, (FIXNUM)r);
-		return(val);
+	    r += base;
+	    val = newnode(INT);
+	    setint(val, (FIXNUM)r);
+	    return(val);
 	} else return(UNBOUND);
 }
 
@@ -312,10 +326,16 @@ NODE *binary(NODE *args, char fcn) {
 		  else ival /= iarg;
 		  break;
 	      case '%':
-		ival %= iarg;
+		if (iarg == 0)
+		  err_logo(BAD_DATA_UNREC,arg);
+		else
+		  ival %= iarg;
 		break;
 	      case 'm':
-		ival %= iarg;
+		if (iarg == 0)
+		  err_logo(BAD_DATA_UNREC,arg);
+		else
+		  ival %= iarg;
 		if ((ival < 0) != (iarg < 0))
 		    ival += iarg;
 		break;
@@ -368,7 +388,8 @@ NODE *binary(NODE *args, char fcn) {
 		    }
 		}
 		break;
-	      case '/': if (farg == 0.0)
+	      case '/':
+		    if (farg == 0.0)
 		      err_logo(BAD_DATA_UNREC,arg);
 		    else
 		      fval /= farg;
@@ -383,10 +404,16 @@ NODE *binary(NODE *args, char fcn) {
 		errchk(fval = pow(fval,farg));
 		break;
 	      case '%':
-		errchk(fval = fmod(fval,farg));
+		if (farg == 0.0)
+		    err_logo(BAD_DATA_UNREC,arg);
+		else
+		    errchk(fval = fmod(fval,farg));
 		break;
 	      case 'm':
-		errchk(fval = fmod(fval,farg));
+		if (farg == 0.0)
+		    err_logo(BAD_DATA_UNREC,arg);
+		else
+		    errchk(fval = fmod(fval,farg));
 		if ((fval < 0.0) != (farg < 0.0))
 		    fval += farg;
 		break;
@@ -561,6 +588,18 @@ NODE *llessp(NODE *args) {
     return(UNBOUND);
 }
 
+NODE *llessequalp(NODE *args) {
+    NODE *n1, *n2;
+
+    n1 = numeric_arg(args);
+    n2 = numeric_arg(cdr(args));
+
+    if (NOT_THROWING) {
+	return torf(compare_numnodes(n1, n2) <= 0);
+    }
+    return(UNBOUND);
+}
+
 NODE *lgreaterp(NODE *args) {
     NODE *n1, *n2;
 
@@ -569,6 +608,18 @@ NODE *lgreaterp(NODE *args) {
 
     if (NOT_THROWING) {
 	return torf(compare_numnodes(n1, n2) > 0);
+    }
+    return(UNBOUND);
+}
+
+NODE *lgreaterequalp(NODE *args) {
+    NODE *n1, *n2;
+
+    n1 = numeric_arg(args);
+    n2 = numeric_arg(cdr(args));
+
+    if (NOT_THROWING) {
+	return torf(compare_numnodes(n1, n2) >= 0);
     }
     return(UNBOUND);
 }
@@ -584,6 +635,9 @@ int compare_node(NODE *n1, NODE *n2, BOOLEAN ignorecase) {
     nt2 = nodetype(n2);
 
     if (!(nt1 & NT_WORD) || !(nt2 & NT_WORD)) return -9999;
+
+    if (nt1==QUOTE && is_list(node__quote(n1))) return -9999;
+    if (nt2==QUOTE && is_list(node__quote(n2))) return -9999;
 
     if (nt1 == CASEOBJ && nt2 == CASEOBJ && ignorecase &&
 	 (object__caseobj(n1) == object__caseobj(n2))) return 0;
@@ -681,6 +735,21 @@ NODE *lequalp(NODE *args) {
 	val = equalp_help(arg1, arg2, FALSE);
 
     return(torf(val));
+}
+
+NODE *lnotequalp(NODE *args) {
+    NODE *arg1, *arg2;
+    BOOLEAN val;
+
+    arg1 = car(args);
+    arg2 = cadr(args);
+
+    if (varTrue(Caseignoredp))
+	val = equalp_help(arg1, arg2, TRUE);
+    else
+	val = equalp_help(arg1, arg2, FALSE);
+
+    return(torf(!val));
 }
 
 NODE *l_eq(NODE *args) {

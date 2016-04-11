@@ -26,6 +26,10 @@
 #include "logo.h"
 #include "globals.h"
 
+#ifdef HAVE_WX
+#define getc getFromWX_2
+#endif
+
 #ifdef HAVE_TERMIO_H
 #include <termio.h>
 #else
@@ -67,7 +71,13 @@ NODE *lseteditor(NODE *args) {
 
     arg = cnv_node_to_strnode(car(args));
     if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
-    else editor = asciiz(arg);
+    else {
+	editor = asciiz(arg);
+    editorname = strrchr(editor, (int)'/');
+    if (editorname == NULL) editorname = strrchr(editor, (int)'\\');
+    if (editorname == NULL) editorname = strrchr(editor, (int)':');
+    editorname = (editorname ? editorname+1 : editor);
+    }
     return UNBOUND;
 }
 
@@ -86,6 +96,15 @@ NODE *lsethelploc(NODE *args) {
     arg = cnv_node_to_strnode(car(args));
     if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
     else helpfiles = asciiz(arg);
+    return UNBOUND;
+}
+
+NODE *lsetcslsloc(NODE *args) {
+    NODE *arg;
+
+    arg = cnv_node_to_strnode(car(args));
+    if (arg == UNBOUND) err_logo(BAD_DATA_UNREC, arg);
+    else csls = asciiz(arg);
     return UNBOUND;
 }
 
@@ -118,6 +137,22 @@ FILE *open_file(NODE *arg, char *access) {
     char *fnstr;
     FILE *tstrm;
 
+    if (is_list(arg)) { /* print to string */
+	if (*access != 'w') {
+	    err_logo(BAD_DATA_UNREC, arg);
+	    return NULL;
+	} else {
+	    FIXNUM i = int_arg(cdr(arg));
+	    if (NOT_THROWING && i > 0 && cddr(arg) == NIL) {
+		char *tmp = (char *)malloc(i);
+		*tmp = '\0';
+		return (FILE *)tmp;
+	    }
+	    err_logo(BAD_DATA_UNREC, car(arg));
+	    return NULL;
+	}
+    }
+
     arg = cnv_node_to_strnode(arg);
     if (arg == UNBOUND) return(NULL);
     if (file_prefix != NIL) {
@@ -146,8 +181,7 @@ NODE *ldribble(NODE *arg) {
 	err_logo(ALREADY_DRIBBLING, NIL);
     else {
 	dribblestream = open_file(car(arg), "w+");
-	if (dribblestream == NULL) err_logo(FILE_ERROR, 
-			      make_static_strnode(message_texts[CANT_OPEN]));
+	if (dribblestream == NULL) err_logo(CANT_OPEN_ERROR, car(arg));
     }
     return(UNBOUND);
 }
@@ -166,7 +200,8 @@ FILE *find_file(NODE *arg, BOOLEAN remove) {
 
     t = file_list;
     while (t != NIL) {
-	if (compare_node(arg, car(t), FALSE) == 0) {
+	if ((is_list(arg) && arg == car(t)) ||
+	    (!is_list(arg) && (compare_node(arg, car(t), FALSE) == 0))) {
 	    fp = (FILE *)t->n_obj;
 	    if (remove) {
 		t->n_obj = NIL;
@@ -188,13 +223,13 @@ NODE *lopen(NODE *arg, char *mode) {
 
     arg = car(arg);
     if (find_file(arg, FALSE) != NULL)
-	err_logo(FILE_ERROR,make_static_strnode(message_texts[ALREADY_OPEN]));
+	err_logo(ALREADY_OPEN_ERROR, arg);
     else if ((tmp = open_file(arg, mode)) != NULL) {
 	push(arg, file_list);
 	file_list->n_obj = (NODE *)tmp;
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
+	err_logo(CANT_OPEN_ERROR, arg);
     return(UNBOUND);
 }
 
@@ -220,11 +255,31 @@ NODE *lallopen(NODE *args) {
 
 NODE *lclose(NODE *arg) {
     FILE *tmp;
+    NODE *margs;
 
     if ((tmp = find_file(car(arg), TRUE)) == NULL)
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
-    else
+	err_logo(NOT_OPEN_ERROR, car(arg));
+    else if (is_list (car(arg))) {
+	margs = cons(caar(arg),
+		     cons(make_strnode((char *)tmp, NULL, strlen((char *)tmp),
+				       STRING, strnzcpy),
+			  NIL));
+	lmake(margs);
+	free((char *)tmp);
+    } else
 	fclose(tmp);
+    if ((is_list(car(arg)) && car(arg) == writer_name) ||
+	(!is_list(car(arg)) &&
+	 (compare_node(car(arg), writer_name, FALSE) == 0))) {
+	    writer_name = NIL;
+	    writestream = stdout;
+    }
+    if ((is_list(car(arg)) && car(arg) == reader_name) ||
+	(!is_list(car(arg)) &&
+	 (compare_node(car(arg), reader_name, FALSE) == 0))) {
+	    reader_name = NIL;
+	    readstream = stdin;
+    }
     return(UNBOUND);
 }
 
@@ -232,16 +287,21 @@ char *write_buf = 0;
 
 NODE *lsetwrite(NODE *arg) {
     FILE *tmp;
+    NODE *margs;
 
     if (writestream == NULL) {
 	/* Any setwrite finishes earlier write to string */
 	*print_stringptr = '\0';
 	writestream = stdout;
-	setcar(cdr(writer_name),
-	       make_strnode(write_buf, NULL, strlen(write_buf), STRING,
-			    strnzcpy));
-	lmake(writer_name);
-	free(write_buf);
+	if (find_file(writer_name, FALSE) == NULL) {
+	    /* pre-5.4 compatibility mode, implicitly close string */
+	    margs = cons(car(writer_name),
+			 cons(make_strnode(write_buf, NULL, strlen(write_buf),
+					   STRING, strnzcpy),
+			      NIL));
+	    lmake(margs);
+	    free(write_buf);
+	}
 	writer_name = NIL;
     }
     if (car(arg) == NIL) {
@@ -249,7 +309,12 @@ NODE *lsetwrite(NODE *arg) {
 	writer_name = NIL;
     } else if (is_list(car(arg))) { /* print to string */
 	FIXNUM i = int_arg(cdar(arg));
-	if (NOT_THROWING && i > 0 && cddr(car(arg)) == NIL) {
+	if ((tmp = find_file(car(arg), FALSE)) != NULL) {
+	    writestream = NULL;
+	    writer_name = car(arg);
+	    print_stringptr = (char *)tmp + strlen((char *)tmp);
+	    print_stringlen = i - strlen((char *)tmp);
+	} else if (NOT_THROWING && i > 0 && cddr(car(arg)) == NIL) {
 	    writestream = NULL;
 	    writer_name = copy_list(car(arg));
 	    print_stringptr = write_buf = (char *)malloc(i);
@@ -259,7 +324,7 @@ NODE *lsetwrite(NODE *arg) {
 	writestream = tmp;
 	writer_name = car(arg);
     } else
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
+	err_logo(NOT_OPEN_ERROR, car(arg));
     return(UNBOUND);
 }
 
@@ -275,7 +340,7 @@ NODE *lsetread(NODE *arg) {
 	reader_name = car(arg);
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[NOT_OPEN]));
+	err_logo(NOT_OPEN_ERROR, car(arg));
     return(UNBOUND);
 }
 
@@ -314,7 +379,7 @@ NODE *lsave(NODE *arg) {
 	fclose(writestream);
     }
     else
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
+	err_logo(CANT_OPEN_ERROR, car(arg));
     writestream = tmp;
     return(UNBOUND);
 }
@@ -341,7 +406,7 @@ void silent_load(NODE *arg, char *prefix) {
      * The "/" or ".lg" is supplied by this procedure as needed.
      */
 
-    /*
+    /*     [This is no longer true!  But for Windows we change FOO? to FOOQ.]
      * In the case that this procedure is called to load a procedure from the
      * logo library, it must first truncate the name of the procedure to
      * eight characters, to find the filename (so as to be compatible with
@@ -379,9 +444,20 @@ void silent_load(NODE *arg, char *prefix) {
 	}
 	fclose(loadstream);
 	runstartup(st);
-    } else if (arg == NIL) ndprintf(stdout, message_texts[NO_FILE], prefix);
+    } else if (arg == NIL || prefix == csls)
+	err_logo(CANT_OPEN_ERROR,
+		 make_strnode(load_path, NULL, strlen(load_path), STRING,
+			      strnzcpy));
     loadstream = tmp_stream;
     current_line = tmp_line;
+}
+
+NODE *lcslsload(NODE *arg) {
+    NODE *save_prefix = file_prefix;
+    file_prefix = NIL;
+    silent_load(car(arg),csls);
+    file_prefix = save_prefix;
+    return UNBOUND;
 }
 
 NODE *lload(NODE *arg) {
@@ -401,7 +477,7 @@ NODE *lload(NODE *arg) {
 	fclose(loadstream);
 	runstartup(st);
     } else
-	err_logo(FILE_ERROR, make_static_strnode(message_texts[CANT_OPEN]));
+	err_logo(CANT_OPEN_ERROR, car(arg));
     loadstream = tmp;
     current_line = tmp_line;
     return(UNBOUND);
@@ -499,7 +575,7 @@ NODE *lreadchar(NODE *args) {
 	return(NIL);
     }
     return(make_strnode((char *)&c, (struct string_block *)NULL, 1,
-	    (getparity(c) ? STRING : BACKSLASH_STRING), strnzcpy));
+	    (getparity(c) ? BACKSLASH_STRING : STRING), strnzcpy));
 }
 
 NODE *lreadchars(NODE *args) {

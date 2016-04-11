@@ -160,7 +160,8 @@ void ndprintf(FILE *strm, char *fmt, ...) {
 	    }
 	} else print_char(strm,ch);
     }
-    if (!strm) print_char(strm,'\0');
+    /* if (!strm) print_char(strm,'\0'); */
+    if (!strm) *print_stringptr = '\0';
     va_end(ap);
     force_printwidth = force_printdepth = -1;
 }
@@ -174,7 +175,10 @@ void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {
     int wid = width;
 
     while (ndlist != NIL) {
-		if (!is_list(ndlist)) return;
+	if (!is_list(ndlist)) {
+	    ndprintf(strm, " . %s", ndlist);
+	    return;
+	}
 	arg = car(ndlist);
 	ndlist = cdr(ndlist);
 	if (check_throwing) break;
@@ -204,6 +208,11 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	print_char(strm,']');
     } else if (nd == UNBOUND) {
 	ndprintf(strm, "%s", theName(Name_nothing));
+    } else if ((unsigned int)nd < 200) {    /* for debugging */
+	char num[] = "{small}    ";
+
+	sprintf(&num[7],"%d",nd);
+	ndprintf(strm,num);
     } else if ((ndty = nodetype(nd)) & NT_PRIM) {
 	ndprintf(strm, "PRIM");
     } else if (ndty == CONT) {
@@ -238,7 +247,18 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     } else if (ndty == COLON) {
 	print_char(strm, ':');
 	print_node(strm, car(nd));
-	} else if (print_backslashes && (nd == Null_Word)) {
+#ifdef OBJECTS
+    } else if (ndty == OBJECT) {
+        NODE *old_obj = current_object;
+        NODE *printform;
+
+        current_object = nd;
+/*      printform = val_eval_driver(cons(theName(Name_representation), NIL)); */
+	printform = lrepresentation(NIL);
+        current_object = old_obj;
+        real_print_node(strm, printform, depth, width);
+#endif
+    } else if (print_backslashes && (nd == Null_Word)) {
 		ndprintf(strm, "||");
     } else {
 	int wid, dots=0;

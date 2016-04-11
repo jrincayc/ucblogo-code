@@ -1,4 +1,5 @@
 char *libloc=":logolib";
 char *helploc=":helpfiles";
+char *cslsloc=":csls";
 char *temploc="";
 char *separator=":";

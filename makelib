@@ -13,17 +13,74 @@ ENDOFFILE
 cat << "ENDOFFILE" > logolib/\`
 ;;; -*- logo -*-
 
-to ` :backq.list
+to ` :backq.list [:backq.depth 0]
 if emptyp :backq.list [op []]
-if equalp first :backq.list ", ~
-   [op fput run first bf :backq.list ` bf bf :backq.list]
-if equalp first :backq.list ",@ ~
-   [op se run first bf :backq.list ` bf bf :backq.list]
-if wordp first :backq.list [op fput first :backq.list ` bf :backq.list]
-op fput ` first :backq.list ` bf :backq.list
+if equalp first :backq.list "` ~
+   [op fput "`
+            fput  (` first bf :backq.list :backq.depth+1)
+                  (` bf bf :backq.list :backq.depth)]
+if equalp first first :backq.list ", ~
+   [op backq.unquote (bf first :backq.list) (bf :backq.list) :backq.depth]
+if memberp first first :backq.list [" :] ~
+   [op backq.word (first first :backq.list) (bf first :backq.list)
+                  (bf :backq.list) :backq.depth]
+if wordp first :backq.list ~
+   [op fput first :backq.list (` bf :backq.list :backq.depth)]
+op fput (` first :backq.list :backq.depth) (` bf :backq.list :backq.depth)
 end
 
-bury "`
+to backq.word :backq.symbol :backq.word :backq.rest :backq.depth
+if emptyp :backq.word ~
+   [output fput :backq.symbol (` :backq.rest :backq.depth)]
+if not equalp first :backq.word ", ~
+   [output fput (word :backq.symbol :backq.word)
+                (` :backq.rest :backq.depth)]
+localmake "result backq.unquote (bf :backq.word) :backq.rest :backq.depth
+if wordp :result [output word :backq.symbol :result]
+output fput (word :backq.symbol first :result) bf :result
+end
+
+to backq.unquote :unquote.symbol :unquote.rest :unquote.depth
+localmake "unquote.splicing "false
+if not emptyp :unquote.symbol [
+   if equalp first :unquote.symbol "@ [
+      make "unquote.splicing "true
+      make "unquote.symbol butfirst :unquote.symbol
+]]
+if :unquote.depth=0 [
+  if emptyp :unquote.symbol
+     [output backq.combine run first :unquote.rest
+                           (` bf :unquote.rest :unquote.depth)]
+  output backq.combine run :unquote.symbol (` :unquote.rest :unquote.depth)
+]
+if emptyp :unquote.symbol ~
+   [output fput (ifelse :unquote.splicing [",@] [",])
+                fput (` first :unquote.rest :unquote.depth-1)
+                     (` bf :unquote.rest :unquote.depth)]
+if backq.all.commas :unquote.symbol ~
+   [output fput (ifelse :unquote.splicing [",@] [",])
+                fput (` (list :unquote.symbol first :unquote.rest)
+                        :unquote.depth-1)
+                     (` bf :unquote.rest :unquote.depth)]
+output fput (ifelse :unquote.splicing [",@] [",]) ~
+            fput (` (list :unquote.symbol) :unquote.depth-1) ~
+                 (` :unquote.rest :unquote.depth)
+end
+
+to backq.combine :this :those
+output ifelse :unquote.splicing [se :this :those] [fput :this :those]
+end
+
+to backq.all.commas :word
+if emptyp :word [output "true]
+if equalp first :word ", ~
+   [if emptyp butfirst :word [output "true]
+    if equalp first butfirst :word "@ [output backq.all.commas bf bf :word]
+    output backq.all.commas butfirst :word]
+output "false
+end
+
+bury [` backq.word backq.unquote backq.combine backq.all.commas]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/\?rest
 ;;; -*- logo -*-
@@ -411,14 +468,15 @@ cat << "ENDOFFILE" > logolib/foreach
 .macro foreach [:foreach.inputs] 2
 catch "foreach.catchtag ~
       [op foreach.done runresult ~
-	    [foreach1 bl :foreach.inputs last :foreach.inputs 1]]
+	    [foreach1 butlast :foreach.inputs last :foreach.inputs 1]]
 op []
 end
 
 to foreach1 :template.lists :foreach.template :template.number
 if emptyp first :template.lists [throw "foreach.catchtag]
 apply :foreach.template firsts :template.lists
-.maybeoutput foreach1 bfs :template.lists :foreach.template :template.number+1
+.maybeoutput foreach1 butfirsts :template.lists ~
+                      :foreach.template :template.number+1
 end
 
 to foreach.done :foreach.result
@@ -427,7 +485,7 @@ op (list "output "first (list first :foreach.result))
 end
 
 to ?rest [:which 1]
-output bf item :which :template.lists
+output butfirst item :which :template.lists
 end
 
 bury [foreach foreach1 foreach.done ?rest]
@@ -566,7 +624,7 @@ cat << "ENDOFFILE" > logolib/mdsetitem
 ;;; -*- logo -*-
 
 to mdsetitem :index :array :val
-setitem last :index (mditem bl :index :array) :val
+setitem last :index (mditem butlast :index :array) :val
 end
 
 bury "mdsetitem
@@ -886,4 +944,347 @@ output last pos
 end
 
 bury "ycor
+ENDOFFILE
+cat << "ENDOFFILE" > logolib/logo-logo
+;;; -*- logo -*-
+
+;; a logo for logo written in logo ;-)
+;; version 0.1
+;; by AKFoerster
+
+Make "Startup [UCBLogo  wait 300  ucblogo.reset]
+
+to ucblogo.reset
+  cs
+  SetPen [pendown paint [0 0] 7 [-1]]
+  setbg 0
+  clearScreen ShowTurtle
+  Wrap
+  TextScreen
+  erase [ucblogo ucblogo.DrawUCBLogo ucblogo.StartPos ucblogo.DrawUCB]
+  erase [ucblogo.DrawLogo ucblogo.LetterSpace ucblogo.HalfWidth ucblogo.Next]
+  erase [ucblogo.DrawU ucblogo.DrawC ucblogo.DrawB]
+  erase [ucblogo.DrawL ucblogo.DrawO ucblogo.DrawG ucblogo.reset]
+  ern "Startup
+  end
+
+;; Homeposition: Turtle at bottom/center of letter/Line
+
+to UCBLogo
+  Localmake "Title word "Berkeley\ Logo\ version\   :LogoVersion
+
+  Localmake "LetterHeight 70
+  Localmake "LetterWidth 30
+  Localmake "LetterSpace 25
+  Localmake "HalfLineSpace 15
+  Localmake "MyPenSize 10
+
+  Localmake "FontColor 4
+  Localmake "ShadowColor 0
+  Localmake "BorderColor 2
+  Localmake "FillColor 6
+  Localmake "LabelColor 0
+
+  ;; just guessing: (!!!)
+  Localmake "LabelLetterWidth ifelse equalp LogoPlatform "Windows [4] [3]
+
+  HideTurtle ClearScreen Window FullScreen
+  setPenSize list :MyPenSize :MyPenSize
+  
+  ;; Background
+  ;; "Q should also be dependant on "LetterHeight (!!!)
+  localMake "Q Product ucblogo.LetterSpace 4
+  
+  setbg :fillcolor
+  setpc 0
+  fill
+  setPenColor :BorderColor
+  PenUp
+  setXY :Q  0
+  PenDown
+  setXY 0  :Q
+  setXY -:Q  0
+  setXY 0  -:Q
+  setXY :Q  0
+  PenUp 
+  Home setPenColor :FillColor fill
+
+  ;; shadow
+  setXY :myPenSize*0.7  -:myPenSize*0.7
+  setPenColor :ShadowColor
+  ucblogo.DrawUCBLogo
+  
+  ;; coloured Logo
+  Home
+  setPenColor :FontColor
+  ucblogo.DrawUCBLogo
+
+  ;; Label - doesn't work on windows (!!!)
+  PenUp
+  Home
+  Back :LetterHeight
+  repeat 3 [Back :HalfLineSpace]
+  setPenColor :LabelColor
+  setX minus product count :Title :LabelLetterWidth
+  setPenSize [1 1]
+  label :Title
+
+  wait 30
+  setx 0
+  fd 15
+  rt 120
+  setpc :FontColor
+  setPenSize [7 7]
+  pd arc 120 :LetterHeight pu
+  seth 0 bk 30 setx -20 pd fd 2 bk 2 pu setx 20 pd fd 2 bk 2 pu
+
+  print :Title
+  end
+  
+to ucblogo.DrawUCBLogo
+  localMake "HomePos Pos
+
+  PenUp
+  SetHeading 0
+  Forward :HalfLineSpace
+  ucblogo.DrawUCB
+  
+  setPos :HomePos
+  SetHeading 0
+  PenUp
+  back :HalfLineSpace
+  back :LetterHeight
+  ucblogo.DrawLogo
+  end
+
+to ucblogo.StartPos "Letters
+  ;; assume Turtle in center of text
+  PenUp
+  setheading 270
+  Forward quotient ( product :Letters ucblogo.LetterSpace ) 2
+  back quotient ucblogo.LetterSpace 2
+  wait 30
+  end
+  
+to ucblogo.DrawUCB
+  ucblogo.StartPos 3
+  ucblogo.DrawU ucblogo.Next
+  ucblogo.DrawC ucblogo.Next
+  ucblogo.DrawB
+  end
+  
+to ucblogo.DrawLogo
+  ucblogo.StartPos 4
+  ucblogo.DrawL ucblogo.Next
+  ucblogo.DrawO ucblogo.Next
+  ucblogo.DrawG ucblogo.Next
+  ucblogo.DrawO
+  end
+
+to ucblogo.LetterSpace
+  output sum :LetterWidth :LetterSpace
+  end
+  
+to ucblogo.HalfWidth
+  output quotient :LetterWidth 2
+  end
+  
+to ucblogo.Next
+  PenUp
+  setheading 90
+  Forward ucblogo.LetterSpace
+  wait 30
+  end
+
+to ucblogo.DrawU
+  ;; lower arc
+  setheading 0
+  PenUp
+  Forward ucblogo.HalfWidth
+  Right 90
+  PenDown
+  arc 180 ucblogo.HalfWidth
+
+  ;; Right side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight ucblogo.HalfWidth
+  
+  ;; Left side
+  PenUp
+  Left 90
+  Forward :LetterWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight ucblogo.HalfWidth
+  
+  ;; Move to Homeposition
+  PenUp
+  Forward ucblogo.HalfWidth
+  Left 90
+  Forward ucblogo.HalfWidth
+  end
+
+to ucblogo.DrawC
+  ;; lower arc
+  setheading 0
+  PenUp
+  Forward ucblogo.HalfWidth
+  Right 90
+  PenDown
+  arc 180 ucblogo.HalfWidth
+
+  ;; Right side
+  PenUp
+  Forward ucblogo.HalfWidth
+  Left 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; upper arc
+  PenUp
+  Left 90
+  Forward ucblogo.HalfWidth
+  PenDown
+  arc 180 ucblogo.HalfWidth
+  
+  ;; Left side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; Move to Homeposition
+  PenUp
+  Forward ucblogo.HalfWidth
+  Left 90
+  Forward ucblogo.HalfWidth
+  end
+
+to ucblogo.DrawB
+  localMake "QuaterHeight Quotient :LetterHeight 4
+  
+  ;; Move to startposition
+  setheading 270
+  PenUp
+  ;; the width is equal :QuaterHeight 
+  Forward Quotient :QuaterHeight 2
+  
+  ;; Draw
+  PenDown
+  Right 90
+  Forward :LetterHeight
+  back :QuaterHeight
+  arc 175 :QuaterHeight
+  back :QuaterHeight
+  back :QuaterHeight
+  arc 175 :QuaterHeight
+  
+  ;; Move to Homeposition
+  PenUp
+  back :QuaterHeight
+  Right 90
+  Forward Quotient :QuaterHeight 2
+  end
+
+to ucblogo.DrawL  
+  ;; Move to top of L
+  setheading 270
+  PenUp 
+  Forward ucblogo.HalfWidth
+  Right 90
+  Forward :LetterHeight
+  Right 180
+  
+  ;; Draw
+  PenDown
+  Forward :LetterHeight
+  Left 90
+  Forward :LetterWidth
+  
+  ;; Move to Homeposition
+  PenUp
+  back ucblogo.HalfWidth
+  end
+  
+to ucblogo.DrawO
+  ;; lower arc
+  setheading 0
+  PenUp
+  Forward ucblogo.HalfWidth
+  Right 90
+  PenDown
+  arc 180 ucblogo.HalfWidth
+
+  ;; Right side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; upper arc
+  PenUp
+  Left 90
+  Forward ucblogo.HalfWidth
+  PenDown
+  arc 180 ucblogo.HalfWidth
+  
+  ;; Left side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; Move to Homeposition
+  PenUp
+  Forward ucblogo.HalfWidth
+  Left 90
+  Forward ucblogo.HalfWidth
+  end
+
+to ucblogo.DrawG
+  ;; lower arc
+  setheading 0
+  PenUp
+  Forward ucblogo.HalfWidth
+  Right 90
+  PenDown
+  arc 180 ucblogo.HalfWidth
+
+  ;; Right side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Right 90
+  Forward ucblogo.HalfWidth back ucblogo.HalfWidth
+  Right 90
+  Forward ucblogo.HalfWidth back ucblogo.HalfWidth
+  PenUp
+  Right 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; upper arc
+  PenUp
+  Left 90
+  Forward ucblogo.HalfWidth
+  PenDown
+  arc 180 ucblogo.HalfWidth
+  
+  ;; Left side
+  PenUp
+  Forward ucblogo.HalfWidth
+  PenDown
+  Left 90
+  Forward difference :LetterHeight :LetterWidth
+  
+  ;; Move to Homeposition
+  PenUp
+  Forward ucblogo.HalfWidth
+  Left 90
+  Forward ucblogo.HalfWidth
+end
 ENDOFFILE

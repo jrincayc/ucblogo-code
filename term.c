@@ -222,11 +222,21 @@ NODE *lcleartext(NODE *args) {
 #else /* WIN32 */
     win32_clear_text();
 #endif /* WIN32 || !Win32 */
-#else
+#else /* !ibm */
     printf("%s", cl_arr);
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
+#endif /* ibm */
+#endif /* mac */
+
+#ifdef WIN32
+	win32_update_text();
+#else
+	fflush(stdout); /* do it now! */
 #endif
+#if defined(__RZTC__)
+	zflush();
 #endif
+
     x_coord = x_margin;
     y_coord = y_margin;
     return(UNBOUND);

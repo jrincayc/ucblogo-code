@@ -1,4 +1,5 @@
 char *libloc="/usr/local/lib/logo/logolib";
 char *helploc="/usr/local/lib/logo/helpfiles";
+char *cslsloc="/usr/local/lib/logo/csls";
 char *temploc="/tmp";
 char *separator="/";

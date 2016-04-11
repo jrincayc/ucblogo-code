@@ -5,6 +5,8 @@
 
 int pw, ph, pc, pm, pv, px, py, bg;
 
+char *LogoPlatformName="Unix-Nographics";
+
 void nop()
 {
 }

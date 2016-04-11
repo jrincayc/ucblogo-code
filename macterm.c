@@ -31,6 +31,8 @@
 #include <Files.h>
 #include <Fonts.h>
 
+char *LogoPlatformName="MacOS-Classic";
+
 char windowtitle[100];
 FILE *graphics, *console;
 WindowPtr graphics_window, listener_window;
@@ -124,7 +126,7 @@ void term_init_mac(void) {
     cgotoxy(1, 1, graphics);
     graphics_window = FrontWindow();
 	if (can_do_color) {
-		the_palette = GetNewPalette(129);
+		the_palette = GetNewPalette(131);
 		SetPalette(graphics_window, the_palette, 1);
 		ActivatePalette(graphics_window);
 	}
@@ -330,7 +332,7 @@ int palette_color(FIXNUM c) {
 void mac_set_pc(FIXNUM c) {
     pen_color = c;
 	if (can_do_color)
-		PmForeColor(palette_color(c));
+		PmForeColor(palette_color(c+2));
 	else
 		graphics_window->fgColor = hw_color(c);
 }
@@ -338,7 +340,7 @@ void mac_set_pc(FIXNUM c) {
 void mac_set_bg(FIXNUM c) {
     back_ground = c;
 	if (can_do_color)
-		PmBackColor(palette_color(c));
+		PmBackColor(palette_color(c+2));
 	else
 		graphics_window->bkColor = hw_color(c);
     redraw_graphics();
@@ -348,6 +350,7 @@ void set_palette(int slot, unsigned int r, unsigned int g, unsigned int b) {
 	RGBColor rgb;
 
 	if (can_do_color) {
+		slot+=2;
 		rgb.red = r;
 		rgb.green = g;
 		rgb.blue = b;
@@ -362,6 +365,7 @@ void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
 	RGBColor rgb;
 
 	if (can_do_color) {
+		slot+=2;
 		GetEntryColor(the_palette, palette_color((FIXNUM)slot), &rgb);
 		*r = rgb.red;
 		*g = rgb.green;

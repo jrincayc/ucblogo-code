@@ -1,5 +1,4 @@
-PENSIZE
 PENPATTERN
 
-	output hardware-specific pen information.
+	outputs hardware-specific pen information.
 

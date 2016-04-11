@@ -123,6 +123,6 @@ extern void c_to_pascal_string(), pascal_to_c_string();
 extern FIXNUM pen_color, back_ground;
 extern void mac_set_pc(), mac_set_bg();
 extern void get_palette(int slot,
-						unsigned int *r, unsigned int *g, unsigned int *b);
+			unsigned int *r, unsigned int *g, unsigned int *b);
 extern void set_palette(int slot,
-						unsigned int r, unsigned int g, unsigned int b);
+			unsigned int r, unsigned int g, unsigned int b);

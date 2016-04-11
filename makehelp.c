@@ -4,13 +4,14 @@
 char line[100], line2[100], line3[100];
 char name[30] = "helpfiles/";
 char name2[30] = "helpfiles/";
-char tocname[20];
+char tocname[20], tocname2[20];
 
 main() {
     FILE *in=fopen("usermanual", "r");
     FILE *fp, *fp2;
     FILE *toc=fopen("helpfiles/HELPCONTENTS", "w");
     FILE *tmp=fopen("helptemp", "w");
+    FILE *all=fopen("helpfiles/ALL_NAMES", "w");
     char ch, *cp, *np, *tp;
     int intab, three, col=5;
 
@@ -59,30 +60,39 @@ main() {
 	}
 
 	fprintf(tmp, "%s\n", tocname);
+	fprintf(all, "%s\n", tocname);
 
 	three = 0;
 	ch = line2[0];
 	if (ch == '.' || (ch >= 'A' && ch <= 'Z')) {
-	    for (cp = line2, np = &name2[10], tp = tocname;
+	    for (cp = line2, np = &name2[10], tp = tocname2;
 		 (ch = *cp) == '.' || (ch >= 'A' && ch <= 'Z') || ch == '?';
 		 cp++) {
+	       *tp++ = tolower(ch);
 	       if (ch == '.') ch='d';
 	       if (ch == '?') three++;
 	       *np++ = tolower(ch);
 	    }
-	    *np = '\0';
+	    *tp = *np = '\0';
+
+	    if (tp != tocname2 && strcmp(tocname, tocname2))
+		fprintf(all, "%s\n", tocname2);
+
 	    if (three) {
 		fp2 = NULL;
 		fgets(line3, 100, in);
+		tp = tocname2;
 		if ((ch = line3[0]) == '.' || (ch >= 'A' && ch <= 'Z')) {
 		    for (cp = line3, np = &name2[10];
 			 (ch = *cp) == '.' || (ch >= 'A' && ch <= 'Z') || ch == '?';
 			 cp++) {
+		       *tp++ = tolower(ch);
 		       if (ch == '.') ch='d';
 		       *np++ = tolower(ch);
 		    }
-		    *np = '\0';
+		    *tp = *np = '\0';
 		} else name2[10] = '\0';
+		if (tp != tocname2) fprintf(all, "%s\n", tocname);
 	    }
 	    if (name2[10] != '\0') {
 		fp2 = fopen(name2, "w");
@@ -117,7 +127,11 @@ main() {
     }
     fprintf(tmp, ".defmacro\n");    /* looks like abbrev for .macro */
     fprintf(tmp, "+\n-\n*\n/\n=\n<\n>\n");  /* infix operators */
+    fprintf(tmp, "<=\n>=\n<>\n");	    /* two-char infix */
     fclose(tmp);
+    fprintf(all, "+\n-\n*\n/\n=\n<\n>\n");  /* infix operators */
+    fprintf(all, "<=\n>=\n<>\n");	    /* two-char infix */
+    fclose(all);
     fclose(toc);
     exit(0);
 }

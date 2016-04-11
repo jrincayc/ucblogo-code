@@ -20,18 +20,26 @@
  */
 
 /* main.c */
+#ifdef HAVE_WX
+extern int start(int, char **);
+#endif
 extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
 extern int main(int, char *[]);
 extern void unblock_input(void);
 extern NODE **bottom_stack;
+extern void delayed_int(void);
 
 #if defined(SIG_TAKES_ARG)
 RETSIGTYPE logo_stop(int);
 RETSIGTYPE logo_pause(int);
+RETSIGTYPE mouse_down(int);
+#define mouse_click mouse_down(0)
 #else
 RETSIGTYPE logo_stop(void);
 RETSIGTYPE logo_pause(void);
+RETSIGTYPE mouse_down(void);
+#define mouse_click mouse_down()
 #endif
 
 #ifndef TIOCSTI
@@ -152,9 +160,12 @@ extern NODE *lpower(NODE *);
 extern NODE *torf(BOOLEAN);
 extern NODE *llessp(NODE *);
 extern NODE *lgreaterp(NODE *);
+extern NODE *llessequalp(NODE *);
+extern NODE *lgreaterequalp(NODE *);
 extern int compare_node(NODE *, NODE *, BOOLEAN);
 extern BOOLEAN equalp_help(NODE *, NODE *, BOOLEAN);
 extern NODE *lequalp(NODE *);
+extern NODE *lnotequalp(NODE *);
 extern NODE *l_eq(NODE *);
 extern NODE *lbeforep(NODE *);
 
@@ -188,12 +199,13 @@ extern NODE *Left_Paren, *Right_Paren;
 extern NODE *Redefp, *Caseignoredp, *Erract, *Printdepthlimit;
 extern NODE *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet;
 extern NODE *UnburyOnEdit, *Make, *Listvalue, *Dotsvalue;
-extern NODE *Unbound, *Not_Enough_Node;
+extern NODE *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion;
 extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Query;
-extern NODE *UseAlternateNames;
+extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform;
 extern NODE *Null_Word;
 extern void init(void);
 extern struct wdtrans translations[];
+extern char *LogoPlatformName;
 
 /* wrksp.c */
 extern char *editor, *editorname, *tempdir;
@@ -214,6 +226,7 @@ extern NODE *lburied(NODE *);
 extern NODE *ltraced(NODE *);
 extern NODE *lstepped(NODE *);
 extern NODE *lprocedures(NODE *);
+extern NODE *lprimitives(NODE *);
 extern NODE *lnames(NODE *);
 extern NODE *lplists(NODE *);
 extern NODE *lpo(NODE *);
@@ -261,17 +274,24 @@ extern NODE *lcontinue(NODE *);
 extern NODE *var_stack;
 extern NODE *output_node, *output_unode, *last_call;
 extern CTRLTYPE stopping_flag;
-extern char *logolib, *helpfiles;
+extern char *logolib, *helpfiles, *csls;
 extern FIXNUM dont_fix_ift;
 extern void eval_driver(NODE *);
 extern NODE *err_eval_driver(NODE *, BOOLEAN);
 extern NODE *lapply(NODE *);
 extern NODE *lqm(NODE *);
+extern NODE *deep_copy(NODE *);
 extern void tell_shadow(NODE *);
 extern int not_local(NODE *, NODE *);
 extern int num_saved_nodes;
 extern struct registers regs;
 extern NODE *Regs_Node;
+
+/*
+ #ifdef OBJECTS
+extern NODE *val_eval_driver(NODE *seq);
+ #endif
+*/
 
 /* lists.c */
 extern NODE *lbutfirst(NODE *);
@@ -316,6 +336,7 @@ extern NODE *file_list;
 extern NODE *reader_name, *writer_name, *file_prefix;
 extern NODE *lseteditor(NODE *);
 extern NODE *lsetlibloc(NODE *);
+extern NODE *lsetcslsloc(NODE *);
 extern NODE *lsethelploc(NODE *);
 extern NODE *lsettemploc(NODE *);
 extern NODE *ldribble(NODE *);
@@ -334,6 +355,7 @@ extern NODE *lerasefile(NODE *);
 extern NODE *lsave(NODE *);
 extern void silent_load(NODE *, char *);
 extern NODE *lload(NODE *);
+extern NODE *lcslsload(NODE *);
 extern NODE *lsetprefix(NODE *);
 extern NODE *lprefix(NODE *);
 extern NODE *lreadlist(NODE *);
@@ -364,6 +386,7 @@ extern NODE *lifelse(NODE *);
 extern NODE *lrun(NODE *);
 extern NODE *lrunresult(NODE *);
 extern NODE *pos_int_arg(NODE *);
+extern int torf_arg(NODE *);
 extern NODE *lrepeat(NODE *);
 extern NODE *lrepcount(NODE *);
 extern NODE *lforever(NODE *);
@@ -388,13 +411,14 @@ extern NODE *lsetmargins(NODE *);
 extern NODE *lstandout(NODE *);
 
 /* libloc.c */
-extern char *libloc, *helploc, *temploc, *separator;
+extern char *libloc, *helploc, *cslsloc, *temploc, *separator;
 
 /* paren.c */
 extern NODE *the_generation;
 extern void untreeify_proc(NODE *);
 extern void make_tree_from_body(NODE *);
 extern void make_tree(NODE *);
+extern NODE *tree_dk_how;
 
 /* graphics.c */
 extern mode_type current_mode;
@@ -452,6 +476,7 @@ extern NODE *lsetpenpattern(NODE *);
 extern NODE *lsetscrunch(NODE *);
 extern NODE *lmousepos(NODE *);
 extern NODE *lbuttonp(NODE *);
+extern NODE *lbutton(NODE *);
 extern NODE *ltone(NODE *);
 extern NODE *larc(NODE *);
 extern NODE *lrefresh(NODE *);
@@ -517,9 +542,18 @@ extern void ztc_getcr(void);
 extern NODE *set_text_color(NODE *);
 #endif
 
+#ifdef HAVE_WX
+extern void init_wx(int, char**);
+extern void printToScreen(char c, FILE * stream);
+extern char getFromWX();
+extern char getFromWX_2(FILE * f);
+#endif
+
 #ifdef x_window
 /* xgraphics.c */
 extern void x_window_init(int, char **);
+extern void check_X11_stop(void);
+extern int clearing_screen;
 #endif
 
 #ifdef WIN32
@@ -556,13 +590,48 @@ extern void win32_text_cursor(void);
 extern NODE *set_text_color(NODE *);
 extern void winDoPaste(void);
 extern char *winPasteText;
+extern NODE *maximize(NODE *);
 
 #define SIGQUIT SIGABRT
 
 #endif
 
+#ifdef HAVE_WX
+#define rd_putc printToScreen
+#else
 #ifdef WIN32
 #define rd_putc win32_putc
 #else /* !WIN32 */
 #define rd_putc putc
+#endif
+#endif
+
+#ifdef OBJECTS
+/* obj.c */
+extern NODE *logo_object, *current_object, *askexist;
+extern void obj_init(void);
+NODE *assoc(NODE *name, NODE *alist);
+
+extern NODE *llogo(NODE *);
+extern NODE *lsomething(NODE *);
+extern NODE *lkindof(NODE *);
+extern NODE *loneof(NODE *);
+extern NODE *lexist(NODE *);
+extern NODE *lhave(NODE *);
+extern NODE *ltalkto(NODE *);
+extern NODE *lask(NODE *);
+extern NODE *lself(NODE *);
+extern NODE *lparents(NODE *);
+extern NODE *lmynames(NODE *);
+extern NODE *lmynamep(NODE *);
+extern NODE *lmyprocs(NODE *);
+extern NODE *lmyprocp(NODE *);
+extern NODE *lrepresentation(NODE *);
+
+extern NODE *varValue(NODE *);
+extern NODE *varInObjectHierarchy(NODE *, BOOLEAN);
+extern NODE *varInThisObject(NODE *, BOOLEAN);
+extern NODE *procValue(NODE *);
+extern NODE *parent_list(NODE *);
+
 #endif

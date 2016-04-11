@@ -1,4 +1,4 @@
-; French version of Berkeley Logo messages file 5.2
+; French version of Berkeley Logo messages file 5.5
 Logo : erreur interne fatale
 Plus assez de mémoire
 Débordement de pile
@@ -38,6 +38,10 @@ Plus de mémoire (fatal)
 FIN (END) dans une instruction multi-ligne
 Expression par défaut de l'argument optionnel erronée: %S
 Ne peux utiliser RETOURNE (OUTPUT) ou STOPPE (STOP) dans RUNRESULT
+Supposant que vous voulez dire '%p' et non %p
+Impossible d'ouvrir fichier %p
+Fichier %p déjà ouvert
+Fichier %p non ouvert
 Merci d'utiliser Logo.
 Bonne journée!
 Désolé, pas de shell sur le Mac.
@@ -100,3 +104,6 @@ quotient
 equalp
 lessp
 greaterp
+lessequalp
+greaterequalp
+notequalp

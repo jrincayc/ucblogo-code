@@ -103,11 +103,11 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
     switch(error_type) {
 	case FATAL:
 	    prepare_to_exit(FALSE);
-	    ndprintf(stdout,"%s\n",message_texts[FATAL]);
+	    ndprintf(stdout,"%t\n",message_texts[FATAL]);
 	    exit(1);
 	case OUT_OF_MEM_UNREC:
 	    prepare_to_exit(FALSE);
-	    ndprintf(stdout,"%s\n",message_texts[OUT_OF_MEM_UNREC]);
+	    ndprintf(stdout,"%t\n",message_texts[OUT_OF_MEM_UNREC]);
 	    exit(1);
 	case OUT_OF_MEM:
 	    use_reserve_tank();
@@ -153,12 +153,20 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	case ERR_MACRO:
 	case DEEPEND:
 	case BAD_DEFAULT:
+	case TOO_MUCH:
+	case CANT_OPEN_ERROR:
+	case ALREADY_OPEN_ERROR:
+	case NOT_OPEN_ERROR:
 	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	    break;
 	case SHADOW_WARN:
 	    err_mesg = cons_list(0, error_desc, END_OF_LIST);
 	case IF_WARNING:
 	    warning = TRUE;
+	    break;
+	case MISSING_SPACE:
+	    warning = TRUE;
+	    err_mesg = error_desc;
 	    break;
 	case USER_ERR_MESSAGE:
 	    uplevel = TRUE;

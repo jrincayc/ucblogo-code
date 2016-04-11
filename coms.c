@@ -37,6 +37,7 @@
 #include <time.h>
 #include <controlc.h>
 #include <dos.h>
+#include <msmouse.h>
 #endif
 
 #ifdef HAVE_TERMIO_H
@@ -335,6 +336,7 @@ void prepare_to_exit(BOOLEAN okay) {
     ltextscreen(NIL);
     ibm_plain_mode();
 #ifdef __RZTC__
+    msm_term();
     zflush();
     controlc_close();
 #endif
@@ -452,7 +454,7 @@ NODE *lshell(NODE *args) {
 	print_stringptr = doscmd;
 	ndprintf((FILE *)NULL,"%p",arg);
 	*print_stringptr = '\0';
-	if (system(doscmd))
+	if (system(doscmd) < 0)
 	    err_logo(FILE_ERROR,
 	      make_static_strnode
 		 ("Could not open shell (probably due to low memory)"));

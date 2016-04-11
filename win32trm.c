@@ -36,6 +36,8 @@ char szWinName[] = "UCBLogo";
 char szGraphWinName[] = "UCBLogoGraph";
 char szConWinName[] = "UCBLogoConsole";
 
+char *LogoPlatformName="Windows";
+
 pen_info turtlePen;
 
 HBRUSH hbrush, textbrush;
@@ -47,12 +49,14 @@ HDC GraphDC, memGraphDC, ConDC, memConDC;
 HWND hGraphWnd, hConWnd, hMainWnd;
 
 /* color and palette related information */
-static COLORREF palette[264];
+static COLORREF palette[266];
 FIXNUM back_ground, pen_color, old_pen_color;
 
 int maxX, maxY, greeted = 0;
 int pre_turtle_pen_mode;
 long Xsofar, Ysofar;
+int w_button = 0;
+FIXNUM mouse_x = 0, mouse_y = 0;
 
 BOOLEAN in_erase_mode, update_pos, seen_once = FALSE;
 
@@ -248,13 +252,13 @@ void win32_set_bg(FIXNUM c) {
      * WM_PAINT, and redraw the old display (using the records...)
      */
     back_ground = c;
-    hbrush = CreateSolidBrush(palette[back_ground]);
+    hbrush = CreateSolidBrush(palette[back_ground+2]);
     SelectObject(memGraphDC, hbrush);
     DeleteObject(SelectObject(GraphDC, hbrush));
     PatBlt(memGraphDC, 0, 0, maxX, maxY, PATCOPY);
     PatBlt(GraphDC, 0, 0, maxX, maxY, PATCOPY);
-    SetBkColor(memGraphDC, palette[back_ground]);
-    SetBkColor(GraphDC, palette[back_ground]);
+    SetBkColor(memGraphDC, palette[back_ground+2]);
+    SetBkColor(GraphDC, palette[back_ground+2]);
     redraw_graphics();
 }
 
@@ -309,9 +313,9 @@ LRESULT CALLBACK GraphWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
              * "stock" pens/brushes, and that would be "Bad".
              */
             back_ground = 0;
-            hbrush = CreateSolidBrush(palette[back_ground]);
-            SetBkColor(memGraphDC, palette[back_ground]);
-            SetBkColor(GraphDC, palette[back_ground]);
+            hbrush = CreateSolidBrush(palette[back_ground+2]);
+            SetBkColor(memGraphDC, palette[back_ground+2]);
+            SetBkColor(GraphDC, palette[back_ground+2]);
             SelectObject(memGraphDC, hbrush);
             SelectObject(GraphDC, hbrush);
 
@@ -327,14 +331,34 @@ LRESULT CALLBACK GraphWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
             turtlePen.color = pen_color = old_pen_color = 7;
             /* turtlePen.pattern = ... ? */
             turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-				       palette[turtlePen.color]);
-            SetTextColor(memGraphDC, palette[turtlePen.color]);
-            SetTextColor(GraphDC, palette[turtlePen.color]);
+				       palette[2+turtlePen.color]);
+            SetTextColor(memGraphDC, palette[2+turtlePen.color]);
+            SetTextColor(GraphDC, palette[2+turtlePen.color]);
             SelectObject(memGraphDC, turtlePen.hpen);
             SelectObject(GraphDC, turtlePen.hpen);
             PatBlt(memGraphDC, 0, 0, maxX, maxY, PATCOPY);
             PatBlt(GraphDC, 0, 0, maxX, maxY, PATCOPY);
             break;
+	case WM_LBUTTONDOWN:
+	    w_button = 1;
+	    goto abutton;
+	case WM_RBUTTONDOWN:
+	    w_button = 2;
+	    goto abutton;
+	case WM_MBUTTONDOWN:
+	    w_button = 3;
+abutton:
+	    SetCapture(hwnd);
+	case WM_MOUSEMOVE:
+	    mouse_x = (LOWORD(lParam))-(screen_width/2);
+	    mouse_y = (screen_height/2)-(HIWORD(lParam));
+	    break;
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	    w_button = 0;
+	    ReleaseCapture();
+	    break;
         case WM_USER:
             InvalidateRect(hGraphWnd, NULL, 1);
         case WM_PAINT:
@@ -474,6 +498,9 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 		    cur_index--;
 		} else {
 		    MessageBeep(0);
+		    haveBlock = FALSE;
+		    win32_lines[cur_line][cur_index++] = (char) wParam;
+		    print_char(stdout, (char) wParam);
 		    win32_text_cursor();
 		}
             } else if ((char) wParam == '\r') {    // line ready, let's go!
@@ -578,7 +605,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     RECT r;
     TEXTMETRIC tm;
     int i;
-    char *argv[20];
+    char *argv[20], *cp;
     int argc;
     char *fontenv;
 
@@ -693,11 +720,30 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
 
     argv[0] = "ucblogo";
     argc = 1;
+    if (lpszArgs != NULL) {
+	cp = lpszArgs;
+	while (*cp != '\0' && *cp != '\n' && *cp != '\r') {
+	    if (*cp == '"') {
+		argv[argc++] = ++cp;
+		while (*cp != '"' && *cp != '\0') cp++;
+		if (*cp == '"') *cp++ = '\0';
+	    } else {
+		argv[argc++] = cp;
+		while (*cp != '\0' && *cp != ' ' && *cp != '\t'
+		       && *cp != '\n' && *cp != '\r') cp++;
+		if (*cp != '\0') *cp++ = '\0';
+	    }
+	    while (*cp == ' ' || *cp == '\t') cp++;
+	}
+    }
+
+/*
     if (lpszArgs != NULL && (argv[1] = strtok(lpszArgs, " \t\r\n")) != NULL) {
 	argc = 2;
 	while (argv[argc] = strtok(NULL, " \t\r\n"))
 	    argc++;
     }
+ */
 
     (void) main(argc, argv);
     win32_go_away();
@@ -735,10 +781,17 @@ NODE *win32_get_node_pen_pattern(void) {
     return cons(make_intnode(-1), NIL);
 }
 
+NODE *maximize(NODE *args) {
+	int big=torf_arg(args);
+	ShowWindow(hMainWnd, (big ? SW_MAXIMIZE : SW_RESTORE));
+    UpdateWindow(hMainWnd);
+	return UNBOUND;
+}
+
 void logofill(void) {
     COLORREF col;
 
-    hbrush = CreateSolidBrush(palette[pen_color]);
+    hbrush = CreateSolidBrush(palette[2+pen_color]);
     SelectObject(memGraphDC, hbrush);
     DeleteObject(SelectObject(GraphDC, hbrush));
     col = GetPixel(memGraphDC, g_round(screen_x_coord), g_round(screen_y_coord));
@@ -746,7 +799,7 @@ void logofill(void) {
 		         g_round(screen_y_coord), col, FLOODFILLSURFACE);
     (void)ExtFloodFill(GraphDC, g_round(screen_x_coord),
 		         g_round(screen_y_coord), col, FLOODFILLSURFACE);
-    hbrush = CreateSolidBrush(palette[back_ground]);
+    hbrush = CreateSolidBrush(palette[2+back_ground]);
     SelectObject(memGraphDC, hbrush);
     DeleteObject(SelectObject(GraphDC, hbrush));
 }
@@ -758,14 +811,18 @@ void set_pen_pattern(void) {
 }
 
 void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
+    if (slot > 263 || (slot >= 0 && slot < 8) || slot < -2)  // 256 rgb values
+        return;
+    slot+=2;
     *b = ((palette[slot % 264] & 0x00ff0000) >> 16) * 256;
     *g = ((palette[slot % 264] & 0x0000ff00) >> 8) * 256;
     *r = (palette[slot % 264] & 0x000000ff) * 256;
 }
 
 void set_palette(int slot, unsigned int r, unsigned int g, unsigned int b) {
-    if (slot > 263 || slot < 8)  // 256 rgb values
+    if (slot > 263 || (slot >= 0 && slot < 8) || slot < -2)  // 256 rgb values
         return;
+    slot+=2;
     palette[slot] = RGB(r/256, g/256, b/256);
 }
 
@@ -789,8 +846,8 @@ void restore_pen(pen_info *p) {
     turtlePen.width = p->width;
     pen_color = p->color;
     turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-					 (in_erase_mode ? palette[back_ground]
-							: palette[pen_color]));
+					 (in_erase_mode ? palette[2+back_ground]
+							: palette[2+pen_color]));
     SelectObject(memGraphDC, turtlePen.hpen);
     DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
 }
@@ -973,7 +1030,7 @@ void win32_con_text_screen(void) {
 void win32_turtle_prep(void) {
     if (in_erase_mode) {
         /* current pen color != "real" pen color */
-        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[pen_color]);
+        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[2+pen_color]);
 	SelectObject(memGraphDC, turtlePen.hpen);
 	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
     } else {
@@ -991,7 +1048,7 @@ void win32_turtle_end(void) {
          * current pen color should now be set to background color to resume
          * "erase mode"
          */
-        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[back_ground]);
+        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[2+back_ground]);
 	SelectObject(memGraphDC, turtlePen.hpen);
 	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
     } else {
@@ -1004,22 +1061,22 @@ void win32_turtle_end(void) {
 }
 
 void win32_init_palette(void) {
-    palette[0] = RGB(0, 0, 0); /* black */
-    palette[1] = RGB(0, 0, 255); /* blue */
-    palette[2] = RGB(0, 255, 0); /* green */
-    palette[3] = RGB(0, 255, 255); /* cyan */
-    palette[4] = RGB(255, 0, 0); /* red */
-    palette[5] = RGB(255, 0, 255); /* magenta */
-    palette[6] = RGB(255, 255, 0); /* yellow */
-    palette[7] = RGB(255, 255, 255); /* white */
-    palette[8] = RGB(155, 96, 59);    /* brown */
-    palette[9] = RGB(197, 136, 18); /* tan */
-    palette[10] = RGB(100, 162, 64); /* forest */
-    palette[11] = RGB(120, 187, 187); /* aqua */
-    palette[12] = RGB(255, 149, 119); /* salmon */
-    palette[13] = RGB(144, 113, 208); /* purple */
-    palette[14] = RGB(255, 163, 0); /* orange */
-    palette[15] = RGB(183, 183, 183); /* gray */
+    palette[2] = RGB(0, 0, 0); /* black */
+    palette[3] = RGB(0, 0, 255); /* blue */
+    palette[4] = RGB(0, 255, 0); /* green */
+    palette[5] = RGB(0, 255, 255); /* cyan */
+    palette[6] = RGB(255, 0, 0); /* red */
+    palette[7] = RGB(255, 0, 255); /* magenta */
+    palette[8] = RGB(255, 255, 0); /* yellow */
+    palette[9] = RGB(255, 255, 255); /* white */
+    palette[10] = RGB(155, 96, 59);    /* brown */
+    palette[11] = RGB(197, 136, 18); /* tan */
+    palette[12] = RGB(100, 162, 64); /* forest */
+    palette[13] = RGB(120, 187, 187); /* aqua */
+    palette[14] = RGB(255, 149, 119); /* salmon */
+    palette[15] = RGB(144, 113, 208); /* purple */
+    palette[16] = RGB(255, 163, 0); /* orange */
+    palette[17] = RGB(183, 183, 183); /* gray */
     /* rest are user defined */
 }
 
@@ -1028,12 +1085,12 @@ void win32_set_pen_color(int c) {
     turtlePen.color = pen_color = c;
     if (!in_erase_mode) {
 	turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-				   palette[turtlePen.color]);
+				   palette[2+turtlePen.color]);
 	SelectObject(memGraphDC, turtlePen.hpen);
 	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
     }
-    SetTextColor(memGraphDC, palette[pen_color]);
-    SetTextColor(GraphDC, palette[pen_color]);
+    SetTextColor(memGraphDC, palette[2+pen_color]);
+    SetTextColor(GraphDC, palette[2+pen_color]);
     draw_turtle();
 }
 
@@ -1043,8 +1100,8 @@ int win32_set_pen_width(int w) {
     old = turtlePen.width;
     turtlePen.width = w;
     turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-			         (in_erase_mode ? palette[back_ground]
-						: palette[turtlePen.color]));
+			         (in_erase_mode ? palette[2+back_ground]
+						: palette[2+turtlePen.color]));
     SelectObject(memGraphDC, turtlePen.hpen);
     DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
     return old;
@@ -1115,7 +1172,7 @@ void win32_set_pen_mode(int newmode) {
 	newpc = back_ground;
     else
 	newpc = pen_color;
-    turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[newpc]);
+    turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[2+newpc]);
     SelectObject(memGraphDC, turtlePen.hpen);
     DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
 }
@@ -1258,10 +1315,10 @@ NODE *set_text_color(NODE *args) {
     if (NOT_THROWING) {
         back = getint(pos_int_arg(cdr(args)));
         if (NOT_THROWING) {
-           SetTextColor(memConDC, palette[fore]);
-           SetTextColor(ConDC, palette[fore]);
-           SetBkColor(memConDC, palette[back]);
-           SetBkColor(ConDC, palette[back]);
+           SetTextColor(memConDC, palette[2+fore]);
+           SetTextColor(ConDC, palette[2+fore]);
+           SetBkColor(memConDC, palette[2+back]);
+           SetBkColor(ConDC, palette[2+back]);
         }
     }
     return UNBOUND;

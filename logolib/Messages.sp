@@ -1,4 +1,4 @@
-; Spanish version of Berkeley Logo messages file 5.2
+; Spanish version of Berkeley Logo messages file 5.5
 Logo: Error Interno Fatal.
 no hay espacio
 desborde de pila
@@ -38,6 +38,10 @@ Logo: Falta de Memoria.
 FIN dentro de una instrucción multi-línea 
 Mala expresión por defecto para parámetro opcional: %s
 No puedes usar RESPUESTA o ALTO dentro de ACTIVARESULTADO
+Asumo que querías decir '%p', no %p
+No puedo abrir archivo %p
+Archivo %p ya está abierto
+Archivo %p no está abierto
 Gracias por usar Logo.
 Que tengas un buen día.
 Lo lamento, no hay 'shell' en la Mac.
@@ -100,3 +104,6 @@ quotient
 equalp
 lessp
 greaterp
+lessequalp
+greaterequalp
+notequalp

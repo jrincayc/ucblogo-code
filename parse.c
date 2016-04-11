@@ -46,6 +46,11 @@ extern int getch(void);
 #include <disp.h>
 #endif
 
+# ifdef HAVE_WX
+#define getc getFromWX_2
+#define getch getFromWX
+#endif
+
 FILE *readstream;
 FILE *writestream;
 FILE *loadstream;
@@ -230,6 +235,10 @@ charmode_off();
     if (!setjmp(iblk_buf)) {
 #endif
     c = rd_getc(strm);
+    if ((c=='\b' || c=='\127') && strm==stdin && interactive) {
+	silent_load(LogoLogo, logolib);
+	c = rd_getc(strm);
+    }
 #ifdef mac
     if (c == '\r') c = '\n';	/* seen in raw mode by keyp, never read */
 #endif
@@ -285,9 +294,9 @@ charmode_off();
 		c = rd_getc(strm);
 	    if (dribbling) rd_putc(c, dribblestream);
 	    into_line(c);
-	    if (c == '\n' && strm == stdin) {
+	    if (c == '\n') {
 		insemi = 0;
-		if (interactive) zrd_print_prompt("~ ");
+		if (interactive && strm == stdin) zrd_print_prompt("~ ");
 	    }
 	}
 	if (c != EOF) c = rd_getc(strm);
@@ -544,7 +553,13 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 	} else if (parens(*wptr) || infixs(*wptr)) {
 	    if (monadic_minus)
 		tnode = cons(Minus_Tight, NIL);
-	    else
+	    else if (wcnt+1 < wlen && 
+		     ((*wptr == '<' && (*(wptr+1) == '=' || *(wptr+1) == '>'))
+		     || (*wptr == '>' && *(wptr+1) == '='))) {
+		tnode = cons(intern(make_strnode(wptr, whead, 2,
+						 STRING, strnzcpy)), NIL);
+		wptr++, wcnt++;
+	    } else
 		tnode = cons(intern(make_strnode(wptr, whead, 1,
 						 STRING, strnzcpy)), NIL);
 	    monadic_minus = FALSE;
@@ -553,7 +568,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 	    tcnt = 0;
 	    tptr = wptr;
 	    /* isnumb 4 means nothing yet;
-		 * 0 means digits so far, 1 means just saw
+	     * 0 means digits so far, 1 means just saw
 	     * 'e' so minus can be next, 2 means no longer
 	     * eligible even if an 'e' comes along */
 	    isnumb = 4;
@@ -606,13 +621,17 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 
 NODE *runparse(NODE *ndlist) {
     NODE *curnd = NIL, *outline = NIL, *tnode = NIL, *lastnode = NIL;
+    char *str;
 
     if (nodetype(ndlist) == RUN_PARSE)
 		return parsed__runparse(ndlist);
-	if (!is_list(ndlist)) {
-		err_logo(BAD_DATA_UNREC, ndlist);
-		return(NIL);
-	}
+    if (!is_list(ndlist)) {
+	    err_logo(BAD_DATA_UNREC, ndlist);
+	    return(NIL);
+    }
+    if (ndlist != NIL && is_word(curnd=car(ndlist)) && getstrlen(curnd) >= 2 &&
+	(str=getstrptr(curnd)) && *str++ == '#' && *str == '!')
+	    return NIL;	    /* shell-script #! treated as comment line */
     while (ndlist != NIL) {
 	curnd = car(ndlist);
 	ndlist = cdr(ndlist);

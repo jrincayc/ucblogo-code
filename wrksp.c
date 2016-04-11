@@ -27,6 +27,10 @@
 #include "logo.h"
 #include "globals.h"
 
+#ifdef  HAVE_WX
+void wxEditFile(char *);
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -139,6 +143,37 @@ BOOLEAN all_lists(NODE *val) {
     return all_lists(cdr(val));
 }
 
+
+#ifdef OBJECTS
+
+BOOLEAN proc_exists(NODE *name) {
+    if (current_object == logo_object)
+	return procnode__caseobj(name) != UNDEFINED;
+    else
+	return assoc(name, getprocs(current_object)) != NIL;
+}
+
+BOOLEAN prim_exists(NODE *name) {
+    NODE *binding;
+
+    if (current_object == logo_object)
+	return is_prim(procnode__caseobj(name));
+    else
+	binding = assoc(name, getprocs(current_object));
+	return (binding==NIL ? FALSE : is_prim(getobject(binding)));
+}
+
+int find_old_default(NODE *name) {
+    NODE *p;
+
+    if (flag__caseobj(name, MIXED_ARITY)) return -2;
+    p = procValue(name);
+    if (p == UNDEFINED) return -1;
+    return (is_prim(p) ? getprimdflt(p) : getint(dfltargs__procnode(p)));
+}
+
+#endif /* OBJECTS */
+
 NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
     /* macro_flag is -1 for anonymous function */
     NODE *name = NIL, *val = NIL, *arg = NIL;
@@ -165,6 +200,8 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
 		setcar(cdr(args), err_logo(BAD_DATA, val));
 		val = cadr(args);
 	    }
+	    if (NOT_THROWING) val = deep_copy(val);
+	    /* 5.4 fixes bug about defined procedures sharing tree form */
 	}
     } else {	/* lambda */
 	val = args;
@@ -238,6 +275,55 @@ NODE *anonymous_function(NODE *text) {
     return define_helper(text, -1);
 }
 
+char *strncasestr(char *big, char *little, FIXNUM len) {
+    char *p, *q, pc, qc;
+    FIXNUM i;
+
+    while (*big != '\0') {
+	while ((pc = *big++) != '\0' && tolower(pc) != tolower(*little)) ;
+	if (pc == '\0') return NULL;
+	p = big; q = little+1; i = len;
+	while (--i > 0 && (qc = *q++) != '\0') {
+	    if ((pc = *p++) == '\0') return NULL;
+	    if (pc == '~') {
+		while ((pc = *p++) != '\0' && pc != '\n') ;
+		if (pc == '\0') return NULL;
+		pc = *p++;
+	    }
+	    if (tolower(pc) != tolower(qc)) break;
+	}
+	if (i == 0) return big-1;
+    }
+    return NULL;    /* not reached, I think */
+}
+
+NODE *find_to(NODE *line) {
+    char *lp = getstrptr(line);
+    NODE *funn = cnv_node_to_strnode(fun);
+    char *fp = getstrptr(funn);
+    FIXNUM len = getstrlen(funn);
+    char *p, c;
+
+    p = lp;
+    while (p != NULL) {
+	p = strncasestr(p, fp, len);
+	if (p == NULL) return(line);    /* punt */
+	if ((c = *(p+len)) == ' ' || c == '\t' || c == '\n') {
+	    if (p == lp ||
+		    ((c = *(p-1)) == ' ' || c == '\t' || c == '\n'))
+		return make_strnode(p, getstrhead(line),
+				    getstrlen(line)-(p-lp),
+				    nodetype(line), strcpy);
+	    if (c == '[')
+		return make_strnode(p, getstrhead(line),
+				    strchr(p, ']')-p,
+				    nodetype(line), strcpy);
+	}
+	p++;
+    }
+    return line;
+}
+
 NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
     NODE *arg = NIL, *tnode = NIL, *proc_name, *forms = NIL, *lastnode = NIL,
 	 *body_words, *lastnode2, *body_list;
@@ -258,15 +344,24 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 
     if (nodetype(proc_name) != CASEOBJ)
 	err_logo(BAD_DATA_UNREC, proc_name);
+#ifdef OBJECTS
+    else if ((proc_exists(proc_name) && loadstream == stdin)
+	     || prim_exists(proc_name))
+#else /* OBJECTS */
     else if ((procnode__caseobj(proc_name) != UNDEFINED && loadstream == stdin)
 	     || is_prim(procnode__caseobj(proc_name)))
+#endif /* OBJECTS */
 	err_logo(ALREADY_DEFINED, proc_name);
     else {
+#ifdef OBJECTS
+	old_default = find_old_default(proc_name);
+#else /* OBJECTS */
 	NODE *old_proc = procnode__caseobj(proc_name);
 	if (old_proc != UNDEFINED) {
 	    old_default = (is_prim(old_proc) ? getprimdflt(old_proc) :
 					      getint(dfltargs__procnode(old_proc)));
 	}
+#endif /* OBJECTS */
 	while (args != NIL) {
 	    arg = car(args);
 	    args = cdr(args);
@@ -312,7 +407,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
     }
 
     if (NOT_THROWING) {
-	body_words = cons(current_line, NIL);
+	body_words = cons(find_to(current_line), NIL);
 	lastnode2 = body_words;
 	body_list = cons(forms, NIL);
 	lastnode = body_list;
@@ -364,6 +459,56 @@ NODE *lmacro(NODE *args) {
     return to_helper(args, TRUE);
 }
 
+#ifdef OBJECTS
+/* If binding found in object hierarchy and as local, flag error, same
+   as varValue.  If binding found only in object hierarchy, set it.
+   Otherwise (including if no binding found at all) set valnode in
+   symbol table. Need to distinguish var local to --this-- procedure from var 
+   inherited from caller.  Former is allowed to conflict with object variable. 
+ */
+
+NODE *lmake(NODE *args) {
+    NODE *what, *object, *bindings, *binding;
+
+    what = name_arg(args);
+    if (NOT_THROWING) {
+        what = intern(what);
+
+        if (varInObjectHierarchy(what, FALSE) != (NODE *)(-1)) {
+            if (flag__caseobj(what, IS_LOCAL_VALUE)) {
+                err_logo(LOCAL_AND_OBJ, what);
+                return UNBOUND;
+            } else {
+                object = varInThisObject(what, FALSE);
+		for (bindings = getvars(object); bindings != NIL;
+			    bindings = cdr(bindings)) {
+                    if (car(bindings) == what) {
+                        setobject(bindings, cadr(args));
+			break;
+                    }
+                }
+            }
+        } else {
+            setvalnode__caseobj(what, cadr(args));
+            if (!flag__caseobj(what, IS_LOCAL_VALUE))
+                setflag__caseobj(what, HAS_GLOBAL_VALUE);
+        }
+
+        if (flag__caseobj(what, VAL_TRACED)) {
+            NODE *tvar = maybe_quote(cadr(args));
+            ndprintf(writestream, message_texts[TRACE_MAKE],
+                    make_quote(what), tvar);
+            if (ufun != NIL) {
+                ndprintf(writestream,message_texts[ERROR_IN],ufun,this_line);
+            }
+            new_line(writestream);
+        }
+    }
+    return(UNBOUND);
+}
+
+#else /* OBJECTS */
+
 NODE *lmake(NODE *args) {
     NODE *what;
 
@@ -385,6 +530,8 @@ NODE *lmake(NODE *args) {
     }
     return(UNBOUND);
 }
+
+#endif /* OBJECTS */
 
 NODE *llocal(NODE *args) {
     NODE *arg = NIL;
@@ -449,8 +596,149 @@ NODE *cnt_list = NIL;
 NODE *cnt_last = NIL;
 int want_buried = 0;
 
-typedef enum {c_PROCS, c_VARS, c_PLISTS} CNTLSTTYP;
+typedef enum {c_PROCS, c_VARS, c_PLISTS, c_PRIMS} CNTLSTTYP;
 CNTLSTTYP contents_list_type;
+
+#ifdef OBJECTS4
+/* For ancestry lists */
+typedef enum {NORMAL, ANCESTRY} LSTFORM;
+/* For type of list wanted */
+typedef enum {ACCESSIBLE, OWNED, INHERITED} LSTTYP;
+
+/* Depending on the current contents_list_type, this returns the variables
+   or procedures of the current object. Signals error if plists  */
+NODE *contentsListType(NODE *obj) {
+    switch (contents_list_type) {
+    case c_VARS:
+        return getvars(obj);
+    case c_PROCS:
+        return getprocs(obj);
+    case c_PLISTS:
+        err_logo(BAD_DATA, make_static_strnode("objects don't have plists!"));
+    return;
+    }
+}
+
+void normal_special_contents_map(NODE *sym) {
+    special_contents_map(sym, NORMAL);
+}
+
+void ancestry_special_contents_map(NODE *sym) {
+    special_contents_map(sym, ANCESTRY);
+}
+
+void fmt_map_oblist(LSTFORM format) {
+    if (format == NORMAL)
+    map_oblist(normal_special_contents_map);
+    else
+    map_oblist(ancestry_special_contents_map);
+}
+
+/** new things **/
+/* get_contents with special format and normal format */
+NODE *get_special_contents(LSTFORM format, LSTTYP type) {
+    cnt_list = NIL;
+    cnt_last = NIL;
+
+    if (current_object == logo_object)
+        fmt_map_oblist(format);
+    else {
+        /* for accessible, owned, or inherited, the current object's
+           vars/procs have to be in cnt_list */
+        NODE *mylist = contentsListType(current_object); /* contains vars or procs of current object */
+        while (mylist != NIL) {
+            putname(caar(mylist), current_object, format);
+            mylist = cdr(mylist);
+        }
+        /* do not need to add parents' vars/procs for owned, but do for
+           accessible and inherited */
+        if (type == ACCESSIBLE || type == INHERITED) {
+        /* add your parents */
+        NODE *parlst = parent_list(current_object);
+        while (parlst != NIL) {
+            if (car(parlst) == logo_object) {
+                fmt_map_oblist(format);
+            } else {
+                mylist = contentsListType(car(parlst));
+                while (mylist != NIL) {
+                    putname(caar(mylist), car(parlst), format);
+                    /* put name of var or proc, associated with parent object */
+                    mylist = cdr(mylist);
+                }
+            }
+            parlst = cdr(parlst);
+        }
+        /* if accessible, then remove the shadowed vars/procs */
+        if (type == ACCESSIBLE) {
+            cnt_list = removeShadowed(cnt_list);
+        }
+        }
+    }
+    return(cnt_list);
+}
+
+/* used for getting the normal plist contents */
+NODE *get_plistcontents() {
+    cnt_list = NIL;
+    cnt_last = NIL;
+    map_oblist(contents_map);
+    cnt_list = mergesrt(cnt_list);
+    return(cnt_list);
+}
+
+/* puts name or name with object into cnt_list */
+void putname(NODE *name, NODE *obj, LSTFORM format) {
+    NODE *newNode;
+
+    if (format == NORMAL)
+    newNode = name;
+    else
+    newNode = cons(name, cons(obj, NIL));
+
+    if (cnt_list == NIL) {
+        cnt_list = cons(newNode, NIL);
+        cnt_last = cnt_list;
+    } else {
+        setcdr(cnt_last, newNode);
+        cnt_last = cdr(cnt_last);
+    }
+}
+
+/* contents_map for special format */
+void special_contents_map(NODE *sym, LSTFORM format) {
+    int flag_check = PROC_BURIED;
+
+    if (want_buried) flag_check = want_buried;
+    switch(contents_list_type) {
+    case c_PROCS:
+        if (procnode__object(sym) == UNDEFINED ||
+            is_prim(procnode__object(sym)))
+        return;
+        if (bck(flag__object(sym,flag_check))) return;
+        break;
+    case c_VARS:
+        flag_check <<= 1;
+        if (valnode__object(sym) == UNBOUND) return;
+        if (bck(flag__object(sym,flag_check))) return;
+        break;
+    case c_PLISTS:
+        err_logo(BAD_DATA, contents_list_type);
+    }
+    putname(canonical__object(sym), logo_object, format);
+    }
+}
+
+/* checks if the car of the item is equal to the car of something in
+   alist */
+BOOLEAN carequal(NODE *item, NODE *alist) {
+    while (alist != NIL) {
+        if (car(item) == caar(alist)
+            return true;
+        alist = cdr(alist);
+    }
+    return false;
+}
+#endif
 
 int bck(int flag) {
     return (want_buried ? !flag : flag);
@@ -466,6 +754,11 @@ void contents_map(NODE *sym) {
 			is_prim(procnode__object(sym)))
 		return;
 	    if (bck(flag__object(sym,flag_check))) return;
+	    break;
+	case c_PRIMS:
+	    if (procnode__object(sym) == UNDEFINED ||
+			!is_prim(procnode__object(sym)))
+		return;
 	    break;
 	case c_VARS:
 	    flag_check <<= 1;
@@ -550,6 +843,116 @@ NODE *get_contents() {
     cnt_list = mergesrt(cnt_list);
     return(cnt_list);
 }
+
+#ifdef OBJECTS4
+
+/* calls to new special_contents */
+NODE *lcontents(NODE *args) {
+    NODE *ret;
+
+    want_buried = 0;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_plistcontents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_special_contents(ACCESSIBLE, NORMAL), ret);
+
+    contents_list_type = c_PROCS;
+    push(get_special_contents(ACCESSIBLE, NORMAL), ret);
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lburied(NODE *args) {
+    NODE *ret;
+
+    want_buried = PROC_BURIED;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_plistcontents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret);
+
+    contents_list_type = c_PROCS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret);
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *ltraced(NODE *args) {
+    NODE *ret;
+
+    want_buried = PROC_TRACED;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_plistcontents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret); /* not sure: INHERITED? */
+
+    contents_list_type = c_PROCS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret); /* not sure: INHERITED? */
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lstepped(NODE *args) {
+    NODE *ret;
+
+    want_buried = PROC_STEPPED;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(get_plistcontents(), NIL);
+
+    contents_list_type = c_VARS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret); /* not sure: INHERITED? */
+
+    contents_list_type = c_PROCS;
+    push(get_special_contents(INHERITED, ANCESTRY), ret); /* not sure: INHERITED? */
+
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lprocedures(NODE *args) {
+    NODE *ret;
+
+    want_buried = 0;
+
+    contents_list_type = c_PROCS;
+    ret = get_special_contents(ACCESSIBLE, NORMAL);
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lnames(NODE *args) {
+    NODE *ret;
+
+    want_buried = 0;
+
+    contents_list_type = c_VARS;
+    ret = cons(NIL, cons(get_special_contents(ACCESSIBLE, NORMAL), NIL));
+    cnt_list = NIL;
+    return(ret);
+}
+
+NODE *lplists(NODE *args) {
+    NODE *ret;
+
+    want_buried = 0;
+
+    contents_list_type = c_PLISTS;
+    ret = cons(NIL, cons(NIL, cons(get_plistcontents(), NIL)));
+    cnt_list = NIL;
+    return(ret);
+}
+
+#else /* OBJECTS */
 
 NODE *lcontents(NODE *args) {
     NODE *ret;
@@ -652,6 +1055,19 @@ NODE *lplists(NODE *args) {
 
     contents_list_type = c_PLISTS;
     ret = cons(NIL, cons(NIL, cons(get_contents(), NIL)));
+    cnt_list = NIL;
+    return(ret);
+}
+
+#endif /* OBJECTS */
+
+NODE *lprimitives(NODE *args) {
+    NODE *ret;
+
+    want_buried = 0;
+
+    contents_list_type = c_PRIMS;
+    ret = get_contents();
     cnt_list = NIL;
     return(ret);
 }
@@ -1079,6 +1495,10 @@ NODE *ledit(NODE *args) {
 #ifdef mac
     if (!mac_edit()) return(UNBOUND);
 #else	    /* !mac */
+#ifdef  HAVE_WX
+    // do something
+    wxEditFile(tmp_filename);
+#else
 #ifdef ibm
 #ifdef __RZTC__
     was_graphics = in_graphics_mode;
@@ -1104,6 +1524,7 @@ NODE *ledit(NODE *args) {
     }
     wait(0);
 #endif	/* ibm */
+#endif /* wx */
 #endif	/* mac */
     holdstrm = loadstream;
     tmp_line = current_line;
@@ -1127,7 +1548,11 @@ NODE *lthing(NODE *args) {
     NODE *val = UNBOUND, *arg;
 
     arg = name_arg(args);
+#ifdef OBJECTS
+    if (NOT_THROWING) val = varValue(arg);
+#else
     if (NOT_THROWING) val = valnode__caseobj(intern(arg));
+#endif
     while (val == UNBOUND && NOT_THROWING)
 	val = err_logo(NO_VALUE, car(args));
     return(val);
@@ -1138,7 +1563,11 @@ NODE *lnamep(NODE *args) {
 
     arg = name_arg(args);
     if (NOT_THROWING) 
+#ifdef OBJECTS
+	return torf(varValue(arg) != UNBOUND);
+#else
 	return torf(valnode__caseobj(intern(arg)) != UNBOUND);
+#endif
     return UNBOUND;
 }
 
@@ -1211,6 +1640,21 @@ NODE *larity(NODE *args) {
     return UNBOUND;
 }
 
+NODE *cpdf_newname(NODE *name, NODE*titleline) {
+    NODE *nname=cnv_node_to_strnode(name);
+    char *namestr=getstrptr(nname);
+    char *titlestr=getstrptr(titleline);
+    char buf[2000];
+    char *p1, *p2;
+
+    p1 = titlestr+strcspn(titlestr, " \t");
+    p1 = p1+strspn(p1, " \t");
+    p2 = p1+strcspn(p1, " \t");
+    sprintf(buf, "%.*s%.*s%s",
+	    p1-titlestr, titlestr, getstrlen(nname), namestr, p2);
+    return make_strnode(buf, NULL, strlen(buf), STRING, strcpy);
+}
+
 NODE *lcopydef(NODE *args) {
     NODE *arg1, *arg2;
     int redef = (varTrue(Redefp));
@@ -1238,10 +1682,24 @@ NODE *lcopydef(NODE *args) {
 	if (old_default != new_default && old_default >= 0) {
 	    the_generation = cons(NIL, NIL);
 	}
-	setprocnode__caseobj(arg1, new_proc);
-	setflag__caseobj(arg1, PROC_BURIED);
+	if (is_prim(new_proc))
+	    setprocnode__caseobj(arg1, new_proc);
+	else {
+	    NODE *bwds=get_bodywords(new_proc,arg1);	/* 5.5 */
+	    setprocnode__caseobj(arg1,
+		make_procnode(text__procnode(new_proc),
+		    cons(cpdf_newname(arg1,car(bwds)),
+			 cdr(bwds)),
+		    getint(minargs__procnode(new_proc)),
+		    getint(dfltargs__procnode(new_proc)),
+		    getint(maxargs__procnode(new_proc))));
+	}
+	/* setflag__caseobj(arg1, PROC_BURIED); */
 	if (is_macro(arg2)) setflag__caseobj(arg1, PROC_MACRO);
 	else clearflag__caseobj(arg1, PROC_MACRO);
+	if (flag__caseobj(arg2, PROC_SPECFORM))
+	    setflag__caseobj(arg1, PROC_SPECFORM);
+	else clearflag__caseobj(arg1, PROC_SPECFORM);
     }
     return(UNBOUND);
 }
@@ -1290,6 +1748,14 @@ NODE *lhelp(NODE *args) {
 	    if (cp != NULL) {
 		arg=cnv_node_to_strnode(theName(Name_sum+(cp-inops)));
 	    }
+	}
+	if (getstrlen(arg) == 2) {
+	    if (!strncmp(getstrptr(arg), "<=", 2))
+		arg=cnv_node_to_strnode(theName(Name_lessequalp));
+	    if (!strncmp(getstrptr(arg), ">=", 2))
+		arg=cnv_node_to_strnode(theName(Name_greaterequalp));
+	    if (!strncmp(getstrptr(arg), "<>", 2))
+		arg=cnv_node_to_strnode(theName(Name_notequalp));
 	}
 	sprintf(buffer, "%s%s", addsep(helpfiles),
 		fixhelp(getstrptr(arg), getstrlen(arg)));

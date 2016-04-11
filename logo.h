@@ -23,6 +23,8 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
+/* #define OBJECTS  */
+
 /* #define MEM_DEBUG */
 
 #define ecma	/* for European extended character set using parity bit */
@@ -96,7 +98,11 @@ extern char *getenv();
 #if defined(ibm)
 #define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
+#if defined(HAVE_X11)
+#define check_throwing (check_X11_stop() || stopping_flag == THROWING)
+#else
 #define check_throwing (stopping_flag == THROWING)
+#endif
 #endif
 #endif
 
@@ -131,6 +137,9 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 
 typedef long int NODETYPES;
 
+#ifdef OBJECTS
+#define NT_OBJ    (NODETYPES)040000000
+#endif
 #define NT_LOCAL	(NODETYPES)020000000
 #define NT_STACK	(NODETYPES)010000000
 #define NT_CONT		(NODETYPES)04000000
@@ -178,6 +187,9 @@ typedef long int NODETYPES;
 #define STACK		(NODETYPES)(NT_STACK|NT_LIST)
 #define NTFREE		(NODETYPES)(-1)
 #define LOCALSAVE	(NODETYPES)(CONS|NT_LOCAL)
+#ifdef OBJECTS
+#define OBJECT      (NODETYPES)(NT_OBJ)
+#endif
 
 #define aggregate(nd)	(nodetype(nd) & NT_AGGR)
 #define is_cont(nd)	(nodetype(nd) == CONT)
@@ -190,6 +202,9 @@ typedef long int NODETYPES;
 #define runparsed(nd)	(nodetype(nd) & NT_RUNP)
 #define backslashed(nd)	(nodetype(nd) & NT_BACKSL)
 #define is_tailform(nd)	(nodetype(nd) == TAILFORM)
+#ifdef OBJECTS
+#define is_object(nd)   (nodetype(nd) == NT_OBJ)
+#endif
 
 typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		BAD_DATA_UNREC, DIDNT_OUTPUT, NOT_ENOUGH, BAD_DATA, TOO_MUCH,
@@ -200,7 +215,11 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		UNEXPECTED_BRACE, BAD_GRAPH_INIT, ERR_MACRO,
 		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,
 		OUT_OF_MEM_UNREC, USER_ERR_MESSAGE, DEEPEND_NONAME,
-		BAD_DEFAULT, RUNRES_STOP,
+		BAD_DEFAULT, RUNRES_STOP, MISSING_SPACE,
+		CANT_OPEN_ERROR, ALREADY_OPEN_ERROR, NOT_OPEN_ERROR,
+#ifdef OBJECTS
+		LOCAL_AND_OBJ,
+#endif
     /* below this point aren't actually error codes, just messages */
 		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,
 		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,
@@ -268,6 +287,13 @@ typedef struct logo_node {
 	    FIXNUM narray_origin;
 	    struct logo_node **narray_data;
 	} narray;
+#ifdef OBJECTS
+	struct {
+	    struct logo_node *nvars;
+	    struct logo_node *nprocs;
+	    struct logo_node *nparents;
+	} nobject;
+#endif
     } nunion;
 } NODE;
 
@@ -330,6 +356,21 @@ typedef struct logo_node {
 #define setarrdim(node,len)	((node)->n_dim = (len))
 #define setarrorg(node,org)	((node)->n_org = (org))
 #define setarrptr(node,ptr)	((node)->n_array = (ptr))
+
+#ifdef OBJECTS
+#define n_vars                    nunion.nobject.nvars          
+#define n_procs                   nunion.nobject.nprocs         
+#define n_parents                 nunion.nobject.nparents       
+#define getvars(node)             ((node)->n_vars)              
+#define getprocs(node)            ((node)->n_procs)             
+#define getparents(node)          ((node)->n_parents)           
+#define setvars(node, vars)       ((node)->n_vars = (vars))       
+#define setprocs(node, procs)     ((node)->n_procs = (procs))     
+#define setparents(node, parents) ((node)->n_parents = (parents)) 
+
+#define getsymbol(frame)          car(frame)
+#define getvalue(frame)           cadr(frame)
+#endif	/* OBJECTS */
 
 #ifdef ecma
 #define clearparity(ch)		ecma_clear(ch)
@@ -415,19 +456,23 @@ struct segment {
 
 /* Object flags.  Ones settable by users via bury_helper must come in threes
  * for proc, val, plist even if meaningless for some of those. */
-#define PROC_BURIED	01
-#define VAL_BURIED	02
-#define PLIST_BURIED	04
-#define PROC_TRACED	010
-#define VAL_TRACED	020
-#define PLIST_TRACED	040
-#define PROC_STEPPED	0100
-#define VAL_STEPPED	0200
-#define PLIST_STEPPED	0400
-#define PROC_MACRO	01000
-#define PERMANENT	02000
-#define HAS_GLOBAL_VALUE 04000
-#define IS_LOCAL_VALUE 010000
+#define PROC_BURIED	    01
+#define VAL_BURIED	    02
+#define PLIST_BURIED	    04
+#define PROC_TRACED	    010
+#define VAL_TRACED	    020
+#define PLIST_TRACED	    040
+#define PROC_STEPPED	    0100
+#define VAL_STEPPED	    0200
+#define PLIST_STEPPED	    0400
+#define PROC_MACRO	    01000
+#define PERMANENT	    02000
+#define HAS_GLOBAL_VALUE    04000
+#define IS_LOCAL_VALUE	    010000
+#ifdef OBJECTS
+#define MIXED_ARITY	    020000
+#endif
+#define PROC_SPECFORM	    040000
 
 #define setflag__caseobj(c,f) ((obflags__caseobj(c))->n_int |= (f))
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
@@ -440,6 +485,25 @@ struct segment {
 
 /* evaluator labels, needed by macros in other files */
 /* (Put the commonly used ones first.) */
+
+#ifdef OBJECTS
+
+#define do_list(x) \
+    x(no_reset_args) x(eval_sequence_continue) \
+    x(accumulate_arg) x(compound_apply_continue) \
+    x(after_const_arg) x(begin_seq) x(begin_apply) \
+    x(set_args_continue) x(macro_return) \
+    x(repeat_continuation) x(repeat_followup) \
+    x(runresult_continuation) x(runresult_followup) \
+    x(catch_continuation) x(catch_followup) x(after_lambda) \
+    x(after_maybeoutput) \
+    x(withobject_continuation) x(withobject_followup) \
+    x(goto_continuation) \
+    x(begin_line) x(end_line) \
+    x(all_done) \
+    x(fall_off_want_output) x(op_want_stop) x(after_constant)
+
+#else /* OBJECTS */
 
 #define do_list(x) \
     x(no_reset_args) x(eval_sequence_continue) \
@@ -455,6 +519,8 @@ struct segment {
     x(all_done) \
     x(fall_off_want_output) x(op_want_stop) x(after_constant)
 
+#endif /* OBJECTS */
+
 #define do_enum(x) x,
 
 enum labels {
@@ -464,12 +530,23 @@ enum labels {
 
 /* similarly, names that might be translated in Messages file */
 
+#ifdef OBJECTS
 #define do_trans(x) \
     x(true) x(false) x(end) x(output) x(stop) x(goto) x(tag) \
     x(if) x(ifelse) x(to) x(macro) x(toplevel) x(system) x(error) x(nothing) \
     x(textscreen) x(splitscreen) x(fullscreen) x(paint) x(erase) x(reverse) \
     x(wrap) x(fence) x(window) x(sum) x(difference) x(product) x(quotient) \
-    x(equalp) x(lessp) x(greaterp)
+    x(equalp) x(lessp) x(greaterp) x(name) x(class) x(self) \
+    x(licenseplate) x(initlist) x(exist)
+#else
+#define do_trans(x) \
+    x(true) x(false) x(end) x(output) x(stop) x(goto) x(tag) \
+    x(if) x(ifelse) x(to) x(macro) x(toplevel) x(system) x(error) x(nothing) \
+    x(textscreen) x(splitscreen) x(fullscreen) x(paint) x(erase) x(reverse) \
+    x(wrap) x(fence) x(window) x(sum) x(difference) x(product) x(quotient) \
+    x(equalp) x(lessp) x(greaterp) x(lessequalp) x(greaterequalp) \
+    x(notequalp)
+#endif
 
 #define wd_enum(x) Name_ ## x,
 

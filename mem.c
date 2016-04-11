@@ -223,18 +223,7 @@ void do_gc(BOOLEAN full) {
     gc(full);
     inside_gc = 0;
     if (int_during_gc != 0) {
-	if (int_during_gc < 0) 
-#ifdef SIG_TAKES_ARG
-	    logo_pause(0);
-#else
-	    logo_pause();
-#endif
-	else 
-#ifdef SIG_TAKES_ARG
-	    logo_stop(0);
-#else
-	    logo_stop();
-#endif
+	delayed_int();
     }
 }
 
@@ -247,7 +236,6 @@ NODE *newnode(NODETYPES type) {
     }
     if (newnd != NIL) {
 	free_list = newnd->next;
-	settype(newnd, type);
 	newnd->n_car = NIL;
 	newnd->n_cdr = NIL;
 	newnd->n_obj = NIL;
@@ -257,6 +245,7 @@ NODE *newnode(NODETYPES type) {
 	newnd->next = generation[0];
 	generation[0] = newnd;
 	newnd->oldyoung_next = NIL;
+	settype(newnd, type);
 	mem_nodes++;
 	if (mem_nodes > mem_max) mem_max = mem_nodes;
 	return(newnd);
@@ -733,8 +722,6 @@ re_mark:
 		    *prev = nd->oldyoung_next;
 		    nd->oldyoung_next = NIL;
 		}
-	 	nd->next = free_list;
-	 	free_list = nd;
         	switch (nodetype(nd)) {
 		    case ARRAY:
 			free((char *)getarrptr(nd));
@@ -749,8 +736,10 @@ re_mark:
 				    decstrrefcnt(getstrhead(nd)) == 0)
 			    free(getstrhead(nd));
 			    break;
-	   		}
-	 		settype (nd, NTFREE);
+		}
+		settype (nd, NTFREE);
+	 	nd->next = free_list;
+	 	free_list = nd;
 	    }
 	}
 #ifdef GC_DEBUG

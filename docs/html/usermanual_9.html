@@ -1,0 +1,343 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on August, 8  2005 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>BERKELEY LOGO 5.5: MACROS</TITLE>
+
+<META NAME="description" CONTENT="BERKELEY LOGO 5.5: MACROS">
+<META NAME="keywords" CONTENT="BERKELEY LOGO 5.5: MACROS">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC357"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC356"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC358"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_8.html#SEC311"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 9. Macros </H1>
+<!--docid::SEC357::-->
+<P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_9.html#SEC358">.macro</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">MACRO</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_9.html#SEC359">.defmacro</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">DEFMACRO</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_9.html#SEC360">macrop</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="usermanual_9.html#SEC361">macroexpand</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="dMACRO"></A>
+<HR SIZE="6">
+<A NAME="SEC358"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC359"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> .macro </H3>
+<!--docid::SEC358::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.MACRO procname :input1 :input2 ...			(special form)
+.DEFMACRO procname text
+</pre></td></tr></table></P><P>
+
+A macro is a special kind of procedure whose output is evaluated as Logo
+instructions in the context of the macro's caller.  .MACRO is exactly
+like TO except that the new procedure becomes a macro; .DEFMACRO is
+exactly like DEFINE with the same exception.
+</P><P>
+
+Macros are useful for inventing new control structures comparable to
+REPEAT, IF, and so on.  Such control structures can almost, but not
+quite, be duplicated by ordinary Logo procedures.  For example, here is
+an ordinary procedure version of REPEAT:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to my.repeat :num :instructions
+if :num=0 [stop]
+run :instructions
+my.repeat :num-1 :instructions
+end
+</pre></td></tr></table></P><P>
+
+This version works fine for most purposes, e.g.,
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>my.repeat 5 [print "hello]
+</pre></td></tr></table></P><P>
+
+But it doesn't work if the instructions to be carried out include
+OUTPUT, STOP, or LOCAL.  For example, consider this procedure:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to example
+print [Guess my secret word.  You get three guesses.]
+repeat 3 [type "|?? | ~
+   if readword = "secret [pr "Right! stop]]
+print [Sorry, the word was "secret"!]
+end
+</pre></td></tr></table></P><P>
+
+This procedure works as written, but if MY.REPEAT is used instead of
+REPEAT, it won't work because the STOP will stop MY.REPEAT instead of
+stopping EXAMPLE as desired.
+</P><P>
+
+The solution is to make MY.REPEAT a macro.  Instead of actually carrying
+out the computation, a macro must return a list containing Logo
+instructions.  The contents of that list are evaluated as if they
+appeared in place of the call to the macro.  Here's a macro version of
+REPEAT:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.macro my.repeat :num :instructions
+if :num=0 [output []]
+output sentence :instructions ~
+   (list "my.repeat :num-1 :instructions)
+end
+</pre></td></tr></table></P><P>
+
+Every macro is an operation -- it must always output something.  Even in
+the base case, MY.REPEAT outputs an empty instruction list.  To show how
+MY.REPEAT works, let's take the example
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>my.repeat 5 [print "hello]
+</pre></td></tr></table></P><P>
+
+For this example, MY.REPEAT will output the instruction list
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>		[print "hello my.repeat 4 [print "hello]]
+</pre></td></tr></table></P><P>
+
+Logo then executes these instructions in place of the original
+invocation of MY.REPEAT; this prints <CODE>hello</CODE> once and invokes another
+repetition.
+</P><P>
+
+The technique just shown, although fairly easy to understand, has the
+defect of slowness because each repetition has to construct an
+instruction list for evaluation.  Another approach is to make my.repeat
+a macro that works just like the non-macro version unless the
+instructions to be repeated include OUTPUT or STOP:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.macro my.repeat :num :instructions
+catch "repeat.catchtag ~
+   [op repeat.done runresult [repeat1 :num :instructions]]
+op []
+end
+
+to repeat1 :num :instructions
+if :num=0 [throw "repeat.catchtag]
+run :instructions
+.maybeoutput repeat1 :num-1 :instructions
+end
+
+to repeat.done :repeat.result
+if emptyp :repeat.result [op [stop]]
+op list "output quoted first :repeat.result
+end
+</pre></td></tr></table></P><P>
+
+If the instructions do not include STOP or OUTPUT, then REPEAT1 will
+reach its base case and invoke THROW.  As a result, my.repeat's last
+instruction line will output an empty list, so the second evaluation of
+the macro result will do nothing.  But if a STOP or OUTPUT happens, then
+REPEAT.DONE will output a STOP or OUTPUT instruction that will be
+re-executed in the caller's context.
+</P><P>
+
+The macro-defining commands have names starting with a dot because
+macros are an advanced feature of Logo; it's easy to get in trouble by
+defining a macro that doesn't terminate, or by failing to construct the
+instruction list properly.
+</P><P>
+
+Lisp users should note that Logo macros are NOT special forms.  That is,
+the inputs to the macro are evaluated normally, as they would be for any
+other Logo procedure.  It's only the output from the macro that's
+handled unusually.
+</P><P>
+
+Here's another example:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.macro localmake :name :value
+output (list "local~
+   word "" :name   ~
+   "apply          ~
+   ""make          ~
+   (list :name :value))
+end
+</pre></td></tr></table></P><P>
+
+It's used this way:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>to try
+localmake "garply "hello
+print :garply
+end
+</pre></td></tr></table></P><P>
+
+LOCALMAKE outputs the list
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">		[local "garply apply "make [garply hello]]
+</pre></td></tr></table></P><P>
+
+The reason for the use of APPLY is to avoid having to decide whether or
+not the second input to MAKE requires a quotation mark before it.  (In
+this case it would -- MAKE "GARPLY "HELLO -- but the quotation mark
+would be wrong if the value were a list.)
+</P><P>
+
+It's often convenient to use the <TT>`</TT> function to construct the instruction
+list:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.macro localmake :name :value
+op `[local ,[word "" :name] apply "make [,[:name] ,[:value]]]
+end
+</pre></td></tr></table></P><P>
+
+On the other hand, <TT>`</TT> is pretty slow, since it's tree recursive and
+written in Logo.
+</P><P>
+
+See section <A HREF="usermanual_7.html#SEC224">to</A> ,
+<A HREF="usermanual_7.html#SEC225">define</A> ,
+<A HREF="usermanual_8.html#SEC345">apply</A> ,
+<A HREF="usermanual_8.html#SEC323">stop</A> ,
+<A HREF="usermanual_8.html#SEC324">output</A> .
+</P><P>
+
+<A NAME="dDEFMACRO"></A>
+<HR SIZE="6">
+<A NAME="SEC359"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC358"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC360"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> .defmacro </H3>
+<!--docid::SEC359::-->
+<P>
+
+See section <A HREF="usermanual_9.html#SEC358">.macro</A> .
+</P><P>
+
+<A NAME="MACROP"></A>
+<HR SIZE="6">
+<A NAME="SEC360"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC359"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC361"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> macrop </H3>
+<!--docid::SEC360::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>MACROP name
+MACRO? name
+</pre></td></tr></table></P><P>
+
+outputs TRUE if its input is the name of a macro.
+</P><P>
+
+<A NAME="MACROEXPAND"></A>
+<HR SIZE="6">
+<A NAME="SEC361"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC360"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> macroexpand </H3>
+<!--docid::SEC361::-->
+<P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>MACROEXPAND expr				(library procedure)
+</pre></td></tr></table></P><P>
+
+takes as its input a Logo expression that invokes a macro (that is, one
+that begins with the name of a macro) and outputs the the Logo
+expression into which the macro would translate the input expression.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>.macro localmake :name :value
+op `[local ,[word "" :name] apply "make [,[:name] ,[:value]]]
+end
+
+? show macroexpand [localmake "pi 3.14159]
+[local "pi apply "make [pi 3.14159]]
+</pre></td></tr></table></P><P>
+
+<A NAME="ERROR PROCESSING"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_9.html#SEC357"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_10.html#SEC362"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC377">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Brian Harvey</I> on <I>August, 8  2005</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

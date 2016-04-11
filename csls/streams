@@ -1,0 +1,85 @@
+; Implementation of SICP streams (lazy-evaluation lists) in Logo.
+
+; Since we don't have special forms, we put the second argument to STREAM
+; in a (quoted) list.
+
+; Since we don't have lexical scope, we use substitution (`) into saved
+; expressions.
+
+to stream :car :delayed.cdr
+output fput :car (list "*delayed* :delayed.cdr)
+end
+
+to head :stream
+output first :stream
+end
+
+to tail :stream
+if emptyp bf :stream [output []]
+if not equalp first bf :stream "*delayed* [output bf :stream]
+localmake "result run last :stream
+.setbf :stream :result
+output :result
+end
+
+; higher order functions for streams
+
+; Remember that if the functional argument uses local variables, it has to
+; be backquoted.
+
+to stream.map :fun [:streams] 2
+if emptyp first :streams [output []]
+output stream apply :fun firsts :streams ~
+           `[(apply "stream.map fput ,[quoted :fun] (map "tail ,[:streams]))]
+end
+
+to stream.filter :fun :stream
+if emptyp :stream [output []]
+if invoke :fun head :stream ~
+  [output stream head :stream `[stream.filter ,[quoted :fun] tail ,[:stream]]]
+output stream.filter :fun tail :stream
+end
+
+to flatten :stream.of.streams
+if emptyp :stream.of.streams [output []]
+output flatten1 head :stream.of.streams :stream.of.streams
+end
+
+to flatten1 :stream :delayed.more.streams
+if emptyp :stream [output flatten tail :delayed.more.streams]
+output stream (head :stream) ~
+              `[flatten1 tail ,[:stream]
+                         ,[:delayed.more.streams]]
+end
+
+; helper for debugging
+
+to show.stream :stream [:num 10]
+show show.stream1 :stream :num
+end
+
+to show.stream1 :stream :num
+if emptyp :stream [output []]
+if equalp :num 0 [output [...]]
+output fput head :stream (show.stream1 tail :stream :num-1)
+end
+
+; examples
+
+to integers.from :n
+output stream :n `[integers.from ,[:n+1]]
+end
+
+make "integers integers.from 1
+
+to sieve :stream
+output stream (head :stream) ~
+              `[sieve stream.filter [not divisiblep ? ,[head :stream]]
+                                    tail ,[:stream]]
+end
+
+to divisiblep :big :small
+output 0 = remainder :big :small
+end
+
+make "primes sieve tail :integers

@@ -1,0 +1,1826 @@
+This is ucblogo.info, produced by makeinfo version 4.5 from
+usermanual.texi.
+
+
+File: ucblogo.info,  Node: BACKGROUND,  Prev: PEN,  Up: PEN QUERIES
+
+background
+----------
+
+     BACKGROUND
+     BG
+
+outputs the graphics background color, either as a slot number or as an
+RGB list, whichever way it was set.  (See PENCOLOR.)
+
+
+File: ucblogo.info,  Node: SAVING AND LOADING PICTURES,  Next: MOUSE QUERIES,  Prev: PEN QUERIES,  Up: GRAPHICS
+
+saving and loading pictures
+===========================
+
+* Menu:
+
+* SAVEPICT::
+* LOADPICT::
+* EPSPICT::
+
+
+File: ucblogo.info,  Node: SAVEPICT,  Next: LOADPICT,  Prev: SAVING AND LOADING PICTURES,  Up: SAVING AND LOADING PICTURES
+
+savepict
+--------
+
+     SAVEPICT filename
+
+command.  Writes a file with the specified name containing the state of
+the graphics window, including any nonstandard color palette settings,
+in Logo's internal format.  This picture can be restored to the screen
+using LOADPICT.  The format is not portable between platforms, nor is it
+readable by other programs.  *Note EPSPICT:: to export Logo graphics for
+other programs.
+
+
+File: ucblogo.info,  Node: LOADPICT,  Next: EPSPICT,  Prev: SAVEPICT,  Up: SAVING AND LOADING PICTURES
+
+loadpict
+--------
+
+     LOADPICT filename
+
+command.  Reads the specified file, which must have been written by a
+SAVEPICT command, and restores the graphics window and color palette
+settings to the values stored in the file.  Any drawing previously on
+the screen is cleared.
+
+*Note SAVEPICT:: .
+
+
+File: ucblogo.info,  Node: EPSPICT,  Prev: LOADPICT,  Up: SAVING AND LOADING PICTURES
+
+epspict
+-------
+
+     EPSPICT filename
+
+command.  Writes a file with the specified name, containing an
+Encapsulated Postscript (EPS) representation of the state of the
+graphics window.  This file can be imported into other programs that
+understand EPS format.  Restrictions: the drawing cannot use ARC, FILL,
+PENERASE, or PENREVERSE; any such instructions will be ignored in the
+translation to Postscript form.
+
+*Note ARC:: , *Note FILL:: , *Note PENERASE:: , *Note PENREVERSE:: .
+
+
+File: ucblogo.info,  Node: MOUSE QUERIES,  Prev: SAVING AND LOADING PICTURES,  Up: GRAPHICS
+
+Mouse Queries
+=============
+
+* Menu:
+
+* MOUSEPOS::
+* BUTTONP::
+* BUTTON::
+
+
+File: ucblogo.info,  Node: MOUSEPOS,  Next: BUTTONP,  Prev: MOUSE QUERIES,  Up: MOUSE QUERIES
+
+mousepos
+--------
+
+     MOUSEPOS
+
+outputs the coordinates of the mouse, provided that it's within the
+graphics window, in turtle coordinates.  If the mouse is outside the
+graphics window, then the last position within the window is returned.
+Exception:  If a mouse button is pressed within the graphics window and
+held while the mouse is dragged outside the window, the mouse's
+position is returned as if the window were big enough to include it.
+
+
+File: ucblogo.info,  Node: BUTTONP,  Next: BUTTON,  Prev: MOUSEPOS,  Up: MOUSE QUERIES
+
+buttonp
+-------
+
+     BUTTONP
+     BUTTON?
+
+outputs TRUE if a mouse button is down and the mouse is over the
+graphics window.  Once the button is down, BUTTONP remains true until
+the button is released, even if the mouse is dragged out of the
+graphics window.
+
+
+File: ucblogo.info,  Node: BUTTON,  Prev: BUTTONP,  Up: MOUSE QUERIES
+
+buttonp
+-------
+
+     BUTTON
+
+outputs 0 if BUTTONP would output FALSE; otherwise, it outputs an
+integer between 1 and 3 indicating which button was pressed.
+Ordinarily 1 means left, 2 means right, and 3 means center, but
+operating systems may reconfigure these.
+
+
+File: ucblogo.info,  Node: WORKSPACE MANAGEMENT,  Next: CONTROL STRUCTURES,  Prev: GRAPHICS,  Up: Top
+
+Workspace Management
+********************
+
+* Menu:
+
+* PROCEDURE DEFINITION::
+* VARIABLE DEFINITION::
+* PROPERTY LISTS::
+* WORKSPACE PREDICATES::
+* WORKSPACE QUERIES::
+* WORKSPACE INSPECTION::
+* WORKSPACE CONTROL::
+
+
+File: ucblogo.info,  Node: PROCEDURE DEFINITION,  Next: VARIABLE DEFINITION,  Prev: WORKSPACE MANAGEMENT,  Up: WORKSPACE MANAGEMENT
+
+Procedure Definition
+====================
+
+* Menu:
+
+* TO::
+* DEFINE::
+* TEXT::
+* FULLTEXT::
+* COPYDEF::
+
+
+File: ucblogo.info,  Node: TO,  Next: DEFINE,  Prev: PROCEDURE DEFINITION,  Up: PROCEDURE DEFINITION
+
+to
+--
+
+     TO procname :input1 :input2 ...			(special form)
+
+command.  Prepares Logo to accept a procedure definition.  The procedure
+will be named `procname' and there must not already be a procedure by
+that name.  The inputs will be called `input1' etc.  Any number of
+inputs are allowed, including none.  Names of procedures and inputs are
+case-insensitive.
+
+Unlike every other Logo procedure, TO takes as its inputs the actual
+words typed in the instruction line, as if they were all quoted, rather
+than the results of evaluating expressions to provide the inputs.
+(That's what "special form" means.)
+
+This version of Logo allows variable numbers of inputs to a procedure.
+After the procedure name come four kinds of things, *in this order*:
+
+     	    1.   0 or more REQUIRED inputs    :FOO :FROBOZZ
+     	    2.   0 or more OPTIONAL inputs    [:BAZ 87] [:THINGO 5+9]
+     	    3.   0 or 1 REST input            [:GARPLY]
+     	    4.   0 or 1 DEFAULT number        5
+
+Every procedure has a MINIMUM, DEFAULT, and MAXIMUM number of inputs.
+(The latter can be infinite.)
+
+The MINIMUM number of inputs is the number of required inputs, which
+must come first.  A required input is indicated by the
+
+     :inputname
+
+notation.
+
+After all the required inputs can be zero or more optional inputs, each
+of which is represented by the following notation:
+
+     [:inputname default.value.expression]
+
+When the procedure is invoked, if actual inputs are not supplied for
+these optional inputs, the default value expressions are evaluated to
+set values for the corresponding input names.  The inputs are processed
+from left to right, so a default value expression can be based on
+earlier inputs.  Example:
+
+     to proc :inlist [:startvalue first :inlist]
+
+If the procedure is invoked by saying
+
+     proc [a b c]
+
+then the variable `inlist' will have the value [A B C] and the variable
+`startvalue' will have the value A.  If the procedure is invoked by
+saying
+
+     (proc [a b c] "x)
+
+then `inlist' will have the value [A B C] and `startvalue' will have
+the value X.
+
+After all the required and optional input can come a single `rest'
+input, represented by the following notation:
+
+     [:inputname]
+
+This is a rest input rather than an optional input because there is no
+default value expression.  There can be at most one rest input.  When
+the procedure is invoked, the value of this input will be a list
+containing all of the actual inputs provided that were not used for
+required or optional inputs.  Example:
+
+     to proc :in1 [:in2 "foo] [:in3 "baz] [:in4]
+
+If this procedure is invoked by saying
+
+     proc "x
+
+then `in1' has the value X, `in2' has the value FOO, `in3' has the
+value BAZ,and `in4' has the value [] (the empty list).  If it's invoked
+by saying
+
+     (proc "a "b "c "d "e)
+
+then `in1' has the value A, `in2' has the value B, `in3' has the value
+C, and `in4' has the value [D E].
+
+The MAXIMUM number of inputs for a procedure is infinite if a rest input
+is given; otherwise, it is the number of required inputs plus the number
+of optional inputs.
+
+The DEFAULT number of inputs for a procedure, which is the number of
+inputs that it will accept if its invocation is not enclosed in
+parentheses, is ordinarily equal to the minimum number.  If you want a
+different default number you can indicate that by putting the desired
+default number as the last thing on the TO line.  example:
+
+     to proc :in1 [:in2 "foo] [:in3] 3
+
+This procedure has a minimum of one input, a default of three inputs,
+and an infinite maximum.
+
+Logo responds to the TO command by entering procedure definition mode.
+The prompt character changes from `?' to `>' and whatever instructions
+you type become part of the definition until you type a line containing
+only the word END.
+
+
+File: ucblogo.info,  Node: DEFINE,  Next: TEXT,  Prev: TO,  Up: PROCEDURE DEFINITION
+
+define
+------
+
+     DEFINE procname text
+
+command.  Defines a procedure with name `procname' and text `text'.  If
+there is already a procedure with the same name, the new definition
+replaces the old one.  The text input must be a list whose members are
+lists.  The first member is a list of inputs; it looks like a TO line
+but without the word TO, without the procedure name, and without the
+colons before input names.  In other words, the members of this first
+sublist are words for the names of required inputs and lists for the
+names of optional or rest inputs.  The remaining sublists of the text
+input make up the body of the procedure, with one sublist for each
+instruction line of the body.  (There is no END line in the text input.)
+It is an error to redefine a primitive procedure unless the variable
+REDEFP has the value TRUE.
+
+*Note REDEFP:: .
+
+
+File: ucblogo.info,  Node: TEXT,  Next: FULLTEXT,  Prev: DEFINE,  Up: PROCEDURE DEFINITION
+
+text
+----
+
+     TEXT procname
+
+outputs the text of the procedure named `procname' in the form expected
+by DEFINE: a list of lists, the first of which describes the inputs to
+the procedure and the rest of which are the lines of its body.  The text
+does not reflect formatting information used when the procedure was
+defined, such as continuation lines and extra spaces.
+
+
+File: ucblogo.info,  Node: FULLTEXT,  Next: COPYDEF,  Prev: TEXT,  Up: PROCEDURE DEFINITION
+
+fulltext
+--------
+
+     FULLTEXT procname
+
+outputs a representation of the procedure `procname' in which formatting
+information is preserved.  If the procedure was defined with TO, EDIT,
+or LOAD, then the output is a list of words.  Each word represents one
+entire line of the definition in the form output by READWORD, including
+extra spaces and continuation lines.  The last member of the output
+represents the END line.  If the procedure was defined with DEFINE, then
+the output is a list of lists.  If these lists are printed, one per
+line, the result will look like a definition using TO.  Note: the output
+from FULLTEXT is not suitable for use as input to DEFINE!
+
+*Note TO:: , *Note EDIT:: , *Note LOAD:: , *Note DEFINE:: .
+
+
+File: ucblogo.info,  Node: COPYDEF,  Prev: FULLTEXT,  Up: PROCEDURE DEFINITION
+
+copydef
+-------
+
+     COPYDEF newname oldname
+
+command.  Makes `newname' a procedure identical to `oldname'.  The
+latter may be a primitive.  If `newname' was already defined, its
+previous definition is lost.  If `newname' was already a primitive, the
+redefinition is not permitted unless the variable REDEFP has the value
+TRUE.
+
+Note: dialects of Logo differ as to the order of inputs to COPYDEF.
+This dialect uses "MAKE order," not "NAME order."
+
+*Note REDEFP:: , *Note SAVE:: , *Note PO:: , *Note POT:: .
+
+
+File: ucblogo.info,  Node: VARIABLE DEFINITION,  Next: PROPERTY LISTS,  Prev: PROCEDURE DEFINITION,  Up: WORKSPACE MANAGEMENT
+
+Variable Definition
+===================
+
+* Menu:
+
+* MAKE::
+* NAME::
+* LOCAL::
+* LOCALMAKE::
+* THING::
+* GLOBAL::
+
+
+File: ucblogo.info,  Node: MAKE,  Next: NAME,  Prev: VARIABLE DEFINITION,  Up: VARIABLE DEFINITION
+
+make
+----
+
+     MAKE varname value
+
+command.  Assigns the value `value' to the variable named `varname',
+which must be a word.  Variable names are case-insensitive.  If a
+variable with the same name already exists, the value of that variable
+is changed.  If not, a new global variable is created.
+
+
+File: ucblogo.info,  Node: NAME,  Next: LOCAL,  Prev: MAKE,  Up: VARIABLE DEFINITION
+
+name
+----
+
+     NAME value varname				(library procedure)
+
+command.  Same as MAKE but with the inputs in reverse order.
+
+
+File: ucblogo.info,  Node: LOCAL,  Next: LOCALMAKE,  Prev: NAME,  Up: VARIABLE DEFINITION
+
+local
+-----
+
+     LOCAL varname
+     LOCAL varnamelist
+     (LOCAL varname1 varname2 ...)
+
+command.  Accepts as inputs one or more words, or a list of words.  A
+variable is created for each of these words, with that word as its name.
+The variables are local to the currently running procedure.  Logo
+variables follow dynamic scope rules; a variable that is local to a
+procedure is available to any subprocedure invoked by that procedure.
+The variables created by LOCAL have no initial value; they must be
+assigned a value (e.g., with MAKE) before the procedure attempts to read
+their value.
+
+*Note MAKE:: .
+
+
+File: ucblogo.info,  Node: LOCALMAKE,  Next: THING,  Prev: LOCAL,  Up: VARIABLE DEFINITION
+
+localmake
+---------
+
+     LOCALMAKE varname value				(library procedure)
+
+command.  Makes the named variable local, like LOCAL, and assigns it the
+given value, like MAKE.
+
+*Note LOCAL:: , *Note MAKE:: .
+
+
+File: ucblogo.info,  Node: THING,  Next: GLOBAL,  Prev: LOCALMAKE,  Up: VARIABLE DEFINITION
+
+thing
+-----
+
+     THING varname
+     :quoted.varname
+
+outputs the value of the variable whose name is the input.  If there is
+more than one such variable, the innermost local variable of that name
+is chosen.  The colon notation is an abbreviation not for THING but for
+the combination
+
+     thing "
+
+so that :FOO means THING "FOO.
+
+
+File: ucblogo.info,  Node: GLOBAL,  Prev: THING,  Up: VARIABLE DEFINITION
+
+global
+------
+
+     GLOBAL varname
+     GLOBAL varnamelist
+     (GLOBAL varname1 varname2 ...)
+
+command.  Accepts as inputs one or more words, or a list of words.  A
+global variable is created for each of these words, with that word as
+its name.  The only reason this is necessary is that you might want to
+use the "setter" notation SETXYZ for a variable XYZ that does not
+already have a value; GLOBAL "XYZ makes that legal.  Note: If there is
+currently a local variable of the same name, this command does *not*
+make Logo use the global value instead of the local one.
+
+
+File: ucblogo.info,  Node: PROPERTY LISTS,  Next: WORKSPACE PREDICATES,  Prev: VARIABLE DEFINITION,  Up: WORKSPACE MANAGEMENT
+
+Property Lists
+==============
+
+Note: Names of property lists are always case-insensitive.  Names of
+individual properties are case-sensitive or case-insensitive depending
+on the value of CASEIGNOREDP, which is TRUE by default.
+
+*Note CASEIGNOREDP:: .
+
+In principle, every possible name is the name of a property list, which
+is initially empty.  So Logo never gives a "no such property list"
+error, as it would for undefined procedure or variable names.  But the
+primitive procedures that deal with "all" property lists (CONTENTS,
+PLISTS, etc.)  list only nonempty ones.  To "erase" a property list
+*Note ERASE:: means to make it empty, removing all properties from it.
+
+* Menu:
+
+* PPROP::
+* GPROP::
+* REMPROP::
+* PLIST::
+
+
+File: ucblogo.info,  Node: PPROP,  Next: GPROP,  Prev: PROPERTY LISTS,  Up: PROPERTY LISTS
+
+pprop
+-----
+
+     PPROP plistname propname value
+
+command.  Adds a property to the `plistname' property list with name
+`propname' and value `value'.
+
+
+File: ucblogo.info,  Node: GPROP,  Next: REMPROP,  Prev: PPROP,  Up: PROPERTY LISTS
+
+gprop
+-----
+
+     GPROP plistname propname
+
+outputs the value of the `propname' property in the `plistname' property
+list, or the empty list if there is no such property.
+
+
+File: ucblogo.info,  Node: REMPROP,  Next: PLIST,  Prev: GPROP,  Up: PROPERTY LISTS
+
+remprop
+-------
+
+     REMPROP plistname propname
+
+command.  Removes the property named `propname' from the property list
+named `plistname'.
+
+
+File: ucblogo.info,  Node: PLIST,  Prev: REMPROP,  Up: PROPERTY LISTS
+
+plist
+-----
+
+     PLIST plistname
+
+outputs a list whose odd-numbered members are the names, and whose
+even-numbered members are the values, of the properties in the property
+list named `plistname'.  The output is a copy of the actual property
+list; changing properties later will not magically change a list output
+earlier by PLIST.
+
+
+File: ucblogo.info,  Node: WORKSPACE PREDICATES,  Next: WORKSPACE QUERIES,  Prev: PROPERTY LISTS,  Up: WORKSPACE MANAGEMENT
+
+Workspace Predicates
+====================
+
+* Menu:
+
+* PROCEDUREP::
+* PRIMITIVEP::
+* DEFINEDP::
+* NAMEP::
+* PLISTP::
+
+
+File: ucblogo.info,  Node: PROCEDUREP,  Next: PRIMITIVEP,  Prev: WORKSPACE PREDICATES,  Up: WORKSPACE PREDICATES
+
+procedurep
+----------
+
+     PROCEDUREP name
+     PROCEDURE? name
+
+outputs TRUE if the input is the name of a procedure.
+
+
+File: ucblogo.info,  Node: PRIMITIVEP,  Next: DEFINEDP,  Prev: PROCEDUREP,  Up: WORKSPACE PREDICATES
+
+primitivep
+----------
+
+     PRIMITIVEP name
+     PRIMITIVE? name
+
+outputs TRUE if the input is the name of a primitive procedure (one
+built into Logo).  Note that some of the procedures described in this
+document are library procedures, not primitives.
+
+
+File: ucblogo.info,  Node: DEFINEDP,  Next: NAMEP,  Prev: PRIMITIVEP,  Up: WORKSPACE PREDICATES
+
+definedp
+--------
+
+     DEFINEDP name
+     DEFINED? name
+
+outputs TRUE if the input is the name of a user-defined procedure,
+including a library procedure.  (However, Logo does not know about a
+library procedure until that procedure has been invoked.)
+
+
+File: ucblogo.info,  Node: NAMEP,  Next: PLISTP,  Prev: DEFINEDP,  Up: WORKSPACE PREDICATES
+
+namep
+-----
+
+     NAMEP name
+     NAME? name
+
+outputs TRUE if the input is the name of a variable.
+
+
+File: ucblogo.info,  Node: PLISTP,  Prev: NAMEP,  Up: WORKSPACE PREDICATES
+
+plistp
+------
+
+     PLISTP name
+     PLIST? name
+
+outputs TRUE if the input is the name of a *nonempty* property list.
+(In principle every word is the name of a property list; if you haven't
+put any properties in it, PLIST of that name outputs an empty list,
+rather than giving an error message.)
+
+
+File: ucblogo.info,  Node: WORKSPACE QUERIES,  Next: WORKSPACE INSPECTION,  Prev: WORKSPACE PREDICATES,  Up: WORKSPACE MANAGEMENT
+
+Workspace Queries
+=================
+
+* Menu:
+
+* CONTENTS::
+* BURIED::
+* TRACED::
+* STEPPED::
+* PROCEDURES::
+* PRIMITIVES::
+* NAMES::
+* PLISTS::
+* NAMELIST::
+* PLLIST::
+* ARITY::
+* NODES::
+
+
+File: ucblogo.info,  Node: CONTENTS,  Next: BURIED,  Prev: WORKSPACE QUERIES,  Up: WORKSPACE QUERIES
+
+contents
+--------
+
+     CONTENTS
+
+outputs a "contents list," i.e., a list of three lists containing names
+of defined procedures, variables, and property lists respectively.  This
+list includes all unburied named items in the workspace.
+
+
+File: ucblogo.info,  Node: BURIED,  Next: TRACED,  Prev: CONTENTS,  Up: WORKSPACE QUERIES
+
+buried
+------
+
+     BURIED
+
+outputs a contents list including all buried named items in the
+workspace.
+
+
+File: ucblogo.info,  Node: TRACED,  Next: STEPPED,  Prev: BURIED,  Up: WORKSPACE QUERIES
+
+traced
+------
+
+     TRACED
+
+outputs a contents list including all traced named items in the
+workspace.
+
+
+File: ucblogo.info,  Node: STEPPED,  Next: PROCEDURES,  Prev: TRACED,  Up: WORKSPACE QUERIES
+
+stepped
+-------
+
+     STEPPED
+
+outputs a contents list including all stepped named items in the
+workspace.
+
+
+File: ucblogo.info,  Node: PROCEDURES,  Next: PRIMITIVES,  Prev: STEPPED,  Up: WORKSPACE QUERIES
+
+procedures
+----------
+
+     PROCEDURES
+
+outputs a list of the names of all unburied user-defined procedures in
+the workspace.  Note that this is a list of names, not a contents list.
+(However, procedures that require a contents list as input will accept
+this list.)
+
+
+File: ucblogo.info,  Node: PRIMITIVES,  Next: NAMES,  Prev: PROCEDURES,  Up: WORKSPACE QUERIES
+
+primitives
+----------
+
+     PRIMITIVES
+
+outputs a list of the names of all primitive procedures in the
+workspace.  Note that this is a list of names, not a contents list.
+(However, procedures that require a contents list as input will accept
+this list.)
+
+
+File: ucblogo.info,  Node: NAMES,  Next: PLISTS,  Prev: PRIMITIVES,  Up: WORKSPACE QUERIES
+
+names
+-----
+
+     NAMES
+
+outputs a contents list consisting of an empty list (indicating no
+procedure names) followed by a list of all unburied variable names in
+the workspace.
+
+
+File: ucblogo.info,  Node: PLISTS,  Next: NAMELIST,  Prev: NAMES,  Up: WORKSPACE QUERIES
+
+plists
+------
+
+     PLISTS
+
+outputs a contents list consisting of two empty lists (indicating no
+procedures or variables) followed by a list of all unburied nonempty
+property lists in the workspace.
+
+
+File: ucblogo.info,  Node: NAMELIST,  Next: PLLIST,  Prev: PLISTS,  Up: WORKSPACE QUERIES
+
+namelist
+--------
+
+     NAMELIST varname				(library procedure)
+     NAMELIST varnamelist
+
+outputs a contents list consisting of an empty list followed by a list
+of the name or names given as input.  This is useful in conjunction with
+workspace control procedures that require a contents list as input.
+
+
+File: ucblogo.info,  Node: PLLIST,  Next: ARITY,  Prev: NAMELIST,  Up: WORKSPACE QUERIES
+
+pllist
+------
+
+     PLLIST plname					(library procedure)
+     PLLIST plnamelist
+
+outputs a contents list consisting of two empty lists followed by a list
+of the name or names given as input.  This is useful in conjunction with
+workspace control procedures that require a contents list as input.
+
+Note:  All procedures whose input is indicated as `contentslist' will
+accept a single word (taken as a procedure name), a list of words (taken
+as names of procedures), or a list of three lists as described under the
+CONTENTS command above.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: ARITY,  Next: NODES,  Prev: PLLIST,  Up: WORKSPACE QUERIES
+
+arity
+-----
+
+     ARITY procedurename
+
+outputs a list of three numbers: the minimum, default, and maximum
+number of inputs for the procedure whose name is the input.  It is an
+error if there is no such procedure.  A maximum of -1 means that the
+number of inputs is unlimited.
+
+
+File: ucblogo.info,  Node: NODES,  Prev: ARITY,  Up: WORKSPACE QUERIES
+
+nodes
+-----
+
+     NODES
+
+outputs a list of two numbers.  The first represents the number of nodes
+of memory currently in use.  The second shows the maximum number of
+nodes that have been in use at any time since the last invocation of
+NODES.  (A node is a small block of computer memory as used by Logo.
+Each number uses one node.  Each non-numeric word uses one node, plus
+some non-node memory for the characters in the word.  Each array takes
+one node, plus some non-node memory, as well as the memory required by
+its elements.  Each list requires one node per element, as well as the
+memory within the elements.)  If you want to track the memory use of an
+algorithm, it is best if you invoke GC at the beginning of each
+iteration, since otherwise the maximum will include storage that is
+unused but not yet collected.
+
+
+File: ucblogo.info,  Node: WORKSPACE INSPECTION,  Next: WORKSPACE CONTROL,  Prev: WORKSPACE QUERIES,  Up: WORKSPACE MANAGEMENT
+
+Workspace Inspection
+====================
+
+* Menu:
+
+* PO::
+* POALL::
+* POPS::
+* PONS::
+* POPLS::
+* PON::
+* POPL::
+* POT::
+* POTS::
+
+
+File: ucblogo.info,  Node: PO,  Next: POALL,  Prev: WORKSPACE INSPECTION,  Up: WORKSPACE INSPECTION
+
+po
+--
+
+     PRINTOUT contentslist
+     PO contentslist
+
+command.  Prints to the write stream the definitions of all procedures,
+variables, and property lists named in the input contents list.
+
+
+File: ucblogo.info,  Node: POALL,  Next: POPS,  Prev: PO,  Up: WORKSPACE INSPECTION
+
+poall
+-----
+
+     POALL						(library procedure)
+
+command.  Prints all unburied definitions in the workspace.  Abbreviates
+PO CONTENTS.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: POPS,  Next: PONS,  Prev: POALL,  Up: WORKSPACE INSPECTION
+
+pops
+----
+
+     POPS						(library procedure)
+
+command.  Prints the definitions of all unburied procedures in the
+workspace.  Abbreviates PO PROCEDURES.
+
+*Note PO:: , *Note PROCEDURES:: .
+
+
+File: ucblogo.info,  Node: PONS,  Next: POPLS,  Prev: POPS,  Up: WORKSPACE INSPECTION
+
+pons
+----
+
+     PONS						(library procedure)
+
+command.  Prints the definitions of all unburied variables in the
+workspace.  Abbreviates PO NAMES.
+
+*Note PO:: , *Note NAMES:: .
+
+
+File: ucblogo.info,  Node: POPLS,  Next: PON,  Prev: PONS,  Up: WORKSPACE INSPECTION
+
+popls
+-----
+
+     POPLS						(library procedure)
+
+command.  Prints the contents of all unburied nonempty property lists
+in the workspace.  Abbreviates PO PLISTS.
+
+*Note PO:: , *Note PLISTS:: .
+
+
+File: ucblogo.info,  Node: PON,  Next: POPL,  Prev: POPLS,  Up: WORKSPACE INSPECTION
+
+pon
+---
+
+     PON varname					(library procedure)
+     PON varnamelist
+
+command.  Prints the definitions of the named variable(s).
+Abbreviates PO NAMELIST varname(list).
+
+*Note PO:: , *Note NAMELIST:: .
+
+
+File: ucblogo.info,  Node: POPL,  Next: POT,  Prev: PON,  Up: WORKSPACE INSPECTION
+
+popl
+----
+
+     POPL plname					(library procedure)
+     POPL plnamelist
+
+command.  Prints the definitions of the named property list(s).
+Abbreviates PO PLLIST plname(list).
+
+*Note PO:: , *Note PLLIST:: .
+
+
+File: ucblogo.info,  Node: POT,  Next: POTS,  Prev: POPL,  Up: WORKSPACE INSPECTION
+
+pot
+---
+
+     POT contentslist
+
+command.  Prints the title lines of the named procedures and the
+definitions of the named variables and property lists.  For property
+lists, the entire list is shown on one line instead of as a series of
+PPROP instructions as in PO.
+
+*Note PPROP:: , *Note PO:: .
+
+
+File: ucblogo.info,  Node: POTS,  Prev: POT,  Up: WORKSPACE INSPECTION
+
+pots
+----
+
+     POTS						(library procedure)
+
+command.  Prints the title lines of all unburied procedures in the
+workspace.  Abbreviates POT PROCEDURES.
+
+*Note PROCEDURES:: .
+
+
+File: ucblogo.info,  Node: WORKSPACE CONTROL,  Prev: WORKSPACE INSPECTION,  Up: WORKSPACE MANAGEMENT
+
+Workspace Control
+=================
+
+* Menu:
+
+* ERASE::
+* ERALL::
+* ERPS::
+* ERNS::
+* ERPLS::
+* ERN::
+* ERPL::
+* BURY::
+* BURYALL::
+* BURYNAME::
+* UNBURY::
+* UNBURYALL::
+* UNBURYNAME::
+* BURIEDP::
+* TRACE::
+* UNTRACE::
+* TRACEDP::
+* STEP::
+* UNSTEP::
+* STEPPEDP::
+* EDIT::
+* EDITFILE::
+* EDALL::
+* EDPS::
+* EDNS::
+* EDPLS::
+* EDN::
+* EDPL::
+* SAVE::
+* SAVEL::
+* LOAD::
+* CSLSLOAD::
+* HELP::
+* SETEDITOR::
+* SETLIBLOC::
+* SETHELPLOC::
+* SETCSLSLOC::
+* SETTEMPLOC::
+* GC::
+* .SETSEGMENTSIZE::
+
+
+File: ucblogo.info,  Node: ERASE,  Next: ERALL,  Prev: WORKSPACE CONTROL,  Up: WORKSPACE CONTROL
+
+erase
+-----
+
+     ERASE contentslist
+     ER contentslist
+
+command.  Erases from the workspace the procedures, variables, and
+property lists named in the input.  Primitive procedures may not be
+erased unless the variable REDEFP has the value TRUE.
+
+*Note REDEFP:: .
+
+
+File: ucblogo.info,  Node: ERALL,  Next: ERPS,  Prev: ERASE,  Up: WORKSPACE CONTROL
+
+erall
+-----
+
+     ERALL
+
+command.  Erases all unburied procedures, variables, and property lists
+from the workspace.  Abbreviates ERASE CONTENTS.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: ERPS,  Next: ERNS,  Prev: ERALL,  Up: WORKSPACE CONTROL
+
+erps
+----
+
+     ERPS
+
+command.  Erases all unburied procedures from the workspace.
+Abbreviates ERASE PROCEDURES.
+
+*Note ERASE:: , *Note PROCEDURES:: .
+
+
+File: ucblogo.info,  Node: ERNS,  Next: ERPLS,  Prev: ERPS,  Up: WORKSPACE CONTROL
+
+erns
+----
+
+     ERNS
+
+command.  Erases all unburied variables from the workspace.  Abbreviates
+ERASE NAMES.
+
+*Note ERASE:: , *Note NAMES:: .
+
+
+File: ucblogo.info,  Node: ERPLS,  Next: ERN,  Prev: ERNS,  Up: WORKSPACE CONTROL
+
+erpls
+-----
+
+     ERPLS
+
+command.  Erases all unburied property lists from the workspace.
+Abbreviates ERASE PLISTS.
+
+*Note ERASE:: , *Note PLISTS:: .
+
+
+File: ucblogo.info,  Node: ERN,  Next: ERPL,  Prev: ERPLS,  Up: WORKSPACE CONTROL
+
+ern
+---
+
+     ERN varname					(library procedure)
+     ERN varnamelist
+
+command.  Erases from the workspace the variable(s) named in the input.
+Abbreviates ERASE NAMELIST varname(list).
+
+*Note ERASE:: , *Note NAMELIST:: .
+
+
+File: ucblogo.info,  Node: ERPL,  Next: BURY,  Prev: ERN,  Up: WORKSPACE CONTROL
+
+erpl
+----
+
+     ERPL plname					(library procedure)
+     ERPL plnamelist
+
+command.  Erases from the workspace the property list(s) named in the
+input.  Abbreviates ERASE PLLIST plname(list).
+
+*Note ERASE:: , *Note PLLIST:: .
+
+
+File: ucblogo.info,  Node: BURY,  Next: BURYALL,  Prev: ERPL,  Up: WORKSPACE CONTROL
+
+bury
+----
+
+     BURY contentslist
+
+command.  Buries the procedures, variables, and property lists named in
+the input.  A buried item is not included in the lists output by
+CONTENTS, PROCEDURES, VARIABLES, and PLISTS, but is included in the list
+output by BURIED.  By implication, buried things are not printed by
+POALL or saved by SAVE.
+
+*Note CONTENTS:: , *Note PROCEDURES:: , *Note PONS:: , *Note PLISTS:: ,
+*Note POALL:: , *Note SAVE:: .
+
+
+File: ucblogo.info,  Node: BURYALL,  Next: BURYNAME,  Prev: BURY,  Up: WORKSPACE CONTROL
+
+buryall
+-------
+
+     BURYALL                                         (library procedure)
+
+command.  Abbreviates BURY CONTENTS.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: BURYNAME,  Next: UNBURY,  Prev: BURYALL,  Up: WORKSPACE CONTROL
+
+buryname
+--------
+
+     BURYNAME varname				(library procedure)
+     BURYNAME varnamelist
+
+command.  Abbreviates BURY NAMELIST varname(list).
+
+*Note BURY:: , *Note NAMELIST:: .
+
+
+File: ucblogo.info,  Node: UNBURY,  Next: UNBURYALL,  Prev: BURYNAME,  Up: WORKSPACE CONTROL
+
+unbury
+------
+
+     UNBURY contentslist
+
+command.  Unburies the procedures, variables, and property lists named
+in the input.  That is, the named items will be returned to view in
+CONTENTS, etc.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: UNBURYALL,  Next: UNBURYNAME,  Prev: UNBURY,  Up: WORKSPACE CONTROL
+
+unburyall
+---------
+
+     UNBURYALL					(library procedure)
+
+command.  Abbreviates UNBURY BURIED.
+
+*Note BURIED:: .
+
+
+File: ucblogo.info,  Node: UNBURYNAME,  Next: BURIEDP,  Prev: UNBURYALL,  Up: WORKSPACE CONTROL
+
+unburyname
+----------
+
+     UNBURYNAME varname				(library procedure)
+     UNBURYNAME varnamelist
+
+command.  Abbreviates UNBURY NAMELIST varname(list).
+
+*Note UNBURY:: , *Note NAMELIST:: .
+
+
+File: ucblogo.info,  Node: BURIEDP,  Next: TRACE,  Prev: UNBURYNAME,  Up: WORKSPACE CONTROL
+
+buriedp
+-------
+
+     BURIEDP contentslist
+     BURIED? contentslist
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is buried, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can `BURIEDP [[]
+[VARIABLE]]' or `BURIEDP [[] [] [PROPLIST]]'.
+
+
+File: ucblogo.info,  Node: TRACE,  Next: UNTRACE,  Prev: BURIEDP,  Up: WORKSPACE CONTROL
+
+trace
+-----
+
+     TRACE contentslist
+
+command.  Marks the named items for tracing.  A message is printed
+whenever a traced procedure is invoked, giving the actual input values,
+and whenever a traced procedure STOPs or OUTPUTs.  A message is printed
+whenever a new value is assigned to a traced variable using MAKE.  A
+message is printed whenever a new property is given to a traced property
+list using PPROP.
+
+*Note STOP:: , *Note OUTPUT:: , *Note MAKE:: , *Note PPROP:: .
+
+
+File: ucblogo.info,  Node: UNTRACE,  Next: TRACEDP,  Prev: TRACE,  Up: WORKSPACE CONTROL
+
+untrace
+-------
+
+     UNTRACE contentslist
+
+command.  Turns off tracing for the named items.
+
+
+File: ucblogo.info,  Node: TRACEDP,  Next: STEP,  Prev: UNTRACE,  Up: WORKSPACE CONTROL
+
+tracedp
+-------
+
+     TRACEDP contentslist
+     TRACED? contentslist
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is traced, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can `TRACEDP [[]
+[VARIABLE]]' or `TRACEDP [[] [] [PROPLIST]]'.
+
+
+File: ucblogo.info,  Node: STEP,  Next: UNSTEP,  Prev: TRACEDP,  Up: WORKSPACE CONTROL
+
+step
+----
+
+     STEP contentslist
+
+command.  Marks the named items for stepping.  Whenever a stepped
+procedure is invoked, each instruction line in the procedure body is
+printed before being executed, and Logo waits for the user to type a
+newline at the terminal.  A message is printed whenever a stepped
+variable name is `shadowed' because a local variable of the same name
+is created either as a procedure input or by the LOCAL command.
+
+*Note LOCAL:: .
+
+
+File: ucblogo.info,  Node: UNSTEP,  Next: STEPPEDP,  Prev: STEP,  Up: WORKSPACE CONTROL
+
+unstep
+------
+
+     UNSTEP contentslist
+
+command.  Turns off stepping for the named items.
+
+
+File: ucblogo.info,  Node: STEPPEDP,  Next: EDIT,  Prev: UNSTEP,  Up: WORKSPACE CONTROL
+
+steppedp
+--------
+
+     STEPPEDP contentslist
+     STEPPED? contentslist
+
+outputs TRUE if the first procedure, variable, or property list named in
+the contents list is stepped, FALSE if not.  Only the first thing in the
+list is tested; the most common use will be with a word as input, naming
+a procedure, but a contents list is allowed so that you can `STEPPEDP
+[[] [VARIABLE]]' or `STEPPEDP [[] [] [PROPLIST]]'.
+
+
+File: ucblogo.info,  Node: EDIT,  Next: EDITFILE,  Prev: STEPPEDP,  Up: WORKSPACE CONTROL
+
+edit
+----
+
+     EDIT contentslist
+     ED contentslist
+     (EDIT)
+     (ED)
+
+command.  If invoked with an input, EDIT writes the definitions of the
+named items into a temporary file and edits that file, using your
+favorite editor as determined by the EDITOR environment variable.  If
+you don't have an EDITOR variable, edits the definitions using jove.
+If invoked without an input, EDIT edits the same file left over from a
+previous EDIT or EDITFILE instruction.  When you leave the editor, Logo
+reads the revised definitions and modifies the workspace accordingly.
+It is not an error if the input includes names for which there is no
+previous definition.
+
+If there is a variable LOADNOISILY whose value is TRUE, then, after
+leaving the editor, TO commands in the temporary file print "PROCNAME
+defined" (where PROCNAME is the name of the procedure being defined);
+if LOADNOISILY is FALSE or undefined, TO commands in the file are
+carried out silently.
+
+If there is an environment variable called TEMP, then Logo uses its
+value as the directory in which to write the temporary file used for
+editing.
+
+Exceptionally, the EDIT command can be used without its default input
+and without parentheses provided that nothing follows it on the
+instruction line.
+
+*Note LOADNOISILY:: , *Note EDITFILE:: .
+
+
+File: ucblogo.info,  Node: EDITFILE,  Next: EDALL,  Prev: EDIT,  Up: WORKSPACE CONTROL
+
+editfile
+--------
+
+     EDITFILE filename
+
+command.  Starts the Logo editor, like EDIT, but instead of editing a
+temporary file it edits the file specified by the input.  When you leave
+the editor, Logo reads the revised file, as for EDIT.  EDITFILE also
+remembers the filename, so that a subsequent EDIT command with no input
+will re-edit the same file.
+
+EDITFILE is intended as an alternative to LOAD and SAVE.  You can
+maintain a workspace file yourself, controlling the order in which
+definitions appear, maintaining comments in the file, and so on.
+
+
+File: ucblogo.info,  Node: EDALL,  Next: EDPS,  Prev: EDITFILE,  Up: WORKSPACE CONTROL
+
+edall
+-----
+
+     EDALL						(library procedure)
+
+command.  Abbreviates EDIT CONTENTS.
+
+*Note CONTENTS:: .
+
+
+File: ucblogo.info,  Node: EDPS,  Next: EDNS,  Prev: EDALL,  Up: WORKSPACE CONTROL
+
+edps
+----
+
+     EDPS						(library procedure)
+
+command.  Abbreviates EDIT PROCEDURES.
+
+*Note EDIT:: , *Note PROCEDURES:: .
+
+
+File: ucblogo.info,  Node: EDNS,  Next: EDPLS,  Prev: EDPS,  Up: WORKSPACE CONTROL
+
+edns
+----
+
+     EDNS						(library procedure)
+
+command.  Abbreviates EDIT NAMES.
+
+*Note EDIT:: , *Note NAMES:: .
+
+
+File: ucblogo.info,  Node: EDPLS,  Next: EDN,  Prev: EDNS,  Up: WORKSPACE CONTROL
+
+edpls
+-----
+
+     EDPLS						(library procedure)
+
+command.  Abbreviates EDIT PLISTS.
+
+*Note EDIT:: , *Note PLISTS:: .
+
+
+File: ucblogo.info,  Node: EDN,  Next: EDPL,  Prev: EDPLS,  Up: WORKSPACE CONTROL
+
+edn
+---
+
+     EDN varname					(library procedure)
+     EDN varnamelist
+
+command.  Abbreviates EDIT NAMELIST varname(list).
+
+*Note EDIT:: , *Note NAMELIST:: .
+
+
+File: ucblogo.info,  Node: EDPL,  Next: SAVE,  Prev: EDN,  Up: WORKSPACE CONTROL
+
+edpl
+----
+
+     EDPL plname					(library procedure)
+     EDPL plnamelist
+
+command.  Abbreviates EDIT PLLIST plname(list).
+
+*Note EDIT:: , *Note PLLIST:: .
+
+
+File: ucblogo.info,  Node: SAVE,  Next: SAVEL,  Prev: EDPL,  Up: WORKSPACE CONTROL
+
+save
+----
+
+     SAVE filename
+
+command.  Saves the definitions of all unburied procedures, variables,
+and nonempty property lists in the named file.  Equivalent to
+
+     to save :filename
+     local "oldwriter
+     make "oldwriter writer
+     openwrite :filename
+     setwrite :filename
+     poall
+     setwrite :oldwriter
+     close :filename
+     end
+
+
+File: ucblogo.info,  Node: SAVEL,  Next: LOAD,  Prev: SAVE,  Up: WORKSPACE CONTROL
+
+savel
+-----
+
+     SAVEL contentslist filename			(library procedure)
+
+command.  Saves the definitions of the procedures, variables, and
+property lists specified by `contentslist' to the file named `filename'.
+
+
+File: ucblogo.info,  Node: LOAD,  Next: CSLSLOAD,  Prev: SAVEL,  Up: WORKSPACE CONTROL
+
+load
+----
+
+     LOAD filename
+
+command.  Reads instructions from the named file and executes them.  The
+file can include procedure definitions with TO, and these are accepted
+even if a procedure by the same name already exists.  If the file
+assigns a list value to a variable named STARTUP, then that list is run
+as an instructionlist after the file is loaded. If there is a variable
+LOADNOISILY whose value is TRUE, then TO commands in the file print
+"PROCNAME defined" (where PROCNAME is the name of the procedure being
+defined); if LOADNOISILY is FALSE or undefined, TO commands in the file
+are carried out silently.
+
+*Note STARTUP:: , *Note LOADNOISILY:: .
+
+
+File: ucblogo.info,  Node: CSLSLOAD,  Next: HELP,  Prev: LOAD,  Up: WORKSPACE CONTROL
+
+cslsload
+--------
+
+     CSLSLOAD name
+
+command.  Loads the named file, like LOAD, but from the directory
+containing the Computer Science Logo Style programs instead of the
+current user's directory.
+
+*Note LOAD:: .
+
+
+File: ucblogo.info,  Node: HELP,  Next: SETEDITOR,  Prev: CSLSLOAD,  Up: WORKSPACE CONTROL
+
+help
+----
+
+     HELP name
+     (HELP)
+
+command.  Prints information from the reference manual about the
+primitive procedure named by the input.  With no input, lists all the
+primitives about which help is available.  If there is an environment
+variable LOGOHELP, then its value is taken as the directory in which to
+look for help files, instead of the default help directory.
+
+If HELP is called with the name of a defined procedure for which there
+is no help file, it will print the title line of the procedure followed
+by lines from the procedure body that start with semicolon, stopping
+when a non-semicolon line is seen.
+
+Exceptionally, the HELP command can be used without its default input
+and without parentheses provided that nothing follows it on the
+instruction line.
+
+
+File: ucblogo.info,  Node: SETEDITOR,  Next: SETLIBLOC,  Prev: HELP,  Up: WORKSPACE CONTROL
+
+seteditor
+---------
+
+     SETEDITOR path
+
+command.  Tells Logo to use the specified program as its editor instead
+of the default editor.  The format of a path depends on your operating
+system.
+
+
+File: ucblogo.info,  Node: SETLIBLOC,  Next: SETCSLSLOC,  Prev: SETEDITOR,  Up: WORKSPACE CONTROL
+
+setlibloc
+---------
+
+     SETLIBLOC path
+
+command.  Tells Logo to use the specified directory as its library
+instead of the default.  (Note that many Logo "primitive" procedures
+are actually found in the library, so they may become unavailable if
+your new library does not include them!)  The format of a path depends
+on your operating system.
+
+
+File: ucblogo.info,  Node: SETCSLSLOC,  Next: SETHELPLOC,  Prev: SETLIBLOC,  Up: WORKSPACE CONTROL
+
+setcslsloc
+----------
+
+     SETCSLSLOC path
+
+command.  Tells Logo to use the specified directory for the CSLSLOAD
+command, instead of the default directory.  The format of a path
+depends on your operating system.
+
+*Note CSLSLOAD:: .
+
+
+File: ucblogo.info,  Node: SETHELPLOC,  Next: SETTEMPLOC,  Prev: SETCSLSLOC,  Up: WORKSPACE CONTROL
+
+sethelploc
+----------
+
+     SETHELPLOC path
+
+command.  Tells Logo to look in the specified directory for the
+information provided by the HELP command, instead of the default
+directory.  The format of a path depends on your operating system.
+
+
+File: ucblogo.info,  Node: SETTEMPLOC,  Next: GC,  Prev: SETHELPLOC,  Up: WORKSPACE CONTROL
+
+settemploc
+----------
+
+     SETTEMPLOC path
+
+command.  Tells Logo to write editor temporary files in the specified
+directory rather than in the default directory.  You must have write
+permission for this directory.  The format of a path depends on your
+operating system.
+
+
+File: ucblogo.info,  Node: GC,  Next: .SETSEGMENTSIZE,  Prev: SETTEMPLOC,  Up: WORKSPACE CONTROL
+
+gc
+--
+
+     GC
+     (GC anything)
+
+command.  Runs the garbage collector, reclaiming unused nodes.  Logo
+does this when necessary anyway, but you may want to use this command to
+control exactly when Logo does it.  In particular, the numbers output by
+the NODES operation will not be very meaningful unless garbage has been
+collected.  Another reason to use GC is that a garbage collection takes
+a noticeable fraction of a second, and you may want to schedule
+collections for times before or after some time-critical animation.  If
+invoked with an argument (of any value), GC runs a full garbage
+collection, including GCTWA (Garbage Collect Truly Worthless Atoms,
+which means that it removes from Logo's memory words that used to be
+procedure or variable names but aren't any more); without an argument,
+GC does a generational garbage collection, which means that only
+recently created nodes are examined.  (The latter is usually good
+enough.)
+
+
+File: ucblogo.info,  Node: .SETSEGMENTSIZE,  Prev: GC,  Up: WORKSPACE CONTROL
+
+.setsegmentsize
+---------------
+
+     .SETSEGMENTSIZE num
+
+command.  Sets the number of nodes that Logo allocates from the
+operating system at once to num, which mush be a positive integer.  The
+name is dotted because bad things will happen if you use a number
+that's too small or too large for your computer.  The initial value is
+16,000 for most systems, but is smaller for 68000-based Macs.  Making
+it larger will speed up computations (by reducing the number of garbage
+collections) at the cost of allocating more memory than necessary.
+
+
+File: ucblogo.info,  Node: CONTROL STRUCTURES,  Next: MACROS,  Prev: WORKSPACE MANAGEMENT,  Up: Top
+
+Control Structures
+******************
+
+* Menu:
+
+* CONTROL::
+* TEMPLATE-BASED ITERATION::
+
+
+File: ucblogo.info,  Node: CONTROL,  Next: TEMPLATE-BASED ITERATION,  Prev: CONTROL STRUCTURES,  Up: CONTROL STRUCTURES
+
+Control
+=======
+
+Note: in the following descriptions, an `instructionlist' can be a list
+or a word.  In the latter case, the word is parsed into list form before
+it is run.  Thus, RUN READWORD or RUN READLIST will work.  The former
+is slightly preferable because it allows for a continued line (with ~)
+that includes a comment (with ;) on the first line.
+
+A `tf' input must be the word TRUE, the word FALSE, or a list.  If it's
+a list, then it must be a Logo expression, which will be evaluated to
+produce a value that must be TRUE or FALSE.  The comparisons with TRUE
+and FALSE are always case-insensitive.
+
+* Menu:
+
+* RUN::
+* RUNRESULT::
+* REPEAT::
+* FOREVER::
+* REPCOUNT::
+* IF::
+* IFELSE::
+* TEST::
+* IFTRUE::
+* IFFALSE::
+* STOP::
+* OUTPUT::
+* CATCH::
+* THROW::
+* ERROR::
+* PAUSE::
+* CONTINUE::
+* WAIT::
+* BYE::
+* dMAYBEOUTPUT::                MAYBEOUTPUT
+* GOTO::
+* TAG::
+* IGNORE::
+* back-quote::
+* FOR::
+* DOdWHILE::                    DO.WHILE
+* WHILE::
+* DOdUNTIL::                    DO.UNTIL
+* UNTIL::
+* CASE::
+* COND::
+
+
+File: ucblogo.info,  Node: RUN,  Next: RUNRESULT,  Prev: CONTROL,  Up: CONTROL
+
+run
+---
+
+     RUN instructionlist
+
+command or operation.  Runs the Logo instructions in the input list;
+outputs if the list contains an expression that outputs.
+
+*Note READWORD:: , *Note READLIST:: .
+
+
+File: ucblogo.info,  Node: RUNRESULT,  Next: REPEAT,  Prev: RUN,  Up: CONTROL
+
+runresult
+---------
+
+     RUNRESULT instructionlist
+
+runs the instructions in the input; outputs an empty list if those
+instructions produce no output, or a list whose only member is the
+output from running the input instructionlist.  Useful for inventing
+command-or-operation control structures:
+
+     local "result
+     make "result runresult [something]
+     if emptyp :result [stop]
+     output first :result
+
+
+File: ucblogo.info,  Node: REPEAT,  Next: FOREVER,  Prev: RUNRESULT,  Up: CONTROL
+
+repeat
+------
+
+     REPEAT num instructionlist
+
+command.  Runs the `instructionlist' repeatedly, `num' times.
+
+
+File: ucblogo.info,  Node: FOREVER,  Next: REPCOUNT,  Prev: REPEAT,  Up: CONTROL
+
+forever
+-------
+
+     FOREVER instructionlist
+
+command.  Runs the "instructionlist" repeatedly, until something inside
+the instructionlist (such as STOP or THROW) makes it stop.
+
+*Note STOP:: , *Note THROW:: .
+
+
+File: ucblogo.info,  Node: REPCOUNT,  Next: IF,  Prev: FOREVER,  Up: CONTROL
+
+repcount
+--------
+
+     REPCOUNT
+
+outputs the repetition count of the innermost current REPEAT or FOREVER,
+starting from 1.  If no REPEAT or FOREVER is active, outputs -1.
+
+
+File: ucblogo.info,  Node: IF,  Next: IFELSE,  Prev: REPCOUNT,  Up: CONTROL
+
+if
+--
+
+     IF tf instructionlist
+     (IF tf instructionlist1 instructionlist2)
+
+command.  If the first input has the value TRUE, then IF runs the second
+input.  If the first input has the value FALSE, then IF does nothing.
+(If given a third input, IF acts like IFELSE, as described below.)  It
+is an error if the first input is not either TRUE or FALSE.
+
+For compatibility with earlier versions of Logo, if an IF instruction is
+not enclosed in parentheses, but the first thing on the instruction line
+after the second input expression is a literal list (i.e., a list in
+square brackets), the IF is treated as if it were IFELSE, but a warning
+message is given.  If this aberrant IF appears in a procedure body, the
+warning is given only the first time the procedure is invoked in each
+Logo session.
+
+
+File: ucblogo.info,  Node: IFELSE,  Next: TEST,  Prev: IF,  Up: CONTROL
+
+ifelse
+------
+
+     IFELSE tf instructionlist1 instructionlist2
+
+command or operation.  If the first input has the value TRUE, then
+IFELSE runs the second input.  If the first input has the value FALSE,
+then IFELSE runs the third input.  IFELSE outputs a value if the
+instructionlist contains an expression that outputs a value.
+
+
+File: ucblogo.info,  Node: TEST,  Next: IFTRUE,  Prev: IFELSE,  Up: CONTROL
+
+test
+----
+
+     TEST tf
+
+command.  Remembers its input, which must be TRUE or FALSE, for use by
+later IFTRUE or IFFALSE instructions.  The effect of TEST is local to
+the procedure in which it is used; any corresponding IFTRUE or IFFALSE
+must be in the same procedure or a subprocedure.
+
+*Note IFFALSE:: .
+
+
+File: ucblogo.info,  Node: IFTRUE,  Next: IFFALSE,  Prev: TEST,  Up: CONTROL
+
+iftrue
+------
+
+     IFTRUE instructionlist
+     IFT instructionlist
+
+command.  Runs its input if the most recent TEST instruction had a TRUE
+input.  The TEST must have been in the same procedure or a
+superprocedure.
+
+
+File: ucblogo.info,  Node: IFFALSE,  Next: STOP,  Prev: IFTRUE,  Up: CONTROL
+
+iffalse
+-------
+
+     IFFALSE instructionlist
+     IFF instructionlist
+
+command.  Runs its input if the most recent TEST instruction had a FALSE
+input.  The TEST must have been in the same procedure or a
+superprocedure.
+
+*Note TEST:: .
+
+
+File: ucblogo.info,  Node: STOP,  Next: OUTPUT,  Prev: IFFALSE,  Up: CONTROL
+
+stop
+----
+
+     STOP
+
+command.  Ends the running of the procedure in which it appears.
+Control is returned to the context in which that procedure was invoked.
+The stopped procedure does not output a value.
+
+
+File: ucblogo.info,  Node: OUTPUT,  Next: CATCH,  Prev: STOP,  Up: CONTROL
+
+output
+------
+
+     OUTPUT value
+     OP value
+
+command.  Ends the running of the procedure in which it appears.  That
+procedure outputs the value `value' to the context in which it was
+invoked.  Don't be confused: OUTPUT itself is a command, but the
+procedure that invokes OUTPUT is an operation.
+
+
+File: ucblogo.info,  Node: CATCH,  Next: THROW,  Prev: OUTPUT,  Up: CONTROL
+
+catch
+-----
+
+     CATCH tag instructionlist
+
+command or operation.  Runs its second input.  Outputs if that
+instructionlist outputs.  If, while running the instructionlist, a THROW
+instruction is executed with a tag equal to the first input
+(case-insensitive comparison), then the running of the instructionlist
+is terminated immediately.  In this case the CATCH outputs if a value
+input is given to THROW.  The `tag' must be a word.
+
+If the tag is the word ERROR, then any error condition that arises
+during the running of the instructionlist has the effect of THROW "ERROR
+instead of printing an error message and returning to toplevel.  The
+CATCH does not output if an error is caught.  Also, during the running
+of the instructionlist, the variable ERRACT is temporarily unbound.  (If
+there is an error while ERRACT has a value, that value is taken as an
+instructionlist to be run after printing the error message.  Typically
+the value of ERRACT, if any, is the list [PAUSE].)
+
+*Note ERROR:: , *Note ERRACT:: , *Note PAUSE:: .
+

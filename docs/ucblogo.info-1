@@ -1,0 +1,1551 @@
+This is ucblogo.info, produced by makeinfo version 4.5 from
+usermanual.texi.
+
+
+File: ucblogo.info,  Node: Top,  Next: INTRODUCTION,  Prev: (dir),  Up: (dir)
+
+This is a TeXinfo version of Berkeley Logo User Manual
+
+Original written by: Brian Harvey
+
+* Menu:
+
+* INTRODUCTION::
+* DATA STRUCTURE PRIMITIVES::
+* COMMUNICATION::
+* ARITHMETIC::
+* LOGICAL OPERATIONS::
+* GRAPHICS::
+* WORKSPACE MANAGEMENT::
+* CONTROL STRUCTURES::
+* MACROS::
+* ERROR PROCESSING::
+* SPECIAL VARIABLES::
+* INTERNATIONALIZATION::
+* INDEX::
+
+
+File: ucblogo.info,  Node: INTRODUCTION,  Next: DATA STRUCTURE PRIMITIVES,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+* Menu:
+
+* OVERVIEW::
+* GETTER/SETTER VARIBLE SYNTAX::
+* ENTERING AND LEAVING LOGO::
+* TOKENIZATION::
+
+
+File: ucblogo.info,  Node: OVERVIEW,  Next: GETTER/SETTER VARIBLE SYNTAX,  Prev: INTRODUCTION,  Up: INTRODUCTION
+
+Overview
+========
+
+Copyright (C) 1993 by the Regents of the University of California
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+675 Mass Ave, Cambridge, MA 02139, USA.
+
+This is a program that is still being written.  Many things are missing,
+including adequate documentation.  This manual assumes that you already
+know how to program in Logo, and merely presents the details of this new
+implementation.
+
+Read Computer_Science_Logo_Style, Volume_1:_ _Symbolic_Computing_ by
+Brian Harvey (MIT Press, 1997) for a tutorial on Logo programming with
+emphasis on symbolic computation.
+
+Here are the special features of this dialect of Logo:
+
+
+     Source file compatible among Unix, DOS, Windows, and Mac platforms.
+     
+     Random-access arrays.
+     
+     Variable number of inputs to user-defined procedures.
+     
+     Mutators for list structure (dangerous).
+     
+     Pause on error, and other improvements to error handling.
+     
+     Comments and continuation lines; formatting is preserved when
+     procedure definitions are saved or edited.
+     
+     Terrapin-style tokenization (e.g., [2+3] is a list with one member)
+     but LCSI-style syntax (no special forms except TO).  The best of
+     both worlds.
+     
+     First-class instruction and expression templates (see APPLY).
+     
+     Macros.
+
+Features *not* found in Berkeley Logo include robotics, music, GUIs,
+animation, parallelism, and multimedia.  For those, buy a commercial
+version.
+
+
+File: ucblogo.info,  Node: GETTER/SETTER VARIBLE SYNTAX,  Next: ENTERING AND LEAVING LOGO,  Prev: OVERVIEW,  Up: INTRODUCTION
+
+Getter/Setter Variable Syntax
+=============================
+
+Logo distinguishes PROCEDURES from VARIABLES.  A procedure is a set of
+instructions to carry out some computation; a variable is a named
+container that holds a data value such as a number, word, list, or
+array.
+
+In traditional Logo syntax, a non-numeric word typed without punctuation
+represents a request to invoke the procedure named by that word.  A word
+typed with a preceding quotation mark represents the word itself.  For
+example, in the instruction
+     	PRINT FIRST "WORD
+the procedures named `FIRST' and `PRINT' are invoked, but the procedure
+named WORD is not invoked; the word W-O-R-D is the input to FIRST.
+
+What about variables?  There are two things one can do with a variable:
+give it a value, and find out its value.  To give a variable a value,
+Logo provides the primitive procedure `MAKE', which requires two
+inputs: the name of the variable and the new value to be assigned.  The
+first input, the name of the variable, is just a word, and if (as is
+almost always the case) the programmer wants to assign a value to a
+specific variable whose name is known in advance, that input is quoted,
+just as any known specific word would be:
+     	MAKE "MY.VAR FIRST "WORD
+gives the variable named MY.VAR the value W (the first letter of WORD).
+
+To find the value of a variable, Logo provides the primitive procedure
+`THING', which takes a variable name as its input, and outputs the value
+of the accessible variable with that name.  Thus
+     	PRINT THING "MY.VAR
+will print W (supposing the `MAKE' above has been done).  Since finding
+the value of a specific, known variable name is such a common operation,
+Logo also provides an abbreviated notation that combines `THING' with
+quote:
+     	PRINT :MY.VAR
+The colon (which Logo old-timers pronounce "dots") replaces `THING' and
+`"' in the earlier version of the instruction.
+
+Newcomers to Logo often complain about the need for all this
+punctuation.  In particular, Logo programmers who learned about dots
+and quotes without also learning about `THING' wonder why an
+instruction such as
+     	MAKE "NEW.VAR :OLD.VAR
+uses two different punctuation marks to identify the two variables.
+(Having read the paragraphs above, you will understand that actually
+both variable names are quoted, but the procedure `THING' is invoked to
+find the value of OLD.VAR, since it's that value, not OLD.VAR's name,
+that `MAKE' needs to know.  It wouldn't make sense to ask for `THING'
+of NEW.VAR, since we haven't given NEW.VAR a value yet.)
+
+Although Logo's punctuation rules make sense once understood, they do
+form a barrier to entry for the Logo beginner.  Why, then, couldn't
+Logo be designed so that an unpunctuated word would represent a
+procedure if there is a procedure by that name, or a variable if there
+is a variable by that name?  Then we could say
+     	PRINT MY.VAR
+and Logo would realize that MY.VAR is the name of a variable, not of a
+procedure.  The traditional reason not to use this convention is that
+Logo allows the same word to name a procedure and a variable at the
+same time.  This is most often important for words that name data
+types, as in the following procedure:
+     	TO PLURAL :WORD
+     	OUTPUT WORD :WORD "S
+     	END
+Here the name WORD is a natural choice for the input to `PLURAL', since
+it describes the kind of input that `PLURAL' expects.  Within the
+procedure, we use `WORD' to represent Logo's primitive procedure that
+combines two input words to form a new, longer word; we use `:WORD' to
+represent the variable containing the input, whatever actual word is
+given when PLURAL is invoked.
+     	? PRINT PLURAL "COMPUTER
+     	COMPUTERS
+
+However, if a Logo instruction includes an unquoted word that is *not*
+the name of a procedure, Logo could look for a variable of that name
+instead.  This would allow a "punctuationless" Logo, ** PROVIDED THAT
+USERS WHO WANT TO WORK WITHOUT COLONS FOR VARIABLES CHOOSE VARIABLE
+NAMES THAT ARE NOT ALSO PROCEDURE NAMES. **
+
+What about assigning a value to a variable?  Could we do without the
+quotation mark on `MAKE''s first input?  Alas, no.  Although the first
+input to `MAKE' is *usually* a constant, known variable name, sometimes
+it isn't, as in this example:
+     	TO INCREMENT :VAR
+     	MAKE :VAR (THING :VAR)+1	; Note: it's not "VAR here!
+     	END
+     
+     	? MAKE "X 5
+     	? INCREMENT "X
+     	? PRINT :X
+     	6
+The procedure `INCREMENT' takes a variable name as its input and
+changes the value of that variable.  In this example there are two
+variables; the variable whose name is VAR, and whose value is the word
+X; and the variable whose name is X and whose value changes from 5 to
+6.  Suppose we changed the behavior of `MAKE' so that it took the word
+after `MAKE' as the name of the variable to change; we would be unable
+to write `INCREMENT':
+     	TO INCREMENT :VAR		; nonworking!
+     	MAKE VAR (THING VAR)+1
+     	END
+This would assign a new value to VAR, not to X.
+
+What we can do is to allow an *alternative* to `MAKE', a "setter"
+procedure for a particular variable.  The notation will be
+     	? SETFOO 7
+     	? PRINT FOO
+     	7
+`SETFOO' is a "setter procedure" that takes one input (in this case the
+input 7) and assigns its value to the variable named FOO.
+
+Berkeley Logo allows users to choose either the traditional notation, in
+which case the same name can be used both for a procedure and for a
+variable, or the getter/setter notation, in which variable FOO is set
+with `SETFOO' and examined with FOO, but the same name can't be used
+for procedure and variable.
+
+Here is how this choice is allowed: Berkeley Logo uses traditional
+notation, with procedures distinct from variables.  However, if there is
+a variable named ALLOWGETSET whose value is TRUE (which there is, by
+default, when Logo starts up), then if a Logo instruction refers to a
+*nonexistent* procedure (so that the error message "I don't know how to
+..." would result), Logo tries the following two steps:
+
+     	1.  If the name is at least four characters long, and the first three
+     	characters are the letters SET (upper or lower case), and if the name
+     	is followed in the instruction by another value, and if the name
+     	without the SET is the name of a variable that already exists, then
+     	Logo will invoke `MAKE' with its first input being the name without the
+     	SET, and its second input being the following value.
+     
+     	2.  If step 1's conditions are not met, but the name is
+     	the name of an accessible variable, then Logo will invoke
+     	`THING' with that name as input, to find the variable's value.
+
+Step 1 requires that the variable already exist so that misspellings of
+names of SETxxx primitives (e.g., `SETHEADING') will still be caught,
+instead of silently creating a new variable.  The command `GLOBAL' can
+be used to create a variable without giving it a value.
+
+One final point:  The `TO' command in Logo has always been a special
+case; the rest of the line starting with TO is not evaluated as
+ordinary Logo expressions are.  In particular, the colons used to mark
+the names of inputs to the procedure do not cause `THING' to be
+invoked.  They are merely mnemonic aids, reminding the Logo user that
+these words are names of variables.  (Arguably, this nonstantard
+behavior of TO adds to Logo beginners' confusion about colons.)  To a
+programmer using colonless variable references, the colons in the TO
+line are unnecessary and meaningless.  Berkeley Logo therefore makes
+the colons optional:
+     	TO FOO :IN1 :IN2
+and
+     	TO FOO IN1 IN2
+are both allowed.
+
+
+File: ucblogo.info,  Node: ENTERING AND LEAVING LOGO,  Next: TOKENIZATION,  Prev: GETTER/SETTER VARIBLE SYNTAX,  Up: INTRODUCTION
+
+Entering and Leaving Logo
+=========================
+
+The process to start Logo depends on your operating system:
+
+`Unix:'
+     Type the word logo to the shell.  (The directory in which you've
+     installed Logo must be in your path.)
+
+`DOS:'
+     Change directories to the one containing Logo (probably
+     C:\UCBLOGO).  Then type UCBLOGO for the large memory version, or
+     BL for the 640K version.
+
+`Mac:'
+     Double-click on the LOGO icon within the "UCB Logo" folder.
+
+`Windows:'
+     Double-click on the UCBWLOGO icon in the UCBLOGO folder.
+
+To leave Logo, enter the command bye.
+
+After initialization, Logo looks for a file in the current working
+directory named startup.lg and, if one is found, executes the Logo
+instructions in it.  Then, under Unix, DOS, or Windows, if you include
+one or more filenames on the command line when starting Logo, those
+files will be loaded before the interpreter starts reading commands
+from your terminal.  If you load a file that executes some program that
+includes a `BYE' command, Logo will run that program and exit.  You can
+therefore write standalone programs in Logo and run them with
+shell/batch scripts.  To support this technique, Logo does not print
+its usual welcoming and parting messages if you give file arguments to
+the logo command.
+
+If you type your interrupt character (see table below) Logo will stop
+what it's doing and return to top-level, as if you did THROW "TOPLEVEL.
+If you type your quit character Logo will pause as if you did PAUSE.
+
+                     Unix           DOS/Windows          Mac
+     
+     toplevel    usually ctrl-C       ctrl-Q      command-. (period)
+     
+     pause       usually ctrl-\       ctrl-W      command-, (comma)
+
+If you have an environment variable called LOGOLIB whose value is the
+name of a directory, then Logo will use that directory instead of the
+default library.  If you invoke a procedure that has not been defined,
+Logo first looks for a file in the current directory named proc.lg
+where `proc' is the procedure name in lower case letters.  If such a
+file exists, Logo loads that file.  If the missing procedure is still
+undefined, or if there is no such file, Logo then looks in the library
+directory for a file named proc (no `.lg') and, if it exists, loads it.
+If neither file contains a definition for the procedure, then Logo
+signals an error.  Several procedures that are primitive in most
+versions of Logo are included in the default library, so if you use a
+different library you may want to include some or all of the default
+library in it.
+
+
+File: ucblogo.info,  Node: TOKENIZATION,  Prev: ENTERING AND LEAVING LOGO,  Up: INTRODUCTION
+
+Tokenization
+============
+
+Names of procedures, variables, and property lists are
+case-insensitive.  So are the special words END, TRUE, and FALSE.  Case
+of letters is preserved in everything you type, however.
+
+Within square brackets, words are delimited only by spaces and square
+brackets.  [2+3] is a list containing one word.  Note, however, that the
+Logo primitives that interpret such a list as a Logo instruction or
+expression (RUN, IF, etc.) reparse the list as if it had not been typed
+inside brackets.
+
+After a quotation mark outside square brackets, a word is delimited by
+a space, a square bracket, or a parenthesis.
+
+A word not after a quotation mark or inside square brackets is delimited
+by a space, a bracket, a parenthesis, or an infix operator +-*/=<>.
+Note that words following colons are in this category.  Note that quote
+and colon are not delimiters.  Each infix operator character is a word
+in itself, except that the two-character sequences <= >= and <> (the
+latter meaning not-equal) with no intervening space are recognized as a
+single word.
+
+A word consisting of a question mark followed by a number (e.g., ?37),
+when runparsed (i.e., where a procedure name is expected), is treated
+as if it were the sequence
+
+     ( ? 37 )
+
+making the number an input to the ? procedure.  (See the discussion of
+templates, below.)  This special treatment does not apply to words read
+as data, to words with a non-number following the question mark, or if
+the question mark is backslashed.
+
+A line (an instruction line or one read by READLIST or READWORD) can be
+continued onto the following line if its last character is a tilde (~).
+READWORD preserves the tilde and the newline; READLIST does not.
+
+Lines read with READRAWLINE are never continued.
+
+An instruction line or a line read by READLIST (but not by READWORD) is
+automatically continued to the next line, as if ended with a tilde, if
+there are unmatched brackets, parentheses, braces, or vertical bars
+pending.  However, it's an error if the continuation line contains only
+the word END; this is to prevent runaway procedure definitions.  Lines
+explicitly continued with a tilde avoid this restriction.
+
+If a line being typed interactively on the keyboard is continued, either
+with a tilde or automatically, Logo will display a tilde as a prompt
+character for the continuation line.
+
+A semicolon begins a comment in an instruction line.  Logo ignores
+characters from the semicolon to the end of the line.  A tilde as the
+last character still indicates a continuation line, but not a
+continuation of the comment.  For example, typing the instruction
+
+     print "abc;comment ~
+     def
+
+will print the word abcdef.  Semicolon has no special meaning in data
+lines read by READWORD or READLIST, but such a line can later be
+reparsed using RUNPARSE and then comments will be recognized.
+
+The two-character sequence #! at the beginning of a line also starts a
+comment.  Unix users can therefore write a file containing Logo
+commands, starting with the line
+     #! /usr/local/bin/logo
+(or wherever your Logo executable lives) and the file will be executable
+directly from the shell.
+
+To include an otherwise delimiting character (including semicolon or
+tilde) in a word, precede it with backslash (\).  If the last character
+of a line is a backslash, then the newline character following the
+backslash will be part of the last word on the line, and the line
+continues onto the following line.  To include a backslash in a word,
+use \\.  If the combination backslash-newline is entered at the
+terminal, Logo will issue a backslash as a prompt character for the
+continuation line.  All of this applies to data lines read with
+READWORD or READLIST as well as to instruction lines.  A character
+entered with backslash is EQUALP to the same character without the
+backslash, but can be distinguished by the BACKSLASHEDP predicate.
+(However, BACKSLASHEDP recognizes backslashedness only on characters for
+which it is necessary: whitespace, parentheses, brackets, infix
+operators, backslash, vertical bar, tilde, quote, question mark, colon,
+and semicolon.)
+
+A line read with READRAWLINE has no special quoting mechanism; both
+backslash and vertical bar (described below) are just ordinary
+characters.
+
+An alternative notation to include otherwise delimiting characters in
+words is to enclose a group of characters in vertical bars.  All
+characters between vertical bars are treated as if they were letters.
+In data read with READWORD the vertical bars are preserved in the
+resulting word.  In data read with READLIST (or resulting from a PARSE
+or RUNPARSE of a word) the vertical bars do not appear explicitly; all
+potentially delimiting characters (including spaces, brackets,
+parentheses, and infix operators) appear as though entered with a
+backslash.  Within vertical bars, backslash may still be used; the only
+characters that must be backslashed in this context are backslash and
+vertical bar themselves.
+
+Characters entered between vertical bars are forever special, even if
+the word or list containing them is later reparsed with PARSE or
+RUNPARSE.  Characters typed after a backslash are treated somewhat
+differently:  When a quoted word containing a backslashed character is
+runparsed, the backslashed character loses its special quality and acts
+thereafter as if typed normally.  This distinction is important only if
+you are building a Logo expression out of parts, to be RUN later, and
+want to use parentheses.  For example,
+
+     PRINT RUN (SE "\( 2 "+ 3 "\))
+
+will print 5, but
+
+     RUN (SE "MAKE ""|(| 2)
+
+will create a variable whose name is open-parenthesis.  (Each example
+would fail if vertical bars and backslashes were interchanged.)
+
+
+File: ucblogo.info,  Node: DATA STRUCTURE PRIMITIVES,  Next: COMMUNICATION,  Prev: INTRODUCTION,  Up: Top
+
+Data Structure Primitives
+*************************
+
+* Menu:
+
+* CONSTRUCTORS::
+* SELECTORS::
+* MUTATORS::
+* PREDICATES::
+* QUERIES::
+
+
+File: ucblogo.info,  Node: CONSTRUCTORS,  Next: SELECTORS,  Prev: DATA STRUCTURE PRIMITIVES,  Up: DATA STRUCTURE PRIMITIVES
+
+Constructors
+============
+
+* Menu:
+
+* WORD::
+* LIST::
+* SENTENCE::
+* FPUT::
+* LPUT::
+* ARRAY::
+* MDARRAY::
+* LISTTOARRAY::
+* ARRAYTOLIST::
+* COMBINE::
+* REVERSE::
+* GENSYM::
+
+
+File: ucblogo.info,  Node: WORD,  Next: LIST,  Prev: CONSTRUCTORS,  Up: CONSTRUCTORS
+
+word
+----
+
+     WORD word1 word2
+     (WORD word1 word2 word3 ...)
+
+outputs a word formed by concatenating its inputs.
+
+
+File: ucblogo.info,  Node: LIST,  Next: SENTENCE,  Prev: WORD,  Up: CONSTRUCTORS
+
+list
+----
+
+     LIST thing1 thing2
+     (LIST thing1 thing2 thing3 ...)
+
+outputs a list whose members are its inputs, which can be any Logo datum
+(word, list, or array).
+
+
+File: ucblogo.info,  Node: SENTENCE,  Next: FPUT,  Prev: LIST,  Up: CONSTRUCTORS
+
+sentence
+--------
+
+     SENTENCE thing1 thing2
+     SE thing1 thing2
+     (SENTENCE thing1 thing2 thing3 ...)
+     (SE thing1 thing2 thing3 ...)
+
+outputs a list whose members are its inputs, if those inputs are not
+lists, or the members of its inputs, if those inputs are lists.
+
+
+File: ucblogo.info,  Node: FPUT,  Next: LPUT,  Prev: SENTENCE,  Up: CONSTRUCTORS
+
+fput
+----
+
+     FPUT thing list
+
+outputs a list equal to its second input with one extra member, the
+first input, at the beginning.  If the second input is a word, then the
+first input must be a one-letter word, and FPUT is equivalent to WORD.
+
+
+File: ucblogo.info,  Node: LPUT,  Next: ARRAY,  Prev: FPUT,  Up: CONSTRUCTORS
+
+lput
+----
+
+     LPUT thing list
+
+outputs a list equal to its second input with one extra member, the
+first input, at the end.  If the second input is a word, then the first
+input must be a one-letter word, and LPUT is equivalent to WORD with
+its inputs in the other order.
+
+
+File: ucblogo.info,  Node: ARRAY,  Next: MDARRAY,  Prev: LPUT,  Up: CONSTRUCTORS
+
+array
+-----
+
+     ARRAY size
+     (ARRAY size origin)
+
+outputs an array of `size' members (must be a positive integer), each of
+which initially is an empty list.  Array members can be selected with
+ITEM and changed with SETITEM.  The first member of the array is member
+number 1 unless an `origin' input (must be an integer) is given, in
+which case the first member of the array has that number as its index.
+(Typically 0 is used as the origin if anything.)  Arrays are printed by
+PRINT and friends, and can be typed in, inside curly braces; indicate an
+origin with {a b c}@0.
+
+*Note ITEM:: , *Note SETITEM:: , *Note PRINT:: .
+
+
+File: ucblogo.info,  Node: MDARRAY,  Next: LISTTOARRAY,  Prev: ARRAY,  Up: CONSTRUCTORS
+
+mdarray
+-------
+
+     MDARRAY sizelist				(library procedure)
+     (MDARRAY sizelist origin)
+
+outputs a multi-dimensional array.  The first input must be a list of
+one or more positive integers.  The second input, if present, must be a
+single integer that applies to every dimension of the array.
+
+Ex: (MDARRAY [3 5] 0) outputs a two-dimensional array whose members
+range from [0 0] to [2 4].
+
+
+File: ucblogo.info,  Node: LISTTOARRAY,  Next: ARRAYTOLIST,  Prev: MDARRAY,  Up: CONSTRUCTORS
+
+listtoarray
+-----------
+
+     LISTTOARRAY list
+     (LISTTOARRAY list origin)
+
+outputs an array of the same size as the input list, whose members are
+the members of the input list.
+
+
+File: ucblogo.info,  Node: ARRAYTOLIST,  Next: COMBINE,  Prev: LISTTOARRAY,  Up: CONSTRUCTORS
+
+arraytolist
+-----------
+
+     ARRAYTOLIST array
+
+outputs a list whose members are the members of the input array.  The
+first member of the output is the first member of the array, regardless
+of the array's origin.
+
+
+File: ucblogo.info,  Node: COMBINE,  Next: REVERSE,  Prev: ARRAYTOLIST,  Up: CONSTRUCTORS
+
+combine
+-------
+
+     COMBINE thing1 thing2				(library procedure)
+
+if thing2 is a word, outputs WORD thing1 thing2.  If thing2 is a list,
+outputs FPUT thing1 thing2.
+
+*Note WORD:: , *Note FPUT::
+
+
+File: ucblogo.info,  Node: REVERSE,  Next: GENSYM,  Prev: COMBINE,  Up: CONSTRUCTORS
+
+reverse
+-------
+
+     REVERSE list					(library procedure)
+
+outputs a list whose members are the members of the input list, in
+reverse order.
+
+
+File: ucblogo.info,  Node: GENSYM,  Prev: REVERSE,  Up: CONSTRUCTORS
+
+gensym
+------
+
+     GENSYM						(library procedure)
+
+outputs a unique word each time it's invoked.  The words are of the form
+G1, G2, etc.
+
+
+File: ucblogo.info,  Node: SELECTORS,  Next: MUTATORS,  Prev: CONSTRUCTORS,  Up: DATA STRUCTURE PRIMITIVES
+
+Data Selectors
+==============
+
+* Menu:
+
+* FIRST::
+* FIRSTS::
+* LAST::
+* BUTFIRST::
+* BUTFIRSTS::
+* BUTLAST::
+* ITEM::
+* MDITEM::
+* PICK::
+* REMOVE::
+* REMDUP::
+* QUOTED::
+
+
+File: ucblogo.info,  Node: FIRST,  Next: FIRSTS,  Prev: SELECTORS,  Up: SELECTORS
+
+first
+-----
+
+     FIRST thing
+
+if the input is a word, outputs the first character of the word.  If the
+input is a list, outputs the first member of the list.  If the input is
+an array, outputs the origin of the array (that is, the INDEX OF the
+first member of the array).
+
+
+File: ucblogo.info,  Node: FIRSTS,  Next: LAST,  Prev: FIRST,  Up: SELECTORS
+
+firsts
+------
+
+     FIRSTS list
+
+outputs a list containing the FIRST of each member of the input list.
+It is an error if any member of the input list is empty.  (The input
+itself may be empty, in which case the output is also empty.)  This
+could be written as
+
+     to firsts :list
+     output map "first :list
+     end
+
+but is provided as a primitive in order to speed up the iteration tools
+MAP, MAP.SE, and FOREACH.
+
+     to transpose :matrix
+     if emptyp first :matrix [op []]
+     op fput firsts :matrix transpose bfs :matrix
+     end
+
+*Note MAP:: , *Note MAPdSE:: , *Note FOREACH::
+
+
+File: ucblogo.info,  Node: LAST,  Next: BUTFIRST,  Prev: FIRSTS,  Up: SELECTORS
+
+last
+----
+
+     LAST wordorlist
+
+if the input is a word, outputs the last character of the word.  If the
+input is a list, outputs the last member of the list.
+
+
+File: ucblogo.info,  Node: BUTFIRST,  Next: BUTFIRSTS,  Prev: LAST,  Up: SELECTORS
+
+butfirst
+--------
+
+     BUTFIRST wordorlist
+     BF wordorlist
+
+if the input is a word, outputs a word containing all but the first
+character of the input.  If the input is a list, outputs a list
+containing all but the first member of the input.
+
+
+File: ucblogo.info,  Node: BUTFIRSTS,  Next: BUTLAST,  Prev: BUTFIRST,  Up: SELECTORS
+
+butfirsts
+---------
+
+     BUTFIRSTS list
+     BFS list
+
+outputs a list containing the BUTFIRST of each member of the input list.
+It is an error if any member of the input list is empty or an array.
+(The input itself may be empty, in which case the output is also empty.)
+This could be written as
+
+     to butfirsts :list
+     output map "butfirst :list
+     end
+
+but is provided as a primitive in order to speed up the iteration tools
+MAP, MAP.SE, and FOREACH.
+
+*Note MAP:: , *Note MAPdSE:: , *Note FOREACH::
+
+
+File: ucblogo.info,  Node: BUTLAST,  Next: ITEM,  Prev: BUTFIRSTS,  Up: SELECTORS
+
+butlast
+-------
+
+     BUTLAST wordorlist
+     BL wordorlist
+
+if the input is a word, outputs a word containing all but the last
+character of the input.  If the input is a list, outputs a list
+containing all but the last member of the input.
+
+
+File: ucblogo.info,  Node: ITEM,  Next: MDITEM,  Prev: BUTLAST,  Up: SELECTORS
+
+item
+----
+
+     ITEM index thing
+
+if the `thing' is a word, outputs the `index'th character of the word.
+If the `thing' is a list, outputs the `index'th member of the list.  If
+the `thing' is an array, outputs the `index'th member of the array.
+`Index' starts at 1 for words and lists; the starting index of an array
+is specified when the array is created.
+
+
+File: ucblogo.info,  Node: MDITEM,  Next: PICK,  Prev: ITEM,  Up: SELECTORS
+
+mditem
+------
+
+     MDITEM indexlist array				(library procedure)
+
+outputs the member of the multidimensional `array' selected by the list
+of numbers `indexlist'.
+
+
+File: ucblogo.info,  Node: PICK,  Next: REMOVE,  Prev: MDITEM,  Up: SELECTORS
+
+pick
+----
+
+     PICK list					(library procedure)
+
+outputs a randomly chosen member of the input list.
+
+
+File: ucblogo.info,  Node: REMOVE,  Next: REMDUP,  Prev: PICK,  Up: SELECTORS
+
+remove
+------
+
+     REMOVE thing list				(library procedure)
+
+outputs a copy of `list' with every member equal to `thing' removed.
+
+
+File: ucblogo.info,  Node: REMDUP,  Next: QUOTED,  Prev: REMOVE,  Up: SELECTORS
+
+remdup
+------
+
+     REMDUP list					(library procedure)
+
+outputs a copy of `list' with duplicate members removed.  If two or more
+members of the input are equal, the rightmost of those members is the
+one that remains in the output.
+
+
+File: ucblogo.info,  Node: QUOTED,  Prev: REMDUP,  Up: SELECTORS
+
+quoted
+------
+
+     QUOTED thing					(library procedure)
+
+outputs its input, if a list; outputs its input with a quotation mark
+prepended, if a word.
+
+
+File: ucblogo.info,  Node: MUTATORS,  Next: PREDICATES,  Prev: SELECTORS,  Up: DATA STRUCTURE PRIMITIVES
+
+Data Mutators
+=============
+
+* Menu:
+
+* SETITEM::
+* MDSETITEM::
+* dSETFIRST::                   SETFIRST
+* dSETBF::                      SETBF
+* dSETITEM::                    SETITEM
+* PUSH::
+* POP::
+* QUEUE::
+* DEQUEUE::
+
+
+File: ucblogo.info,  Node: SETITEM,  Next: MDSETITEM,  Prev: MUTATORS,  Up: MUTATORS
+
+setitem
+-------
+
+     SETITEM index array value
+
+command.  Replaces the `index'th member of `array' with the new `value'.
+Ensures that the resulting array is not circular, i.e., `value' may not
+be a list or array that contains `array'.
+
+
+File: ucblogo.info,  Node: MDSETITEM,  Next: dSETFIRST,  Prev: SETITEM,  Up: MUTATORS
+
+mdsetitem
+---------
+
+     MDSETITEM indexlist array value			(library procedure)
+
+command.  Replaces the member of `array' chosen by `indexlist' with the
+new `value'.
+
+
+File: ucblogo.info,  Node: dSETFIRST,  Next: dSETBF,  Prev: MDSETITEM,  Up: MUTATORS
+
+.setfirst
+---------
+
+     .SETFIRST list value
+
+command.  Changes the first member of `list' to be `value'.
+
+WARNING: Primitives whose names start with a period are DANGEROUS.
+Their use by non-experts is not recommended.  The use of .SETFIRST can
+lead to circular list structures, which will get some Logo primitives
+into infinite loops; unexpected changes to other data structures that
+share storage with the list being modified; and the loss of memory if a
+circular structure is released.
+
+
+File: ucblogo.info,  Node: dSETBF,  Next: dSETITEM,  Prev: dSETFIRST,  Up: MUTATORS
+
+.setbf
+------
+
+     .SETBF list value
+
+command.  Changes the butfirst of `list' to be `value'.
+
+WARNING: Primitives whose names start with a period are DANGEROUS.
+Their use by non-experts is not recommended.  The use of .SETBF can lead
+to circular list structures, which will get some Logo primitives into
+infinite loops; unexpected changes to other data structures that share
+storage with the list being modified; Logo crashes and coredumps if the
+butfirst of a list is not itself a list; and the loss of memory if a
+circular structure is released.
+
+
+File: ucblogo.info,  Node: dSETITEM,  Next: PUSH,  Prev: dSETBF,  Up: MUTATORS
+
+.setitem
+--------
+
+     .SETITEM index array value
+
+command.  Changes the `index'th member of `array' to be `value', like
+SETITEM, but without checking for circularity.
+
+WARNING: Primitives whose names start with a period are DANGEROUS.
+Their use by non-experts is not recommended.  The use of .SETITEM can
+lead to circular arrays, which will get some Logo primitives into
+infinite loops; and the loss of memory if a circular structure is
+released.
+
+*Note SETITEM::.
+
+
+File: ucblogo.info,  Node: PUSH,  Next: POP,  Prev: dSETITEM,  Up: MUTATORS
+
+push
+----
+
+     PUSH stackname thing				(library procedure)
+
+command.  Adds the `thing' to the stack that is the value of the
+variable whose name is `stackname'.  This variable must have a list as
+its value; the initial value should be the empty list.  New members are
+added at the front of the list.
+
+
+File: ucblogo.info,  Node: POP,  Next: QUEUE,  Prev: PUSH,  Up: MUTATORS
+
+pop
+---
+
+     POP stackname					(library procedure)
+
+outputs the most recently PUSHed member of the stack that is the value
+of the variable whose name is `stackname' and removes that member from
+the stack.
+
+
+File: ucblogo.info,  Node: QUEUE,  Next: DEQUEUE,  Prev: POP,  Up: MUTATORS
+
+queue
+-----
+
+     QUEUE queuename thing				(library procedure)
+
+command.  Adds the `thing' to the queue that is the value of the
+variable whose name is `queuename'.  This variable must have a list as
+its value; the initial value should be the empty list.  New members are
+added at the back of the list.
+
+
+File: ucblogo.info,  Node: DEQUEUE,  Prev: QUEUE,  Up: MUTATORS
+
+dequeue
+-------
+
+     DEQUEUE queuename				(library procedure)
+
+outputs the least recently QUEUEd member of the queue that is the value
+of the variable whose name is `queuename' and removes that member from
+the queue.
+
+
+File: ucblogo.info,  Node: PREDICATES,  Next: QUERIES,  Prev: MUTATORS,  Up: DATA STRUCTURE PRIMITIVES
+
+Predicates
+==========
+
+* Menu:
+
+* WORDP::
+* LISTP::
+* ARRAYP::
+* EMPTYP::
+* EQUALP::
+* NOTEQUALP::
+* BEFOREP::
+* dEQ::                         EQ
+* MEMBERP::
+* SUBSTRINGP::
+* NUMBERP::
+* BACKSLASHEDP::
+
+
+File: ucblogo.info,  Node: WORDP,  Next: LISTP,  Prev: PREDICATES,  Up: PREDICATES
+
+wordp
+-----
+
+     WORDP thing
+     WORD? thing
+
+outputs TRUE if the input is a word, FALSE otherwise.
+
+
+File: ucblogo.info,  Node: LISTP,  Next: ARRAYP,  Prev: WORDP,  Up: PREDICATES
+
+listp
+-----
+
+     LISTP thing
+     LIST? thing
+
+outputs TRUE if the input is a list, FALSE otherwise.
+
+
+File: ucblogo.info,  Node: ARRAYP,  Next: EMPTYP,  Prev: LISTP,  Up: PREDICATES
+
+arrayp
+------
+
+     ARRAYP thing
+     ARRAY? thing
+
+outputs TRUE if the input is an array, FALSE otherwise.
+
+
+File: ucblogo.info,  Node: EMPTYP,  Next: EQUALP,  Prev: ARRAYP,  Up: PREDICATES
+
+emptyp
+------
+
+     EMPTYP thing
+     EMPTY? thing
+
+outputs TRUE if the input is the empty word or the empty list, FALSE
+otherwise.
+
+
+File: ucblogo.info,  Node: EQUALP,  Next: NOTEQUALP,  Prev: EMPTYP,  Up: PREDICATES
+
+equalp
+------
+
+     EQUALP thing1 thing2
+     EQUAL? thing1 thing2
+     thing1 = thing2
+
+outputs TRUE if the inputs are equal, FALSE otherwise.  Two numbers are
+equal if they have the same numeric value.  Two non-numeric words are
+equal if they contain the same characters in the same order.  If there
+is a variable named CASEIGNOREDP whose value is TRUE, then an upper case
+letter is considered the same as the corresponding lower case letter.
+(This is the case by default.)  Two lists are equal if their members are
+equal.  An array is only equal to itself; two separately created arrays
+are never equal even if their members are equal.  (It is important to be
+able to know if two expressions have the same array as their value
+because arrays are mutable; if, for example, two variables have the same
+array as their values then performing SETITEM on one of them will also
+change the other.)
+
+*Note CASEIGNOREDP:: , *Note SETITEM::
+
+
+File: ucblogo.info,  Node: NOTEQUALP,  Next: BEFOREP,  Prev: EQUALP,  Up: PREDICATES
+
+notequalp
+---------
+
+     NOTEQUALP thing1 thing2
+     NOTEQUAL? thing1 thing2
+     thing1 <> thing2
+
+outputs FALSE if the inputs are equal, TRUE otherwise.  See EQUALP for
+the meaning of equality for different data types.
+
+
+File: ucblogo.info,  Node: BEFOREP,  Next: dEQ,  Prev: NOTEQUALP,  Up: PREDICATES
+
+beforep
+-------
+
+     BEFOREP word1 word2
+     BEFORE? word1 word2
+
+outputs TRUE if word1 comes before word2 in ASCII collating sequence
+(for words of letters, in alphabetical order).  Case-sensitivity is
+determined by the value of CASEIGNOREDP.  Note that if the inputs are
+numbers, the result may not be the same as with LESSP; for example,
+BEFOREP 3 12 is false because 3 collates after 1.
+
+*Note CASEIGNOREDP:: , *Note LESSP::
+
+
+File: ucblogo.info,  Node: dEQ,  Next: MEMBERP,  Prev: BEFOREP,  Up: PREDICATES
+
+.eq
+---
+
+     .EQ thing1 thing2
+
+outputs TRUE if its two inputs are the same datum, so that applying a
+mutator to one will change the other as well.  Outputs FALSE otherwise,
+even if the inputs are equal in value.
+
+WARNING: Primitives whose names start with a period are DANGEROUS.
+Their use by non-experts is not recommended.  The use of mutators can
+lead to circular data structures, infinite loops, or Logo crashes.
+
+
+File: ucblogo.info,  Node: MEMBERP,  Next: SUBSTRINGP,  Prev: dEQ,  Up: PREDICATES
+
+memberp
+-------
+
+     MEMBERP thing1 thing2
+     MEMBER? thing1 thing2
+
+if `thing2' is a list or an array, outputs TRUE if `thing1' is EQUALP to
+a member of `thing2', FALSE otherwise.  If `thing2' is a word, outputs
+TRUE if `thing1' is a one-character word EQUALP to a character of
+`thing2', FALSE otherwise.
+
+*Note EQUALP:: .
+
+
+File: ucblogo.info,  Node: SUBSTRINGP,  Next: NUMBERP,  Prev: MEMBERP,  Up: PREDICATES
+
+substringp
+----------
+
+     SUBSTRINGP thing1 thing2
+     SUBSTRING? thing1 thing2
+
+if `thing1' or `thing2' is a list or an array, outputs FALSE.  If
+`thing2' is a word, outputs TRUE if `thing1' is EQUALP to a substring of
+`thing2', FALSE otherwise.
+
+*Note EQUALP:: .
+
+
+File: ucblogo.info,  Node: NUMBERP,  Next: BACKSLASHEDP,  Prev: SUBSTRINGP,  Up: PREDICATES
+
+numberp
+-------
+
+     NUMBERP thing
+     NUMBER? thing
+
+outputs TRUE if the input is a number, FALSE otherwise.
+
+
+File: ucblogo.info,  Node: BACKSLASHEDP,  Prev: NUMBERP,  Up: PREDICATES
+
+backslashedp
+------------
+
+     BACKSLASHEDP char
+     BACKSLASHED? char
+
+outputs TRUE if the input character was originally entered into Logo
+with a backslash (\) before it or within vertical bars (|) to prevent
+its usual special syntactic meaning, FALSE otherwise.  (Outputs TRUE
+only if the character is a backslashed space, tab, newline, or one of
+()[]+-*/=<>":;\~?| )
+
+
+File: ucblogo.info,  Node: QUERIES,  Prev: PREDICATES,  Up: DATA STRUCTURE PRIMITIVES
+
+Queries
+=======
+
+* Menu:
+
+* COUNT::
+* ASCII::
+* RAWASCII::
+* CHAR::
+* MEMBER::
+* LOWERCASE::
+* UPPERCASE::
+* STANDOUT::
+* PARSE::
+* RUNPARSE::
+
+
+File: ucblogo.info,  Node: COUNT,  Next: ASCII,  Prev: QUERIES,  Up: QUERIES
+
+count
+-----
+
+     COUNT thing
+
+outputs the number of characters in the input, if the input is a word;
+outputs the number of members in the input, if it is a list or an array.
+(For an array, this may or may not be the index of the last member,
+depending on the array's origin.)
+
+
+File: ucblogo.info,  Node: ASCII,  Next: RAWASCII,  Prev: COUNT,  Up: QUERIES
+
+ascii
+-----
+
+     ASCII char
+
+outputs the integer (between 0 and 255) that represents the input
+character in the ASCII code.  Interprets control characters as
+representing backslashed punctuation, and returns the character code for
+the corresponding punctuation character without backslash.  (Compare
+RAWASCII.)
+
+
+File: ucblogo.info,  Node: RAWASCII,  Next: CHAR,  Prev: ASCII,  Up: QUERIES
+
+rawascii
+--------
+
+     RAWASCII char
+
+outputs the integer (between 0 and 255) that represents the input
+character in the ASCII code.  Interprets control characters as
+representing themselves.  To find out the ASCII code of an arbitrary
+keystroke, use RAWASCII RC.
+
+
+File: ucblogo.info,  Node: CHAR,  Next: MEMBER,  Prev: RAWASCII,  Up: QUERIES
+
+char
+----
+
+     CHAR int
+
+outputs the character represented in the ASCII code by the input, which
+must be an integer between 0 and 255.
+
+*Note ASCII:: .
+
+
+File: ucblogo.info,  Node: MEMBER,  Next: LOWERCASE,  Prev: CHAR,  Up: QUERIES
+
+member
+------
+
+     MEMBER thing1 thing2
+
+if `thing2' is a word or list and if MEMBERP with these inputs would
+output TRUE, outputs the portion of `thing2' from the first instance of
+`thing1' to the end.  If MEMBERP would output FALSE, outputs the empty
+word or list according to the type of `thing2'.  It is an error for
+`thing2' to be an array.
+
+*Note MEMBERP:: .
+
+
+File: ucblogo.info,  Node: LOWERCASE,  Next: UPPERCASE,  Prev: MEMBER,  Up: QUERIES
+
+lowercase
+---------
+
+     LOWERCASE word
+
+outputs a copy of the input word, but with all uppercase letters changed
+to the corresponding lowercase letter.
+
+
+File: ucblogo.info,  Node: UPPERCASE,  Next: STANDOUT,  Prev: LOWERCASE,  Up: QUERIES
+
+uppercase
+---------
+
+     UPPERCASE word
+
+outputs a copy of the input word, but with all lowercase letters changed
+to the corresponding uppercase letter.
+
+
+File: ucblogo.info,  Node: STANDOUT,  Next: PARSE,  Prev: UPPERCASE,  Up: QUERIES
+
+standout
+--------
+
+     STANDOUT thing
+
+outputs a word that, when printed, will appear like the input but
+displayed in standout mode (boldface, reverse video, or whatever your
+terminal does for standout).  The word contains terminal-specific magic
+characters at the beginning and end; in between is the printed form (as
+if displayed using TYPE) of the input.  The output is always a word,
+even if the input is of some other type, but it may include spaces and
+other formatting characters.  Note: a word output by STANDOUT while Logo
+is running on one terminal will probably not have the desired effect if
+printed on another type of terminal.
+
+On the Macintosh, the way that standout works is incompatible with the
+use of characters whose ASCII code is greater than 127.  Therefore, you
+have a choice to make:  The instruction
+     CANINVERSE 0
+disables standout, but enables the display of ASCII codes above 127, and
+the instruction
+     CANINVERSE 1
+restores the default situation in which standout is enabled and the
+extra graphic characters cannot be printed.
+
+
+File: ucblogo.info,  Node: PARSE,  Next: RUNPARSE,  Prev: STANDOUT,  Up: QUERIES
+
+parse
+-----
+
+     PARSE word
+
+outputs the list that would result if the input word were entered in
+response to a READLIST operation.  That is, PARSE READWORD has the same
+value as READLIST for the same characters read.
+
+*Note READLIST:: , *Note READWORD::
+
+
+File: ucblogo.info,  Node: RUNPARSE,  Prev: PARSE,  Up: QUERIES
+
+runparse
+--------
+
+     RUNPARSE wordorlist
+
+outputs the list that would result if the input word or list were
+entered as an instruction line; characters such as infix operators and
+parentheses are separate members of the output.  Note that sublists of a
+runparsed list are not themselves runparsed.
+
+
+File: ucblogo.info,  Node: COMMUNICATION,  Next: ARITHMETIC,  Prev: DATA STRUCTURE PRIMITIVES,  Up: Top
+
+Communication
+*************
+
+* Menu:
+
+* TRANSMITTERS::
+* RECEIVERS::
+* FILE ACCESS::
+* TERMINAL ACCESS::
+
+
+File: ucblogo.info,  Node: TRANSMITTERS,  Next: RECEIVERS,  Prev: COMMUNICATION,  Up: COMMUNICATION
+
+Transmitters
+============
+
+* Menu:
+
+* PRINT::
+* TYPE::
+* SHOW::
+
+Note:  If there is a variable named PRINTDEPTHLIMIT with a nonnegative
+integer value, then complex list and array structures will be printed
+only to the allowed depth.  That is, members of members of... of members
+will be allowed only so far.  The members omitted because they are just
+past the depth limit are indicated by an ellipsis for each one, so a
+too-deep list of two members will print as [... ...].
+
+If there is a variable named PRINTWIDTHLIMIT with a nonnegative integer
+value, then only the first so many members of any array or list will be
+printed.  A single ellipsis replaces all missing data within the
+structure.  The width limit also applies to the number of characters
+printed in a word, except that a PRINTWIDTHLIMIT between 0 and 9 will
+be treated as if it were 10 when applied to words.  This limit applies
+not only to the top-level printed datum but to any substructures within
+it.
+
+*Note PRINTDEPTHLIMIT:: , *Note PRINTWIDTHLIMIT::
+
+If there is a variable named FULLPRINTP whose value is TRUE, then words
+that were created using backslash or vertical bar (to include
+characters that would otherwise not be treated as part of a word) are
+printed with the backslashes or vertical bars shown, so that the printed
+result could be re-read by Logo to produce the same value.  If
+FULLPRINTP is TRUE then the empty word (however it was created) prints
+as ||.  (Otherwise it prints as nothing at all.)
+
+*Note FULLPRINTP:: .
+
+
+File: ucblogo.info,  Node: PRINT,  Next: TYPE,  Prev: TRANSMITTERS,  Up: TRANSMITTERS
+
+print
+-----
+
+     PRINT thing
+     PR thing
+     (PRINT thing1 thing2 ...)
+     (PR thing1 thing2 ...)
+
+command.  Prints the input or inputs to the current write stream
+(initially the terminal).  All the inputs are printed on a single line,
+separated by spaces, ending with a newline.  If an input is a list,
+square brackets are not printed around it, but brackets are printed
+around sublists.  Braces are always printed around arrays.
+
+
+File: ucblogo.info,  Node: TYPE,  Next: SHOW,  Prev: PRINT,  Up: TRANSMITTERS
+
+type
+----
+
+     TYPE thing
+     (TYPE thing1 thing2 ...)
+
+command.  Prints the input or inputs like PRINT, except that no newline
+character is printed at the end and multiple inputs are not separated by
+spaces.  Note: printing to the terminal is ordinarily "line buffered";
+that is, the characters you print using TYPE will not actually appear on
+the screen until either a newline character is printed (for example, by
+PRINT or SHOW) or Logo tries to read from the keyboard (either at the
+request of your program or after an instruction prompt).  This buffering
+makes the program much faster than it would be if each character
+appeared immediately, and in most cases the effect is not disconcerting.
+To accommodate programs that do a lot of positioned text display using
+TYPE, Logo will force printing whenever SETCURSOR is invoked.  This
+solves most buffering problems.  Still, on occasion you may find it
+necessary to force the buffered characters to be printed explicitly;
+this can be done using the WAIT command.  WAIT 0 will force printing
+without actually waiting.
+
+*Note SETCURSOR:: , *Note WAIT::
+
+
+File: ucblogo.info,  Node: SHOW,  Prev: TYPE,  Up: TRANSMITTERS
+
+show
+----
+
+     SHOW thing
+     (SHOW thing1 thing2 ...)
+
+command.  Prints the input or inputs like PRINT, except that if an input
+is a list it is printed inside square brackets.
+
+*Note PRINT:: .
+
+
+File: ucblogo.info,  Node: RECEIVERS,  Next: FILE ACCESS,  Prev: TRANSMITTERS,  Up: COMMUNICATION
+
+Receivers
+=========
+
+* Menu:
+
+* READLIST::
+* READWORD::
+* READRAWLINE::
+* READCHAR::
+* READCHARS::
+* SHELL::
+
+
+File: ucblogo.info,  Node: READLIST,  Next: READWORD,  Prev: RECEIVERS,  Up: RECEIVERS
+
+readlist
+--------
+
+     READLIST
+     RL
+
+reads a line from the read stream (initially the terminal) and outputs
+that line as a list.  The line is separated into members as though it
+were typed in square brackets in an instruction.  If the read stream is
+a file, and the end of file is reached, READLIST outputs the empty word
+(not the empty list).  READLIST processes backslash, vertical bar, and
+tilde characters in the read stream; the output list will not contain
+these characters but they will have had their usual effect.  READLIST
+does not, however, treat semicolon as a comment character.
+
+
+File: ucblogo.info,  Node: READWORD,  Next: READRAWLINE,  Prev: READLIST,  Up: RECEIVERS
+
+readword
+--------
+
+     READWORD
+     RW
+
+reads a line from the read stream and outputs that line as a word.  The
+output is a single word even if the line contains spaces, brackets, etc.
+If the read stream is a file, and the end of file is reached, READWORD
+outputs the empty list (not the empty word).  READWORD processes
+backslash, vertical bar, and tilde characters in the read stream.  In
+the case of a tilde used for line continuation, the output word DOES
+include the tilde and the newline characters, so that the user program
+can tell exactly what the user entered.  Vertical bars in the line are
+also preserved in the output.  Backslash characters are not preserved in
+the output, but the character following the backslash has 128 added to
+its representation.  Programs can use BACKSLASHEDP to check for this
+code.  (Backslashedness is preserved only for certain characters.)
+
+*Note BACKSLASHEDP:: .
+
+
+File: ucblogo.info,  Node: READRAWLINE,  Next: READCHAR,  Prev: READWORD,  Up: RECEIVERS
+
+readrawline
+-----------
+
+     READRAWLINE
+
+reads a line from the read stream and outputs that line as a word.  The
+output is a single word even if the line contains spaces, brackets, etc.
+If the read stream is a file, and the end of file is reached,
+READRAWLINE outputs the empty list (not the empty word).  READRAWLINE
+outputs the exact string of characters as they appear in the line, with
+no special meaning for backslash, vertical bar, tilde, or any other
+formatting characters.
+
+*Note READWORD:: .
+
+
+File: ucblogo.info,  Node: READCHAR,  Next: READCHARS,  Prev: READRAWLINE,  Up: RECEIVERS
+
+readchar
+--------
+
+     READCHAR
+     RC
+
+reads a single character from the read stream and outputs that character
+as a word.  If the read stream is a file, and the end of file is
+reached, READCHAR outputs the empty list (not the empty word).  If the
+read stream is a terminal, echoing is turned off when READCHAR is
+invoked, and remains off until READLIST or READWORD is invoked or a Logo
+prompt is printed.  Backslash, vertical bar, and tilde characters have
+no special meaning in this context.
+
+*Note READLIST:: .
+
+
+File: ucblogo.info,  Node: READCHARS,  Next: SHELL,  Prev: READCHAR,  Up: RECEIVERS
+
+readchars
+---------
+
+     READCHARS num
+     RCS num
+
+reads `num' characters from the read stream and outputs those characters
+as a word.  If the read stream is a file, and the end of file is
+reached, READCHARS outputs the empty list (not the empty word).  If the
+read stream is a terminal, echoing is turned off when READCHARS is
+invoked, and remains off until READLIST or READWORD is invoked or a Logo
+prompt is printed.  Backslash, vertical bar, and tilde characters have
+no special meaning in this context.
+
+*Note READLIST:: , *Note READWORD::
+

@@ -28,7 +28,10 @@
 #include <disp.h>
 #include <sound.h>
 #include <io.h>
+#include <msmouse.h>
 #include "ztcterm.h"
+
+char *LogoPlatformName="DOS";
 
 /************************************************************/
 
@@ -69,24 +72,29 @@ void moveto(int x, int y) {
 }
 
 void lineto(int x, int y) {
+    msm_hidecursor();
     fg_make_line(the_line, ztc_x, MaxY-ztc_y,
     		 (fg_coord_t)x, MaxY-(fg_coord_t)y);
     fg_drawthickline((in_erase_mode ? bg_color : turtle_color),
 		   current_write_mode, ~0, FG_LINE_SOLID, the_line, ztc_box,
 		   ztc_penwidth);
     moveto(x, y);
+    msm_showcursor();
 }
 
 void outtext(char *s) {
+    msm_hidecursor();
     fg_puts((in_erase_mode ? bg_color : turtle_color),
     	    current_write_mode, ~0, FG_ROT0, ztc_x, MaxY-ztc_y,
     	    s, fg.displaybox);
+    msm_showcursor();
 }
 
 void gr_mode(void) {
     int errorcode;
 
     if (!in_graphics_mode) {
+	msm_hidecursor();
 	x_coord = x_margin;
 	y_coord = y_margin;
 	errorcode = fg_init();
@@ -155,6 +163,7 @@ void gr_mode(void) {
 		in_splitscreen = TRUE;
 	   }
 	}
+	msm_showcursor();
     }
 }
 
@@ -195,6 +204,9 @@ BOOLEAN check_ibm_stop(void) {
 
 void term_init_ibm(void) {
     disp_open();
+    msm_init();
+    msm_setareay(0,(disp_numrows-1)*8);
+    msm_showcursor();
     ztc_textcolor = FG_WHITE;
     tty_charmode = 0;
     x_max = 80;
@@ -214,7 +226,9 @@ void ibm_gotoxy(int x, int y) {
 		    &ztc_graph_texty, fg.charbox);
     } else {
         disp_move(y, x);
+	msm_hidecursor();
     	disp_flush();
+	msm_showcursor();
     }
 }
 
@@ -234,13 +248,17 @@ void ibm_clear_text(void) {
     } else {
 	disp_move(0,0);
 	disp_eeop();
+	msm_hidecursor();
 	disp_flush();
+	msm_showcursor();
     }
 }
 
 void ibm_clear_screen(void)
 {
+    msm_hidecursor();
     fg_fillbox(bg_color, FG_MODE_SET, ~0, clear_box);
+    msm_showcursor();
 }
 
 void ibm_plain_mode(void) {
@@ -273,7 +291,9 @@ NODE *set_text_color(NODE *args) {
 }
 
 void erase_graphics_top(void) {
+    msm_hidecursor();
     fg_fillbox(FG_BLACK, FG_MODE_SET, ~0, ztc_textbox);
+    msm_showcursor();
     ztc_graph_textx = 0;
     ztc_graph_texty = 3*texth;
 }
@@ -301,7 +321,8 @@ void restore_pen(pen_info *p) {
     set_pen_pattern(p->pattern);
 }
 
-struct rgbcolor { int red, green, blue; } the_palette[256] = {
+struct rgbcolor { int red, green, blue; } the_palette[256] = { 
+	{0,0,0}, {0,0,0},    /* entries -2 and -1 */
 	{0, 0, 0}, {0, 0, 255}, {0, 255, 0}, {0, 255, 255},
 	{255, 0, 0}, {255, 0, 255}, {255, 255, 0}, {255, 255, 255},
 	{155, 96, 59}, {197, 136, 18}, {100, 162, 64}, {120, 187, 187},
@@ -311,13 +332,14 @@ void rgb_init(void) {
 	int i,j;
 
 	for (i=0; i<16; i++) {
-		fg_setpalette(i, the_palette[i].red, the_palette[i].green,
-					the_palette[i].blue);
+		fg_setpalette(i+2, the_palette[i+2].red,
+					the_palette[i+2].green,
+					the_palette[i+2].blue);
 		for (j=i+16; j<fg.nsimulcolor; j += 16) {
-			the_palette[j] = the_palette[i];
-			fg_setpalette(j, the_palette[i].red,
-					the_palette[i].green,
-					the_palette[i].blue);
+			the_palette[j+2] = the_palette[i+2];
+			fg_setpalette(j+2, the_palette[i+2].red,
+					the_palette[i+2].green,
+					the_palette[i+2].blue);
 		}
 	}
 }
@@ -335,27 +357,33 @@ void ztc_set_penc(FIXNUM c) {
     turtle_color = hw_color(c) % fg.nsimulcolor;
     if (current_write_mode == FG_MODE_XOR)
 	turtle_color = hw_color(pen_color)^bg_color;
+    msm_hidecursor();
     draw_turtle();
+    msm_showcursor();
 }
 
 void ztc_set_bg(FIXNUM c) {
     back_ground = c;
     bg_color = hw_color(c);
+    msm_hidecursor();
     if (!refresh_p) ibm_clear_screen();
     if (turtle_shown && !refresh_p) draw_turtle();
     redraw_graphics();
+    msm_showcursor();
 }
 
 void set_palette(int slot, unsigned int r, unsigned int g, unsigned int b) {
+	slot+=2;
 	if (slot >= 255) return;
 	the_palette[slot].red = (r+128)/256;
 	the_palette[slot].green = (g+128)/256;
 	the_palette[slot].blue = (b+128)/256;
-	fg_setpalette(slot, the_palette[slot].red, the_palette[slot].green,
+	fg_setpalette(slot-1, the_palette[slot].red, the_palette[slot].green,
 					the_palette[slot].blue);
 }
 
 void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
+	slot+=2;
 	*r = the_palette[slot % 256].red * 256;
 	*g = the_palette[slot % 256].green * 256;
 	*b = the_palette[slot % 256].blue * 256;
@@ -426,7 +454,9 @@ void label(char *s) {
 }
 
 void logofill(void) {
+    msm_hidecursor();
     fg_fill(ztc_x, MaxY-ztc_y, turtle_color, turtle_color);
+    msm_showcursor();
 }
 
 void erase_screen(void) {
@@ -473,15 +503,30 @@ void f_screen(void) {
 }
 
 FIXNUM mickey_x(void) {
-    return 0;
+    int x,y;
+
+    (void)msm_getstatus(&x,&y);
+    return x-screen_x_center;
 }
 
+#define screen_x_coord ((screen_x_center) + turtle_x)
+#define screen_y_coord ((screen_y_center) - turtle_y)
+
 FIXNUM mickey_y(void) {
-    return 0;
+    int x,y;
+
+    (void)msm_getstatus(&x,&y);
+    return screen_y_center-y;
 }
 
 BOOLEAN Button(void) {
-    return FALSE;
+    int x,y,b;
+
+    b = msm_getstatus(&x,&y);
+    if (b&1) return 1;
+    if (b&2) return 2;
+    if (b&4) return 3;
+    return 0;
 }
 
 void tone(FIXNUM pitch, FIXNUM duration) {
@@ -504,13 +549,16 @@ FLONUM t_side(void) {
 }
 
 void check_scroll(void) {
+    msm_hidecursor();
     fg_blit(text_scroll_box, 0, texth, fg.activepage, fg.activepage);
     fg_fillbox(FG_BLACK, FG_MODE_SET, ~0, text_last_line_box);
+    msm_showcursor();
 }
 
 void ztc_put_char(int ch) {
     fg_box_t temp_box;
     
+    msm_hidecursor();
     if (in_graphics_mode && !in_splitscreen)
 	lsplitscreen(NIL);
     if (ch != '\1' && ch != '\2') {
@@ -548,18 +596,22 @@ void ztc_put_char(int ch) {
 	} else
     	    disp_putc(ch);
     }
+    msm_showcursor();
 }
 
 BOOLEAN cursor_off = 0;
 
 void fix_cursor(void) {
     if (!cursor_off && !in_graphics_mode) {
+	msm_hidecursor();
     	disp_hidecursor();
+	msm_showcursor();
 	cursor_off++;
     }
 }
 
 void zflush(void) {
+    msm_hidecursor();
     if (in_graphics_mode)
 	fg_flush();
     else {
@@ -567,9 +619,11 @@ void zflush(void) {
 	if (cursor_off) disp_showcursor();
 	cursor_off = 0;
     }
+    msm_showcursor();
 }
 
 void newline_bugfix(void) {
+    msm_hidecursor();
     if (!in_graphics_mode) {
 	if (disp_cursorrow+1 < disp_numrows)
     	    new_line(stdout);
@@ -577,6 +631,7 @@ void newline_bugfix(void) {
 	    disp_move(disp_numrows-1,0);
 	disp_flush();
     }
+    msm_showcursor();
     y_coord--;
 }
 
@@ -596,10 +651,13 @@ int ztc_getc(FILE *strm) {
     }
     graph_line_pointer = graph_line_buffer;
     do {
+	msm_hidecursor();
 	fg_putc(dull, FG_MODE_XOR, ~0, FG_ROT0,
 		ztc_graph_textx, ztc_graph_texty,
 		'_', fg.displaybox);
+	msm_showcursor();
 	ch = getch();
+	msm_hidecursor();
 	fg_putc(dull, FG_MODE_XOR, ~0, FG_ROT0,
 		ztc_graph_textx, ztc_graph_texty,
 		'_', fg.displaybox);
@@ -609,6 +667,7 @@ int ztc_getc(FILE *strm) {
 	    print_char(stdout,'\n');
 	    *graph_line_pointer = '\0';
 	    graph_line_pointer = graph_line_buffer;
+	    msm_showcursor();
 	    return *graph_line_pointer++;
 	} else if (ch == '\t') {
 	    int i = 8 - (x_coord & 07);
@@ -635,11 +694,13 @@ int ztc_getc(FILE *strm) {
 	} else if (ch == 17 || ch == 23) {
 	    print_char(stdout,'\n');
 	    graph_line_pointer = NULL;
+	    msm_showcursor();
 	    return ch;
 	} else {
 	    *graph_line_pointer++ = ch;
 	    print_char(stdout, ch);
 	}
+	msm_showcursor();
     } while (ch != '\n');
     graph_line_pointer = graph_line_buffer;
     return *graph_line_pointer++;

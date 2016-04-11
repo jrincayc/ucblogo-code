@@ -1,0 +1,9 @@
+BUTTON
+
+	outputs 0 if BUTTONP would output FALSE; otherwise, it outputs an
+	integer between 1 and 3 indicating which button was pressed.
+	Ordinarily 1 means left, 2 means right, and 3 means center, but
+	operating systems may reconfigure these.
+
+
+

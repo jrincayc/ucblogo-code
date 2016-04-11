@@ -957,10 +957,10 @@ call PARSE and RUNPARSE.  These are in fact the names of UCBLogo primitives:
 	? show runparse "5-2
 	[5 - 2]
 
-When a line is read (from keyboard or file), it is parsed.  When and if that
-is evaluated, it's runparsed -- but even then, text within square brackets is
-not runparsed.  (Such text will be runparsed if it is ever used as input to
-RUN and friends.)
+When a line is read (from keyboard or file), it is parsed.  When and if the
+line is evaluated, it's runparsed -- but even then, text within square
+brackets is not runparsed.  (Such text will be runparsed if it is ever used as
+input to RUN and friends.)
 
 The precise rules are given in more detail in the "Tokenization" section of
 the UCBLogo User Manual.
@@ -1057,7 +1057,7 @@ such as SHOW) are unchanged, but the object is another list, the runparsed
 version.  If we ask to runparse this list again, the runparse() procedure will
 notice that its argument is of type RUNPARSE and just return it unchanged.
 
-A defect of this approach is that the if for some reason we want to runparse
+A defect of this approach is that if for some reason we want to runparse
 the cdr of the list, we have to do it from scratch, but that rarely happens.
 
 (Another defect, since all Logo nodes are the same size, is that even ordinary
@@ -1243,9 +1243,9 @@ The constructors are make_intnode and make_floatnode; the selectors (to get
 back the underlying numeric data) are getint and getfloat.
 
 Note that a string containing all digits counts as a number above the line!
-Such strings of digits result in operations such as
+Such strings of digits are created by operations such as
 
-	butfirst x123
+	butfirst "x123
 
 There is a procedure cnv_node_to_numnode that takes a node as its argument
 and, if possible, returns an equivalent INT or FLOATT node.  (The argument

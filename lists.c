@@ -212,7 +212,10 @@ NODE *lascii(NODE *args) {
 
     arg = char_arg(args);
     if (NOT_THROWING) {
-	i = (FIXNUM)clearparity(*getstrptr(arg)) & 0377;
+	if (nodetype(arg) == BACKSLASH_STRING)
+	    i = (FIXNUM)(*getstrptr(arg)) & 0377;
+	else
+	    i = (FIXNUM)clearparity(*getstrptr(arg)) & 0377;
 	val = make_intnode(i);
     }
     return(val);
@@ -280,6 +283,10 @@ NODE *lcount(NODE *args) {
 NODE *lfput(NODE *args) {
     NODE *lst, *arg;
 
+    if (is_word(cadr(args)) && is_word(car(args)) &&
+	    getstrlen(cnv_node_to_strnode(car(args))) == 1)
+	return lword(args);
+
     arg = car(args);
     lst = list_arg(cdr(args));
     if (NOT_THROWING)
@@ -290,6 +297,10 @@ NODE *lfput(NODE *args) {
 
 NODE *llput(NODE *args) {
     NODE *lst, *arg, *val = UNBOUND, *lastnode = NIL, *tnode = NIL;
+
+    if (is_word(cadr(args)) && is_word(car(args)) &&
+	    getstrlen(cnv_node_to_strnode(car(args))) == 1)
+	return lword(cons(cadr(args), cons(car(args), NIL)));
 
     arg = car(args);
     lst = list_arg(cdr(args));
