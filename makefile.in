@@ -1,7 +1,12 @@
 CC	= @CC@
 CFLAGS	= @CFLAGS@ @CPPFLAGS@ @X_CFLAGS@
-LIBS	= @X_LIBS@ @LIBS@
-LIBLOC	= `pwd`
+LDFLAGS	= @LDFLAGS@
+LIBS  = @X_PRE_LIBS@ @X_LIBS@ @LIBS@ @X_EXTRA_LIBS@
+prefix = @prefix@
+BINDIR        = $(prefix)/bin
+LIBLOC        = $(prefix)/lib/logo
+
+# LIBLOC      = `pwd`
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
@@ -16,7 +21,7 @@ HDRS	= globals.h logo.h xgraphics.h
 all:	logo logolib helpfiles helpfiles/HELPCONTENTS
 
 logo:	$(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o logo
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
 
 tags:	$(SRCS)
 	ctags -t $(SRCS) $(HDRS)
@@ -34,7 +39,7 @@ logolib:	makelib
 helpfiles:
 	mkdir helpfiles
 
-helpfiles/HELPCONTENTS:	makehelp
+helpfiles/HELPCONTENTS:	makehelp usermanual
 	./makehelp
 
 makehelp:	makehelp.c
@@ -46,3 +51,9 @@ clean:
 ship:
 	rm config.h config.cache config.log config.status
 	rm makefile makehelp logo *.o libloc.c
+
+install: all
+	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles; do [ -d $$d ] || mkdir -p $$d || exit 1; done
+	cp logo $(BINDIR)/.
+	cp logolib/* $(LIBLOC)/logolib/.
+	cp helpfiles/* $(LIBLOC)/helpfiles/.

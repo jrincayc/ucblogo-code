@@ -12,6 +12,7 @@ PAUSE
 	be entered on the event of an error.  This allows the user to check
 	values of local variables at the time of the error.
 
-	Typing the system quit character (normally ^\) will also enter
-	a pause.
+	Typing the system quit character (normally control-\ for
+	Unix, control-W for DOS, or command-comma for Mac) will also enter a
+	pause.
 

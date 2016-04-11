@@ -19,12 +19,23 @@
  *
  */
 
+
+#ifndef _LOGO_H
+#define _LOGO_H
+
 /* #define MEM_DEBUG */
 
 #define ecma	/* for European extended character set using parity bit */
 
+#ifdef WIN32
+#define ibm
+#undef __ZTC__
+#define HAVE_MEMCPY
+#endif
+
 #ifdef THINK_C
 #define mac
+#define HAVE_MEMCPY
 #endif
 
 #ifdef __TURBOC__
@@ -32,6 +43,11 @@
 #endif
 
 #ifdef __ZTC__
+#define ibm
+#define HAVE_MEMCPY
+#endif
+
+#ifdef _MSC_VER
 #define ibm
 #endif
 
@@ -68,7 +84,7 @@ extern char *getenv();
 #ifdef mac
 #define check_throwing (check_mac_stop() || stopping_flag == THROWING)
 #else
-#ifdef ibm
+#if defined(ibm)
 #define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
 #define check_throwing (stopping_flag == THROWING)
@@ -84,19 +100,32 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     (NODE *) 2
 #define HASH_LEN        1021	/* a prime number */
-#define SEG_SIZE        1000
+#ifdef __ZTC__
+#define SEG_SIZE	2000
+#else
+#ifdef THINK_C
+#define SEG_SIZE	4000
+#else
+#define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
+                                 Performance */
+#endif
+#endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
-#define PREFIX_PRIORITY 2
-#define MACRO_PRIORITY	1
-#define TAIL_PRIORITY	0
+
+#define STOP_PRIORITY	0
+#define OUTPUT_PRIORITY	1
+#define MAYBE_PRIORITY	2
+#define TAIL_PRIORITY	2	/* largest tailcall priority */
+#define MACRO_PRIORITY	3
+#define PREFIX_PRIORITY 4
 
 typedef short NODETYPES;
 
 /* Note that some of these values are used twice; they must be
  * distinguishable by the other bits used with them. */
 
-#define NT_TREE	    (NODETYPES)0100000
+#define NT_TREE		(NODETYPES)0100000
 #define NT_EMPTY	(NODETYPES)040000
 #define NT_AGGR		(NODETYPES)020000
 #define NT_LIST		(NODETYPES)010000
@@ -105,17 +134,17 @@ typedef short NODETYPES;
 #define NT_WORD		(NODETYPES)001000
 #define NT_NUMBER	(NODETYPES)000400
 #define NT_FLOAT	(NODETYPES)000200
-#define NT_CONT     (NODETYPES)000200
+#define NT_CONT		(NODETYPES)000200
 #define NT_PRIM		(NODETYPES)000100
 #define NT_INFIX	(NODETYPES)000040
-#define NT_LINE	    (NODETYPES)000040
+#define NT_LINE		(NODETYPES)000040
 #define NT_VBAR		(NODETYPES)000040
 #define NT_STRING	(NODETYPES)000020
 #define NT_BACKSL	(NODETYPES)000010
 #define NT_PUNCT	(NODETYPES)000004
 #define NT_TAILFORM	(NODETYPES)000004
 #define NT_COLON	(NODETYPES)000002
-#define NT_MACRO    (NODETYPES)000002
+#define NT_MACRO	(NODETYPES)000002
 #define NT_CASEOBJ	(NODETYPES)000001
 
 #define	PNIL		(NODETYPES)(NT_EMPTY|NT_AGGR|NT_LIST)
@@ -123,7 +152,7 @@ typedef short NODETYPES;
 #define CONS		(NODETYPES)(NT_AGGR|NT_LIST)
 #define STRING		(NODETYPES)(NT_WORD|NT_STRING)
 #define INT		(NODETYPES)(NT_WORD|NT_NUMBER)
-#define FLOAT		(NODETYPES)(NT_WORD|NT_NUMBER|NT_FLOAT)
+#define FLOATT		(NODETYPES)(NT_WORD|NT_NUMBER|NT_FLOAT)
 #define PRIM		(NODETYPES)(NT_PRIM)
 #define MACRO		(NODETYPES)(NT_PRIM|NT_MACRO)
 #define TAILFORM	(NODETYPES)(NT_PRIM|NT_TAILFORM)
@@ -138,9 +167,8 @@ typedef short NODETYPES;
 #define ARRAY		(NODETYPES)(NT_AGGR|NT_ARRAY)
 #define LINE		(NODETYPES)(NT_LINE|NT_LIST|NT_AGGR)
 #define CONT		(NODETYPES)(NT_CONT|NT_LIST)
-#ifdef MEM_DEBUG
 #define NTFREE		(NODETYPES)(-1)
-#endif
+
 #define aggregate(nd)	(nodetype(nd) & NT_AGGR)
 #define is_cont(nd)	(nodetype(nd) == CONT)
 #define is_list(nd)	(nodetype(nd) & NT_LIST)
@@ -163,7 +191,11 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		DK_WHAT_UP, AT_TOPLEVEL, APPLY_BAD_DATA, DEEPEND,
 		OUT_OF_MEM_UNREC} ERR_TYPES;
 
+#ifdef WIN32
+#define BOOLEAN int
+#else
 typedef int BOOLEAN;
+#endif
 
 #define FALSE	0
 #define TRUE	1
@@ -172,47 +204,55 @@ typedef int BOOLEAN;
 
 #define FIXNUM          long
 #define FLONUM          double
-#define MAXLOGOINT		0x7fffffff
+#define MAXLOGOINT	0x7fffffff
 #define SAFEINT		0x00003fff  /* safe to multiply w/o overflow */
 
+struct string_block {
+    unsigned FIXNUM str_refcnt;
+    char str_str[1];	    /* This array will be of variable length really */
+};
+
+#define getstrrefcnt(sh)        ((sh)->str_refcnt)
+#define setstrrefcnt(sh, v)     ((sh)->str_refcnt = (v))
+#define incstrrefcnt(sh)        (((sh)->str_refcnt)++)
+#define decstrrefcnt(sh)        (--((sh)->str_refcnt))
+
 typedef struct logo_node {
-	NODETYPES node_type;
-/*	char gc_flags;	*/
-	short ref_count;
-	union {
-		struct {
-			struct logo_node *ncar;
-			struct logo_node *ncdr;
-			struct logo_node *nobj;         /* used only for oblist */
-		} ncons;
-		struct {
-			char *nstring_ptr;
-			char *nstring_head;
-			int nstring_len;
-		} nstring;
-		struct {
-			struct logo_node * (*nprim_fun) ();
-			short npriority;
-			short nmin_args;
-			short ndef_args;
-			short nmax_args;
-		} nprim;
-		FIXNUM nint;
-		FLONUM nfloat;
-		struct {
-			int narray_dim;
-			int narray_origin;
-			struct logo_node **narray_data;
-		} narray;
-	} nunion;
+    NODETYPES node_type;
+    int my_gen; /* Nodes's Generation */ /*GC*/
+    int gen_age; /* How many times to GC at this generation */
+    long int mark_gc;	/* when marked */
+    struct logo_node *next; /* Link together nodes of the same age */ /*GC*/
+    struct logo_node *oldyoung_next;
+    union {
+	struct {
+	    struct logo_node *ncar;
+	    struct logo_node *ncdr;
+	    struct logo_node *nobj;         /* used only for oblist etc */
+	} ncons;
+	struct {
+	    char *nstring_ptr;
+	    struct string_block *nstring_head;
+	    int nstring_len;
+	} nstring;
+	struct {
+	    struct logo_node * (*nprim_fun) ();
+	    short npriority;
+	    short nmin_args;
+	    short ndef_args;
+	    short nmax_args;
+	} nprim;
+	FIXNUM nint;
+	FLONUM nfloat;
+	struct {
+	    int narray_dim;
+	    int narray_origin;
+	    struct logo_node **narray_data;
+	} narray;
+    } nunion;
 } NODE;
 
 #define settype(node, type)     ((node)->node_type = (type))
-
-#define getrefcnt(node)         ((node)->ref_count)
-#define setrefcnt(node,val)     ((node)->ref_count = (val))
-#define increfcnt(node)         (((node)->ref_count)++)
-#define decrefcnt(node)         (--((node)->ref_count))
 
 #define n_car                   nunion.ncons.ncar
 #define n_cdr                   nunion.ncons.ncdr
@@ -234,11 +274,6 @@ typedef struct logo_node {
 #define setstrptr(node,ptr)     ((node)->n_str = (ptr))
 #define setstrlen(node,len)     ((node)->n_len = (len))
 #define setstrhead(node,ptr)    ((node)->n_head = (ptr))
-
-#define getstrrefcnt(sh)        (*sh)
-#define setstrrefcnt(sh, v)     (*sh = (v))
-#define incstrrefcnt(sh)        ((*sh)++)
-#define decstrrefcnt(sh)        (--(*sh))
 
 #define n_int                   nunion.nint
 #define getint(node)            ((node)->n_int)
@@ -292,7 +327,8 @@ typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;
 
 struct segment {
 	struct segment *next;
-	struct logo_node nodes[SEG_SIZE]; };
+	struct logo_node nodes[SEG_SIZE];
+};
 
 #define NOT_THROWING            (stopping_flag != THROWING)
 #define RUNNING                 (stopping_flag == RUN)
@@ -345,7 +381,7 @@ struct segment {
 #define unparsed__line(l)	getobject(l)
 #define tree__line(l)		l
 
-#define cont__cont(c)		(int)car(c)
+#define cont__cont(c)		(FIXNUM)car(c)
 #define val__cont(c)		cdr(c)
 
 /* Object flags.  Ones settable by users via bury_helper must come in threes
@@ -360,21 +396,13 @@ struct segment {
 #define VAL_STEPPED	0200
 #define PLIST_STEPPED	0400
 #define PROC_MACRO	01000
+#define PERMANENT	02000
 
 #define setflag__caseobj(c,f) ((obflags__caseobj(c))->n_int |= (f))
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
 #define flag__caseobj(c,f) (int)((obflags__caseobj(c))->n_int & (f))
 #define flag__object(o,f) (int)((obflags__object(o))->n_int & (f))
 #define is_macro(c) (flag__caseobj(c, PROC_MACRO))
-
-#define reref(o1, o2)   _reref(o1, o2)
-
-#define ref(o)		if (o != NIL) increfcnt(o)
-#define vref(o)		((o != NIL) ? ((increfcnt(o)) , o) : NIL)
-#define deref(o)	if (o != NIL && decrefcnt(o) == 0) \
-				gc(o)
-#define gcref(o)	if (o != NIL && getrefcnt(o) == 0) \
-				gc(o)
 
 #define push(obj, stack)    spush(obj, &stack)
 #define pop(stack)	    spop(&stack)
@@ -390,7 +418,8 @@ struct segment {
     x(qm_continue) \
     x(runresult_continuation) x(runresult_followup) \
     x(repeat_continuation) x(repeat_followup) \
-    x(catch_continuation) x(catch_followup)
+    x(catch_continuation) x(catch_followup) x(after_lambda) \
+    x(goto_continuation)
 
 #define do_enum(x) x,
 
@@ -398,3 +427,5 @@ enum labels {
     do_list(do_enum)
     NUM_TOKENS
 };
+
+#endif /* _LOGO_H */

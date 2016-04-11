@@ -24,24 +24,20 @@
 
 int print_stringlen;
 char *print_stringptr;
-extern void real_print_help(), real_print_node();
 int x_margin=0, y_margin=0;
+void real_print_node(FILE *, NODE *, int, int);
 
 BOOLEAN print_backslashes = FALSE;
 
 #ifdef mac
 BOOLEAN boldmode = 0;
 #endif
-#ifdef ibm
-extern BOOLEAN in_graphics_mode;
-#endif
 
-void update_coords(char ch)
-{
+void update_coords(char ch) {
     int i;
 
 #ifdef ibm
-#ifndef __ZTC__
+#if !defined(__ZTC__) && !defined(_MSC_VER) && !defined(WIN32)
     check_scroll();
 #endif
 #endif
@@ -54,6 +50,9 @@ void update_coords(char ch)
     } else if (ch == '\t') {
 	x_coord &= ~07;
 	x_coord += 8;
+#ifdef WIN32
+    } else if (ch == '\1' || ch == '\2') {
+#endif
     } else if (ch != '\007')
 	x_coord++;
     if (x_coord > x_max) {
@@ -63,8 +62,7 @@ void update_coords(char ch)
     if (y_coord > y_max) y_coord = y_max;
 }
 
-void print_char(FILE *strm, char ch)
-{
+void print_char(FILE *strm, char ch) {
     if (strm) {
 	if (interactive && strm==stdout) {
 #ifdef mac
@@ -81,24 +79,27 @@ void print_char(FILE *strm, char ch)
 		ibm_bold_mode();
 	    if (ch == '\2')
 		ibm_plain_mode();
-#ifdef __ZTC__
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
 	    ztc_put_char(ch);
-#else
+#elif defined(TURBO_C)
 	    if (in_graphics_mode && ibm_screen_top == 0)
 		lsplitscreen();
 	    if (ch == '\n' || in_graphics_mode)
-		putc(ch, strm);
+		rd_putc(ch, strm);
 	    else if (ch != '\1' && ch != '\2')
-		putch(ch); /* takes advantage of bold attribute */
-#endif
-#else
-	    putc(ch, strm);
+		rd_putc(ch, stdout); /* takes advantage of bold attribute */
+#else /* WIN32 */
+	    if (ch != '\1' && ch != '\2')
+	      rd_putc(ch, strm);
+#endif /* ibm */
+#else /* Unix */
+	    rd_putc(ch, strm);
 #endif
 	} else	    /* printing to stream but not screen */
-	    putc(ch, strm);
+	    rd_putc(ch, strm);
 	if (strm == stdout) {
 	    if (dribblestream != NULL)
-		putc(ch, dribblestream);
+		rd_putc(ch, dribblestream);
 	    update_coords(ch);
 	}
     } else {	    /* printing to string */
@@ -107,14 +108,12 @@ void print_char(FILE *strm, char ch)
     }
 }
 
-void print_space(FILE *strm)
-{
+void print_space(FILE *strm) {
     print_char(strm,' ');
 }
 
 /*VARARGS2*/
-void ndprintf(FILE *strm, char *fmt, ...)
-{
+void ndprintf(FILE *strm, char *fmt, ...) {
     va_list ap;
     NODE *nd;
     char *cp;
@@ -134,7 +133,7 @@ void ndprintf(FILE *strm, char *fmt, ...)
 		    print_node(strm,nd);
 	    } else if (ch == 't') { /* text */
 		cp = va_arg(ap,char *);
-		while (ch = *cp++) print_char(strm,ch);
+		while ((ch = *cp++) != '\0') print_char(strm,ch);
 	    } else {
 		print_char(strm,'%');
 		print_char(strm,ch);
@@ -145,8 +144,7 @@ void ndprintf(FILE *strm, char *fmt, ...)
     va_end(ap);
 }
 
-void real_print_help(FILE *strm, NODE *ndlist, int depth, int width)
-{
+void real_print_help(FILE *strm, NODE *ndlist, int depth, int width) {
     NODE *arg = NIL;
     int wid = width;
 
@@ -166,42 +164,7 @@ void real_print_help(FILE *strm, NODE *ndlist, int depth, int width)
     }
 }
 
-#ifdef MEM_DEBUG
-char *typename(NODE *nd) {
-  static char buf[30];
-  switch (nodetype(nd)) {
-  case PNIL: return "PNIL";
-  case PUNBOUND: return "PUNBOUND";
-  case CONS: return "CONS";
-  case STRING: return "STRING";
-  case INT: return "INT";
-  case FLOAT: return "FLOAT";
-  case PRIM: return "PRIM";
-  case MACRO: return "MACRO";
-  case TAILFORM: return "TAILFORM";
-  case CASEOBJ: return "CASEOBJ";
-  case INFIX: return "INFIX";
-  case TREE: return "TREE";
-  case RUN_PARSE: return "RUN_PARSE";
-  case QUOTE: return "QUOTE";
-  case COLON: return "COLON";
-  case BACKSLASH_STRING: return "BACKSLASH_STRING";
-  case VBAR_STRING: return "VBAR_STRING";
-  case ARRAY: return "ARRAY";
-  case LINE: return "LINE";
-  case CONT: return "CONT";
-  case NTFREE: return "FREED_OBJECT";
-  default:
-    sprintf(buf, "UNKNOWN_0%o", nodetype(nd));
-    return buf;
-  }
-}
-
-int debug_print = 1;
-#endif
-
-void real_print_node(FILE *strm, NODE *nd, int depth, int width)
-{
+void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     int i;
     char *cp;
     NODETYPES ndty;
@@ -210,12 +173,6 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width)
 	ndprintf(strm, "...");
 	return;
     }
-#ifdef MEM_DEBUG
-    if (debug_print && nd != NIL) {
-	fprintf(stderr, "{%s:%d:0x%lX}",
-		typename(nd), getrefcnt(nd), (long) nd);
-    }
-#endif
     if (nd == NIL) {
 	print_char(strm,'[');
 	print_char(strm,']');
@@ -294,53 +251,56 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width)
 	    }
 	};
 	if (dots) ndprintf(strm, "...");
-	gcref(nd);
     }
 }
 
-int find_limit(NODE *nd)
-{
+int find_limit(NODE *nd) {
     int val = -1;
 
     if (nd == NIL) return(-1);
     nd = cnv_node_to_numnode(valnode__caseobj(nd));
     if (nodetype(nd) == INT) val = getint(nd);
-    gcref(nd);
     return(val);
 }
 
-void print_help(FILE *strm, NODE *nd)
-{
+void print_help(FILE *strm, NODE *nd) {
     real_print_help(strm, nd, find_limit(Printdepthlimit),
 		    find_limit(Printwidthlimit));
 }
 
-void print_node(FILE *strm, NODE *nd)
-{
+void print_node(FILE *strm, NODE *nd) {
     real_print_node(strm, nd, find_limit(Printdepthlimit),
 		    find_limit(Printwidthlimit));
 }
 
-void print_nobrak(FILE *strm, NODE *nd)
-{
+void print_nobrak(FILE *strm, NODE *nd) {
     if (is_list(nd)) print_help(strm, nd);
     else print_node(strm, nd);
 }
 
-void new_line(FILE *strm)
-{
+void new_line(FILE *strm) {
+  /*
+#ifdef WIN32
+  if (strm == stdout)
+  {
+    win32_advance_line();
+    if (dribblestream != NULL)
+      rd_putc('\n', dribblestream);
+    update_coords('\n');
+  }
+  else
+#endif
+*/
     print_char(strm,'\n');
 }
 
-NODE *lshow(NODE *args)
-{
+NODE *lshow(NODE *args) {
     print_help(writestream, args);
     new_line(writestream);
     return(UNBOUND);
 }
 
-void type_help(NODE *args, int sp)
-{
+void type_help(NODE *args, int sp) {
     NODE *arg = NIL;
 
     while (args != NIL) {
@@ -356,14 +316,12 @@ void type_help(NODE *args, int sp)
     }
 }
 
-NODE *ltype(NODE *args)
-{
+NODE *ltype(NODE *args) {
     type_help(args,0);
     return(UNBOUND);
 }
 
-NODE *lprint(NODE *args)
-{
+NODE *lprint(NODE *args) {
     type_help(args,1);
     new_line(writestream);
     return(UNBOUND);

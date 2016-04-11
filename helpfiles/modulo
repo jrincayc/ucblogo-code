@@ -1,0 +1,5 @@
+MODULO num1 num2
+
+	outputs the remainder on dividing "num1" by "num2"; both must be
+	integers and the result is an integer with the same sign as num2.
+

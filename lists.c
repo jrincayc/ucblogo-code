@@ -20,9 +20,9 @@
 
 #include "logo.h"
 #include "globals.h"
+#include <math.h>
 
-NODE *bfable_arg(NODE *args)
-{
+NODE *bfable_arg(NODE *args) {
     NODE *arg = car(args);
 
     while ((arg == NIL || arg == UNBOUND || arg == Null_Word ||
@@ -33,8 +33,7 @@ NODE *bfable_arg(NODE *args)
     return arg;
 }
 
-NODE *list_arg(NODE *args)
-{
+NODE *list_arg(NODE *args) {
     NODE *arg = car(args);
 
     while (!(arg == NIL || is_list(arg)) && NOT_THROWING) {
@@ -44,8 +43,7 @@ NODE *list_arg(NODE *args)
     return arg;
 }
 
-NODE *lbutfirst(NODE *args)
-{
+NODE *lbutfirst(NODE *args) {
     NODE *val = UNBOUND, *arg;
 
     arg = bfable_arg(args);
@@ -68,9 +66,8 @@ NODE *lbutfirst(NODE *args)
     return(val);
 }
 
-NODE *lbutlast(NODE *args)
-{
-    NODE *val = UNBOUND, *lastnode, *tnode, *arg;
+NODE *lbutlast(NODE *args) {
+    NODE *val = UNBOUND, *lastnode = NIL, *tnode, *arg;
 
     arg = bfable_arg(args);
     if (NOT_THROWING) {
@@ -105,8 +102,7 @@ NODE *lbutlast(NODE *args)
     return(val);
 }
 
-NODE *lfirst(NODE *args)
-{
+NODE *lfirst(NODE *args) {
     NODE *val = UNBOUND, *arg;
 
     if (nodetype(car(args)) == ARRAY) {
@@ -126,8 +122,7 @@ NODE *lfirst(NODE *args)
     return(val);
 }
 
-NODE *lfirsts(NODE *args)
-{
+NODE *lfirsts(NODE *args) {
     NODE *val = UNBOUND, *arg, *argp, *tail;
 
     arg = list_arg(args);
@@ -141,37 +136,33 @@ NODE *lfirsts(NODE *args)
 	    if (check_throwing) break;
 	}
 	if (stopping_flag == THROWING) {
-	    gcref(val);
 	    return UNBOUND;
 	}
     }
     return(val);
 }
 
-NODE *lbfs(NODE *args)
-{
+NODE *lbfs(NODE *args) {
     NODE *val = UNBOUND, *arg, *argp, *tail;
 
     arg = list_arg(args);
     if (car(args) == NIL) return(NIL);
     if (NOT_THROWING) {
 	val = cons(lbutfirst(arg), NIL);
-	tail = vref(val);
+	tail = val;
 	for (argp = cdr(arg); argp != NIL; argp = cdr(argp)) {
 	    setcdr(tail, cons(lbutfirst(argp), NIL));
 	    tail = cdr(tail);
 	    if (check_throwing) break;
 	}
 	if (stopping_flag == THROWING) {
-	    gcref(val);
 	    return UNBOUND;
 	}
     }
     return(val);
 }
 
-NODE *llast(NODE *args)
-{
+NODE *llast(NODE *args) {
     NODE *val = UNBOUND, *arg;
 
     arg = bfable_arg(args);
@@ -194,23 +185,19 @@ NODE *llast(NODE *args)
     return(val);
 }
 
-NODE *llist(NODE *args)
-{
+NODE *llist(NODE *args) {
     return(args);
 }
 
-NODE *lemptyp(NODE *arg)
-{
+NODE *lemptyp(NODE *arg) {
     return torf(car(arg) == NIL || car(arg) == Null_Word);
 }
 
-NODE *char_arg(NODE *args)
-{
+NODE *char_arg(NODE *args) {
     NODE *arg = car(args), *val;
 
     val = cnv_node_to_strnode(arg);
     while ((val == UNBOUND || getstrlen(val) != 1) && NOT_THROWING) {
-	gcref(val);
 	setcar(args, err_logo(BAD_DATA, arg));
 	arg = car(args);
 	val = cnv_node_to_strnode(arg);
@@ -219,8 +206,7 @@ NODE *char_arg(NODE *args)
     return(val);
 }
 
-NODE *lascii(NODE *args)
-{
+NODE *lascii(NODE *args) {
     FIXNUM i;
     NODE *val = UNBOUND, *arg;
 
@@ -232,8 +218,7 @@ NODE *lascii(NODE *args)
     return(val);
 }
 
-NODE *lrawascii(NODE *args)
-{
+NODE *lrawascii(NODE *args) {
     FIXNUM i;
     NODE *val = UNBOUND, *arg;
 
@@ -245,8 +230,7 @@ NODE *lrawascii(NODE *args)
     return(val);
 }
 
-NODE *lbackslashedp(NODE *args)
-{
+NODE *lbackslashedp(NODE *args) {
     char i;
     NODE *arg;
 
@@ -258,22 +242,20 @@ NODE *lbackslashedp(NODE *args)
     return(UNBOUND);
 }
 
-NODE *lchar(NODE *args)
-{
+NODE *lchar(NODE *args) {
     NODE *val = UNBOUND, *arg;
     char c;
 
     arg = pos_int_arg(args);
     if (NOT_THROWING) {
 	c = getint(arg);
-	val = make_strnode(&c, (char *)NULL, 1,
-		       (getparity(c) ? STRING : BACKSLASH_STRING), strnzcpy);
+	val = make_strnode(&c, (struct string_block *)NULL, 1,
+		       STRING, strnzcpy);
     }
     return(val);
 }
 
-NODE *lcount(NODE *args)
-{
+NODE *lcount(NODE *args) {
     int cnt = 0;
     NODE *arg;
 
@@ -295,8 +277,7 @@ NODE *lcount(NODE *args)
     return(make_intnode((FIXNUM)cnt));
 }
 
-NODE *lfput(NODE *args)
-{
+NODE *lfput(NODE *args) {
     NODE *lst, *arg;
 
     arg = car(args);
@@ -307,8 +288,7 @@ NODE *lfput(NODE *args)
 	return UNBOUND;
 }
 
-NODE *llput(NODE *args)
-{
+NODE *llput(NODE *args) {
     NODE *lst, *arg, *val = UNBOUND, *lastnode = NIL, *tnode = NIL;
 
     arg = car(args);
@@ -334,13 +314,11 @@ NODE *llput(NODE *args)
     return(val);
 }
 
-NODE *string_arg(NODE *args)
-{
+NODE *string_arg(NODE *args) {
     NODE *arg = car(args), *val;
 
     val = cnv_node_to_strnode(arg);
     while (val == UNBOUND && NOT_THROWING) {
-	gcref(val);
 	setcar(args, err_logo(BAD_DATA, arg));
 	arg = car(args);
 	val = cnv_node_to_strnode(arg);
@@ -349,9 +327,8 @@ NODE *string_arg(NODE *args)
     return(val);
 }
 
-NODE *lword(NODE *args)
-{
-    NODE *val = NIL, *arg = NIL, *tnode = NIL, *lastnode = NIL;
+NODE *lword(NODE *args) {
+    NODE *val = NIL, *arg = NIL;
     int cnt = 0;
     NODETYPES str_type = STRING;
 
@@ -367,15 +344,14 @@ NODE *lword(NODE *args)
 	}
     }
     if (NOT_THROWING)
-	val = make_strnode((char *)args, (char *)NULL,
+	val = make_strnode((char *)args, (struct string_block *)NULL,
 			   cnt, str_type, word_strnzcpy); /* kludge */
     else
 	val = UNBOUND;
     return(val);
 }
 
-NODE *lsentence(NODE *args)
-{
+NODE *lsentence(NODE *args) {
     NODE *tnode = NIL, *lastnode = NIL, *val = NIL, *arg = NIL;
 
     while (args != NIL && NOT_THROWING) {
@@ -402,37 +378,31 @@ NODE *lsentence(NODE *args)
 	}
     }
     if (stopping_flag == THROWING) {
-	gcref(val);
 	return UNBOUND;
     }
     return(val);
 }
 
-NODE *lwordp(NODE *arg)
-{
+NODE *lwordp(NODE *arg) {
     arg = car(arg);
     return torf(arg != UNBOUND && !aggregate(arg));
 }
 
-NODE *llistp(NODE *arg)
-{
+NODE *llistp(NODE *arg) {
     arg = car(arg);
     return torf(is_list(arg));
 }
 
-NODE *lnumberp(NODE *arg)
-{
+NODE *lnumberp(NODE *arg) {
     setcar(arg, cnv_node_to_numnode(car(arg)));
     return torf(car(arg) != UNBOUND);
 }
 
-NODE *larrayp(NODE *arg)
-{
+NODE *larrayp(NODE *arg) {
     return torf(nodetype(car(arg)) == ARRAY);
 }
 
-NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr)
-{
+NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {
     NODE *obj1, *obj2, *val;
     int leng;
     int caseig = (compare_node(valnode__caseobj(Caseignoredp),
@@ -494,28 +464,36 @@ NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr)
     }
 }
 
-NODE *lmemberp(NODE *args)
-{
+NODE *lmemberp(NODE *args) {
     return(memberp_help(args, FALSE, FALSE));
 }
 
-NODE *lsubstringp(NODE *args)
-{
+NODE *lsubstringp(NODE *args) {
     return(memberp_help(args, FALSE, TRUE));
 }
 
-NODE *lmember(NODE *args)
-{
+NODE *lmember(NODE *args) {
     return(memberp_help(args, TRUE, FALSE));
 }
 
-NODE *integer_arg(NODE *args)
-{
+NODE *integer_arg(NODE *args) {
     NODE *arg = car(args), *val;
+    FIXNUM i;
+    FLONUM f;
 
     val = cnv_node_to_numnode(arg);
-    while (nodetype(val) != INT && NOT_THROWING) {
-	gcref(val);
+    while ((nodetype(val) != INT) && NOT_THROWING) {
+	if (nodetype(val) == FLOATT &&
+		    fmod((f = getfloat(val)), 1.0) == 0.0 &&
+		    f >= -(FLONUM)MAXLOGOINT && f < (FLONUM)MAXLOGOINT) {
+#if HAVE_IRINT
+	    i = irint(f);
+#else
+	    i = f;
+#endif
+	    val = make_intnode(i);
+	    break;
+	}
 	setcar(args, err_logo(BAD_DATA, arg));
 	arg = car(args);
 	val = cnv_node_to_numnode(arg);
@@ -525,16 +503,14 @@ NODE *integer_arg(NODE *args)
     return UNBOUND;
 }
 
-FIXNUM int_arg(NODE *args)
-{
+FIXNUM int_arg(NODE *args) {
     NODE *arg =integer_arg(args);
 
     if (NOT_THROWING) return getint(arg);
     return 0;
 }
 
-NODE *litem(NODE *args)
-{
+NODE *litem(NODE *args) {
     int i;
     NODE *obj, *val;
 
@@ -586,8 +562,7 @@ NODE *litem(NODE *args)
     return(UNBOUND);
 }
 
-int circular(NODE *arr, NODE *new)
-{
+int circular(NODE *arr, NODE *new) {
     if (new == NIL) return(0);
     else if (nodetype(new) == ARRAY) {
 	int i = getarrdim(new);
@@ -607,8 +582,7 @@ int circular(NODE *arr, NODE *new)
     } else return(0);
 }
 
-NODE *setitem_helper(NODE *args, BOOLEAN safe)
-{
+NODE *setitem_helper(NODE *args, BOOLEAN safe) {
     int i;
     NODE *obj, *val, *cont;
 
@@ -629,12 +603,14 @@ NODE *setitem_helper(NODE *args, BOOLEAN safe)
 	}
 	if (NOT_THROWING) {
 	    i -= getarrorg(obj);
-	    if (i < 0 || i >= getarrdim(obj))
-		err_logo(BAD_DATA_UNREC, val);
-	    else {
-		val = (getarrptr(obj))[i];
-		(getarrptr(obj))[i] = vref(cont);
-		deref(val);
+	    while ((i < 0 || i >= getarrdim(obj)) && NOT_THROWING) {
+	    	setcar(args, err_logo(BAD_DATA, val));
+	    	val = integer_arg(args);
+	    	i = getint(val);
+	    }
+		if (NOT_THROWING) {
+			(getarrptr(obj))[i] = cont;
+			check_valid_oldyoung(obj, cont);
 	    }
 	}
     }
@@ -649,8 +625,7 @@ NODE *l_setitem(NODE *args) {
     return setitem_helper(args, FALSE);
 }
 
-NODE *larray(NODE *args)
-{
+NODE *larray(NODE *args) {
     NODE *arg;
     int d, o;
 
@@ -667,27 +642,24 @@ NODE *larray(NODE *args)
     return UNBOUND;
 }
 
-FLONUM float_arg(NODE *args)
-{
+FLONUM float_arg(NODE *args) {
     NODE *arg = car(args), *val;
 
     val = cnv_node_to_numnode(arg);
     while (!is_number(val) && NOT_THROWING) {
-	gcref(val);
 	setcar(args, err_logo(BAD_DATA, arg));
 	arg = car(args);
 	val = cnv_node_to_numnode(arg);
     }
     setcar(args,val);
-    if (nodetype(val) == FLOAT) return getfloat(val);
+    if (nodetype(val) == FLOATT) return getfloat(val);
     if (nodetype(val) == INT) return (FLONUM)getint(val);
     return 0.0;
 }
 
-NODE *lform(NODE *args)
-{
+NODE *lform(NODE *args) {
     FLONUM number;
-    int width, precision;
+    int width, precision = 0;
     char result[100];
     char format[20];
 
@@ -706,14 +678,13 @@ NODE *lform(NODE *args)
 	    sprintf(result,format,number);
 	else
 	    sprintf(result,"%*.*f",width,precision,number);
-	return(make_strnode(result, (char *)NULL, (int)strlen(result),
-			    STRING, strnzcpy));
+	return(make_strnode(result, (struct string_block *)NULL,
+			    (int)strlen(result), STRING, strnzcpy));
     }
     return(UNBOUND);
 }
 
-NODE *l_setfirst(NODE *args)
-{
+NODE *l_setfirst(NODE *args) {
     NODE *list, *newval;
 
     list = car(args);
@@ -726,8 +697,7 @@ NODE *l_setfirst(NODE *args)
     return(UNBOUND);
 }
 
-NODE *l_setbf(NODE *args)
-{
+NODE *l_setbf(NODE *args) {
     NODE *list, *newval;
 
     list = car(args);

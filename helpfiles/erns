@@ -1,4 +1,4 @@
-ERNS							(library procedure)
+ERNS
 
 	command.  Erases all unburied variables from the workspace.
 	Abbreviates ERASE NAMES.

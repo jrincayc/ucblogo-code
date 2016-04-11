@@ -7,6 +7,8 @@
    this file.
  */
 
+#ifndef X_DISPLAY_MISSING
+
 #include <stdio.h>
 
 #include "logo.h"
@@ -31,31 +33,33 @@ int screen_height = DEFAULT_HEIGHT;
 int screen_width  = DEFAULT_WIDTH;
 int x_mouse_x, x_mouse_y;
 
-int px, py;
-
 /* We'll use 16 named colors for now (see xgraphics.h).
    The ordering here corresponds to the zero-based argument
    to setpencolor that gives that color -- pink is 12,
    turquoise is 10 etc.
  */
-char *colorname[NUMCOLORS] = {
-  "black", "blue", "green", "cyan", "red", "magenta", "yellow", "white",
-  "light grey", "purple", "turquoise", "lavender", "pink", "gold",
-  "orange", "brown"
-};
 
+char *colorname[NUMCOLORS] = {
+  "black", "blue"   , "green" , "cyan" ,
+  "red"  , "magenta", "yellow", "white",
+  "brown",
+  "tan",
+  "dark green",  /* Should be 'forest' */
+  "aquamarine",  /* Should be 'aqua'   */
+  "pink",        /* Should be 'salmon' */
+  "purple",
+  "orange",
+  "grey"
+};
 
 XColor color[NUMCOLORS];
 XColor dummy;
 
-void nop()
-{
+void nop() {
 }
 
-extern pen_info orig_pen;
-extern int turtle_shown;
-
-extern int x_mouse_x, x_mouse_y;
+pen_info xgr_pen;
+int back_ground;
 
 Display    *dpy;		/* X server connection   */
 Window      win;		/* Window ID             */
@@ -84,7 +88,6 @@ void real_window_init()
   XGCValues   gcv;		/* Struct for creating GC */
   XEvent      event;		/* Event received */
   XSizeHints  xsh;		/* Size hints for window manager */
-  char       *geomSpec;	        /* Window geometry string */
   XSetWindowAttributes xswa;	/* Temporary Set Window Attribute struct */
   int n;
 
@@ -112,13 +115,14 @@ void real_window_init()
     XAllocNamedColor(dpy, DefaultColormap(dpy, screen),
 		     colorname[n], &color[n], &dummy);
 
+    xgr_pen.color = 7;
 
   /* Not much alternative to the following,
      because of the use of the xor operation to erase the turtle.
      The background HAS to be the zero pixel or the scheme won't work.
    */
-  bg = 0;
-  fg = bd = 1;
+  bg = BlackPixel(dpy, screen);
+  fg = bd = WhitePixel(dpy, screen);
 
   /*
    * Set the border width of the window,  and the gap between the text
@@ -158,8 +162,8 @@ void real_window_init()
    */
 
   gcv.font = fontstruct->fid;
-  gcv.background = 0;
-  gcv.foreground = 1;
+  gcv.background = BlackPixel(dpy, screen);
+  gcv.foreground = WhitePixel(dpy, screen);
   gcv.plane_mask = AllPlanes;
 
   /* Normal drawing GC. */
@@ -186,8 +190,8 @@ void real_window_init()
 		    (GCPlaneMask | GCFunction | GCForeground | GCBackground),
 		    &gcv);
 
-  orig_pen.pm = draw_gc;
-  orig_pen.vis = 0;
+  xgr_pen.pm = draw_gc;
+  xgr_pen.vis = 0;
 
   XSelectInput(dpy, win, EVENT_MASK);
 
@@ -214,6 +218,7 @@ void real_window_init()
     }
   } while(1);
 
+  move_to(screen_x_coord, screen_y_coord);
   if(turtle_shown)
     draw_turtle();
 }
@@ -291,3 +296,5 @@ int get_mouse_y()
 
 
 void logofill() {}
+
+#endif

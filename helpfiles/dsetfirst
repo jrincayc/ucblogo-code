@@ -6,5 +6,5 @@
 	can lead to circular list structures, which will get some Logo
 	primitives into infinite loops; unexpected changes to other data
 	structures that share storage with the list being modified; and
-	the permanent loss of memory if a circular structure is released.
+	the loss of memory if a circular structure is released.
 

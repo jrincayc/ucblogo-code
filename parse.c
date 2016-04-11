@@ -19,6 +19,10 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -33,16 +37,13 @@
 #include <ctype.h>
 
 #ifdef ibm
+#ifndef _MSC_VER
 #include <bios.h>
 extern int getch(void);
+#endif /* _MSC_VER */
 #endif
 #ifdef __ZTC__
 #include <disp.h>
-#endif
-
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
 #endif
 
 FILE *readstream = stdin;
@@ -50,11 +51,15 @@ FILE *writestream = stdout;
 FILE *loadstream = stdin;
 FILE *dribblestream = NULL;
 int input_blocking = 0;
+NODE *deepend_proc_name = NIL;
 
-int rd_getc(FILE *strm)
-{
+int rd_getc(FILE *strm) {
     int c;
+#ifdef WIN32
+    MSG msg;
+#endif
 
+#ifndef WIN32 /* skip this section ... */
 #ifdef __ZTC__
     if (strm == stdin) zflush();
     c = ztc_getc(strm);
@@ -71,10 +76,46 @@ int rd_getc(FILE *strm)
 #ifndef __ZTC__
 	getc(strm); /* eat up the return */
 #endif
+
+#if defined(__ZTC__) || defined(WIN32)
+	logo_pause(0);
+#else
 	logo_pause();
+#endif
+
 	return(rd_getc(strm));
     }
 #endif
+#else /* WIN32 */
+    if (strm == stdin) {
+	if (!line_avail) {
+	    win32_text_cursor();
+	    while (GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+		if (line_avail)
+		    break;
+		}
+	    }
+      c = read_line[read_index++];
+      if (c == 17 && interactive && strm==stdin) { /* control-q */
+	to_pending = 0;
+	err_logo(STOP_ERROR,NIL);
+	line_avail = 0;
+	return('\n');
+    }
+    if (c == 23 && interactive && strm==stdin) { /* control-w */
+	line_avail = 0;
+	logo_pause(0);
+	return(rd_getc(strm));
+    }
+      if (c == '\n')
+	line_avail = 0;
+    }
+    else /* reading from a file */
+      c = getc(strm);
+#endif /* WIN32 */
+
 #ifdef ecma
     return(ecma_clear(c));
 #else
@@ -82,25 +123,24 @@ int rd_getc(FILE *strm)
 #endif
 }
 
-void rd_print_prompt(char *str)
-{
-    int ch;
-
+void rd_print_prompt(char *str) {
 #ifdef ibm
-#ifdef __ZTC__
+#if defined(__ZTC__) || defined(WIN32)
     if (in_graphics_mode && !in_splitscreen)
 #else
+#ifndef _MSC_VER
     if (in_graphics_mode && ibm_screen_top == 0)
+#endif /* _MSC_VER */
 #endif
-	lsplitscreen();
+	lsplitscreen(NIL);
 #endif
     ndprintf(stdout,"%t",str);
-#ifdef __ZTC__
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
     zflush();
 #endif
 }
 
-#ifdef __ZTC__
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
 void zrd_print_prompt(char *str) {
     newline_bugfix();
     rd_print_prompt(str);
@@ -110,21 +150,21 @@ void zrd_print_prompt(char *str) {
 #endif
 
 #define into_line(chr) {if (phys_line >= p_end) { \
-							p_len += MAX_PHYS_LINE; \
-							p_pos = phys_line - p_line; \
-							p_line = realloc(p_line, p_len); \
-							p_end = &p_line[p_len-1]; \
-							phys_line = &p_line[p_pos]; \
-						} \
-						*phys_line++ = (chr);}
+				p_len += MAX_PHYS_LINE; \
+				p_pos = phys_line - p_line; \
+				p_line = realloc(p_line, p_len); \
+				p_end = &p_line[p_len-1]; \
+				phys_line = &p_line[p_pos]; \
+			    } \
+			    *phys_line++ = (chr);}
 
 char *p_line = 0, *p_end;
 int p_len = MAX_PHYS_LINE;
 
-NODE *reader(FILE *strm, char *prompt)
-{
-    int c, dribbling, vbar = 0, paren = 0, bracket = 0, brace = 0, p_pos, contin=1;
-	static char ender[] = "\nEND\n";
+NODE *reader(FILE *strm, char *prompt) {
+    int c = 0, dribbling, vbar = 0, paren = 0;
+    int bracket = 0, brace = 0, p_pos, contin=1;
+    static char ender[] = "\nEND\n";
     char *phys_line, *lookfor = ender;
     NODETYPES this_type = STRING;
     NODE *ret;
@@ -134,16 +174,27 @@ NODE *reader(FILE *strm, char *prompt)
 		contin = 0;
 	}
     charmode_off();
+#ifdef WIN32
+    dribbling = 0;
+#else
     dribbling = (dribblestream != NULL && strm == stdin);
+#endif
     if (p_line == 0) {
     	p_line = malloc(MAX_PHYS_LINE);
+	if (p_line == NULL) {
+	    err_logo(OUT_OF_MEM, NIL);
+		    return UNBOUND;
+	}
     	p_end = &p_line[MAX_PHYS_LINE-1];
     }
     phys_line = p_line;
     if (strm == stdin && *prompt) {
-	if (interactive) rd_print_prompt(prompt);
-	if (dribblestream != NULL)
-	    fprintf(dribblestream, "%s", prompt);
+	if (interactive) {
+	  rd_print_prompt(prompt);
+#ifdef WIN32
+	  win32_update_text();
+#endif
+	}
     }
     if (strm == stdin) {
 	input_blocking++;
@@ -155,27 +206,27 @@ NODE *reader(FILE *strm, char *prompt)
 #endif
     c = rd_getc(strm);
     while (c != EOF && (vbar || paren || bracket || brace || c != '\n')) {
-	if (dribbling) putc(c, dribblestream);
+	if (dribbling) rd_putc(c, dribblestream);
 	if (c == '\\' && (c = rd_getc(strm)) != EOF) {
-	    if (dribbling) putc(c, dribblestream);
+	    if (dribbling) rd_putc(c, dribblestream);
 	    c = setparity(c);
 	    this_type = BACKSLASH_STRING;
 	    if (c == setparity('\n') && strm == stdin) {
 		if (interactive) zrd_print_prompt("\\ ");
-		if (dribbling)
-		    fprintf(dribblestream, "\\ ");
 	    }
 	}
 	if (c != EOF) into_line(c);
 		if (*prompt && (c&0137) == *lookfor) {
 			lookfor++;
 			if (*lookfor == 0) {
-				err_logo(DEEPEND, NIL);
+				err_logo(DEEPEND, deepend_proc_name);
 				break;
 			}
 		} else lookfor = ender;
-	if (c == '|') vbar = !vbar;
-	else if (contin && !vbar) {
+	if (c == '|') {
+	    vbar = !vbar;
+	    this_type = VBAR_STRING;
+	} else if (contin && !vbar) {
 		if (c == '(') paren++;
 		else if (paren && c == ')') paren--;
 		else if (c == '[') bracket++;
@@ -183,22 +234,21 @@ NODE *reader(FILE *strm, char *prompt)
 		else if (c == '{') brace++;
 		else if (brace && c == '}') brace--;
 	}
+
+	if (this_type == STRING && strchr(special_chars, c))
+	    this_type = VBAR_STRING;
 	if (/* (vbar || paren ...) && */ c == '\n') {
 	    if (strm == stdin) {
 		if (interactive) zrd_print_prompt(vbar ? "| " : "~ ");
-		if (dribbling)
-		    fprintf(dribblestream, vbar ? "| " : "~ ");
 	    }
 	}
 	while (!vbar && c == '~' && (c = rd_getc(strm)) != EOF) {
 	    while (c == ' ' || c == '\t')
 		c = rd_getc(strm);
-	    if (dribbling) putc(c, dribblestream);
+	    if (dribbling) rd_putc(c, dribblestream);
 	    into_line(c);
 	    if (c == '\n' && strm == stdin) {
 		if (interactive) zrd_print_prompt("~ ");
-		if (dribbling)
-		    fprintf(dribblestream, "~ ");
 	    }
 	}
 	if (c != EOF) c = rd_getc(strm);
@@ -208,24 +258,23 @@ NODE *reader(FILE *strm, char *prompt)
 #endif
     *phys_line = '\0';
     input_blocking = 0;
-#ifdef __ZTC__
+#if defined(__ZTC__) && !defined(WIN32) /* sowings */
     fix_cursor();
     if (interactive && strm == stdin) newline_bugfix();
 #endif
     if (dribbling)
-	putc('\n', dribblestream);
+	rd_putc('\n', dribblestream);
     if (c == EOF && strm == stdin) {
 	if (interactive) clearerr(stdin);
 	rd_print_prompt("\n");
     }
     if (phys_line == p_line) return(Null_Word); /* so emptyp works */
-    ret = make_strnode(p_line, (char *)NULL, (int)strlen(p_line),
+    ret = make_strnode(p_line, (struct string_block *)NULL, (int)strlen(p_line),
 		       this_type, strnzcpy);
     return(ret);
 }
 
-NODE *list_to_array(NODE *list)
-{
+NODE *list_to_array(NODE *list) {
     NODE *np = list, *result;
     int len = 0, i;
 
@@ -235,18 +284,17 @@ NODE *list_to_array(NODE *list)
     setarrorg(result,1);
 
     for (i = 0, np = list; np; np = cdr(np))
-	(getarrptr(result))[i++] = vref(car(np));
+	(getarrptr(result))[i++] = car(np);
 
     return(result);
 }
 
 #define parens(ch)      (ch == '(' || ch == ')' || ch == ';')
 #define infixs(ch)      (ch == '*' || ch == '/' || ch == '+' || ch == '-' || ch == '=' || ch == '<' || ch == '>')
-#define white_space(ch) (ch == ' ' || ch == '\t' || ch == '\n')
+#define white_space(ch) (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\0')
 
-NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
-		     BOOLEAN semi, int endchar)
-{
+NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
+		     BOOLEAN semi, int endchar) {
     char ch, *wptr = NULL;
     static char terminate = '\0';   /* KLUDGE */
     NODE *outline = NIL, *lastnode = NIL, *tnode = NIL;
@@ -262,8 +310,13 @@ NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
 
 	/* skip through comments and line continuations */
 	while (!vbar && ((semi && ch == ';') ||
+#ifdef WIN32
+		(ch == '~' && (**inln == 012 || **inln == 015)))) {
+	    while (ch == '~' && (**inln == 012 || **inln == 015)) {
+#else
 		(ch == '~' && **inln == '\n'))) {
 	    while (ch == '~' && **inln == '\n') {
+#endif
 		if (++(*inln) >= inlimit) *inln = &terminate;
 		ch = **inln;
 		if (windex == 0) wptr = *inln;
@@ -280,12 +333,22 @@ NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
 	    }
 
 	    if (semi && ch == ';') {
+#ifdef WIN32
+		if (**inln != 012 && **inln != 015)
+#else
+		if (**inln != '\n')
+#endif
 		do {
 		    ch = **inln;
 		    if (windex == 0) wptr = *inln;
 		    else broken = TRUE;
 		    if (++(*inln) >= inlimit) *inln = &terminate;
-		} while (ch != '\0' && ch != '~' && **inln != '\n');
+		} 
+#ifdef WIN32
+		while (ch != '\0' && ch != '~' && **inln != 012 && **inln != 015);
+#else /* !Win32 */
+		while (ch != '\0' && ch != '~' && **inln != '\n');
+#endif
 		if (ch != '\0' && ch != '~') ch = '\n';
 	    }
 	}
@@ -300,8 +363,7 @@ NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
 	}
 
 	else if (vbar || (!white_space(ch) && ch != ']' &&
-		    ch != '{' && ch != '}' &&
-		    ch != '[' && ch != '\0'))
+		    ch != '{' && ch != '}' && ch != '['))
 	    windex++;
 
 	if (vbar) continue;
@@ -338,16 +400,16 @@ NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
 	}
 
 /* if this character or the next one will terminate string, make the word */
-	else if (white_space(ch) || ch == '\0' ||
-	     **inln == ']' || **inln == '[' ||
-	     **inln == '{' || **inln == '}') {
+	else if (white_space(ch) || **inln == ']' || **inln == '[' ||
+			    **inln == '{' || **inln == '}') {
 		if (windex > 0) {
 		    if (broken == FALSE)
 			 tnode = cons(make_strnode(wptr, inhead, windex,
 						   this_type, strnzcpy),
 				      NIL);
 		    else {
-			 tnode = cons(make_strnode(wptr, (char *)NULL, windex,
+			 tnode = cons(make_strnode(wptr,
+				 (struct string_block *)NULL, windex,
 				 this_type, (semi ? mend_strnzcpy : mend_nosemi)),
 				 NIL);
 			 broken = FALSE;
@@ -359,33 +421,28 @@ NODE *parser_iterate(char **inln, char *inlimit, char *inhead,
 
 	/* put the word onto the end of the return list */
 	if (tnode != NIL) {
-	    if (outline == NIL) outline = vref(tnode);
+	    if (outline == NIL) outline = tnode;
 	    else setcdr(lastnode, tnode);
 	    lastnode = tnode;
 	    tnode = NIL;
 	}
     } while (ch);
-    return(unref(outline));
+    return(outline);
 }
 
-NODE *parser(NODE *nd, BOOLEAN semi)
-{
+NODE *parser(NODE *nd, BOOLEAN semi) {
     NODE *rtn;
     int slen;
     char *lnsav;
 
     rtn = cnv_node_to_strnode(nd);
-    ref(rtn);
-    gcref(nd);
     slen = getstrlen(rtn);
     lnsav = getstrptr(rtn);
-    rtn = reref(rtn,
-		parser_iterate(&lnsav,lnsav + slen,getstrhead(rtn),semi,-1));
-    return(unref(rtn));
+    rtn = parser_iterate(&lnsav,lnsav + slen,getstrhead(rtn),semi,-1);
+    return(rtn);
 }
 
-NODE *lparse(NODE *args)
-{
+NODE *lparse(NODE *args) {
     NODE *arg, *val = UNBOUND;
 
     arg = string_arg(args);
@@ -395,17 +452,16 @@ NODE *lparse(NODE *args)
     return(val);
 }
 
-NODE *runparse_node(NODE *nd, NODE **ndsptr)
-{
+NODE *runparse_node(NODE *nd, NODE **ndsptr) {
     NODE *outline = NIL, *tnode = NIL, *lastnode = NIL, *snd;
-    char *wptr, *tptr, *whead;
-    int wlen, wcnt, tcnt, isnumb;
+    char *wptr, *tptr;
+    struct string_block *whead;
+    int wlen, wcnt, tcnt, isnumb, gotdot;
     NODETYPES wtyp;
     BOOLEAN monadic_minus = FALSE;
 
     if (nd == Minus_Tight) return cons(nd, NIL);
     snd = cnv_node_to_strnode(nd);
-    ref(snd);
     wptr = getstrptr(snd);
     wlen = getstrlen(snd);
     wtyp = nodetype(snd);
@@ -442,7 +498,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr)
 	    tnode = cons(make_colon(intern(make_strnode(tptr, whead, tcnt,
 				    wtyp, strnzcpy))), NIL);
 	} else if (wcnt == 0 && *wptr == '-' && monadic_minus == FALSE &&
-		   !white_space(*(wptr+1))) {
+		   wcnt+1 < wlen && !white_space(*(wptr+1))) {
 	/* minus sign with space before and no space after is unary */
 	    tnode = cons(make_intnode((FIXNUM)0), NIL);
 	    monadic_minus = TRUE;
@@ -462,6 +518,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr)
 	     * 'e' so minus can be next, 2 means no longer
 	     * eligible even if an 'e' comes along */
 	    isnumb = 4;
+	    gotdot = 0;
 	    if (*wptr == '?') {
 		isnumb = 3; /* turn ?5 to (? 5) */
 		wptr++, wcnt++, tcnt++;
@@ -471,8 +528,9 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr)
 		if (isnumb == 4 && isdigit(*wptr)) isnumb = 0;
 		if (isnumb == 0 && tcnt > 0 && (*wptr == 'e' || *wptr == 'E'))
 		    isnumb = 1;
-		else if (!(isdigit(*wptr) || *wptr == '.') || isnumb == 1)
+		else if (!(isdigit(*wptr) || (!gotdot && *wptr == '.')) || isnumb == 1)
 		    isnumb = 2;
+		if (*wptr == '.') gotdot++;
 		wptr++, wcnt++, tcnt++;
 	    }
 	    if (isnumb == 3 && tcnt > 1) {    /* ?5 syntax */
@@ -484,7 +542,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr)
 						      tcnt-1, wtyp, strnzcpy)),
 				    END_OF_LIST);
 		if (outline == NIL) {
-		    outline = vref(qmtnode);
+		    outline = qmtnode;
 		} else {
 		    setcdr(lastnode, qmtnode);
 		}
@@ -500,16 +558,14 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr)
 			     NIL);
 	}
 
-	if (outline == NIL) outline = vref(tnode);
+	if (outline == NIL) outline = tnode;
 	else setcdr(lastnode, tnode);
 	lastnode = tnode;
     }
-    deref(snd);
-    return(unref(outline));
+    return(outline);
 }
 
-NODE *runparse(NODE *ndlist)
-{
+NODE *runparse(NODE *ndlist) {
     NODE *curnd = NIL, *outline = NIL, *tnode = NIL, *lastnode = NIL;
 
     if (nodetype(ndlist) == RUN_PARSE)
@@ -530,7 +586,7 @@ NODE *runparse(NODE *ndlist)
 		tnode = cons(cnv_node_to_numnode(curnd), NIL);
 	}
 	if (tnode != NIL) {
-	    if (outline == NIL) outline = vref(tnode);
+	    if (outline == NIL) outline = tnode;
 	    else setcdr(lastnode, tnode);
 	    lastnode = tnode;
 	    while (cdr(lastnode) != NIL) {
@@ -540,11 +596,10 @@ NODE *runparse(NODE *ndlist)
 	}
 	if (check_throwing) break;
     }
-    return(unref(outline));
+    return(outline);
 }
 
-NODE *lrunparse(NODE *args)
-{
+NODE *lrunparse(NODE *args) {
     NODE *arg;
 
     arg = car(args);

@@ -7,10 +7,10 @@ THROW tag
 	not output a value.  If THROW is used with two inputs, the second
 	provides an output for the CATCH.
 
-	THROW "TOPLEVEL can be used to terminate all running procedures
-	and interactive pauses, and return to the toplevel instruction
-	prompt.  Typing the system interrupt character (normally ^C)
-	has the same effect.
+	THROW "TOPLEVEL can be used to terminate all running procedures and
+	interactive pauses, and return to the toplevel instruction prompt.
+	Typing the system interrupt character (normally control-C for Unix,
+	control-Q for DOS, or command-period for Mac) has the same effect.
 
 	THROW "ERROR can be used to generate an error condition.  If the
 	error is not caught, it prints a message (THROW "ERROR) with the

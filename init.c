@@ -23,10 +23,6 @@
 #include "globals.h"
 #include <string.h>
 
-#ifdef ibm
-#include <stdlib.h>
-#endif
-
 typedef struct priminfo {
     char *name;
     short minargs;
@@ -38,9 +34,10 @@ typedef struct priminfo {
 
 NODE *True, *False, *Right_Paren, *Left_Paren, *Toplevel, *System, *Error,
      *End, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
-     *Printwidthlimit, *Pause,
+     *Printwidthlimit, *Pause, *LoadNoisily,
      *If, *Ifelse, *To, *Macro, *Unbound, *Not_Enough_Node,
-     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop;
+     *Minus_Sign, *Minus_Tight, *Startup, *Query, *Output, *Op, *Stop,
+     *Goto, *Tag;
 NODE *Null_Word = NIL;
 
 PRIMTYPE prims[] = {
@@ -51,7 +48,7 @@ PRIMTYPE prims[] = {
     {".defmacro", 2, 2, 2, PREFIX_PRIORITY, ldefmacro},
     {".eq", 2, 2, 2, PREFIX_PRIORITY, l_eq},
     {".macro", -1, -1, -1, PREFIX_PRIORITY, lmacro},
-    {".maybeoutput", 1, 1, 1, TAIL_PRIORITY, loutput},
+    {".maybeoutput", 1, 1, 1, MAYBE_PRIORITY, loutput},
     {".setbf", 2, 2, 2, PREFIX_PRIORITY, l_setbf},
     {".setfirst", 2, 2, 2, PREFIX_PRIORITY, l_setfirst},
     {".setitem", 3, 3, 3, PREFIX_PRIORITY, l_setitem},
@@ -122,9 +119,13 @@ PRIMTYPE prims[] = {
     {"equalp", 2, 2, 2, PREFIX_PRIORITY, lequalp},
     {"equal?", 2, 2, 2, PREFIX_PRIORITY, lequalp},
     {"er", 1, 1, 1, PREFIX_PRIORITY, lerase},
+    {"erall", 0, 0, 0, PREFIX_PRIORITY, lerall},
     {"erase", 1, 1, 1, PREFIX_PRIORITY, lerase},
     {"erasefile", 1, 1, 1, PREFIX_PRIORITY, lerasefile},
     {"erf", 1, 1, 1, PREFIX_PRIORITY, lerasefile},
+    {"erns", 0, 0, 0, PREFIX_PRIORITY, lerns},
+    {"erpls", 0, 0, 0, PREFIX_PRIORITY, lerpls},
+    {"erps", 0, 0, 0, PREFIX_PRIORITY, lerps},
     {"error", 0, 0, 0, PREFIX_PRIORITY, lerror},
     {"exp", 1, 1, 1, PREFIX_PRIORITY, lexp},
     {"fd", 1, 1, 1, PREFIX_PRIORITY, lforward},
@@ -139,6 +140,8 @@ PRIMTYPE prims[] = {
     {"fs", 0, 0, 0, PREFIX_PRIORITY, lfullscreen},
     {"fullscreen", 0, 0, 0, PREFIX_PRIORITY, lfullscreen},
     {"fulltext", 1, 1, 1, PREFIX_PRIORITY, lfulltext},
+    {"gc", 0, 0, 1, PREFIX_PRIORITY, lgc},
+    {"goto", 1, 1, 1, MACRO_PRIORITY, lgoto},
     {"gprop", 2, 2, 2, PREFIX_PRIORITY, lgprop},
     {"greaterp", 2, 2, 2, PREFIX_PRIORITY, lgreaterp},
     {"greater?", 2, 2, 2, PREFIX_PRIORITY, lgreaterp},
@@ -162,7 +165,7 @@ PRIMTYPE prims[] = {
     {"left", 1, 1, 1, PREFIX_PRIORITY, lleft},
     {"lessp", 2, 2, 2, PREFIX_PRIORITY, llessp},
     {"less?", 2, 2, 2, PREFIX_PRIORITY, llessp},
-    {"list", 1, 2, -1, PREFIX_PRIORITY, llist},
+    {"list", 0, 2, -1, PREFIX_PRIORITY, llist},
     {"listp", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"list?", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"ln", 1, 1, 1, PREFIX_PRIORITY, lln},
@@ -180,22 +183,24 @@ PRIMTYPE prims[] = {
     {"memberp", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"member?", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"minus", 1, 1, 1, PREFIX_PRIORITY, lsub},
+    {"modulo", 2, 2, 2, PREFIX_PRIORITY, lmodulo},
     {"mousepos", 0, 0, 0, PREFIX_PRIORITY, lmousepos},
     {"namep", 1, 1, 1, PREFIX_PRIORITY, lnamep},
     {"name?", 1, 1, 1, PREFIX_PRIORITY, lnamep},
     {"names", 0, 0, 0, PREFIX_PRIORITY, lnames},
+    {"nodes", 0, 0, 0, PREFIX_PRIORITY, lnodes},
     {"nodribble", 0, 0, 0, PREFIX_PRIORITY, lnodribble},
     {"norefresh", 0, 0, 0, PREFIX_PRIORITY, lnorefresh},
     {"not", 1, 1, 1, PREFIX_PRIORITY, lnot},
     {"numberp", 1, 1, 1, PREFIX_PRIORITY, lnumberp},
     {"number?", 1, 1, 1, PREFIX_PRIORITY, lnumberp},
-    {"op", 1, 1, 1, TAIL_PRIORITY, loutput},
+    {"op", 1, 1, 1, OUTPUT_PRIORITY, loutput},
     {"openappend", 1, 1, 1, PREFIX_PRIORITY, lopenappend},
     {"openread", 1, 1, 1, PREFIX_PRIORITY, lopenread},
     {"openupdate", 1, 1, 1, PREFIX_PRIORITY, lopenupdate},
     {"openwrite", 1, 1, 1, PREFIX_PRIORITY, lopenwrite},
     {"or", 0, 2, -1, PREFIX_PRIORITY, lor},
-    {"output", 1, 1, 1, TAIL_PRIORITY, loutput},
+    {"output", 1, 1, 1, OUTPUT_PRIORITY, loutput},
     {"palette", 1, 1, 1, PREFIX_PRIORITY, lpalette},
     {"parse", 1, 1, 1, PREFIX_PRIORITY, lparse},
     {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},	       
@@ -248,6 +253,7 @@ PRIMTYPE prims[] = {
     {"refresh", 0, 0, 0, PREFIX_PRIORITY, lrefresh},
     {"remainder", 2, 2, 2, PREFIX_PRIORITY, lremainder},
     {"remprop", 2, 2, 2, PREFIX_PRIORITY, lremprop},
+    {"repcount", 0, 0, 0, PREFIX_PRIORITY, lrepcount},
     {"repeat", 2, 2, 2, MACRO_PRIORITY, lrepeat},
     {"rerandom", 0, 0, 1, PREFIX_PRIORITY, lrerandom},
     {"right", 1, 1, 1, PREFIX_PRIORITY, lright},
@@ -295,10 +301,11 @@ PRIMTYPE prims[] = {
     {"st", 0, 0, 0, PREFIX_PRIORITY, lshowturtle},
     {"standout", 1, 1, 1, PREFIX_PRIORITY, lstandout},
     {"step", 1, 1, 1, PREFIX_PRIORITY, lstep},
-    {"stop", 0, 0, 0, TAIL_PRIORITY, lstop},
+    {"stop", 0, 0, 0, STOP_PRIORITY, lstop},
     {"substringp", 2, 2, 2, PREFIX_PRIORITY, lsubstringp},
     {"substring?", 2, 2, 2, PREFIX_PRIORITY, lsubstringp},
     {"sum", 0, 2, -1, PREFIX_PRIORITY, ladd},
+    {"tag", 1, 1, 1, PREFIX_PRIORITY, ltag},
     {"test", 1, 1, 1, PREFIX_PRIORITY, ltest},
     {"text", 1, 1, 1, PREFIX_PRIORITY, ltext},
     {"textscreen", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
@@ -339,21 +346,21 @@ PRIMTYPE prims[] = {
     {0, 0, 0, 0, 0, 0}
 };
 
-NODE* valref(NODE *p) {
-    ref(p);
-    return p;
+NODE *intern_p(NODE *caseobj) {
+    NODE *result = intern(caseobj);
+    setflag__caseobj(result, PERMANENT);
+    return result;
 }
 
-void init()
-{
+void init(void) {
     extern long time();
     int i = 0;
     NODE *proc = NIL, *pname = NIL, *cnd = NIL;
 
     fill_reserve_tank();
-    Unbound = newnode(PUNBOUND);
+    oldyoungs = Unbound = newnode(PUNBOUND);
 
-#ifdef bsd
+#ifdef HAVE_SRANDOM
     srandom((int)time((long *)NULL));
 #else
     srand((int)time((long *)NULL));
@@ -362,7 +369,7 @@ void init()
     for (i=0; i<128; i++)
 	ecma_array[i] = i;
     for (i=0; i<ecma_size; i++)
-	ecma_array[special_chars[i]] = ecma_begin+i;
+	ecma_array[(int)special_chars[i]] = ecma_begin+i;
     i = 0;
 #endif
     logolib = getenv("LOGOLIB");
@@ -377,59 +384,57 @@ void init()
     if (tempdir == NULL) tempdir = temploc;
     while (prims[i].name) {
 	if (prims[i].priority == MACRO_PRIORITY)
-	    proc = reref(proc, newnode(MACRO));
-	else if (prims[i].priority == TAIL_PRIORITY)
-	    proc = reref(proc, newnode(TAILFORM));
-	else if ((prims[i].priority & ~4) == PREFIX_PRIORITY)
-	    proc = reref(proc, newnode(PRIM)); /* incl. -- */
+	    proc = newnode(MACRO);
+	else if (prims[i].priority <= TAIL_PRIORITY)
+	    proc = newnode(TAILFORM);
+	else if ((prims[i].priority & ~4) == (PREFIX_PRIORITY & ~4))
+	    proc = newnode(PRIM); /* incl. -- */
 	else
-	    proc = reref(proc, newnode(INFIX));
-	if (prims[i].priority < PREFIX_PRIORITY)
-	    setprimpri(proc, PREFIX_PRIORITY);
-	else
-	    setprimpri(proc, prims[i].priority);
+	    proc = newnode(INFIX);
+	setprimpri(proc, prims[i].priority);
 	setprimfun(proc, prims[i].prim);
 	setprimdflt(proc, prims[i].defargs);
 	setprimmax(proc, prims[i].maxargs);
 	setprimmin(proc, prims[i].minargs);
-	pname = reref(pname, make_static_strnode(prims[i].name));
-	cnd = reref(cnd, make_instance(pname, pname));
+	pname = make_static_strnode(prims[i].name);
+	cnd = make_instance(pname, pname);
 	setprocnode__caseobj(cnd, proc);
 	if (nodetype(proc) == MACRO)
 	    setflag__caseobj(cnd, PROC_MACRO);
+	setflag__caseobj(cnd, PERMANENT);
 	i++;
     }
-    deref(proc);
-    deref(cnd);
-    deref(pname);
-    True = intern(make_static_strnode("true"));
-    False = intern(make_static_strnode("false"));
-    Left_Paren = intern(make_static_strnode("("));
-    Right_Paren = intern(make_static_strnode(")"));
-    Minus_Sign = intern(make_static_strnode("-"));
-    Minus_Tight = intern(make_static_strnode("--"));
-    Query = intern(make_static_strnode("?"));
-    Null_Word = intern(make_static_strnode("\0"));
-    To = intern(make_static_strnode("to"));
-    Macro = intern(make_static_strnode(".macro"));
-    Toplevel = intern(make_static_strnode("toplevel"));
-    System = intern(make_static_strnode("system"));
-    Error = intern(make_static_strnode("error"));
-    End = intern(make_static_strnode("end"));
-    If = intern(make_static_strnode("if"));
-    Ifelse = intern(make_static_strnode("ifelse"));
-    Redefp = intern(make_static_strnode("redefp"));
-    Caseignoredp = intern(make_static_strnode("caseignoredp"));
+    True = intern_p(make_static_strnode("true"));
+    False = intern_p(make_static_strnode("false"));
+    Left_Paren = intern_p(make_static_strnode("("));
+    Right_Paren = intern_p(make_static_strnode(")"));
+    Minus_Sign = intern_p(make_static_strnode("-"));
+    Minus_Tight = intern_p(make_static_strnode("--"));
+    Query = intern_p(make_static_strnode("?"));
+    Null_Word = intern_p(make_static_strnode("\0"));
+    To = intern_p(make_static_strnode("to"));
+    Macro = intern_p(make_static_strnode(".macro"));
+    Toplevel = intern_p(make_static_strnode("toplevel"));
+    System = intern_p(make_static_strnode("system"));
+    Error = intern_p(make_static_strnode("error"));
+    End = intern_p(make_static_strnode("end"));
+    If = intern_p(make_static_strnode("if"));
+    Ifelse = intern_p(make_static_strnode("ifelse"));
+    Redefp = intern_p(make_static_strnode("redefp"));
+    Caseignoredp = intern_p(make_static_strnode("caseignoredp"));
     setvalnode__caseobj(Caseignoredp, True);
     setflag__caseobj(Caseignoredp, VAL_BURIED);
-    Erract = intern(make_static_strnode("erract"));
-    Printdepthlimit = intern(make_static_strnode("printdepthlimit"));
-    Printwidthlimit = intern(make_static_strnode("printwidthlimit"));
-    Pause = intern(make_static_strnode("pause"));
-    Startup = intern(make_static_strnode("startup"));
-    Output = intern(make_static_strnode("output"));
-    Op = intern(make_static_strnode("op"));
-    Stop = intern(make_static_strnode("stop"));
-    the_generation = valref(cons(NIL, NIL));
-    Not_Enough_Node = valref(cons(NIL, NIL));
+    Erract = intern_p(make_static_strnode("erract"));
+    Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
+    Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
+    LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
+    Pause = intern_p(make_static_strnode("pause"));
+    Startup = intern_p(make_static_strnode("startup"));
+    Output = intern_p(make_static_strnode("output"));
+    Op = intern_p(make_static_strnode("op"));
+    Stop = intern_p(make_static_strnode("stop"));
+    Goto = intern_p(make_static_strnode("goto"));
+    Tag = intern_p(make_static_strnode("Tag"));
+    the_generation = cons(NIL, NIL);
+    Not_Enough_Node = cons(NIL, NIL);
 }

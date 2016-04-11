@@ -5,9 +5,10 @@
 #include <X11/Xutil.h>
 
 extern int have_x;
+extern int back_ground;
 
-#define checkX {if (have_x < 0) real_window_init(); \
-		if (!have_x) {err_logo(BAD_GRAPH_INIT,NIL);return;}}
+extern void real_window_init();
+void logofill(void);
 
 /* Some X-related defines. */
 #define BORDER	1
@@ -17,10 +18,19 @@ extern int have_x;
 #define DEFAULT_HEIGHT           500
 #define DEFAULT_WIDTH            500
 
-#define GR_SIZE         1
+#define GR_SIZE         10000
+
+#define checkX { \
+    if (have_x < 0) real_window_init(); \
+    if (!have_x) { \
+	err_logo(BAD_GRAPH_INIT,NIL); \
+	return; \
+    } \
+}
 
 #define prepare_to_draw          {checkX; placate_x();}
 #define done_drawing             XFlush(dpy)
+extern void placate_x();
 
 #define prepare_to_draw_turtle nop()
 #define done_drawing_turtle nop()
@@ -48,43 +58,48 @@ extern int have_x;
 #define turtle_half_bottom 6.0
 #define turtle_side 19.0
 
-#define clear_screen		 checkX;\
-				 XClearWindow(dpy, win);\
-                                 XFlush(dpy)
+#define clear_screen		 XClearWindow(dpy, win)
 
-#define line_to(a,b)             checkX;\
-				 if(orig_pen.vis==0)\
-                                 XDrawLine(dpy,win,orig_pen.pm,\
-                                 orig_pen.xpos,orig_pen.ypos,\
+#define erase_screen()		 XClearWindow(dpy, win)
+
+#define line_to(a,b)             if(xgr_pen.vis==0)\
+                                 XDrawLine(dpy,win,xgr_pen.pm,\
+                                 xgr_pen.xpos,xgr_pen.ypos,\
                                  (a),(b));\
-                                 orig_pen.xpos=(a);\
-                                 orig_pen.ypos=(b)
+                                 xgr_pen.xpos=(a);\
+                                 xgr_pen.ypos=(b)
 
-#define move_to(a,b)             checkX;\
-                                 orig_pen.xpos=(a);\
-                                 orig_pen.ypos=(b)
+#define move_to(a,b)             xgr_pen.xpos=(a);\
+                                 xgr_pen.ypos=(b)
 
-#define draw_string(s)           checkX;\
-                                 XDrawString(dpy,win,orig_pen.pm,\
-                                 orig_pen.xpos,orig_pen.ypos,\
+#define draw_string(s)           XDrawString(dpy,win,xgr_pen.pm,\
+                                 xgr_pen.xpos,xgr_pen.ypos,\
                                  (s),strlen((s)));
 
-#define set_pen_vis(v)           orig_pen.vis=(v)
+#define set_pen_vis(v)           xgr_pen.vis=(v)
 
-#define set_pen_mode(m)          orig_pen.pm=(m)
+#define set_pen_mode(m)          xgr_pen.pm=(m)
 
-#define set_pen_color(c)         checkX;\
-                                 if(turtle_shown)\
-                                   draw_turtle();\
-                                 orig_pen.color=c%NUMCOLORS;\
-                                 XSetForeground(dpy,draw_gc,color[orig_pen.color].pixel);\
-                                 XSetForeground(dpy,reverse_gc,color[orig_pen.color].pixel);\
-                                 if(turtle_shown)\
-                                   draw_turtle();
+#define set_pen_color(c)         draw_turtle();\
+                                 xgr_pen.color=c%NUMCOLORS;\
+                                 XSetForeground(dpy,draw_gc,color[xgr_pen.color].pixel);\
+                                 XSetForeground(dpy,reverse_gc,color[xgr_pen.color].pixel);\
+                                 draw_turtle();
 
-#define set_back_ground(c)	 nop()
-#define set_pen_width(w)         nop()
-#define set_pen_height(h)        nop()
+#define set_back_ground(c)       back_ground=c%NUMCOLORS;\
+                                 XSetBackground(dpy,draw_gc,color[back_ground].pixel);\
+                                 XSetBackground(dpy,reverse_gc,color[back_ground].pixel);\
+                                 XSetBackground(dpy,erase_gc,color[back_ground].pixel);\
+                                 XSetForeground(dpy,erase_gc,color[back_ground].pixel);\
+				 XSetWindowBackground(dpy,win,color[back_ground].pixel);\
+				 redraw_graphics();
+
+#define set_pen_width(w)         XSetLineAttributes(dpy, draw_gc, w, LineSolid, \
+						    CapProjecting, JoinMiter);\
+                                 xgr_pen.pw = w;
+#define set_pen_height(h)        XSetLineAttributes(dpy, draw_gc, h, LineSolid, \
+						    CapProjecting, JoinMiter);\
+                                 xgr_pen.ph = h;
 #define set_pen_x(x)             nop()
 #define set_pen_y(y)             nop()
 #define get_palette(x,y,z,w)	 nop()
@@ -104,6 +119,8 @@ typedef struct {
   GC  pm;
 } pen_info;
 
+extern pen_info xgr_pen;
+
 #define p_info_x(p)              (p.xpos)
 #define p_info_y(p)              (p.ypos)
 
@@ -111,21 +128,20 @@ typedef struct {
    Then we could support multiple turtles.
  */
 
-#define pen_width                orig_pen.pw
-#define pen_height               orig_pen.ph
-#define pen_color                orig_pen.color
-#define pen_mode                 orig_pen.pm
-#define pen_vis                  orig_pen.vis
-#define pen_x                    px
-#define pen_y                    py
-#define get_node_pen_pattern     (cons(make_intnode(-1)), NIL)
-#define get_node_pen_mode        Get_node_pen_mode(orig_pen.pm)
-
-#define back_ground		 0
+#define pen_width                xgr_pen.pw
+#define pen_height               xgr_pen.ph
+#define pen_color                xgr_pen.color
+#define pen_mode                 xgr_pen.pm
+#define pen_vis                  xgr_pen.vis
+#define pen_x                    (xgr_pen.xpos)
+#define pen_y                    (xgr_pen.ypos)
+#define get_node_pen_pattern     (cons(make_intnode(-1), NIL))
+#define get_node_pen_mode        Get_node_pen_mode(xgr_pen.pm)
 
 #define pen_reverse              pen_mode=reverse_gc
 #define pen_erase                pen_mode=erase_gc
 #define pen_down                 pen_mode=draw_gc
+
 
 /* Hmn, buttons are a problem, aren't they? */
 #define button                   FALSE
@@ -139,15 +155,14 @@ typedef struct {
 #define split_screen             nop()
 #define text_screen              nop()
 
-#define save_pen(p)              memcpy(((char *)(p)),((char *)(&orig_pen)),sizeof(pen_info))
-#define restore_pen(p)           memcpy(((char *)(&orig_pen)),((char *)(p)),sizeof(pen_info))
+#define save_pen(p)              memcpy(((char *)(p)),((char *)(&xgr_pen)),sizeof(pen_info))
+#define restore_pen(p)           memcpy(((char *)(&xgr_pen)),((char *)(p)),sizeof(pen_info))
 
 #define plain_xor_pen()          pen_reverse
 
-#define label(s, len)            checkX;\
-                                 XDrawString(dpy,win,orig_pen.pm,\
-                                 orig_pen.xpos,orig_pen.ypos,\
-                                 (s), (len))
+#define label(s)                 XDrawString(dpy,win,xgr_pen.pm,\
+                                 xgr_pen.xpos,xgr_pen.ypos,\
+                                 (s), strlen(s))
 
 #define tone(p,d)                nop()
 #define get_pen_pattern(p)       nop()
@@ -158,8 +173,6 @@ typedef struct {
 /* #define fmod(x,y)                x */
 
 
-extern int px, py;
-extern double degrad;
 extern void nop();
 
 /* Global X variables. */

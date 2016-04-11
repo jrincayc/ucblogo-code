@@ -1,0 +1,5 @@
+.macro localmake :name :value
+output (list "local (word "" :name) "apply ""make (list :name :value))
+end
+
+bury "localmake

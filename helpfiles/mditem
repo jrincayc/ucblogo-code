@@ -1,5 +1,5 @@
 MDITEM indexlist array					(library procedure)
 
-	outputs the element of the multidimensional "array" selected by
+	outputs the member of the multidimensional "array" selected by
 	the list of numbers "indexlist".
 

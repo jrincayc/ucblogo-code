@@ -1,523 +1,484 @@
-TO ASKDIGIT
-MAKE "ONTO LIST "PLAYONTO :CHAR
-END
-
-TO ASKPARSE :CHAR
-IF EQUALP :CHAR "U [ASKU STOP]
-IF MEMBERP LIST "PLAYONTO :CHAR :ONTO [ASKDIGIT STOP]
-BELL
-ASKPARSE RC
-END
-
-TO ASKSTACKS :LIST
-IF EMPTYP :LIST [TYPE [FOR STACK] STOP]
-IF EQUALP FIRST FIRST :LIST "PLAYTOP [ASKUP STOP]
-SPBTYPE 0 LAST FIRST :LIST
-TYPE "| |
-ASKSTACKS BF :LIST
-END
-
-TO ASKU
-IFELSE EQUALP FIRST LAST :ONTO "PLAYTOP ~
-       [MAKE "ONTO LAST :ONTO] [BELL ASKPARSE RC]
-END
-
-TO ASKUP
-TYPE [FOR STACK,]
-SETCURSOR [4 21]
-TYPE "OR
-SPBTYPE 1 "U
-TYPE [| FOR| UP.]
-END
-
-TO ASKWHICH
-SETCURSOR [1 20]
-TYPE [PLAY WHERE? |TYPE |]
-ASKSTACKS :ONTO
-ASKPARSE RC
-SETCURSOR [1 20]
-SPACES 37 PR []
-SPACES 37 PR []
-END
-
-TO BELL
-TONE 400 10
-SETEMPTY "DIGIT
-END
-
-TO BLACKTYPE :WORD
-TYPE STANDOUT :WORD
-END
-
-TO CARDBEFOREP :A :B
-IF EQUALP :A "A [OUTPUT EQUALP :B 2]
-IF EQUALP :A 10 [OUTPUT EQUALP :B "J]
-IF EQUALP :A "J [OUTPUT EQUALP :B "Q]
-IF EQUALP :A "Q [OUTPUT EQUALP :B "K]
-IF EQUALP :A "K [OUTPUT "FALSE]
-IF NOT NUMBERP :B [OUTPUT "FALSE]
-OUTPUT EQUALP :A :B-1
-END
-
-TO CARDDIS :CARD
-IFELSE MEMBERP SUIT :CARD :REDS [REDTYPE :CARD] [BLACKTYPE :CARD]
-TYPE "| |
-wait 0
-END
-
-TO CHEAT
-SETCURSOR [1 22] SPACES 3
-IF NOT EQUALP :DIGIT 8 [BELL STOP]
-IF AND EMPTYP :HAND EMPTYP :PILE [BELL STOP]
-LPUSH DEAL "PILE
-DISPILE
-DISHAND
-SETEMPTY "DIGIT
-END
-
-TO CHECKBLACK :NUM
-IF NOT MEMBERP SUIT FIRST :STACK :REDS [STOP]
-IF CARDBEFOREP (RANK :CARD) (RANK FIRST :STACK) ~
-   [PUSH (LIST "PLAYONTO :NUM) "ONTO]
-END
-
-TO CHECKEMPTY :NUM
-IF EQUALP RANK :CARD "K [PUSH (LIST "PLAYONTO :NUM) "ONTO OUTPUT "TRUE]
-OUTPUT "FALSE
-END
-
-TO CHECKFULL :NUM :STACK
-IFELSE MEMBERP SUIT :CARD :REDS [CHECKRED :NUM] [CHECKBLACK :NUM]
-END
-
-TO CHECKONTO :NUM
-IF :NUM = 0 [STOP]
-IFELSE STACKEMPTYP SHOWN :NUM ~
-       [IF CHECKEMPTY :NUM [STOP]] [CHECKFULL :NUM THING SHOWN :NUM]
-CHECKONTO :NUM-1
-END
-
-TO CHECKRED :NUM
-IF MEMBERP SUIT FIRST :STACK :REDS [STOP]
-IF CARDBEFOREP (RANK :CARD) (RANK FIRST :STACK) ~
-   [PUSH (LIST "PLAYONTO :NUM) "ONTO]
-END
-
-TO CHECKTOP
-IF EQUALP RANK :CARD "A ~
-   [IF EMPTYP TOP SUIT :CARD ~
-       [PUSH (LIST "PLAYTOP WORD "" SUIT :CARD) "ONTO] ~
-    STOP]
-IF CARDBEFOREP (TOP SUIT :CARD) (RANK :CARD) ~
-   [PUSH (LIST "PLAYTOP WORD "" SUIT :CARD) "ONTO]
-END
-
-TO COVEREDP
-IF EQUALP :WHERE [REMPILE] [OUTPUT "FALSE]
-OUTPUT NOT EQUALP :CARD FIRST THING SHOWN LAST :WHERE
-END
-
-TO DEAL
-IF EMPTYP :HAND [MAKE "HAND :PILE SETEMPTY "PILE]
-IF EMPTYP :HAND [OUTPUT []]
-OUTPUT SPOP "HAND
-END
-
-TO DECK
-if namep "newdeck [op :newdeck]
-make "newdeck (array 52 0)
-foreach [A 2 3 4 5 6 7 8 9 10 J Q K] ~
-   [setitem #-1 :newdeck word ? :heart ~
-    setitem #+12 :newdeck word ? :spade ~
-    setitem #+25 :newdeck word ? :diamond ~
-    setitem #+38 :newdeck word ? :club]
-output :newdeck
-END
-
-TO DISHAND
-SETCURSOR [27 23]
-TYPE COUNT :HAND
-TYPE "| |
-END
-
-TO DISPILE
-SETCURSOR [32 23]
-IFELSE EMPTYP :PILE [SPACES 3] [CARDDIS LAST :PILE]
-END
-
-TO DISSTACK :NUM
-SETCURSOR LIST (-3+5*:NUM) 4
-TYPE IFELSE STACKEMPTYP HIDDEN :NUM ["| |] ["-]
-IF STACKEMPTYP SHOWN :NUM ~
-   [SETCURSOR LIST (-4+5*:NUM) 5 SPACES 3 STOP]
-DISSTACK1 :NUM (THING SHOWN :NUM)
-END
-
-TO DISSTACK1 :NUM :STACK
-DISSTACK2 (4+COUNT :STACK) (-4+5*:NUM) :STACK
-END
-
-TO DISSTACK2 :ROW :COL :STACK
-IF EMPTYP :STACK [STOP]
-SETCURSOR LIST :COL :ROW
-CARDDIS FIRST :STACK
-DISSTACK2 :ROW-1 :COL BF :STACK
-END
-
-TO DISSTACKS :NUM
-IF :NUM = 0 [STOP]
-DISSTACK :NUM
-DISSTACKS :NUM-1
-END
-
-TO DISTOP :SUIT
-IF EMPTYP TOP :SUIT [STOP]
-IF EQUALP :SUIT :HEART [DISTOP1 4 STOP]
-IF EQUALP :SUIT :SPADE [DISTOP1 11 STOP]
-IF EQUALP :SUIT :DIAMOND [DISTOP1 18 STOP]
-DISTOP1 25
-END
-
-TO DISTOP1 :COL
-SETCURSOR LIST :COL 2
-CARDDIS WORD (TOP :SUIT) :SUIT
-END
-
-TO FINDCARD
-IF FINDPILE [STOP]
-MAKE "WHERE FINDSHOWN 7
-IF EMPTYP :WHERE [BELL]
-END
-
-TO FINDPILE
-IF EMPTYP :PILE [OUTPUT "FALSE]
-IF EQUALP :CARD LAST :PILE [MAKE "WHERE [REMPILE] OUTPUT "TRUE]
-OUTPUT "FALSE
-END
-
-TO FINDSHOWN :NUM
-IF :NUM = 0 [OUTPUT []]
-IF MEMBERP :CARD THING SHOWN :NUM [OP SE "REMSHOWN :NUM]
-OP FINDSHOWN :NUM-1
-END
-
-TO HAND3
-IF NOT EMPTYP :DIGIT [BELL STOP]
-IF AND EMPTYP :HAND EMPTYP :PILE [BELL STOP]
-LPUSH DEAL "PILE
-REPEAT 2 [IF NOT EMPTYP :HAND [LPUSH DEAL "PILE]]
-DISPILE
-DISHAND
-END
-
-TO HELP
-CT
-INSTRUCT
-SPBPR 0 [TYPE ANY KEY TO CONTINUE]
-IGNORE RC
-REDISPLAY
-END
-
-TO HIDDEN :NUM
-OUTPUT WORD "HIDDEN :NUM
-END
-
-TO INITHIDDEN :NUM [:name hidden :num]
-SETEMPTY :name
-REPEAT :NUM [PUSH DEAL :name]
-END
-
-TO INITSTACKS :NUM
-IF :NUM = 0 [STOP]
-INITHIDDEN :NUM
-TURNUP :NUM
-INITSTACKS :NUM-1
-END
-
-TO INSTRUCT
-PR [WELCOME TO SOLITAIRE]
-PR []
-PR [HERE ARE THE COMMANDS YOU CAN TYPE:]
-SPBTYPE 4 "+ SPPR 4 [DEAL THREE CARDS ONTO PILE]
-SPBTYPE 4 "P SPPR 4 [PLAY TOP CARD FROM PILE]
-SPBTYPE 4 "R SPPR 4 [REDISPLAY THE BOARD]
-SPBTYPE 4 "? SPPR 4 [RETYPE THESE INSTRUCTIONS]
-SPBTYPE 4 "CARD SPPR 1 [PLAY THAT CARD]
-PR []
-PR [A CARD CONSISTS OF A RANK:]
-SPBPR 3 [A 2 3 4 5 6 7 8 9 10 J Q K]
-PR [FOLLOWED BY A SUIT:]
-SPBPR 3 [H S D C]
-PR []
-PR [IF YOU MAKE A MISTAKE,]
-SPPR 3 [HIT THE SPACE BAR.]
-PR []
-PR [TO MOVE AN ENTIRE STACK,]
-SPPR 3 [HIT THE SHIFTED STACK NUMBER:]
-SPBTYPE 5 [! @ # $ % ^ &] SPPR 1 [FOR STACKS]
-SPPR 5 [1 2 3 4 5 6 7]
-PR []
-END
-
-TO INVTYPE :TEXT
-TYPE STANDOUT :TEXT
-END
-
-TO LOOP
-IF EMPTYP :DIGIT [SETCURSOR [1 22] SPACES 6 SETCURSOR [1 22]]
-PARSEKEY RC
-LOOP
-END
-
-TO LPOP :STACK
-LOCAL "RESULT
-MAKE "RESULT LAST THING :STACK
-MAKE :STACK BL THING :STACK
-OUTPUT :RESULT
-END
-
-TO LPUSH :THING :STACK
-MAKE :STACK LPUT :THING THING :STACK
-END
-
-TO PARSEDIGIT :CHAR
-IF NOT EMPTYP :DIGIT [BELL STOP]
-MAKE "DIGIT :CHAR
-TYPE :CHAR
-END
-
-TO PARSEKEY :CHAR
-IF MEMBERP :CHAR [1 2 3 4 5 6 7 8 9 A J Q K] [PARSEDIGIT :CHAR STOP]
-IF EQUALP :CHAR "0 [PARSEZERO STOP]
-IF MEMBERP :CHAR [H S D C] [PARSESUIT :CHAR STOP]
-IF MEMBERP :CHAR [+ =] [HAND3 STOP]
-IF EQUALP :CHAR "R [REDISPLAY STOP]
-IF EQUALP :CHAR "? [HELP STOP]
-IF EQUALP :CHAR "P [PLAYPILE STOP]
-IF MEMBERP :CHAR [! @ # $ % ^ &] [PLAYSTACK :CHAR [! @ # $ % ^ &] STOP]
-IF EQUALP :CHAR "| | [RUBOUT STOP]
-IF EQUALP :CHAR "\( [CHEAT STOP]
-BELL
-END
-
-TO PARSESUIT :CHAR
-IF EMPTYP :DIGIT [BELL STOP]
-IF EQUALP :DIGIT 1 [MAKE "DIGIT "A]
-IF EQUALP :CHAR "H [MAKE "CHAR :HEART]
-IF EQUALP :CHAR "S [MAKE "CHAR :SPADE]
-IF EQUALP :CHAR "D [MAKE "CHAR :DIAMOND]
-IF EQUALP :CHAR "C [MAKE "CHAR :CLUB]
-TYPE :CHAR
-wait 0
-MAKE "CARD WORD :DIGIT :CHAR
-SETEMPTY "DIGIT
-FINDCARD
-IF NOT EMPTYP :WHERE [PLAYCARD]
-END
-
-TO PARSEZERO
-IF NOT EQUALP :DIGIT 1 [BELL STOP]
-MAKE "DIGIT 10
-TYPE 0
-END
-
-TO PLAYCARD
-SETEMPTY "ONTO
-IF NOT COVEREDP [CHECKTOP]
-CHECKONTO 7
-IF EMPTYP :ONTO [BELL STOP]
-IFELSE (COUNT :ONTO) > 1 [ASKWHICH] [MAKE "ONTO FIRST :ONTO]
-RUN :WHERE
-RUN :ONTO
-SETEMPTY "DIGIT
-END
-
-TO PLAYONTO :NUM [:row 5+count thing shown :num] [:col -4+5*:num]
-IF EMPTYP :CARDS [STOP]
-local "card
-make "card pop "cards
-PUSH :CARD SHOWN :NUM
-setcursor list :col :row
-carddis :card
-(PLAYONTO :NUM :row+1 :col)
-END
-
-TO PLAYPILE
-IF EMPTYP :PILE [BELL STOP]
-IF NOT EMPTYP :DIGIT [BELL STOP]
-MAKE "CARD LAST :PILE
-MAKE "WHERE [REMPILE]
-CARDDIS :CARD
-PLAYCARD
-END
-
-TO PLAYSTACK :WHICH :LIST
-IF NOT EMPTYP :DIGIT [BELL STOP]
-PLAYSTACK1 :WHICH :LIST 1
-END
-
-TO PLAYSTACK1 :WHICH :LIST :NUM
-IF EQUALP :WHICH FIRST :LIST [PLAYSTACK2 :NUM STOP]
-PLAYSTACK1 :WHICH BF :LIST :NUM+1
-END
-
-TO PLAYSTACK2 :NUM
-IF STACKEMPTYP SHOWN :NUM [BELL STOP]
-MAKE "CARD LAST THING SHOWN :NUM
-MAKE "WHERE SE "REMSHOWN :NUM
-CARDDIS :CARD
-PLAYCARD
-END
-
-TO PLAYTOP :SUIT
-SETTOP :SUIT RANK :CARD
-DISTOP :SUIT
-END
-
-TO PUSH :THING :STACK
-MAKE :STACK FPUT :THING THING :STACK
-END
-
-TO RANK :CARD
-OUTPUT BL :CARD
-END
-
-TO REDISPLAY
-CT
-DISSTACKS 7
-DISTOP :HEART
-DISTOP :SPADE
-DISTOP :DIAMOND
-DISTOP :CLUB
-DISPILE
-DISHAND
-SETCURSOR [1 22]
-SETEMPTY "DIGIT
-END
-
-TO REDTYPE :WORD
-TYPE :WORD
-END
-
-TO REMOVE :NUM :LIST
-IF :NUM = 1 [OUTPUT BF :LIST]
-OP FPUT FIRST :LIST REMOVE :NUM-1 BF :LIST
-END
-
-TO REMPILE
-MAKE "CARDS (LIST (LPOP "PILE))
-DISPILE
-END
-
-TO REMSHOWN :NUM
-SETEMPTY "CARDS
-REMSHOWN1 :NUM 1 (COUNT THING SHOWN :NUM)
-IF STACKEMPTYP SHOWN :NUM [TURNUP :NUM DISSTACK :NUM]
-END
-
-TO REMSHOWN1 :NUM :DEPTH :LENGTH
-PUSH (SPOP SHOWN :NUM) "CARDS
-IF EQUALP :CARD FIRST :CARDS ~
-   [REMSHOWN2 :DEPTH (5+:LENGTH-:DEPTH) (-4+5*:NUM) STOP]
-REMSHOWN1 :NUM :DEPTH+1 :LENGTH
-END
-
-TO REMSHOWN2 :DEPTH :ROW :COL
-IF :DEPTH = 0 [STOP]
-SETCURSOR LIST :COL :ROW
-SPACES 3
-REMSHOWN2 :DEPTH-1 :ROW+1 :COL
-END
-
-TO RUBOUT
-SETCURSOR [1 22]
-SPACES 4
-SETCURSOR [1 22]
-SETEMPTY "DIGIT
-END
-
-TO SETEMPTY :STACK
-MAKE :STACK []
-END
-
-TO SETTOP :SUIT :VALUE
-MAKE (WORD "TOP :SUIT) :VALUE
-END
-
-TO SHOWN :NUM
-OUTPUT WORD "SHOWN :NUM
-END
-
-TO SHUFFLE :LEN :array
-if :len=0 [op arraytolist :array]
-LOCAL [choice temp]
-make "choice random :len
-make "temp item :choice :array
-setitem :choice :array item :len-1 :array
+to solitaire
+print [Welcome to solitaire]
+instruct
+localmake "allranks [A 2 3 4 5 6 7 8 9 10 J Q K]
+localmake "numranks map "ranknum :allranks
+localmake "suits [H S D C]
+localmake "reds [H D]
+localmake "deckarray (listtoarray (crossmap "word :allranks :suits) 0)
+localmake "upping "false
+catch "exit [forever [onegame cleartext]]
+cleartext
+end
+
+to s
+solitaire
+end
+
+to onegame
+print [Shuffling, please wait...]
+local [card cards digit pile where]
+localmake "onto []
+local map [word "top ?] :suits
+local cascade 9 [(sentence (word "shown #) (word "hidden #) ?)] []
+localmake "ranks :allranks
+localmake "numstacks 7
+local map [word "num ?] :numranks
+foreach :numranks [make word "num ? 4]
+localmake "hand shuffle 52 :deckarray
+setempty "pile
+initstacks
+foreach :suits [settop ? "]
+redisplay
+catch "endgame [forever [catch "bell [parsecmd]]]
+end
+
+;; Initialization
+
+to instruct 
+print [] print [Here are the commands you can type:]
+type "|    | type (sentence standout "+ standout "=)
+type "|  | print [Deal three cards onto pile]
+instruct1 "P [Play top card from pile]
+instruct1 "R [Redisplay the board]
+instruct1 "? [Retype these instructions]
+instruct1 "card [Play that card]
+instruct1 "M [Move same card again]
+instruct1 "W [Play up as much as possible (Win)]
+instruct1 "G [Give up (start a new game)]
+instruct1 "X [Exit to Logo]
+print [A card consists of a rank:]
+type "|   | print (sentence standout [A 2 3 4 5 6 7 8 9 10 J Q K]
+                            "or standout "T [for 10])
+print [followed by a suit:]
+type "|   | print standout [H S D C]
+print (sentence [or followed by] standout ".
+                [to play all possible suits up])
+print [] print [If you make a mistake, hit delete or backspace.]
+print [] print [To move an entire stack,]
+type "|   | print [hit the shifted stack number:]
+type "|     | print (sentence standout [! @ # $ % ^ &] [for stacks])
+type "|     | print [1 2 3 4 5 6 7]
+print []
+end
+
+to instruct1 :key :meaning
+type "|    |
+type standout :key
+repeat 5-count :key [type "| |]
+print :meaning
+end
+
+to shuffle :len :array
+if :len=0 [output arraytolist :array]
+localmake "choice random :len
+localmake "temp item :choice :array
+setitem :choice :array (item :len-1 :array)
 setitem :len-1 :array :temp
-OP shuffle :len-1 :array
-END
+output shuffle :len-1 :array
+end
 
-TO SOLITAIRE
-INSTRUCT
-PR [SHUFFLING, PLEASE WAIT...]
-MAKE "HEART "H
-MAKE "SPADE "S
-MAKE "DIAMOND "D
-MAKE "CLUB "C
-MAKE "HAND SHUFFLE 52 DECK
-SETEMPTY "PILE
-INITSTACKS 7
-MAKE "REDS LIST :HEART :DIAMOND
-SETTOP :HEART "
-SETTOP :SPADE "
-SETTOP :DIAMOND "
-SETTOP :CLUB "
-REDISPLAY
-LOOP
-END
+to initstacks
+for [num 1 7] [inithidden :num
+               turnup :num]
+end
 
-TO SPACES :NUM
-REPEAT :NUM [TYPE "| |]
-END
+to inithidden :num
+localmake "name hidden :num
+setempty :name
+repeat :num [push :name deal]
+end
 
-TO SPBPR :SPACES :TEXT
-SPBTYPE :SPACES :TEXT
-PR []
-END
+;; Reading and interpreting user commands
 
-TO SPBTYPE :SPACES :TEXT
-SPACES :SPACES
-INVTYPE :TEXT
-END
+to parsecmd
+if emptyp :digit [setcursor [1 22] type "|      | setcursor [1 22]]
+local "char
+make "char uppercase readchar
+if equalp :char "T [parsedigit 1 parsezero stop]
+if memberp :char [1 2 3 4 5 6 7 8 9 A J Q K] [parsedigit :char stop]
+if equalp :char "0 [parsezero stop]
+if memberp :char :suits [play.by.name :char stop]
+if equalp :char ". [allup stop]
+if equalp :char "W [wingame stop]
+if equalp :char "M [again stop]
+if memberp :char [+ =] [hand3 stop]
+if equalp :char "R [redisplay stop]
+if equalp :char "? [helper stop]
+if equalp :char "P [playpile stop]
+if and equalp :char "|(| not emptyp :digit [cheat stop]
+if and equalp :char "|)| not emptyp :digit [newstack stop]
+if memberp :char [! @ # $ % ^ & * ( )] ~
+   [playstack :char [! @ # $ % ^ & * ( )] stop]
+if memberp :char (list "| | char 8 char 127) [rubout stop]
+if equalp :char "G [throw "endgame]
+if equalp :char "X [throw "exit]
+bell
+end
 
-TO SPOP :STACK
-LOCAL "RESULT
-MAKE "RESULT FIRST THING :STACK
-MAKE :STACK BF THING :STACK
-OUTPUT :RESULT
-END
+to parsedigit :char
+if not emptyp :digit [bell]
+make "digit :char
+type :digit
+end
 
-TO SPPR :SPACES :TEXT
-SPACES :SPACES
-PR :TEXT
-END
+to parsezero 
+if not equalp :digit 1 [bell]
+make "digit 10
+type 0
+end
 
-TO STACKEMPTYP :NAME
-OUTPUT EMPTYP THING :NAME
-END
+to rubout 
+setcursor [1 22]
+type "|    |
+setcursor [1 22]
+setempty "digit
+end
 
-TO SUIT :CARD
-OUTPUT LAST :CARD
-END
+to bell
+if not :upping [type char 7]
+setempty "digit
+throw "bell
+end
 
-TO TOP :SUIT
-OUTPUT THING WORD "TOP :SUIT
-END
+;; Deal three cards from the hand
 
-TO TURNUP :NUM
-SETEMPTY SHOWN :NUM
-IF STACKEMPTYP HIDDEN :NUM [STOP]
-PUSH (SPOP HIDDEN :NUM) SHOWN :NUM
-END
+to hand3 
+if not emptyp :digit [bell]
+if and emptyp :hand emptyp :pile [bell]
+push "pile deal
+repeat 2 [if not emptyp :hand [push "pile deal]]
+dispile dishand
+end
 
+to deal 
+if emptyp :hand [make "hand reverse :pile setempty "pile]
+if emptyp :hand [output []]
+output pop "hand
+end
+
+;; Select card to play by position (pile or stack) or by name
+
+to playpile 
+if emptyp :pile [bell]
+if not emptyp :digit [bell]
+make "card first :pile
+make "where [rempile]
+carddis :card
+playcard
+end
+
+to playstack :which :list
+if not emptyp :digit [bell]
+foreach :list [if equalp :which ? [playstack1 # stop]]
+end
+
+to playstack1 :num
+if greaterp :num :numstacks [bell]
+if stackemptyp shown :num [bell]
+make "card last thing shown :num
+make "where sentence "remshown :num
+carddis :card
+playcard
+end
+
+to play.by.name :char
+if emptyp :digit [bell]
+if equalp :digit 1 [make "digit "a]
+type :char
+wait 0
+make "card word :digit :char
+setempty "digit
+findcard
+if not emptyp :where [playcard]
+end
+
+to findcard 
+if findpile [stop]
+make "where findshown
+if emptyp :where [bell]
+end
+
+to findpile 
+if emptyp :pile [output "false]
+if equalp :card first :pile [make "where [rempile] output "true]
+output "false
+end
+
+to findshown
+for [num 1 :numstacks] ~
+    [if memberp :card thing shown :num [output sentence "remshown :num]]
+output []
+end
+
+;; Figure out all possible places to play card, then pick one
+
+to playcard
+setempty "onto
+if not coveredp [checktop]
+if and not :upping ~
+       or (emptyp :onto) (not upsafep rank :card) ~
+   [checkonto]
+if emptyp :onto [bell]
+run :where
+run first :onto
+end
+
+to coveredp 
+if equalp :where [rempile] [output "false]
+output not equalp :card first thing shown last :where
+end
+
+to upsafep :rank
+if memberp :rank [A 2] [output "true]
+output equalp 0 thing word "num ((ranknum :rank)-2)
+end
+
+to checktop 
+if (ranknum rank :card) = 1 + (ranknum top suit :card) ~
+   [push "onto (list "playtop word "" suit :card)]
+end
+
+to checkonto
+for [num :numstacks 1] ~
+    [ifelse stackemptyp shown :num
+            [checkempty :num]
+            [checkfull :num thing shown :num]]
+end
+
+to checkempty :num
+if equalp rank :card "k [push "onto (list "playonto :num)]
+end
+
+to checkfull :num :stack
+if equalp (redp :card) (redp first :stack) [stop]
+if ((ranknum rank first :stack) = 1 + (ranknum rank :card)) ~
+   [push "onto (list "playonto :num)]
+end
+
+;; Play card, step 1: remove from old position
+
+to rempile 
+make "cards (list (pop "pile))
+dispile
+end
+
+to remshown :num
+setempty "cards
+remshown1 :num (count thing shown :num)
+if stackemptyp shown :num [turnup :num disstack :num]
+end
+
+to remshown1 :num :length
+do.until [push "cards (pop shown :num)] ~
+         [equalp :card first :cards]
+for [i 1 [count :cards]] ~
+    [setcursor list (5*:num - 4) (5+:length-:i) type "|   |]
+end
+
+to turnup :num
+setempty shown :num
+if stackemptyp hidden :num [stop]
+push (shown :num) (pop hidden :num)
+end
+
+;; Play card, step 2: put in new position 
+
+to playtop :suit
+localmake "var word "num ranknum rank :card
+settop :suit rank :card
+distop :suit
+make :var (thing :var)-1
+if (thing :var)=0 [make "ranks butfirst :ranks]
+end
+
+to playonto :num
+localmake "row 4+count thing shown :num
+localmake "col 5*:num-4
+for [i 1 [count :cards]] ~
+    [localmake "card pop "cards
+     push (shown :num) :card
+     setcursor list :col :row+:i
+     carddis :card]
+end
+
+;; Update screen display
+
+to redisplay 
+cleartext
+for [num 1 :numstacks] [disstack :num]
+foreach :suits "distop
+dispile
+dishand
+setcursor [1 22]
+setempty "digit
+end
+
+to disstack :num
+setcursor list (-3 + 5 * :num) 4
+type ifelse stackemptyp hidden :num ["| |] ["-]
+if stackemptyp shown :num [setcursor list (-4 + 5 * :num) 5
+                           type "|   | stop]
+localmake "stack (thing shown :num)
+localmake "col 5*:num-4
+for [i [count :stack] 1] ~
+    [setcursor list :col :i+4
+     carddis pop "stack]
+end
+
+to distop :suit
+if emptyp top :suit [stop]
+if equalp :suit "H [distop1 4 stop]
+if equalp :suit "S [distop1 11 stop]
+if equalp :suit "D [distop1 18 stop]
+distop1 25
+end
+
+to distop1 :col
+setcursor list :col 2
+carddis word (top :suit) :suit
+end
+
+to dispile 
+setcursor [32 23]
+ifelse emptyp :pile [type "|   |] [carddis first :pile]
+end
+
+to dishand 
+setcursor [27 23]
+type count :hand
+type "| |
+end
+
+to carddis :card
+ifelse memberp suit :card :reds [redtype :card] [blacktype :card]
+type "| |
+end
+
+to redtype :word
+type :word
+end
+
+to blacktype :word
+type standout :word
+end
+
+
+;; Miscellaneous user commands
+
+to again
+if not emptyp :digit [bell]
+if emptyp :onto [bell]
+make "where list "remshown last pop "onto
+if emptyp :onto [bell]
+carddis :card
+run :where
+run first :onto
+end
+
+to helper
+cleartext 
+instruct
+print standout [type any key to continue]
+ignore rc
+redisplay
+end
+
+to allup
+if emptyp :digit [bell]
+if equalp :digit 1 [make "digit "a]
+localmake "upping "true
+type ". wait 0
+foreach map [word :digit ?] [H S D C] ~
+        [catch "bell [make "card ?
+                      findcard
+                      if not emptyp :where [playcard]]]
+setempty "digit
+end
+
+to wingame
+type "W
+localmake "cursor cursor
+foreach :ranks [if not upsafep ? [stop]
+                make "digit ? ~
+                allup ~
+                setempty "digit ~
+                setcursor :cursor]
+if equalp (map "top [H S D C]) [K K K K] ~
+   [ct print [you win!] wait 120 throw "endgame]
+end
+
+to newstack
+localmake "num :numstacks+1
+setcursor [1 22] type "|   |
+if not equalp :digit 9 [bell]
+setempty hidden :num
+setempty shown :num
+make "numstacks :num
+setempty "digit
+end
+
+to cheat 
+setcursor [1 22] type "|   |
+if not equalp :digit 8 [bell]
+if and emptyp :hand emptyp :pile [bell]
+push "pile deal
+dispile
+dishand
+setempty "digit
+end
+
+;; Data abstraction (ranks)
+
+to rank :card
+output butlast :card
+end
+
+to ranknum :rank
+if emptyp :rank [output 0]
+if numberp :rank [output :rank]
+if :rank = "A [output 1]
+if :rank = "J [output 11]
+if :rank = "Q [output 12]
+if :rank = "K [output 13]
+end
+
+;; Data abstraction (suits)
+
+to suit :card
+output last :card
+end
+
+to redp :card
+output memberp (suit :card) :reds
+end
+
+;; Data abstraction (tops)
+
+to top :suit
+output thing word "top :suit
+end
+
+to settop :suit :value
+make (word "top :suit) :value
+end
+
+;; Data abstraction (card stacks)
+
+to shown :num
+output word "shown :num
+end
+
+to hidden :num
+output word "hidden :num
+end
+
+;; Data abstraction (pushdown stacks)
+
+to stackemptyp :name
+output emptyp thing :name
+end
+
+to setempty :stack
+make :stack []
+end

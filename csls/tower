@@ -1,31 +1,31 @@
-PROGRAM TOWER(OUTPUT);
-{THIS PROGRAM SOLVES THE 5-DISK TOWER OF HANOI PROBLEM.}
+program tower;
+ {This program solves the 5-disk tower of hanoi problem.}
 
-PROCEDURE HANOI(NUMBER:INTEGER;FROM,ONTO,OTHER:CHAR);
- {RECURSIVE PROCEDURE THAT SOLVES A SUBPROBLEM OF THE ORIGINAL PROBLEM,
- MOVING SOME NUMBER OF DISKS, NOT NECESSARILY 5.  TO MOVE N DISKS, IT
- MUST GET THE TOPMOST N-1 OUT OF THE WAY, MOVE THE NTH TO THE TARGET
- STACK, THEN MOVE THE N-1 TO THE TARGET STACK.}
+procedure hanoi(number:integer;from,onto,other:char);
+ {Recursive procedure that solves a subproblem of the original problem,
+ moving some number of disks, not necessarily 5.  To move n disks, it
+ must get the topmost n-1 out of the way, move the nth to the target
+ stack, then move the n-1 to the target stack.}
 
-   PROCEDURE MOVEDISK(NUMBER:INTEGER;FROM,ONTO:CHAR);
-    {THIS PROCEDURE MOVES ONE SINGLE DISK.  IT ASSUMES THAT THE MOVE IS
-    LEGAL, I.E., THE DISK IS AT THE TOP OF ITS STACK AND THE TARGET STACK
-    HAS NO SMALLER DISKS ALREADY.  PROCEDURE HANOI IS RESPONSIBLE FOR
-    MAKING SURE THAT'S ALL TRUE.}
+  procedure movedisk(number:integer;from,onto:char);
+   {This procedure moves one single disk.  It assumes that the move is
+   legal, i.e., the disk is at the top of its stack and the target stack
+   has no smaller disks already.  Procedure hanoi is responsible for
+   making sure that's all true.}
 
-      BEGIN {MOVEDISK}
-         WRITELN('MOVE DISK ',NUMBER:1,' FROM ',FROM,' TO ',ONTO)
-      END; {MOVEDISK}
+    begin {movedisk}
+      writeln('Move disk ',number:1,' from ',from,' to ',onto)
+    end; {movedisk}
 
-   BEGIN {HANOI}
-      IF NUMBER <> 0 THEN
-          BEGIN
-             HANOI(NUMBER-1,FROM,OTHER,ONTO);
-             MOVEDISK(NUMBER,FROM,ONTO);
-             HANOI(NUMBER-1,OTHER,ONTO,FROM)
-          END
-   END; {HANOI}
+  begin {hanoi}
+    if number <> 0 then
+       begin
+         hanoi(number-1,from,other,onto);
+         movedisk(number,from,onto);
+         hanoi(number-1,other,onto,from)
+       end
+  end; {hanoi}
 
-BEGIN {MAIN PROGRAM}
-   HANOI(5,'A','B','C')
-END.
+begin {main program}
+  hanoi(5,'a','b','c')
+end.

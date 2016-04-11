@@ -2,7 +2,7 @@ FOREACH data template					(library procedure)
 (FOREACH data1 data2 ... template)
 
 	command.  Evaluates the template list repeatedly, once for each
-	element of the data list.  If more than one data list are given,
+	member of the data list.  If more than one data list are given,
 	each of them must be the same length.  (The data inputs can be
 	words, in which case the template is evaluated once for each
 	character.

@@ -1,0 +1,78 @@
+to pokerhand :cards
+local [ranks suits rankarray]
+poker.init :cards
+if fourp [print [four of a kind] stop]
+if full.housep [print [full house] stop]
+if threep [print [three of a kind] stop]
+if pairp [print ifelse paircount = 1 [[one pair]] [[two pairs]] stop]
+if ace.highp [print ifelse flushp [[royal flush]] [[straight]] stop]
+if straightp [print ifelse flushp [[straight flush]] [[straight]] stop]
+if flushp [print [flush] stop]
+print [nothing!]
+end
+
+to poker.init :cards
+make "ranks map [ranknum butlast ?] :cards
+make "suits remdup map "last :cards
+make "rankarray {0 0 0 0 0 0 0 0 0 0 0 0 0}
+foreach :ranks [setitem ? :rankarray (item ? :rankarray)+1]
+end
+
+to ranknum :rank
+if :rank = "a [output 1]
+if :rank = "j [output 11]
+if :rank = "q [output 12]
+if :rank = "k [output 13]
+output :rank
+end
+
+to fourp
+output memberp 4 :rankarray
+end
+
+to threep
+output memberp 3 :rankarray
+end
+
+to pairp
+output memberp 2 :rankarray
+end
+
+to full.housep
+output and threep pairp
+end
+
+to paircount
+output count locate 2 1
+end
+
+to locate :number :index
+if :index > 13 [output []]
+if (item :index :rankarray) = :number ~
+   [output fput :index (locate :number :index+1)]
+output locate :number :index+1
+end
+
+to flushp
+output emptyp butfirst :suits
+end
+
+to straightp
+output nogap (reduce "min :ranks) 5
+end
+
+to min :a :b
+output ifelse :a < :b [:a] [:b]
+end
+
+to nogap :smallest :howmany
+if :howmany=0 [output "true]
+if not equalp (item :smallest :rankarray) 1 [output "false]
+output nogap :smallest+1 :howmany-1
+end
+
+to ace.highp
+if not equalp (item 1 :rankarray) 1 [output "false]
+output nogap 10 4
+end
+

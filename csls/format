@@ -1,127 +1,157 @@
-TO ADDWORD :WORD
-IF NOT EMPTYP :LINE [MAKE "LINECOUNT :LINECOUNT+1]
-MAKE "LINE LPUT :WORD :LINE
-MAKE "LINECOUNT :LINECOUNT+COUNT :WORD
-END
+to format :from :to
+openread :from
+openwrite :to
+setread :from
+setwrite :to
+init.vars
+loop
+setread []
+setwrite []
+close :from
+close :to
+end
 
-TO BREAK
-IF EMPTYP :LINE [STOP]
-MAKE "LINECOUNT :WIDTH
-PUTLINE
-NEWINDENT
-IF :FILLING [SKIP :PARSKIP]
-END
+to init.vars
+make "pageheight 66
+make "topmar 6
+make "lines 54
+make "leftmar 7
+make "width 65
+make "filltab 5
+make "nofilltab 0
+make "parskip 1
+make "spacing 1
+make "started "false
+make "filling "true
+make "printed 0
+make "inline []
+end
 
-TO FORMAT :FROM :TO
-OPENREAD :FROM
-OPENWRITE :TO
-SETREAD :FROM
-SETWRITE :TO
-INIT.VARS
-LOOP
-SETREAD []
-SETWRITE[]
-CLOSE :FROM
-CLOSE :TO
-END
+to loop
+forever [if process nextword [stop]]
+end
 
-TO INIT.VARS
-MAKE "PAGEHEIGHT 66
-MAKE "TOPMAR 6
-MAKE "LINES 54
-MAKE "LEFTMAR 7
-MAKE "WIDTH 65
-MAKE "FILLTAB 5
-MAKE "NOFILLTAB 0
-MAKE "PARSKIP 1
-MAKE "SPACING 1
-MAKE "STARTED "FALSE
-MAKE "FILLING "TRUE
-MAKE "PRINTED 0
-MAKE "INLINE []
-END
+;; Add a word to the output file, starting a new line if necessary
 
-TO LOOP
-IF PROCESS NEXTWORD [STOP]
-LOOP
-END
+to process :word
+if listp :word [output "true]
+if not :started [start]
+if (:linecount+1+count :word) > :width [putline]
+addword :word
+output "false
+end
 
-TO NEWINDENT
-NEWLINE
-MAKE "INDENT IFELSE :FILLING [:FILLTAB] [:NOFILLTAB]
-MAKE "LINECOUNT :INDENT
-END
+to addword :word
+if not emptyp :line [make "linecount :linecount+1]
+make "line lput :word :line
+make "linecount :linecount+count :word
+end
 
-TO NEWLINE
-MAKE "LINE []
-MAKE "INDENT 0
-MAKE "LINECOUNT 0
-END
+to putline
+repeat :leftmar+:indent [type "| |]
+putwords :line ((count :line)-1) (:width-:linecount)
+newline
+skip :spacing
+end
 
-TO NEXTWORD
-IF NOT EMPTYP :INLINE [OP POPWORD FIRST :INLINE]
-IF NOT :FILLING [BREAK]
-MAKE "INLINE RL
-IF WORDP :INLINE [BREAK OP []]
-IF EMPTYP :INLINE [BREAK OP NEXTWORD]
-IF EQUALP FIRST RUNPARSE :INLINE "|*| [RUN BF RUNPARSE :INLINE MAKE "INLINE []]
-OP NEXTWORD
-END
+to putwords :line :spaces :filler
+local "perword
+if emptyp :line [stop]
+type first :line
+make "perword ifelse :spaces > 0 [int ((:filler+:spaces-1)/:spaces)] [0]
+if :filler > 0 [repeat :perword [type "| |]]
+type "| |
+putwords (butfirst :line) (:spaces-1) (:filler-:perword)
+end
 
-TO NOFILL
-BREAK
-MAKE "FILLING "FALSE
-NEWINDENT
-END
+;; Get the next input word, reading a new line if necessary
 
-TO POPWORD :NEXTWORD
-MAKE "INLINE BF :INLINE
-OP :NEXTWORD
-END
+to nextword
+if not emptyp :inline [output extract.word]
+if not :filling [break]
+make "inline readword
+if listp :inline [break output []]
+if emptyp :inline [break output nextword]
+if equalp first :inline "|*| ~
+   [run butfirst :inline
+    make "inline "]
+make "inline skipspaces :inline
+output nextword
+end
 
-TO PROCESS :WORD
-IF LISTP :WORD [OP "TRUE]
-IF NOT :STARTED [START]
-IF (:LINECOUNT+1+COUNT :WORD) > :WIDTH [PUTLINE]
-ADDWORD :WORD
-OP "FALSE
-END
+to extract.word
+local "result
+make "result firstword :inline
+make "inline skipfirst :inline
+output :result
+end
 
-TO PUTLINE
-REPEAT :LEFTMAR+:INDENT [TYPE "| |]
-PUTWORDS :LINE ((COUNT :LINE)-1) (:WIDTH-:LINECOUNT) 0
-NEWLINE
-SKIP :SPACING
-END
+to firstword :word
+if emptyp :word [output "]
+if equalp first :word "| | [output "]
+output word (first :word) (firstword butfirst :word)
+end
 
-TO PUTWORDS :LINE :SPACES :FILLER :PERWORD
-IF EMPTYP :LINE [STOP]
-TYPE FIRST :LINE
-IF :SPACES > 0 [MAKE "PERWORD INT ((:FILLER+:SPACES-1)/:SPACES)]
-IF :FILLER > 0 [REPEAT :PERWORD [TYPE "| |]]
-TYPE "| |
-PUTWORDS BF :LINE (:SPACES-1) (:FILLER-:PERWORD) 0
-END
+to skipfirst :word
+if emptyp :word [output "]
+if equalp first :word "| | [output skipspaces :word]
+output skipfirst butfirst :word
+end
 
-TO SKIP :HOWMANY
-BREAK
-REPEAT :HOWMANY [PRINT []]
-MAKE "PRINTED :PRINTED+:HOWMANY
-IF :PRINTED < :LINES [STOP]
-REPEAT :PAGEHEIGHT-:PRINTED [PRINT []]
-MAKE "PRINTED 0
-END
+to skipspaces :word
+if emptyp :word [output "]
+if equalp first :word "| | [output skipspaces butfirst :word]
+output :word
+end
 
-TO START
-MAKE "STARTED "TRUE
-REPEAT :TOPMAR [PRINT []]
-NEWINDENT
-END
+;; Formatting helpers
 
-TO YESFILL
-BREAK
-IF NOT :FILLING [SKIP :PARSKIP]
-MAKE "FILLING "TRUE
-NEWINDENT
-END
+to start
+make "started "true
+repeat :topmar [print []]
+newindent
+end
 
+to newindent
+newline
+make "indent ifelse :filling [:filltab] [:nofilltab]
+make "linecount :indent
+end
+
+to newline
+make "line []
+make "indent 0
+make "linecount 0
+end
+
+to break
+if emptyp :line [stop]
+make "linecount :width
+putline
+newindent
+if :filling [skip :parskip]
+end
+
+;; Formatting commands to be invoked by the user
+
+to skip :howmany
+break
+repeat :howmany [print []]
+make "printed :printed+:howmany
+if :printed < :lines [stop]
+repeat :pageheight-:printed [print []]
+make "printed 0
+end
+
+to nofill
+break
+make "filling "false
+newindent
+end
+
+to yesfill
+break
+if not :filling [skip :parskip]
+make "filling "true
+newindent
+end

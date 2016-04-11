@@ -8,4 +8,3 @@ RADARCTAN num
 	The expression 2*(RADARCTAN 0 1) can be used to get the
 	value of pi.
 
-

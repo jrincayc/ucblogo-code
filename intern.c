@@ -24,8 +24,7 @@
 
 NODE *hash_table[HASH_LEN] = {NIL};
 
-void map_oblist(void (*fcn)())
-{
+void map_oblist(void (*fcn)()) {
     int i;
     NODE *nd;
 
@@ -34,16 +33,16 @@ void map_oblist(void (*fcn)())
 	    (*fcn) (car(nd));
 }
 
-FIXNUM hash(char *s, int len)
+FIXNUM hash(char *s, int len) {
     /* Map S to an integer in the range 0 .. HASH_LEN-1. */
     /* Method attributed to Peter Weinberger, adapted from Aho, Sethi, */
     /* and Ullman's book, Compilers: Principles, Techniques, and */
     /* Tools; figure 7.35. */
-{
+
     unsigned FIXNUM h = 0, g;
 
     while (--len >= 0) {
-	h = (h << 4) + *s++;
+	h = (h << 4) + (FIXNUM)(*s++);
 	g = h & (0xf << (WORDSIZE-4));
 	if (g != 0) {
 	    h ^= g ^ (g >> (WORDSIZE-8));
@@ -52,8 +51,7 @@ FIXNUM hash(char *s, int len)
     return h % HASH_LEN;
 }
 
-NODE *make_case(NODE *casestrnd, NODE *obj)
-{
+NODE *make_case(NODE *casestrnd, NODE *obj) {
     NODE *new_caseobj, *clistptr;
 
     clistptr = caselistptr__object(obj);
@@ -63,8 +61,7 @@ NODE *make_case(NODE *casestrnd, NODE *obj)
 }
 
 NODE *make_object(NODE *canonical, NODE *proc, NODE *val,
-		  NODE *plist, NODE *casestrnd)
-{
+		  NODE *plist, NODE *casestrnd) {
     NODE *temp;
 
     temp = cons_list(0, canonical, proc, val, plist,
@@ -73,8 +70,7 @@ NODE *make_object(NODE *canonical, NODE *proc, NODE *val,
     return(temp);
 }
 
-NODE *make_instance(NODE *casend, NODE *lownd)
-{
+NODE *make_instance(NODE *casend, NODE *lownd) {
     NODE *obj;
     FIXNUM hashind;
 
@@ -86,9 +82,8 @@ NODE *make_instance(NODE *casend, NODE *lownd)
     return car(caselist__object(obj));
 }
 
-NODE *find_instance(NODE *lownd)
-{
-    NODE *hash_entry, *thisobj;
+NODE *find_instance(NODE *lownd) {
+    NODE *hash_entry, *thisobj = NIL;
     int cmpresult;
 
     hash_entry = hash_table[hash(getstrptr(lownd), getstrlen(lownd))];
@@ -105,8 +100,7 @@ NODE *find_instance(NODE *lownd)
     else return(thisobj);
 }
 
-int case_compare(NODE *nd1, NODE *nd2)
-{
+int case_compare(NODE *nd1, NODE *nd2) {
     if (backslashed(nd1) && backslashed(nd2)) {
 	if (getstrlen(nd1) != getstrlen(nd2)) return(1);
 	return(strncmp(getstrptr(nd1), getstrptr(nd2),
@@ -117,8 +111,7 @@ int case_compare(NODE *nd1, NODE *nd2)
     return(compare_node(nd1, nd2, FALSE));
 }
 
-NODE *find_case(NODE *strnd, NODE *obj)
-{
+NODE *find_case(NODE *strnd, NODE *obj) {
     NODE *clist;
 
     clist = caselist__object(obj);
@@ -129,20 +122,17 @@ NODE *find_case(NODE *strnd, NODE *obj)
     else return(car(clist));
 }
 
-NODE *intern(NODE *nd)
-{
+NODE *intern(NODE *nd) {
     NODE *obj, *casedes, *lownd;
 
     if (nodetype(nd) == CASEOBJ) return(nd);
-    nd = valref(cnv_node_to_strnode(nd));
-    lownd = make_strnode(getstrptr(nd), (char *)NULL,
+    nd = cnv_node_to_strnode(nd);
+    lownd = make_strnode(getstrptr(nd), (struct string_block *)NULL,
 			 getstrlen(nd), STRING, noparitylow_strnzcpy);
     if ((obj = find_instance(lownd)) != NIL) {
 	if ((casedes = find_case(nd, obj)) == NIL)
 	    casedes = make_case(nd, obj);
     } else
 	casedes = make_instance(nd, lownd);
-    deref(nd);
-    gcref(lownd);
     return(casedes);
 }

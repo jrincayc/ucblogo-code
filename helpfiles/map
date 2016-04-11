@@ -4,8 +4,8 @@ MAP template data					(library procedure)
 	outputs a word or list, depending on the type of the data input,
 	of the same length as that data input.  (If more than one data
 	input are given, the output is of the same type as data1.)  Each
-	element of the output is the result of evaluating the template
-	list, filling the slots with the corresponding element(s) of the
+	member of the output is the result of evaluating the template
+	list, filling the slots with the corresponding member(s) of the
 	data input(s).  (All data inputs must be the same length.)  In the
 	case of a word output, the results of the template evaluation must
 	be words, and they are concatenated with WORD.

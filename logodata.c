@@ -21,16 +21,14 @@
 
 #include "logo.h"
 #include "globals.h"
-#include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
 #ifdef ibm
-#ifndef __ZTC__
+#if !defined(__ZTC__) && !defined(_MSC_VER)
 #include <alloc.h>
 #endif
 #endif
 
-char special_chars[] = " \t\n(???????)[]+-*/=<>\"\\~:;|?";
+char special_chars[] = " \t\n(\?\?\?\?\?\?\?+~)[]-*/=<>\"\\:;|\?";
 
 #ifdef ecma
 
@@ -43,23 +41,20 @@ char ecma_array[128];
 
 int ecma_size = sizeof(special_chars);
 
-char ecma_set(int ch)
-{
+char ecma_set(int ch) {
     ch &= 0377;
     if (ch >= 128) return(ch);
     return(ecma_array[ch]);
 }
 
-char ecma_clear(int ch)
-{
+char ecma_clear(int ch) {
     ch &= 0377;
     if (ch < ecma_begin || ch >= ecma_begin+sizeof(special_chars)) return(ch);
     if (ch >= 007 && ch <= 015) return(ch);
     return(special_chars[ch - ecma_begin]);
 }
 
-int ecma_get(int ch)
-{
+int ecma_get(int ch) {
     ch &= 0377;
     return ((ch >= ecma_begin && ch < ecma_begin+sizeof(special_chars))
 	    && (ch < 007 || ch > 015));
@@ -72,15 +67,13 @@ int ecma_get(int ch)
 
 #endif
 
-char *strnzcpy(char *s1, char *s2, int n)
-{
+char *strnzcpy(char *s1, char *s2, int n) {
     strncpy(s1, s2, n);
     s1[n] = '\0';
     return(s1);
 }
 
-char *word_strnzcpy(char *s1, NODE *kludge, int n)  /* KLUDGE! */
-{
+char *word_strnzcpy(char *s1, NODE *kludge, int n) {  /* KLUDGE! */
     char *temp = s1;
 
     while (kludge != NIL) {
@@ -92,8 +85,7 @@ char *word_strnzcpy(char *s1, NODE *kludge, int n)  /* KLUDGE! */
     return(temp);
 }
 
-char *noparity_strnzcpy(char *s1, char *s2, int n)
-{
+char *noparity_strnzcpy(char *s1, char *s2, int n) {
     int i;
 
     for (i = 0; i < n; i++)
@@ -102,8 +94,7 @@ char *noparity_strnzcpy(char *s1, char *s2, int n)
     return(s1);
 }
 
-char *mend_strnzcpy(char *s1, char *s2, int n)
-{
+char *mend_strnzcpy(char *s1, char *s2, int n) {
     int i, vbar = 0;
 
     for (i = 0; i < n; ) {
@@ -131,8 +122,7 @@ char *mend_strnzcpy(char *s1, char *s2, int n)
     return(s1);
 }
 
-char *mend_nosemi(char *s1, char *s2, int n)
-{
+char *mend_nosemi(char *s1, char *s2, int n) {
     int i, vbar = 0;
 
     for (i = 0; i < n; ) {
@@ -156,16 +146,14 @@ char *mend_nosemi(char *s1, char *s2, int n)
     return(s1);
 }
 
-char *quote_strnzcpy(char *s1, char *s2, int n)
-{
+char *quote_strnzcpy(char *s1, char *s2, int n) {
     s1[0] = '"';
     strncpy(s1 + 1, s2, n - 1);
     s1[n] = '\0';
     return(s1);
 }
 
-char *colon_strnzcpy(char *s1, char *s2, int n)
-{
+char *colon_strnzcpy(char *s1, char *s2, int n) {
     s1[0] = ':';
     strncpy(s1 + 1, s2, n - 1);
     s1[n] = '\0';
@@ -174,8 +162,7 @@ char *colon_strnzcpy(char *s1, char *s2, int n)
 
 #define uncapital(c)    ((c) - 'A' + 'a')
 
-char *low_strnzcpy(char *s1, char *s2, int n)
-{
+char *low_strnzcpy(char *s1, char *s2, int n) {
     char *temp = s1;
     int i;
 
@@ -191,8 +178,7 @@ char *low_strnzcpy(char *s1, char *s2, int n)
 
 #define capital(c)    ((c) - 'a' + 'A')
 
-char *cap_strnzcpy(char *s1, char *s2, int n)
-{
+char *cap_strnzcpy(char *s1, char *s2, int n) {
     char *temp = s1;
     int i;
 
@@ -206,8 +192,7 @@ char *cap_strnzcpy(char *s1, char *s2, int n)
     return(temp);
 }
 
-char *noparitylow_strnzcpy(char *s1, char *s2, int n)
-{
+char *noparitylow_strnzcpy(char *s1, char *s2, int n) {
     int i;
     char c, *temp = s1;
 
@@ -222,8 +207,7 @@ char *noparitylow_strnzcpy(char *s1, char *s2, int n)
     return(temp);
 }
 
-int low_strncmp(char *s1, char *s2, int n)
-{
+int low_strncmp(char *s1, char *s2, int n) {
     int i;
 
     for (i = 0; i < n; i++) {
@@ -246,8 +230,7 @@ int low_strncmp(char *s1, char *s2, int n)
     return(0);
 }
 
-int noparity_strncmp(char *s1, char *s2, int n)
-{
+int noparity_strncmp(char *s1, char *s2, int n) {
     int i;
 
     for (i = 0; i < n; i++) {
@@ -258,8 +241,7 @@ int noparity_strncmp(char *s1, char *s2, int n)
     return(0);
 }
 
-int noparitylow_strncmp(char *s1, char *s2, int n)
-{
+int noparitylow_strncmp(char *s1, char *s2, int n) {
     int i;
     char c1, c2;
 
@@ -285,7 +267,7 @@ int noparitylow_strncmp(char *s1, char *s2, int n)
     return(0);
 }
 
-NODE *make_strnode(char *strptr, char *strhead, int len,
+NODE *make_strnode(char *strptr, struct string_block *strhead, int len,
 		   NODETYPES typ, char *(*copy_routine)())
 {
     NODE *strnode;
@@ -293,9 +275,13 @@ NODE *make_strnode(char *strptr, char *strhead, int len,
     if (len == 0 && Null_Word != NIL) return(Null_Word);
     strnode = newnode(typ);
     if (strhead == NULL) {
-	strhead = (char *) malloc((size_t)len + 2);
-	(*copy_routine) (strhead + 1, strptr, len);
-	strptr = strhead + 1;
+	strhead = (struct string_block *) malloc((size_t)len + sizeof(FIXNUM) + 1);
+	if (strhead == NULL) {
+	    err_logo(OUT_OF_MEM, NIL);
+	    return UNBOUND;
+	}
+	(*copy_routine) (strhead->str_str, strptr, len);
+	strptr = strhead->str_str;
 	setstrrefcnt(strhead, 0);
     }
     setstrlen(strnode, len);
@@ -305,18 +291,15 @@ NODE *make_strnode(char *strptr, char *strhead, int len,
     return(strnode);
 }
 
-void make_runparse(NODE *ndi)
-{
+void make_runparse(NODE *ndi) {
     NODE *rp_list;
 
     rp_list = runparse(ndi);
-    ref(rp_list);	/* I don't understand why this is necessary. */
     setobject(ndi, rp_list);
     settype(ndi, RUN_PARSE);
 }
 
-NODE *make_quote(NODE *qnd)
-{
+NODE *make_quote(NODE *qnd) {
     NODE *nd;
 
     nd = cons(qnd, NIL);
@@ -324,14 +307,12 @@ NODE *make_quote(NODE *qnd)
     return(nd);
 }
 
-NODE *maybe_quote(NODE *nd)
-{
+NODE *maybe_quote(NODE *nd) {
     if (nd == UNBOUND || aggregate(nd) || numberp(nd)) return(nd);
     return(make_quote(nd));
 }
 
-NODE *make_caseobj(NODE *cstrnd, NODE *obj)
-{
+NODE *make_caseobj(NODE *cstrnd, NODE *obj) {
     NODE *nd;
 
     nd = cons(cstrnd, obj);
@@ -339,8 +320,7 @@ NODE *make_caseobj(NODE *cstrnd, NODE *obj)
     return(nd);
 }
 
-NODE *make_colon(NODE *cnd)
-{
+NODE *make_colon(NODE *cnd) {
     NODE *nd;
 
     nd = cons(cnd, NIL);
@@ -348,24 +328,21 @@ NODE *make_colon(NODE *cnd)
     return(nd);
 }
 
-NODE *make_intnode(FIXNUM i)
-{
+NODE *make_intnode(FIXNUM i) {
     NODE *nd = newnode(INT);
 
     setint(nd, i);
     return(nd);
 }
 
-NODE *make_floatnode(FLONUM f)
-{
-    NODE *nd = newnode(FLOAT);
+NODE *make_floatnode(FLONUM f) {
+    NODE *nd = newnode(FLOATT);
 
     setfloat(nd, f);
     return(nd);
 }
 
-NODE *cnv_node_to_numnode(NODE *ndi)
-{
+NODE *cnv_node_to_numnode(NODE *ndi) {
     NODE *val;
     int dr;
     char s2[MAX_NUMBER], *s = s2;
@@ -382,22 +359,19 @@ NODE *cnv_node_to_numnode(NODE *ndi)
 	if (*s == '+') ++s;
 	if (s2[getstrlen(ndi)-1] == '.') s2[getstrlen(ndi)-1] = 0;
 	if (dr - 1 || getstrlen(ndi) > 9) {
-	    val = newnode(FLOAT);
+	    val = newnode(FLOATT);
 	    setfloat(val, atof(s));
 	} else {
 	    val = newnode(INT);
 	    setint(val, atol(s));
 	}
-	gcref(ndi);
 	return(val);
     } else {
-	gcref(ndi);
 	return(UNBOUND);
     }
 }
 
-NODE *cnv_node_to_strnode(NODE *nd)
-{
+NODE *cnv_node_to_strnode(NODE *nd) {
     char s[MAX_NUMBER];
 
     if (nd == UNBOUND || aggregate(nd)) {
@@ -411,33 +385,28 @@ NODE *cnv_node_to_strnode(NODE *nd)
 	case CASEOBJ:
 	    return strnode__caseobj(nd);
 	case QUOTE:
-	    nd = valref(cnv_node_to_strnode(node__quote(nd)));
-	    nd = reref(nd, make_strnode(getstrptr(nd),
-					(char *)NULL, getstrlen(nd) + 1,
-					nodetype(nd), quote_strnzcpy));
-	    unref(nd);
+	    nd = cnv_node_to_strnode(node__quote(nd));
+	    nd = make_strnode(getstrptr(nd), (struct string_block *)NULL,
+			      getstrlen(nd) + 1, nodetype(nd), quote_strnzcpy);
 	    return(nd);
 	case COLON:
-	    nd = valref(cnv_node_to_strnode(node__colon(nd)));
-	    nd = reref(nd, make_strnode(getstrptr(nd),
-					(char *)NULL, getstrlen(nd) + 1,
-					nodetype(nd), colon_strnzcpy));
-	    unref(nd);
+	    nd = cnv_node_to_strnode(node__colon(nd));
+	    nd = make_strnode(getstrptr(nd), (struct string_block *)NULL,
+			      getstrlen(nd) + 1, nodetype(nd), colon_strnzcpy);
 	    return(nd);
 	case INT:
 	    sprintf(s, "%ld", getint(nd));
-	    return(make_strnode(s, (char *)NULL, (int)strlen(s),
-				STRING, strnzcpy));
-	case FLOAT:
+	    return(make_strnode(s, (struct string_block *)NULL,
+				(int)strlen(s), STRING, strnzcpy));
+	case FLOATT:
 	    sprintf(s, "%0.15g", getfloat(nd));
-	    return(make_strnode(s, (char *)NULL, (int)strlen(s),
-				STRING, strnzcpy));
+	    return(make_strnode(s, (struct string_block *)NULL,
+				(int)strlen(s), STRING, strnzcpy));
     }
     /*NOTREACHED*/
 }
 
-NODE *make_static_strnode(char *strptr)
-{
+NODE *make_static_strnode(char *strptr) {
     NODE *strnode = newnode(STRING);
 
     setstrptr(strnode, strptr);
@@ -446,10 +415,9 @@ NODE *make_static_strnode(char *strptr)
     return(strnode);
 }
 
-NODE *cons_list(int dummy, ...)
-{
+NODE *cons_list(int dummy, ...) {
     va_list ap;
-    NODE *nptr, *outline = NIL, *lastnode, *val;
+    NODE *nptr, *outline = NIL, *lastnode = NIL, *val;
 
      va_start(ap, dummy);
      while ( (nptr = va_arg(ap, NODE *)) != END_OF_LIST) {
@@ -466,8 +434,7 @@ NODE *cons_list(int dummy, ...)
     return(outline);
 }
 
-NODE *make_array(int len)
-{
+NODE *make_array(int len) {
     NODE *node;
     NODE **data;
 
@@ -475,30 +442,32 @@ NODE *make_array(int len)
     setarrorg(node,1);
     setarrdim(node,len);
     data = (NODE **)malloc((size_t)len * sizeof(NODE *));
+    if (data == NULL) {
+        err_logo(OUT_OF_MEM, NIL);
+	return UNBOUND;
+    }
     setarrptr(node,data);
     while (--len >= 0) *data++ = NIL;
     return(node);
 }
 
-NODE *llowercase(NODE *args)
-{
+NODE *llowercase(NODE *args) {
     NODE *arg;
 
     arg = string_arg(args);
     if (NOT_THROWING) {
-	return make_strnode(getstrptr(arg), (char *)NULL,
+	return make_strnode(getstrptr(arg), (struct string_block *)NULL,
 			    getstrlen(arg), nodetype(arg), low_strnzcpy);
     }
     return UNBOUND;
 }
 
-NODE *luppercase(NODE *args)
-{
+NODE *luppercase(NODE *args) {
     NODE *arg;
 
     arg = string_arg(args);
     if (NOT_THROWING) {
-	return make_strnode(getstrptr(arg), (char *)NULL,
+	return make_strnode(getstrptr(arg), (struct string_block *)NULL,
 			    getstrlen(arg), nodetype(arg), cap_strnzcpy);
     }
     return UNBOUND;
@@ -523,8 +492,7 @@ NODE *getprop(NODE *plist, NODE *name, BOOLEAN before)
     return(NIL);
 }
 
-NODE *lgprop(NODE *args)
-{
+NODE *lgprop(NODE *args) {
     NODE *plname, *pname, *plist, *val = NIL;
 
     plname = string_arg(args);
@@ -540,8 +508,7 @@ NODE *lgprop(NODE *args)
     return NIL;
 }
 
-NODE *lpprop(NODE *args)
-{
+NODE *lpprop(NODE *args) {
     NODE *plname, *pname, *newval, *plist, *val = NIL;
 
     plname = string_arg(args);
@@ -567,8 +534,7 @@ NODE *lpprop(NODE *args)
     return(UNBOUND);
 }
 
-NODE *lremprop(NODE *args)
-{
+NODE *lremprop(NODE *args) {
     NODE *plname, *pname, *plist, *val = NIL;
     BOOLEAN caseig = FALSE;
 
@@ -592,9 +558,8 @@ NODE *lremprop(NODE *args)
     return(UNBOUND);
 }
 
-NODE *copy_list(NODE *arg)
-{
-    NODE *tnode, *lastnode, *val = NIL;
+NODE *copy_list(NODE *arg) {
+    NODE *tnode, *lastnode = NIL, *val = NIL;
 
     while (arg != NIL) {
 	tnode = cons(car(arg), NIL);
@@ -609,8 +574,7 @@ NODE *copy_list(NODE *arg)
     return(val);
 }
 
-NODE *lplist(NODE *args)
-{
+NODE *lplist(NODE *args) {
     NODE *plname, *plist, *val = NIL;
 
     plname = string_arg(args);

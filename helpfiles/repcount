@@ -1,0 +1,5 @@
+REPCOUNT
+
+	outputs the repetition count of the innermost current REPEAT,
+	starting from 1.  If no REPEAT is active, outputs -1.
+

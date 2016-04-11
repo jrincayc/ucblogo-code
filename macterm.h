@@ -111,7 +111,6 @@ typedef struct { PenState ps;
 extern GrafPtr savePort;
 extern int x_coord, y_coord, x_max, y_max, tty_charmode;
 extern char so_arr[], se_arr[];
-extern FLONUM degrad;
 
 extern void save_pen(), restore_pen(), plain_xor_pen(), set_pen_pattern();
 extern void set_list_pen_pattern(), get_pen_pattern(), erase_screen();

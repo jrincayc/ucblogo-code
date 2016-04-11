@@ -1,269 +1,249 @@
-TO ACOUNT :ARRAY
-OUTPUT COUNT :ARRAY
-END
+;;; Algorithms and Data Structures
 
-TO ADDCHILD :TREE :CHILD
-MAKE :TREE LPUT :CHILD THING :TREE
-END
+;; Local optimization of quadratic formula
 
-TO ADECK
-LOCAL [RANKS SUITS]
-MAKE "RANKS LISTTOARRAY [A 2 3 4 5 6 7 8 9 10 J Q K]
-MAKE "SUITS LISTTOARRAY [H S D C]
-MAKE "DECK ARRAY 52
-MAKE "INDEX 0
-FOR [J 0 3] ~
-    [FOR [I 0 12] ~
-         [PARRAY :DECK :INDEX WORD (GARRAY :RANKS :I) (GARRAY :SUITS :J) ~
-          MAKE "INDEX :INDEX+1]]
-END
+to quadratic :a :b :c
+localmake "root sqrt (:b * :b-4 * :a * :c)
+localmake "x1 (-:b+:root)/(2 * :a)
+localmake "x2 (-:b-:root)/(2 * :a)
+print (sentence [The solutions are] :x1 "and :x2)
+end
 
-TO AEQUALP :ARRAY1 :ARRAY2
-OP EQUALP :ARRAY1 :ARRAY2
-END
+;; Memoization of T function
 
-TO GARRAY :ARRAY :INDEX
-OP ITEM :INDEX+1 :ARRAY
-END
+to t :n :k
+localmake "result gprop :n :k
+if not emptyp :result [output :result]
+make "result realt :n :k
+pprop :n :k :result
+output :result
+end
 
-TO PARRAY :ARRAY :INDEX :VALUE
-SETITEM :INDEX+1 :ARRAY :VALUE
-END
+to realt :n :k
+if equalp :k 0 [output 1]
+if equalp :n 0 [output 0]
+output (t :n :k-1) + (t :n-1 :k)
+end
 
-TO AREACODE :PAIR
-OUTPUT FIRST :PAIR
-END
+;; Speedup of Simplex function
 
-TO ASHUFFLE
-ADECK
-FOR [I 51 1] [ASHUFFLE1 :I (RANDOM :I+1) (GARRAY :DECK :I)]
-END
+to simplex :buttons
+output 2 * first (cascade :buttons
+                          [fput (sumprods butfirst ?2 ?1) ?1] [1]
+                          [fput 1 nextrow ?2] [1 1])
+end
 
-TO ASHUFFLE1 :I :J :OLDI
-PARRAY :DECK :I (GARRAY :DECK :J)
-PARRAY :DECK :J :OLDI
-END
+to sumprods :a :b
+output reduce "sum (map "product :a :b)
+end
 
-TO BALANCE :LIST
-IF EMPTYP :LIST [OUTPUT []]
-IF EMPTYP BF :LIST [OUTPUT LEAF FIRST :LIST]
-OUTPUT BALANCE1 (INT (COUNT :LIST)/2) :LIST []
-END
+to nextrow :combs
+if emptyp butfirst :combs [output :combs]
+output fput (sum first :combs first butfirst :combs) nextrow butfirst :combs
+end
 
-TO BALANCE1 :COUNT :IN :OUT
-IF EQUALP :COUNT 0 ~
-   [OUTPUT TREE (FIRST :IN) (LIST BALANCE REVERSE :OUT BALANCE BF :IN)]
-OUTPUT BALANCE1 (:COUNT-1) (BF :IN) (FPUT FIRST :IN :OUT)
-END
+;; Sorting -- selection sort
 
-TO CHILDREN :NODE
-OUTPUT BUTFIRST THING :NODE
-END
+to ssort :list
+if emptyp :list [output []]
+output ssort1 (first :list) (butfirst :list) []
+end
 
-TO CITIES :NAME
-OUTPUT CITIES1 FINDDATUM :NAME :WORLD
-END
+to ssort1 :min :in :out
+if emptyp :in [output fput :min ssort :out]
+if lessthanp :min (first :in) ~
+   [output ssort1 :min (butfirst :in) (fput first :in :out)]
+output ssort1 (first :in) (butfirst :in) (fput :min :out)
+end
 
-TO CITIES1 :SUBTREE
-IF LEAFP :SUBTREE [OUTPUT (LIST DATUM :SUBTREE)]
-OUTPUT MAP.SE [CITIES1 ?] CHILDREN :SUBTREE
-END
+;; Sorting -- partition sort
 
-TO CITY :PAIR
-OUTPUT BUTFIRST :PAIR
-END
+to psort :list
+if emptyp :list [output []]
+if emptyp butfirst :list [output :list]
+localmake "split ((first :list) + (last :list)) / 2
+if lessthanp first :list :split ~
+   [output psort1 :split (butfirst :list) (list first :list) []]
+output psort1 :split (butlast :list) (list last :list) []
+end
 
-TO DATUM :NODE
-OUTPUT FIRST THING :NODE
-END
+to psort1 :split :in :low :high
+if emptyp :in [output sentence (psort :low) (psort :high)]
+if lessthanp first :in :split ~
+   [output psort1 :split (butfirst :in) (fput first :in :low) :high]
+output psort1 :split (butfirst :in) :low (fput first :in :high)
+end
 
-TO FINDDATUM :NAME :TREE
-IF EQUALP :NAME DATUM :TREE [OUTPUT :TREE]
-OUTPUT TRANSFER [NOT EMPTYP ?OUT] [FINDDATUM :NAME ?IN] CHILDREN :TREE
-END
+;; Sorting -- count comparisons
 
-TO HIGHBRANCH :TREE
-IF LEAFP :TREE [OUTPUT []]
-OUTPUT LAST CHILDREN :TREE
-END
+to lessthanp :a :b
+if not namep "comparisons [make "comparisons 0]
+make "comparisons :comparisons+1
+output :a < :b
+end
 
-TO HOWMANY
-PRINT :COMPARISONS
-ERN "COMPARISONS
-END
+to howmany
+print :comparisons
+ern "comparisons
+end
 
-TO LDECK
-OUTPUT CROSSMAP [WORD :1 :2] [[A 2 3 4 5 6 7 8 9 10 J Q K] [H S D C]]
-END
+;; Abstract Data Type for Trees: Constructor
 
-TO LEAF :DATUM
-OUTPUT TREE :DATUM []
-END
+to tree :datum :children
+output fput :datum :children
+end
 
-TO LEAFP :NODE
-OUTPUT EMPTYP CHILDREN :NODE
-END
+;; Tree ADT: Selectors
 
-TO LEAVES :LEAVES
-OUTPUT MAP [LEAF ?] :LEAVES
-END
+to datum :node
+output first :node
+end
 
-TO LESSTHANP :A :B
-IF NOT NAMEP "COMPARISONS [MAKE "COMPARISONS 0]
-MAKE "COMPARISONS :COMPARISONS+1
-OUTPUT :A < :B
-END
+to children :node
+output butfirst :node
+end
 
-TO LISTCITY :CODE
-OUTPUT CITY FIND [EQUALP :CODE AREACODE ?] :CODELIST
-END
+;; Tree ADT: Mutator
 
-TO LOCATE :CITY
-OUTPUT LOCATE1 :CITY :WORLD
-END
+to addchild :tree :child
+.setbf :tree (fput :child butfirst :tree)
+end
 
-TO LOCATE1 :CITY :SUBTREE
-LOCAL "RESULT
-IF LEAFP :SUBTREE [OUTPUT IFELSE EQUALP :CITY DATUM :SUBTREE [(LIST :CITY)] [[]]]
-MAKE "RESULT TRANSFER [NOT EMPTYP ?OUT] [LOCATE1 :CITY ?IN] CHILDREN :SUBTREE
-IF EMPTYP :RESULT [OUTPUT []]
-OUTPUT FPUT (DATUM :SUBTREE) :RESULT
-END
+;; Tree ADT: other procedures
 
-TO LOWBRANCH :TREE
-IF LEAFP :TREE [OUTPUT []]
-OUTPUT FIRST CHILDREN :TREE
-END
+to leaf :datum
+output tree :datum []
+end
 
-TO LSHUFFLE :DECK
-IF EMPTYP :DECK [OUTPUT []]
-LOCAL "INDEX
-MAKE "INDEX 1+RANDOM COUNT :DECK
-OUTPUT FPUT (ITEM :INDEX :DECK) (LSHUFFLE (REMOVEITEM :INDEX :DECK))
-END
+to leaves :leaves
+output map [leaf ?] :leaves
+end
 
-TO NEXTROW :COMBS
-IF EMPTYP BF :COMBS [OUTPUT :COMBS]
-OUTPUT FPUT (SUM FIRST :COMBS FIRST BF :COMBS) NEXTROW BF :COMBS
-END
+to leafp :node
+output emptyp children :node
+end
 
-TO PSORT :LIST
-LOCAL "SPLIT
-IF (COUNT :LIST) < 2 [OUTPUT :LIST]
-MAKE "SPLIT (SUM FIRST :LIST LAST :LIST)/2
-IF LESSTHANP FIRST :LIST :SPLIT ~
-   [OUTPUT PSORT1 :SPLIT (BF :LIST) (LIST FIRST :LIST) []]
-OUTPUT PSORT1 :SPLIT (BL :LIST) (LIST LAST :LIST) []
-END
+;; The World tree
 
-TO PSORT1 :SPLIT :IN :LOW :HIGH
-IF EMPTYP :IN [OUTPUT SE PSORT :LOW PSORT :HIGH]
-IF LESSTHANP FIRST :IN :SPLIT ~
-   [OUTPUT PSORT1 :SPLIT (BF :IN) (FPUT FIRST :IN :LOW) :HIGH]
-OUTPUT PSORT1 :SPLIT (BF :IN) :LOW (FPUT FIRST :IN :HIGH)
-END
+to worldtree
+make "world ~
+     tree "world ~
+          (list (tree "France leaves [Paris Dijon Avignon])
+                (tree "China leaves [Beijing Shanghai Guangzhou Suzhou])
+                (tree [United States]
+                      (list (tree [New York]
+                                  leaves [[New York] Albany Rochester
+                                          Armonk] )
+                            (tree "Massachusetts
+                                  leaves [Boston Cambridge Sudbury
+                                          Maynard] )
+                            (tree "California
+                                  leaves [[San Francisco] Berkeley
+                                          [Palo Alto] Pasadena] )
+                            (tree "Washington
+                                  leaves [Seattle Olympia] ) ) )
+                (tree "Canada
+                      (list (tree "Ontario
+                                  leaves [Toronto Ottawa Windsor] )
+                            (tree "Quebec
+                                  leaves [Montreal Quebec Lachine] )
+                            (tree "Manitoba leaves [Winnipeg]) ) ) )
+end
 
-TO QUADRATIC :A :B :C
-LOCAL [ROOT X1 X2]
-MAKE "ROOT SQRT (:B * :B-4 * :A * :C)
-MAKE "X1 (-:B+:ROOT)/(2 * :A)
-MAKE "X2 (-:B-:ROOT)/(2 * :A)
-PRINT (SE [THE SOLUTIONS ARE] :X1 "AND :X2)
-END
+to locate :city
+output locate1 :city :world "false
+end
 
-TO REALT :N :K
-IF EQUALP :K 0 [OUTPUT 1]
-IF EQUALP :N 0 [OUTPUT 0]
-OUTPUT (T :N :K-1) + (T :N-1 :K)
-END
+to locate1 :city :subtree :wanttree
+if and :wanttree (equalp :city datum :subtree) [output :subtree]
+if leafp :subtree ~
+   [ifelse equalp :city datum :subtree
+           [output (list :city)]
+           [output []]]
+localmake "lower locate.in.forest :city (children :subtree) :wanttree
+if emptyp :lower [output []]
+output ifelse :wanttree [:lower] [fput (datum :subtree) :lower]
+end
 
-TO REMOVEITEM :NUMBER :LIST
-IF EQUALP :NUMBER 1 [OUTPUT BF :LIST]
-OUTPUT FPUT (FIRST :LIST) (REMOVEITEM :NUMBER-1 BF :LIST)
-END
+to locate.in.forest :city :forest :wanttree
+if emptyp :forest [output []]
+localmake "child locate1 :city first :forest :wanttree
+if not emptyp :child [output :child]
+output locate.in.forest :city butfirst :forest :wanttree
+end
 
-TO SIMPLEX :BUTTONS
-OUTPUT 2 * FIRST CASCADE.2 :BUTTONS ~
-                           [FPUT (SUMPRODS BF ?2 ?1) ?1] [1] ~
-                           [FPUT 1 NEXTROW ?2] [1 1]
-END
+to cities :name
+output cities1 (finddatum :name :world)
+end
 
-TO SSORT :LIST
-IF (COUNT :LIST) < 2 [OUTPUT :LIST]
-OUTPUT SSORT1 (FIRST :LIST) (BF :LIST) []
-END
+to cities1 :subtree
+if leafp :subtree [output (list datum :subtree)]
+output map.se [cities1 ?] children :subtree
+end
 
-TO SSORT1 :MIN :IN :OUT
-IF EMPTYP :IN [OUTPUT FPUT :MIN SSORT :OUT]
-IF LESSTHANP :MIN (FIRST :IN) [OP SSORT1 :MIN (BF :IN) (FPUT FIRST :IN :OUT)]
-OUTPUT SSORT1 (FIRST :IN) (BF :IN) (FPUT :MIN :OUT)
-END
+to finddatum :datum :tree
+output locate1 :name :tree "true
+end
 
-TO SUMPRODS :A :B
-IF EMPTYP :A [OUTPUT 0]
-OUTPUT SUM (PRODUCT FIRST :A FIRST :B) (SUMPRODS BF :A BF :B)
-END
+;; Area code/city pairs ADT
 
-TO T :N :K
-LOCAL "RESULT
-MAKE "RESULT GPROP (WORD "N :N) (WORD "K :K)
-IF NOT EMPTYP :RESULT [OUTPUT :RESULT]
-MAKE "RESULT REALT :N :K
-PPROP (WORD "N :N) (WORD "K :K) :RESULT
-OUTPUT :RESULT
-END
+to areacode :pair
+output first :pair
+end
 
-TO TREE :DATUM :CHILDREN
-LOCAL "NODE
-MAKE "NODE GENSYM
-MAKE :NODE FPUT :DATUM :CHILDREN
-OUTPUT :NODE
-END
+to city :pair
+output butfirst :pair
+end
 
-TO TREECITY :CODE
-OUTPUT CITY TREECITY1 :CODE :CODETREE
-END
+;; Area code linear search
 
-TO TREECITY1 :CODE :TREE
-LOCAL "DATUM
-IF EMPTYP :TREE [OUTPUT [0 NO CITY]]
-MAKE "DATUM DATUM :TREE
-IF :CODE = AREACODE :DATUM [OUTPUT :DATUM]
-IF :CODE < AREACODE :DATUM [OUTPUT TREECITY1 :CODE LOWBRANCH :TREE]
-OUTPUT TREECITY1 :CODE HIGHBRANCH :TREE
-END
+make "codelist [[202 Washington] [206 Seattle] [212 New York] [213 Los Angeles]
+                [215 Philadelphia] [303 Denver] [305 Miami] [313 Detroit]
+                [314 St. Louis] [401 Providence] [404 Atlanta] [408 Sunnyvale]
+                [414 Milwaukee] [415 San Francisco] [504 New Orleans]
+                [608 Madison] [612 St. Paul] [613 Kingston] [614 Columbus]
+                [615 Nashville] [617 Boston] [702 Las Vegas] [704 Charlotte]
+                [712 Sioux City] [714 Anaheim] [716 Rochester] [717 Scranton]
+                [801 Salt Lake City] [804 Newport News] [805 Ventura]
+                [808 Honolulu]]
 
-TO WORLDTREE
-MAKE "WORLD TREE "WORLD ~
-                 (LIST (TREE "FRANCE LEAVES [PARIS DIJON AVIGNON]) ~
-                       (TREE "CHINA LEAVES [BEIJING NANKING SHANGHAI CANTON]) ~
-                       (TREE [UNITED STATES] ~
-                             (LIST (TREE [NEW YORK] ~
-                                          LEAVES [[NEW YORK] ALBANY ~
-                                                  ROCHESTER ARMONK]) ~
-                                   (TREE "MASSACHUSETTS ~
-                                         LEAVES [BOSTON CAMBRIDGE ~
-                                                 SUDBURY MAYNARD]) ~
-                                   (TREE "CALIFORNIA ~
-                                         LEAVES [[SAN FRANCISCO] BERKELEY ~
-                                                 [PALO ALTO] PASADENA]) ~
-                                   (TREE "WASHINGTON ~
-                                         LEAVES [SEATTLE OLYMPIA]))) ~
-                       (TREE "CANADA ~
-                             (LIST (TREE "ONTARIO ~
-                                         LEAVES [TORONTO OTTAWA WINDSOR]) ~
-                                   (TREE "QUEBEC ~
-                                         LEAVES [MONTREAL QUEBEC LACHINE]) ~
-                                   (TREE "MANITOBA LEAVES [WINNIPEG]))))
-END
+to listcity :code
+output city find [equalp :code areacode ?] :codelist
+end
 
+;; Area code binary tree search
 
-MAKE "CODELIST [[202 WASHINGTON] [206 SEATTLE] [212 NEW YORK] [213 LOS ANGELES] ~
-                [215 PHILADELPHIA] [303 DENVER] [305 MIAMI] [313 DETROIT] ~
-                [314 ST. LOUIS] [401 PROVIDENCE] [404 ATLANTA] [408 SUNNYVALE] ~
-                [414 MILWAUKEE] [415 SAN FRANCISCO] [504 NEW ORLEANS] ~
-                [608 MADISON] [612 ST. PAUL] [613 KINGSTON] [614 COLUMBUS] ~
-                [615 NASHVILLE] [617 BOSTON] [702 LAS VEGAS] [704 CHARLOTTE] ~
-                [712 SIOUX CITY] [714 ANAHEIM] [716 ROCHESTER] [717 SCRANTON] ~
-                [801 SALT LAKE CITY] [804 NEWPORT NEWS] [805 VENTURA] ~
-                [808 HONOLULU]]
+to balance :list
+if emptyp :list [output []]
+if emptyp butfirst :list [output leaf first :list]
+output balance1 (int (count :list)/2) :list []
+end
+
+to balance1 :count :in :out
+if equalp :count 0 ~
+   [output tree (first :in) (list balance reverse :out
+                                  balance butfirst :in)]
+output balance1 (:count-1) (butfirst :in) (fput first :in :out)
+end
+
+to treecity :code
+output city treecity1 :code :codetree
+end
+
+to treecity1 :code :tree
+if emptyp :tree [output [0 no city]]
+localmake "datum datum :tree
+if :code = areacode :datum [output :datum]
+if :code < areacode :datum [output treecity1 :code lowbranch :tree]
+output treecity1 :code highbranch :tree
+end
+
+to lowbranch :tree
+if leafp :tree [output []]
+output first children :tree
+end
+
+to highbranch :tree
+if leafp :tree [output []]
+output last children :tree
+end

@@ -57,7 +57,7 @@ main() {
 
 	if (--col == 0) {
 	    col = 5;
-	    fprintf(toc, "%s\n", tocname);
+	    fprintf(toc, "%-16s\n", tocname);
 	} else {
 	    fprintf(toc, "%-16s", tocname);
 	}
@@ -118,4 +118,5 @@ main() {
     }
     fprintf(toc, "\n");
     fclose(toc);
+    exit(0);
 }
