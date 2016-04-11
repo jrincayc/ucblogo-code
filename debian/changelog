@@ -5,7 +5,9 @@ ucblogo (6.0-1) UNRELEASED; urgency=low
     - wxWidgets support
   * Convert to dh-style build.
   * Convert to source format 3.0 (quilt).
-  * Convert to DEP5 copyright.
+  * debian/copyright:
+    - Convert to DEP5.
+    - Add myself.
   * debian/patches:
     - Refresh patches.
     - Import patch to fix building on 64 bit architectures.
