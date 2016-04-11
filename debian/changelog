@@ -17,6 +17,7 @@ ucblogo (6.0-1) UNRELEASED; urgency=low
   * debian/control:
     - Bump Standards-Version to 3.9.8.
     - Add Homepage field.
+    - Add Vcs fields for collab-maint.
   * Documentation:
     - Include info manual. (Closes: #681403)
     - Rebuild documentation.

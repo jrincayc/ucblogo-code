@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.9.8
 Homepage: http://www.cs.berkeley.edu/~bh/logo.html
+Vcs-Git: https://anonscm.debian.org/git/collab-maint/ucblogo.git
+Vcs-Browser: https://anonscm.debian.org/git/collab-maint/ucblogo.git
 Build-Depends: debhelper (>= 9), libncurses-dev, libx11-dev, libsm-dev, libice-dev, libwxgtk3.0-dev, texi2html, texlive-latex-base, texinfo, ghostscript
 
 Package: ucblogo
