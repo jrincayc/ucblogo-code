@@ -4,4 +4,4 @@ helpfiles/HELPCONTENTS
 config.{cache,log,status,h}
 makefile
 docs/html/*
-docs/*.{aux,cp,cps,dvi,ps,pdf,info,toc,log}
+docs/*.{aux,cp,cps,dvi,ps,pdf,info,html,toc,log}
