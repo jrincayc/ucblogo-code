@@ -5,6 +5,11 @@
 @setchapternewpage odd
 @c %**end of header
 
+@dircategory Education
+@direntry
+* UCBLogo: (ucblogo).	Logo Programming Language
+@end direntry
+
 @iftex
 @vsize = 8.9 in
 @parskip = 7 pt
