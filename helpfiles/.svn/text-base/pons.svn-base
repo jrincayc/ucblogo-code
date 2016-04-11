@@ -1,5 +1,0 @@
-PONS							(library procedure)
-
-	command.  Prints the definitions of all unburied variables in
-	the workspace.  Abbreviates PO NAMES.
-

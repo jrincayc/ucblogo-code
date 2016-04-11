@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-to backslashed? :char
-op vbarredp :char
-end
-
-bury "backslashed?

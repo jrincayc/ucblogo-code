@@ -1,5 +1,0 @@
-STARTUP							(variable)
-
-	if assigned a list value in a file loaded by LOAD, that value is
-	run as an instructionlist after the loading.
-

@@ -1,5 +1,0 @@
-REMPROP plistname propname
-
-	command.  Removes the property named "propname" from the
-	property list named "plistname".
-

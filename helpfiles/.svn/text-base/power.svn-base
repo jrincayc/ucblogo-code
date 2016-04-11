@@ -1,5 +1,0 @@
-POWER num1 num2
-
-	outputs "num1" to the "num2" power.  If num1 is negative, then
-	num2 must be an integer.
-

@@ -1,7 +1,0 @@
-INCREASEFONT
-DECREASEFONT
-
-	command (wxWidgets only).  Increase or decrease the size of the font
-	used in the text and edit windows to the next larger or smaller
-	available size.
-

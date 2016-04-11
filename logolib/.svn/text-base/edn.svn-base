@@ -1,7 +1,0 @@
-;;; -*- logo -*-
-
-to edn :names
-edit namelist :names
-end
-
-bury "edn

@@ -1,4 +1,0 @@
-REPEAT num instructionlist
-
-	command.  Runs the "instructionlist" repeatedly, "num" times.
-
