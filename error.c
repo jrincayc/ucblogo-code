@@ -276,9 +276,6 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
     else
 	err_mesg = cons_list(0, err_mesg, NIL, NIL, END_OF_LIST);
     err_mesg = cons(make_intnode((FIXNUM)error_type), err_mesg);
-#ifdef mac
-	if (error_type == STOP_ERROR)	sleep(1);
-#endif
     if (warning) {
 	err_print();
 	return(UNBOUND);
@@ -324,7 +321,7 @@ NODE *lerror(NODE *args) {
 }
 
 #ifndef HAVE_MEMCPY
-void memcpy(char *to, char *from, int len) {
+void memcpy(char *to, char *from, size_t len) {
     while (--len >= 0)
 	*to++ = *from++;
 }

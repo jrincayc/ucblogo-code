@@ -59,6 +59,7 @@ int scrunching = FALSE;
 fg_line_t the_line;
 fg_coord_t ztc_x, ztc_y;
 fg_color_t ztc_textcolor;
+fg_color_t ztc_text_bgcolor = 0;
 fg_coord_t ztc_graph_textx, ztc_graph_texty;
 FIXNUM pen_color = 0, back_ground = 7;
 
@@ -110,7 +111,7 @@ void gr_mode(void) {
 		}
 		bg_color = FG_BLACK;
 		ztc_set_penc(7);
-		ztc_textcolor = dull;
+		if (ztc_textcolor == FG_WHITE) ztc_textcolor = dull;
 		back_ground = 0;
 		ztc_box[FG_X1] = ztc_textbox[FG_X1]
 			       = text_scroll_box[FG_X1]
@@ -217,6 +218,15 @@ void ibm_gotoxy(int x, int y) {
     }
 }
 
+fg_color_t color_table[8] = {0, 9, 10, 11, 12, 13, 14, 15};
+
+FIXNUM hw_color(FIXNUM c) {
+    if (can_do_color) return c;
+    if (c >= 0 && c < 8) return color_table[c];
+    if (c < 0) return c;
+    return c-8;
+}
+
 void ibm_clear_text(void) {
     if (in_graphics_mode) {
 	if (in_splitscreen)
@@ -247,6 +257,21 @@ void ibm_bold_mode(void) {
 	disp_startstand();
 }
 
+NODE *set_text_color(NODE *args) {
+    int fore, back;
+
+    fore = getint(pos_int_arg(args));
+    if (NOT_THROWING) {
+        back = getint(pos_int_arg(cdr(args)));
+        if (NOT_THROWING) {
+	    ztc_textcolor = hw_color(fore);
+	    ztc_text_bgcolor = hw_color(back);
+	    disp_setattr((back&07)<<4 | (fore&07));
+        }
+    }
+    return UNBOUND;
+}
+
 void erase_graphics_top(void) {
     fg_fillbox(FG_BLACK, FG_MODE_SET, ~0, ztc_textbox);
     ztc_graph_textx = 0;
@@ -274,15 +299,6 @@ void restore_pen(pen_info *p) {
     set_ibm_pen_mode(p->mode);  /* must restore mode before color */
     turtle_color = p->color;
     set_pen_pattern(p->pattern);
-}
-
-fg_color_t color_table[8] = {0, 9, 10, 11, 12, 13, 14, 15};
-
-FIXNUM hw_color(FIXNUM c) {
-    if (can_do_color) return c;
-    if (c >= 0 && c < 8) return color_table[c];
-    if (c < 0) return c;
-    return c-8;
 }
 
 struct rgbcolor { int red, green, blue; } the_palette[256] = {
@@ -501,6 +517,8 @@ void check_scroll(void) {
 }
 
 void ztc_put_char(int ch) {
+    fg_box_t temp_box;
+    
     if (in_graphics_mode && !in_splitscreen)
 	lsplitscreen(NIL);
     if (ch != '\1' && ch != '\2') {
@@ -520,6 +538,14 @@ void ztc_put_char(int ch) {
 			    &ztc_graph_texty, fg.charbox);
 		if (ztc_graph_textx >= MaxX) print_char(stdout,'\n');
 	    } else {
+		if (ztc_text_bgcolor != 0) {
+		    temp_box[FG_X1] = temp_box[FG_X2] = ztc_graph_textx;
+		    temp_box[FG_Y1] = temp_box[FG_Y2] = ztc_graph_texty;
+		    fg_adjustxy(FG_ROT0, 2, &temp_box[FG_X2],
+		    	&temp_box[FG_Y2], fg.charbox);
+		    temp_box[FG_Y2] += texth-1;
+		    fg_fillbox(ztc_text_bgcolor, FG_MODE_SET, ~0, temp_box);
+		}
 		fg_putc(ztc_textcolor, FG_MODE_SET, ~0, FG_ROT0,
 			ztc_graph_textx, ztc_graph_texty,
 			ch, fg.displaybox);
@@ -567,6 +593,7 @@ char *graph_line_pointer = NULL;
 
 int ztc_getc(FILE *strm) {
     int ch;
+    fg_color_t save_textcolor;
 
     if (strm != stdin || !interactive || !in_graphics_mode)
 	return getc(strm);
@@ -606,9 +633,10 @@ int ztc_getc(FILE *strm) {
 		    while (i-- > 0) print_char(stdout, '\b');
 		} else {
 		    print_char(stdout, '\b');
-		    ztc_textcolor = FG_BLACK;
+		    save_textcolor = ztc_textcolor;
+		    ztc_textcolor = ztc_text_bgcolor;
 		    print_char(stdout, *graph_line_pointer);
-		    ztc_textcolor = dull;
+		    ztc_textcolor = save_textcolor;
 		    print_char(stdout, '\b');
 		}
 	    }

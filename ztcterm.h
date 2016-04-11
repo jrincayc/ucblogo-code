@@ -19,7 +19,7 @@
  *
  */
 
-#define GR_SIZE 10000
+#define GR_SIZE 15000
 
 #define prepare_to_draw gr_mode()
 #define done_drawing nop()

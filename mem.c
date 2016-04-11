@@ -34,7 +34,7 @@
 #define GCMAX 8000
 #else
 #ifdef __ZTC__
-#define GCMAX 5800
+#define GCMAX 4000
 #else
 #define GCMAX 16000
 
@@ -96,7 +96,7 @@ int next_gen_gc = 0, max_gen = 0;
 
 int mark_gen_gc;
 
-/* #define GC_DEBUG 1 */
+/* #define GC_DEBUG 1 /* */
 
 #ifdef GC_DEBUG
 long int num_examined;
@@ -207,13 +207,13 @@ void do_gc(BOOLEAN full) {
     inside_gc = 0;
     if (int_during_gc != 0) {
 	if (int_during_gc < 0) 
-#if defined(__ZTC__) || defined(WIN32)
+#ifdef SIG_TAKES_ARG
 	    logo_pause(0);
 #else
 	    logo_pause();
 #endif
 	else 
-#if defined(__ZTC__) || defined(WIN32)
+#ifdef SIG_TAKES_ARG
 	    logo_stop(0);
 #else
 	    logo_stop();
@@ -321,13 +321,14 @@ void gc_inc () {
     if (gctop == gcbottom) { /* gc STACK overflow */
 #ifdef GC_DEBUG
 	printf("\nAllocating new GC stack\n");
+	if (dribblestream != NULL) fprintf(dribblestream,"\nAllocating new GC stack\n");
 #endif
 	if ((new_gcstack = (NODE**) malloc ((size_t) sizeof(NODE *) *
 				(gc_stack_size + GCMAX))) == NULL) {
 
 	    /* no room to increse GC Stack */
-	    printf ("\nWarning: Not enough memory to run garbage collector.\n");
-	    printf ("GC disabled - Save important data and exit!\n");
+	    ndprintf(stdout,"\nWarning: Not enough memory to run garbage collector.\n");
+	    ndprintf(stdout,"GC disabled - Save important data and exit!\n");
 
 	    gc_overflow_flag = 1;
 	} else {
@@ -467,6 +468,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("gen = %d\n", gen_gc);
+    if (dribblestream != NULL) fprintf(dribblestream,"gen = %d\n", gen_gc);
     num_examined = 0;
 #endif
 
@@ -505,6 +507,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("globals %ld + ", num_examined);
+    if (dribblestream != NULL) fprintf(dribblestream,"globals %ld + ", num_examined);
     num_examined = 0;
 #endif
 
@@ -513,6 +516,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("oblist %ld + ", num_examined);
+    if (dribblestream != NULL) fprintf(dribblestream,"oblist %ld + ", num_examined);
     num_examined = 0;
 #endif
 
@@ -546,6 +550,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("stack %ld + ", num_examined);
+    if (dribblestream != NULL) fprintf(dribblestream,"stack %ld + ", num_examined);
     num_examined = 0;
 #endif
 
@@ -554,6 +559,8 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("inter_gen %ld marked\n", num_examined);
+    if (dribblestream != NULL)
+	fprintf(dribblestream,"inter_gen %ld marked\n", num_examined);
     num_examined = 0;
 #endif
 
@@ -563,6 +570,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("GCTWA: ");
+    if (dribblestream != NULL) fprintf(dribblestream,"GCTWA: ");
     num_examined = 0;
 #endif
 	for (loop = 0; loop < HASH_LEN ; loop++) {
@@ -599,6 +607,7 @@ re_mark:
 
 #ifdef GC_DEBUG
     printf("%ld collected\n", num_examined);
+    if (dribblestream != NULL) fprintf(dribblestream,"%ld collected\n", num_examined);
     num_examined = 0;
 #endif
 	gctwa = 0;
@@ -676,12 +685,15 @@ re_mark:
 	}
 #ifdef GC_DEBUG
 	printf("%ld + ", num_freed - freed_sofar);
+	if (dribblestream != NULL)
+	    fprintf(dribblestream,"%ld + ", num_freed - freed_sofar);
 #endif
 	freed_sofar = num_freed;
     }
 
 #ifdef GC_DEBUG
     printf("= %ld freed\n", num_freed);
+    if (dribblestream != NULL) fprintf(dribblestream,"= %ld freed\n", num_freed);
 #endif
 
     if (num_freed > freed_threshold)
@@ -710,6 +722,7 @@ re_mark:
 #ifdef GC_DEBUG
 void prname(NODE *foo) {
     ndprintf(stdout, "%s ", car(foo));
+    if (dribblestream != NULL) fprintf(dribblestream, "%s ", car(foo));
 }
 #endif
 

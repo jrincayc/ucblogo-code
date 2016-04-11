@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to listtoarray :list [:origin 1]
 local "array
 make "array (array count :list :origin)

@@ -77,7 +77,7 @@ int rd_getc(FILE *strm) {
 	getc(strm); /* eat up the return */
 #endif
 
-#if defined(__ZTC__) || defined(WIN32)
+#ifdef SIG_TAKES_ARG
 	logo_pause(0);
 #else
 	logo_pause();
@@ -102,15 +102,18 @@ int rd_getc(FILE *strm) {
 	to_pending = 0;
 	err_logo(STOP_ERROR,NIL);
 	line_avail = 0;
+	free(read_line);
 	return('\n');
     }
     if (c == 23 && interactive && strm==stdin) { /* control-w */
 	line_avail = 0;
+	free(read_line);
 	logo_pause(0);
 	return(rd_getc(strm));
     }
       if (c == '\n')
 	line_avail = 0;
+	free(read_line);
     }
     else /* reading from a file */
       c = getc(strm);
@@ -134,6 +137,13 @@ void rd_print_prompt(char *str) {
 #endif
 	lsplitscreen(NIL);
 #endif
+
+#ifdef mac
+    extern int in_fscreen(void);
+    if (in_fscreen())
+	lsplitscreen(NIL);
+#endif
+
     ndprintf(stdout,"%t",str);
 #if defined(__ZTC__) && !defined(WIN32) /* sowings */
     zflush();
@@ -163,7 +173,7 @@ int p_len = MAX_PHYS_LINE;
 
 NODE *reader(FILE *strm, char *prompt) {
     int c = 0, dribbling, vbar = 0, paren = 0;
-    int bracket = 0, brace = 0, p_pos, contin=1;
+    int bracket = 0, brace = 0, p_pos, contin=1, insemi=0;
     static char ender[] = "\nEND\n";
     char *phys_line, *lookfor = ender;
     NODETYPES this_type = STRING;
@@ -216,28 +226,30 @@ NODE *reader(FILE *strm, char *prompt) {
 	    }
 	}
 	if (c != EOF) into_line(c);
-		if (*prompt && (c&0137) == *lookfor) {
-			lookfor++;
-			if (*lookfor == 0) {
-				err_logo(DEEPEND, deepend_proc_name);
-				break;
-			}
-		} else lookfor = ender;
+	if (*prompt && (c&0137) == *lookfor) {
+		lookfor++;
+		if (*lookfor == 0) {
+			err_logo(DEEPEND, deepend_proc_name);
+			break;
+		}
+	} else lookfor = ender;
 	if (c == '|') {
 	    vbar = !vbar;
 	    this_type = VBAR_STRING;
-	} else if (contin && !vbar) {
+	} else if (contin && !vbar && !insemi) {
 		if (c == '(') paren++;
 		else if (paren && c == ')') paren--;
 		else if (c == '[') bracket++;
 		else if (bracket && c == ']') bracket--;
 		else if (c == '{') brace++;
 		else if (brace && c == '}') brace--;
+		else if (c == ';') insemi++;
 	}
 
 	if (this_type == STRING && strchr(special_chars, c))
 	    this_type = VBAR_STRING;
 	if (/* (vbar || paren ...) && */ c == '\n') {
+	    insemi = 0;
 	    if (strm == stdin) {
 		if (interactive) zrd_print_prompt(vbar ? "| " : "~ ");
 	    }
@@ -248,6 +260,7 @@ NODE *reader(FILE *strm, char *prompt) {
 	    if (dribbling) rd_putc(c, dribblestream);
 	    into_line(c);
 	    if (c == '\n' && strm == stdin) {
+		insemi = 0;
 		if (interactive) zrd_print_prompt("~ ");
 	    }
 	}
@@ -276,7 +289,7 @@ NODE *reader(FILE *strm, char *prompt) {
 
 NODE *list_to_array(NODE *list) {
     NODE *np = list, *result;
-    int len = 0, i;
+    FIXNUM len = 0, i;
 
     for (; np; np = cdr(np)) len++;
 

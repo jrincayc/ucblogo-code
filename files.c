@@ -283,7 +283,7 @@ void silent_load(NODE *arg, char *prefix) {
     tmp_line = current_line;
     loadstream = fopen(load_path, "r");
     if (loadstream != NULL) {
-	while (!feof(loadstream) && NOT_THROWING) {
+	while (!(feof(loadstream)) && NOT_THROWING) {
 	    current_line = reader(loadstream, "");
 	    exec_list =parser(current_line, TRUE);
 	    val_status = 0;
@@ -307,7 +307,7 @@ NODE *lload(NODE *arg) {
     tmp_line = current_line;
     loadstream = open_file(car(arg), "r");
     if (loadstream != NULL) {
-	while (!feof(loadstream) && NOT_THROWING) {
+	while (!(feof(loadstream)) && NOT_THROWING) {
 	    current_line = reader(loadstream, "");
 	    exec_list = parser(current_line, TRUE);
 	    val_status = 0;
@@ -388,7 +388,7 @@ NODE *lreadchar(NODE *args) {
 	}
 	if (c == 23) { /* control-w */
 
-#if defined(__ZTC__) || defined(WIN32)
+#ifdef SIG_TAKES_ARG
 	    logo_pause(0);
 #else
 	    logo_pause();
@@ -404,7 +404,7 @@ NODE *lreadchar(NODE *args) {
     if (feof(readstream)) {
 	return(NIL);
     }
-    return(make_strnode(&c, (struct string_block *)NULL, 1,
+    return(make_strnode((char *)&c, (struct string_block *)NULL, 1,
 	    (getparity(c) ? STRING : BACKSLASH_STRING), strnzcpy));
 }
 
@@ -428,7 +428,7 @@ NODE *lreadchars(NODE *args) {
 	    return UNBOUND;
 	}
 	strptr = strhead->str_str;
-	fread(strptr, 1, (int)c, readstream);
+	fread(strptr, 1, (size_t)c, readstream);
 	setstrrefcnt(strhead, 0);
     }
     input_blocking = 0;
@@ -455,7 +455,9 @@ NODE *leofp(NODE *args) {
 }
 
 NODE *lkeyp(NODE *args) {
+#ifdef unix
     long nc;
+#endif
     int c;
 #ifdef WIN32
     MSG msg;

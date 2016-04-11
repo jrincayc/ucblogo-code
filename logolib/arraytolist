@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to arraytolist :array [:dim count :array] [:limit :dim + first :array]
 op cascade :dim [fput item (:limit - #) :array ?] []
 end

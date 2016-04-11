@@ -26,12 +26,12 @@ extern int main(int, char *[]);
 extern void unblock_input(void);
 extern NODE **bottom_stack;
 
-#if defined(__ZTC__) || defined(WIN32)
-void logo_stop(int);
-void logo_pause(int);
+#if defined(SIG_TAKES_ARG)
+RETSIGTYPE logo_stop(int);
+RETSIGTYPE logo_pause(int);
 #else
-void logo_stop(void);
-void logo_pause(void);
+RETSIGTYPE logo_stop(void);
+RETSIGTYPE logo_pause(void);
 #endif
 
 #ifndef TIOCSTI
@@ -64,7 +64,7 @@ extern NODE *cnv_node_to_numnode(NODE *);
 extern NODE *cnv_node_to_strnode(NODE *);
 extern NODE *make_static_strnode(char *);
 extern NODE *cons_list(int, ...);
-extern NODE *make_array(int);
+extern NODE *make_array(FIXNUM);
 extern NODE *llowercase(NODE *);
 extern NODE *luppercase(NODE *);
 extern NODE *lgprop(NODE *);
@@ -201,6 +201,8 @@ extern NODE *llocal(NODE *);
 extern NODE *cnt_list, *cnt_last;
 extern NODE *lcontents(NODE *);
 extern NODE *lburied(NODE *);
+extern NODE *ltraced(NODE *);
+extern NODE *lstepped(NODE *);
 extern NODE *lprocedures(NODE *);
 extern NODE *lnames(NODE *);
 extern NODE *lplists(NODE *);
@@ -219,6 +221,7 @@ extern NODE *luntrace(NODE *);
 extern NODE *lunstep(NODE *);
 extern char *addsep(char *);
 extern NODE *ledit(NODE *);
+extern NODE *leditfile(NODE *);
 extern NODE *lthing(NODE *);
 extern NODE *lnamep(NODE *);
 extern NODE *lprocedurep(NODE *);
@@ -245,8 +248,6 @@ extern CTRLTYPE stopping_flag;
 extern char *logolib, *helpfiles;
 extern FIXNUM tailcall, val_status, dont_fix_ift, user_repcount;
 extern NODE *qm_list;
-extern void spop(NODE **);
-extern void spush(NODE *, NODE **);
 extern void eval_driver(NODE *);
 extern NODE *err_eval_driver(NODE *);
 extern NODE *lapply(NODE *);
@@ -429,6 +430,9 @@ extern NODE *ltone(NODE *);
 extern NODE *larc(NODE *);
 extern NODE *lrefresh(NODE *);
 extern NODE *lnorefresh(NODE *);
+extern NODE *lloadpict(NODE *);
+extern NODE *lsavepict(NODE *);
+extern NODE *lepspict(NODE *);
 extern void redraw_graphics(void);
 extern void resize_record(int, int);
 
@@ -481,6 +485,7 @@ extern void fix_cursor(void);
 extern void zflush(void);
 extern void newline_bugfix(void);
 extern void ztc_getcr(void);
+extern NODE *set_text_color(NODE *);
 #endif
 
 #ifdef x_window
@@ -507,7 +512,7 @@ extern void win32_advance_line(void);
 extern char *eight_dot_three(char *);
 extern BOOLEAN check_ibm_stop(void);
 extern NODE* win32_lsetcursor(NODE *);
-extern int win32_putc(char, FILE*);
+extern int win32_putc(int, FILE*);
 extern void win32_charmode_off(void), win32_charmode_on(void);
 extern void win32_repaint_screen(void);
 extern void win32_clear_text(void);
@@ -519,6 +524,7 @@ extern void lineto(int, int);
 extern void draw_string(char *);
 extern int win32_screen_bottom(void);
 extern void win32_text_cursor(void);
+extern NODE *set_text_color(NODE *);
 
 #define SIGQUIT SIGABRT
 

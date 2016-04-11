@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to iseq :a :b
 if not (:a > :b) [output iseq1 :a :b]
 output map [[x] -1 * :x] iseq1 (-1 * :a) (-1 * :b)

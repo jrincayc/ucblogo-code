@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to filep :filename
 ignore error
 catch "error [openread :filename close :filename]

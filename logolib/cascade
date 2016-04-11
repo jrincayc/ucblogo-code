@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to cascade :cascade.limit [:cascade.inputs] 3
 if numberp :cascade.limit ~
    [if lessp :cascade.limit 0 ~

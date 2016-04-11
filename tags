@@ -1,10 +1,10 @@
-BOOLEAN	logo.h	197
-CNTLSTTYP	wrksp.c	389
-CTRLTYPE	logo.h	326
-ERR_TYPES	logo.h	192
+BOOLEAN	logo.h	206
+CNTLSTTYP	wrksp.c	392
+CTRLTYPE	logo.h	335
+ERR_TYPES	logo.h	201
 Get_node_pen_mode	xgraphics.c	/^NODE *Get_node_pen_mode(GC mode)$/
 Mmain	main.c	/^int main(int argc, char *argv[]) {$/
-NODETYPES	logo.h	123
+NODETYPES	logo.h	132
 addseg	mem.c	/^BOOLEAN addseg(void) {$/
 addsep	wrksp.c	/^char *addsep(char *path) {$/
 aggregate	logo.h	/^#define aggregate(nd)	(nodetype(nd) & NT_AGGR)$/
@@ -96,7 +96,8 @@ gather_args	paren.c	/^NODE *gather_args(NODE *proc, NODE **args, BOOLEAN/
 gather_some_args	paren.c	/^NODE *gather_some_args(int min, int max, NODE **ar/
 gc	mem.c	/^void gc(BOOLEAN no_error) {$/
 gc_inc	mem.c	/^void gc_inc () {$/
-generation__tree	logo.h	/^#define generation__tree(t)	car(treepair__tree(t))/
+generation__line	logo.h	/^#define generation__line(l)	(generation__tree(unpa/
+generation__tree	logo.h	/^#define generation__tree(t)	(car(treepair__tree(t)/
 get_bodywords	wrksp.c	/^NODE *get_bodywords(NODE *proc, NODE *name) {$/
 get_contents	wrksp.c	/^NODE *get_contents() {$/
 get_mouse_x	xgraphics.c	/^int get_mouse_x()$/
@@ -405,7 +406,7 @@ minargs__procnode	logo.h	/^#define minargs__procnode(p)    car(cddr(p))$/
 mixrestore	eval.c	/^#define mixrestore(reg1,reg2)	(numrestore(reg1), r/
 mixsave	eval.c	/^#define mixsave(reg1,reg2)  (numsave(reg1), save(r/
 mmark	mem.c	/^#define mmark(child) {if ((child)->my_gen < nd->my/
-mode_type	logo.h	94
+mode_type	logo.h	103
 move_to	xgraphics.h	/^#define move_to(a,b)             xgr_pen.xpos=(a);/
 ms_listlist	wrksp.c	/^void ms_listlist(NODE *nd) {$/
 name_arg	wrksp.c	/^NODE *name_arg(NODE *args) {$/
@@ -562,12 +563,12 @@ torf_arg	coms.c	/^int torf_arg(NODE *args) {$/
 towards_helper	graphics.c	/^FLONUM towards_helper(FLONUM x, FLONUM y, FLONUM f/
 tree__line	logo.h	/^#define tree__line(l)		l$/
 tree__tree	logo.h	/^#define tree__tree(t)		cdr(treepair__tree(t))$/
-treepair__tree	logo.h	/^#define treepair__tree(t)	getobject(t)$/
+treepair__tree	logo.h	/^#define treepair__tree(t)	(getobject(t))$/
 type_help	print.c	/^void type_help(NODE *args, int sp) {$/
 unblock_input	main.c	/^void unblock_input(void) {$/
 unbury_helper	wrksp.c	/^NODE *unbury_helper(NODE *arg, int flag) {$/
 uncapital	logodata.c	/^#define uncapital(c)    ((c) - 'A' + 'a')$/
-unparsed__line	logo.h	/^#define unparsed__line(l)	getobject(l)$/
+unparsed__line	logo.h	/^#define unparsed__line(l)	(getobject(l))$/
 unparsed__runparse	logo.h	/^#define unparsed__runparse(rn)  rn$/
 unparsed__tree	logo.h	/^#define unparsed__tree(t)	t$/
 untreeify	paren.c	/^void untreeify(NODE *node) {$/
@@ -585,9 +586,9 @@ vec_arg_helper	graphics.c	/^NODE *vec_arg_helper(NODE *args, BOOLEAN floatok, /
 vector_arg	graphics.c	/^NODE *vector_arg(NODE *args) {$/
 white_space	parse.c	/^#define white_space(ch) (ch == ' ' || ch == '\\t' |/
 word_strnzcpy	logodata.c	/^char *word_strnzcpy(char *s1, NODE *kludge, int n)/
-wrap_down	graphics.c	/^int wrap_down(FLONUM d, FLONUM x1, FLONUM y1, FLON/
-wrap_left	graphics.c	/^int wrap_left(FLONUM d, FLONUM x1, FLONUM y1, FLON/
-wrap_right	graphics.c	/^int wrap_right(FLONUM d, FLONUM x1, FLONUM y1, FLO/
-wrap_up	graphics.c	/^int wrap_up(FLONUM d, FLONUM x1, FLONUM y1, FLONUM/
+wrap_down	graphics.c	/^FLONUM wrap_down(FLONUM d, FLONUM x1, FLONUM y1, F/
+wrap_left	graphics.c	/^FLONUM wrap_left(FLONUM d, FLONUM x1, FLONUM y1, F/
+wrap_right	graphics.c	/^FLONUM wrap_right(FLONUM d, FLONUM x1, FLONUM y1, /
+wrap_up	graphics.c	/^FLONUM wrap_up(FLONUM d, FLONUM x1, FLONUM y1, FLO/
 x_window_init	xgraphics.c	/^void x_window_init(int argc, char **argv)$/
 zrd_print_prompt	parse.c	/^void zrd_print_prompt(char *str) {$/

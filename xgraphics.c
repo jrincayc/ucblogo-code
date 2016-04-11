@@ -218,9 +218,10 @@ void real_window_init()
     }
   } while(1);
 
+  lclearscreen(NIL);
   move_to(screen_x_coord, screen_y_coord);
-  if(turtle_shown)
-    draw_turtle();
+/*   if(turtle_shown)
+    draw_turtle();  */
 }
 
 NODE *Get_node_pen_mode(GC mode)
@@ -241,6 +242,15 @@ NODE *Get_node_pen_mode(GC mode)
   return(make_static_strnode("unknown"));
 }
 
+void save_pen(pen_info *p) {
+    memcpy(((char *)(p)),((char *)(&xgr_pen)),sizeof(pen_info));
+}
+
+void restore_pen(pen_info *p) {
+    memcpy(((char *)(&xgr_pen)),((char *)(p)),sizeof(pen_info));
+    set_pen_width(p->pw);
+    set_pen_height(p->ph);
+}
 
 void placate_x()
 {

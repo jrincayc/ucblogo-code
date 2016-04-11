@@ -31,6 +31,7 @@
 #define ibm
 #undef __ZTC__
 #define HAVE_MEMCPY
+#define SIG_TAKES_ARG
 #endif
 
 #ifdef THINK_C
@@ -45,6 +46,7 @@
 #ifdef __ZTC__
 #define ibm
 #define HAVE_MEMCPY
+#define SIG_TAKES_ARG
 #endif
 
 #ifdef _MSC_VER
@@ -61,6 +63,7 @@
 #endif
 #else
 #define RETSIGTYPE void
+#define SIGRET 
 #ifndef STDC_HEADERS
 #define STDC_HEADERS
 #endif
@@ -233,7 +236,7 @@ typedef struct logo_node {
 	struct {
 	    char *nstring_ptr;
 	    struct string_block *nstring_head;
-	    int nstring_len;
+	    FIXNUM nstring_len;
 	} nstring;
 	struct {
 	    struct logo_node * (*nprim_fun) ();
@@ -245,8 +248,8 @@ typedef struct logo_node {
 	FIXNUM nint;
 	FLONUM nfloat;
 	struct {
-	    int narray_dim;
-	    int narray_origin;
+	    FIXNUM narray_dim;
+	    FIXNUM narray_origin;
 	    struct logo_node **narray_data;
 	} narray;
     } nunion;
@@ -371,14 +374,15 @@ struct segment {
 #define valnode__colon(c)       valnode__caseobj(node__colon(c))
 
 #define unparsed__tree(t)	t
-#define treepair__tree(t)	getobject(t)
+#define treepair__tree(t)	(getobject(t))
 #define settreepair__tree(t, v)	setobject(t, v)
-#define generation__tree(t)	car(treepair__tree(t))
+#define generation__tree(t)	(car(treepair__tree(t)))
 #define setgeneration__tree(t, g) setcar(treepair__tree(t), g)
 #define tree__tree(t)		cdr(treepair__tree(t))
 #define settree__tree(t, v)	settreepair__tree(t, cons(the_generation, v))
 
-#define unparsed__line(l)	getobject(l)
+#define unparsed__line(l)	(getobject(l))
+#define generation__line(l)	(generation__tree(unparsed__line(l)))
 #define tree__line(l)		l
 
 #define cont__cont(c)		(FIXNUM)car(c)
@@ -404,8 +408,8 @@ struct segment {
 #define flag__object(o,f) (int)((obflags__object(o))->n_int & (f))
 #define is_macro(c) (flag__caseobj(c, PROC_MACRO))
 
-#define push(obj, stack)    spush(obj, &stack)
-#define pop(stack)	    spop(&stack)
+#define push(obj, stack)    stack = cons(obj, stack)
+#define pop(stack)	    stack = cdr(stack)
 
 /* evaluator labels, needed by macros in other files */
 

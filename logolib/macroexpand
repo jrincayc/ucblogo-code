@@ -1,3 +1,5 @@
+;;; -*- logo -*-
+
 to macroexpand :expr
 local [name inputlist macro.result]
 make "name first :expr

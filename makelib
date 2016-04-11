@@ -1,5 +1,7 @@
 mkdir -p logolib
 cat << "ENDOFFILE" > logolib/#
+;;; -*- logo -*-
+
 to #
 op :template.number
 end
@@ -7,6 +9,8 @@ end
 bury "#
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/\`
+;;; -*- logo -*-
+
 to ` :backq.list
 if emptyp :backq.list [op []]
 if equalp first :backq.list ", ~
@@ -20,6 +24,8 @@ end
 bury "`
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/\?rest
+;;; -*- logo -*-
+
 to ?rest [:which 1]
 output bf item :which :template.lists
 end
@@ -27,6 +33,8 @@ end
 bury "?rest
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/arraytolist
+;;; -*- logo -*-
+
 to arraytolist :array [:dim count :array] [:limit :dim + first :array]
 op cascade :dim [fput item (:limit - #) :array ?] []
 end
@@ -34,6 +42,8 @@ end
 bury "arraytolist
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/buryall
+;;; -*- logo -*-
+
 to buryall
 bury contents
 end
@@ -41,6 +51,8 @@ end
 bury "buryall
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/buryname
+;;; -*- logo -*-
+
 to buryname :names
 bury namelist :names
 end
@@ -48,6 +60,8 @@ end
 bury "buryname
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/cascade
+;;; -*- logo -*-
+
 to cascade :cascade.limit [:cascade.inputs] 3
 if numberp :cascade.limit ~
    [if lessp :cascade.limit 0 ~
@@ -83,6 +97,8 @@ end
 bury [cascade cascade.setup cascade1 cascade.eval]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/cascade.2
+;;; -*- logo -*-
+
 to cascade.2 [:cascade2.inputs] 5
 op apply "cascade :cascade2.inputs
 end
@@ -90,6 +106,8 @@ end
 bury "cascade.2
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/closeall
+;;; -*- logo -*-
+
 to closeall
 foreach allopen [close ?]
 end
@@ -97,6 +115,8 @@ end
 bury "closeall
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/combine
+;;; -*- logo -*-
+
 to combine :this :those
 if wordp :those [output word :this :those]
 output fput :this :those
@@ -105,6 +125,8 @@ end
 bury "combine
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/crossmap
+;;; -*- logo -*-
+
 to crossmap :cm.template [:cm.lists] 2
 if emptyp bf :cm.lists [op cm1 first :cm.lists 1 []]
 op cm1 :cm.lists 1 []
@@ -126,6 +148,8 @@ end
 bury [crossmap cm1 cm2]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/dequeue
+;;; -*- logo -*-
+
 to dequeue :the.queue.name
 local "result
 make "result first thing :the.queue.name
@@ -136,6 +160,8 @@ end
 bury "dequeue
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/do.until
+;;; -*- logo -*-
+
 .macro do.until :until.instr :until.cond
 op se :until.instr (list "until :until.cond :until.instr)
 end
@@ -143,6 +169,8 @@ end
 bury "do.until
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/do.while
+;;; -*- logo -*-
+
 .macro do.while :while.instr :while.cond
 op se :while.instr (list "while :while.cond :while.instr)
 end
@@ -150,6 +178,8 @@ end
 bury "do.while
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edall
+;;; -*- logo -*-
+
 to edall
 edit contents
 end
@@ -157,6 +187,8 @@ end
 bury "edall
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edn
+;;; -*- logo -*-
+
 to edn :names
 edit namelist :names
 end
@@ -164,6 +196,8 @@ end
 bury "edn
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edns
+;;; -*- logo -*-
+
 to edns
 edit names
 end
@@ -171,6 +205,8 @@ end
 bury "edns
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edpl
+;;; -*- logo -*-
+
 to edpl :names
 edit pllist :names
 end
@@ -178,6 +214,8 @@ end
 bury "edpl
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edpls
+;;; -*- logo -*-
+
 to edpls
 edit plists
 end
@@ -185,13 +223,44 @@ end
 bury "edpls
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/edps
+;;; -*- logo -*-
+
 to edps
 edit procedures
 end
 
 bury "edps
 ENDOFFILE
+cat << "ENDOFFILE" > logolib/emacs.debug
+;;;  -*- logo -*-
+
+to emacs.debug :file_elisp_code :trace_or_step
+localmake "wr_elisp_code writer
+if namep "printwidthlimit [
+   localmake "pw_elisp_code :printwidthlimit
+   ern "printwidthlimit]
+openwrite :file_elisp_code
+setwrite :file_elisp_code
+bury [[] [wr_elisp_code pw_elisp_code file_elisp_code trace_or_step] []]
+(foreach contents run (list :trace_or_step)
+                      [PROCEDURES: VARIABLES: PROPERTIES:]
+                      [[names debugged title]
+                       [pr :title pr []
+                           pr map [[name]
+                                   [op ifelse memberp :name :debugged
+                                           [(word "\( :name "\))]
+                                           [:name]]] :names
+                           pr []]])
+close :file_elisp_code
+setwrite :wr_elisp_code
+if namep "pw_elisp_code [make "printwidthlimit :pw_elisp_code]
+end
+
+bury "emacs.debug
+ENDOFFILE
 cat << "ENDOFFILE" > logolib/ern
+;;; -*- logo -*-
+
 to ern :names
 erase namelist :names
 end
@@ -199,6 +268,8 @@ end
 bury "ern
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/erpl
+;;; -*- logo -*-
+
 to erpl :names
 erase pllist :names
 end
@@ -206,15 +277,19 @@ end
 bury "erpl
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/filep
+;;; -*- logo -*-
+
 to filep :filename
 ignore error
 catch "error [openread :filename close :filename]
-output not emptyp error
+output emptyp error
 end
 
 bury "filep
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/file\?
+;;; -*- logo -*-
+
 to file? :filename
 ignore error
 catch "error [openread :filename close :filename]
@@ -224,6 +299,8 @@ end
 bury "file?
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/filter
+;;; -*- logo -*-
+
 to filter :filter.template :template.list [:template.number 1] ~
           [:template.lists (list :template.list)]
 if emptyp :template.list [op :template.list]
@@ -233,9 +310,15 @@ if apply :filter.template (list first :template.list) ~
 op (filter :filter.template bf :template.list :template.number+1)
 end
 
-bury "filter
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [filter ?rest]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/find
+;;; -*- logo -*-
+
 to find :find.template :template.list [:template.number 1] ~
         [:template.lists (list :template.list)]
 if emptyp :template.list [op []]
@@ -243,9 +326,15 @@ if apply :find.template (list first :template.list) [op first :template.list]
 op (find :find.template bf :template.list :template.number+1)
 end
 
-bury "find
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [find ?rest]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/for
+;;; -*- logo -*-
+
 .macro for :for.values :for.instr ~
    [:for.var first :for.values] ~
    [:for.initial run first bf :for.values] ~
@@ -279,6 +368,8 @@ end
 bury [for forstep forloop for.done]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/foreach
+;;; -*- logo -*-
+
 .macro foreach [:foreach.inputs] 2
 catch "foreach.catchtag ~
       [op foreach.done runresult ~
@@ -297,9 +388,15 @@ if emptyp :foreach.result [op [stop]]
 op list "output quoted first :foreach.result
 end
 
-bury [foreach foreach1 foreach.done]
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [foreach foreach1 foreach.done ?rest]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/gensym
+;;; -*- logo -*-
+
 to gensym
 if not namep "gensym.number [make "gensym.number 0]
 make "gensym.number :gensym.number + 1
@@ -309,12 +406,16 @@ end
 bury [[gensym] [gensym.number]]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/ignore
+;;; -*- logo -*-
+
 to ignore :stuff
 end
 
 bury "ignore
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/invoke
+;;; -*- logo -*-
+
 to invoke :function [:inputs] 2
 .maybeoutput apply :function :inputs
 end
@@ -322,6 +423,8 @@ end
 bury "invoke
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/iseq
+;;; -*- logo -*-
+
 to iseq :a :b
 if not (:a > :b) [output iseq1 :a :b]
 output map [[x] -1 * :x] iseq1 (-1 * :a) (-1 * :b)
@@ -335,6 +438,8 @@ end
 bury [iseq iseq1]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/listtoarray
+;;; -*- logo -*-
+
 to listtoarray :list [:origin 1]
 local "array
 make "array (array count :list :origin)
@@ -351,6 +456,8 @@ end
 bury [listtoarray listtoarray1]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/localmake
+;;; -*- logo -*-
+
 .macro localmake :name :value
 output (list "local (word "" :name) "apply ""make (list :name :value))
 end
@@ -358,6 +465,8 @@ end
 bury "localmake
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/macroexpand
+;;; -*- logo -*-
+
 to macroexpand :expr
 local [name inputlist macro.result]
 make "name first :expr
@@ -372,6 +481,8 @@ end
 bury "macroexpand
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/map
+;;; -*- logo -*-
+
 to map :map.template [:template.lists] 2
 op map1 :template.lists 1
 end
@@ -382,9 +493,15 @@ output combine (apply :map.template firsts :template.lists) ~
                (map1 bfs :template.lists :template.number+1)
 end
 
-bury [map map1]
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [map map1 ?rest]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/map.se
+;;; -*- logo -*-
+
 to map.se :map.se.template [:template.lists] 2
 op map.se1 :template.lists 1
 end
@@ -395,9 +512,15 @@ output sentence (apply :map.se.template firsts :template.lists) ~
                 (map.se1 bfs :template.lists :template.number+1)
 end
 
-bury [map.se map.se1]
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [map.se map.se1 ?rest]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/mdarray
+;;; -*- logo -*-
+
 to mdarray :sizes [:origin 1]
 local "array
 make "array (array first :sizes :origin)
@@ -410,6 +533,8 @@ end
 bury "mdarray
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/mditem
+;;; -*- logo -*-
+
 to mditem :index :array
 if emptyp :index [op :array]
 op mditem bf :index item first :index :array
@@ -418,6 +543,8 @@ end
 bury "mditem
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/mdsetitem
+;;; -*- logo -*-
+
 to mdsetitem :index :array :val
 setitem last :index (mditem bl :index :array) :val
 end
@@ -425,6 +552,8 @@ end
 bury "mdsetitem
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/name
+;;; -*- logo -*-
+
 to name :name.value.input :name.variable.input
 make :name.variable.input :name.value.input
 end
@@ -432,6 +561,8 @@ end
 bury "name
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/namelist
+;;; -*- logo -*-
+
 to namelist :names
 if wordp :names [output list [] (list :names)]
 output list [] :names
@@ -440,6 +571,8 @@ end
 bury "namelist
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pen
+;;; -*- logo -*-
+
 to pen
 op (list (ifelse pendownp ["pendown] ["penup]) ~
          penmode pensize pencolor penpattern)
@@ -448,6 +581,8 @@ end
 bury [pen]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pick
+;;; -*- logo -*-
+
 to pick :list
 output item (1+random count :list) :list
 end
@@ -455,6 +590,8 @@ end
 bury "pick
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pllist
+;;; -*- logo -*-
+
 to pllist :names
 if wordp :names [output (list [] [] (list :names))]
 output (list [] [] :names)
@@ -463,6 +600,8 @@ end
 bury "pllist
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/poall
+;;; -*- logo -*-
+
 to poall
 po contents
 end
@@ -470,6 +609,8 @@ end
 bury "poall
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pon
+;;; -*- logo -*-
+
 to pon :names
 ignore error
 catch "error [po namelist :names]
@@ -481,6 +622,8 @@ end
 bury "pon
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pons
+;;; -*- logo -*-
+
 to pons
 po names
 end
@@ -488,6 +631,8 @@ end
 bury "pons
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pop
+;;; -*- logo -*-
+
 to pop :the.stack.name
 local "result
 make "result first thing :the.stack.name
@@ -498,6 +643,8 @@ end
 bury "pop
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/popl
+;;; -*- logo -*-
+
 to popl :names
 ignore error
 catch "error [po pllist :names]
@@ -509,6 +656,8 @@ end
 bury "popl
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/popls
+;;; -*- logo -*-
+
 to popls
 po plists
 end
@@ -516,6 +665,8 @@ end
 bury "popls
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pops
+;;; -*- logo -*-
+
 to pops
 po procedures
 end
@@ -523,6 +674,8 @@ end
 bury "pops
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/pots
+;;; -*- logo -*-
+
 to pots
 pot procedures
 end
@@ -530,6 +683,8 @@ end
 bury "pots
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/push
+;;; -*- logo -*-
+
 to push :the.stack.name :the.item.value
 make :the.stack.name fput :the.item.value thing :the.stack.name
 end
@@ -537,6 +692,8 @@ end
 bury "push
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/queue
+;;; -*- logo -*-
+
 to queue :the.queue.name :the.item.value
 make :the.queue.name lput :the.item.value thing :the.queue.name
 end
@@ -544,6 +701,8 @@ end
 bury "queue
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/quoted
+;;; -*- logo -*-
+
 to quoted :stuff
 if wordp :stuff [op word "" :stuff]
 op :stuff
@@ -552,6 +711,8 @@ end
 bury "quoted
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/reduce
+;;; -*- logo -*-
+
 to reduce :reduce.function :reduce.list
 if emptyp bf :reduce.list [op first :reduce.list]
 op apply :reduce.function (list (first :reduce.list) ~
@@ -561,6 +722,8 @@ end
 bury "reduce
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/remdup
+;;; -*- logo -*-
+
 to remdup :list
 output filter [not memberp ? ?rest] :list
 end
@@ -568,6 +731,8 @@ end
 bury "remdup
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/remove
+;;; -*- logo -*-
+
 to remove :thing :list
 output filter [not equalp ? :thing] :list
 end
@@ -575,6 +740,8 @@ end
 bury "remove
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/reverse
+;;; -*- logo -*-
+
 to reverse :in [:out ifelse listp :in [[]] ["]]
 if emptyp :in [output :out]
 output (reverse bf :in combine first :in :out)
@@ -583,6 +750,8 @@ end
 bury "reverse
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/rseq
+;;; -*- logo -*-
+
 to rseq :a :b :n
 output map [[x] :a + :x * (:b - :a) / (:n - 1)] iseq 0 :n - 1
 end
@@ -590,6 +759,8 @@ end
 bury "rseq
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/savel
+;;; -*- logo -*-
+
 to savel :cont :file [:oldwr writer]
 openwrite :file
 setwrite :file
@@ -601,13 +772,15 @@ end
 bury "savel
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/setpen
+;;; -*- logo -*-
+
 to setpen :pen_data
-ifelse equalp first :pen_data "penup [penup] [pendown]
 ifelse equalp first bf :pen_data "reverse ~
        [penreverse] ~
        [ifelse equalp first bf :pen_data "erase ~
                [penerase] ~
                [penpaint]]
+ifelse equalp first :pen_data "penup [penup] [pendown]
 setpensize first bf bf :pen_data
 setpencolor first bf bf bf :pen_data
 setpenpattern first bf bf bf bf :pen_data
@@ -616,6 +789,8 @@ end
 bury [setpen]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/transfer
+;;; -*- logo -*-
+
 to transfer :transfer.limit :transfer.template :transfer.init
 output cascade.2 (ifelse emptyp :transfer.limit ~
                          [[emptyp ?2]] ~
@@ -639,11 +814,15 @@ end
 bury [transfer transfer.end.test ?in ?out]
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/unburyall
+;;; -*- logo -*-
+
 to unburyall
 unbury buried
 end
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/unburyname
+;;; -*- logo -*-
+
 to unburyname :names
 unbury namelist :names
 end
@@ -651,6 +830,8 @@ end
 bury "unburyname
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/until
+;;; -*- logo -*-
+
 .macro until :until.cond :until.instr
 if run :until.cond [op []]
 op se :until.instr (list "until :until.cond :until.instr)
@@ -659,6 +840,8 @@ end
 bury "until
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/while
+;;; -*- logo -*-
+
 .macro while :while.cond :while.instr
 if not run :while.cond [op []]
 op se :while.instr (list "while :while.cond :while.instr)
@@ -667,6 +850,8 @@ end
 bury "while
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/xcor
+;;; -*- logo -*-
+
 to xcor
 output first pos
 end
@@ -674,6 +859,8 @@ end
 bury "xcor
 ENDOFFILE
 cat << "ENDOFFILE" > logolib/ycor
+;;; -*- logo -*-
+
 to ycor
 output last pos
 end

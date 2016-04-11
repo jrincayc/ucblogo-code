@@ -1,25 +1,32 @@
 /* -*-C-*-
  * win32trm.c -- Module to provide Win32 API compliant graphics routines
- * to UCB Logo.  This module should contain Win32 versions of all necessary
- * drawing functions, as well as the WinMain entry point.
  *
- * Since this is a part of work being done FOR the University, I suppose
- * this part is (c) 1996 Regents of the University of California.
- * All rights reserved and all that jazz.
+ *	Copyright (C) 1996 by the Regents of the University of California
  *
- */
-/*
- * By definition, this file is used for MS Windows versions of the
- * program, so no tests for #ifdef mac (for example) are needed.
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *      (at your option) any later version.
+ *  
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *  
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #include <windows.h>
+#include <time.h>
 #include <string.h>
 #include <math.h>
 
 #include "logo.h"
 #include "globals.h"
 #include "win32trm.h"
+#include "ucbwlogo/ucbwlogo/resource.h"
 
 // #define WIN32_S
 
@@ -31,7 +38,7 @@ char szConWinName[] = "UCBLogoConsole";
 
 pen_info turtlePen;
 
-HBRUSH hbrush;
+HBRUSH hbrush, textbrush;
 
 HBITMAP hbitG, hbitmG, hbitC, hbitmC;
 RECT allRect;
@@ -40,7 +47,7 @@ HDC GraphDC, memGraphDC, ConDC, memConDC;
 HWND hGraphWnd, hConWnd, hMainWnd;
 
 /* color and palette related information */
-static COLORREF palette[200];
+static COLORREF palette[264];
 FIXNUM back_ground, pen_color, old_pen_color;
 
 int maxX, maxY, greeted = 0, oldWidth, oldHeight;
@@ -59,6 +66,10 @@ int cur_line = 0, cur_index = 0, read_index, hpos = 0, margin, cur_len;
 int char_mode = 0, input_line = 0, input_index = 0;
 
 int line_avail = FALSE, char_avail = FALSE;
+
+/* Default font behavior set here: OEM_FIXED_FONT, ANSI_FIXED_FONT, or default */
+BOOLEAN oemfont = FALSE;
+BOOLEAN ansifont = TRUE;
 
 #ifdef WIN32_DEBUG
 void WinDebug(char *s) {
@@ -92,6 +103,11 @@ void lineto(int x, int y) {
     turtlePen.v = y;
     LineTo(memGraphDC, x, y);
     LineTo(GraphDC, x, y);
+	/* Good old Windows does us the favor of leaving out
+	   the endpoint, so we have to beat it up */
+	LineTo(memGraphDC, x, y+1);
+	LineTo(GraphDC, x, y+1);
+	MoveCursor(x, y);
 }
 
 void win32_go_away(void) {
@@ -104,16 +120,17 @@ void win32_go_away(void) {
 	    free(win32_lines[i]);
     if (win32_lines != NULL)
 	free(win32_lines);
-    DeleteObject(turtlePen.hpen);
-    DeleteObject(hbrush);
-    DeleteObject(hbitC);
-    DeleteObject(hbitmC);
-    DeleteObject(hbitG);
-    DeleteObject(hbitmG);
     DeleteDC(memConDC);
     DeleteDC(memGraphDC);
     DeleteDC(GraphDC);
     DeleteDC(ConDC);
+    DeleteObject(turtlePen.hpen);
+    DeleteObject(hbrush);
+    DeleteObject(textbrush);
+    DeleteObject(hbitC);
+    DeleteObject(hbitmC);
+    DeleteObject(hbitG);
+    DeleteObject(hbitmG);
     exit(0);
 }
 
@@ -125,7 +142,7 @@ void win32_update_text(void) {
 }
 
 void win32_repaint_screen(void) {
-    SetFocus(hMainWnd);
+    PostMessage(hMainWnd, WM_SETFOCUS, 0, 0);
 }
 
 void win32_advance_line(void) {
@@ -142,14 +159,14 @@ void win32_advance_line(void) {
     if ((ypos + 2 * (tm.tmHeight + tm.tmExternalLeading)) >= r.bottom) {
         ScrollDC(ConDC, 0, - (tm.tmHeight + tm.tmExternalLeading),
 		       &r, &r, NULL, &inv);
-        FillRect(ConDC, &inv, GetStockObject(WHITE_BRUSH));
+        FillRect(ConDC, &inv, textbrush);
         foo.left = 0;
         foo.right = Xsofar;
         foo.top = 0;
         foo.bottom = Ysofar;
         ScrollDC(memConDC, 0, - (tm.tmHeight + tm.tmExternalLeading),
 		       &foo, &foo, NULL, &inv);
-        FillRect(memConDC, &inv, GetStockObject(WHITE_BRUSH));
+        FillRect(memConDC, &inv, textbrush);
     }
 }
 
@@ -214,13 +231,8 @@ void MoveCursor(int newx, int newy) {
 }
 
 void win32_erase_screen(void) {
-    RECT r;
-
-    /* BLACK brush the whole window */
-    GetClientRect(hGraphWnd, &r);
-    PatBlt(memGraphDC, 0, 0, r.right, r.bottom, PATCOPY);
-    PatBlt(GraphDC, 0, 0, r.right, r.bottom, PATCOPY);
-    MoveCursor(screen_x_center, screen_y_center);
+    PatBlt(memGraphDC, 0, 0, maxX, maxY, PATCOPY);
+    PatBlt(GraphDC, 0, 0, maxX, maxY, PATCOPY);
 }
 
 void win32_set_bg(FIXNUM c) {
@@ -230,10 +242,9 @@ void win32_set_bg(FIXNUM c) {
      * WM_PAINT, and redraw the old display (using the records...)
      */
     back_ground = c;
-    DeleteObject(hbrush);
     hbrush = CreateSolidBrush(palette[back_ground]);
     SelectObject(memGraphDC, hbrush);
-    SelectObject(GraphDC, hbrush);
+    DeleteObject(SelectObject(GraphDC, hbrush));
     PatBlt(memGraphDC, 0, 0, maxX, maxY, PATCOPY);
     PatBlt(GraphDC, 0, 0, maxX, maxY, PATCOPY);
     SetBkColor(memGraphDC, palette[back_ground]);
@@ -249,12 +260,13 @@ void win32_clear_text(void) {
      */
 
     // GetClientRect(hConWnd, &r);
-    FillRect(ConDC, &allRect, GetStockObject(WHITE_BRUSH));
-    BitBlt(memConDC, 0, 0, maxX, maxY, ConDC, 0, 0, SRCCOPY);
+    FillRect(ConDC, &allRect, textbrush);
+    FillRect(memConDC, &allRect, textbrush);
 }
 
 LRESULT CALLBACK GraphWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 				 LPARAM lParam) {
+    HFONT hfont;
     PAINTSTRUCT ps;
 
     switch (message) {
@@ -272,6 +284,16 @@ LRESULT CALLBACK GraphWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
             SelectObject(memGraphDC, hbitmG);
             hbitG = CreateCompatibleBitmap(GraphDC, maxX, maxY);
             SelectObject(GraphDC, hbitG);
+	    if (oemfont) {
+		hfont = GetStockObject(OEM_FIXED_FONT);
+		SelectObject(memGraphDC, hfont);
+		SelectObject(GraphDC, hfont);
+	    }
+	    if (ansifont) {
+		hfont = GetStockObject(ANSI_FIXED_FONT);
+		SelectObject(memGraphDC, hfont);
+		SelectObject(GraphDC, hfont);
+	    }
             /*
              * first-time initialization of the brush for the background requires
              * setting the back_ground, and selecting the right color.  while
@@ -347,15 +369,23 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
             SelectObject(memConDC, hbitmC);
             hbitC = CreateCompatibleBitmap(ConDC, maxX, maxY);
             SelectObject(ConDC, hbitC);
-	    hfont = GetStockObject(OEM_FIXED_FONT);
-            SelectObject(memConDC, hfont);
-            SelectObject(ConDC, hfont);
-            hbrush = GetStockObject(WHITE_BRUSH);
-            SelectObject(memConDC, hbrush);
-            SelectObject(ConDC, hbrush);
-            FillRect(memConDC, &allRect, hbrush);
+	    if (oemfont) {
+		hfont = GetStockObject(OEM_FIXED_FONT);
+		SelectObject(memConDC, hfont);
+		SelectObject(ConDC, hfont);
+	    }
+	    if (ansifont) {
+		hfont = GetStockObject(ANSI_FIXED_FONT);
+		SelectObject(memConDC, hfont);
+		SelectObject(ConDC, hfont);
+	    }
+            textbrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
+            SelectObject(memConDC, textbrush);
+            SelectObject(ConDC, textbrush);
+            FillRect(memConDC, &allRect, textbrush);
             GetClientRect(hConWnd, &rect);
             GetTextMetrics(ConDC, &tm);
+            ibm_plain_mode();
             break;
         case WM_CHAR:
             if (char_mode) {
@@ -430,6 +460,21 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     int i;
     char *argv[20];
     int argc;
+    char *fontenv;
+
+    fontenv = getenv("LOGOFONT");
+    if (fontenv != NULL && !strcmp(fontenv,"oem")) {
+	oemfont = TRUE;
+	ansifont = FALSE;
+    }
+    if (fontenv != NULL && !strcmp(fontenv,"ansi")) {
+	ansifont = TRUE;
+	oemfont = FALSE;
+    }
+    if (fontenv != NULL && !strcmp(fontenv,"default")) {
+	ansifont = FALSE;
+	oemfont = FALSE;
+    }
 
     /* Set up the parameters that define the Graphics window's class */
     wParentCL.hInstance = hThisInst;
@@ -437,13 +482,13 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     wParentCL.lpfnWndProc = ParentWindowFunc;
     wParentCL.style = 0;
     wParentCL.cbSize = sizeof(WNDCLASSEX);
-    wParentCL.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wParentCL.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+    wParentCL.hIcon = LoadIcon(hThisInst, (char *)IDI_ICON1);
+    wParentCL.hIconSm = LoadIcon(hThisInst, (char *)IDI_ICON2);
     wParentCL.hCursor = LoadCursor(NULL, IDC_ARROW);
     wParentCL.lpszMenuName = NULL;
     wParentCL.cbClsExtra = 0;
     wParentCL.cbWndExtra = 0;
-    wParentCL.hbrBackground = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
+    wParentCL.hbrBackground = (void *)(COLOR_WINDOWFRAME+1);
 
     /* Set up the parameters that define the "Console" window's class */
     wConCL.hInstance = hThisInst;
@@ -457,7 +502,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     wConCL.lpszMenuName = NULL;
     wConCL.cbClsExtra = 0;
     wConCL.cbWndExtra = 0;
-    wConCL.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
+    wConCL.hbrBackground = (void *)(COLOR_WINDOW+1);
 
     /* Set up the parameters that define the Graphics window's class */
     wGraphCL.hInstance = hThisInst;
@@ -490,7 +535,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
 
     hMainWnd = CreateWindow(szWinName, "UCB Logo", WS_OVERLAPPEDWINDOW,
 			    CW_USEDEFAULT, CW_USEDEFAULT,
-			    CW_USEDEFAULT, CW_USEDEFAULT,
+			    700, 440,
 			    HWND_DESKTOP,
 			    NULL, hThisInst, NULL);
 
@@ -551,19 +596,17 @@ NODE *win32_get_node_pen_mode(void) {
 void logofill(void) {
     COLORREF col;
 
-    DeleteObject(hbrush);
     hbrush = CreateSolidBrush(palette[pen_color]);
     SelectObject(memGraphDC, hbrush);
-    SelectObject(GraphDC, hbrush);
+    DeleteObject(SelectObject(GraphDC, hbrush));
     col = GetPixel(memGraphDC, g_round(screen_x_coord), g_round(screen_y_coord));
     (void)ExtFloodFill(memGraphDC, g_round(screen_x_coord),
 		         g_round(screen_y_coord), col, FLOODFILLSURFACE);
     (void)ExtFloodFill(GraphDC, g_round(screen_x_coord),
 		         g_round(screen_y_coord), col, FLOODFILLSURFACE);
-    DeleteObject(hbrush);
     hbrush = CreateSolidBrush(palette[back_ground]);
     SelectObject(memGraphDC, hbrush);
-    SelectObject(GraphDC, hbrush);
+    DeleteObject(SelectObject(GraphDC, hbrush));
 }
 
 void get_pen_pattern(void) {
@@ -573,15 +616,15 @@ void set_pen_pattern(void) {
 }
 
 void get_palette(int slot, unsigned int *r, unsigned int *g, unsigned int *b) {
-    *r = (palette[slot % 200] & 0x00ff0000) >> 16;
-    *g = (palette[slot % 200] & 0x0000ff00) >> 8;
-    *b = (palette[slot % 200] & 0x000000ff);
+    *b = ((palette[slot % 264] & 0x00ff0000) >> 16) * 256;
+    *g = ((palette[slot % 264] & 0x0000ff00) >> 8) * 256;
+    *r = (palette[slot % 264] & 0x000000ff) * 256;
 }
 
 void set_palette(int slot, unsigned int r, unsigned int g, unsigned int b) {
-    if (slot > 199)  // 200 rgb values
+    if (slot > 263 || slot < 8)  // 256 rgb values
         return;
-    palette[slot] = RGB(r, g, b);
+    palette[slot] = RGB(r/256, g/256, b/256);
 }
 
 void save_pen(pen_info *p) {
@@ -602,13 +645,12 @@ void restore_pen(pen_info *p) {
     turtlePen.mode = p->mode;
     win32_set_pen_mode(turtlePen.mode);
     turtlePen.width = p->width;
-    if (p->color != pen_color) {
-        pen_color = p->color;
-        DeleteObject(turtlePen.hpen);
-        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[pen_color]);
-        SelectObject(memGraphDC, turtlePen.hpen);
-        SelectObject(GraphDC, turtlePen.hpen);
-    }
+    pen_color = p->color;
+    turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
+					 (in_erase_mode ? palette[back_ground]
+							: palette[pen_color]));
+    SelectObject(memGraphDC, turtlePen.hpen);
+    DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
 }
 
 void set_list_pen_pattern(void) {
@@ -712,7 +754,7 @@ long upscroll_text(int limit) {
         inv.top = rbot - 1;
         inv.bottom = allRect.bottom;
         BitBlt(memConDC, 0, 0, maxX, maxY, ConDC, 0, 0, SRCCOPY);
-        FillRect(memConDC, &inv, GetStockObject(WHITE_BRUSH));
+        FillRect(memConDC, &inv, textbrush);
         y_coord = y_new;
     }
     return r.bottom;
@@ -725,13 +767,13 @@ void reshow_text(void) {
     ShowWindow(hConWnd, SW_SHOW);
     GetClientRect(hConWnd, &r);
     GetTextMetrics(memConDC, &tm);
-    FillRect(ConDC, &r, GetStockObject(WHITE_BRUSH));
+    FillRect(ConDC, &r, textbrush);
     if (r.right > Xsofar) {
         foo.left = Xsofar;
         foo.right = r.right;
         foo.top = 0;
         foo.bottom = allRect.bottom;
-        FillRect(memConDC, &foo, GetStockObject(WHITE_BRUSH));
+        FillRect(memConDC, &foo, textbrush);
         Xsofar = r.right;
     }
     if (r.bottom > Ysofar) {
@@ -739,7 +781,7 @@ void reshow_text(void) {
         foo.right = r.right;
         foo.top = Ysofar;
         foo.bottom = r.bottom;
-        FillRect(memConDC, &foo, GetStockObject(WHITE_BRUSH));
+        FillRect(memConDC, &foo, textbrush);
         Ysofar = r.bottom;
     }
     BitBlt(ConDC, 0, 0, r.right, r.bottom, memConDC, 0, 0, SRCCOPY);
@@ -764,11 +806,12 @@ void win32_con_split_screen(void) {
         return;
     in_graphics_mode = in_splitscreen = 1;
 
+    ShowWindow(hConWnd, SW_SHOW);
     vert = upscroll_text(3);
     GetClientRect(hMainWnd, &r);
     MoveWindow(hConWnd, 0, r.bottom - vert - 6, r.right, vert + 6, FALSE);
     MoveWindow(hGraphWnd, 0, 0, r.right, r.bottom - vert - 8, TRUE);
-    ShowWindow(hGraphWnd, SW_SHOW);
+    ShowWindow(hGraphWnd, SW_HIDE);
     BeginPaint(hGraphWnd, &ps);
     BitBlt(ps.hdc, 0, 0, maxX, maxY, memGraphDC, 0, 0, SRCCOPY);
     EndPaint(hGraphWnd, &ps);
@@ -781,6 +824,7 @@ void win32_con_split_screen(void) {
         resize_record(deltaX, deltaY);
         redraw_graphics();
     }
+    ShowWindow(hGraphWnd, SW_SHOW);
     if (!seen_once) {
         seen_once = TRUE;
         lclearscreen(NIL);
@@ -800,26 +844,18 @@ void win32_con_text_screen(void) {
     ShowWindow(hGraphWnd, SW_HIDE);
     reshow_text();
 }
-
-void show_if_not_shown(void) {
-    if (!in_graphics_mode) {
-        ShowWindow(hGraphWnd, SW_NORMAL);
-        in_graphics_mode = in_splitscreen = 1;
-
-        lclearscreen(NIL);
-        return ;
-    }
-}
     
 void win32_turtle_prep(void) {
     if (in_erase_mode) {
         /* current pen color != "real" pen color */
-        DeleteObject(turtlePen.hpen);
         turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[pen_color]);
+	SelectObject(memGraphDC, turtlePen.hpen);
+	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
+    } else {
+	SelectObject(memGraphDC, turtlePen.hpen);
+	SelectObject(GraphDC, turtlePen.hpen);
     }
     update_pos = FALSE;
-    SelectObject(memGraphDC, turtlePen.hpen);
-    SelectObject(GraphDC, turtlePen.hpen);
     pre_turtle_pen_mode = SetROP2(memGraphDC, R2_XORPEN);
     (void)SetROP2(GraphDC, R2_XORPEN);
 }
@@ -830,12 +866,14 @@ void win32_turtle_end(void) {
          * current pen color should now be set to background color to resume
          * "erase mode"
          */
-        DeleteObject(turtlePen.hpen);
         turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[back_ground]);
+	SelectObject(memGraphDC, turtlePen.hpen);
+	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
+    } else {
+	SelectObject(memGraphDC, turtlePen.hpen);
+	SelectObject(GraphDC, turtlePen.hpen);
     }
     update_pos = TRUE;
-    SelectObject(memGraphDC, turtlePen.hpen);
-    SelectObject(GraphDC, turtlePen.hpen);
     SetROP2(memGraphDC, pre_turtle_pen_mode);
     SetROP2(GraphDC, pre_turtle_pen_mode);
 }
@@ -863,11 +901,12 @@ void win32_init_palette(void) {
 void win32_set_pen_color(int c) {
     draw_turtle();
     turtlePen.color = pen_color = c;
-    DeleteObject(turtlePen.hpen);
-    turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-			         palette[turtlePen.color]);
-    SelectObject(memGraphDC, turtlePen.hpen);
-    SelectObject(GraphDC, turtlePen.hpen);
+    if (!in_erase_mode) {
+	turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
+				   palette[turtlePen.color]);
+	SelectObject(memGraphDC, turtlePen.hpen);
+	DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
+    }
     SetTextColor(memGraphDC, palette[pen_color]);
     SetTextColor(GraphDC, palette[pen_color]);
     draw_turtle();
@@ -878,11 +917,11 @@ int win32_set_pen_width(int w) {
 
     old = turtlePen.width;
     turtlePen.width = w;
-    DeleteObject(turtlePen.hpen);
     turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width,
-			         palette[turtlePen.color]);
+			         (in_erase_mode ? palette[back_ground]
+						: palette[turtlePen.color]));
     SelectObject(memGraphDC, turtlePen.hpen);
-    SelectObject(GraphDC, turtlePen.hpen);
+    DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
     return old;
 }
 
@@ -947,36 +986,37 @@ void win32_set_pen_mode(int newmode) {
     SetROP2(memGraphDC, rop2_mode);
     SetROP2(GraphDC, rop2_mode);
 
-    if (newmode != WIN_PEN_REVERSE) {
-        if (newmode == WIN_PEN_ERASE)
-            newpc = back_ground;
-        else
-            newpc = pen_color;
-        DeleteObject(turtlePen.hpen);
-        turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[newpc]);
-        SelectObject(memGraphDC, turtlePen.hpen);
-        SelectObject(GraphDC, turtlePen.hpen);
-    }
+    if (newmode == WIN_PEN_ERASE)
+	newpc = back_ground;
+    else
+	newpc = pen_color;
+    turtlePen.hpen = CreatePen(PS_SOLID, turtlePen.width, palette[newpc]);
+    SelectObject(memGraphDC, turtlePen.hpen);
+    DeleteObject(SelectObject(GraphDC, turtlePen.hpen));
 }
 
 LRESULT CALLBACK ParentWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 				 LPARAM lParam) {
+    RECT r;
+
     switch (message) {
         case WM_CHAR:
 		SendMessage(hConWnd, WM_CHAR, wParam, lParam);
             break;
         case WM_SIZE:
-            if (!in_graphics_mode) {   // Text screen mode
-                in_graphics_mode = 1;
-                win32_con_text_screen();
-            } else if (in_splitscreen) {
-                in_splitscreen = 0;
-                win32_con_split_screen();
-            } else {
-                in_graphics_mode = 0;
-                win32_con_full_screen();
-            }
-	        break;
+	case WM_EXITSIZEMOVE:
+	    if (wParam != SIZE_MINIMIZED) {
+		if (!in_graphics_mode) {   // Text screen mode
+		    in_graphics_mode = 1;
+		    win32_con_text_screen();
+		} else if (in_splitscreen) {
+		    in_splitscreen = 0;
+		    win32_con_split_screen();
+		} else {
+		    in_graphics_mode = 0;
+		    win32_con_full_screen();
+		}
+	    }
         case WM_MOVE:
         case WM_SETFOCUS:
         case WM_EXITMENULOOP:
@@ -984,7 +1024,7 @@ LRESULT CALLBACK ParentWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
                 SendMessage(hConWnd, WM_USER, wParam, lParam);
             if (in_graphics_mode)
                 SendMessage(hGraphWnd, WM_USER, wParam, lParam);
-            win32_update_text();
+	    win32_update_text();
             break;
         case WM_PAINT:
             /*
@@ -996,6 +1036,8 @@ LRESULT CALLBACK ParentWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 		SendMessage(hConWnd, WM_PAINT, wParam, lParam);
             if (in_graphics_mode)
 		SendMessage(hGraphWnd, WM_PAINT, wParam, lParam);
+	    GetClientRect(hwnd, &r);
+	    ValidateRect(hwnd, &r);
             break;
         case WM_CREATE:
             hConWnd = CreateWindow(szConWinName, NULL,
@@ -1021,7 +1063,7 @@ LRESULT CALLBACK ParentWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
     return 0;
 }
 
-void CharOut(char c) {
+void CharOut(int c) {
     TEXTMETRIC tm;
     RECT r;
     int xpos, ypos;
@@ -1043,11 +1085,12 @@ void CharOut(char c) {
     TextOut(ConDC, xpos, ypos, nog, 1);
 }
 
-int win32_putc(char c, FILE *strm) {
+int win32_putc(int c, FILE *strm) {
     if (strm == stdout || strm == stderr) {
         if (c == '\n')
             win32_advance_line();
 	else if (c == '\t') /* do nothing */ ;
+	else if (c == '\007') tone(400,30);
         else {
             if (x_coord == x_max)
 	    new_line(strm);
@@ -1067,15 +1110,77 @@ void win32_charmode_off(void) {
 }
 
 void ibm_bold_mode(void) {
-    SetTextColor(memConDC, RGB(255, 255, 255));
-    SetTextColor(ConDC, RGB(255, 255, 255));
-    SetBkColor(memConDC, RGB(0, 0, 0));
-    SetBkColor(ConDC, RGB(0, 0, 0));
+    SetTextColor(memConDC, GetSysColor(COLOR_WINDOW));
+    SetTextColor(ConDC, GetSysColor(COLOR_WINDOW));
+    SetBkColor(memConDC, GetSysColor(COLOR_WINDOWTEXT));
+    SetBkColor(ConDC, GetSysColor(COLOR_WINDOWTEXT));
 }
 
 void ibm_plain_mode(void) {
-    SetTextColor(memConDC, RGB(0, 0, 0));
-    SetTextColor(ConDC, RGB(0, 0, 0));
-    SetBkColor(memConDC, RGB(255, 255, 255));
-    SetBkColor(ConDC, RGB(255, 255, 255));
+    SetTextColor(memConDC, GetSysColor(COLOR_WINDOWTEXT));
+    SetTextColor(ConDC, GetSysColor(COLOR_WINDOWTEXT));
+    SetBkColor(memConDC, GetSysColor(COLOR_WINDOW));
+    SetBkColor(ConDC, GetSysColor(COLOR_WINDOW));
+}
+
+NODE *set_text_color(NODE *args) {
+    int fore, back;
+
+    fore = getint(pos_int_arg(args));
+    if (NOT_THROWING) {
+        back = getint(pos_int_arg(cdr(args)));
+        if (NOT_THROWING) {
+           SetTextColor(memConDC, palette[fore]);
+           SetTextColor(ConDC, palette[fore]);
+           SetBkColor(memConDC, palette[back]);
+           SetBkColor(ConDC, palette[back]);
+        }
+    }
+    return UNBOUND;
+}
+
+/* Thanks to George Mills for the tone code! */
+/*   was:    MessageBeep(0xffffffff);	*/
+
+void tone(FIXNUM pitch, FIXNUM duration) {
+    OSVERSIONINFO VersionInformation;
+    unsigned char count_lo;
+    unsigned char count_hi;
+    FIXNUM count;
+    clock_t NumTicksToWait;
+
+    memset(&VersionInformation, 0, sizeof(OSVERSIONINFO));
+    VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (pitch < 37) pitch = 37;
+    GetVersionEx(&VersionInformation);
+    if (VersionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT)
+	Beep(pitch, duration);
+    else {
+	count = 1193180L / pitch;
+	count_lo = LOBYTE(count);
+	count_hi = HIBYTE(count);
+
+	_asm {
+	    mov al, 0xB6
+	    out 0x43, al
+	    mov al, count_lo
+	    out 0x42, al
+	    mov al, count_hi
+	    out 0x42, al
+	    xor al, al
+	    in al, 0x61
+	    or al, 0x03
+	    out 0x61, al
+	}
+
+	NumTicksToWait = duration + clock();
+	while (NumTicksToWait > clock());
+
+	_asm {
+	    xor al, al
+	    in al, 0x61
+	    xor al, 0x03
+	    out 0x61, al
+	}
+    }
 }

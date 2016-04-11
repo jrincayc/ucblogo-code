@@ -1,5 +1,5 @@
 CC	= @CC@
-CFLAGS	= @CFLAGS@ @CPPFLAGS@ @X_CFLAGS@
+CFLAGS	= @CFLAGS@ @CPPFLAGS@ @X_CFLAGS@ -O0
 LDFLAGS	= @LDFLAGS@
 LIBS  = @X_PRE_LIBS@ @X_LIBS@ @LIBS@ @X_EXTRA_LIBS@
 prefix = @prefix@
@@ -19,6 +19,9 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 HDRS	= globals.h logo.h xgraphics.h
 
 all:	logo logolib helpfiles helpfiles/HELPCONTENTS
+
+mem.o:	mem.c
+	$(CC) $(CFLAGS) -O0 -c mem.c
 
 logo:	$(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo

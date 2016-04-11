@@ -279,18 +279,6 @@ void print_nobrak(FILE *strm, NODE *nd) {
 }
 
 void new_line(FILE *strm) {
-  /*
-#ifdef WIN32
-  if (strm == stdout)
-  {
-    win32_advance_line();
-    if (dribblestream != NULL)
-      rd_putc('\n', dribblestream);
-    update_coords('\n');
-  }
-  else
-#endif
-*/
     print_char(strm,'\n');
 }
 

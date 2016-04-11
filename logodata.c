@@ -434,7 +434,7 @@ NODE *cons_list(int dummy, ...) {
     return(outline);
 }
 
-NODE *make_array(int len) {
+NODE *make_array(FIXNUM len) {
     NODE *node;
     NODE **data;
 

@@ -28,6 +28,7 @@
 #include <Types.h>
 #include <GestaltEqu.h>
 #include <Palettes.h>
+#include <Files.h>
 
 char windowtitle[100];
 FILE *graphics, *console;
@@ -65,6 +66,7 @@ void init_mac_memory(void) {
 BOOLEAN check_mac_stop(void) {
     char	    the_key_map[16];
     static int full = 400;
+    static int gotkey = 0;
     extern void ProcessEvent(void);
 
     if (FreeMem() < 3000) {
@@ -74,14 +76,21 @@ BOOLEAN check_mac_stop(void) {
     GetKeys(&the_key_map);
     if (the_key_map[5] & 128 && the_key_map[6] & 128) {
 		    /* period and command are down */
-	FlushEvents(everyEvent, 0);
-	logo_stop();
-	return 1;
+	if (!gotkey) {
+	    gotkey = 1;
+	    FlushEvents(everyEvent, 0);
+	    logo_stop();
+	    return 1;
+	}
     } else if (the_key_map[5] & 8 && the_key_map[6] & 128) {
 		    /* comma and command are down */
-	FlushEvents(everyEvent, 0);
-	logo_pause();
-    }
+	if (!gotkey) {
+	    gotkey = 1;
+	    FlushEvents(everyEvent, 0);
+	    logo_pause();
+	}
+    } else
+	gotkey = 0;
     if (--full == 0) {
         ProcessEvent();
         full = 400;
@@ -141,10 +150,12 @@ void term_init_mac(void) {
 }
 
 void mac_gotoxy(int x, int y) {
+/* 4.4
     if (x_coord < 0) x_coord = 0;
     if (x_coord >= console_options.ncols) x_coord = console_options.ncols - 1;
     if (y_coord < 0) y_coord = 0;
     if (y_coord >= console_options.nrows) y_coord = console_options.nrows - 1;
+ */
     cgotoxy(x_coord + 1, y_coord + 1, stdout);
 }
 
@@ -466,6 +477,7 @@ void erase_screen(void) {
 }
 
 void t_screen(void) {
+    SelectWindow(listener_window);
     console_options.ncols = 80;
     console_options.nrows = 25;
     console_options.left = 15;
@@ -476,6 +488,7 @@ void t_screen(void) {
     MoveWindow(myWindow, 15, 55, TRUE);
     MySizeWindow(myWindow, 488, 283);
     SelectWindow(listener_window);
+    myGrow(listener_window, (listener_window == FrontWindow()));
 }
 
 void s_screen(void) {
@@ -489,6 +502,7 @@ void s_screen(void) {
 		v = (graphics_window->portBits.bounds.bottom -
 			 graphics_window->portBits.bounds.top) - 84;
 
+    SelectWindow(listener_window);
     console_options.ncols = 80;
     console_options.nrows = 6;
     console_options.left = 5;
@@ -499,6 +513,7 @@ void s_screen(void) {
     MoveWindow(myWindow, 5, v, TRUE);
     MySizeWindow(myWindow, 488, 80);
     SelectWindow(listener_window);
+    myGrow(listener_window, (listener_window == FrontWindow()));
 }
 
 void f_screen(void) {
@@ -512,6 +527,7 @@ void f_screen(void) {
 		v = (graphics_window->portBits.bounds.bottom -
 			 graphics_window->portBits.bounds.top) - 84;
 
+    SelectWindow(listener_window);
     console_options.ncols = 80;
     console_options.nrows = 0;
     console_options.left = 5;
@@ -522,6 +538,11 @@ void f_screen(void) {
     MoveWindow(myWindow, 5, v, TRUE);
     MySizeWindow(myWindow, 488, 80);
     SelectWindow(graphics_window);
+    myGrow(graphics_window, (graphics_window == FrontWindow()));
+}
+
+int in_fscreen(void) {
+    return (console_options.nrows == 0);
 }
 
 FIXNUM mickey_x(void) {
@@ -575,4 +596,22 @@ void c_to_pascal_string(char *str, int len) {
 	count--;
     }
     str[0] = len;
+}
+
+void fixMacType(NODE *arg) {
+    char *fnstr;
+    FSSpec theFSSpec;
+    long dir = 0L;
+
+    arg = cnv_node_to_strnode(car(arg));
+    if (arg == UNBOUND) return;
+    fnstr = (char *) malloc((size_t)getstrlen(arg) + 1);
+    if (fnstr == NULL) {
+	err_logo(FILE_ERROR, make_static_strnode("Not enough memory"));
+	return;
+    }
+    noparity_strnzcpy(fnstr, getstrptr(arg), getstrlen(arg));
+    c_to_pascal_string(fnstr, getstrlen(arg));
+    FSMakeFSSpec(-1, dir, fnstr, &theFSSpec);
+    HCreate(theFSSpec.vRefNum, theFSSpec.parID, theFSSpec.name, '????', 'EPSF');
 }

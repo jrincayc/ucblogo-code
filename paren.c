@@ -44,9 +44,9 @@ void untreeify_line(NODE *line) {
     }
 }
 
-void untreeify_proc(NODE *procname) {
+void untreeify_proc(NODE *proc) {
 
-    NODE *body = bodylist__procnode(procnode__caseobj(procname));
+    NODE *body = bodylist__procnode(proc);
     NODE *body_ptr;
 
     for (body_ptr = body; body_ptr != NIL; body_ptr = cdr(body_ptr)) {
@@ -78,7 +78,7 @@ void make_tree_from_body(NODE *body) {
 		setcdr(end_ptr, tree);
 	    if (generation__tree(car(body_ptr)) == UNBOUND)
 		setgeneration__tree(body, UNBOUND);
-	    untreeify(car(body_ptr));
+/*	    untreeify(car(body_ptr));	*/   /* from mac, why? */
 	    while (cdr(tree) != NIL)
 		tree = cdr(tree);
 	    end_ptr = tree;
@@ -185,6 +185,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 	    proc = procnode__caseobj(first);
 	    if (proc == UNDEFINED && NOT_THROWING) {
 		retval = cons(first, NIL);
+		tree_dk_how = TRUE;
 	    } else if (nodetype(proc) == INFIX && NOT_THROWING) {
 		err_logo(NOT_ENOUGH, first);
 		retval = cons(first, NIL);

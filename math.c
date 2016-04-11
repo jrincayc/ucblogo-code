@@ -106,15 +106,16 @@ NODE *lrerandom(NODE *arg) {
 jmp_buf oflo_buf;
 BOOLEAN handling_oflo = FALSE;
 
-#if defined(__ZTC__) || defined(WIN32)
+#ifdef SIG_TAKES_ARG
 #define sig_arg 0
-void handle_oflo(int sig) {
+RETSIGTYPE handle_oflo(int sig) {
 #else
 #define sig_arg 
 RETSIGTYPE handle_oflo() {
 #endif
     signal(SIGFPE, handle_oflo);
     if (handling_oflo) longjmp(oflo_buf,1);
+    SIGRET
 }
 
 void math_init() {
@@ -353,7 +354,7 @@ NODE *binary(NODE *args, char fcn) {
 		    wantint = 0;
 		    if (fval <= MAXLOGOINT && fval >= -MAXLOGOINT) {
 			imode = TRUE;
-			ival = fval;
+			ival = (FIXNUM)fval;
 		    }
 		}
 		break;

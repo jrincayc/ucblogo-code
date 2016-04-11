@@ -30,6 +30,7 @@
 #endif
 #ifdef mac
 #include <console.h>
+#include <Events.h>
 #endif
 #ifdef __ZTC__
 #include <time.h>
@@ -227,7 +228,7 @@ NODE *pos_int_arg(NODE *args) {
 #if HAVE_IRINT
 	    i = irint(f);
 #else
-	    i = f;
+	    i = (FIXNUM)f;
 #endif
 	    val = make_intnode(i);
 	    break;
@@ -342,15 +343,19 @@ NODE *lbye(NODE *args) {
 NODE *lwait(NODE *args) {
     NODE *num;
     unsigned int n;
+#ifdef mac
+    long target;
+    extern void ProcessEvent(void);
+#endif
 
     num = pos_int_arg(args);
     if (NOT_THROWING) {
 #ifdef WIN32
-      win32_update_text();
+	win32_update_text();
 #else
 	fflush(stdout); /* csls v. 1 p. 7 */
 #endif
-#if defined(__ZTC__) && !defined(WIN32) /* sowings */
+#if defined(__ZTC__)
 	zflush();
 #endif
 	if (getint(num) > 0) {
@@ -362,35 +367,30 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#else	/* not unix */
-#if defined(__ZTC__) && !defined(_MSC_VER)
+#elif defined(__ZTC__)
 	    usleep(getint(num) * 16667L);
-#else	/* not DOS */
-		if (!setjmp(iblk_buf)) {
-			input_blocking++;
-#ifndef _MSC_VER
-			n = ((unsigned int)getint(num)+30) / 60;
-#ifdef mac
-			while (n > 1) {
-				sleep(1);
-				n -= 1;
-				if (check_throwing) n = 0;
-			}
+#elif defined(mac)
+	    target = getint(num)+TickCount();
+	    while (TickCount() < target) {
+		if (check_throwing) break;
+		ProcessEvent();
+	    }
+#elif defined(_MSC_VER)
+	    n = (unsigned int)getint(num);
+	    while (n > 60) {
+		_sleep(1000);
+		n -= 60;
+		if (check_throwing) n = 0;
+	    }
+	    if (n > 0) _sleep(n*1000/60);
+#else	/* unreachable, I think */
+	    if (!setjmp(iblk_buf)) {
+		input_blocking++;
+		n = ((unsigned int)getint(num)+30) / 60;
+		if (n > 0) sleep(n);
+	    }
+	    input_blocking = 0;
 #endif
-			if (n > 0) sleep(n);
-#else
-			n = (unsigned int)getint(num);
-			while (n > 60) {
-				_sleep(1000);
-				n -= 60;
-				if (check_throwing) n = 0;
-			}
-			if (n > 0) _sleep(n*1000/60);
-#endif
-		}
-		input_blocking = 0;
-#endif	/* DOS */
-#endif	/* Unix */
 	}
     }
     return(UNBOUND);
