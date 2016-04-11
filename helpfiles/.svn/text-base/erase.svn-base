@@ -1,0 +1,7 @@
+ERASE contentslist
+ER contentslist
+
+	command.  Erases from the workspace the procedures, variables,
+	and property lists named in the input.  Primitive procedures may
+	not be erased unless the variable REDEFP has the value TRUE.
+

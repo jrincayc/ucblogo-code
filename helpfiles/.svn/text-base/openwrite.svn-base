@@ -1,0 +1,24 @@
+OPENWRITE filename
+
+	command.  Opens the named file for writing.  If the file already
+	existed, the old version is deleted and a new, empty file created.
+
+	OPENWRITE, but not the other OPEN variants, will accept as input
+	a two-element list, in which the first element must be a variable
+	name, and the second must be a positive integer.  A character
+	buffer of the specified size will be created.  When a SETWRITE is
+	done with this same list (in the sense of .EQ, not a copy, so
+	you must do something like
+		? make "buf [foo 100]
+		? openwrite :buf
+		? setwrite :buf
+		    [...]
+		? close :buf
+	and not just
+		? openwrite [foo 100]
+		? setwrite [foo 100]
+	and so on), the printed characters are stored in the buffer;
+	when a CLOSE is done with the same list as input, the characters
+	from the buffer (treated as one long word, even if spaces and
+	newlines are included) become the value of the specified variable.
+

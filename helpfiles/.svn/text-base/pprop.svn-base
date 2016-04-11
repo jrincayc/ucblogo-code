@@ -1,0 +1,5 @@
+PPROP plistname propname value
+
+	command.  Adds a property to the "plistname" property list
+	with name "propname" and value "value".
+

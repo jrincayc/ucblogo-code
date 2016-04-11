@@ -1,0 +1,9 @@
+PLISTP name
+PLIST? name
+
+	outputs TRUE if the input is the name of a *nonempty* property list.
+	(In principle every word is the name of a property list; if you haven't
+	put any properties in it, PLIST of that name outputs an empty list,
+	rather than giving an error message.)
+
+

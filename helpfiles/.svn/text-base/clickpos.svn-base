@@ -1,0 +1,6 @@
+CLICKPOS
+
+	outputs the coordinates that the mouse was at when a mouse button
+	was most recently pushed, provided that that position was within the
+	graphics window, in turtle coordinates.  (wxWidgets only)
+

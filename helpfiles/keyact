@@ -1,0 +1,19 @@
+KEYACT							(variable)
+
+	if nonempty, should be an instruction list that will be evaluated
+	whenever a key is pressed on the keyboard.  The instruction list
+	can use READCHAR to find out what key was pressed.  Note that only
+	keys that produce characters qualify; pressing SHIFT or CONTROL
+	alone will not cause KEYACT to be evaluated.
+
+	Note that it's possible for the user to press a key during the
+	evaluation of the instruction list.  If this would confuse your
+	program, prevent it by temporarily setting KEYACT to the empty
+	list.  One easy way to do that is the following:
+
+		make "keyact [key.action]
+
+		to key.action [:keyact []]
+		... ; whatever you want the key to do
+		end
+

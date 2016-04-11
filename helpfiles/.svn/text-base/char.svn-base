@@ -1,0 +1,5 @@
+CHAR int
+
+	outputs the character represented in the ASCII code by the input,
+	which must be an integer between 0 and 255.
+

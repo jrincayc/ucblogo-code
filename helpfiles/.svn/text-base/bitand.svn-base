@@ -1,0 +1,5 @@
+BITAND num1 num2
+(BITAND num1 num2 num3 ...)
+
+	outputs the bitwise AND of its inputs, which must be integers.
+

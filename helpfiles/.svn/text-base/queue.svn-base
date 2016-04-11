@@ -1,0 +1,7 @@
+QUEUE queuename thing					(library procedure)
+
+	command.  Adds the "thing" to the queue that is the value of the
+	variable whose name is "queuename".  This variable must have a list
+	as its value; the initial value should be the empty list.  New
+	members are added at the back of the list.
+

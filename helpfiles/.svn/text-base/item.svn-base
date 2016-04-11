@@ -1,0 +1,9 @@
+ITEM index thing
+
+	if the "thing" is a word, outputs the "index"th character of the
+	word.  If the "thing" is a list, outputs the "index"th member of
+	the list.  If the "thing" is an array, outputs the "index"th
+	member of the array.  "Index" starts at 1 for words and lists;
+	the starting index of an array is specified when the array is
+	created.
+

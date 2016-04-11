@@ -11,6 +11,6 @@ SETPC colornumber.or.rgblist
 
 	but other colors can be assigned to numbers by the PALETTE command.
 	Alternatively, sets the pen color to the given RGB values (a list of
-	three nonnegative integers less than 64K (65536) specifying the amount
-	of red, green, and blue in the desired color).
+	three nonnegative numbers less than 100 specifying the percent
+	saturation of red, green, and blue in the desired color).
 

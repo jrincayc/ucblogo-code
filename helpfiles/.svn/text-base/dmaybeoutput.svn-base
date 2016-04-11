@@ -1,0 +1,22 @@
+.MAYBEOUTPUT value					(special form)
+
+	works like OUTPUT except that the expression that provides the
+	input value might not, in fact, output a value, in which case
+	the effect is like STOP.  This is intended for use in control
+	structure definitions, for cases in which you don't know whether
+	or not some expression produces a value.  Example:
+
+		to invoke :function [:inputs] 2
+		.maybeoutput apply :function :inputs
+		end
+
+		? (invoke "print "a "b "c)
+		a b c
+		? print (invoke "word "a "b "c)
+		abc
+
+	This is an alternative to RUNRESULT.  It's fast and easy to use,
+	at the cost of being an exception to Logo's evaluation rules.
+	(Ordinarily, it should be an error if the expression that's
+	supposed to provide an input to something doesn't have a value.)
+

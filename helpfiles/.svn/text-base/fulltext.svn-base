@@ -1,0 +1,13 @@
+FULLTEXT procname
+
+	outputs a representation of the procedure "procname" in which
+	formatting information is preserved.  If the procedure was defined
+	with TO, EDIT, or LOAD, then the output is a list of words.  Each
+	word represents one entire line of the definition in the form
+	output by READWORD, including extra spaces and continuation lines.
+	The last member of the output represents the END line.  If the
+	procedure was defined with DEFINE, then the output is a list of
+	lists.  If these lists are printed, one per line, the result will
+	look like a definition using TO.  Note: the output from FULLTEXT
+	is not suitable for use as input to DEFINE!
+

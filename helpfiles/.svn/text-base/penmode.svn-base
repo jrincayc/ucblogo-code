@@ -1,0 +1,5 @@
+PENMODE
+
+	outputs one of the words PAINT, ERASE, or REVERSE according to
+	the current pen mode.
+

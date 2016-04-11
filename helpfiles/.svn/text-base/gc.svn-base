@@ -1,0 +1,18 @@
+GC
+(GC anything)
+
+	command.  Runs the garbage collector, reclaiming unused nodes.  Logo
+	does this when necessary anyway, but you may want to use this
+	command to control exactly when Logo does it.  In particular, the
+	numbers output by the NODES operation will not be very meaningful
+	unless garbage has been collected.  Another reason to use GC is that
+	a garbage collection takes a noticeable fraction of a second, and you
+	may want to schedule collections for times before or after some
+	time-critical animation.  If invoked with an input (of any value),
+	GC runs a full garbage collection, including GCTWA (Garbage Collect
+	Truly Worthless Atoms, which means that it removes from Logo's
+	memory words that used to be procedure or variable names but aren't
+	any more); without an input, GC does a generational garbage
+	collection, which means that only recently created nodes are
+	examined.  (The latter is usually good enough.)
+

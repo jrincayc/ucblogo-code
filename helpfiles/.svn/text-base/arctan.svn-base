@@ -1,0 +1,7 @@
+ARCTAN num
+(ARCTAN x y)
+
+	outputs the arctangent, in degrees, of its input.  With two
+	inputs, outputs the arctangent of y/x, if x is nonzero, or
+	90 or -90 depending on the sign of y, if x is zero.
+

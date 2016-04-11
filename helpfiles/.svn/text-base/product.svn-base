@@ -1,0 +1,6 @@
+PRODUCT num1 num2
+(PRODUCT num1 num2 num3 ...)
+num1 * num2
+
+	outputs the product of its inputs.
+

@@ -1,0 +1,5 @@
+OPENREAD filename
+
+	command.  Opens the named file for reading.  The read position is
+	initially at the beginning of the file.
+

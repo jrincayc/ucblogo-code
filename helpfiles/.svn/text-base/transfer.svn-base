@@ -1,0 +1,19 @@
+TRANSFER endtest template inbasket			(library procedure)
+
+	outputs the result of repeated evaluation of the template.
+	The template is evaluated once for each member of the list
+	"inbasket."  TRANSFER maintains an "outbasket" that is
+	initially the empty list.  After each evaluation of the
+	template, the resulting value becomes the new outbasket.
+
+	In the template, the symbol ?IN represents the current member
+	from the inbasket; the symbol ?OUT represents the entire
+	current outbasket.  Other slot symbols should not be used.
+
+	If the first (endtest) input is an empty list, evaluation
+	continues until all inbasket members have been used.  If not,
+	the first input must be a predicate expression template, and
+	evaluation continues until either that template's value is TRUE
+	or the inbasket is used up.
+
+

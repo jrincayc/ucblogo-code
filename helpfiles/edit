@@ -5,7 +5,10 @@ ED contentslist
 
 	command.  If invoked with an input, EDIT writes the definitions
 	of the named items into a temporary file and edits that file, using
-	your favorite editor as determined by the EDITOR environment
+	an editor that depends on the platform you're using.  In wxWidgets,
+	and in the MacOS Classic version, there is an editor built into Logo.
+	In the non-wxWidgets versions for Unix, MacOS X, Windows, and DOS,
+	Logo uses your favorite editor as determined by the EDITOR environment
 	variable.  If you don't have an EDITOR variable, edits the
 	definitions using jove.  If invoked without an input, EDIT edits
 	the same file left over from a previous EDIT or EDITFILE instruction.

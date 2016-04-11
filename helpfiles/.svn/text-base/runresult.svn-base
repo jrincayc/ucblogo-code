@@ -1,0 +1,12 @@
+RUNRESULT instructionlist
+
+	runs the instructions in the input; outputs an empty list if
+	those instructions produce no output, or a list whose only
+	member is the output from running the input instructionlist.
+	Useful for inventing command-or-operation control structures:
+
+		local "result
+		make "result runresult [something]
+		if emptyp :result [stop]
+		output first :result
+

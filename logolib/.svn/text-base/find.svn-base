@@ -1,0 +1,14 @@
+;;; -*- logo -*-
+
+to find :find.template :template.list [:template.number 1] ~
+        [:template.lists (list :template.list)]
+if emptyp :template.list [op []]
+if apply :find.template (list first :template.list) [op first :template.list]
+op (find :find.template bf :template.list :template.number+1)
+end
+
+to ?rest [:which 1]
+output bf item :which :template.lists
+end
+
+bury [find ?rest]

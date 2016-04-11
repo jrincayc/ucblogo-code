@@ -1,0 +1,6 @@
+TEXTSIZE
+
+	(wxWidgets only) outputs the "point size" of the font used in the text
+	and edit windows.  See SETTEXTSIZE for a discussion of font sizing.
+	See LABELSIZE for a different approach used for the graphics window.
+

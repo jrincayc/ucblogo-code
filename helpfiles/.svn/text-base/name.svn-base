@@ -1,0 +1,4 @@
+NAME value varname					(library procedure)
+
+	command.  Same as MAKE but with the inputs in reverse order.
+

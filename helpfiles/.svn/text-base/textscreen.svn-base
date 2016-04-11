@@ -1,0 +1,8 @@
+TEXTSCREEN
+TS
+
+	rearranges the size and position of windows to maximize the
+	space available in the text window (the window used for
+	interaction with Logo).  The details differ among machines.
+	Compare SPLITSCREEN and FULLSCREEN.
+

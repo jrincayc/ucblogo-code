@@ -1,4 +1,4 @@
-; UCBLogo message file version 5.5
+; UCBLogo message file version 6.0
 ; Error messages -- position in this file corresponds to error number
 ; Lines starting with semicolon don't count in the line numbering
 ;  and may be added at will.
@@ -45,6 +45,7 @@ Assuming you meant '%p', not %p
 I can't open file %p
 File %p already open
 File %p not open
+Runlist %s has more than one expression
 ; Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 Thank you for using Logo.

@@ -1,0 +1,7 @@
+SETPENSIZE size
+
+	sets the thickness of the pen.  The input is either a single positive
+	integer or a list of two positive integers (for horizontal and
+	vertical thickness).  Some versions pay no attention to the second
+	number, but always have a square pen.
+

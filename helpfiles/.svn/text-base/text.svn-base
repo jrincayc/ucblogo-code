@@ -1,0 +1,9 @@
+TEXT procname
+
+	outputs the text of the procedure named "procname" in the form
+	expected by DEFINE: a list of lists, the first of which describes
+	the inputs to the procedure and the rest of which are the lines of
+	its body.  The text does not reflect formatting information used
+	when the procedure was defined, such as continuation lines and
+	extra spaces.
+

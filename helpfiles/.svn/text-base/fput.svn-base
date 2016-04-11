@@ -1,0 +1,7 @@
+FPUT thing list
+
+	outputs a list equal to its second input with one extra member,
+	the first input, at the beginning.  If the second input is a word,
+	then the first input must be a one-letter word, and FPUT is
+	equivalent to WORD.
+

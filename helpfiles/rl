@@ -1,7 +1,7 @@
 READLIST
 RL
 
-	reads a line from the read stream (initially the terminal) and
+	reads a line from the read stream (initially the keyboard) and
 	outputs that line as a list.  The line is separated into members as
 	though it were typed in square brackets in an instruction.  If the
 	read stream is a file, and the end of file is reached, READLIST

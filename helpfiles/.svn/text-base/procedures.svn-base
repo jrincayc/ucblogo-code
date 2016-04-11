@@ -1,0 +1,7 @@
+PROCEDURES
+
+	outputs a list of the names of all unburied user-defined procedures
+	in the workspace.  Note that this is a list of names, not a
+	contents list.  (However, procedures that require a contents list
+	as input will accept this list.)
+

@@ -1,0 +1,11 @@
+SETLABELHEIGHT height
+
+	command (wxWidgets only).  Takes a positive integer argument and tries
+	to set the font size so that the character height (including
+	descenders) is that many turtle steps.  This will be different from
+	the number of screen pixels if SETSCRUNCH has been used.  Also, note
+	that SETSCRUNCH changes the font size to try to preserve this height
+	in turtle steps.  Note that the query operation corresponding to this
+	command is LABELSIZE, not LABELHEIGHT, because it tells you the width
+	as well as the height of characters in the current font.
+

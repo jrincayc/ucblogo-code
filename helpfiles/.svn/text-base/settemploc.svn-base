@@ -1,0 +1,7 @@
+SETTEMPLOC path
+
+	command.  Tells Logo to write editor temporary files in the specified
+	directory rather than in the default directory.  You must have write
+	permission for this directory.  The format of a path depends on your
+	operating system.
+

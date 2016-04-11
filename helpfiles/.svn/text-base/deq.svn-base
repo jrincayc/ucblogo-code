@@ -1,0 +1,9 @@
+.EQ thing1 thing2
+
+	outputs TRUE if its two inputs are the same datum, so that applying a
+	mutator to one will change the other as well.  Outputs FALSE otherwise,
+	even if the inputs are equal in value.
+	WARNING: Primitives whose names start with a period are DANGEROUS.
+	Their use by non-experts is not recommended.  The use of mutators
+	can lead to circular data structures, infinite loops, or Logo crashes.
+

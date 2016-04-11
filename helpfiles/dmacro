@@ -64,7 +64,7 @@
 	The technique just shown, although fairly easy to understand,
 	has the defect of slowness because each repetition has to
 	construct an instruction list for evaluation.  Another approach
-	is to make my.repeat a macro that works just like the non-macro
+	is to make MY.REPEAT a macro that works just like the non-macro
 	version unless the instructions to be repeated include OUTPUT
 	or STOP:
 
@@ -86,11 +86,11 @@
 		end
 
 	If the instructions do not include STOP or OUTPUT, then REPEAT1 will
-	reach its base case and invoke THROW.  As a result, my.repeat's last
-	instruction line will output an empty list, so the second evaluation
-	of the macro result will do nothing.  But if a STOP or OUTPUT happens,
-	then REPEAT.DONE will output a STOP or OUTPUT instruction that will
-	be re-executed in the caller's context.
+	reach its base case and invoke THROW.  As a result, MY.REPEAT's last
+	instruction line will output an empty list, so the evaluation of the
+	macro result by the caller will do nothing.  But if a STOP or OUTPUT
+	happens, then REPEAT.DONE will output a STOP or OUTPUT instruction
+	that will be executed in the caller's context.
 
 	The macro-defining commands have names starting with a dot because
 	macros are an advanced feature of Logo; it's easy to get in trouble

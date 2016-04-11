@@ -1,0 +1,6 @@
+CLOSE filename
+
+	command.  Closes the named file.  If the file was currently the
+	reader or writer, then the reader or writer is changed to the
+	keyboard or screen, as if SETREAD [] or SETWRITE [] had been done.
+

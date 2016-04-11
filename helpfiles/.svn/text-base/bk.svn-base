@@ -1,0 +1,7 @@
+BACK dist
+BK dist
+
+	moves the turtle backward, i.e., exactly opposite to the direction
+	that it's facing, by the specified distance.  (The heading of the
+	turtle does not change.)
+

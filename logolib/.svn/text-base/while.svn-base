@@ -1,0 +1,8 @@
+;;; -*- logo -*-
+
+.macro while :while.cond :while.instr
+if not run :while.cond [op []]
+op se :while.instr (list "while :while.cond :while.instr)
+end
+
+bury "while

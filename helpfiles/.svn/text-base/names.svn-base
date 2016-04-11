@@ -1,0 +1,6 @@
+NAMES
+
+	outputs a contents list consisting of an empty list (indicating
+	no procedure names) followed by a list of all unburied variable
+	names in the workspace.
+

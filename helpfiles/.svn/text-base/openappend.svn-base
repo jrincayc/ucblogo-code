@@ -1,0 +1,6 @@
+OPENAPPEND filename
+
+	command.  Opens the named file for writing.  If the file already
+	exists, the write position is initially set to the end of the old
+	file, so that newly written data will be appended to it.
+

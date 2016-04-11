@@ -1,0 +1,6 @@
+GOTO word
+
+	command.  Looks for a TAG command with the same input in the same
+	procedure, and continues running the procedure from the location of
+	that TAG.  It is meaningless to use GOTO outside of a procedure.
+

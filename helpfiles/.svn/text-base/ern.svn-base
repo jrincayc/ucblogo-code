@@ -1,0 +1,6 @@
+ERN varname						(library procedure)
+ERN varnamelist
+
+	command.  Erases from the workspace the variable(s) named in the
+	input.  Abbreviates ERASE NAMELIST varname(list).
+

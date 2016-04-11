@@ -1,0 +1,14 @@
+;;; -*- logo -*-
+
+to macroexpand :expr
+local [name inputlist macro.result]
+make "name first :expr
+make "inputlist bf :expr
+if not macrop :name [(throw "error (se :name [is not a macro.]))]
+define "%%%$%macro.procedure text :name
+make "macro.result run fput "%%%$%macro.procedure :inputlist
+erase "%%%$%macro.procedure
+op :macro.result
+end
+
+bury "macroexpand

@@ -1,0 +1,35 @@
+;;; -*- logo -*-
+
+to cascade :cascade.limit [:cascade.inputs] 3
+if numberp :cascade.limit ~
+   [if lessp :cascade.limit 0 ~
+       [(throw "error (se [cascade doesn't like] :cascade.limit [as input]))] ~
+    make "cascade.limit `[greaterp :template.number ,[int :cascade.limit]]]
+local [cascade.templates template.vars cascade.final]
+make "cascade.templates []
+make "template.vars []
+make "cascade.final [?1]
+cascade.setup :cascade.inputs
+op cascade1 1 :template.vars
+end
+
+to cascade.setup :inputs
+if emptyp :inputs [stop]
+if emptyp bf :inputs [make "cascade.final first :inputs stop]
+make "cascade.templates lput first :inputs :cascade.templates
+make "template.vars lput first bf :inputs :template.vars
+cascade.setup bf bf :inputs
+end
+
+to cascade1 :template.number :template.vars
+if apply :cascade.limit :template.vars [op apply :cascade.final :template.vars]
+op cascade1 (:template.number+1) (cascade.eval :cascade.templates)
+end
+
+to cascade.eval :cascade.templates
+if emptyp :cascade.templates [op []]
+op fput (apply first :cascade.templates :template.vars) ~
+        (cascade.eval bf :cascade.templates)
+end
+
+bury [cascade cascade.setup cascade1 cascade.eval]

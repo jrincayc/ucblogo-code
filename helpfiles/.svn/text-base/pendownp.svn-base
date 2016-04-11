@@ -1,0 +1,5 @@
+PENDOWNP
+PENDOWN?
+
+	outputs TRUE if the pen is down, FALSE if it's up.
+

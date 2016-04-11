@@ -1,0 +1,49 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(coms.c)
+
+AC_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+
+dnl Checks for libraries.
+
+AC_PATH_XTRA
+AC_CHECK_LIB(m, atan)
+AC_CHECK_LIB(BSD, signal)
+AC_CHECK_LIB(bsd, signal)
+
+tcap=no
+AC_CHECK_LIB(termcap, tgetstr,
+	     AC_DEFINE(HAVE_LIBTERMCAP) LIBS="$LIBS -ltermcap" tcap=yes)
+if test $tcap = no; then
+   AC_CHECK_LIB(termlib, tgetstr,
+		AC_DEFINE(HAVE_LIBTERMLIB) LIBS="$LIBS -ltermlib" tcap=yes)
+fi
+if test $tcap = no; then
+   AC_CHECK_LIB(curses, tgetstr,
+		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lcurses" tcap=yes)
+fi
+if test $tcap = no; then
+   AC_CHECK_LIB(ncurses, tgetstr,
+		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lncurses" tcap=yes)
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(sgtty.h termio.h unistd.h string.h termcap.h termlib.h curses.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
+AC_TYPE_SIGNAL
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(usleep srandom sigvec sigsetmask matherr drem irint memcpy)
+AC_PROG_GCC_TRADITIONAL
+dnl AC_TYPE_SIGNAL
+
+if test "$no_x" != yes; then
+   LIBS="$LIBS -lX11"
+fi
+
+AC_OUTPUT(makefile)

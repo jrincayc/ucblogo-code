@@ -10,9 +10,5 @@ RW
 	the output word DOES include the tilde and the newline characters, so
 	that the user program can tell exactly what the user entered.
 	Vertical bars in the line are also preserved in the output.
-	Backslash characters are not preserved in the output, but the
-	character following the backslash has 128 added to its
-	representation.  Programs can use BACKSLASHEDP to check for this
-	code.  (Backslashedness is preserved only for certain
-	characters.  See BACKSLASHEDP.)
+	Backslash characters are not preserved in the output.
 

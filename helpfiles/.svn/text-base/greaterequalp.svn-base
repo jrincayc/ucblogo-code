@@ -1,0 +1,7 @@
+GREATEREQUALP num1 num2
+GREATEREQUAL? num1 num2
+num1 >= num2
+
+	outputs TRUE if its first input is greater than or equal to its second.
+
+

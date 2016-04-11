@@ -1,0 +1,9 @@
+WINDOW
+
+	tells the turtle to enter window mode:  From now on, if the turtle
+	is asked to move past the boundary of the graphics window, it
+	will move offscreen.  The visible graphics window is considered
+	as just part of an infinite graphics plane; the turtle can be
+	anywhere on the plane.  (If you lose the turtle, HOME will bring
+	it back to the center of the window.)  Compare WRAP and FENCE.
+

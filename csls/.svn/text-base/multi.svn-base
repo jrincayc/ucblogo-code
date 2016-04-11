@@ -1,0 +1,36 @@
+program multi;
+ {Multinomial expansion problem}
+
+var memo: array [0..4, 0..7] of integer;
+   i,j:  integer;
+
+function t(n,k:integer) : integer;
+
+  function realt(n,k:integer) : integer;
+   {without memoization}
+
+    begin {realt}
+      if k = 0 then
+        realt := 1
+      else
+        if n = 0 then
+          realt := 0
+        else
+          realt := t(n,k-1)+t(n-1,k)
+    end; {realt}
+
+  begin {t}
+    if memo[n,k] < 0 then
+      memo[n,k] := realt(n,k);
+    t := memo[n,k]
+  end; {t}
+
+begin {main program}
+  {initialization}
+  for i := 0 to 4 do
+    for j := 0 to 7 do
+      memo[i,j] := -1;
+
+  {How many terms in (a+b+c+d)^7?}
+  writeln(t(4,7));
+end.

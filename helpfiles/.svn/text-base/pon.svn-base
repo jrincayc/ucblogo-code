@@ -1,0 +1,6 @@
+PON varname						(library procedure)
+PON varnamelist
+
+	command.  Prints the definitions of the named variable(s).
+	Abbreviates PO NAMELIST varname(list).
+

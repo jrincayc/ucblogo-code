@@ -1,0 +1,4 @@
+SQRT num
+
+	outputs the square root of the input, which must be nonnegative.
+

@@ -1,0 +1,10 @@
+STEP contentslist
+
+	command.  Marks the named items for stepping.  Whenever a stepped
+	procedure is invoked, each instruction line in the procedure body
+	is printed before being executed, and Logo waits for the user to
+	type a newline at the terminal.  A message is printed whenever a
+	stepped variable name is "shadowed" because a local variable of
+	the same name is created either as a procedure input or by the
+	LOCAL command.
+

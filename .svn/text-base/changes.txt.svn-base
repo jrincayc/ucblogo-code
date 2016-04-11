@@ -1,0 +1,45 @@
+There are two main hooks in the original logo where we put our changes
+for the wx GUI.  One of these was for the graphics.  This system which
+was used was part of the exist logo method for implementing graphics
+on different platforms.  If you look at the top of graphics.c, there
+are a whole group of #ifdef, #includes, checking for each platform.
+As can be seen, we included wxGraphics.h if HAVE_WX is defined.  This
+macro is defined during configuration if the --wx option is enabled
+during configuration.  All of the definitions in the header point to
+function definitions particular to our WX implementation.  This right
+here is sufficient to take care of all of the turtle graphics
+functionality.  All of the corresponding functions defined in this
+header are defined in wxTurtleGraphics.cpp
+
+The other main hook was for our terminal.  There are only a few places
+where anything is done for this.  Most of the I/O for the terminal is
+done through calls to putc and getc, so instead of calling these
+routines, we have them call getFromWX and printToScreen instead which
+are defined in wxMain.cpp.  The files which call getc where we
+do this are files.c and parse.c.  We define putc to be printToScreen
+in the header globals.h as they did for other platforms, but it is
+only used in parse.c. We also defined wx_fgets as a replacement for
+fgets which is called in coms.c and wrksp.c, as well as flushFile as a
+replacement for fflush called in a few files.  Both of these are also
+defined in wxMain.cpp.
+
+By defining these basic I/O functions and the graphics functions, the
+original logo is basically untouched.  The main graphics routines as
+mentioned before are in wxTurtleGraphics.cpp.  Here, the class
+TurtleCanvas is defined.  In this file, we have a bunch of extern "C"
+routines which are called from graphics.c.  These post messages to the
+GUI thread and have operations handled for them in the TurtleCanvas
+class.  Some of these are routines for drawing lines, getting the size
+of the current GUI screen, and other similar things.
+
+The Main terminal routines are defined in both wxMain.cpp and
+wxTerminal.cpp.  Again, there are extern "C" routines defined in
+wxMain.cpp.  The terminal printing function adds a character to
+printing buffer and signals the GUI to print it.  Then the handling
+routine printText in the class wxTerminal in wxTerminal.cpp handles
+the actual drawing of the text to the GUI.  Similarly, the GUI takes
+in all of the input entered by way of the onChar handler, and when an
+enter is pressed, it makes it available to the logo interpreter.  When
+the interpreter calls getc, it retrieves a character from this
+available buffer.  If nothing is available at the time, it is put to
+sleep and woken up by the GUI when something is made available.

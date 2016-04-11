@@ -1,9 +1,0 @@
-;;; -*- logo -*-
-
-to extract :name :initlist :default.value
-if emptyp :initlist [output :default.value]
-if equalp :name first :initlist [output first butfirst :initlist]
-output extract :name (butfirst butfirst :initlist) :default.value
-end
-
-bury "extract

@@ -1,0 +1,4 @@
+LOGOVERSION						(variable)
+
+	a real number indicating the Logo version number, e.g., 5.5
+

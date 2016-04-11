@@ -1,0 +1,9 @@
+DRIBBLE filename
+
+	command.  Creates a new file whose name is the input, like OPENWRITE,
+	and begins recording in that file everything that is read from the
+	keyboard or written to the terminal.  That is, this writing is in
+	addition to the writing to WRITER.  The intent is to create a
+	transcript of a Logo session, including things like prompt
+	characters and interactions.
+

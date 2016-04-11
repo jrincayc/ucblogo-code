@@ -1,0 +1,4 @@
+REMOVE thing list					(library procedure)
+
+	outputs a copy of "list" with every member equal to "thing" removed.
+
