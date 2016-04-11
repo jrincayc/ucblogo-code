@@ -224,7 +224,7 @@ NODE *lrawascii(NODE *args) {
 
     arg = char_arg(args);
     if (NOT_THROWING) {
-	i = (FIXNUM)(*getstrptr(arg));
+	i = (FIXNUM)((unsigned char)*getstrptr(arg));
 	val = make_intnode(i);
     }
     return(val);
@@ -363,7 +363,11 @@ NODE *lsentence(NODE *args) {
 	args = cdr(args);
 	if (stopping_flag == THROWING) break;
 	if (is_list(arg)) {
-	    while (arg != NIL && NOT_THROWING) {
+	    if (args == NIL) {	    /* 5.2 */
+		if (val == NIL) val = arg;
+		else setcdr(lastnode, arg);
+		break;
+	    } else while (arg != NIL && NOT_THROWING) {
 		tnode = cons(car(arg), NIL);
 		arg = cdr(arg);
 		if (val == NIL) val = tnode;
@@ -405,21 +409,20 @@ NODE *larrayp(NODE *arg) {
 NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {
     NODE *obj1, *obj2, *val;
     int leng;
-    int caseig = (compare_node(valnode__caseobj(Caseignoredp),
-			       True, TRUE) == 0);
+    int caseig = varTrue(Caseignoredp);
 
-    val = False;
+    val = FalseName();
     obj1 = car(args);
     obj2 = cadr(args);
     if (is_list(obj2)) {
-	if (substr) return False;
+	if (substr) return FalseName();
 	while (obj2 != NIL && NOT_THROWING) {
 	    if (equalp_help(obj1, car(obj2), caseig))
-		return (notp ? obj2 : True);
+		return (notp ? obj2 : TrueName());
 	    obj2 = cdr(obj2);
 	    if (check_throwing) break;
 	}
-	return (notp ? NIL : False);
+	return (notp ? NIL : FalseName());
     }
     else if (nodetype(obj2) == ARRAY) {
 	int len = getarrdim(obj2);
@@ -427,16 +430,16 @@ NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {
 
 	if (notp)
 	    err_logo(BAD_DATA_UNREC,obj2);
-	if (substr) return False;
+	if (substr) return FalseName();
 	while (--len >= 0 && NOT_THROWING) {
-	    if (equalp_help(obj1, *data++, caseig)) return True;
+	    if (equalp_help(obj1, *data++, caseig)) return TrueName();
 	}
-	return False;
+	return FalseName();
     } else {
 	NODE *tmp;
 	int i;
 
-	if (aggregate(obj1)) return (notp ? Null_Word : False);
+	if (aggregate(obj1)) return (notp ? Null_Word : FalseName());
 	setcar (cdr(args), cnv_node_to_strnode(obj2));
 	obj2 = cadr(args);
 	setcar (args, cnv_node_to_strnode(obj1));
@@ -455,12 +458,12 @@ NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {
 		    if (notp) {
 			setstrlen(tmp,leng+getstrlen(obj1)-i);
 			return tmp;
-		    } else return True;
+		    } else return TrueName();
 		}
 		setstrptr(tmp, getstrptr(tmp) + 1);
 	    }
 	}
-	return (notp ? Null_Word : False);
+	return (notp ? Null_Word : FalseName());
     }
 }
 

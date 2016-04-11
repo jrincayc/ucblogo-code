@@ -13,7 +13,8 @@ void logofill(void);
 /* Some X-related defines. */
 #define BORDER	1
 #define FONT	"fixed"
-#define NUMCOLORS 16
+#define NUMCOLORS 512
+#define NUMINITCOLORS 16
 #define EVENT_MASK  (StructureNotifyMask | PointerMotionMask)
 #define DEFAULT_HEIGHT           500
 #define DEFAULT_WIDTH            500
@@ -112,8 +113,6 @@ extern void placate_x();
 
 #define set_pen_x(x)             nop()
 #define set_pen_y(y)             nop()
-#define get_palette(x,y,z,w)	 nop()
-#define set_palette(x,y,z,w)	 nop()
 
 /* pen_info is a stucture type with fields for the various
    pen characteristics including the location, size, color,
@@ -146,7 +145,6 @@ extern pen_info xgr_pen;
 #define pen_x                    (xgr_pen.xpos)
 #define pen_y                    (xgr_pen.ypos)
 #define get_node_pen_pattern     (cons(make_intnode(-1), NIL))
-#define get_node_pen_mode        Get_node_pen_mode(xgr_pen.pm)
 
 #define pen_reverse              pen_mode=reverse_gc
 #define pen_erase                pen_mode=erase_gc
@@ -167,7 +165,7 @@ extern pen_info xgr_pen;
 
 #define plain_xor_pen()          pen_reverse
 
-#define label(s)                 XDrawString(dpy,win,xgr_pen.pm,\
+#define label(s)                 XDrawImageString(dpy,win,xgr_pen.pm,\
                                  xgr_pen.xpos,xgr_pen.ypos,\
                                  (s), strlen(s))
 
@@ -175,6 +173,9 @@ extern pen_info xgr_pen;
 #define get_pen_pattern(p)       nop()
 #define set_pen_pattern(p)       nop()
 #define set_list_pen_pattern(p)  nop()
+
+extern void set_palette(int, unsigned int, unsigned int, unsigned int);
+extern void get_palette(int, unsigned int*, unsigned int*, unsigned int*);
 
 /* The sparc has fmod.  So I use it. */
 /* #define fmod(x,y)                x */
@@ -191,10 +192,8 @@ extern GC          draw_gc,     /* GC to draw with */
                    erase_gc,    /* GC to draw with */
                    reverse_gc;  /* GC to draw with */
 
-extern XColor color[16];
+extern XColor color[];
 extern XColor dummy;
-
-extern NODE * Get_node_pen_mode();
 
 extern int get_mouse_x(), get_mouse_y();
 

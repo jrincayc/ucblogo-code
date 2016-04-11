@@ -15,6 +15,21 @@
 #include "xgraphics.h"
 #include "globals.h"
 
+#ifdef SIGWINCH
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+RETSIGTYPE x_win_resize(int sig)
+#else
+#define sig_arg 
+RETSIGTYPE x_win_resize()
+#endif
+{
+    signal(SIGWINCH, x_win_resize);
+    placate_x();
+    SIGRET
+}
+#endif	/* SIGWINCH */
 
 int have_x = -1;
 
@@ -39,14 +54,14 @@ int x_mouse_x, x_mouse_y;
    turquoise is 10 etc.
  */
 
-char *colorname[NUMCOLORS] = {
+char *colorname[NUMINITCOLORS] = {
   "black", "blue"   , "green" , "cyan" ,
   "red"  , "magenta", "yellow", "white",
   "brown",
   "tan",
   "dark green",  /* Should be 'forest' */
   "aquamarine",  /* Should be 'aqua'   */
-  "pink",        /* Should be 'salmon' */
+  "salmon",
   "purple",
   "orange",
   "grey"
@@ -111,9 +126,12 @@ void real_window_init()
    * Select colors.
    */
 
-  for(n = 0; n < NUMCOLORS; n++)
+  for(n = 0; n < NUMINITCOLORS; n++)
     XAllocNamedColor(dpy, DefaultColormap(dpy, screen),
 		     colorname[n], &color[n], &dummy);
+
+    for (n = NUMINITCOLORS; n < NUMCOLORS; n++)
+	color[n] = color[n % NUMINITCOLORS];
 
     xgr_pen.color = 7;
 
@@ -222,24 +240,9 @@ void real_window_init()
   move_to(screen_x_coord, screen_y_coord);
 /*   if(turtle_shown)
     draw_turtle();  */
-}
-
-NODE *Get_node_pen_mode(GC mode)
-{
-  long cur_mode = (long)mode;
-
-  checkX;
-
-  if(cur_mode == (long)draw_gc)
-    return(make_static_strnode("paint"));
-
-  if(cur_mode == (long)erase_gc)
-    return(make_static_strnode("erase"));
-
-  if(cur_mode == (long)reverse_gc)
-    return(make_static_strnode("reverse"));
-
-  return(make_static_strnode("unknown"));
+#ifdef SIGWINCH
+    signal(SIGWINCH, x_win_resize);
+#endif
 }
 
 void save_pen(pen_info *p) {
@@ -271,8 +274,7 @@ void placate_x()
       screen_width  = xce->width;
 
       XClearWindow(dpy, win);
-      if(turtle_shown)
-	draw_turtle();
+	redraw_graphics();
       
       break;
 
@@ -383,4 +385,21 @@ void logofill() {
   XDestroyImage( img );
 }
 
+
+void set_palette(int n, unsigned int r, unsigned int g, unsigned int b) {
+    color[n].red = r;
+    color[n].green = g;
+    color[n].blue = b;
+    color[n].flags = DoRed|DoGreen|DoBlue;  /* unnecessary? */
+    XAllocColor(dpy, DefaultColormap(dpy, DefaultScreen(dpy)), &color[n]);
+}
+
+void get_palette(int n, unsigned int *r, unsigned int *g, unsigned int *b) {
+    *r = color[n].red;
+    *g = color[n].green;
+    *b = color[n].blue;
+}
+
 #endif
+
+

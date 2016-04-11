@@ -122,7 +122,15 @@ void check_x_high(void);
 void check_x_low(void);
 
 void draw_turtle(void) {
+    unsigned int r=0, g=0, b=0, old_color=pen_color;
+
     if (!turtle_shown) return;
+    get_palette(pen_color, &r, &g, &b);
+    if (r==0 && g==0 && b==0) {
+	turtle_shown = 0;
+	set_pen_color(7);
+	turtle_shown = 1;
+    }
     draw_turtle_helper();
     /* all that follows is for "turtle wrap" effect */
     if ((turtle_y > turtle_top_max - turtle_height) &&
@@ -143,6 +151,9 @@ void draw_turtle(void) {
     }
     check_x_high();
     check_x_low();
+    turtle_shown = 0;
+    set_pen_color(old_color);
+    turtle_shown = 1;
 }
 
 void check_x_high(void) {
@@ -544,7 +555,7 @@ NODE *lhideturtle(NODE *args) {
 }
 
 NODE *lshownp(NODE *args) {
-    return(turtle_shown ? True : False);
+    return(turtle_shown ? TrueName() : FalseName());
 }
 
 NODE *lsetheading(NODE *arg) {
@@ -833,6 +844,15 @@ NODE *lwindow(NODE *args) {
     return(UNBOUND);
 }
 
+
+NODE *lturtlemode(NODE *args) {
+    switch (current_mode) {
+	case wrapmode: return(theName(Name_wrap));
+	case fencemode: return(theName(Name_fence));
+	case windowmode: return(theName(Name_window));
+    }
+}
+
 NODE *lfill(NODE *args) {
     draw_turtle();
     logofill();
@@ -868,27 +888,36 @@ NODE *llabel(NODE *arg) {
     return(UNBOUND);
 }
 
+enum {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode = SCREEN_TEXT;
+
 NODE *ltextscreen(NODE *args) {
     text_screen;
+    screen_mode = SCREEN_TEXT;
     return(UNBOUND);
 }
 
 NODE *lsplitscreen(NODE *args) {
     split_screen;
+    screen_mode = SCREEN_SPLIT;
     return(UNBOUND);
 }
 
 NODE *lfullscreen(NODE *args) {
     full_screen;
+    screen_mode = SCREEN_FULL;
     return(UNBOUND);
 }
 
-NODE *lpendownp(NODE *args) {
-    return(pen_vis == 0 ? True : False);
+NODE *lscreenmode(NODE *args) {
+    switch (screen_mode) {
+	case SCREEN_TEXT: return(theName(Name_textscreen));
+	case SCREEN_SPLIT: return(theName(Name_splitscreen));
+	case SCREEN_FULL: return(theName(Name_fullscreen));
+    }
 }
 
-NODE *lpenmode(NODE *args) {
-    return(get_node_pen_mode);
+NODE *lpendownp(NODE *args) {
+    return(pen_vis == 0 ? TrueName() : FalseName());
 }
 
 NODE *lpencolor(NODE *args) {
@@ -940,6 +969,14 @@ NODE *lpenreverse(NODE *args) {
     pen_reverse;
     save_mode();
     return(lpendown(NIL));
+}
+
+NODE *lpenmode(NODE *args) {
+    switch(internal_penmode) {
+	case PENMODE_PAINT: return theName(Name_paint);
+	case PENMODE_ERASE: return theName(Name_erase);
+	case PENMODE_REVERSE: return theName(Name_reverse);
+    }
 }
 
 NODE *lsetpencolor(NODE *arg) {
@@ -1089,8 +1126,8 @@ NODE *lmousepos(NODE *args) {
 
 NODE *lbuttonp(NODE *args) {
     if (button)
-	return(True);
-    return(False);
+	return(TrueName());
+    return(FalseName());
 }
 
 NODE *ltone(NODE *args) {
@@ -1266,8 +1303,8 @@ BOOLEAN safe_to_save(void) {
 }
 
 void save_lm_helper (void) {
-    *(int *)(record + record_index + One) = pen_x;
-    *(int *)(record + record_index + Two) = pen_y;
+    *(int *)(record + record_index + One) = g_round(turtle_x);
+    *(int *)(record + record_index + Two) = g_round(turtle_y);
     record_index += Three;
 }
 
@@ -1415,25 +1452,27 @@ void redraw_graphics(void) {
     moveto(p_info_x(orig_pen),p_info_y(orig_pen));
 #endif
 
+    lastx = lasty = 0;
+
     while (r_index < record_index) {
-    	turtle_x = (FLONUM)(lastx-screen_x_center);
-	turtle_y = (FLONUM)(screen_y_center-lasty);
+    	turtle_x = (FLONUM)(lastx);
+	turtle_y = (FLONUM)(lasty);
 	switch (record[r_index]) {
 	    case (LINEXY) :
 		lastx = *(int *)(record + r_index + One);
 		lasty = *(int *)(record + r_index + Two);
-		line_to(lastx, lasty);
+		line_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += Three;
 		break;
 	    case (MOVEXY) :
 		lastx = *(int *)(record + r_index + One);
 		lasty = *(int *)(record + r_index + Two);
-		move_to(lastx, lasty);
+		move_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += Three;
 		break;
 	    case (LABEL) :
  		draw_string((unsigned char *)(record + r_index + One+1));
-		move_to(lastx, lasty);
+		move_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += (One+2 + record[r_index + One] + (One-1)) & ~(One-1);
 		break;
 	    case (SETPENVIS) :
@@ -1494,45 +1533,6 @@ void redraw_graphics(void) {
     draw_turtle();
 }
 
-/* This is called when the graphics coordinate system has been shifted.
-   It adds a constant amount to each x and y coordinate in the record. */
-void resize_record(int dh, int dv) {
-    FIXNUM r_index = 0;
-    
-    p_info_x(orig_pen) += dh;
-    p_info_y(orig_pen) += dv;
-    
-    while (r_index < record_index)
-	switch (record[r_index]) {
-	    case (LINEXY) :
-	    case (MOVEXY) :
-		*(int *)(record + r_index + One) += dh;
-		*(int *)(record + r_index + Two) += dv;
-		r_index += Three;
-		break;
-	    case (LABEL) :
-		r_index += (One+2 + record[r_index + One] + (One-1)) & ~(One-1);
-		break;
-	    case (SETPENVIS) :
-	    case (FILLERUP) :
-		r_index += One;
-		break;
-	    case (SETPENCOLOR) :
-		r_index += Two;
-		break;
-	    case (SETPENSIZE) :
-	    case (SETPENMODE) :
-		r_index += Three;
-		break;
-	    case (SETPENPATTERN) :
-		r_index += One+8;
-		break;
-	    case (ARC) :
-		r_index += 9*Big;
-		break;
-	}
-}
-
 NODE *lsavepict(NODE *args) {
     FILE *fp;
     static int bg;
@@ -1565,8 +1565,8 @@ NODE *lsavepict(NODE *args) {
 	bg = (int)back_ground;
 	fwrite(&bg, sizeof(int), 1, fp);
 	lclose(args);
-	return UNBOUND;
     }
+    return UNBOUND;
 }
 
 NODE *lloadpict(NODE *args) {
@@ -1612,8 +1612,8 @@ NODE *lloadpict(NODE *args) {
 	lclose(args);
 	set_back_ground((FIXNUM)bg);
 	done_drawing;
-	return UNBOUND;
     }
+    return UNBOUND;
 }
 
 void ps_string(FILE *fp, char *p) {
@@ -1674,16 +1674,16 @@ NODE *lepspict(NODE *args) {
 	    switch (record[r_index]) {
 		case (LINEXY) :
 		    if (!vis) {
-			lastx = *(int *)(record + r_index + One);
-			lasty = screen_height - *(int *)(record + r_index + Two);
+			lastx = screen_x_center + *(int *)(record + r_index + One);
+			lasty = screen_y_center + *(int *)(record + r_index + Two);
 			fprintf(fp, "%d %d lineto\n", lastx, lasty);
 			r_index += Three;
 			act++;
 			break;	/* else fall through */
 		    }
 		case (MOVEXY) :
-		    lastx = *(int *)(record + r_index + One);
-		    lasty = screen_height - *(int *)(record + r_index + Two);
+		    lastx = screen_x_center + *(int *)(record + r_index + One);
+		    lasty = screen_y_center + *(int *)(record + r_index + Two);
 		    fprintf(fp, "%d %d moveto\n", lastx, lasty);
 		    r_index += Three;
 		    break;
@@ -1733,6 +1733,6 @@ NODE *lepspict(NODE *args) {
 	fprintf(fp, "stroke\nshowpage\n%%%%EOF\n");
 
 	lclose(args);
-	return UNBOUND;
     }
+    return UNBOUND;
 }

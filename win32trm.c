@@ -26,7 +26,7 @@
 #include "logo.h"
 #include "globals.h"
 #include "win32trm.h"
-#include "ucbwlogo/ucbwlogo/resource.h"
+#include "ucbwlogo/resource.h"
 
 // #define WIN32_S
 
@@ -50,7 +50,7 @@ HWND hGraphWnd, hConWnd, hMainWnd;
 static COLORREF palette[264];
 FIXNUM back_ground, pen_color, old_pen_color;
 
-int maxX, maxY, greeted = 0, oldWidth, oldHeight;
+int maxX, maxY, greeted = 0;
 int pre_turtle_pen_mode;
 long Xsofar, Ysofar;
 
@@ -334,8 +334,6 @@ LRESULT CALLBACK GraphWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
             SelectObject(GraphDC, turtlePen.hpen);
             PatBlt(memGraphDC, 0, 0, maxX, maxY, PATCOPY);
             PatBlt(GraphDC, 0, 0, maxX, maxY, PATCOPY);
-            oldWidth = win32_screen_right();
-            oldHeight = win32_screen_bottom();
             break;
         case WM_USER:
             InvalidateRect(hGraphWnd, NULL, 1);
@@ -443,10 +441,18 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 		ReleaseCapture();
 		fBlocking = FALSE;
 		haveBlock=TRUE;
-		chBegX = ptBeg.x/tm.tmAveCharWidth;
-		chBegY = ptBeg.y/(tm.tmHeight + tm.tmExternalLeading);
-		chEndX = ptEnd.x/tm.tmAveCharWidth;
-		chEndY = ptEnd.y/(tm.tmHeight + tm.tmExternalLeading);
+		GetClientRect(hConWnd, &rect);
+		if (ptEnd.x >= 0 && ptEnd.y >= 0 && ptEnd.x < rect.right &&
+			ptEnd.y < rect.bottom) {
+		    GetTextMetrics(memConDC, &tm);
+		    chBegX = ptBeg.x/tm.tmAveCharWidth;
+		    chBegY = ptBeg.y/(tm.tmHeight + tm.tmExternalLeading);
+		    chEndX = ptEnd.x/tm.tmAveCharWidth;
+		    chEndY = ptEnd.y/(tm.tmHeight + tm.tmExternalLeading);
+		} else {
+		    DrawBoxOutline(ptBeg, ptEnd);
+		    haveBlock = FALSE;
+		}
 	    }
 	    return 0;
         case WM_CHAR:
@@ -517,6 +523,7 @@ LRESULT CALLBACK ConsoleWindowFunc(HWND hwnd, UINT message, WPARAM wParam,
 		    *copyPtr++ = '\r';
 		    *copyPtr++ = '\n';
 		}
+		*(copyPtr-2) = '\0';	/* no newline at end */
 		GlobalUnlock(hCopyText);
 		if (OpenClipboard(hwnd)) {
 		    EmptyClipboard();
@@ -684,10 +691,13 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR lpszArgs,
     Xsofar = r.right;
     Ysofar = r.bottom;
 
+    argv[0] = "ucblogo";
     argc = 1;
-    argv[0] = strtok(lpszArgs, " \t\r\n");
-    while (argv[argc] = strtok(NULL, " \t\r\n"))
-        argc++;
+    if (lpszArgs != NULL && (argv[1] = strtok(lpszArgs, " \t\r\n")) != NULL) {
+	argc = 2;
+	while (argv[argc] = strtok(NULL, " \t\r\n"))
+	    argc++;
+    }
 
     (void) main(argc, argv);
     win32_go_away();
@@ -723,14 +733,6 @@ void winDoPaste(void) {
 
 NODE *win32_get_node_pen_pattern(void) {
     return cons(make_intnode(-1), NIL);
-}
-
-NODE *win32_get_node_pen_mode(void) {
-    if (in_erase_mode)
-        return make_static_strnode("erase");
-    if (GetROP2(memGraphDC) == R2_XORPEN)
-        return make_static_strnode("reverse");
-    return make_static_strnode("paint");
 }
 
 void logofill(void) {
@@ -839,7 +841,6 @@ BOOLEAN check_ibm_stop(void) {
 void win32_con_full_screen(void) {
     RECT r;
     PAINTSTRUCT ps;
-    int deltaX, deltaY;
 
     if (in_graphics_mode && !in_splitscreen)
         return;
@@ -854,14 +855,7 @@ void win32_con_full_screen(void) {
     BeginPaint(hGraphWnd, &ps);
     BitBlt(ps.hdc, 0, 0, maxX, maxY, memGraphDC, 0, 0, SRCCOPY);
     EndPaint(hGraphWnd, &ps);
-    deltaX = (win32_screen_right()-oldWidth)/2;
-    deltaY = (win32_screen_bottom()-oldHeight)/2;
-    oldWidth = win32_screen_right();
-    oldHeight = win32_screen_bottom();
-    if (deltaX != 0 || deltaY != 0) {
-        resize_record(deltaX, deltaY);
-        redraw_graphics();
-    }
+    redraw_graphics();
 }
 
 void win32_prepare_draw(void) {
@@ -939,7 +933,6 @@ void win32_con_split_screen(void) {
     RECT r;
     PAINTSTRUCT ps;
     long vert;
-    int deltaX, deltaY;
 
     if (in_graphics_mode && in_splitscreen)
         return;
@@ -955,14 +948,7 @@ void win32_con_split_screen(void) {
     BitBlt(ps.hdc, 0, 0, maxX, maxY, memGraphDC, 0, 0, SRCCOPY);
     EndPaint(hGraphWnd, &ps);
     reshow_text();
-    deltaX = (win32_screen_right()-oldWidth)/2;
-    deltaY = (win32_screen_bottom()-oldHeight)/2;
-    oldWidth = win32_screen_right();
-    oldHeight = win32_screen_bottom();
-    if (deltaX != 0 || deltaY != 0) {
-        resize_record(deltaX, deltaY);
-        redraw_graphics();
-    }
+    redraw_graphics();
     ShowWindow(hGraphWnd, SW_SHOW);
     if (!seen_once) {
         seen_once = TRUE;

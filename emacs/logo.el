@@ -1,6 +1,6 @@
 ;;; logo.el -- Major mode for editing Logo source code
 
-;; Copyright (C) 1998, 2000, 2001 by Hrvoje Blazevic 
+;; Copyright (C) 1998, 2000, 2001, 2003 by Hrvoje Blazevic 
 
 ;; Logo.el is free software distributed under the terms
 ;; of the GNU General Public License, version 2, or (at your option)
@@ -11,7 +11,7 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
-;; This is version 2.9.9 completed on 22nd February 2001, with
+;; This is version 2.9.10 completed on 11th January 2003, with
 ;; bits and pieces lifted from scheme.el and cmuscheme.el .
 
 ;; For more information about logo mode , comments, or bug reports, 
@@ -2376,47 +2376,51 @@ Check the top of logo.el file for more detailed information.")
   "Setting parameters for filters. Works for most TERM types."
   ;; local function for replacing 1;1 with filter regex
   (letrec
-      ((convert2regex
-	(lambda (strng)
-	  (if (string-match "1;1" strng)
-	      (concat "\\("
-		      (replace-match
-		       "\\([0-9]+\\);\\([0-9]+\\)"
-		       t t strng)
-		      "\\)\\|")
-	    (error "SHELL can't find Logo. Either fix PATH, or set 'logo-binary-name in .emacs file - This was returned by SHELL -or- Logo: %s" code-list)))))
-    ;; writing Logo code test file
-    (let ((code-test
- 	   "make \"startup [ct type \"| | setcursor [0 0] type \"| | type standout \"| | bye]"))
-      (condition-case nil
- 	  (write-region code-test t logo-temp-file nil 1)
- 	(error (error "Check write permission on %s file" logo-temp-file))))
-    ;; ask Logo to send control codes
-    (let ((code-list
- 	   (split-string
- 	    (regexp-quote
- 	     (shell-command-to-string
-	      (if (file-exists-p logo-binary-name)
-		  (concat logo-binary-name " " logo-temp-file)
-		(message
-		 "Oops, your 'logo-binary-name is not set. Trying 'logo.")
-		(concat "logo " logo-temp-file)))))))
-      ;; parsing control codes
-      (setq logo-term-start (substring (car code-list) 0 1))
-      (let ((cleartext ;; or setmargins
- 	     (convert2regex (substring (car code-list) 1)))
- 	    (setcursor
- 	     (convert2regex (substring (cadr code-list) 1)))
- 	    (standout 
- 	     (concat "\\("
- 		     (substring (cadr (cdr code-list)) 1)
- 		     "\\([^"
-		     logo-term-start
-		     "]*\\)"
- 		     (cadr (cddr code-list))
- 		     "\\)")))
- 	(setq logo-term-all
- 	      (concat cleartext setcursor standout))))))
+   ((convert2regex
+     (lambda (strng)
+       (if (string-match "1;1" strng)
+ 	   (concat "\\("
+ 		   (replace-match
+ 		    "\\([0-9]+\\);\\([0-9]+\\)"
+ 		    t t strng)
+ 		   "\\)\\|")
+ 	 (error "SHELL can't find Logo. Either fix PATH, or set 'logo-binary-name in .emacs file - This was returned by SHELL -or- Logo: %s" code-list)))))
+   ;; writing Logo code test file
+   (let ((code-test
+ 	  "make \"startup [ct type \"| | setcursor [0 0] type \"| | type standout \"| | bye]"))
+     (condition-case nil
+ 	 (write-region code-test t logo-temp-file nil 1)
+       (error (error "Check write permission on %s file" logo-temp-file))))
+   ;; ask Logo to send control codes
+   (let ((code-list
+ 	  (split-string
+ 	   (regexp-quote
+	    (with-output-to-string
+	      (with-current-buffer
+		  standard-output
+		(call-process
+		 (if (file-exists-p logo-binary-name)
+		     logo-binary-name
+		   (message
+		    "Oops, your 'logo-binary-name is not set. Trying 'logo.")
+		   "logo")
+		 nil t nil logo-temp-file)))))))
+     ;; parsing control codes
+     (setq logo-term-start (substring (car code-list) 0 1))
+     (let ((cleartext ;; or setmargins
+ 	    (convert2regex (substring (car code-list) 1)))
+ 	   (setcursor
+ 	    (convert2regex (substring (cadr code-list) 1)))
+ 	   (standout 
+ 	    (concat "\\("
+ 		    (substring (cadr (cdr code-list)) 1)
+ 		    "\\([^"
+ 		    logo-term-start
+ 		    "]*\\)"
+ 		    (cadr (cddr code-list))
+ 		    "\\)")))
+       (setq logo-term-all
+ 	     (concat cleartext setcursor standout))))))
 
 (defsubst logo-ct-function ()
   "Clear the visible portion of the buffer -- simulating CLEARTEXT."
@@ -3495,7 +3499,11 @@ The following commands are available:
     ;; Need one more to put 80 in one row
     (set-frame-size frame
 		    (+ 1 process-term-columns)
-		    (+ 2 process-term-rows)))
+		    (+ 2 process-term-rows
+		       (if (and (fboundp 'tool-bar-mode)
+				tool-bar-mode)
+			   (tool-bar-lines-needed)
+			 0))))
   ;; Overriding any user settings
   (setq transient-mark-mode nil)
   (setq truncate-lines nil)

@@ -63,7 +63,6 @@ typedef struct { int dummy; } pen_info;
 #define pen_x px
 #define pen_y py
 #define get_node_pen_pattern make_intnode(0)
-#define get_node_pen_mode make_intnode(0)
 #define back_ground bg
 
 #define pen_reverse nop()
@@ -97,3 +96,4 @@ extern void nop();
 #define logofill nop
 #define set_palette nop
 #define get_palette nop
+#define erase_screen nop

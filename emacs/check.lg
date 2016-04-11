@@ -1,7 +1,7 @@
 ;; check.lg
 ;;
 ;; This file serves as a test file for Berkeley Logo and Emacs logo-mode
-;; installation. Read the text, and carry out the actions idicated.
+;; installation. Read the text, and carry out the actions indicated.
 ;;
 ;; Now click mouse on the `Logo-start' menu (menu-bar top right), and
 ;; choose `Run Logo Other Frame'.
@@ -11,6 +11,13 @@
 ;;
 ;;    Welcome to Berkeley Logo version 5.1 
 ;;    ?
+;;
+;; --------------------------------------------------------------------
+;;; WARNING: If emacs (instead of opening a new frame) appears to hung
+;;; up, you can regain control by hitting Control-g (twice).
+;;; Unfortunately, you will not be able to use logo-mode, because
+;;; (probably) Logo itself does not work properly on your system.
+;; --------------------------------------------------------------------
 ;;
 ;; If you can see this, then both Logo and emacs logo-mode, are probably
 ;; properly installed. Let's test one more thing. Position the cursor on

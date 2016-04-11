@@ -4,4 +4,3 @@ UNBURYONEDIT						(variable)
 	unburied, so that it will be saved by a later SAVE.  Files that
 	want to define and bury procedures must do it in that order.
 
-

@@ -1,4 +1,4 @@
-This is ucblogo.info, produced by makeinfo version 4.0 from
+This is ucblogo.info, produced by makeinfo version 4.0b from
 usermanual.texi.
 
 
@@ -21,6 +21,7 @@ Original written by: Brian Harvey
 * MACROS::
 * ERROR PROCESSING::
 * SPECIAL VARIABLES::
+* INTERNATIONALIZATION::
 * INDEX::
 
 
@@ -223,21 +224,21 @@ default, when Logo starts up), then if a Logo instruction refers to a
 *nonexistent* procedure (so that the error message "I don't know how to
 ..." would result), Logo tries the following two steps:
 
-     	1.  If the name is at least four characters long, and the
-     	first three characters are the letters SET (upper or lower
-     	case), and if the name is followed in the instruction by
-     	another value, then Logo will invoke `MAKE' with its first
-     	input being the name without the SET, and its second input
-     	being the following value.
+     	1.  If the name is at least four characters long, and the first three
+     	characters are the letters SET (upper or lower case), and if the name
+     	is followed in the instruction by another value, and if the name
+     	without the SET is the name of a variable that already exists, then
+     	Logo will invoke `MAKE' with its first input being the name without the
+     	SET, and its second input being the following value.
      
      	2.  If step 1's conditions are not met, but the name is
      	the name of an accessible variable, then Logo will invoke
      	`THING' with that name as input, to find the variable's value.
 
-Note one possible disadvantage of the getter/setter notation: a spelling
-error in the name of one of the primitives starting SET (e.g.,
-`SETHEADING') will not be caught as an error, but will instead create a
-new variable.
+Step 1 requires that the variable already exist so that misspellings of
+names of SETxxx primitives (e.g., `SETHEADING') will still be caught,
+instead of silently creating a new variable.  The command `GLOBAL' can
+be used to create a variable without giving it a value.
 
 One final point:  The `TO' command in Logo has always been a special
 case; the rest of the line starting with TO is not evaluated as
@@ -279,11 +280,11 @@ The process to start Logo depends on your operating system:
 
 To leave Logo, enter the command bye.
 
-Under Unix or DOS, if you include one or more filenames on the command
-line when starting Logo, those files will be loaded before the
+Under Unix, DOS, or Windows, if you include one or more filenames on the
+command line when starting Logo, those files will be loaded before the
 interpreter starts reading commands from your terminal.  If you load a
-file that executes some program that includes a `bye' command, Logo
-will run that program and exit.  You can therefore write stand-alone
+file that executes some program that includes a `BYE' command, Logo
+will run that program and exit.  You can therefore write standalone
 programs in Logo and run them with shell/batch scripts.  To support
 this technique, Logo does not print its usual welcoming and parting
 messages if you give file arguments to the logo command.
@@ -1548,7 +1549,8 @@ line of the shell output.
 Under DOS, SHELL is a command, not an operation; it sends its input to a
 DOS command processor but does not collect the result of the command.
 
-The Macintosh, of course, is not programmable.
+The Macintosh, of course, is not programmable (unless you are running
+the Unix version of UCBLogo under OS X).
 
 
 File: ucblogo.info,  Node: FILE ACCESS,  Next: TERMINAL ACCESS,  Prev: RECEIVERS,  Up: COMMUNICATION
@@ -1599,16 +1601,4 @@ prefix.
 
 *Note OPENREAD:: , *Note OPENWRITE:: , *Note OPENAPPEND:: , *Note
 OPENUPDATE:: , *Note LOAD:: , *Note SAVE:: .
-
-
-File: ucblogo.info,  Node: PREFIX,  Next: OPENREAD,  Prev: SETPREFIX,  Up: FILE ACCESS
-
-prefix
-------
-
-     PREFIX
-
-outputs the current file prefix, or [] if there is no prefix.
-
-*Note SETPREFIX:: .
 

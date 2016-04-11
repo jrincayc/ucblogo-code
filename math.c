@@ -500,7 +500,7 @@ NODE *linteg(NODE *args) {
     return(binary(args, 'i'));
 }
 
-NODE *lround(NODE *args) {
+NODE *lroundx(NODE *args) { /* There's an lround in <math.h> */
     return(binary(args, 'r'));
 }
 
@@ -546,7 +546,7 @@ int compare_numnodes(NODE *n1, NODE *n2) {
 }
 
 NODE *torf(BOOLEAN tf) {
-    return (tf ? True : False);
+    return (tf ? TrueName() : FalseName());
 }
 
 NODE *llessp(NODE *args) {
@@ -612,35 +612,34 @@ int compare_node(NODE *n1, NODE *n2, BOOLEAN ignorecase) {
     nt1 = nodetype(a1);
     nt2 = nodetype(a2);
     if (nt1 == STRING && nt2 == STRING) {
-	if ((getstrlen(a1) == getstrlen(a2)) &&
-		    (getstrptr(a1) == getstrptr(a2)))
-	    icmp = 0;
-	else {
-	cmp_len = (getstrlen(a1) > getstrlen(a2)) ?
-		getstrlen(a2) : getstrlen(a1);
-
-	if (ignorecase)
-	    icmp = low_strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
-	else
-	    icmp = strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
-	if ((getstrlen(a1) != getstrlen(a2)) && icmp == 0)
+	if (getstrptr(a1) == getstrptr(a2))
 	    icmp = getstrlen(a1) - getstrlen(a2);
+	else {
+	    cmp_len = (getstrlen(a1) > getstrlen(a2)) ?
+		    getstrlen(a2) : getstrlen(a1);
+
+	    if (ignorecase)
+		icmp = low_strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
+	    else
+		icmp = strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
+	    if (icmp == 0)
+		icmp = getstrlen(a1) - getstrlen(a2);
 	}
     }
     else if (nt1 & NT_BACKSL || nt2 & NT_BACKSL) {
-	if ((getstrlen(a1) == getstrlen(a2)) &&
-			(getstrptr(a1) == getstrptr(a2)))
-	    icmp = 0;
-	else {
-	cmp_len = (getstrlen(a1) > getstrlen(a2)) ?
-		    getstrlen(a2) : getstrlen(a1);
-
-	if (ignorecase)
-	    icmp = noparitylow_strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
-	else
-	    icmp = noparity_strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
-	if ((getstrlen(a1) != getstrlen(a2)) && icmp == 0)
+	if (getstrptr(a1) == getstrptr(a2))
 	    icmp = getstrlen(a1) - getstrlen(a2);
+	else {
+	    cmp_len = (getstrlen(a1) > getstrlen(a2)) ?
+			getstrlen(a2) : getstrlen(a1);
+
+	    if (ignorecase)
+		icmp = noparitylow_strncmp(getstrptr(a1),
+					   getstrptr(a2), cmp_len);
+	    else
+		icmp = noparity_strncmp(getstrptr(a1), getstrptr(a2), cmp_len);
+	    if (icmp == 0)
+		icmp = getstrlen(a1) - getstrlen(a2);
 	}
     }
     else err_logo(FATAL, NIL);
@@ -676,7 +675,7 @@ NODE *lequalp(NODE *args) {
     arg1 = car(args);
     arg2 = cadr(args);
 
-    if (compare_node(valnode__caseobj(Caseignoredp), True, TRUE) == 0)
+    if (varTrue(Caseignoredp))
 	val = equalp_help(arg1, arg2, TRUE);
     else
 	val = equalp_help(arg1, arg2, FALSE);
@@ -695,10 +694,10 @@ NODE *lbeforep(NODE *args) {
     arg1 = string_arg(args);
     arg2 = string_arg(cdr(args));
 
-    if (compare_node(valnode__caseobj(Caseignoredp), True, TRUE) == 0)
+    if (varTrue(Caseignoredp))
 	val = compare_node(arg1, arg2, TRUE);
     else
 	val = compare_node(arg1, arg2, FALSE);
 
-    return (val < 0 ? True : False);
+    return (val < 0 ? TrueName() : FalseName());
 }

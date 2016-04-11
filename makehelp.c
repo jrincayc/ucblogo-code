@@ -116,6 +116,7 @@ main() {
 	if (fp2) fclose(fp2);
     }
     fprintf(tmp, ".defmacro\n");    /* looks like abbrev for .macro */
+    fprintf(tmp, "+\n-\n*\n/\n=\n<\n>\n");  /* infix operators */
     fclose(tmp);
     fclose(toc);
     exit(0);

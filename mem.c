@@ -18,8 +18,10 @@
  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
+extern NODE *stack, *numstack, *exp, *val, *parm, *catch_tag, *arg;
 
 /* #ifdef ibm */
 /* #ifndef __RZTC__ */
@@ -34,7 +36,7 @@
 #define GCMAX 8000
 #else
 #ifdef __RZTC__
-#define GCMAX 4000
+#define GCMAX 3000
 #else
 #define GCMAX 16000
 
@@ -60,18 +62,21 @@ long int mem_nodes = 0, mem_max = 0;	/* for Logo NODES primitive */
 
 /* Number of times to collect at the current GC state before going to
    the next state. Basically the number of times a given generation is
-   collected its members are moved to an older generation */
+   collected before its members are moved to an older generation */
 #define gc_age_threshold 4
+
+FIXNUM seg_size = SEG_SIZE;
 
 /* A new segment of nodes is added if fewer than freed_threshold nodes are
    freed in one GC run */
-#define freed_threshold ((long int)(SEG_SIZE * 0.4))
+#define freed_threshold ((long int)(seg_size * 0.4))
 
 NODE *free_list = NIL;                /* global ptr to free node list */
 struct segment *segment_list = NULL;  /* global ptr to segment list */
 
 long int mem_allocated = 0, mem_freed = 0;
 
+/* The number of generations */
 #define NUM_GENS 4
 
 /* ptr to list of Nodes in the same generation */
@@ -102,15 +107,25 @@ int mark_gen_gc;
 long int num_examined;
 #endif
 
+NODE *lsetsegsz(NODE *args) {
+    NODE *num = pos_int_arg(args);
+
+    if (NOT_THROWING)
+	seg_size = getint(num);
+    return UNBOUND;
+}
+
 BOOLEAN addseg(void) {
     long int p;
     struct segment *newseg;
 
-    if ((newseg = (struct segment *)malloc(sizeof(struct segment)))
+    if ((newseg = (struct segment *)malloc(sizeof(struct segment)
+					   + seg_size*sizeof(struct logo_node)))
             != NULL) {
         newseg->next = segment_list;
+	newseg->size = seg_size;
         segment_list = newseg;
-        for (p = 0; p < SEG_SIZE; p++) {
+        for (p = 0; p < seg_size; p++) {
             newseg->nodes[p].next = free_list;
             free_list = &newseg->nodes[p];
 	    settype(&newseg->nodes[p], NTFREE);
@@ -131,12 +146,14 @@ BOOLEAN addseg(void) {
 BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     struct segment* current_seg;
     unsigned long int ptr = (unsigned long int)ptr_val;
+    FIXNUM size;
    
     if (ptr_val == NIL) return 0;
     for (current_seg = segment_list; current_seg != NULL;
 		current_seg = current_seg->next) {
+	size = current_seg->size;
 	if ((ptr >= (unsigned long int)&current_seg->nodes[0]) &&
-	    (ptr <= (unsigned long int)&current_seg->nodes[SEG_SIZE-1]) &&
+	    (ptr <= (unsigned long int)&current_seg->nodes[size-1]) &&
 	    ((ptr - (unsigned long int)&current_seg->nodes[0])%
 	                 (sizeof(struct logo_node)) == 0))
 	    return (ptr_val->node_type != NTFREE);
@@ -148,7 +165,7 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
 #pragma options(global_optimizer)
 #endif
 #ifdef WIN32
-// #pragma optimize("",on)
+/* #pragma optimize("",on) */
 #endif
 
 NODETYPES nodetype(NODE *nd) {
@@ -250,7 +267,7 @@ NODE *newnode(NODETYPES type) {
 #pragma options(!honor_register)
 #endif
 #ifdef WIN32
-// #pragma optimize("",on)
+/* #pragma optimize("",on) */
 #endif
 
 NODE *cons(NODE *x, NODE *y) {
@@ -282,13 +299,25 @@ NODE **inter_gen_mark (NODE **prev) {
 	case COLON:
 	case TREE:
 	case LINE:
+	case LOCALSAVE:
 	    if (valid_pointer(nd->n_car))
 		mmark(nd->n_car);
 	    if (valid_pointer(nd->n_obj))
 		mmark(nd->n_obj);
 	case CONT:
 	    if (valid_pointer(nd->n_cdr))
-	    mmark(nd->n_cdr);
+		mmark(nd->n_cdr);
+	    break;
+	case STACK:
+	    if (valid_pointer(nd->n_cdr))
+		mmark(nd->n_cdr);
+	    array_ptr = (NODE **)car(nd);
+	    loop = num_saved_nodes;
+	    while (--loop >= 0) {
+		tmp_node = *array_ptr++;
+		if (valid_pointer(tmp_node))
+		    mmark(tmp_node);
+	    }
 	    break;
 	case ARRAY:
 	    array_ptr = getarrptr(nd);
@@ -390,6 +419,7 @@ void mark(NODE* nd) {
 		case COLON:
 		case TREE:
 		case LINE:
+		case LOCALSAVE:
 		    *gctop = nd->n_car;
 		    gc_inc();
 		    *gctop = nd->n_obj;
@@ -397,6 +427,16 @@ void mark(NODE* nd) {
 		case CONT:
 		    *gctop = nd->n_cdr;
 		    gc_inc();
+		    break;
+		case STACK:
+		    *gctop = nd->n_cdr;
+		    gc_inc();
+		    array_ptr = (NODE **)car(nd);
+		    loop = num_saved_nodes;
+		    while (--loop >= 0) {
+			*gctop = *array_ptr++;
+			gc_inc();
+		    }
 		    break;
 		case ARRAY:
 		    array_ptr = getarrptr(nd);
@@ -476,23 +516,34 @@ re_mark:
 
     /* Check globals for NODE pointers */
 
-    mark(current_line);
+    mark(Regs_Node);
+    mark(stack);
+    mark(numstack);
+    mark(exp);
+    mark(val);
+    mark(parm);
+    mark(catch_tag);
+    mark(arg);
+    mark(var_stack);
+    mark(last_call);
+    mark(output_node);
+    mark(output_unode);
 
     mark(throw_node);
     mark(err_mesg);
+    mark(current_line);
 
+/*
     mark(fun);
     mark(ufun);
     mark(last_ufun);
     mark(this_line);
     mark(last_line);
-    mark(var_stack);
     mark(var);
-    mark(last_call);
     mark(didnt_output_name);
     mark(didnt_get_output);
-    mark(output_node);
     mark(qm_list);
+ */
 
     mark(file_list);
     mark(reader_name);
@@ -508,6 +559,8 @@ re_mark:
 
     mark(cnt_list);
     mark(cnt_last);
+
+    mark(deepend_proc_name);
 
 #ifdef GC_DEBUG
     printf("globals %ld + ", num_examined);
@@ -640,10 +693,20 @@ re_mark:
 			case COLON:
 			case TREE:
 			case LINE:
+			case LOCALSAVE:
 			    check_oldyoung(nd, nd->n_car);
 			    check_oldyoung(nd, nd->n_obj);
 			case CONT:
 			    check_oldyoung(nd, nd->n_cdr);
+			    break;
+			case STACK:
+			    check_oldyoung(nd, nd->n_cdr);
+			    array_ptr = (NODE **)car(nd);
+			    i = num_saved_nodes;
+			    while (--i >= 0) {
+				tmp_node = *array_ptr++;
+				check_oldyoung(nd, tmp_node);
+			    }
 			    break;
 			case ARRAY:
 			    array_ptr = getarrptr(nd);
@@ -676,6 +739,9 @@ re_mark:
 		    case ARRAY:
 			free((char *)getarrptr(nd));
              		break;
+		    case STACK:
+			free((char *)car(nd));
+			break;
 		    case STRING:
 		    case BACKSLASH_STRING:
 		    case VBAR_STRING:

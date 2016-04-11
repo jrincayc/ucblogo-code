@@ -15,7 +15,7 @@ end
 
 to foreach.done :foreach.result
 if emptyp :foreach.result [op [stop]]
-op list "output quoted first :foreach.result
+op (list "output "first (list first :foreach.result))
 end
 
 to ?rest [:which 1]

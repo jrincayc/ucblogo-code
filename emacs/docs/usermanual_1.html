@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on July, 24  2001 by texi2html 1.64 -->
+<!-- Created on October, 2  2002 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -32,7 +32,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <A NAME="INTRODUCTION"></A>
@@ -59,7 +59,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <H2> 1.1 Overview </H2>
@@ -142,7 +142,7 @@ parallelism, and multimedia.  For those, buy a commercial version.
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <H2> 1.2 Getter/Setter Variable Syntax </H2>
@@ -283,22 +283,22 @@ steps:
 <A NAME="IDX3"></A>
 </P><P>
 
-<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">	1.  If the name is at least four characters long, and the
-	first three characters are the letters SET (upper or lower
-	case), and if the name is followed in the instruction by
-	another value, then Logo will invoke <CODE>MAKE</CODE> with its first
-	input being the name without the SET, and its second input
-	being the following value.
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif">	1.  If the name is at least four characters long, and the first three
+	characters are the letters SET (upper or lower case), and if the name
+	is followed in the instruction by another value, and if the name
+	without the SET is the name of a variable that already exists, then
+	Logo will invoke <CODE>MAKE</CODE> with its first input being the name without the
+	SET, and its second input being the following value.
 
 	2.  If step 1's conditions are not met, but the name is
 	the name of an accessible variable, then Logo will invoke
 	<CODE>THING</CODE> with that name as input, to find the variable's value.
 </pre></td></tr></table></P><P>
 
-Note one possible disadvantage of the getter/setter notation: a spelling
-error in the name of one of the primitives starting SET (e.g.,
-<CODE>SETHEADING</CODE>) will not be caught as an error, but will instead
-create a new variable.
+Step 1 requires that the variable already exist so that misspellings of names
+of SETxxx primitives (e.g., <CODE>SETHEADING</CODE>) will still be caught, instead of
+silently creating a new variable.  The command <CODE>GLOBAL</CODE> can be used to create
+a variable without giving it a value.
 </P><P>
 
 One final point:  The <CODE>TO</CODE> command in Logo has always been a special
@@ -328,7 +328,7 @@ makes the colons optional:
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <H2> 1.3 Entering and Leaving Logo </H2>
@@ -366,14 +366,14 @@ version, or <TT>BL</TT> for the 640K version.
 To leave Logo, enter the command <TT>bye</TT>.
 </P><P>
 
-Under Unix or DOS, if you include one or more filenames on the command line
-when starting Logo, those files will be loaded before the interpreter starts
-reading commands from your terminal.  If you load a file that executes some
-program that includes a <CODE>bye</CODE> command, Logo will run that program and exit.
-You can therefore write stand-alone programs in Logo and run them with
-shell/batch scripts.  To support this technique, Logo does not print its
-usual welcoming and parting messages if you give file arguments to the logo
-command.
+Under Unix, DOS, or Windows, if you include one or more filenames on the
+command line when starting Logo, those files will be loaded before the
+interpreter starts reading commands from your terminal.  If you load a file
+that executes some program that includes a <CODE>BYE</CODE> command, Logo will run that
+program and exit.  You can therefore write standalone programs in Logo and run
+them with shell/batch scripts.  To support this technique, Logo does not print
+its usual welcoming and parting messages if you give file arguments to the
+logo command.
 </P><P>
 
 If you type your interrupt character (see table below) Logo will stop what it's doing and return to top-level, as if you did <TT>THROW "TOPLEVEL</TT>.  If you type your quit character Logo will pause as if you did PAUSE.
@@ -410,7 +410,7 @@ some or all of the default library in it.
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <H2> 1.4 Tokenization </H2>
@@ -556,13 +556,13 @@ fail if vertical bars and backslashes were interchanged.)
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_2.html#SEC6"> &gt;&gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_12.html#SEC354">Index</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_13.html#SEC367">Index</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="usermanual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Brian Harvey</I> on <I>July, 24  2001</I>
+by <I>Brian Harvey</I> on <I>October, 2  2002</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

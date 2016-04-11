@@ -22,7 +22,7 @@ end
 
 to for.done :for.result
 if emptyp :for.result [op [stop]]
-op list "output quoted first :for.result
+op (list "output "first (list first :for.result))
 end
 
 to forstep

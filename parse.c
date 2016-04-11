@@ -130,7 +130,7 @@ int rd_getc(FILE *strm) {
 #endif /* WIN32 */
 
 #ifdef ecma
-    return(ecma_clear(c));
+    return((c == EOF) ? c : ecma_clear(c));
 #else
     return(c);
 #endif

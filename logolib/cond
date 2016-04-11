@@ -1,0 +1,24 @@
+;;; -*- logo -*-
+
+.macro cond :cond.clauses
+localmake "cond.result cond.helper :cond.clauses
+if equalp first :cond.result "error [(throw "error last :cond.result)]
+output last :cond.result
+end
+
+to cond.helper :cond.clauses
+if emptyp :cond.clauses [output [[] []]]
+if emptyp first :cond.clauses [output [error [Empty COND clause]]]
+if equalp first first :cond.clauses "else ~
+   [output list [] butfirst first :cond.clauses]
+ignore error
+catch "error [localmake "cond.result run first first :cond.clauses]
+localmake "cond.error error
+if not emptyp :cond.error [output list "error item 2 :cond.error]
+if not memberp :cond.result [true false] ~
+   [output list "error fput :cond.result [not TRUE or FALSE]]
+if :cond.result [output list [] butfirst first :cond.clauses]
+output cond.helper butfirst :cond.clauses
+end
+
+bury [cond cond.helper]

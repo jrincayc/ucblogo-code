@@ -85,7 +85,6 @@ typedef struct { PenState ps;
 #define pen_x graphics_window->pnLoc.h
 #define pen_y graphics_window->pnLoc.v
 #define get_node_pen_pattern Get_node_pen_pattern()
-#define get_node_pen_mode Get_node_pen_mode()
 
 #define pen_reverse graphics_window->pnMode = patXor
 #define pen_erase graphics_window->pnMode = patBic
@@ -119,7 +118,7 @@ extern void save_pen(), restore_pen(), plain_xor_pen(), set_pen_pattern();
 extern void set_list_pen_pattern(), get_pen_pattern(), erase_screen();
 extern void t_screen(), s_screen(), f_screen(), tone(), logofill(), nop();
 extern FIXNUM mickey_x(), mickey_y();
-extern NODE *Get_node_pen_pattern(), *Get_node_pen_mode();
+extern NODE *Get_node_pen_pattern();
 extern void c_to_pascal_string(), pascal_to_c_string();
 extern FIXNUM pen_color, back_ground;
 extern void mac_set_pc(), mac_set_bg();

@@ -1,0 +1,1745 @@
+Understanding the UCBLogo evaluator
+
+Prerequisite: understanding the metacircular evaluator (MCE, SICP 4.1)
+Corequisite: understanding the explicit control evaluator (ECE, SICP 5.4)
+
+
+Contents
+--------
+1. Review of metacircular evaluator
+    1.1 Recursive structure of the evaluator
+    1.2 Tail call elimination in the MCE
+2. The Explicit-Control Evaluator
+    2.1 Typical C-style procedure calling convention
+    2.2 Procedure calling convention in the ECE
+    2.3 The evaluator uses surprisingly few registers
+    2.4 The two-screenful version of the explicit control evaluator
+    2.5 Implementing explicit control in C
+3. Complicating Issues in UCBLogo
+    3.1 Commands vs. operations
+    3.2 Error messages and tail call elimination
+	3.2a Tailforms
+	3.2b Tailforms handled as embedded calls
+	3.2c Caller-status arguments to eval-sequence and eval-dispatch
+	3.2d Detecting errors before they happen
+    3.3 Macros
+	3.3a Why the MCE uses special forms
+	3.3b Using rewriting instead of special forms
+	3.3c Logo continuations
+    3.4 Dynamic scope
+	3.4a Reasons for lexical scope
+	3.4b Reasons for dynamic scope
+	3.4c Shallow binding
+    3.5 Nonlocal exit
+    3.6 Lack of parentheses delimiting procedure calls
+	3.6a Tokenization
+	3.6b Monadic and dyadic minus
+	3.6c More on runparsing
+	3.6d Treeification
+	3.6e Procedure bodies
+	3.6f Changing a procedure's arity
+4. Data structures and types
+    4.1 Pair-based types
+    4.2 Numeric types
+    4.3 String types
+	4.3a Internal structure of a string
+	4.3b How to create a string node
+	4.3c Including punctuation characters in words
+    4.4 Symbols
+    4.5 Quote and colon types
+    4.6 Arrays
+    4.7 Primitive procedures
+5. Garbage collector
+    5.1 Node allocation
+    5.2 The mark phase
+    5.3 GCTWA
+    5.4 The sweep phase
+    5.5 Per-node gc data
+
+
+1. Review of metacircular evaluator
+-----------------------------------
+
+1.1 Recursive structure of the evaluator
+
+In Logo, as in Scheme, evaluating an expression involves recursively
+evaluating other expressions, for two reasons:
+
+	1.  Visible subexpressions, as in (+ (* 3 4))
+
+	2.  Expressions in the body of a procedure invoked by this expression
+
+#1 gives rise to the mutual recursion
+
+	eval -> list-of-values -> eval
+
+while #2 gives rise to
+
+	eval -> apply -> eval-sequence -> eval
+
+As usual with recursive problems, the resulting program is remarkably short,
+but it gives rise to complicated processes.
+
+In what follows, we mostly focus on recursive path #2.
+
+
+1.2 Tail call elimination in the MCE
+
+Since recursion is the main built-in means for expression iterations
+(iterative tools such as MAP are written using recursion; for the moment we
+ignore Scheme's primitive DO and Logo's primitive REPEAT), it's important that
+implementations be able to evaluate tail calls without creating extra frames
+for each call.  The proper handling of tail calls in the MCE depends on proper
+tail calling in the underlying Scheme, and also on the fact that the
+evaluation of the last expression in a sequence is done through a tail call to
+EVAL:
+
+	(define (eval-sequence exps env)	; SICP p. 367
+	  (cond ((last-exp? exps) (EVAL (FIRST-EXP EXPS) ENV))
+		(else (eval (first-exp exps) env)
+		      (eval-sequence (rest-exps exps) env))))
+
+To emphasize the point, the evaluator would not handle tail calls properly if
+eval-sequence were written this way:
+
+	(define (eval-sequence exps env)	; wrong!
+	  (let ((result (eval (first-exp exps) env)))
+	    (if (null? (rest-exps exps))
+		result
+		(eval-sequence (rest-exps exps) env))))
+
+This might seem more elegant because the call to EVAL appears only once in the
+definition, but that call isn't a tail call.
+
+
+2. The Explicit-Control Evaluator
+----------------------------------
+
+2.1 Typical C-style procedure calling convention
+
+In typical machine-language programming (including compiled C programs) it
+is the responsibility of called procedures to allocate space and save whatever
+might otherwise be clobbered by a recursive call.  So the calling sequence (in
+the calling procedure) looks like
+
+	<put arguments in registers>
+	<procedure-call instruction>
+
+where the second line represents a single machine language instruction that
+saves the return address in a register and jumps to the procedure.  The called
+procedure looks like this:
+
+	<allocate stack space>
+	<save registers we'll use on the stack, including return address>
+	... <do the actual work> ...
+	<restore saved values>
+	<deallocate stack space>
+	<jump to return address in some register>
+
+
+2.2 Procedure calling convention in the ECE
+
+But this won't work if we want a tail-call to avoid allocating new stack
+space.  It's the caller, not the callee, who knows that this is a tail call.
+Therefore the ECE makes saving the caller's job:
+
+	<allocate space>
+	<save registers>
+	<put arguments in registers>
+	<call procedure>
+	<restore saved registers>
+	<deallocate space>
+
+When the caller is making a tail call rather than an embedded call, it can
+leave out the saving and restoring steps:
+
+	<put arguments in registers>
+	<jump to procedure, without saving a return address>
+
+That last line works because the called procedure inherits its return address
+from the caller.  In other words, it returns directly to the caller's caller.
+
+
+2.3 The evaluator uses surprisingly few registers
+
+	exp	  an expression to be evaluated (argument to EVAL)
+	env	  the current environment (argument to EVAL and EVAL-SEQUENCE)
+	val	  the value of the expression (returned from EVAL)
+	continue  the current return address (set by procedure call instruction
+		    in most computers, but assigned explicitly here)
+	proc	  the procedure being invoked (argument to APPLY)
+	argl	  the actual argument values (argument to APPLY)
+	unev	  a list of expressions (argument to EVAL-SEQUENCE)
+
+In addition, the SAVE and RESTORE operations use an implicit stack pointer
+register, which is never explicitly saved or restored.
+
+
+2.4 The two-screenful version of the explicit control evaluator
+
+eval-dispatch:	[Corresponds to EVAL in MCE]
+	exp is self-evaluating -> val=exp, return to caller
+	exp is variable -> val=(lookup exp env), return to caller
+	exp is special form -> each one is different, much like MCE
+	exp is application:
+		SAVE STUFF
+		EXP=(CAR EXP)
+		CALL EVAL-DISPATCH	;operator
+		RESTORE STUFF
+		proc=val
+		argl='()
+		unev=(cdr exp)		;actual argument expressions
+		ev-appl-operand-loop:
+			unev is empty -> goto apply-dispatch
+			exp=(car unev)
+			SAVE STUFF
+			CALL EVAL-DISPATCH
+			RESTORE STUFF
+			argl=(cons val argl)
+			unev=(cdr unev)
+			goto ev-appl-operand-loop
+
+apply-dispatch:	[Corresponds to APPLY in MCE]
+	proc is primitive -> do magic, return to caller
+compound-apply:
+	unev=(procedure-parameters proc)
+	env=(procedure-environment proc)
+	env=(extend-environment unev argl env)
+	unev=(procedure-body proc)
+	goto ev-sequence
+
+ev-sequence:	[Corresponds to EVAL-SEQUENCE in MCE]
+	exp=(car unev)
+	(cdr unev) is empty -> ev-sequence-last-exp
+	SAVE STUFF
+	CALL EVAL-DISPATCH
+	RESTORE STUFF
+	unev=(cdr unev)
+	goto ev-sequence
+
+ev-sequence-last-exp:
+	GOTO EVAL-DISPATCH
+
+The calls to EVAL-DISPATCH are capitalized in the above.  There are four of
+them; the first three (operator, operand, body expression) are surrounded by
+save and restore operations, but the fourth (final body expression) is just a
+goto, without saving registers.  (SICP pp 556-557.)
+
+The version above simplifies the actual ECE by leaving out an optimization in
+evaluating the last actual argument expression in a procedure application.
+
+It's important that special forms that evaluate subexpressions, such as IF,
+are written to tail-call EVAL-DISPATCH for the last subexpression, so that
+	(if (= 2 3) (this-isnt-evaluated) (this-is-tail-called))
+works correctly.
+
+
+2.5 Implementing explicit control in C
+
+The C language provides labels and goto, but the labels are not first-class;
+you can't put a label (i.e., a memory address in your code) into a register
+or onto the stack.
+
+UCBLogo gets around this restriction by using a kind of pun:  C has separate
+namespaces for labels and members of enums -- the same symbol can be used for
+both.  So in logo.h there is a declaration of an "enum labels" whose members
+have the same names as labels in the evaluator (e.g., begin_seq).  The
+newcont macro that's used in the evaluator to store a new continuation (in
+the ECE sense) on the stack actually stores this enum (i.e., a small
+nonnegative integer).  This stored value is translated into an actual label
+at fetch_cont, which says
+
+	switch (x) {
+	    begin_seq: goto begin_seq;
+	    accumulate_arg: goto accumulate_arg;
+	    ...
+	}
+
+(The actual order of labels is determined in logo.h; I've tried to put the
+more commonly used ones first.)
+
+
+3. Complicating Issues in UCBLogo
+---------------------------------
+
+The SICP evaluators leave out one important complexity of a full Scheme
+implementation (the nonlocal transfer of control allowed by CALL/CC, which is
+somewhat like the issue raised in Logo by CATCH and THROW).  Also, Logo is
+more complicated to interpret than Scheme, for these reasons:
+
+	Commands vs. operations (not every procedure returns a value)
+
+	The desire for error messages that hide tail call elimination
+
+	Macros
+
+	Dynamic scope
+
+	Lack of parentheses delimiting procedure calls
+
+These topics are discussed in the following sections.
+
+
+3.1 Commands vs. operations
+
+The UCBLogo interpreter contains an object named UNBOUND that can be used as
+the return value from a Logo procedure to indicate that, above the abstraction
+barrier, there is no return value.
+
+Consider the following Logo procedure:
+
+	to bfn :n :lst
+	if :n=0 [output :lst]
+	output bfn :n-1 butfirst :lst
+	end
+
+The call to BFN in the last line of the body should be a tail call.  This
+means that we have to treat the word OUTPUT specially in the interpreter.  To
+the user, OUTPUT is a primitive procedure that takes one input.  But we can't
+evaluate the input expression and then call OUTPUT, because that would make
+the call to BFN an embedded recursion.  (In other words, the call to
+EVAL-DISPATCH in 2.4 above that evaluates argument expressions saves and
+restores registers.)
+
+Instead, OUTPUT must be treated internally as a special form.  When OUTPUT is
+seen, even if there are more unevaluated expressions in the body, its input is
+evaluated with a tail call (a goto) to EVAL-DISPATCH.
+
+Similarly, STOP must be treated specially.  EVAL-SEQUENCE looks to see if the
+expression *after* the current one is the word STOP; if so, the current
+expression is tail-called.  We must catch STOP early to handle things like
+
+	to foo
+	IF condition [tail-call-this STOP]
+	...more expressions...
+	end
+
+Under some circumstances the STOP is seen as the current expression, rather
+than as the expression after the current one; in this case, EVAL-SEQUENCE just
+returns to its caller.  This situation is exemplified by
+
+	to foo
+	IF condition [STOP]
+	...more expressions...
+	end
+
+In eval.c, OUTPUT and STOP are referred to as "tailforms"; there is a
+procedure is_tailform(exp) that returns nonzero (true) if the expression is an
+OUTPUT or STOP expression.
+
+Note on terminology:  In above-the-line documentation we distinguish between
+*expressions*, which return values, and *instructions*, which don't.  But
+internally they're all expressions.
+
+A third tailform is .MAYBEOUTPUT; this tail-calls its input expression, like
+OUTPUT; the only difference is that it's not considered an error if the input
+expression returns UNBOUND instead of a value.  This brings us to the next
+topic:
+
+
+3.2 Error messages and tail call elimination
+
+First of all, in order to give error messages at all, the interpreter must
+maintain some extra information, mainly the names of procedures, in additional
+registers.  The main ones are:
+
+	fun		the name of the current procedure
+	ufun		the name of the current user-defined procedure
+	this_line	the line in ufun's body being evaluated
+
+FUN and UFUN will be unequal if we're evaluating a call to a primitive
+procedure.
+
+Logo gives error messages if a return value is expected and not provided
+(X DIDN'T OUTPUT TO Y) or vice versa (YOU DON'T SAY WHAT TO DO WITH Z).
+
+These error messages would be straightforward were it not for tail call
+elimination.  The obvious place to check is right after a call to
+EVAL-DISPATCH; the caller knows whether it wants a value or not, so it
+compares the value returned with UNBOUND, giving an error message when
+appropriate.  The call to EVAL-DISPATCH for evaluating an argument would
+require a return value other than UNBOUND, whereas the one in EVAL-SEQUENCE
+for expressions other than the last would require UNBOUND.
+
+
+3.2a Tailforms
+
+One complicating factor is tailforms.  Consider this Logo program:
+
+	to foo
+	output print 3
+	end
+
+	to baz
+	show foo
+	end
+
+When we call BAZ, we should get the error message
+
+	print didn't output to output  in foo
+
+But we don't call PRINT and then call OUTPUT; we just tail-call PRINT directly
+from FOO.  So if we're not careful we'll get an incorrect message such as
+
+	print didn't output to foo
+	print didn't output to show
+	foo didn't output to show
+
+On the other hand, consider this program:
+
+	to foo
+	print 3
+	end
+
+	to baz
+	show foo
+	end
+
+This time, when we call BAZ, the message should be
+
+	foo didn't output to show  in baz
+
+and not anything starting "print didn't output..."
+
+To avoid these incorrect error messages, it's not enough to remember "the
+current procedure".  We maintain additional information specifically for the
+DIDN'T OUTPUT message:
+
+	didnt_get_output	the context (fun, ufun, line) wanting output
+	didnt_output_name 	the procedure that should be blamed if no o/p
+
+These should be thought of as arguments to EVAL-DISPATCH.  There are three
+special values of didnt_get_output:
+
+	UNBOUND		we don't want an output
+	NIL		either output or no output is okay (from .MAYBEOUTPUT)
+	(NIL . NIL)	this is a macro, and must output, but not for anyone
+			in particular
+
+
+3.2b Tailforms handled as embedded calls
+
+Sometimes it's not good enough to handle STOP and OUTPUT as tail calls.
+Consider the Logo instruction
+
+	repeat 5 [... if :x<0 [output 3] ...]
+
+This is legal inside a procedure body; the OUTPUT outputs from the enclosing
+user-defined procedure.  But the evaluation of the expression that is the
+second input to REPEAT isn't a tail evaluation, since after it's done the
+repeat count must be updated and tested.  So when :X is negative we can't just
+tail-eval the 3; that would return 3 as the value of the entire repeated
+expression sequence.  This OUTPUT is a nonlocal exit, comparable to a THROW.
+So in this case we actually do call a primitive procedure named OUTPUT.
+(Never mind for now what OUTPUT does in this case; we'll get back to nonlocal
+exit later.)
+
+
+3.2c Caller-status arguments to eval-sequence and eval-dispatch
+
+To make all this work, we need an extra argument to EVAL-SEQUENCE and an
+extra argument to EVAL-DISPATCH; these must be saved and restored with the
+other evaluator registers.  The extra argument to EVAL-DISPATCH is
+didnt_get_output, mentioned earlier.  The extra argument to EVAL-SEQUENCE is
+named val_status and is an integer containing some combination of the
+following flag bits:
+
+#define VALUE_OK	 1	/* [instr instr instr exp] */
+#define NO_VALUE_OK	 2	/* [instr instr instr instr] */
+#define OUTPUT_OK	 4	/* [instr instr OUTPUT exp ...] */
+#define STOP_OK		 8	/* [instr instr STOP ...] */
+#define OUTPUT_TAIL	16	/* not [repeat n [... output ...]] */
+#define STOP_TAIL	32	/* not [repeat n [... stop ...]] */
+
+Here are all the ways in which EVAL-SEQUENCE is called, with the corresponding
+values of val_status:
+
+entry to evaluator (from Logo prompt)	NO_VALUE_OK
+
+body of procedure when output wanted	OUTPUT_OK | OUTPUT_TAIL
+
+body of procedure when no o/p wanted	NO_VALUE_OK | STOP_OK | STOP_TAIL
+
+body of procedure for .MAYBEOUTPUT	NO_VALUE_OK | STOP_OK | STOP_TAIL |
+					    OUTPUT_OK | OUTPUT_TAIL
+
+RUNRESULT [sequence]			VALUE_OK | NO_VALUE_OK |
+					    OUTPUT_OK[**] | STOP_OK[**]
+
+REPEAT n [sequence]			NO_VALUE_OK | 
+					    OUTPUT_OK[*] | STOP_OK[*]
+
+APPLY [sequence] args, output wanted	VALUE_OK
+
+APPLY [sequence] args, no o/p wanted 	NO_VALUE_OK |
+					    OUTPUT_OK[*] | STOP_OK[*]
+
+[*] means that these flags are on only if they were on for the enclosing
+expression sequence.
+
+[**] means that OUTPUT and STOP are actually not okay inside a RUNRESULT,
+but the RUNRESULT handler lets STOP or OUTPUT be called and then detects
+and reports the error afterwards.
+
+You may wonder why RUNRESULT and REPEAT are special cases here, but not RUN,
+IF, and IFELSE.  We'll discuss that shortly.
+
+
+3.2d Detecting errors before they happen
+
+Sometimes it's not good enough to detect an error after evaluation.
+These situations are obscure.  For example:
+
+	to blorp :x
+	repeat 5 [pr :x  if :x<0 [op 3]  make "x :x-1]
+	end
+
+	? blorp 2
+	2
+	1
+	0
+	-1
+	You don't say what to do with 3
+
+The OP in BLORP would be legal if the top-level instruction had been
+PRINT BLORP 2.  When we see the OP, we know that no output is wanted,
+but we have to evaluate the input expression (3) anyway, just in case
+it prints something or has some other side effect.  Because the OP is
+nested inside a REPEAT, it turns out, we can't just let the error be
+detected downstream; we have to flag the error without letting the REPEAT
+handler continue.  So we non-tail-evaluate the 3, then after the evaluation
+returns, we flag the error.  (Look at label op_want_stop in eval.c to see
+how this works.)  This code is used for all cases of OUTPUT when STOP was
+wanted, but it's only really necessary in the REPEAT case.
+
+
+3.3 Macros
+
+In the SICP evaluators, IF is a special form.  This means that the evaluation
+of the consequent or alternative of an IF expression happens through a string
+of tail calls within the evaluator:
+
+	eval -> eval-if -> eval (of consequent or alternative)
+
+Thus, if the entire IF expression is in tail position, the consequent or
+alternative is also tail-evaluated.  (Of course the predicate argument to IF
+can't be tail-evaluated, because the job of IF isn't finished when that
+argument has been evaluated; the result must still be tested for true or
+false, and either the consequent or the alternative must be evaluated.)
+
+SICP handles COND differently; instead of directly tail-evaluating the actions
+of the successful COND clause, the entire expression is rewritten as an IF
+expression, which is then evaluated:
+
+	(define (eval exp env)		; SICP page 365
+	  (cond ...
+		((cond? exp) (EVAL (COND->IF EXP) ENV))
+		...))
+
+COND->IF is a rewriting procedure that returns a new expression, which is used
+as argument to another (tail-recursive) call to EVAL.
+
+They could have handled IF as a sort of rewriting, also, except that the
+rewriting procedure would need access to the environment:
+
+	(define (if->exp exp env)	; compare with EVAL-IF, SICP p. 367
+	  (if (true? (eval (if-predicate exp) env))
+	      (if-consequent exp)
+	      (if-alternative exp)))
+
+The general name for such a rewriting procedure is a macro.
+
+
+3.3a Why the MCE uses special forms
+
+Special forms in the MCE have two purposes.  First, they delay (IF) or
+prevent (QUOTE) evaluation of subexpressions; second, they have access to the
+caller's environment (DEFINE, SET!).  Neither of these issues comes up in
+quite the same way in a Logo interpreter.
+
+Delayed evaluation in Logo is done by quoting (including " and [] notations);
+this is why we say
+
+	ifelse :x < 0 [print "negative] [print "positive]
+
+with brackets around the PRINT instructions, but not around the :X < 0
+expression.  [In Scheme, parentheses would be used for all three
+subexpressions:
+
+	(if (< x 0) (display 'negative) (display 'positive))
+
+and it's the status of IF as a special form that prevents the early evaluation
+of the last two subexpressions.]
+
+Access to the caller's environment isn't a problem for Logo primitives because
+of dynamic scope; the evaluator's ENV variable, which is a global variable in
+the C program, contains the correct environment when any primitive is used.
+So Logo's equivalent to DEFINE and SET!, namely MAKE, is an ordinary
+primitive.
+
+As a result, Logo has only two special forms: TO, because of its strange
+notation, and .MAYBEOUTPUT, because its "input" expression need not return a
+value.  (This is the above-the-line view.)  In principle there's nothing
+special about RUN, IF, IFELSE, REPEAT, or RUNRESULT.
+
+This simple view of the world doesn't quite hold below the line, though,
+because of tail call elimination.  We want
+
+	to foo
+	if ... [output tail-call-this]
+	...
+	end
+
+to be a tail call, so we can't recursively call the evaluator from inside the
+IF primitive.
+
+
+3.3b Using rewriting instead of special forms
+
+Instead we make IF a macro -- that is, a rewriting procedure.  If the
+condition is satisfied, it outputs its second input; if not, it outputs the
+empty list.  (IFELSE outputs either its second or its third input; RUN just
+outputs its input.)  The evaluator recognizes (in APPLY-DISPATCH) that a macro
+is being invoked; instead of just returning what the procedure returns, it
+splices the return value into the sequence of unevaluated expressions.
+What "splices" means, more precisely, is
+
+	unev=(append val unev)
+
+[If you're reading carefully you'll notice that I'm having APPLY do something
+to a sequence of expressions, whereas such a sequence exists only in
+EVAL-SEQUENCE.  Actually APPLY pushes on the control stack a return address
+of macro_return (so that every call to a macro is a non-tail call, by the
+way); when we get there, the C instruction
+
+	stopping_flag = MACRO_RETURN;
+
+is executed.  Back in EVAL-SEQUENCE, this flag is noted, and that's where the
+splicing is done.  A further complication is that if the macro was in fact
+called from tail position, we won't return to EVAL-SEQUENCE, which tail-called
+EVAL-DISPATCH, so instead macro_return has to go to begin_seq (which goes to
+eval_sequence) itself.  If the macro is called when an argument was expected,
+it must return exactly one expression; the MACRO_RETURN flag is caught at
+accumulate_arg, and the returned expression is sent to eval_dispatch.]
+
+Why not just treat RUN, IF, and IFELSE as special forms internally (that is,
+handle them as special cases within EVAL-DISPATCH) even though we tell users
+they're ordinary procedures?  Two reasons:
+
+	1.  The UCBLogo approach allows these to be separate C procedures,
+	    outside of eval.c, instead of making the core evaluator know
+	    about them.
+
+	2.  Once we have the macro capability, we can fairly easily make it
+	    available to users, through the .MACRO primitive.
+
+(Note: As of R5RS, Scheme has a standard rewriting capability available to
+users, more complicated than ours, but with the same purposes.)
+
+
+3.3c Logo continuations
+
+This is the entire story for RUN, IF, and IFELSE.  As we've seen before,
+REPEAT and RUNRESULT are more complicated, because they both have more work to
+do after their expression-sequence arguments are evaluated.  REPEAT must count
+down its repetition count and test for zero.  RUNRESULT modifies the result of
+the evaluation, returning [] instead of UNBOUND and [FOO] instead of FOO.
+
+REPEAT and RUNRESULT are still considered macros, but they don't return
+rewritten expressions.  Instead they return a special internal data type,
+called a "continuation."  (The name is inspired by Scheme's continuations, and
+it's a reasonably appropriate name because it does embody "what to do next,"
+but it's not an exact analog of Scheme continuations.)  A continuation is a
+pair whose car is a (representation of a) label within the evaluator, and
+whose cdr is whatever data the code at that label expects (this generally
+means the inputs to the macro).  The code at macro_return recognizes that the
+return value was a continuation; it sets VAL to the cdr of the continuation
+and jumps to the label specified in the car.
+
+Since most of the implementation of these Logo primitives is buried inside the
+core evaluator, they are similar to the special forms of the SICP evaluator.
+The difference is that they are recognized through the same table lookup used
+for ordinary procedures, rather than by special tests within EVAL-DISPATCH.
+
+GOTO and CATCH are also macros with continuations.  GOTO doesn't take an
+expression sequence as an input; the sense in which it's a rewriting procedure
+is that it "rewrites" its input into the expression sequence consisting of the
+part of the current user procedure's body starting at the corresponding TAG
+and continuing until the end.  In this case the resulting expression sequence
+replaces the previous value of UNEV instead of being spliced into it.
+
+We'll discuss CATCH shortly, under the heading of nonlocal exit, but we're not
+quite ready for that.
+
+
+3.4 Dynamic scope
+
+It's rather a shame, I think, that the second edition of SICP no longer even
+mentions dynamic scope, so I have to explain what it means before discussing
+how it's implemented.  See also _Computer Science Logo Style_ vol 1 page 49
+on dynamic scope, and CSLS vol 3 page 183 on lexical scope.
+
+Within a procedure body, how do we handle references to variables that are not
+local to that procedure itself?
+
+In C, any variable reference within a procedure must be either to a variable
+local to that procedure or to a global variable; one procedure can never refer
+to another procedure's local variables.
+
+In Scheme, one procedure can be defined inside the body of another; the inner
+procedure can refer to local variables belonging to the outer one.  This is
+called *lexical scope*.  [C is lexically scoped, too, but trivially so, since
+there is no nesting of procedure definitions.]
+
+In Logo, when one procedure *invokes* another, the invoked procedure can refer
+to local variables belonging to the caller.  This is called *dynamic* scope.
+
+The following would print DYNAMIC in a dynamically-scoped Scheme, but prints
+LEXICAL in (the actual) lexically-scoped Scheme:
+
+	(define (a x)
+	  (define (b x) (c))
+	  (define (c) x)
+	  (b 'dynamic))
+
+	(a 'lexical)
+
+Focus on the reference to X in the body of procedure C.  Since C was invoked
+by B, its *dynamic environment* is
+
+	C -> B -> A -> global
+
+whereas its *lexical environment* is
+
+	C -> A -> global
+
+because C was defined inside A, not inside B.
+
+
+3.4a Reasons for lexical scope
+
+Why does almost everyone prefer lexical scope?  (I prefer it, too, under
+many circumstances, by the way.)  Three reasons:
+
+	1.  A complier can produce faster compiled code for a lexically scoped
+	    language, because the compiler knows which variable is meant by a
+	    variable reference without actually running the program.  The
+	    rules refer only to the physical position of the procedure's
+	    definition within the program, not to who calls whom.  In a
+	    dynamically scoped language, variable references can't be resolved
+	    until the program is actually running; the same reference might
+	    mean two different variables on two calls to the same procedure.
+
+	2.  Lexical scope avoids "name capture" bugs, in which the programmer
+	    accidentally uses the same name for two different purposes, so
+	    that a procedure thinks it's getting one variable X when it really
+	    ends up getting a different variable X because the name was reused
+	    in a procedure that (directly or indirectly) invokes it.  This is
+	    the reason most often cited.  For the most part I think people who
+	    name variables X deserve what they get, but name capture does come
+	    up as a problem when writing higher-order functions in Logo, if
+	    the names of inputs to the higher-order function are common words
+	    that might appear in a template.  See CSLS vol 2 page 204.
+
+	3.  In Scheme, in which lexical scope is combined with first-class
+	    procedures (i.e., LAMBDA), that combination allows for persistent
+	    local state variables, and therefore for object-oriented
+	    programming, without any OOP-specific language syntax.  See
+	    SICP 3.1 and 3.2 for details.
+
+
+3.4b Reasons for dynamic scope
+
+Why, then, does Logo use dynamic scope?  Four reasons:
+
+	1.  It allows for a simple notation for higher-order functions, using
+	    first-class expressions rather than first-class procedures.  We
+	    can say
+
+		to add.suffix :suffix :words
+		output map [word ? :suffix] :words
+		end
+
+	    The expression template [WORD ? :SUFFIX] is evaluated inside MAP,
+	    not inside ADD.SUFFIX, and yet it has access to the latter's local
+	    variable SUFFIX.  In Scheme we'd have to use LAMBDA, a more
+	    intimidating notation.
+
+	2.  Some of us think that dynamic scope is just easier for kids and/or
+	    novice programmers to think about.  If a variable exists, it's
+	    available for use, unless shadowed by a more recently created
+	    variable of the same name.  You don't have to think about scope
+	    at all, really.
+
+	3.  Debugging support is more natural.  You can tell Logo to PAUSE
+	    whenever there's an error.  You then have a Logo prompt, to which
+	    you type ordinary Logo instructions, but all the relevant
+	    variables are available for inspection.  This is important because
+	    the actual error in your program might not be in the procedure
+	    that died, but rather in the caller of the caller of the caller of
+	    that procedure.  With dynamic scope, the variables of the
+	    erroneous procedure are visible.  You don't have to learn special
+	    debugging commands that mean "switch to a different environment."
+
+	4.  It allows for a programming style using "semi-global" variables
+	    that are local to a top-level procedure.  For example, a program
+	    to draw a complicated picture might have a SIZE input, which is
+	    then used by its subprocedures, sub-subprocedures, etc.
+
+
+3.4c Shallow binding
+
+There's an efficiency problem with dynamic scope and recursive procedures.
+Consider the following modification of a common example:
+
+	make "one 1
+
+	to fact :n
+	if :n = 0 [output :one]
+	output :n * fact :n-1
+	end
+
+Suppose we ask for FACT 5.  This gives rise to an (embedded) recursive call
+for FACT 4, which calls FACT 3, which calls FACT 2, which calls FACT 1, which
+calls FACT 0, which says OUTPUT :ONE.
+
+We have to look up the variable name ONE.
+
+Is it local to the FACT 0 environment?  No.  So we look in the dynamically
+enclosing environment, for the FACT 1 call.  Is it there?  No, so we look in
+the FACT 2 environment, the FACT 3 environment, the FACT 4 environment, the
+FACT 5 environment, and finally the global environment, which is where we find
+it.  This is quite time-consuming, and would be even more so if we wanted the
+factorial of 100.
+
+Here's the solution.  Instead of putting new local bindings in a newly created
+environment frame, and linking that to an enclosing environment, as in SICP
+3.2 and 4.1.3, we instead keep the currently active bindings in a single
+global table.  (Since this table is used for every variable reference, we work
+hard at making it efficient, namely by using a hash table rather than the
+linear lists of SICP environments.)  We still create new frames for procedure
+calls, but what we put in the new frames are *saved* bindings, the ones we
+replaced in the global table for our new local variables.  These frames are
+used only when the called procedure returns; we restore the previous state of
+the global table from the saved values.  This is called *shallow binding*.
+
+The implication of this technique is that every variable reference, local or
+global, takes constant time.  The cost is that returning from a procedure call
+takes time proportional to the number of local variables in the procedure.
+
+Since all symbols are looked up in the global symbol table, there is no ENV
+register in the Logo evaluator.  Instead there are two registers pointing to
+a stack of saved values.  var_stack points to the head of the stack, where
+new entries are added; var points to the beginning of the current frame, so
+that bindings between var and var_stack are the ones that should be restored
+when an embedded call to eval_dispatch returns.
+
+
+3.5 Nonlocal exit
+
+Despite the proper handling of tail calls, a typical program still gives rise
+to several nested calls to EVAL-DISPATCH.  Ordinarily these are "unwound" one
+by one, as (Logo) procedures return values.  But sometimes we want to unwind
+several such recursive evaluations at once.  The prototypical case is a call
+to THROW that appears several recursive evaluations below the corresponding
+CATCH.
+
+Were it not for shallow binding, we could in fact leapfrog over several nested
+evaluations at once, just throwing out their local information, sort of like
+setjmp/longjmp in C.  But instead we must restore all of the saved variable
+bindings, in the correct order, so we have to let each of the nested EVAL
+calls return to its caller.
+
+But we don't want those intermediate levels to keep computing; the whole point
+of THROW is to avoid completing some partial evaluations of expression
+sequences.  We need some way to tell EVAL-SEQUENCE to return right away,
+without evaluating more expressions.
+
+This is done using another evaluator register, called stopping_flag, which
+should be viewed as part of the return value from EVAL.  It has the following
+possible values:
+
+	RUN		program is running
+	STOP		non-tail STOP was seen
+	OUTPUT		non-tail OUTPUT was seen
+	THROWING	THROW was seen
+	MACRO_RETURN	a macro is returning a rewritten expression (see 3.3b)
+
+Logo.h defines shortcuts to test some of these states:
+
+#define NOT_THROWING            (stopping_flag != THROWING)
+#define RUNNING                 (stopping_flag == RUN)
+#define STOPPING                (stopping_flag == STOP)
+
+It's NOT_THROWING because that turns out to be the most commonly used test.
+
+The very first thing EVAL-SEQUENCE does is
+
+	if (!RUNNING) goto fetch_cont;
+
+so that if we've seen a THROW (or a non-tail STOP or OUTPUT, as explained
+in 3.2c) we just return without further evaluation of this sequence.
+
+The continuation for CATCH calls EVAL-SEQUENCE for its second argument, then
+if stopping_flag is THROWING and throw_node, a global variable, is equal to
+its first argument, it sets stopping_flag back to RUN.  (THROW can take an
+optional second input, which is a value for the corresponding CATCH to return.
+This works by setting output_node, another global variable, to the thrown
+value.  Non-tail OUTPUT also sets output_node.)
+
+The variables throw_node and output_node don't have to be saved and restored
+around embedded EVAL calls, because only one THROW or OUTPUT can be active at
+a time.
+
+If CATCH catches THROW, who catches non-tail STOP or OUTPUT?  EVAL-SEQUENCE
+does, after restoring registers and before looping for the next expression.
+And so does REPEAT, so that it won't try repeating its input any more.
+
+
+3.6 Lack of parentheses delimiting procedure calls
+
+The SICP evaluators see an expression sequence as a list in which each element
+is one complete expression, because every non-atomic Scheme expression is
+enclosed in parentheses.  So, for example, how many arguments are in this
+procedure call?  One less than the number of elements in the list.  Easy.
+
+Logo has a harder time, because expressions need not be parenthesized, and
+also because of infix arithmetic notation.  The Logo evaluator sees a
+procedure name, realizes that this is the beginning of a procedure call, and
+must then look up the procedure in order to know how many input subexpressions
+to evaluate.  Furthermore, some procedures take a variable number of inputs,
+so the grouping may depend on the use of optional parentheses.
+
+This grouping of tokens into subexpressions is slow, and it's wasteful to do
+it repeatedly for expression sequences in the body of a procedure.  So UCBLogo
+does it once, the first time the procedure is called, and saves the result.
+In effect each Logo procedure is translated into a Scheme procedure, as if it
+had been typed in with every subexpression parenthesized and no use of infix.
+
+
+3.6a Tokenization
+
+But I've skipped a step.  Even the division of the characters on a line into
+tokens is problematic.  Here's the classic problem:  Should the hyphen
+character automatically be a token by itself?  We'd like
+
+	print 5-2
+
+to work, and so we'd like the 5-2 to be understood as three tokens: 5, -, 2.
+On the other hand, we'd like
+
+	print first [555-1212 642-8311 868-9827]
+
+to print 555-1212, not 555.
+
+There are three ways to resolve this dilemma:
+
+	"Old LCSI" style: the second example prints 555.  This is what Apple
+	Logo, IBM Logo, and other early LCSI products do.
+
+	"New LCSI" style: the first example gives the error
+
+		I don't know how to 5-2
+
+	This is what Logowriter and later LCSI products do.
+
+	"Terrapin" style: both examples work as desired.
+
+I apologize to non-Americans for naming these after the main USA Logo vendors,
+but that's the history I know best.
+
+UCBLogo uses Terrapin-style tokenization, which I think is clearly the best
+choice.  To make it work, there are two sets of tokenization rules, which I
+call PARSE and RUNPARSE.  These are in fact the names of UCBLogo primitives:
+
+	? show parse "5-2
+	[5-2]
+	? show runparse "5-2
+	[5 - 2]
+
+When a line is read (from keyboard or file), it is parsed.  When and if that
+is evaluated, it's runparsed -- but even then, text within square brackets is
+not runparsed.  (Such text will be runparsed if it is ever used as input to
+RUN and friends.)
+
+The precise rules are given in more detail in the "Tokenization" section of
+the UCBLogo User Manual.
+
+
+3.6b Monadic and dyadic minus
+
+The minus sign (-) is particularly thorny for tokenization because it has
+three different meanings:
+
+(1)  If it begins a token, and the following character is a digit, then it is
+part of a negative number token.
+
+(2)  If it follows an open parenthesis or bracket, or if it follows a space
+and is not followed by a space, then it is the monadic (one-operand) negation
+operator.
+
+(3)  Otherwise, it is the dyadic subtraction operator.
+
+The part about spaces in (2) above comes from the problem that function
+argument expressions are separated by spaces, not commas as in most
+programming languages.  This, along with infix arithmetic, gives rise to
+an ambiguity.  Does
+
+	foo a - b
+
+represent a call to a one-argument function with A minus B as the argument,
+or a call to a two-argument function with A as the first argument and
+negative B as the second?  The UCBLogo rule is this:
+
+	foo a-b		; dyadic subtract
+	foo a - b	; dyadic subtract
+	foo a -b	; monadic negate
+
+Once runparsing is done, the spacing information is lost.  So when a monadic
+negate is seen during runparsing, it is replaced by the two tokens "0" and
+"--":
+
+	? show runparse [a -b]
+	[a 0 -- b]
+
+The double minus sign is an infix operator that represents subtraction but
+has the highest infix binding strength, so that
+
+	a * 0 -- b
+
+means a*(0-b), not (a*0)-b.  It's an undocumented feature that users can
+type |--| to get this tightly-binding subtraction operator; if they type "--"
+without vertical bars, they get two separate "-" tokens.
+
+
+3.6c More on runparsing
+
+Once a list has been runparsed, we don't want to have to do it again, so we
+want to replace the old list value with the new one.  But we can't quite do
+that, because the non-runparsed version might still be needed:
+
+	to foo :x
+	repeat 4 :x
+	show :x
+	end
+
+	? foo [print 5-2]
+	3
+	3
+	3
+	3
+	[print 5-2]
+
+We wouldn't want the last line to look like
+
+	[print 5 - 2]
+
+but we also don't want to runparse the list four times.
+
+The solution is somewhat of a kludge.  In UCBLogo every "pair" (as created by
+CONS) actually contains three components, not two: the car, the cdr, and the
+"object."  At first the list [print 5-2] looks like this:
+
+	Type:	PAIR
+	car:	print
+	cdr:	[5-2]	; of course this is itself a PAIR with car 5-2
+	object:	NIL
+
+After runparsing, it looks like this:
+
+	Type:	RUNPARSE
+	car:	print
+	cdr:	[5-2]
+	object:	[print 5 - 2]
+
+The car and cdr of this runparsed list (the parts seen by ordinary procedures
+such as SHOW) are unchanged, but the object is another list, the runparsed
+version.  If we ask to runparse this list again, the runparse() procedure will
+notice that its argument is of type RUNPARSE and just return it unchanged.
+
+A defect of this approach is that the if for some reason we want to runparse
+the cdr of the list, we have to do it from scratch, but that rarely happens.
+
+(Another defect, since all Logo nodes are the same size, is that even ordinary
+pairs have to have room for an object field, even though most of these fields
+are unused.  This is a big, although constant factor, waste of memory.)
+
+
+3.6d Treeification
+
+Now we're ready to return to the problem posed at the beginning of 3.6:  The
+form in which we *really* want this instruction list is
+
+	[print [- 5 2]]
+
+That is, we want it fully parenthesized, with prefix operators.  (I'm using
+the word "parenthesized" because that's traditional, but of course what we
+really want has neither parentheses nor square brackets, but rather list
+structure with sublists.)
+
+Note, by the way, that the Logo instruction
+
+	print [- 5 2]
+
+doesn't subtract 2 from 5!  This instruction, in treeified form, looks like
+
+	[print "[- 5 2]]
+
+except that the quotation mark isn't really there, either; it's a node of type
+QUOTED.  The important point is that unlike runparsing, treeification gives
+rise to something that is *not* in Logo surface syntax, so we don't show it to
+users; there is no TREEIFY primitive.
+
+Treeification is implemented similarly to runparsing; the result is this node:
+
+	type:	TREE
+	car:	print
+	cdr:	[5-2]
+	object:	[print [- 5 2]]
+
+
+3.6e Procedure bodies
+
+Since a line can contain more than one instruction, and since an instruction
+can be continued onto more than one line, why bother having the concept of
+lines at all?  Why not, like Scheme, treat newlines the same as spaces?
+
+That's what Microworlds does, so it's clearly possible.
+
+The only reason to maintain the concept of lines as important is for the sake
+of the user interface.  When an error occurs inside a procedure body, the
+UCBLogo error message includes the line on which the error happened.  Also,
+the STEP command causes a procedure to be run one line at a time.
+
+So we might represent a procedure body as a list of lines, each of which is a
+list of (treeified, eventually) expressions.  But then we couldn't use a
+procedure body as argument to EVAL-SEQUENCE, which expects a list of
+expressions, not a list of lists of expressions.
+
+So a procedure body is a list of expressions, but some of the pairs making up
+the spine of the list are of type LINE, namely, the first such pair of each
+line of the body.  In these pairs, the object field points to the text of the
+line (parsed, but not runparsed or treeified).  When EVAL-SEQUENCE notices a
+LINE-type pair, it sets the evaluator register this_line to the pair's object.
+
+
+3.6f Changing a procedure's arity
+
+The *arity* of a procedure is the number of inputs it takes.  In UCBLogo, the
+procedure's arity is actually three numbers: the minimum, default, and maximum
+number of inputs.
+
+In this section we focus on the default number.
+
+Consider the following example:
+
+	to a
+	print (sentence b 1 2 3 4 5)
+	end
+
+	to b :x :y
+	output :x + :y
+	end
+
+When we call A, it should print
+
+	3 3 4 5
+
+The first time we call A, its one body line is treeified, with this result:
+
+	[print [sentence [b 1 2] 3 4 5]]
+
+Now suppose we redefine B:
+
+	to b :x :y :z
+	output :x + :y
+	end
+
+We have change B's arity, and so the treeification of A is now incorrect!
+It should be re-treeified to
+
+	[print [sentence [b 1 2 3] 4 5]]
+
+But if we check the arity of every procedure every time we call A, we've
+lost the efficiency advantage we gained by treeification.
+
+The perfect solution would be to maintain a data structure for each procedure
+indicating which procedures depend on its arity.  Then, if the procedure is
+redefined in a way that changes the arity, we could re-treeify exactly those
+procedures that depend on it.  But this would be a lot of trouble; UCBLogo,
+like several other Logo implementations, does something simpler.
+
+The principle is that it's pretty rare to redefine a procedure in a way that
+changes its arity, and so it's okay if doing that slows things down a lot.
+What's important is to keep the common case -- no redefinition -- fast.
+
+The global variable the_generation contains a pair.  Its contents are
+unimportant; it's created with cons(NIL, NIL).  What's important is that it's
+distinct from any other pair.  Whenever an existing procedure is redefined in 
+a way that changes its arity, a new pair replaces the_generation.
+
+Every LINE node in a procedure body contains a pointer to the pair that was in
+the_generation at the time this line was treeified.  Whenever this line is
+run, its generation pair is compared with the_generation.  If they're not
+equal, it means that some procedure has changed arity since the line was
+treeified, and so the line is re-treeified.
+
+This means that every line of every procedure must be reparsed after an arity
+change!  This produces a noticeable slowdown.  But it doesn't happen often.
+
+(Defining a new procedure doesn't require changing the_generation, because a
+procedure can't be called until all its subprocedures are defined.  Remember
+that the body is treeified when the procedure is first called, not when it's
+defined.  Logo won't save the treeification of a procedure if it has undefined
+subprocedures.)
+
+
+4. Data structures and types
+----------------------------
+
+The basic unit of storage in Logo is the node.  Every user-visible data type
+(word, number, list, array) and many internal types (runparse, tree,
+primitive, line, etc.) are stored in nodes.  A node contains the following
+fields:
+
+	type flags			node_type
+	info for garbage collector	my_gen, gen_age, mark_gc, next,
+					oldyoung_next
+	other fields by type
+
+The type field is a collection of bits, not just an enum, so that tests can
+easily be made for categories.  For example, many types are special-purpose
+pairs, so they all have the NT_LIST bit set.  Numbers, strings, quoted
+strings, etc., all have the NT_WORD bit set.  The bit NT_AGGR stands for
+"aggregate," which includes lists and arrays.  The types are defined in
+logo.h.
+
+
+4.1 Pair-based types
+
+The ordinary pair is of type CONS.  The other pair types are RUN_PARSE,
+TREE, LINE, and CONT (continuation), all of which were discussed in part 3.
+
+The empty list is represented by a zero pointer, but nodetype(0) returns
+the type PNIL.
+
+The constructor for pairs is cons(x,y).  The selectors are car, cdr, caar,
+cadr, cdar, and cddr.  (Combined forms more than two deep are not provided
+in logo.h.)  Ordinary pairs don't use the object field; special pairs are
+generally first made with cons and then mutated with setobject(pair,val).
+
+
+4.2 Numeric types
+
+Numbers are a kind of word (because you can examine their digits with FIRST
+etc.), so the numeric type codes include the NT_WORD bit.
+
+The numeric types are INT (32-bit integer) and FLOATT (sic, because FLOAT is
+defined in some C header file or other; 64-bit floating point).
+
+Someday I'll get around to bignums (arbitrary-precision integers).
+
+The constructors are make_intnode and make_floatnode; the selectors (to get
+back the underlying numeric data) are getint and getfloat.
+
+Note that a string containing all digits counts as a number above the line!
+Such strings of digits result in operations such as
+
+	butfirst x123
+
+There is a procedure cnv_node_to_numnode that takes a node as its argument
+and, if possible, returns an equivalent INT or FLOATT node.  (The argument
+may already be a numeric type, in which case it is returned unchanged.)  If
+the argument can't be construed as a number, the procedure flags a BAD_DATA
+error, so after calling it, you should check if (NOT_THROWING) {...} for
+whatever computation uses the number.
+
+
+4.3 String types
+
+There are three string types: STRING, BACKSLASH_STRING, and VBAR_STRING.
+
+
+4.3a Internal structure of a string
+
+The string format is based on the goal of making FIRST, LAST, BUTFIRST,
+and BUTLAST quick for words.  The characters themselves are not in the string
+node, because nodes have a fixed size and strings can be of any length.
+Instead, the characters are in a block allocated with malloc() in the
+following format:
+
+struct string_block {
+    unsigned FIXNUM str_refcnt;
+    char str_str[1];	    /* This array will be of variable length really */
+};
+
+The string_block needs a reference count because different word nodes may
+point to substrings of it.  When a word node is garbage collected, the
+reference count of its string_block is decremented; when the count reaches
+zero, the block is freed.
+
+The word node itself has three fields:
+
+#define getstrptr(node)         ((node)->n_str)
+#define getstrlen(node)         ((node)->n_len)
+#define getstrhead(node)        ((node)->n_head)
+
+(These lines are from logo.h, which has getters and setters for all the node
+types.)  The strptr is a pointer to the first character of the word (not
+necessarily the first character of the string_block).  The strlen is the
+number of characters in the word.  The strhead is a pointer to the
+string_block, as returned by malloc().
+
+There is a single empty word node, pointed to by the variable Null_Word.
+Logo takes pains not to create any other empty word nodes, so that all empty
+words will be EQ? and not merely EQUAL?, to simplify comparisons.
+
+
+4.3b How to create a string node
+
+Words are usually created with
+
+NODE *make_strnode(char *strptr, struct string_block *strhead, int len,
+		   NODETYPES typ, char *(*copy_routine)())
+
+This constructor is used in two different ways.  If you already have a
+string_block containing the characters you need, and just want to select
+a substring of it, you say
+
+	make_strnode(strptr, strhead, len, STRING, <anything>)
+
+because the last argument isn't used.  If you have the characters in a
+temporary buffer and have to allocate a string_block for them, you say
+
+	make_strnode(charptr, NULL, len, STRING, copy_routine)
+
+The copy routine is usually strnzcpy:
+
+char *strnzcpy(char *s1, char *s2, int n) {
+    strncpy(s1, s2, n);
+    s1[n] = '\0';
+    return(s1);
+}
+
+This is in logodata.c, along with various special-purpose ones with names
+like mend_strnzcpy that modify the copied characters in some way.  For
+example, one version strips out comments and line continuation characters
+because in UCBLogo you can say
+
+	? make "foo "abc;comment
+	~ def
+	? print :foo
+	abcdef
+
+
+4.3c Including punctuation characters in words
+
+Sometimes users want to include in a word what would ordinarily be
+word-delimiting punctuation characters.  There are two ways to do this:
+
+	abc\ def		backslash before special character
+	|abc def|		string of characters in vertical bars
+
+Unfortunately both the visible semantics and the underlying implementation
+of these has changed over time, so many names of procedures are now wrong.
+Originally there was only the backslash form, and it meant what vertical
+bars now mean.
+
+First, the above-the-line semantics:  Backslashed characters are treated as
+non-punctuation when first seen, but if the word containing a backslashed
+character is runparsed, the character has its usual special meaning.  By
+contrast, characters within vertical bars are never interpreted specially,
+even when runparsed.
+
+Originally, backslashed characters were special forever, and were specially
+marked to indicate this.  The UCBLogo primitive BACKSLASHEDP checks for this
+special marking.  Alas, backslashed characters are no longer specially marked;
+the backslash just gets them into the same word as their neighbors when the
+line is first parsed.  This special marking now applies only to punctuation
+characters that were entered within vertical bars, so the name should be
+BARREDP or something like that.
+
+Now, the ugly below-the-line history.  Originally, a punctuation character
+that was intended to be forever special was marked by having its parity bit
+set (0200, 0x80).  This works in the USA because all the ASCII characters
+have codes less than 128.  Therefore, UCBLogo uses functions
+
+	setparity(char) -> same char with parity bit on
+	clearparity(char) -> same char with parity bit off
+	getparity(char) -> nonzero if char has parity bit set
+
+to manipulate these marked characters.  Then European Logo users complained
+that Logo wasn't properly handling letters with accents, which, it turns out,
+are represented using ASCII codes greater than 128.
+
+The new approach uses otherwise-unused ASCII control characters, with codes
+less than 32 (040, 0x20, ASCII space).  Some of the control characters are
+"format effectors": tab, backspace, formfeed, newline, return.  But the others
+are pretty useless, and so UCBLogo uses them to represent "backslashed"
+(really vertical barred) punctuation characters.  There are only barely enough
+of these unused codes for the Logo punctuation characters, though:
+
+	space, tab, newline, ()[]+-*/=<>"\:;|{}~
+
+(Don't be confused; tab is itself a control code, but backslashed-tab is a
+different control code!)
+
+The special node types BACKSLASH_STRING and VBAR_STRING are used if there are
+special characters within the word.  In fact most of the interpreter doesn't
+worry about these types; the only important use is that compare_nodes() strips
+the "parity" from the characters in the strings before comparing them if
+either word is of either of these types.
+
+
+4.4 Symbols
+
+Scheme distinguishes between a string (an array of characters) and a symbol
+(an indivisible atom that happens to have a printable name).  Strings are for
+text manipulation; symbols are to name variables and the like.
+
+Logo, above the line, uses a single Word type that subsumes both of these
+purposes.  Nevertheless, it's useful to maintain a distinction internally.
+When you want to find a procedure or variable in the symbol table, you don't
+want to spend time comparing strings letter by letter to find it.
+
+The internal equivalent of a Scheme symbol is called an "object" -- an
+unfortunate choice since we plan to add object-oriented programming to Logo.
+But for now, let's understand that the word "object" refers to this internal
+Logo data structure.
+
+An object is a list with the following elements:
+
+	[canonical procedure value plist flags caseobj1 caseobj2 ...]
+
+The "canonical" element is a caseobj, which will be explained later.
+
+The procedure, value, and plist elements are the ones named by this symbol
+(the procedure FOO, the variable FOO, and the property list FOO, for example).
+These elements are UNDEFINED, UNBOUND, and NIL, respectively, if the symbol
+does not name a procedure, a variable, or a property list.
+
+The flags element is an INT node containing the following flags:
+
+#define PROC_BURIED	01
+#define VAL_BURIED	02
+#define PLIST_BURIED	04
+#define PROC_TRACED	010
+#define VAL_TRACED	020
+#define PLIST_TRACED	040
+#define PROC_STEPPED	0100
+#define VAL_STEPPED	0200
+#define PLIST_STEPPED	0400
+#define PROC_MACRO	01000
+#define PERMANENT	02000
+
+The meaning of BURIED, TRACED, and STEPPED is explained in the user
+documentation of the Logo primitives BURY, TRACE, and STEP.  (It is
+meaningless to step a property list, but the flag exists anyway because
+various primitives know that these flags come in groups of three.)
+PROC_MACRO means that the symbol's procedure is a macro; PERMANENT means that
+this symbol should not be deleted during garbage collection, even if it has no
+procedure, variable, or property list.  (This feature is used, for example,
+for the special variables that users can set to control Logo's behavior, such
+as ERRACT and CASEIGNOREDP.  Pointers to these symbols are kept in global
+variables so that Logo doesn't have to look them up in the symbol table each
+time they're used, so it's important that the symbol not be deleted and
+recreated.)
+
+The remaining elements are nodes of type CASEOBJ, for "case object."
+In Logo, names of procedures, variables, and property lists are case
+insensitive, so FOO and Foo and foo all name the same procedure.  When a
+program is runparsed, all the words that might name procedures, etc., are
+turned from strings into symbols, so that when the program is run, the named
+procedures, etc., can be found quickly, by dereferencing pointers in the
+program, without string manipulation.  But we want to remember the exact
+way the user typed the name, in case we print it.
+
+This may be clearer with an example.  Consider these instructions:
+
+	make "Foo 3
+	print "Foo
+
+In the first instruction, we really don't care that the user said Foo rather
+than FOO or some other capitalization, but in the second instruction, we want
+to print the word exactly as typed.  But the parser doesn't know anything
+about the semantics of MAKE or PRINT, let alone some user-defined procedure
+that might do both.  So we want to turn these strings into symbols, but we
+also want to remember the original strings.
+
+A case object is a pair whose car is a string and whose cdr is an object.
+Given a case object, we can dereference its car to print it, or dereference
+its cdr to find the procedure, variable, or property list that it names.
+
+Each object includes all of its case objects as elements, so that when we
+delete the object we can delete the CASEOBJs also.  (This is therefore a
+circular structure, since the object points to the caseobj and the caseobj
+points to the object.)  Each object also includes a "canonical caseobj,"
+which is the one with all lower case letters; a canonical caseobj is created
+for every object even if the user never types the name that way.  The
+canonical caseobj is used for case-independent comparisons.
+
+When an object is created, it is also entered into Logo's global environment,
+which is a hash table.  The hash function is based on the canonical string.
+This process -- creating the object, creating the caseobj as spelled by the
+user, creating the canonical caseobj, and entering the object into the hash
+table -- is called *interning* the symbol.  The procedure intern(word) takes a
+word of any type (number, string, caseobj, etc.) and returns the caseobj with
+the spelling used in the argument.  If the word has already been interned,
+intern() finds the existing object in the hash table.  If not, one is created.
+If the word has been interned, but not with this spelling (that is, not with
+this upper-lower-case pattern), a new caseobj is created that points to the
+existing object.
+
+Note that a caseobj is a pair, but it has NT_WORD on and NT_LIST off in its
+type identifier, because Logo primitives should treat it as a word, not as a
+list.
+
+
+4.5 Quote and colon types
+
+When a line containing the notations "FOO or :FOO is parsed, these strings
+are converted to nodes of type QUOTE and type COLON, respectively.  These
+nodes are pairs in which only the car is meaningful; it points to a caseobj
+of the word without the leading quote or colon.  Like the CASEOBJ type, the
+QUOTE and COLON types are words above the line but pairs internally.
+
+
+4.6 Arrays
+
+Like strings, arrays are represented as nodes that point to an external block
+of memory.  Here are the selectors for array nodes:
+
+#define getarrdim(node)		((node)->n_dim)
+#define getarrorg(node)		((node)->n_org)
+#define getarrptr(node)		((node)->n_array)
+
+The array dimension is the number of elements in it.  The array origin is the
+index used for the first element of the array (1 by default, often 0, but can
+be anything).  The array pointer points to the actual data, which is a block
+of pointers to nodes.
+
+There is no need for a reference count in array blocks, because there are no
+primitives that extract a subarray; if you want one, you must allocate a new
+array and copy the desired elements manually.
+
+
+4.7 Primitive procedures
+
+There are several node type codes for primitive procedures: PRIM, MACRO,
+TAILFORM, and INFIX.  Macros are described in section 3.3; tailforms are in
+section 3.1; the infix operators are the usual + - * / =.  All other
+primitives are of type PRIM.
+
+The fields of a primitive are
+
+#define getprimfun(node)        ((node)->n_pfun)
+#define getprimmin(node)        ((node)->n_pmin)
+#define getprimmax(node)        ((node)->n_pmax)
+#define getprimdflt(node)       ((node)->n_pdef)
+#define getprimpri(node)        ((node)->n_ppri)
+
+Fun is a pointer to the C procedure that implements the primitive; min is the
+minimum number of inputs; max is the maximum number; dflt is the default
+number; pri is the priority of this primitive, used in treeification of
+expressions that involve infix operators.  Multiplication and division are
+highest priority (tightest binding); then addition and subtraction; then
+comparisons; and lowest of all are prefix operators.
+
+The four numbers are stored as short (16-bit) integers, so that all five
+fields fit in no more space than the three pointers of a cons node.
+
+All primitive procedures are of C type
+
+	NODE *foo(NODE *args)
+
+They are given a list of actual argument values and must return a (pointer to
+a) node, or UNBOUND if the Logo primitive should not return a value.
+
+
+5. Garbage collector
+--------------------
+
+This section is not a primer on garbage collection.  A good general survey
+on this subject is
+
+   Paul R. Wilson. Uniprocessor garbage collection techniques. In Proc of
+   International Workshop on Memory Management in the Springer-Verlag Lecture
+   Notes in Computer Science series., St. Malo, France, September 1992.
+   http://www.cs.utexas.edu/users/oops/papers.html#gcsurvey
+
+Even before reading Wilson, read SICP 5.3 if you're a gc novice.
+
+UCBLogo uses a generational, mark-sweep garbage collector.  When the
+interpreter needs to allocate a node, it calls newnode(), which looks for an
+available node.  If no nodes are free, newnode() calls do_gc(), which disables
+pause and stop interrupts and calls gc().  But the main purpose of do_gc is
+that it allocates a lot of local variables, so that any register variables in
+its caller will be forced onto the C stack.
+
+Do_gc() and gc() take a Boolean argument, which is FALSE for a generational
+garbage collection and TRUE for a full garbage collection.  Automatically
+triggered gc is generational; a full GC can be requested by the user (see the
+user documentation of the Logo GC command) and is implied by the use of the
+NODES operation, so that the in-use count shown to the user will be correct.
+
+
+5.1 Node allocation
+
+All Logo data types are stored in fixed-size blocks of type (struct node),
+which is given the typedef name NODE.  Logo allocates many of these nodes at a
+time; the number allocated at once can be set by the user (with the
+.SETSEGSIZE command), but is initially 2000 for DOS, 4000 for 68000 Mac,
+and 16,000 for other platforms.  The global variable segment_list points to a
+linked list of segments; a "segment" is a contiguous block of nodes.  The
+global variable free_list points to a linked list of unused nodes.  There is
+only one free list, not one per segment.
+
+Segments are never deallocated, even if every node in the segment is free.
+A new segment is allocated only if a gc fails to free up enough nodes, so that
+Logo's total memory use doesn't grow unnecessarily.
+
+
+5.2 The mark phase
+
+Marking a node can lead to several other nodes that should be marked.  To keep
+track of these pending tasks, Logo uses a fixed-size stack, of size 4000 for
+DOS, 8000 for 68000 Mac, or 16,000 for other platforms.  Long lists should not
+cause overruns of this stack; it's the depth of lists that matters.  If the
+stack overflows, garbage collection stops, and the user is advised to save
+data and quit.  (Logo maintains a small "reserve tank" of nodes so that this
+saving will be possible.)
+
+All node-valued global variables in the interpreter are marked first.  This
+includes evaluator registers, some of which are not in individual C variables
+but in a (struct registers) block.  The global variable Regs_Node is a node
+that points to this register block; the node itself is unused except by the
+garbage collector.
+
+Among the C globals are stack, which is the evaluator's data stack (a list of
+nodes, not a contiguous block), and var_stack, which is the stack of local
+procedure-call frames (containing shadowed bindings as explained in 3.4c
+above).
+
+Then the entries in Logo's global symbol table (the hash table) are marked.
+
+Finally, the C stack is examined.  Since we don't know which entries in the
+stack are pointers to nodes, every value on the stack is examined to see if it
+could possibly be a pointer to a node.  This is done by procedure
+valid_pointer(), which first compares the address with the position and size
+of each segment.  If the value is within a segment, the procedure then sees
+whether it would address the beginning of a node within that segment.  If so,
+the garbage collector assumes that the value is indeed a node pointer, and
+marks the node.  This procedure is one of the places where optimizing C
+compilers tend to produce code that doesn't work.
+
+Some machines (DOS and 68000 Mac) have 32-bit addresses but require only
+16-bit alignment.  The garbage collector therefore, on those platforms, looks
+at overlapping 32-bit values.  Also, stacks grow upward in some systems and
+downward in others; Logo tries to figure this out.  (Almost the first thing
+main() does is to set the global variable bottom_stack to the address of its
+local variable exec_list; gc() compares this with the address of its own stack
+frame to determine the direction of growth.)  This is a good place to look for
+problems when porting Berkeley Logo to a new processor or operating system.
+
+All of the above categories of marking are done only for nodes in the current
+generation.  The garbage collector then looks for nodes in older generations
+that have been modified to point to newer nodes.  To make this check possible,
+the list mutators (the C procedures setcar, setcdr, and setobject) check for
+old-to-young pointing as they do the mutation, and keep lists of these
+old-to-young-pointing nodes.
+
+
+5.3 GCTWA
+
+If a single-generation gc doesn't yield enough free space, older generations
+are examined.  When a full gc is required, Logo also performs a GCTWA (Garbage
+Collect Truly Worthless Atoms).  Here's what that means:
+
+Ordinarily, every word read in a Logo instruction is entered into the symbol
+table, just in case it will become the name of a procedure, variable, or
+property list.  Since the symbol table itself is marked, and since the symbol
+table points to all these symbols, the symbols are never found to be free in
+the mark phase.  A GCTWA goes through the symbol table looking for entries
+that are not, in fact, the names of a procedure, variable, or property list.
+(A subtlety is that a symbol's value might be UNBOUND even though it is in
+fact a global variable, because the global binding might have been shadowed by
+a LOCAL command, creating a local variable that doesn't yet have a value.  But
+this isn't a problem because in that case var_stack points to the symbol table
+entry, so it will be marked.)  Some symbols have a PERMANENT flag associated
+with them, so that the entries won't be removed in GCTWA even if the names are
+unused; these are mainly for Logo special variables such as CaseIgnoredP.
+
+The first step in a gctwa is that all caseobj nodes are flagged; in the mark
+phase, mark() will not actually mark a flagged caseobj until it is called
+twice for the same caseobj.  (The first call to mark() for a flagged caseobj
+just clears the flag; the second call does the normal mark operation.)  This
+is because every caseobj is pointed to (directly or indirectly) by the hash
+table, and we want to know whether this caseobj is pointed to by something
+else, usually by appearing in the body of a procedure.
+
+After this special mark phase, the symbol table is examined for unused
+symbols.  A symbol is used if it names a variable, procedure, or property
+list, or if one of its caseobj nodes has been marked.  Unused symbols are
+removed from the symbol table.  Finally, the mark phase is repeated so that
+non-caseobj nodes that are part of stale symbols won't be marked.
+
+
+5.4 The sweep phase
+
+In addition to finding and freeing unused nodes, the sweep phase also promotes
+nodes that have survived a certain number of garbage collections to the next
+older generation.  This promotion requires checking whether the node points to
+other nodes that are now younger than it is.
+
+If the sweep phase doesn't free enough nodes, it tries another generation.
+When all generations have been collected, if there still are not enough free
+nodes, Logo asks the operating system for another segment.  If that fails, the
+user is notified.
+
+"Enough" is one of several tuning values defined in mem.c.  Besides the size
+of a segment, there are three more:
+
+/* Number of times to collect at the current GC state before going to
+   the next state. Basically the number of times a given generation is
+   collected before its members are moved to an older generation */
+#define gc_age_threshold 4
+
+/* A new segment of nodes is added if fewer than freed_threshold nodes are
+   freed in one GC run */
+#define freed_threshold ((long int)(seg_size * 0.4))
+
+/* The number of generations */
+#define NUM_GENS 4
+
+
+5.5 Per-node gc data
+
+Each node contains five words of information to support gc:
+
+    int my_gen; /* Nodes's Generation */ /*GC*/
+    int gen_age; /* How many times to GC at this generation */
+    long int mark_gc;	/* when marked */
+    struct logo_node *next; /* Link together nodes of the same age */ /*GC*/
+    struct logo_node *oldyoung_next;
+
+my_gen is a number in the range [0, NUM_GENS-1].  It is zero for newly
+allocated nodes, and increases as the node survives multiple GCs.
+
+gen_age is in the range [1, gc_age_threshold].  It is initially
+gc_age_threshold, and is decreased by 1 at each gc.  When it hits zero, the
+node is promoted to a higher (older) generation, and gen_age is reset to
+gc_age_threshold.
+
+mark_gc is initially zero.  To mark a node, it is set equal to current_gc, a
+counter that's incremented at each garbage collection.  (If Logo runs long
+enough for four billion garbage collections, this won't work.  :-)
+
+next is a pointer to another node in the same generation as this node; the
+generations are maintained as linked lists.
+
+oldyoung_next is NIL except for old nodes that point to younger nodes.  Such
+nodes are linked together using this field.
+
+That's five words of gc information in a node that has four words of non-gc
+information!  There has to be a better way, a project for the list of undone
+projects.
