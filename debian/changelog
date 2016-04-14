@@ -1,4 +1,4 @@
-ucblogo (6.0+dfsg-1) UNRELEASED; urgency=low
+ucblogo (6.0+dfsg-1) unstable; urgency=low
 
   * QA upload.
   * New upstream release (Closes: #557432, LP: #580666).
@@ -23,7 +23,7 @@ ucblogo (6.0+dfsg-1) UNRELEASED; urgency=low
     - Rebuild documentation.
     - Register at doc-base.
 
- -- Reiner Herrmann <reiner@reiner-h.de>  Sun, 10 Apr 2016 21:52:25 +0200
+ -- Reiner Herrmann <reiner@reiner-h.de>  Thu, 14 Apr 2016 19:14:51 +0200
 
 ucblogo (5.5-3) unstable; urgency=medium
 
