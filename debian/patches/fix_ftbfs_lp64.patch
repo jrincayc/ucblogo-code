@@ -1,10 +1,23 @@
-From: Jan Rękorajski <baggins@pld-linux.org>
-Subject: fixes build on LP64 platforms, like x86_64)
-Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff;h=173b5aa26229130a42c885a89f0375504820b970
+From: =?utf-8?q?Jan_R=C4=99korajski?= <baggins@pld-linux.org>
+Date: Sun, 19 May 2013 08:45:54 +0000
+Subject: print pointers long
 
+printf pointers as longs
+
+add lp64 (fixes build on LP64 platforms, like x86_64)
+
+Import patch to fix building on 64 bit architectures.
+
+Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff;h=173b5aa26229130a42c885a89f0375504820b970
+---
+ wxTerminal.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/wxTerminal.cpp b/wxTerminal.cpp
+index 898badc..ba89536 100644
 --- a/wxTerminal.cpp
 +++ b/wxTerminal.cpp
-@@ -2202,7 +2202,7 @@
+@@ -2202,7 +2202,7 @@ void wxTerminal::DebugOutputBuffer() {
    lpos.offset = 0;
    wxterm_charpos pos_1 = line_of(lpos);
    
@@ -13,7 +26,7 @@ Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff
      fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
    while(char_of(pos_1) != '\0') {
      if(char_of(pos_1) == '\n') {
-@@ -2218,7 +2218,7 @@
+@@ -2218,7 +2218,7 @@ void wxTerminal::DebugOutputBuffer() {
      fprintf(stderr, "\n#############\n");
      fprintf(stderr, "WXTERMINAL LINE BUFFER\n##############\n");
    for(int i = 0; i <= y_max; i++) {

@@ -1,0 +1,50 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Fri, 16 Feb 2018 15:19:42 +0000
+Subject: configure option runstatedir
+
+Add ./configure --runstatedir= option, which is ignored.
+This avoids a configuration-time error.
+---
+ configure | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/configure b/configure
+index a6cb318..461b1b8 100755
+--- a/configure
++++ b/configure
+@@ -49,6 +49,7 @@ includedir='${prefix}/include'
+ oldincludedir='/usr/include'
+ infodir='${prefix}/info'
+ mandir='${prefix}/man'
++runstatedir='${prefix}/man'
+ 
+ # Initialize some other variables.
+ subdirs=
+@@ -163,6 +164,7 @@ Directory and file names:
+   --oldincludedir=DIR     C header files for non-gcc in DIR [/usr/include]
+   --infodir=DIR           info documentation in DIR [PREFIX/info]
+   --mandir=DIR            man documentation in DIR [PREFIX/man]
++  --runstatedir=DIR       run state in DIR [PREFIX/run]
+   --srcdir=DIR            find the sources in DIR [configure dir or ..]
+   --program-prefix=PREFIX prepend PREFIX to installed program names
+   --program-suffix=SUFFIX append SUFFIX to installed program names
+@@ -230,6 +232,11 @@ EOF
+   -mandir=* | --mandir=* | --mandi=* | --mand=* | --man=* | --ma=* | --m=*)
+     mandir="$ac_optarg" ;;
+ 
++  -runstatedir | --runstatedir | --runstatedi | --runstated | --runstate | --ru | --r)
++    ac_prev=runstatedir ;;
++  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* | --runstate=* | --ru=* | --r=*)
++    runstatedir="$ac_optarg" ;;
++
+   -nfp | --nfp | --nf)
+     # Obsolete; use --without-fp.
+     with_fp=no ;;
+@@ -2047,6 +2054,7 @@ s%@includedir@%$includedir%g
+ s%@oldincludedir@%$oldincludedir%g
+ s%@infodir@%$infodir%g
+ s%@mandir@%$mandir%g
++s%@runstatedir@%$runstatedir%g
+ s%@CC@%$CC%g
+ s%@CPP@%$CPP%g
+ s%@X_CFLAGS@%$X_CFLAGS%g

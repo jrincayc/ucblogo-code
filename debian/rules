@@ -1,15 +1,14 @@
 #!/usr/bin/make -f
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-export DH_ALWAYS_EXCLUDE=CVS:.svn
 
 %:
 	# don't autoreconf, as configure is newer than configure.in
 	# -> configure.in doesn't contain wxwidgets related checks
-	dh $@ --parallel --without autoreconf
+	dh $@ --without autoreconf
 
 override_dh_auto_configure:
-	dh_auto_configure -- --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib --wx-enable --wx-config_path=/usr/bin/wx-config
+	dh_auto_configure -- --wx-enable --wx-config_path=wx-config
 
 override_dh_auto_build:
 	dh_auto_build -- LIBLOC=/usr/share/ucblogo

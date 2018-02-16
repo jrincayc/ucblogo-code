@@ -1,12 +1,22 @@
-Author: Reiner Herrmann <reiner@reiner-h.de>
-Description: Some documentation fixes
- - add @dircategory / @direntry (found by Lintian)
- - fix wrong section level
- - use makeinfo instead of obsolete texi2html
+From: Reiner Herrmann <reiner@reiner-h.de>
+Date: Mon, 11 Apr 2016 20:07:03 +0200
+Subject: documentation
 
+Some documentation fixes
+
+- add @dircategory / @direntry (found by Lintian)
+- fix wrong section level
+- use makeinfo instead of obsolete texi2html
+---
+ docs/makefile        |  4 +---
+ docs/usermanual.texi | 11 ++++++++---
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/docs/makefile b/docs/makefile
+index f02e4aa..cb2dd37 100644
 --- a/docs/makefile
 +++ b/docs/makefile
-@@ -23,9 +23,7 @@
+@@ -23,9 +23,7 @@ usermanual.pdf: usermanual.ps usermanual.dvi
  
  html/usermanual_1.html: usermanual.texi
  	for d in html; do [ -d $$d ] || mkdir -p $$d || exit 1; done
@@ -17,6 +27,8 @@ Description: Some documentation fixes
  
  ship:
  	-rm -f *.{aux,cp,cps,dvi,fn,ky,log,pg,toc,tp,vr}
+diff --git a/docs/usermanual.texi b/docs/usermanual.texi
+index 1ca3600..9bf40c4 100644
 --- a/docs/usermanual.texi
 +++ b/docs/usermanual.texi
 @@ -5,6 +5,11 @@
@@ -31,7 +43,7 @@ Description: Some documentation fixes
  @iftex
  @vsize = 8.9 in
  @parskip = 7 pt
-@@ -2875,7 +2880,7 @@
+@@ -2875,7 +2880,7 @@ must be integers.
  
  
  @node  AND, OR, LOGICAL OPERATIONS, LOGICAL OPERATIONS
@@ -40,7 +52,7 @@ Description: Some documentation fixes
  @cindex and
  
  @example
-@@ -6766,7 +6771,7 @@
+@@ -6766,7 +6771,7 @@ either that template's value is @code{TRUE} or the inbasket is used up.
  @end menu
  
  @node dMACRO, dDEFMACRO, MACROS, MACROS
@@ -49,7 +61,7 @@ Description: Some documentation fixes
  @cindex .macro
  @cindex .defmacro
  
-@@ -7128,7 +7133,7 @@
+@@ -7128,7 +7133,7 @@ except for @code{ALLOWGETSET}, @code{CASEIGNOREDP}, and
  
  @node ALLOWGETSET, BUTTONACT, SPECIAL VARIABLES, SPECIAL VARIABLES
  @comment  node-name,  next,  previous,  up

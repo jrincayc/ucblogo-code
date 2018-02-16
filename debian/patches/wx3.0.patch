@@ -1,10 +1,19 @@
-From: Jan Rękorajski <baggins@pld-linux.org>
-Subject: fix build with wxWidgets 3.0
-Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff;h=4ffabd4aa70fe812d395dbabbdbb9cefcd3a4c9f
+From: =?utf-8?q?Jan_R=C4=99korajski?= <baggins@pld-linux.org>
+Date: Sun, 10 Apr 2016 19:42:52 +0200
+Subject: wxWidgets 3.0
 
+fix build with wxWidgets 3.0
+
+Build with wxWidgets support.
+---
+ wxTerminal.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/wxTerminal.cpp b/wxTerminal.cpp
+index 291fadf..898badc 100644
 --- a/wxTerminal.cpp
 +++ b/wxTerminal.cpp
-@@ -506,7 +506,7 @@
+@@ -506,7 +506,7 @@ void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
  #else
  			      wxStandardPaths::Get().GetDocumentsDir() :
  #endif
@@ -13,7 +22,7 @@ Origin: https://git.pld-linux.org/gitweb.cgi?p=packages/ucblogo.git;a=commitdiff
  			    wxEmptyString,
  			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
  //			    "*",
-@@ -542,7 +542,7 @@
+@@ -542,7 +542,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
  #else
  	    wxStandardPaths::Get().GetDocumentsDir() :
  #endif

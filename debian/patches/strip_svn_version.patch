@@ -1,9 +1,22 @@
-Author: Reiner Herrmann <reiner@reiner-h.de>
-Description: Don't include unavailable svn info in version
+From: Reiner Herrmann <reiner@reiner-h.de>
+Date: Sun, 10 Apr 2016 21:01:57 +0200
+Subject: no svn
 
+Don't include unavailable svn info in version.
+
+Strip unavailable svn information.
+
+(Consider adding git commit id.)
+---
+ main.c      | 4 ----
+ makefile.in | 2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/main.c b/main.c
+index ad14663..c4956ec 100644
 --- a/main.c
 +++ b/main.c
-@@ -270,14 +270,10 @@
+@@ -270,14 +270,10 @@ int main(int argc, char *argv[]) {
        if (1 || isatty(1))   // fix this.  for interactive from menu bar.
  #endif
        {
@@ -18,9 +31,11 @@ Description: Don't include unavailable svn info in version
  #else
  	strcpy(version,"5.6");
  #endif
+diff --git a/makefile.in b/makefile.in
+index a2e12d3..baaec6b 100644
 --- a/makefile.in
 +++ b/makefile.in
-@@ -13,7 +13,7 @@
+@@ -13,7 +13,7 @@ LINKER = @LINKER@
  
  OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
  	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \

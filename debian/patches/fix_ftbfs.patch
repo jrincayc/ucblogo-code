@@ -1,10 +1,20 @@
-Author: Adam Borowski <kilobyte@angband.pl>
-Description: Fix FTBFS with glibc 2.22
-Bug-Debian: https://bugs.debian.org/811956
+From: Adam Borowski <kilobyte@angband.pl>
+Date: Sun, 10 Apr 2016 17:59:02 +0200
+Subject: glibc 2.22
 
+Fix FTBFS with glibc 2.22
+
+Bug-Debian: https://bugs.debian.org/811956
+---
+ coms.c     | 2 +-
+ graphics.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/coms.c b/coms.c
+index 3477af9..759b56e 100644
 --- a/coms.c
 +++ b/coms.c
-@@ -25,9 +25,9 @@
+@@ -25,9 +25,9 @@ extern int check_wx_stop(int force_yield);
  #endif
  
  #define WANT_EVAL_REGS 1
@@ -15,6 +25,8 @@ Bug-Debian: https://bugs.debian.org/811956
  #ifdef HAVE_UNISTD_H
  #include <unistd.h>
  #endif
+diff --git a/graphics.c b/graphics.c
+index 4632db2..2f81169 100644
 --- a/graphics.c
 +++ b/graphics.c
 @@ -24,9 +24,9 @@
