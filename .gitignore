@@ -1,0 +1,20 @@
+*.o
+/config.cache
+/config.log
+/config.status
+/docs/usermanual.aux
+/docs/usermanual.cp
+/docs/usermanual.cps
+/docs/usermanual.dvi
+/docs/usermanual.html
+/docs/usermanual.log
+/docs/usermanual.toc
+/libloc.c
+/ucblogo
+
+## These really should be deleted and ignored:
+# /config.h
+# /docs/ucblogo.info
+# /docs/usermanual.pdf
+# /docs/usermanual.ps
+# /makefile
