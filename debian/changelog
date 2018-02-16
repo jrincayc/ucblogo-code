@@ -1,3 +1,14 @@
+ucblogo (6.0+dfsg-2) unstable; urgency=medium
+
+  * Adopt package (closes: #790725), many thanks to Hamish Moffatt!
+  * Update packaging:
+    - dh11, and slightly simplify debian/rules
+    - bump policy, no changes required
+    - update patch descriptions
+  * Patch to ignore ./configure --runstatedir
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 16 Feb 2018 15:26:54 +0000
+
 ucblogo (6.0+dfsg-1) unstable; urgency=low
 
   * QA upload.
