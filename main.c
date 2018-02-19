@@ -82,10 +82,10 @@ extern int in_eval_save;
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE logo_stop(int sig)
+void logo_stop(int sig)
 #else
 #define sig_arg 
-RETSIGTYPE logo_stop()
+void logo_stop()
 #endif
 {
     if (inside_gc || in_eval_save) {
@@ -102,15 +102,14 @@ RETSIGTYPE logo_stop()
 	  signal(SIGINT, logo_stop);
 	unblock_input();
     }
-    SIGRET
 }
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE logo_pause(int sig)
+void logo_pause(int sig)
 #else
 #define sig_arg 
-RETSIGTYPE logo_pause()
+void logo_pause()
 #endif
 {
     if (inside_gc || in_eval_save) {
@@ -118,7 +117,7 @@ RETSIGTYPE logo_pause()
     } else {
 	charmode_off();
 	to_pending = 0;
-#ifdef bsd
+#ifdef HAVE_SIGSETMASK
 	sigsetmask(0);
 #else
 #if !defined(mac) && !defined(_MSC_VER)
@@ -127,15 +126,14 @@ RETSIGTYPE logo_pause()
 #endif
 	lpause(NIL);
     }
-    SIGRET
 }
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE mouse_down(int sig)
+void mouse_down(int sig)
 #else
 #define sig_arg 
-RETSIGTYPE mouse_down()
+void mouse_down()
 #endif
 {
     NODE *line;
@@ -153,7 +151,6 @@ RETSIGTYPE mouse_down()
 	    }
 	}
     }
-    SIGRET
 }
 
 int keyact_set() {
@@ -167,14 +164,13 @@ void do_keyact(int);
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE delayed_keyact(int sig)
+void delayed_keyact(int sig)
 #else
 #define sig_arg 
-RETSIGTYPE delayed_keyact()
+void delayed_keyact()
 #endif
 {
     do_keyact(readchar_lookahead_buf);
-    SIGRET
 }
 
 void do_keyact(int ch) {
@@ -197,7 +193,7 @@ void do_keyact(int ch) {
 }
 
 
-RETSIGTYPE (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
+void (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
 			     delayed_keyact};
 
 void delayed_int() {

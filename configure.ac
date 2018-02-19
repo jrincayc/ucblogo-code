@@ -76,12 +76,10 @@ AC_CHECK_HEADERS([sgtty.h termio.h unistd.h string.h termcap.h termlib.h curses.
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
-AC_TYPE_SIGNAL
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy])
 AC_PROG_GCC_TRADITIONAL
-dnl AC_TYPE_SIGNAL
 
 AC_SUBST(WXOFILES)
 AC_SUBST(WXSRCFILES)

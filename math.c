@@ -121,14 +121,13 @@ BOOLEAN handling_oflo = FALSE;
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE handle_oflo(int sig) {
+void handle_oflo(int sig) {
 #else
 #define sig_arg 
-RETSIGTYPE handle_oflo() {
+void handle_oflo() {
 #endif
     signal(SIGFPE, handle_oflo);
     if (handling_oflo) longjmp(oflo_buf,1);
-    SIGRET
 }
 
 void math_init() {

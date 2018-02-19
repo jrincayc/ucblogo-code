@@ -115,11 +115,11 @@ char *fooargv[2] = {"UCBLogo", 0};
 
 // This is for stopping logo asynchronously
 #ifdef SIG_TAKES_ARG
-extern "C" RETSIGTYPE logo_stop(int);
-extern "C" RETSIGTYPE logo_pause(int);
+extern "C" void logo_stop(int);
+extern "C" void logo_pause(int);
 #else
-extern "C" RETSIGTYPE logo_stop();
-extern "C" RETSIGTYPE logo_pause();
+extern "C" void logo_stop();
+extern "C" void logo_pause();
 #endif
 int logo_stop_flag = 0;
 int logo_pause_flag = 0;
