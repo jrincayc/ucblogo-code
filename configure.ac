@@ -63,7 +63,7 @@ dnl Checks for libraries.
 AC_SEARCH_LIBS(sqrt,[m])
 AC_SEARCH_LIBS(atan,[m])
 dnl AC_SEARCH_LIBS(atan2,[m])
-dnl AC_SEARCH_LIBS(hypot,[m])
+AC_SEARCH_LIBS(hypot,[m])
 AC_SEARCH_LIBS(signal, [BSD bsd])
 
 AC_SEARCH_LIBS(tgetstr, [termcap termlib curses ncurses])

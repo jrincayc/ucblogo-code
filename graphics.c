@@ -791,8 +791,7 @@ void setpos_commonpart(FLONUM target_x, FLONUM target_y) {
 					    wanna_x, wanna_y);
 	    tx = wanna_x/x_scale;
 	    ty = wanna_y/y_scale;
-#define sq(z) ((z)*(z))
-	    forward_helper(sqrt(sq(target_x - tx) + sq(target_y - ty)));
+	    forward_helper(hypot(target_x - tx, target_y - ty));
 	    turtle_heading = save_heading;
 	    wanna_x = scaled_x;
 	    wanna_y = scaled_y;
