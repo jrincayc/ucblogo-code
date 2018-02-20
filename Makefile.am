@@ -6,7 +6,6 @@ cslsdir=$(pkgdatadir)/csls
 tempdir=/tmp
 
 ucblogo_CPPFLAGS = $(AM_CPPFLAGS)	\
- -DUSE_OLD_TTY				\
  -DLIBLOC='"$(logolibdir)"'		\
  -DHELPLOC='"$(helpfilesdir)"'		\
  -DCSLSLOC='"$(cslsdir)"'		\
