@@ -80,8 +80,6 @@ int interactive, tty_charmode;
 int getTermInfo(int type);
 int setTermInfo(int type, int val);
 
-extern char **environ, *tgoto(), *tgetstr();
-
 char *termcap_ptr;
 
 char* LogoPlatformName="wxWidgets";
