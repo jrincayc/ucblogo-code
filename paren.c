@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"

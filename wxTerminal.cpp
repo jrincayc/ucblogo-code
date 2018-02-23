@@ -8,6 +8,10 @@ CONTAINED IN #IF 0 BLOCKS:
 
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 
 #ifdef __GNUG__

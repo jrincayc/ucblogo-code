@@ -22,6 +22,11 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+/* #define OBJECTS */
 
 /* #define MEM_DEBUG */
 

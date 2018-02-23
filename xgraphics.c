@@ -7,6 +7,10 @@
    this file.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifndef X_DISPLAY_MISSING
 
 #include <stdio.h>

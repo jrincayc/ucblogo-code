@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef HAVE_WX
 #define fgets wx_fgets
 extern int check_wx_stop(int force_yield);
