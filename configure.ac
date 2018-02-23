@@ -12,67 +12,64 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
+dnl Process Options
+
 AC_ARG_ENABLE([objects],
 [AS_HELP_STRING([--enable-objects],
   [enable object oriented logo features (default is no)])],
   [AC_DEFINE(OBJECTS)])
 
+AM_OPTIONS_WXCONFIG
 
-WXCONFIG=wx-config
-AC_ARG_WITH(wx-config,
-[[  --with-wx-config=FILE   Use the given path to wx-config when determining
-                            wxWidgets configuration; defaults to "wx-config"]],
-[
-    if test "$withval" != "yes" -a "$withval" != ""; then
-        WXCONFIG=$withval
-    fi
-])
+AC_MSG_CHECKING([enable_wx])
+AC_ARG_ENABLE([wx],
+  [AS_HELP_STRING([--enable-wx],[use wxWidgets (default=no)])],,
+  [enable_wx=no])
+AC_MSG_RESULT([$enable_wx])
+AM_CONDITIONAL([WX], [test x${enable_wx} = xyes])
+AM_COND_IF([WX],
+ [AC_DEFINE([HAVE_WX],[1],[Use wx library for GUI])
+  AM_PATH_WXCONFIG
+  CPPFLAGS="$WX_CPPFLAGS $CPPFLAGS"
+  CXXFLAGS="$WX_CXXFLAGS_ONLY $CXXFLAGS"
+  CFLAGS="$WX_CFLAGS_ONLY $CFLAGS"
+  LIBS="$WX_LIBS $LIBS"])
 
-TERMOFILE="term.o"
-TERMFILE="term.c"
-GRAPHICSOFILE=" xgraphics.o "
-GRAPHICSFILE=" xgraphics.c "
+AC_MSG_CHECKING([enable_x11])
+AC_ARG_ENABLE([x11],
+  [AS_HELP_STRING([--enable-x11],[use x11Widgets (default=no)])],,
+  [enable_x11=no])
+AC_MSG_RESULT([$enable_x11])
+AM_CONDITIONAL([X11], [test x${enable_x11} = xyes])
+AM_COND_IF([X11],
+ [AC_DEFINE([HAVE_X11],[1],[Use x11 library for GUI])],
+ [AC_DEFINE([X_DISPLAY_MISSING],[1],[ix-nay on the x11-isplayday])])
 
-# Debian-specific: Pre-define SIGRET as "return 0;"
-AC_DEFINE([SIGRET], [return 0;], [Pre-define SIGRET macro.])
-
-AC_MSG_CHECKING([wxWidgets version])
-if wxversion=`$WXCONFIG --version`; then
-    AC_MSG_RESULT([$wxversion])
-    AC_DEFINE([HAVE_WX], [], [Have wxWidgets library])
-    WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
-    WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
-    LIBS="$LIBS "`$WXCONFIG --libs`;
-    CC="`$WXCONFIG --cc`"
-    CXX="`$WXCONFIG --cxx`"
-    CXXFLAGS="$CXXFLAGS `$WXCONFIG --cxxflags`";
-#    CFLAGS="$CFLAGS -DHAVE_WX "
-    TERMOFILE="wxterm.o"
-    TERMFILE="wxterm.c"
-    GRAPHICSOFILE=""
-    GRAPHICSFILE=""
-    LINKER="`$WXCONFIG --ld`"
-else
-    AC_MSG_RESULT([not found])
-    LINKER='$(CC)'
-fi
-
+AC_MSG_CHECKING([enable_docs])
+AC_ARG_ENABLE([docs],
+       [AS_HELP_STRING([--enable-docs],[build and install TeXi-format documentation (default=yes)])],,
+       [enable_docs=yes])
+AC_MSG_RESULT([$enable_docs])
+AM_CONDITIONAL([DOCS], [test x${enable_docs} = xyes])
 
 dnl Checks for libraries.
-
 AC_SEARCH_LIBS(sqrt,[m])
 AC_SEARCH_LIBS(atan,[m])
-dnl AC_SEARCH_LIBS(atan2,[m])
+AC_SEARCH_LIBS(atan2,[m])
 AC_SEARCH_LIBS(hypot,[m])
 AC_SEARCH_LIBS(signal, [BSD bsd])
 
-AC_SEARCH_LIBS(tgetstr, [termcap termlib curses ncurses])
+AM_COND_IF([WX],,
+ [AC_SEARCH_LIBS(tgetstr, [termcap termlib curses ncurses])])
 
-AC_SEARCH_LIBS(XOpenDisplay, [X11])
+AM_COND_IF([X11],
+ [AC_SEARCH_LIBS(XOpenDisplay, [X11])])
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([sgtty.h termio.h unistd.h string.h termcap.h termlib.h curses.h])
+AC_CHECK_HEADERS([unistd.h string.h])
+AM_COND_IF([WX],,
+ [AC_CHECK_HEADERS([sgtty.h termio.h termcap.h termlib.h curses.h])])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
