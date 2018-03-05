@@ -52,6 +52,12 @@ AC_ARG_ENABLE([docs],
 AC_MSG_RESULT([$enable_docs])
 AM_CONDITIONAL([DOCS], [test x${enable_docs} = xyes])
 
+dnl Enable Compiler Warnings
+AX_CFLAGS_WARN_ALL
+AX_CHECK_COMPILE_FLAG([-Wno-write-strings],
+[CFLAGS="$CFLAGS -Wno-write-strings"
+CXXFLAGS="$CXXFLAGS -Wno-write-strings"])
+
 dnl Checks for libraries.
 AC_SEARCH_LIBS(sqrt,[m])
 AC_SEARCH_LIBS(atan,[m])
