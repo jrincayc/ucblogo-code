@@ -109,7 +109,7 @@ extern char *getenv();
 #define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
-#define check_throwing (check_X11_stop() || stopping_flag == THROWING)
+#define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
 #endif
