@@ -312,6 +312,61 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
   wxdprintf("OnSize ends\n");
 }
 
+extern FLONUM turtle_x, turtle_y, turtle_heading;
+extern "C" FLONUM x_scale, y_scale;
+extern "C" BOOLEAN user_turtle_shown;
+extern "C" FIXNUM g_round(FLONUM n);
+
+void TurtleCanvas::DrawTurtle(wxDC &dc) {
+  FLONUM real_heading;
+  int left_x, left_y, right_x, right_y, top_x, top_y;
+  double cos_real_heading, sin_real_heading;
+  FLONUM delta_x, delta_y;
+  if (!user_turtle_shown) {
+    return;
+  }
+  const FLONUM degrad = 0.017453292520;
+  const int screen_width = wxGetInfo(SCREEN_WIDTH);
+  const int screen_height = wxGetInfo(SCREEN_HEIGHT);
+  const int screen_top = 0;
+  const int screen_left = 0;
+  const FLONUM turtle_side = 19.0;
+  const FLONUM turtle_half_bottom = 6.0;
+  const int screen_x_center = (screen_left + (screen_width)/2);
+  const int screen_y_center = (screen_top + (screen_height)/2);
+
+  real_heading = -turtle_heading + 90.0;
+
+  cos_real_heading = cos((FLONUM)(real_heading*degrad));
+  sin_real_heading = sin((FLONUM)(real_heading*degrad));
+
+  delta_x = x_scale*(FLONUM)(sin_real_heading*turtle_half_bottom);
+  delta_y = y_scale*(FLONUM)(cos_real_heading*turtle_half_bottom);
+
+  left_x = g_round(turtle_x - delta_x);
+  left_y = g_round(turtle_y + delta_y);
+
+  right_x = g_round(turtle_x + delta_x);
+  right_y = g_round(turtle_y - delta_y);
+
+  top_x = g_round(turtle_x + x_scale*(FLONUM)(cos_real_heading*turtle_side));
+  top_y = g_round(turtle_y + y_scale*(FLONUM)(sin_real_heading*turtle_side));
+
+  /* move to right, draw to left, draw to top, draw to right */
+  //move_to(screen_x_center + right_x, screen_y_center - right_y);
+  //line_to(screen_x_center + left_x, screen_y_center - left_y);
+  dc.SetPen(wxPen(colors[turtleFrame->xgr_pen.color+SPECIAL_COLORS],
+		  turtleFrame->xgr_pen.pw, wxSOLID));
+  dc.DrawLine(screen_x_center + right_x, screen_y_center - right_y,
+	      screen_x_center + left_x, screen_y_center - left_y);
+  //line_to(screen_x_center + top_x, screen_y_center - top_y);
+  dc.DrawLine(screen_x_center + left_x, screen_y_center - left_y,
+	      screen_x_center + top_x, screen_y_center - top_y);
+  //line_to(screen_x_center + right_x, screen_y_center - right_y);
+  dc.DrawLine(screen_x_center + top_x, screen_y_center - top_y,
+	      screen_x_center + right_x, screen_y_center - right_y);
+
+}
 
 void TurtleCanvas::OnDraw(wxDC &dc) {
   int x, y;
@@ -322,6 +377,7 @@ void TurtleCanvas::OnDraw(wxDC &dc) {
   
 #if USE_MEMDC
   dc.Blit(0,0,x,y,m_memDC,0,0);
+  DrawTurtle(dc);
   return;
 #endif
 	
