@@ -2875,7 +2875,7 @@ must be integers.
 
 
 @node  AND, OR, LOGICAL OPERATIONS, LOGICAL OPERATIONS
-@unnumberedsubsec and
+@unnumberedsec and
 @cindex and
 
 @example
@@ -6766,7 +6766,7 @@ either that template's value is @code{TRUE} or the inbasket is used up.
 @end menu
 
 @node dMACRO, dDEFMACRO, MACROS, MACROS
-@unnumberedsubsec .macro
+@unnumberedsec .macro
 @cindex .macro
 @cindex .defmacro
 
@@ -7128,7 +7128,7 @@ except for @code{ALLOWGETSET}, @code{CASEIGNOREDP}, and
 
 @node ALLOWGETSET, BUTTONACT, SPECIAL VARIABLES, SPECIAL VARIABLES
 @comment  node-name,  next,  previous,  up
-@unnumberedsubsec allowgetset
+@unnumberedsec allowgetset
 @cindex allowgetset
 
 @example
