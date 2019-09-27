@@ -938,7 +938,7 @@ wxTerminal::GetCharSize(int *cw, int *ch) {
   //dc.GetTextExtent("(", &dummy, ch);
 
   int descent, extlead; 
-  dc.GetTextExtent("M", cw, ch, &descent, &extlead);
+  dc.GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), cw, ch, &descent, &extlead);
   //for the tails of g's and y's, if needed.
 #ifdef __WXMSW__
     *ch += descent + extlead + 1;
@@ -2202,8 +2202,8 @@ void wxTerminal::DebugOutputBuffer() {
   lpos.offset = 0;
   wxterm_charpos pos_1 = line_of(lpos);
   
-    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n cw: %d, ch: %d \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, m_charWidth, m_charHeight, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
-    fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
+  //    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n cw: %d, ch: %d \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, m_charWidth, m_charHeight, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
+  //    fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
   while(char_of(pos_1) != '\0') {
     if(char_of(pos_1) == '\n') {
       fprintf(stderr, "\\n\n");
@@ -2218,7 +2218,7 @@ void wxTerminal::DebugOutputBuffer() {
     fprintf(stderr, "\n#############\n");
     fprintf(stderr, "WXTERMINAL LINE BUFFER\n##############\n");
   for(int i = 0; i <= y_max; i++) {
-    fprintf(stderr, "LINE %d: buf: %d, offset: %d, len: %d\n", i,(int)line_of(lpos).buf, line_of(lpos).offset, line_of(lpos).line_length);
+      //    fprintf(stderr, "LINE %d: buf: %d, offset: %d, len: %d\n", i,(int)line_of(lpos).buf, line_of(lpos).offset, line_of(lpos).line_length);
     inc_linepos(lpos);
   }
     fprintf(stderr, "\n#############\n\n");
