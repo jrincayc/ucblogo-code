@@ -671,7 +671,6 @@ struct registers {
 #define usual_caller (regs.r_usual_caller)
 #endif
 
-#define exp expresn
 #endif
 
 #endif /* _LOGO_H */
