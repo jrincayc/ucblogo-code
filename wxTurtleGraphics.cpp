@@ -558,7 +558,7 @@ extern "C" FLONUM y_scale;
 extern "C" void wx_get_label_size(int *w, int *h) {
     /* returns size in pixels; converted to turtle steps in wxterm.c */
   int descent, extlead;
-  m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), w, h, &descent, &extlead);  
+  m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxString::npos), w, h, &descent, &extlead);  
 }
 
 extern "C" void wx_adjust_label_height() {
@@ -573,7 +573,7 @@ extern "C" void wx_adjust_label_height() {
     label_font.SetPointSize(font_size);
 
     m_memDC->SetFont(label_font);	
-    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), &cw, &ch, &descent, &extlead);
+    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxString::npos), &cw, &ch, &descent, &extlead);
 
     //now... first figure out whether we undershot or overshot...
     //this determines which direction to change the size
@@ -592,7 +592,7 @@ extern "C" void wx_adjust_label_height() {
 	    }
 	    if (expected == 100) break;
 	    m_memDC->SetFont(tmp_font);	
-	    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), &cw, &tmp_height, &descent, &extlead);
+	    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxString::npos), &cw, &tmp_height, &descent, &extlead);
 
 	    if(tmp_height >= px_height) break;
 
@@ -611,7 +611,7 @@ extern "C" void wx_adjust_label_height() {
 	    }
 	    if (expected == 2) break;
 	    m_memDC->SetFont(tmp_font);	
-	    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), &cw, &tmp_height, &descent, &extlead);
+	    m_memDC->GetTextExtent(wxString("M", wxConvUTF8, wxString::npos), &cw, &tmp_height, &descent, &extlead);
 
 	    if(tmp_height <= px_height) break;
 

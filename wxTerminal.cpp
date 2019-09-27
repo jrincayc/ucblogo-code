@@ -500,13 +500,7 @@ void LogoFrame::OnSave(wxCommandEvent& event) {
 void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
-			    (firstloadsave ?
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-			      *wxEmptyString :
-#else
-			      wxStandardPaths::Get().GetDocumentsDir() :
-#endif
-			      *wxEmptyString),
+			    *wxEmptyString,
 			    wxEmptyString,
 			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //			    "*",
@@ -536,13 +530,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	(
 	 this,
 	 _T("Load Logo Workspace"),
-	 (firstloadsave ?
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-	    *wxEmptyString :
-#else
-	    wxStandardPaths::Get().GetDocumentsDir() :
-#endif
-			  *wxEmptyString),
+	 *wxEmptyString,
 	 wxEmptyString,
 	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //	 "*",
@@ -938,7 +926,7 @@ wxTerminal::GetCharSize(int *cw, int *ch) {
   //dc.GetTextExtent("(", &dummy, ch);
 
   int descent, extlead; 
-  dc.GetTextExtent(wxString("M", wxConvUTF8, wxSTRING_MAXLEN), cw, ch, &descent, &extlead);
+  dc.GetTextExtent(wxString("M", wxConvUTF8, wxString::npos), cw, ch, &descent, &extlead);
   //for the tails of g's and y's, if needed.
 #ifdef __WXMSW__
     *ch += descent + extlead + 1;
@@ -1895,7 +1883,9 @@ wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_c
     //  return;
     //}
   }
-  dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
+  if (w > 0 && h > 0) {
+    dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
+  }
 }
 
 
