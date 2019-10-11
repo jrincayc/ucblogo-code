@@ -2,6 +2,7 @@ BUILDIR	      = `pwd`
 INFODIR	      = $(prefix)/info
 DOCSDIR	      = $(LIBLOC)/docs
 HTMLDIR	      = $(DOCSDIR)/html
+MANDIR        = $(prefix)/share/man/
 
 all: usermanual.ps usermanual.pdf html/usermanual_1.html ucblogo.info
 
@@ -38,3 +39,5 @@ install: all
 	-cp -f usermanual.pdf $(DOCSDIR)/.
 	-cp -f usermanual.texi $(DOCSDIR)/.
 	-cp -f ../usermanual $(DOCSDIR)/.
+	-mkdir -p $(MANDIR)/man1/
+	-cp -f logo.1 $(MANDIR)/man1/.
