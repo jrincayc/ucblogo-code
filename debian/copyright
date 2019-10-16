@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Berkeley Logo
-Source: http://www.cs.berkeley.edu/~bh/downloads/
+Source: https://www.cs.berkeley.edu/~bh/downloads/
 
 Files: *
 Copyright: 1993-2008 Regents of the University of California
