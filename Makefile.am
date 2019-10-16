@@ -1,3 +1,5 @@
+SUBDIRS = docs
+
 bin_PROGRAMS = ucblogo
 
 logolibdir=$(pkgdatadir)/logolib
