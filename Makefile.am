@@ -178,6 +178,11 @@ helpfiles_DATA = helpfiles/RENAME-GRAVE-ACCENT helpfiles/ALL_NAMES	\
  helpfiles/word helpfiles/wordp helpfiles/wrap helpfiles/writepos	\
  helpfiles/writer helpfiles/xcor helpfiles/ycor
 
+helpfiles/HELPCONTENTS:	makehelp usermanual
+	./makehelp
+	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
+	rm helptemp
+
 install-data-hook:
 	(cd "$(DESTDIR)$(logolibdir)" && \
 	mv --verbose RENAME-GRAVE-ACCENT '`' &&
