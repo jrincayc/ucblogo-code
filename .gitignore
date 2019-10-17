@@ -10,6 +10,13 @@
 /config.status
 /configure
 /depcomp
+/docs/texinfo.tex
+/docs/ucblogo.html/
+/docs/ucblogo.info
+/docs/ucblogo.pdf
+/docs/ucblogo.t2p/
+/helpfiles/ALL_NAMES
+/helpfiles/HELPCONTENTS
 /helpfiles/`
 /install-sh
 /makefile
