@@ -1,3 +1,5 @@
+#! /bin/sh
+set -e
 mkdir -p logolib
 cp Messages* logolib
 cat << "ENDOFFILE" > logolib/#
