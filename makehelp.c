@@ -5,13 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 char line[100], line2[100], line3[100];
 char name[30] = "helpfiles/";
 char name2[30] = "helpfiles/";
 char tocname[20], tocname2[20];
 
-main() {
+int main(int argc, char **argv) {
     FILE *in=fopen("usermanual", "r");
     FILE *fp, *fp2;
     FILE *toc=fopen("helpfiles/HELPCONTENTS", "w");
