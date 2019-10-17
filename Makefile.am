@@ -65,7 +65,7 @@ csls_DATA = csls/algs csls/basic csls/buttons csls/cards csls/crypto	\
  csls/plot csls/poker csls/pour csls/psort csls/solitaire		\
  csls/streams csls/student csls/tower csls/ttt
 
-helpfiles_DATA = helpfiles/RENAME-GRAVE-ACCENT helpfiles/ALL_NAMES	\
+helpfiles_DATA = helpfiles/RENAME-GRAVE-ACCENT 				\
  helpfiles/allopen helpfiles/allowgetset helpfiles/and			\
  helpfiles/apply helpfiles/arc helpfiles/arctan helpfiles/arity		\
  helpfiles/array helpfiles/arrayp helpfiles/arraytolist			\
@@ -178,10 +178,19 @@ helpfiles_DATA = helpfiles/RENAME-GRAVE-ACCENT helpfiles/ALL_NAMES	\
  helpfiles/word helpfiles/wordp helpfiles/wrap helpfiles/writepos	\
  helpfiles/writer helpfiles/xcor helpfiles/ycor
 
-helpfiles/HELPCONTENTS:	makehelp usermanual
+helpfiles_DATA += helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
+
+helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
+
+# Redirection with this phony target avoids the stanza being run
+# twice, thus avoiding unecessary work and a race condition.
+
+.PHONY: regenerate-help-index
+
+regenerate-help-index: makehelp usermanual
 	./makehelp
 	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
-	rm helptemp
+	-rm helptemp
 
 install-data-hook:
 	(cd "$(DESTDIR)$(logolibdir)" && \
