@@ -42,6 +42,7 @@ helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 .PHONY: regenerate-help-index
 
 regenerate-help-index: makehelp usermanual
+	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
 	./makehelp
 	@echo "Grave accent as filename is impossible with automake so work around it."
 	mv --verbose helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
