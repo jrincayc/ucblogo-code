@@ -1,4 +1,4 @@
-SUBDIRS = docs logolib
+SUBDIRS = docs logolib csls
 
 bin_PROGRAMS = ucblogo
 
@@ -33,12 +33,6 @@ endif
 endif
 
 # makehelp_SOURCES = makehelp.c
-
-csls_DATA = csls/algs csls/basic csls/buttons csls/cards csls/crypto	\
- csls/diff csls/doctor csls/dotgame csls/format csls/fsm csls/master	\
- csls/match csls/math csls/mines csls/multi csls/pascal csls/playfair	\
- csls/plot csls/poker csls/pour csls/psort csls/solitaire		\
- csls/streams csls/student csls/tower csls/ttt
 
 helpfiles_DATA = helpfiles/RENAME-GRAVE-ACCENT 				\
  helpfiles/allopen helpfiles/allowgetset helpfiles/and			\
