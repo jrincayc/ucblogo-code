@@ -1,4 +1,4 @@
-SUBDIRS = docs
+SUBDIRS = docs logolib
 
 bin_PROGRAMS = ucblogo
 
@@ -32,32 +32,7 @@ ucblogo_SOURCES += nographics.c
 endif
 endif
 
-# logolib/Messages: makelib Messages
-# 	./makelib
-# 	cp Messages logolib/
-
 # makehelp_SOURCES = makehelp.c
-
-logolib_DATA = logolib/RENAME-GRAVE-ACCENT logolib/RENAME-NUMBER-SIGN	\
- logolib/backslashedp logolib/backslashedQ logolib/buryall		\
- logolib/buryname logolib/cascade logolib/cascade.2 logolib/case	\
- logolib/closeall logolib/combine logolib/cond logolib/crossmap		\
- logolib/dequeue logolib/do.until logolib/do.while logolib/edall	\
- logolib/edn logolib/edns logolib/edpl logolib/edpls logolib/edps	\
- logolib/emacs.debug logolib/ern logolib/erpl logolib/filep		\
- logolib/fileQ logolib/filter logolib/find logolib/for			\
- logolib/foreach logolib/gensym logolib/ignore logolib/invoke		\
- logolib/iseq logolib/localmake logolib/macroexpand logolib/map		\
- logolib/map.se logolib/mdarray logolib/mditem logolib/mdsetitem	\
- logolib/Messages logolib/Messages.fr logolib/Messages.sp		\
- logolib/Messages.zh_TW logolib/name logolib/namelist logolib/pen	\
- logolib/pick logolib/pllist logolib/poall logolib/pon logolib/pons	\
- logolib/pop logolib/popl logolib/popls logolib/pops logolib/pots	\
- logolib/push logolib/Qrest logolib/queue logolib/quoted		\
- logolib/reduce logolib/remdup logolib/remove logolib/reverse		\
- logolib/rseq logolib/savel logolib/setpen logolib/transfer		\
- logolib/unburyall logolib/unburyname logolib/until logolib/while	\
- logolib/xcor logolib/ycor
 
 csls_DATA = csls/algs csls/basic csls/buttons csls/cards csls/crypto	\
  csls/diff csls/doctor csls/dotgame csls/format csls/fsm csls/master	\
@@ -193,15 +168,9 @@ regenerate-help-index: makehelp usermanual
 	-rm helptemp
 
 install-data-hook:
-	(cd "$(DESTDIR)$(logolibdir)" && \
-	mv --verbose RENAME-GRAVE-ACCENT '`' &&
-	mv --verbose RENAME-NUMBER-SIGN '#')
 	(cd "$(DESTDIR)$(helpfilesdir)" && \
 	mv --verbose RENAME-GRAVE-ACCENT '`')
 
 uninstall-hook:
-	(cd "$(DESTDIR)$(logolibdir)" && \
-	rm -f '`' && \
-	rm -f '#')
 	(cd "$(DESTDIR)$(helpfilesdir)" && \
 	rm -f '`')
