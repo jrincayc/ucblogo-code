@@ -92,5 +92,5 @@ AC_SUBST(LINKER)
 AC_SUBST(GRAPHICSOFILE)
 AC_SUBST(GRAPHICSFILE)
 
-AC_CONFIG_FILES([Makefile docs/Makefile logolib/Makefile csls/Makefile])
+AC_CONFIG_FILES([Makefile docs/Makefile logolib/Makefile csls/Makefile helpfiles/Makefile])
 AC_OUTPUT
