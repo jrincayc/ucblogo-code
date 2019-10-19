@@ -23,6 +23,7 @@
 #endif
 
 #define WANT_EVAL_REGS 1
+#include "eval.h"
 #include "logo.h"
 #include "globals.h"
 

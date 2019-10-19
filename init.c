@@ -36,6 +36,7 @@
 #include "globals.h"
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifdef HAVE_WX
 void getExecutableDir(char * path, int maxlen);

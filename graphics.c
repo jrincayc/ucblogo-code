@@ -29,6 +29,7 @@
 #define WANT_EVAL_REGS 1
 #include <math.h>
 #include "logo.h"
+#include "eval.h"
 /*   #include "globals.h"   has been moved further down */
 
 #ifdef HAVE_WX

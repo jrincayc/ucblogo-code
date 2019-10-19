@@ -22,6 +22,8 @@
 #include "config.h"
 #endif
 
+#include <ctype.h>
+
 #ifdef HAVE_WX
 #define fgets wx_fgets
 #endif
