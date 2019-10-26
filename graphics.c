@@ -81,7 +81,7 @@ extern void wx_adjust_label_height();
 /* NOTE: See the files (macterm.c and macterm.h) or (ibmterm.c and ibmterm.h)
    for examples of the functions and macros that this file assumes exist. */
 
-#define One (sizeof(int))
+#define One (sizeof(void *))
 #define Two (2*One)
 #define Three (3*One)
 #define Four (4*One)
