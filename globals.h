@@ -22,6 +22,7 @@
 #ifdef HAVE_WX
 extern int start(int, char **);
 extern int wx_leave_mainloop;
+extern int check_wx_stop(int force_yield);
 #endif
 extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
@@ -297,6 +298,7 @@ extern int num_saved_nodes;
 extern struct registers regs;
 extern NODE *Regs_Node;
 extern int inside_evaluator;
+extern NODE *evaluator(NODE *list, enum labels where);
 extern NODE *eval_buttonact;
 
 /*

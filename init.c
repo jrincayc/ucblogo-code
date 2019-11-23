@@ -22,6 +22,11 @@
 #include <windows.h>
 #endif
 
+//#ifdef HAVE_UNISTD_H
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
