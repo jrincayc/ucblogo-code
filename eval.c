@@ -677,7 +677,7 @@ compound_apply:
     check_ibm_stop();
 #endif
 #ifdef HAVE_WX
-    check_wx_stop(0); //XXX: Not sure what the value should be
+    check_wx_stop(0);
 #endif
     if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
 	for (i = 0; i < trace_level; i++) print_space(writestream);
