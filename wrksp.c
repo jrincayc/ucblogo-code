@@ -22,6 +22,7 @@
 #define fgets wx_fgets
 #endif
 
+#include <ctype.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
