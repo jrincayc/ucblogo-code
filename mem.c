@@ -20,7 +20,7 @@
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
-extern NODE *stack, *numstack, *exp, *val, *parm, *catch_tag, *arg;
+extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 /* #ifdef ibm */
 /* #ifndef __RZTC__ */
@@ -518,7 +518,7 @@ re_mark:
     mark(Regs_Node);
     mark(stack);
     mark(numstack);
-    mark(exp);
+    mark(expresn);
     mark(val);
     mark(parm);
     mark(catch_tag);
