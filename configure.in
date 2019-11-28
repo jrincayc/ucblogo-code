@@ -16,6 +16,13 @@ AC_ARG_WITH(wx-config,
         WXCONFIG=$withval
     fi
 ])
+
+TERMOFILE="term.o"
+TERMFILE="term.c"
+GRAPHICSOFILE=" xgraphics.o "
+GRAPHICSFILE=" xgraphics.c "
+
+
 AC_MSG_CHECKING([wxWidgets version])
 if wxversion=`$WXCONFIG --version`; then
     AC_MSG_RESULT([$wxversion])
@@ -32,6 +39,7 @@ if wxversion=`$WXCONFIG --version`; then
     LINKER='$(CXX)'
 else
     AC_MSG_RESULT([not found])
+    LINKER='$(CC)'
 fi
 
 

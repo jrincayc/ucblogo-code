@@ -3264,6 +3264,13 @@ if test "${with_wx_config+set}" = set; then :
 
 fi
 
+
+TERMOFILE="term.o"
+TERMFILE="term.c"
+GRAPHICSOFILE=" xgraphics.o "
+GRAPHICSFILE=" xgraphics.c "
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking wxWidgets version" >&5
 $as_echo_n "checking wxWidgets version... " >&6; }
 if wxversion=`$WXCONFIG --version`; then
@@ -3284,6 +3291,7 @@ $as_echo "$wxversion" >&6; }
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
 $as_echo "not found" >&6; }
+    LINKER='$(CC)'
 fi
 
 
