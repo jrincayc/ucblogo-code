@@ -49,11 +49,6 @@ extern "C" int readingInstruction;
 #endif
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #include <wx/fontdlg.h>
-#ifdef __WXMAC__                                                        
-    #undef wxFontDialog
-    #include "wx/mac/fontdlg.h"
-    #include <Carbon/Carbon.h>                                              
-#endif                                                                  
 
 // in Visual Studio 6.0, min and max are not defined up this point
 #ifndef max
@@ -208,38 +203,12 @@ extern "C" int start (int, char **);
 
 int LogoApplication::OnRun()
 {
-#ifndef __WXMAC__
   wxEventLoop::SetActive(m_mainLoop);
-#endif
   //SetExitOnFrameDelete(true);
 
-#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
   wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
-#endif
 
   // fix the working directory in mac
-#ifdef __WXMAC__
-  char path[1024];
-  CFBundleRef mainBundle = CFBundleGetMainBundle();
-  assert( mainBundle );
-  
-  CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
-  assert( mainBundleURL);
-  
-  CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
-  assert( cfStringRef);
-  
-  CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
-  
-  CFRelease( mainBundleURL);
-  CFRelease( cfStringRef);
-  
-  //std::string pathString(path);
-  pathString = path;
-  pathString+="/Contents/Resources/";
-  //	chdir(pathString.c_str());
-  
-#endif
 
   start(1, fooargv);
   return 0;
@@ -504,21 +473,13 @@ void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 			    wxEmptyString,
 			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //			    "*",
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-			    wxSAVE|wxOVERWRITE_PROMPT|wxCHANGE_DIR
-#else
 			    wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxFD_CHANGE_DIR
-#endif
 			    );
 	
 //	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
-#ifdef __WXMAC__
-	    doSave((char *)dialog.GetPath().c_str(),
-#else
 	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8),
-#endif
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
@@ -534,19 +495,11 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 wxEmptyString,
 	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //	 "*",
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-	 wxOPEN|wxFILE_MUST_EXIST|wxCHANGE_DIR
-#else
 	 wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_CHANGE_DIR
-#endif
 	 );
 		
 	if (dialog.ShowModal() == wxID_OK) {
-#ifdef __WXMAC__
-	    doLoad((char *)dialog.GetPath().c_str(),
-#else
 	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8),
-#endif
 		   dialog.GetPath().length());
 	    new_line(stdout);
 	}
@@ -593,13 +546,8 @@ void LogoFrame::OnSelectFont(wxCommandEvent& WXUNUSED(event)) {
         wxFontData retData = dialog.GetFontData();
         wxFont font = retData.GetChosenFont();
 
-#ifdef __WXMAC__
-	wxSetFont((char *)font.GetFaceName().c_str(), 
-		  font.GetPointSize());
-#else
 	wxSetFont((char *)font.GetFaceName().char_str(wxConvUTF8), 
 		  font.GetPointSize());	
-#endif
     }    
 }
 
@@ -1719,11 +1667,7 @@ extern "C" void wxSetTextColor(int fg, int bg) {
 
 void wxTerminal::OnPaint(wxPaintEvent &WXUNUSED(event)) 
 {
-#ifndef __WXMAC__   /* needed for wxWidgets 2.6 */
-  wxAutoBufferedPaintDC dc(this);
-#else
   wxBufferedPaintDC dc(this);
-#endif
 
   DoPrepareDC(dc);
   dc.SetBackground(TurtleCanvas::colors[m_curBG]);
@@ -1884,7 +1828,9 @@ wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_c
     //}
   }
   if (w > 0 && h > 0) {
+#ifndef __WXMAC__
     dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
+#endif
   }
 }
 
