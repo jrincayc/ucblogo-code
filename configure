@@ -3281,13 +3281,15 @@ $as_echo "$wxversion" >&6; }
     WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
     WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
     LIBS="$LIBS "`$WXCONFIG --libs`;
+    CC="`$WXCONFIG --cc`"
+    CXX="`$WXCONFIG --cxx`"
     CXXFLAGS="$CXXFLAGS -DHAVE_WX `$WXCONFIG --cxxflags`";
     CFLAGS="$CFLAGS -DHAVE_WX "
     TERMOFILE="wxterm.o"
     TERMFILE="wxterm.c"
     GRAPHICSOFILE=""
     GRAPHICSFILE=""
-    LINKER='$(CXX)'
+    LINKER="`$WXCONFIG --ld`"
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
 $as_echo "not found" >&6; }
