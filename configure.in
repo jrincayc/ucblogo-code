@@ -1,10 +1,39 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(coms.c)
+AC_INIT(ucblogo, 6.1)
 
 AC_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
+
+WXCONFIG=wx-config
+AC_ARG_WITH(wx-config,
+[[  --with-wx-config=FILE   Use the given path to wx-config when determining
+                            wxWidgets configuration; defaults to "wx-config"]],
+[
+    if test "$withval" != "yes" -a "$withval" != ""; then
+        WXCONFIG=$withval
+    fi
+])
+AC_MSG_CHECKING([wxWidgets version])
+if wxversion=`$WXCONFIG --version`; then
+    AC_MSG_RESULT([$wxversion])
+    AC_DEFINE(HAVE_WX)
+    WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
+    WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
+    LIBS="$LIBS "`$WXCONFIG --libs`;
+    CXXFLAGS="$CXXFLAGS -DHAVE_WX `$WXCONFIG --cxxflags`";
+    CFLAGS="$CFLAGS -DHAVE_WX "
+    TERMOFILE="wxterm.o"
+    TERMFILE="wxterm.c"
+    GRAPHICSOFILE=""
+    GRAPHICSFILE=""
+    LINKER='$(CXX)'
+else
+    AC_MSG_RESULT([not found])
+fi
+
 
 dnl Checks for libraries.
 
@@ -45,5 +74,13 @@ dnl AC_TYPE_SIGNAL
 if test "$no_x" != yes; then
    LIBS="$LIBS -lX11"
 fi
+
+AC_SUBST(WXOFILES)
+AC_SUBST(WXSRCFILES)
+AC_SUBST(TERMOFILE)
+AC_SUBST(TERMFILE)
+AC_SUBST(LINKER)
+AC_SUBST(GRAPHICSOFILE)
+AC_SUBST(GRAPHICSFILE)
 
 AC_OUTPUT(makefile)

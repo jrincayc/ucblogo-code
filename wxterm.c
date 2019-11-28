@@ -61,7 +61,7 @@
 char PC;
 char *BC;
 char *UP;
-short ospeed;
+/* short ospeed; */
 char bp[1024];
 char cl_arr[40];
 char cm_arr[40];
