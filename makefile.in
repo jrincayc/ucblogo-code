@@ -100,3 +100,11 @@ mac: everything
 	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp logo UCBLogo.app/Contents/MacOS/UCBLogo
+
+ucblogo.dmg : mac
+	rm -f ucblogo.dmg ucblogo_base.dmg
+	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+	hdiutil attach ucblogo_base.dmg
+	cp -a UCBLogo.app /Volumes/UCBLogo/
+	hdiutil detach /Volumes/UCBLogo/
+	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
