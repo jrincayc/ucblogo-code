@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
 #ifdef HAVE_WX
 	extern char *SVN;
 #endif
-	char version[20];
+	char version[64];
 	lcleartext(NIL);
 #ifdef HAVE_WX
 	strcpy(version,"6.0");
