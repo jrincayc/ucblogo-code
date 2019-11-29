@@ -47,6 +47,9 @@ extern "C" int readingInstruction;
 #ifndef __WXMSW__
     #include "config.h"
 #endif
+#ifdef __WXMAC__
+    #include "CoreFoundation/CFBundle.h"
+#endif
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #include <wx/fontdlg.h>
 
@@ -209,6 +212,28 @@ int LogoApplication::OnRun()
   wxSetWorkingDirectory(wxStandardPaths::Get().GetDocumentsDir());
 
   // fix the working directory in mac
+#ifdef __WXMAC__
+  char path[1024];
+  CFBundleRef mainBundle = CFBundleGetMainBundle();
+  assert( mainBundle );
+
+  CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+  assert( mainBundleURL);
+
+  CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+  assert( cfStringRef);
+
+  CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+
+  CFRelease( mainBundleURL);
+  CFRelease( cfStringRef);
+
+  //std::string pathString(path);
+  pathString = path;
+  pathString+="/Contents/Resources/";
+  //	chdir(pathString.c_str());
+
+#endif
 
   start(1, fooargv);
   return 0;
