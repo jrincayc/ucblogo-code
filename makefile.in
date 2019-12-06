@@ -1,7 +1,7 @@
 CC	= @CC@
 CFLAGS	= @CFLAGS@ @CPPFLAGS@ @X_CFLAGS@ -O0 -DUSE_OLD_TTY
-CXX     = g++
-CXXFLAGS = -g @CXXFLAGS@
+CXX     = @CXX@
+CXXFLAGS = @CXXFLAGS@
 LDFLAGS	= @LDFLAGS@
 LIBS  = @X_PRE_LIBS@ @X_LIBS@ @LIBS@ @X_EXTRA_LIBS@
 prefix = @prefix@
@@ -87,16 +87,24 @@ logo-mode:
 make-docs:
 	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) $(MAKE) all)
 
-mac: all
+mac: everything
 	mkdir -p UCBLogo.app
 	mkdir -p UCBLogo.app/Contents
 	cp Info.plist UCBLogo.app/Contents/
 	cp PkgInfo UCBLogo.app/Contents/
 	cp pbdevelopment.plist UCBLogo.app/Contents/
-	mkdir -p UCBLogo.app/Contents/Resources
+	mkdir -p UCBLogo.app/Contents/Resources/csls
 	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
 	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp logo UCBLogo.app/Contents/MacOS/UCBLogo
+
+ucblogo.dmg : mac
+	rm -f ucblogo.dmg ucblogo_base.dmg
+	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+	hdiutil attach ucblogo_base.dmg
+	cp -a UCBLogo.app /Volumes/UCBLogo/
+	hdiutil detach /Volumes/UCBLogo/
+	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
