@@ -1731,12 +1731,16 @@ void wxTerminal::OnDraw(wxDC& dc)
     inc_linepos(tlpos);
   }
 
-  //draw cursor if visible
+  //draw text cursor as line if visible
   if(lineFrom <= cursor_y  && cursor_y <= lineTo &&
      !(m_currMode & CURSORINVISIBLE)) {
     int c_x = cursor_x;
     int c_y = cursor_y;
-    InvertArea(dc, c_x*m_charWidth, c_y*m_charHeight, m_charWidth, m_charHeight);
+    int t_x = c_x*m_charWidth;
+    int t_y = c_y*m_charHeight;
+    dc.SetPen(wxPen(TurtleCanvas::colors[terminal->m_curFG],1));
+    dc.DrawLine( t_x, t_y, t_x, t_y + m_charHeight);
+
   }
 
   MarkSelection(dc,FALSE);
