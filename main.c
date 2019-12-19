@@ -314,7 +314,11 @@ int main(int argc, char *argv[]) {
     setvalnode__caseobj(CommandLine, command_line);
 
     silent_load(Startuplg, logolib);
-    silent_load(Startup, NULL); /* load startup.lg */
+#ifndef WIN32
+    silent_load(Startuplg, getenv("HOME")); /* load startup.lg */
+#else
+    silent_load(Startuplg, NULL); /* load startup.lg */
+#endif
     if (!strcmp(*argv2+strlen(*argv2)-4, "logo")) {
 	argv2++;
 	while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
