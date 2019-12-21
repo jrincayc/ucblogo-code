@@ -33,6 +33,10 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef HAVE_WX
+void getExecutableDir(char * path, int maxlen);
+#endif
+
 typedef struct priminfo {
     char *name;
     short minargs;
@@ -766,6 +770,14 @@ nosugar:
 	fp = fopen(linebuf, "r");
     if (fp == NULL)
 	fp = fopen("C:\\cygwin\\usr\\local\\lib\\logo\\logolib\\Messages", "r");
+#ifdef HAVE_WX
+    if (fp == NULL) {
+      char executable_dir[256];
+      getExecutableDir(executable_dir, 256);
+      sprintf(linebuf,"%s%sMessages", executable_dir, separator);
+      fp = fopen(linebuf, "r");
+    }
+#endif
     if (fp == NULL) {
 	printf("Error -- Can't read Messages file.\n");
 	exit(1);
