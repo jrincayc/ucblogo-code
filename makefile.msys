@@ -1,7 +1,7 @@
 CC	= gcc
-CFLAGS	= -g -O -DHAVE_WX    -DX_DISPLAY_MISSING -O0 
+CFLAGS	= -g -O -DHAVE_WX    -DX_DISPLAY_MISSING -O0
 CXX     = g++
-CXXFLAGS =  -DHAVE_WX -I$(HOME)/wxWidgets-3.0.4/include -I$(HOME)/wxWidgets-3.0.4/lib/gcc_lib/mswu -D__WXDEBUG__ -D__WXMSW__ -mthreads 
+CXXFLAGS =  -DHAVE_WX -I$(HOME)/wxWidgets-3.0.4/include -I$(HOME)/wxWidgets-3.0.4/lib/gcc_lib/mswu -D__WXDEBUG__ -D__WXMSW__ -mthreads
 LDFLAGS	=   -mwindows
 WX_LIB_LOC = $(HOME)/wxWidgets-3.0.4/lib/gcc_lib/
 LIBS  =   -lm  -L/usr/local/lib  -mwindows -mthreads  -mwindows -Wl,--subsystem,windows -mwindows -L$(WX_LIB_LOC)  -lwxmsw30u_richtext -lwxmsw30u_aui -lwxmsw30u_html -lwxmsw30u_adv -lwxmsw30u_core -lwxbase30u_net -lwxbase30u  -lwxregexu -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32 -lwsock32 -lgdi32
@@ -12,23 +12,24 @@ LINKER = $(CXX)
 
 # LIBLOC      = `pwd`
 
-OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
+OBJS	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o svn.o wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o 
+	  print.o wrksp.o nographics.o svn.o wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c config.h \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
-	  print.c wrksp.c nographics.c wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp TextEditor.cpp wxterm.c 
+	  print.c wrksp.c nographics.c wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp TextEditor.cpp wxterm.c
 
 HDRS	= globals.h logo.h xgraphics.h
 
-all:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS 
+all:	logo.exe logolib/Messages helpfiles helpfiles/HELPCONTENTS
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
 
-logo:	$(OBJS)
-	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o logo
+logo.exe:	$(OBJS)
+	windres logo_win.rc -O coff -o logo_win.res
+	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) logo_win.res -o logo.exe
 
 svn.c:	$(SRCS)
 	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
@@ -38,7 +39,7 @@ config.h: config.h.msys
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)
-# 	ctags -t $(SRCS) $(HDRS)
+#	ctags -t $(SRCS) $(HDRS)
 
 libloc.c:
 	echo 'char *libloc="'$(LIBLOC)'/logolib";' > libloc.c
@@ -84,7 +85,7 @@ install: all
 make-docs:
 	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) $(MAKE) all)
 
-ucblogo.zip : logo
+ucblogo.zip : logo.exe
 	mkdir -p UCBLogo
 	cp logo.exe UCBLogo/
 	cp -a logolib UCBLogo/
