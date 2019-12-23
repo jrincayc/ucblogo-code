@@ -14,7 +14,7 @@ LINKER = $(CXX)
 
 OBJS	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o svn.o wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o
+	  print.o wrksp.o nographics.o git.o wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c config.h \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
@@ -31,8 +31,8 @@ logo.exe:	$(OBJS)
 	windres logo_win.rc -O coff -o logo_win.res
 	$(LINKER) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) logo_win.res -o logo.exe
 
-svn.c:	$(SRCS)
-	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
+git.c:	$(SRCS)
+	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
 
 config.h: config.h.msys
 	cp config.h.msys config.h

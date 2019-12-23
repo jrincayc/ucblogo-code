@@ -270,13 +270,13 @@ int main(int argc, char *argv[]) {
 #endif
       {
 #ifdef HAVE_WX
-	extern char *SVN;
+	extern char *GIT;
 #endif
 	char version[64];
 	lcleartext(NIL);
 #ifdef HAVE_WX
 	strcpy(version,"6.0");
-	strcat(version,SVN);
+	strcat(version,GIT);
 #else
 	strcpy(version,"5.6");
 #endif
