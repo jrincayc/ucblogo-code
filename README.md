@@ -4,6 +4,10 @@
 
 This is a free (both senses) interpreter for the Logo programming language.
 
+The interpreter was written primarily by Daniel Van Blerkom, Brian Harvey,
+Michael Katz, Douglas Orleans and Joshua Cogliati. Thanks to Fred Gilham for the X11 code.
+Emacs logo-mode by Hrvoje Blazevic.
+
 This program is free software: you can redistribute it and/or modify 
 it under the terms of the GNU General Public License as published by 
 the Free Software Foundation, either version 3 of the License, or 
@@ -29,7 +33,7 @@ Changes for this release:
 * Variety fixes like fixing implicit function definitions, fixing a line cursor behaviour, etc.
 
 Here is an overview of the repository:
-* csls - Programs form [Brian Havrvey's trilogy "Computer Science Logo Style"](https://people.eecs.berkeley.edu/~bh/).
+* csls - Programs form [Brian Harvey's trilogy "Computer Science Logo Style"](https://people.eecs.berkeley.edu/~bh/).
 * docs - Usermanual in variety formats and brief manual page.
 * helpfiles - files for UCBLogo interactive help.
 * test - Unit tests.
