@@ -29,7 +29,7 @@ Changes for this release:
 * Variety fixes like fixing implicit function definitions, fixing a line cursor behaviour, etc.
 
 Here is an overview of the repository:
-* csls - Programs form [Brian Havrvey's trilogy Computer Science Logo Style](https://people.eecs.berkeley.edu/~bh/).
+* csls - Programs form [Brian Havrvey's trilogy "Computer Science Logo Style"](https://people.eecs.berkeley.edu/~bh/).
 * docs - Usermanual in variety formats and brief manual page.
 * helpfiles - files for UCBLogo interactive help
 * test - Unit tests
