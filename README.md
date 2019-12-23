@@ -36,9 +36,9 @@ Here is an overview of the repository:
 * / - program source code and [a Program Logic Manual](/plm).
 
 The executable file in this distribution includes libraries from the
-[wxWidgets project](www.wxwidgets.org).  The Microsoft Windows version
+[wxWidgets project](http://wxwidgets.org/).  The Microsoft Windows version
 is distributed with runtime library mingwm10.dll, from the [MinGW project]
-(www.mingw.org).  Those libraries are also covered by the Gnu GPL.  We
+(http://www.mingw.org/).  Those libraries are also covered by the Gnu GPL.  We
 do not distribute their source code; you can download it from their
 respective web sites.
 
