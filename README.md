@@ -1,6 +1,6 @@
-## UCBLogo
+# UCBLogo
 
-Berkeley Logo interpreter
+## Berkeley Logo interpreter
 
 This is a free (both senses) interpreter for the Logo programming language.
 
@@ -37,8 +37,8 @@ Here is an overview of the repository:
 
 The executable file in this distribution includes libraries from the
 [wxWidgets project](http://wxwidgets.org/).  The Microsoft Windows version
-is distributed with runtime library mingwm10.dll, from the [MinGW project]
-(http://www.mingw.org/).  Those libraries are also covered by the Gnu GPL.  We
+is distributed with runtime library mingwm10.dll, from the [MinGW project](http://www.mingw.org/).  
+Those libraries are also covered by the Gnu GPL.  We
 do not distribute their source code; you can download it from their
 respective web sites.
 
