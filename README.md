@@ -1,19 +1,55 @@
-# UCBLogo
+## UCBLogo
+
 Berkeley Logo interpreter
 
 This is a free (both senses) interpreter for the Logo programming language.
 
-The current version is 6.0 if you're running wxWidgets, 5.4 if not.  (They are made from the same source code.)
+This program is free software: you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published by 
+the Free Software Foundation, either version 3 of the License, or 
+(at your option) any later version. 
+ 
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details. 
+ 
+You should have received a copy of the GNU General Public License 
+along with this program.  If not, see https://www.gnu.org/licenses/. 
 
-The distribution also includes version 5.3 for frozen platforms DOS and Mac Classic (pre-OS X).
+## About this project
 
-I have become super busy doing other things (snap.berkeley.edu, bjc.edc.org) and so no development has happened on UCBLogo (a/k/a Berkeley Logo) in a decade or so.  I would love for someone to take it over, and would even help you get started.  (You'll need help because of the incredible chain of kludges herein.)
+This repository created for further UCBLogo development.
+The current version is 6.1
 
-There is a 95% finished (but you know what that means) implementation of OOP in the style of Object Logo.
+Changes for this release:
+* The license has been changed to GPL3.
+* The wxWidgets version updated to compile and run with version 3.0.
+* Adjustments made to compile and run on newer OSX versions.
+* Variety fixes like fixing implicit function definitions, fixing a line cursor behaviour, etc.
 
-It would be especially great if the someone who takes it over knows how to make an interpreter run fast.  /This/ interpreter is more or less the one from SICP 5.4 (the Explicit Control Evaluator) but with kludges added, mainly because not all Logo procedures return values.
+Here is an overview of the repository:
+csls - Programs form [Brian Havrvey's trilogy Computer Science Logo Style](https://people.eecs.berkeley.edu/~bh/).
+docs - Usermanual in variety formats and brief manual page.
+helpfiles - files for UCBLogo interactive help
+test - Unit tests
+/ - program source code and [a Program Logic Manual](/plm).
 
-There's one piece of good news:  There's a Program Logic Manual in source/plm.  So all the things I've forgotten aren't lost forever.  :-)
+The executable file in this distribution includes libraries from the
+[wxWidgets project](www.wxwidgets.org).  The Microsoft Windows version
+is distributed with runtime library mingwm10.dll, from the [MinGW project]
+(www.mingw.org).  Those libraries are also covered by the Gnu GPL.  We
+do not distribute their source code; you can download it from their
+respective web sites.
 
-Brian Harvey
-bh@cs.berkeley.edu
+## Usage
+
+To build Logo under *nix, do this:
+	./configure
+	make
+
+## Previous versions
+
+For getting UCBLogo previous versions such as version 6.0 if you're running wxWidgets or 5.4 if not, please visit [Brian Harvey's UCBLogo GitHub repository](https://github.com/brianharvey/UCBLogo).
+The distribution for frozen platforms includes version 5.3 for DOS and Mac Classic (pre-OS X) still may be reached at [Brian Harvey's personal page](https://people.eecs.berkeley.edu/~bh/).
+
