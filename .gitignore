@@ -1,1 +1,7 @@
 *.o
+git.c
+libloc.c
+makefile
+makehelp
+logo
+
