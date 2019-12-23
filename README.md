@@ -31,8 +31,8 @@ Changes for this release:
 Here is an overview of the repository:
 * csls - Programs form [Brian Havrvey's trilogy "Computer Science Logo Style"](https://people.eecs.berkeley.edu/~bh/).
 * docs - Usermanual in variety formats and brief manual page.
-* helpfiles - files for UCBLogo interactive help
-* test - Unit tests
+* helpfiles - files for UCBLogo interactive help.
+* test - Unit tests.
 * / - program source code and [a Program Logic Manual](/plm).
 
 The executable file in this distribution includes libraries from the
