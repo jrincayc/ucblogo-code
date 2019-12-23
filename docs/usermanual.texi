@@ -1,7 +1,7 @@
 \input texinfo @c -*-texinfo-*-
 @c %**start of header
 @setfilename ucblogo.info
-@settitle BERKELEY LOGO 6.0
+@settitle BERKELEY LOGO 6.1
 @setchapternewpage odd
 @c %**end of header
 
@@ -19,7 +19,7 @@
 @finalout
 
 @titlepage
-@title BERKELEY LOGO 6.0
+@title BERKELEY LOGO 6.1
 @subtitle Berkeley Logo User Manual
 @author Brian Harvey
 @end titlepage

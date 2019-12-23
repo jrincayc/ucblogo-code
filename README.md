@@ -3,7 +3,7 @@ Berkeley Logo interpreter
 
 This is a free (both senses) interpreter for the Logo programming language.
 
-The current version is 6.0 if you're running wxWidgets, 5.4 if not.  (They are made from the same source code.)
+The current version is 6.1 if you're running wxWidgets, 5.4 if not.  (They are made from the same source code.)
 
 The distribution also includes version 5.3 for frozen platforms DOS and Mac Classic (pre-OS X).
 

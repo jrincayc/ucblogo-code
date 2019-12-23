@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
 	char version[64];
 	lcleartext(NIL);
 #ifdef HAVE_WX
-	strcpy(version,"6.0");
+	strcpy(version,"6.1");
 	strcat(version,GIT);
 #else
 	strcpy(version,"5.6");
@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef HAVE_WX
-    setvalnode__caseobj(LogoVersion, make_floatnode(6.0));
+    setvalnode__caseobj(LogoVersion, make_floatnode(6.1));
 #else
     setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
 #endif
