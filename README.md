@@ -23,7 +23,8 @@ along with this program.  If not, see https://www.gnu.org/licenses/.
 
 ## About this project
 
-This repository created for further UCBLogo development.
+This uses the repository https://github.com/jrincayc/ucblogo-code
+created for further UCBLogo development.
 The current version is 6.1
 
 Changes for this release:
@@ -41,7 +42,8 @@ Here is an overview of the repository:
 
 The executable file in this distribution includes libraries from the
 [wxWidgets project](http://wxwidgets.org/).  The Microsoft Windows version
-is distributed with runtime library mingwm10.dll, from the [MinGW project](http://www.mingw.org/).
+is distributed with runtime library libgcc_s_dw2-1.dll and libstdc++-6.dll,
+from the [MinGW project](http://www.mingw.org/).
 Those libraries are also covered by the Gnu GPL.  We
 do not distribute their source code; you can download it from their
 respective web sites.
