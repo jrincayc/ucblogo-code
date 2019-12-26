@@ -73,8 +73,8 @@ ship:
 	rm -f makefile makehelp logo *.o libloc.c
 	cd docs; $(MAKE) ship
 
-install: all
-	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls; do [ -d $$d ] || mkdir -p $$d || exit 1; done
+install_win: all
+	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls $(LIBLOC)/source; do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp logo.exe $(BINDIR)/ucblogo.exe
 	cp /mingw/bin/libgcc_s_dw2-1.dll /mingw/bin/libstdc++-6.dll $(BINDIR)/
 	cp -f logolib/* $(LIBLOC)/logolib/.
@@ -82,6 +82,8 @@ install: all
 	cp -f csls/* $(LIBLOC)/csls/.
 	cp -f LICENSE $(LIBLOC)/
 	cp -f README.md $(LIBLOC)/README.txt
+	cp -f *.[ch]* makefile.msys ucblogo.xpm logo_win.rc logologo.ico makelib Messages docs/usermanual.texi $(LIBLOC)/source/
+	cp -f docs/usermanual.pdf $(LIBLOC)/
 	#(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 #	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
 

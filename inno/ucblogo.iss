@@ -17,7 +17,7 @@ DisableStartupPrompt=yes
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
 WindowStartMaximized=no
-LicenseFile=C:\UCBLOGO\lib\logo\LICENSE
+LicenseFile=..\LICENSE
 PrivilegesRequiredOverridesAllowed=dialog commandline
 
 [Components]
@@ -25,6 +25,7 @@ Name: "program"; Description: "Program Files"; Types: full compact custom; Flags
 Name: "help"; Description: "Help Files"; Types: full compact custom
 Name: "csls"; Description: "Programs from Computer Science Logo Style"; Types: full compact custom
 Name: "pdf"; Description: "User Manual in PDF format"; Types: full custom
+Name: "source"; Description: "Source Files"; Types: full custom
 
 [Tasks]
 Name: "programmenu"; Description: "Create a Program menu entry"; GroupDescription: "Shortcuts:"
@@ -40,7 +41,8 @@ Source: "C:\UCBLOGO\lib\logo\HELPFILES\*.*"; DestDir: "{app}\HELPFILE"; CopyMode
 Source: "C:\UCBLOGO\lib\logo\LOGOLIB\*.*"; DestDir: "{app}\LOGOLIB"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\LICENSE"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\README.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
-Source: "C:\UCBLOGO\DOCS\usermanual.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
+Source: "C:\UCBLOGO\lib\logo\usermanual.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
+Source: "C:\UCBLOGO\lib\logo\SOURCE\*.*"; DestDir: "{app}\SOURCE"; CopyMode: alwaysoverwrite; Components: source
 
 [Icons]
 Name: "{group}\Berkeley Logo"; Filename: "{app}\ucblogo.exe"; WorkingDir: "{app}"; Tasks: programmenu
@@ -54,7 +56,7 @@ Root: HKA; Subkey: "Software\UCB\UCBLogo"; ValueType: string; ValueName: "HELPFI
 Root: HKA; Subkey: "Software\UCB\UCBLogo"; ValueType: string; ValueName: "CSLS"; ValueData: "{app}\CSLS"
 
 [Messages]
-WelcomeLabel2=This will install [name/ver] on your computer.%n%nThis installer was created with the freeware Inno Setup Compiler by Jordan Russell with portions by Martijn Laan.%nhttp://www.wintax.nl/isx/
+WelcomeLabel2=This will install [name/ver] on your computer.%n%nThis installer was created with the freeware Inno Setup Compiler by Jordan Russell with portions by Martijn Laan.%nhttp://www.jrsoftware.org/isinfo.php
 LicenseLabel=UCBLogo is free, and has NO WARRANTY.  (See sections 15 and 16 below.)%nThe other license provisions are only about distributing Logo to other people.
 ComponentsDiskSpaceMBLabel=Current selection requires at least [kb] KB of disk space.
 
