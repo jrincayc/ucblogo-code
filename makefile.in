@@ -106,5 +106,6 @@ ucblogo.dmg : mac
 	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
 	cp -a UCBLogo.app /Volumes/UCBLogo/
+	cp docs/usermanual.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
 	hdiutil detach /Volumes/UCBLogo/
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
