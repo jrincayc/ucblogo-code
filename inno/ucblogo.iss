@@ -9,7 +9,7 @@ AppPublisher=University of California, Berkeley
 AppPublisherURL=http://www.cs.berkeley.edu/~bh/logo.html
 AppSupportURL=https://github.com/jrincayc/ucblogo-code/issues
 AppUpdatesURL=https://github.com/jrincayc/ucblogo-code/releases
-OutputBaseFilename=ucbwlogo61setup
+OutputBaseFilename=ucblogo61setup
 OutputDir=.
 DefaultDirName={autopf}\UCBLogo
 DefaultGroupName=Berkeley Logo
@@ -46,7 +46,7 @@ Source: "C:\UCBLOGO\lib\logo\SOURCE\*.*"; DestDir: "{app}\SOURCE"; CopyMode: alw
 
 [Icons]
 Name: "{group}\Berkeley Logo"; Filename: "{app}\ucblogo.exe"; WorkingDir: "{app}"; Tasks: programmenu
-Name: "{userdesktop}\Berkeley Logo"; Filename: "{app}\ucblogo.exe"; WorkingDir: "{app}"; MinVersion: 4,4; Tasks: desktopicon
+Name: "{autodesktop}\Berkeley Logo"; Filename: "{app}\ucblogo.exe"; WorkingDir: "{app}"; MinVersion: 4,4; Tasks: desktopicon
 
 [Registry]
 Root: HKA; Subkey: "Software\UCB"; Flags: uninsdeletekeyifempty
