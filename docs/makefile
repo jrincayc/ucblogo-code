@@ -18,9 +18,8 @@ usermanual.dvi: usermanual.texi
 usermanual.ps: usermanual.dvi
 	dvips -t letter -o usermanual.ps usermanual.dvi
 
-usermanual.pdf: usermanual.ps usermanual.dvi
-	ps2pdf usermanual.ps
-	dvipdf usermanual.dvi
+usermanual.pdf: usermanual.texi
+	texi2pdf usermanual.texi
 
 html/usermanual_1.html: usermanual.texi
 	for d in html; do [ -d $$d ] || mkdir -p $$d || exit 1; done

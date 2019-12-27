@@ -794,6 +794,7 @@ nosugar:
 	fp = fopen("C:\\cygwin\\usr\\local\\lib\\logo\\logolib\\Messages", "r");
     if (fp == NULL) {
 	printf("Error -- Can't read Messages file.\n");
+	printf("logolib: %s\n", logolib);
 	exit(1);
     }
 

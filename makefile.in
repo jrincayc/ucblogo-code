@@ -13,7 +13,7 @@ LINKER = @LINKER@
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o svn.o obj.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
+	  print.o wrksp.o nographics.o git.o obj.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
@@ -30,8 +30,8 @@ everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
 
-svn.c:	$(SRCS)
-	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
+git.c:	$(SRCS)
+	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)
@@ -106,5 +106,6 @@ ucblogo.dmg : mac
 	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
 	cp -a UCBLogo.app /Volumes/UCBLogo/
+	cp docs/usermanual.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
 	hdiutil detach /Volumes/UCBLogo/
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
