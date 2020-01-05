@@ -1,0 +1,115 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;          UNIT TEST FRAMEWORK           ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;; Use InstallSuite to add a test suite   ;;
+;; setup procedure to the global list     ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+MAKE "Tests.All []
+
+to InstallSuite :SetupProc :SuiteName
+  MAKE "Tests.All se :Tests.All (list (list :SuiteName :SetupProc))
+end
+
+
+;; Procedure for executing tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to RunTests :Tests
+  IFELSE [EMPTY? :Tests] [STOP] [
+    PrintTestName (WORD FIRST :Tests "...\ )
+
+    ; PrepTest sets two vars, Success and Err
+    ; Success = 1 means the value returned was True
+    ; Error = 1  means the code crashed
+    ; Any code that doesn't return a value will crash  
+
+    RUN PrepTest FIRST :Tests
+    IFELSE [Equal? :Success 1] [PRINT "Ok] [
+          IFELSE [Equal? :Err 1] [PRINT [\ \ \ \ \ \ \ Error]] [
+                      PRINT [\ \ \ \ \ \ \ Failed]]]
+    RunTests BF :Tests
+  ]
+end
+
+
+;; Runs ALL tests installed into :Tests.All
+;; These should be setup procs that in turn
+;; call RunTests, not individual Unit Tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to RunAll
+  PRINT [--------------------------]
+  PRINT [ Berkeley Logo Unit Tests]
+  PRINT [--------------------------]
+  PRINT se [Test Suites: ] (count :Tests.All)
+  FOREACH :Tests.All [PRINT " (PrintHeader LAST ? ) (RUN FIRST ?) 
+  PRINT [----------------------------------------------------------]]
+  PRINT []
+  PRINT [All tests completed.]
+end
+
+
+
+;; HELPER PROCS
+;;;;;;;;;;;;;;;;
+
+to PrepTest :TestCode
+  OUTPUT (se [make "success 0] ~
+             [make "err 1] ~
+                [CATCH "Error ] ~
+                (list (se [IFELSE] (list :testcode) ~
+                (list [make "success 1 make "err 0]) ~
+                (list [make "success 0 make "err 0]))) ~
+                )
+end
+
+to PrintHeader :Title
+  PRINT (se [\[] :Title [\]])
+  ;REPEAT ((countdeep :title) + 4) [TYPE "-]
+  PRINT [----------------------------------------------------------]
+end
+
+to PrintTestName :TestName
+  Type :TestName
+  REPEAT 45 - count :TestName [Type "\ ]
+end
+
+to CountDeep :lst
+  make "i 0
+
+  foreach :lst [
+     foreach ? [
+         make "i :i + 1
+     ]
+     make "i :i + 1
+  ]
+
+  output :i - 1
+end
+
+;; Import each individual test suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;LOAD "UnitTests-Eval.lg
+;LOAD "UnitTests-Turtle.lg
+;LOAD "UnitTests-Lang.lg
+;LOAD "UnitTests-LogoLib-Loops.lg
+;LOAD "UnitTests-Mem.lg
+
+LOAD "UnitTests-Arithmetic.lg
+LOAD "UnitTests-Bitwise.lg
+LOAD "UnitTests-Constructors.lg
+LOAD "UnitTests-Predicates.lg
+LOAD "UnitTests-Random.lg
+LOAD "UnitTests-OOP.lg

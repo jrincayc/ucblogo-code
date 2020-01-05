@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -23,11 +22,12 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
-/* #define OBJECTS */
+// #define OBJECTS 
 
 /* #define MEM_DEBUG */
 
 #define ecma	/* for European extended character set using parity bit */
+
 
 #ifdef WIN32
 #define ibm
@@ -229,9 +229,11 @@ typedef enum { FATAL, OUT_OF_MEM, STACK_OVERFLOW, TURTLE_OUT_OF_BOUNDS,
 		BAD_DEFAULT, RUNRES_STOP, MISSING_SPACE,
 		CANT_OPEN_ERROR, ALREADY_OPEN_ERROR, NOT_OPEN_ERROR,
 		RUNNABLE_ARG,
-#ifdef OBJECTS
+// I removed conditional inclusion of LOCAL_AND_OBJ because
+// it the messages text file does not have the ability to 
+// conditionally include the text for the message, resulting
+// in a shift by 1 when compiled with OBJECTS
 		LOCAL_AND_OBJ,
-#endif
     /* below this point aren't actually error codes, just messages */
 		THANK_YOU, NICE_DAY, NOSHELL_MAC, TYPE_EXIT, ERROR_IN,
 		ERRACT_LOOP, PAUS_ING, TRACE_STOPS, TRACE_OUTPUTS,
@@ -512,6 +514,8 @@ struct segment {
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
 #define flag__caseobj(c,f) (int)((obflags__caseobj(c))->n_int & (f))
 #define flag__object(o,f) (int)((obflags__object(o))->n_int & (f))
+#define setflag__object(c,f) ((obflags__object(c))->n_int |= (f))
+#define clearflag__object(c,f) ((obflags__object(c))->n_int &= ~(f))
 #define is_macro(c) (flag__caseobj(c, PROC_MACRO))
 
 #define push(obj, stack)    stack = cons(obj, stack)
@@ -630,6 +634,11 @@ struct registers {
     FIXNUM r_repcount;	    /* count for repeat */
     FIXNUM r_user_repcount;
     FIXNUM r_ift_iff_flag;
+#ifdef OBJECTS
+    NODE *r_usual_parent;
+    NODE *r_usual_caller;
+#endif
+
 };
 
 /* definitions for evaluator registers */
@@ -656,7 +665,11 @@ struct registers {
 #define user_repcount (regs.r_user_repcount)
 #define ift_iff_flag (regs.r_ift_iff_flag)
 
-#define exp expresn
+#ifdef OBJECTS
+#define usual_parent (regs.r_usual_parent)
+#define usual_caller (regs.r_usual_caller)
+#endif
+
 #endif
 
 #endif /* _LOGO_H */

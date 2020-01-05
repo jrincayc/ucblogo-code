@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -460,17 +459,27 @@ void silent_load(NODE *arg, char *prefix) {
     tmp_line = current_line;
     loadstream = fopen(load_path, "r");
     if (loadstream != NULL) {
-	while (!(feof(loadstream)) && NOT_THROWING) {
-	    current_line = reader(loadstream, "");
-	    exec_list =parser(current_line, TRUE);
-	    if (exec_list != NIL) eval_driver(exec_list);
-	}
-	fclose(loadstream);
-	runstartup(st);
+#ifdef OBJECTS
+      // make sure the library executes
+      // in the context of the logo object
+      NODE* temp_object = current_object;
+      current_object = logo_object;
+#endif
+      while (!(feof(loadstream)) && NOT_THROWING) {
+	current_line = reader(loadstream, "");
+	exec_list =parser(current_line, TRUE);
+	if (exec_list != NIL) eval_driver(exec_list);
+      }
+      fclose(loadstream);
+      runstartup(st);
+#ifdef OBJECTS
+      // restore the old current object
+      current_object = temp_object;
+#endif
     } else if (arg == NIL || prefix == csls)
-	err_logo(CANT_OPEN_ERROR,
-		 make_strnode(load_path, NULL, strlen(load_path), STRING,
-			      strnzcpy));
+      err_logo(CANT_OPEN_ERROR,
+	       make_strnode(load_path, NULL, strlen(load_path), STRING,
+			    strnzcpy));
     loadstream = tmp_stream;
     current_line = tmp_line;
 }

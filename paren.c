@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,8 +35,9 @@ void check_library(NODE *first) {
 	first != Null_Word)
 	    silent_load(first, NULL);    /* try ./<first>.lg */
     if (procnode__caseobj(first) == UNDEFINED && NOT_THROWING &&
-	first != Null_Word)
-	    silent_load(first, logolib); /* try <logolib>/<first> */
+	first != Null_Word){
+      silent_load(first, logolib); /* try <logolib>/<first> */
+    }
 }
 
 /* Set the line pointer for a tree.
@@ -160,10 +160,34 @@ int is_setter(NODE *name) {
     NODE *string = cnv_node_to_strnode(name);
 
     if (getstrlen(string) < 4) return FALSE;
+
+    // check to see if name begins with "set"
     return !low_strncmp(getstrptr(string), "set", 3);
 }
 
-/* Check for FD100, give warning, insert space */
+#ifdef OBJECTS
+
+/* See if procedure name starts with Usual
+   this is used in OOP to explicitly call a parents
+   methods, Usual.Foo  */
+int is_usual(NODE *name) {
+  NODE *string = cnv_node_to_strnode(name);
+
+  // first rule out all words shorter than 8 chars
+  if (getstrlen(string) < 8) return FALSE;
+
+  // check to see if name begins with "usual."
+  return !low_strncmp(getstrptr(string), "usual.", 6);
+}
+
+#endif // OBJECTS
+
+
+
+/* Check for FD100, give warning, insert space 
+   FD100 is assumed to be a typo, that is, we 
+   think the user meant FD 100, not FD100
+*/
 
 NODE *missing_alphabetic, *missing_numeric;
 
@@ -207,10 +231,15 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
     NODE *first = NIL, *tree = NIL, *pproc, *retval;
     NODE **ifnode = (NODE **)NIL;
 
+    // no expression given
     if (*expr == NIL) {
-	if (inparen) err_logo(PAREN_MISMATCH, NIL);
-	return *expr;
+      // check if we are in a paren, if so error
+      if (inparen) err_logo(PAREN_MISMATCH, NIL);
+      return *expr;
     }
+
+    // get the first element in the expression, 
+    // and pop if off the stack
     first = car(*expr);
     pop(*expr);
     if (nodetype(first) == CASEOBJ && !numberp(first)) {
@@ -269,6 +298,24 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		    if (retval != UNBOUND) {
 			retval = cons(first, retval);
 		    }
+#ifdef OBJECTS
+		} else if (is_usual(first)) {
+		  // the proc starts with "usual.", so chop it off and
+		  // try to find the proc name after the dot
+		  NODE *name = cnv_node_to_strnode(first);
+		  proc = getInheritedProc(make_strnode(getstrptr(name) + 6,
+						       getstrhead(name),
+						       getstrlen(name) - 6,
+						       nodetype(name),
+						       strnzcpy),
+					  current_object);
+		  retval = gather_some_args(minargs__procnode(proc), 
+					    maxargs__procnode(proc), 
+					    expr, 
+					    inparen, 
+					    ifnode);
+		  return cons(first, retval);
+#endif /* OBJECTS */
 		} else {
 		    retval = cons(first, NIL);
 		    tree_dk_how = first;
@@ -385,10 +432,10 @@ int priority(NODE *proc_obj) {
  * infix expression.
  */ 
 NODE *paren_infix(NODE *left_arg, NODE **rest, int old_pri, BOOLEAN inparen) {
-
     NODE *infix_proc, *retval;
     int pri;
 
+    // check to make sure we really got an infix expression
     if (*rest == NIL || !(pri = priority(infix_proc = car(*rest)))
 		     || pri <= old_pri) 
 	return left_arg;

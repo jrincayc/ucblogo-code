@@ -3,25 +3,24 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
-extern NODE *stack, *numstack, *exp, *val, *parm, *catch_tag, *arg;
+extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 /* #ifdef ibm */
 /* #ifndef __RZTC__ */
@@ -519,7 +518,7 @@ re_mark:
     mark(Regs_Node);
     mark(stack);
     mark(numstack);
-    mark(exp);
+    mark(expresn);
     mark(val);
     mark(parm);
     mark(catch_tag);

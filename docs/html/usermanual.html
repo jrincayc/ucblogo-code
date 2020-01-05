@@ -1,27 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Created on September, 3 2008 by texi2html 1.78 -->
-<!--
-Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+<!-- Created on December 27, 2019 by texi2html 5.0
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
 Maintained by: Many creative people.
 Send bugs and suggestions to <texi2html-bug@nongnu.org>
-
 -->
 <head>
-<title>BERKELEY LOGO 6.0: Top</title>
+<title>BERKELEY LOGO 6.1: 1 Introduction</title>
 
-<meta name="description" content="BERKELEY LOGO 6.0: Top">
-<meta name="keywords" content="BERKELEY LOGO 6.0: Top">
+<meta name="description" content="BERKELEY LOGO 6.1: 1 Introduction">
+<meta name="keywords" content="BERKELEY LOGO 6.1: 1 Introduction">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
-<meta name="Generator" content="texi2html 1.78">
+<meta name="Generator" content="texi2html 5.0">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 <!--
 a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
 pre.display {font-family: serif}
 pre.format {font-family: serif}
 pre.menu-comment {font-family: serif}
@@ -30,9 +36,11 @@ pre.smalldisplay {font-family: serif; font-size: smaller}
 pre.smallexample {font-size: smaller}
 pre.smallformat {font-family: serif; font-size: smaller}
 pre.smalllisp {font-size: smaller}
-span.roman {font-family:serif; font-weight:normal;}
-span.sansserif {font-family:sans-serif; font-weight:normal;}
-ul.toc {list-style: none}
+span.nocodebreak {white-space:pre}
+span.nolinebreak {white-space:pre}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
 -->
 </style>
 
@@ -41,58 +49,103 @@ ul.toc {list-style: none}
 
 <body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
 
+<h1>BERKELEY LOGO 6.1</h1>
+<h3 align="right">Berkeley Logo User Manual</h3>
+<strong>Brian Harvey</strong><br>
+<hr>
+<p>@vsize = 8.9 in
+@parskip = 7 pt
+@parindent = 0 pt
+
+</p>
+
+
+ 
+
+
+
 <a name="Top"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[ &lt;&lt; ]</td>
+<td valign="middle" align="left">[ &lt; ]</td>
+<td valign="middle" align="left">[ Up ]</td>
+<td valign="middle" align="left">[<a href="usermanual_1.html#OVERVIEW" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_2.html#DATA-STRUCTURE-PRIMITIVES" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h1 class="settitle">BERKELEY LOGO 6.0
-</h1>
 
 
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="usermanual_1.html#SEC1">1. Introduction</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+<tr><td align="left" valign="top"><a href="#INTRODUCTION">1 Introduction</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_2.html#SEC6">2. Data Structure Primitives</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">   
+<tr><td align="left" valign="top"><a href="usermanual_2.html#DATA-STRUCTURE-PRIMITIVES">2 Data Structure Primitives</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">   
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_3.html#SEC67">3. Communication</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">               
+<tr><td align="left" valign="top"><a href="usermanual_3.html#COMMUNICATION">3 Communication</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">               
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_4.html#SEC114">4. Arithmetic</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="usermanual_4.html#ARITHMETIC">4 Arithmetic</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_5.html#SEC155">5. Logical Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
+<tr><td align="left" valign="top"><a href="usermanual_5.html#LOGICAL-OPERATIONS">5 Logical Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_6.html#SEC159">6. Graphics</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="usermanual_6.html#GRAPHICS">6 Graphics</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_7.html#SEC231">7. Workspace Management</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">        
+<tr><td align="left" valign="top"><a href="usermanual_7.html#WORKSPACE-MANAGEMENT">7 Workspace Management</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">        
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_8.html#SEC320">8. Control Structures</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
+<tr><td align="left" valign="top"><a href="usermanual_8.html#CONTROL-STRUCTURES">8 Control Structures</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_9.html#SEC366">9. Macros</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="usermanual_9.html#MACROS">9 Macros</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_10.html#SEC371">10. Error Processing</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
+<tr><td align="left" valign="top"><a href="usermanual_10.html#ERROR-PROCESSING">10 Error Processing</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_11.html#SEC373">11. Special Variables</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">           
+<tr><td align="left" valign="top"><a href="usermanual_11.html#SPECIAL-VARIABLES">11 Special Variables</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">           
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_12.html#SEC390">12. Internationalization</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">        
+<tr><td align="left" valign="top"><a href="usermanual_12.html#INTERNATIONALIZATION">12 Internationalization</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">        
 </td></tr>
-<tr><td align="left" valign="top"><a href="usermanual_13.html#SEC391">INDEX</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="usermanual_13.html#INDEX">INDEX</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
 </table>
 
 
-<hr size="1">
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<a name="INTRODUCTION"></a>
+<a name="Introduction"></a>
+<h1 class="chapter">1 Introduction</h1>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="usermanual_1.html#OVERVIEW">1.1 Overview</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+</td></tr>
+<tr><td align="left" valign="top"><a href="usermanual_1.html#GETTER_002fSETTER-VARIBLE-SYNTAX">1.2 Getter/Setter Variable Syntax</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">  
+</td></tr>
+<tr><td align="left" valign="top"><a href="usermanual_1.html#ENTERING-AND-LEAVING-LOGO">1.3 Entering and Leaving Logo</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">   
+</td></tr>
+<tr><td align="left" valign="top"><a href="usermanual_1.html#TOKENIZATION">1.4 Tokenization</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+</table>
+
+
+<hr>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[ &lt;&lt; ]</td>
+<td valign="middle" align="left">[<a href="usermanual_2.html#DATA-STRUCTURE-PRIMITIVES" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Brian Harvey</em> on <em>September, 3 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+  This document was generated on <i>December 27, 2019</i> using <a href="http://www.nongnu.org/texi2html/"><i>texi2html 5.0</i></a>.
  </font>
  <br>
 

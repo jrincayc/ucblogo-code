@@ -1,23 +1,23 @@
 CC	= gcc
-CFLAGS	= -g -O -DHAVE_WX    -O0
+CFLAGS	= -g -O2 -DHAVE_WX    -O0 -DUSE_OLD_TTY
 CXX     = g++
-CXXFLAGS = -g  -DHAVE_WX -I/usr/local/lib/wx/include/gtk2-ansi-release-static-2.8 -I/usr/local/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXGTK__ -pthread
+CXXFLAGS = -g -O2 -DHAVE_WX -I/usr/lib64/wx/include/gtk3-unicode-3.0 -I/usr/include/wx-3.0 -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__ -pthread
 LDFLAGS	= 
-LIBS  =   -lbsd -lm  -L/usr/local/lib -pthread   /usr/local/lib/libwx_gtk2_richtext-2.8.a /usr/local/lib/libwx_gtk2_aui-2.8.a /usr/local/lib/libwx_gtk2_xrc-2.8.a /usr/local/lib/libwx_gtk2_qa-2.8.a /usr/local/lib/libwx_gtk2_html-2.8.a /usr/local/lib/libwx_gtk2_adv-2.8.a /usr/local/lib/libwx_gtk2_core-2.8.a /usr/local/lib/libwx_base_xml-2.8.a /usr/local/lib/libwx_base_net-2.8.a /usr/local/lib/libwx_base-2.8.a -pthread -L/lib -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lXinerama -lXxf86vm -lSM -lpng -ljpeg -ltiff -lexpat -lz -ldl -lm  -ltermcap -lX11 
+LIBS  =  -lSM -lICE  -lbsd -lm  -pthread   -lwx_gtk3u_xrc-3.0 -lwx_gtk3u_webview-3.0 -lwx_gtk3u_html-3.0 -lwx_gtk3u_qa-3.0 -lwx_gtk3u_adv-3.0 -lwx_gtk3u_core-3.0 -lwx_baseu_xml-3.0 -lwx_baseu_net-3.0 -lwx_baseu-3.0  -ltermcap -lX11 
 prefix = /usr/local
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
-LINKER = $(CXX)
+LINKER = g++ -o
 
 # LIBLOC      = `pwd`
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o svn.o wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o wxterm.o 
+	  print.o wrksp.o nographics.o git.o obj.o wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o wxterm.o 
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
-	  print.c wrksp.c nographics.c wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp wxterm.c 
+	  print.c wrksp.c nographics.c obj.c wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp wxterm.c 
 
 HDRS	= globals.h logo.h xgraphics.h
 
@@ -30,8 +30,8 @@ everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
 
-svn.c:	$(SRCS)
-	echo 'char* SVN = "('`svnversion|tr -d '\r'`')";' > svn.c
+git.c:	$(SRCS)
+	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)
@@ -70,7 +70,7 @@ ship:
 #	cd emacs; $(MAKE) ship
 	cd docs; $(MAKE) ship
 
-install: all
+install: everything
 	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls; do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp logo $(BINDIR)/.
 	cp -f logolib/* $(LIBLOC)/logolib/.
@@ -87,16 +87,25 @@ logo-mode:
 make-docs:
 	(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) $(MAKE) all)
 
-mac: all
+mac: everything
 	mkdir -p UCBLogo.app
 	mkdir -p UCBLogo.app/Contents
 	cp Info.plist UCBLogo.app/Contents/
 	cp PkgInfo UCBLogo.app/Contents/
 	cp pbdevelopment.plist UCBLogo.app/Contents/
-	mkdir -p UCBLogo.app/Contents/Resources
+	mkdir -p UCBLogo.app/Contents/Resources/csls
 	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
 	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp logo UCBLogo.app/Contents/MacOS/UCBLogo
+
+ucblogo.dmg : mac
+	rm -f ucblogo.dmg ucblogo_base.dmg
+	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+	hdiutil attach ucblogo_base.dmg
+	cp -a UCBLogo.app /Volumes/UCBLogo/
+	cp docs/usermanual.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
+	hdiutil detach /Volumes/UCBLogo/
+	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg

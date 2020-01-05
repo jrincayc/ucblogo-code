@@ -1,27 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Created on September, 3 2008 by texi2html 1.78 -->
-<!--
-Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+<!-- Created on December 27, 2019 by texi2html 5.0
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
 Maintained by: Many creative people.
 Send bugs and suggestions to <texi2html-bug@nongnu.org>
-
 -->
 <head>
-<title>BERKELEY LOGO 6.0: 3. Communication</title>
+<title>BERKELEY LOGO 6.1: 3 Communication</title>
 
-<meta name="description" content="BERKELEY LOGO 6.0: 3. Communication">
-<meta name="keywords" content="BERKELEY LOGO 6.0: 3. Communication">
+<meta name="description" content="BERKELEY LOGO 6.1: 3 Communication">
+<meta name="keywords" content="BERKELEY LOGO 6.1: 3 Communication">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
-<meta name="Generator" content="texi2html 1.78">
+<meta name="Generator" content="texi2html 5.0">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 <!--
 a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
 pre.display {font-family: serif}
 pre.format {font-family: serif}
 pre.menu-comment {font-family: serif}
@@ -30,9 +36,11 @@ pre.smalldisplay {font-family: serif; font-size: smaller}
 pre.smallexample {font-size: smaller}
 pre.smallformat {font-family: serif; font-size: smaller}
 pre.smalllisp {font-size: smaller}
-span.roman {font-family:serif; font-weight:normal;}
-span.sansserif {font-family:sans-serif; font-weight:normal;}
-ul.toc {list-style: none}
+span.nocodebreak {white-space:pre}
+span.nolinebreak {white-space:pre}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
 -->
 </style>
 
@@ -42,64 +50,62 @@ ul.toc {list-style: none}
 <body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
 
 <a name="COMMUNICATION"></a>
-<a name="SEC67"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="usermanual_2.html#SEC66" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC68" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual_2.html#SEC6" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="usermanual_2.html#DATA-STRUCTURE-PRIMITIVES" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_2.html#RUNPARSE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ Up ]</td>
+<td valign="middle" align="left">[<a href="#TRANSMITTERS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h1 class="chapter"> 3. Communication </h1>
+<a name="Communication"></a>
+<h1 class="chapter">3 Communication</h1>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC68">3.1 Transmitters</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+<tr><td align="left" valign="top"><a href="#TRANSMITTERS">3.1 Transmitters</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC72">3.2 Receivers</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#RECEIVERS">3.2 Receivers</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC79">3.3 File Access</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
+<tr><td align="left" valign="top"><a href="#FILE-ACCESS">3.3 File Access</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC102">3.4 Terminal Access</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">             
+<tr><td align="left" valign="top"><a href="#TERMINAL-ACCESS">3.4 Terminal Access</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">             
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="TRANSMITTERS"></a>
-<a name="SEC68"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC67" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC69" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COMMUNICATION" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COMMUNICATION" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#PRINT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 3.1 Transmitters </h2>
+<a name="Transmitters"></a>
+<h2 class="section">3.1 Transmitters</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC69">print</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#PRINT">print</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC70">type</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#TYPE">type</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC71">show</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#SHOW">show</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
 </table>
 
@@ -108,7 +114,7 @@ integer value, then complex list and array structures will be printed
 only to the allowed depth.  That is, members of members of... of members
 will be allowed only so far.  The members omitted because
 they are just past the depth limit are indicated by an ellipsis for each
-one, so a too-deep list of two members will print as <tt>[... ...]</tt>.
+one, so a too-deep list of two members will print as <tt>[...&nbsp;...]</tt>.
 </p>
 <p>If there is a variable named <code>PRINTWIDTHLIMIT</code> with a nonnegative integer
 value, then only the first so many members of any array or
@@ -119,8 +125,8 @@ will be treated as if it were 10 when applied to words.  This limit
 applies not only to the top-level printed datum but to any substructures
 within it.
 </p>
-<p>See section <a href="usermanual_11.html#SEC382">printdepthlimit</a> ,
-<a href="usermanual_11.html#SEC383">printwidthlimit</a>
+<p>See section <a href="usermanual_11.html#PRINTDEPTHLIMIT">printdepthlimit</a> ,
+<a href="usermanual_11.html#PRINTWIDTHLIMIT">printwidthlimit</a>
 </p>
 <p>If there is a variable named <code>FULLPRINTP</code> whose value is <code>TRUE</code>, then
 words that were created using backslash or vertical bar (to include
@@ -130,34 +136,36 @@ result could be re-read by Logo to produce the same value.  If
 <code>FULLPRINTP</code> is <code>TRUE</code> then the empty word (however it was created) prints
 as <code>||</code>.  (Otherwise it prints as nothing at all.)
 </p>
-<p>See section <a href="usermanual_11.html#SEC379">fullprintp</a> .
+<p>See section <a href="usermanual_11.html#FULLPRINTP">fullprintp</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="PRINT"></a>
-<a name="SEC69"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC68" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC70" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC68" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TRANSMITTERS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TRANSMITTERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#TYPE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> print </h3>
+<a name="print"></a>
+<h3 class="unnumberedsubsec">print</h3>
+<a name="index-print"></a>
+<a name="index-pr"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">PRINT thing
+<div class="example">
+<pre class="example">PRINT thing
 PR thing
 (PRINT thing1 thing2 ...)
 (PR thing1 thing2 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Prints the input or inputs to the current write stream
 (initially the screen).  All the inputs are printed on a single line,
@@ -165,30 +173,31 @@ separated by spaces, ending with a newline.  If an input is a list,
 square brackets are not printed around it, but brackets are printed
 around sublists.  Braces are always printed around arrays.
 </p>
-<hr size="6">
+<hr>
 <a name="TYPE"></a>
-<a name="SEC70"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC69" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC71" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC68" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#PRINT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TRANSMITTERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SHOW" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> type </h3>
+<a name="type"></a>
+<h3 class="unnumberedsubsec">type</h3>
+<a name="index-type"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">TYPE thing
+<div class="example">
+<pre class="example">TYPE thing
 (TYPE thing1 thing2 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Prints the input or inputs like <code>PRINT</code>, except that no newline
 character is printed at the end and multiple inputs are not separated by
@@ -203,104 +212,106 @@ To accommodate programs that do a lot of positioned text display using
 <code>TYPE</code>, Logo will force printing whenever <code>SETCURSOR</code> is invoked.  This
 solves most buffering problems.  Still, on occasion you may find it
 necessary to force the buffered characters to be printed explicitly;
-this can be done using the <code>WAIT</code> command.  <tt>WAIT 0</tt> will force printing
+this can be done using the <code>WAIT</code> command.  <tt>WAIT&nbsp;0</tt> will force printing
 without actually waiting.
 </p>
-<p>See section <a href="#SEC105">setcursor</a> ,
-<a href="usermanual_8.html#SEC339">wait</a>
+<p>See section <a href="#SETCURSOR">setcursor</a> ,
+<a href="usermanual_8.html#WAIT">wait</a>
 </p>
-<hr size="6">
+<hr>
 <a name="SHOW"></a>
-<a name="SEC71"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC70" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC68" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TYPE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TRANSMITTERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> show </h3>
+<a name="show"></a>
+<h3 class="unnumberedsubsec">show</h3>
+<a name="index-show"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SHOW thing
+<div class="example">
+<pre class="example">SHOW thing
 (SHOW thing1 thing2 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Prints the input or inputs like <code>PRINT</code>, except that if an input
 is a list it is printed inside square brackets.
 </p>
-<p>See section <a href="#SEC69">print</a> .
+<p>See section <a href="#PRINT">print</a> .
 </p>
 
-<hr size="6">
+<hr>
 <a name="RECEIVERS"></a>
-<a name="SEC72"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC71" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC73" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SHOW" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COMMUNICATION" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READLIST" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 3.2 Receivers </h2>
+<a name="Receivers"></a>
+<h2 class="section">3.2 Receivers</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC73">readlist</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#READLIST">readlist</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC74">readword</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#READWORD">readword</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC75">readrawline</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
+<tr><td align="left" valign="top"><a href="#READRAWLINE">readrawline</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC76">readchar</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#READCHAR">readchar</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC77">readchars</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#READCHARS">readchars</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC78">shell</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#SHELL">shell</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="READLIST"></a>
-<a name="SEC73"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC72" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC74" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READWORD" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readlist </h3>
+<a name="readlist"></a>
+<h3 class="unnumberedsubsec">readlist</h3>
+<a name="index-readlist"></a>
+<a name="index-rl"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READLIST
+<div class="example">
+<pre class="example">READLIST
 RL
-</pre></td></tr></table>
+</pre></div>
 
 <p>reads a line from the read stream (initially the keyboard) and outputs
 that line as a list.  The line is separated into members as though it
@@ -311,30 +322,32 @@ tilde characters in the read stream; the output list will not contain
 these characters but they will have had their usual effect.  <code>READLIST</code>
 does not, however, treat semicolon as a comment character.
 </p>
-<hr size="6">
+<hr>
 <a name="READWORD"></a>
-<a name="SEC74"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC73" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC75" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READLIST" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READRAWLINE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readword </h3>
+<a name="readword"></a>
+<h3 class="unnumberedsubsec">readword</h3>
+<a name="index-readword"></a>
+<a name="index-rw"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READWORD
+<div class="example">
+<pre class="example">READWORD
 RW
-</pre></td></tr></table>
+</pre></div>
 
 <p>reads a line from the read stream and outputs that line as a word.  The
 output is a single word even if the line contains spaces, brackets, etc.
@@ -348,29 +361,30 @@ also preserved in the output.  Backslash characters are not preserved in
 the output.
 </p>
 
-<hr size="6">
+<hr>
 <a name="READRAWLINE"></a>
-<a name="SEC75"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC74" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC76" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READWORD" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READCHAR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readrawline </h3>
+<a name="readrawline"></a>
+<h3 class="unnumberedsubsec">readrawline</h3>
+<a name="index-readrawline"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READRAWLINE
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">READRAWLINE
+</pre></div>
 
 <p>reads a line from the read stream and outputs that line as a word.  The
 output is a single word even if the line contains spaces, brackets, etc.
@@ -380,32 +394,34 @@ exact string of characters as they appear in the line, with no special
 meaning for backslash, vertical bar, tilde, or any other formatting
 characters.
 </p>
-<p>See section <a href="#SEC74">readword</a> .
+<p>See section <a href="#READWORD">readword</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="READCHAR"></a>
-<a name="SEC76"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC75" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC77" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READRAWLINE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READCHARS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readchar </h3>
+<a name="readchar"></a>
+<h3 class="unnumberedsubsec">readchar</h3>
+<a name="index-readchar"></a>
+<a name="index-rc"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READCHAR
+<div class="example">
+<pre class="example">READCHAR
 RC
-</pre></td></tr></table>
+</pre></div>
 
 <p>reads a single character from the read stream and outputs that character
 as a word.  If the read stream is a file, and the end of file is
@@ -415,32 +431,34 @@ invoked, and remains off until <code>READLIST</code> or <code>READWORD</code> is
 prompt is printed.  Backslash, vertical bar, and tilde characters have
 no special meaning in this context.
 </p>
-<p>See section <a href="#SEC73">readlist</a> .
+<p>See section <a href="#READLIST">readlist</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="READCHARS"></a>
-<a name="SEC77"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC76" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC78" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READCHAR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SHELL" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readchars </h3>
+<a name="readchars"></a>
+<h3 class="unnumberedsubsec">readchars</h3>
+<a name="index-readchars"></a>
+<a name="index-rcs"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READCHARS num
+<div class="example">
+<pre class="example">READCHARS num
 RCS num
-</pre></td></tr></table>
+</pre></div>
 
 <p>reads <var>num</var> characters from the read stream and outputs those characters
 as a word.  If the read stream is a file, and the end of file is
@@ -450,49 +468,51 @@ invoked, and remains off until <code>READLIST</code> or <code>READWORD</code> is
 prompt is printed.  Backslash, vertical bar, and tilde characters have
 no special meaning in this context.
 </p>
-<p>See section <a href="#SEC73">readlist</a> ,
-<a href="#SEC74">readword</a>
+<p>See section <a href="#READLIST">readlist</a> ,
+<a href="#READWORD">readword</a>
 </p>
-<hr size="6">
+<hr>
 <a name="SHELL"></a>
-<a name="SEC78"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC77" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC72" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READCHARS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RECEIVERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> shell </h3>
+<a name="shell"></a>
+<h3 class="unnumberedsubsec">shell</h3>
+<a name="index-shell"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SHELL command
+<div class="example">
+<pre class="example">SHELL command
 (SHELL command wordflag)
-</pre></td></tr></table>
+</pre></div>
 
 <p>Under Unix, outputs the result of running <var>command</var> as a shell command.
 (The command is sent to &lsquo;<samp>/bin/sh</samp>&rsquo;, not &lsquo;<samp>csh</samp>&rsquo; or other alternatives.)
 If the command is a literal list in the instruction line, and if you want a
 backslash character sent to the shell, you must use <code>\\</code> to get the
-backslash through Logo's reader intact.  The output is a list containing
+backslash through Logo&rsquo;s reader intact.  The output is a list containing
 one member for each line generated by the shell command.  Ordinarily
 each such line is represented by a list in the output, as though the
 line were read using <code>READLIST</code>.  If a second input is given, regardless
 of the value of the input, each line is represented by a word in the
 output as though it were read with <code>READWORD</code>.  Example:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">to dayofweek
+<div class="example">
+<pre class="example">to dayofweek
 output first first shell [date]
 end
-</pre></td></tr></table>
+</pre></div>
 
 <p>This is <code>first first</code> to extract the first word of the first (and only)
 line of the shell output.
@@ -508,98 +528,98 @@ that DOS-style commands are understood; use <code>dir</code> rather than <code>l
 The non-wxWidgets version behaves like the DOS version.
 </p>
 
-<hr size="6">
+<hr>
 <a name="FILE-ACCESS"></a>
-<a name="SEC79"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC78" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC80" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SHELL" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COMMUNICATION" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETPREFIX" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 3.3 File Access </h2>
+<a name="File-Access"></a>
+<h2 class="section">3.3 File Access</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC80">setprefix</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#SETPREFIX">setprefix</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC81">prefix</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#PREFIX">prefix</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC82">openread</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#OPENREAD">openread</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC83">openwrite</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#OPENWRITE">openwrite</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC84">openappend</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="#OPENAPPEND">openappend</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC85">openupdate</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="#OPENUPDATE">openupdate</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC86">close</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#CLOSE">close</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC87">allopen</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+<tr><td align="left" valign="top"><a href="#ALLOPEN">allopen</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC88">closeall</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#CLOSEALL">closeall</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC89">erasefile</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#ERASEFILE">erasefile</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC90">dribble</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+<tr><td align="left" valign="top"><a href="#DRIBBLE">dribble</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC91">nodribble</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#NODRIBBLE">nodribble</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC92">setread</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+<tr><td align="left" valign="top"><a href="#SETREAD">setread</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC93">setwrite</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#SETWRITE">setwrite</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC94">reader</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#READER">reader</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC95">writer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#WRITER">writer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC96">setreadpos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="#SETREADPOS">setreadpos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC97">setwritepos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
+<tr><td align="left" valign="top"><a href="#SETWRITEPOS">setwritepos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                 
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC98">readpos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+<tr><td align="left" valign="top"><a href="#READPOS">readpos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC99">writepos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#WRITEPOS">writepos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC100">eofp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#EOFP">eofp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC101">filep</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#FILEP">filep</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="SETPREFIX"></a>
-<a name="SEC80"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC79" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC81" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#PREFIX" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setprefix </h3>
+<a name="setprefix"></a>
+<h3 class="unnumberedsubsec">setprefix</h3>
+<a name="index-setprefix"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETPREFIX string
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETPREFIX string
+</pre></div>
 
 <p>command.  Sets a prefix that will be used as the implicit beginning of
 filenames in <code>OPENREAD</code>, <code>OPENWRITE</code>, <code>OPENAPPEND</code>,
@@ -609,92 +629,95 @@ colon for MacOS Classic) between the prefix and the filename entered by the
 user.  The input to <code>SETPREFIX</code> must be a word, unless it is the empty list, to
 indicate that there should be no prefix.
 </p>
-<p>See section <a href="#SEC82">openread</a> , 
-See section <a href="#SEC83">openwrite</a> ,
-See section <a href="#SEC84">openappend</a> ,
-See section <a href="#SEC85">openupdate</a> ,
-See section <a href="usermanual_7.html#SEC310">load</a> ,
-See section <a href="usermanual_7.html#SEC308">save</a> .
+<p>See section <a href="#OPENREAD">openread</a> , 
+See section <a href="#OPENWRITE">openwrite</a> ,
+See section <a href="#OPENAPPEND">openappend</a> ,
+See section <a href="#OPENUPDATE">openupdate</a> ,
+See section <a href="usermanual_7.html#LOAD">load</a> ,
+See section <a href="usermanual_7.html#SAVE">save</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="PREFIX"></a>
-<a name="SEC81"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC80" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC82" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETPREFIX" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENREAD" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> prefix </h3>
+<a name="prefix"></a>
+<h3 class="unnumberedsubsec">prefix</h3>
+<a name="index-prefix"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">PREFIX
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">PREFIX
+</pre></div>
 
 <p>outputs the current file prefix, or [] if there is no prefix.
 </p>
-<p>See section <a href="#SEC80">setprefix</a> .
+<p>See section <a href="#SETPREFIX">setprefix</a> .
 </p>
 
-<hr size="6">
+<hr>
 <a name="OPENREAD"></a>
-<a name="SEC82"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC81" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC83" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#PREFIX" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENWRITE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> openread </h3>
+<a name="openread"></a>
+<h3 class="unnumberedsubsec">openread</h3>
+<a name="index-openread"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">OPENREAD filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">OPENREAD filename
+</pre></div>
 
 <p>command.  Opens the named file for reading.  The read position is
 initially at the beginning of the file.
 </p>
-<hr size="6">
+<hr>
 <a name="OPENWRITE"></a>
-<a name="SEC83"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC82" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC84" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENREAD" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENAPPEND" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> openwrite </h3>
+<a name="openwrite"></a>
+<h3 class="unnumberedsubsec">openwrite</h3>
+<a name="index-openwrite"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">OPENWRITE filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">OPENWRITE filename
+</pre></div>
 
 <p>command.  Opens the named file for writing.  If the file already
 existed, the old version is deleted and a new, empty file created.
@@ -706,75 +729,79 @@ buffer of the specified size will be created.  When a <code>SETWRITE</code> is
 done with this same list (in the sense of .EQ, not a copy, so
 you must do something like
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">? make &quot;buf [foo 100]
+<div class="example">
+<pre class="example">? make &quot;buf [foo 100]
 ? openwrite :buf
 ? setwrite :buf
     [...]
 ? close :buf
-</pre></td></tr></table>
+</pre></div>
 
 <p>and not just
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">? openwrite [foo 100]
+<div class="example">
+<pre class="example">? openwrite [foo 100]
 ? setwrite [foo 100]
-</pre></td></tr></table>
+</pre></div>
 
 <p>and so on), the printed characters are stored in the buffer;
 when a <code>CLOSE</code> is done with the same list as input, the characters
 from the buffer (treated as one long word, even if spaces and
 newlines are included) become the value of the specified variable.
 </p>
-<hr size="6">
+<hr>
 <a name="OPENAPPEND"></a>
-<a name="SEC84"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC83" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC85" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENWRITE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENUPDATE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> openappend </h3>
+<a name="openappend"></a>
+<h3 class="unnumberedsubsec">openappend</h3>
+<a name="index-openappend"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">OPENAPPEND filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">OPENAPPEND filename
+</pre></div>
 
 <p>command.  Opens the named file for writing.  If the file already exists,
 the write position is initially set to the end of the old file, so that
 newly written data will be appended to it.
 </p>
-<hr size="6">
+<hr>
 <a name="OPENUPDATE"></a>
-<a name="SEC85"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC84" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC86" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENAPPEND" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#CLOSE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> openupdate </h3>
+<a name="openupdate"></a>
+<h3 class="unnumberedsubsec">openupdate</h3>
+<a name="index-openupdate"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">OPENUPDATE filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">OPENUPDATE filename
+</pre></div>
 
 <p>command.  Opens the named file for reading and writing.  The read and
 write position is initially set to the end of the old file, if any.
@@ -785,147 +812,153 @@ Also, if you alternate reading and writing the same file, you must
 <code>SETREADPOS</code> between a write and a read, and <code>SETWRITEPOS</code> between a read
 and a write.
 </p>
-<p>See section <a href="#SEC94">reader</a> ,
-<a href="#SEC95">writer</a> ,
-<a href="#SEC96">setreadpos</a> ,
-<a href="#SEC97">setwritepos</a>
+<p>See section <a href="#READER">reader</a> ,
+<a href="#WRITER">writer</a> ,
+<a href="#SETREADPOS">setreadpos</a> ,
+<a href="#SETWRITEPOS">setwritepos</a>
 </p>
-<hr size="6">
+<hr>
 <a name="CLOSE"></a>
-<a name="SEC86"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC85" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC87" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#OPENUPDATE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ALLOPEN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> close </h3>
+<a name="close"></a>
+<h3 class="unnumberedsubsec">close</h3>
+<a name="index-close"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">CLOSE filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">CLOSE filename
+</pre></div>
 
 <p>command.  Closes the named file.  If the file was currently the
 reader or writer, then the reader or writer is changed to the
-keyboard or screen, as if <tt>SETREAD []</tt> or <tt>SETWRITE []</tt> had been done.
+keyboard or screen, as if <tt>SETREAD&nbsp;[]</tt> or <tt>SETWRITE&nbsp;[]</tt> had been done.
 </p>
 
-<hr size="6">
+<hr>
 <a name="ALLOPEN"></a>
-<a name="SEC87"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC86" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC88" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CLOSE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#CLOSEALL" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> allopen </h3>
+<a name="allopen"></a>
+<h3 class="unnumberedsubsec">allopen</h3>
+<a name="index-allopen"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ALLOPEN
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">ALLOPEN
+</pre></div>
 
 <p>outputs a list whose members are the names of all files currently open.
 This list does not include the dribble file, if any.
 </p>
-<hr size="6">
+<hr>
 <a name="CLOSEALL"></a>
-<a name="SEC88"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC87" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC89" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ALLOPEN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ERASEFILE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> closeall </h3>
+<a name="closeall"></a>
+<h3 class="unnumberedsubsec">closeall</h3>
+<a name="index-closeall"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">CLOSEALL					(library procedure)
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">CLOSEALL					(library procedure)
+</pre></div>
 
-<p>command. Closes all open files. Abbreviates <tt>FOREACH ALLOPEN [CLOSE ?]</tt>
+<p>command. Closes all open files. Abbreviates <tt>FOREACH&nbsp;ALLOPEN&nbsp;[CLOSE&nbsp;?]</tt>
 </p>
-<p>See section <a href="usermanual_8.html#SEC356">foreach</a> ,
-<a href="#SEC86">close</a>
+<p>See section <a href="usermanual_8.html#FOREACH">foreach</a> ,
+<a href="#CLOSE">close</a>
 </p>
-<hr size="6">
+<hr>
 <a name="ERASEFILE"></a>
-<a name="SEC89"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC88" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC90" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CLOSEALL" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#DRIBBLE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> erasefile </h3>
+<a name="erasefile"></a>
+<h3 class="unnumberedsubsec">erasefile</h3>
+<a name="index-erasefile"></a>
+<a name="index-erf"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ERASEFILE filename
+<div class="example">
+<pre class="example">ERASEFILE filename
 ERF filename
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Erases (deletes, removes) the named file, which should not
 currently be open.
 </p>
-<hr size="6">
+<hr>
 <a name="DRIBBLE"></a>
-<a name="SEC90"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC89" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC91" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ERASEFILE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#NODRIBBLE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> dribble </h3>
+<a name="dribble"></a>
+<h3 class="unnumberedsubsec">dribble</h3>
+<a name="index-dribble"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">DRIBBLE filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">DRIBBLE filename
+</pre></div>
 
 <p>command.  Creates a new file whose name is the input, like <code>OPENWRITE</code>,
 and begins recording in that file everything that is read from the
@@ -934,59 +967,61 @@ addition to the writing to <code>WRITER</code>.  The intent is to create a trans
 of a Logo session, including things like prompt characters and
 interactions.
 </p>
-<p>See section <a href="#SEC83">openwrite</a> ,
-<a href="#SEC95">writer</a>
+<p>See section <a href="#OPENWRITE">openwrite</a> ,
+<a href="#WRITER">writer</a>
 </p>
-<hr size="6">
+<hr>
 <a name="NODRIBBLE"></a>
-<a name="SEC91"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC90" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC92" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#DRIBBLE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETREAD" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> nodribble </h3>
+<a name="nodribble"></a>
+<h3 class="unnumberedsubsec">nodribble</h3>
+<a name="index-nodribble"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">NODRIBBLE
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">NODRIBBLE
+</pre></div>
 
 <p>command.  Stops copying information into the dribble file, and closes
 the file.
 </p>
-<hr size="6">
+<hr>
 <a name="SETREAD"></a>
-<a name="SEC92"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC91" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC93" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NODRIBBLE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETWRITE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setread </h3>
+<a name="setread"></a>
+<h3 class="unnumberedsubsec">setread</h3>
+<a name="index-setread"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETREAD filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETREAD filename
+</pre></div>
 
 <p>command.  Makes the named file the read stream, used for <code>READLIST</code>, etc.
 The file must already be open with <code>OPENREAD</code> or <code>OPENUPDATE</code>.  If the input
@@ -994,33 +1029,34 @@ is the empty list, then the read stream becomes the keyboard, as usual.
 Changing the read stream does not close the file that was previously the
 read stream, so it is possible to alternate between files.
 </p>
-<p>See section <a href="#SEC73">readlist</a> ,
-<a href="#SEC82">openread</a> ,
-<a href="#SEC85">openupdate</a>
+<p>See section <a href="#READLIST">readlist</a> ,
+<a href="#OPENREAD">openread</a> ,
+<a href="#OPENUPDATE">openupdate</a>
 </p>
-<hr size="6">
+<hr>
 <a name="SETWRITE"></a>
-<a name="SEC93"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC92" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC94" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETREAD" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READER" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setwrite </h3>
+<a name="setwrite"></a>
+<h3 class="unnumberedsubsec">setwrite</h3>
+<a name="index-setwrite"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETWRITE filename
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETWRITE filename
+</pre></div>
 
 <p>command.  Makes the named file the write stream, used for <code>PRINT</code>,
 etc.  The file must already be open with <code>OPENWRITE</code>, <code>OPENAPPEND</code>, or
@@ -1044,372 +1080,386 @@ is done, it will be opened implicitly, but the first <code>SETWRITE</code> after
 this one will implicitly close it, setting the variable and freeing
 the allocated buffer.
 </p>
-<p>See section <a href="#SEC69">print</a> ,
-<a href="#SEC83">openwrite</a> ;
-<a href="#SEC84">openappend</a> ;
-<a href="#SEC85">openupdate</a>
+<p>See section <a href="#PRINT">print</a> ,
+<a href="#OPENWRITE">openwrite</a> ;
+<a href="#OPENAPPEND">openappend</a> ;
+<a href="#OPENUPDATE">openupdate</a>
 </p>
-<hr size="6">
+<hr>
 <a name="READER"></a>
-<a name="SEC94"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC93" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC95" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETWRITE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#WRITER" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> reader </h3>
+<a name="reader"></a>
+<h3 class="unnumberedsubsec">reader</h3>
+<a name="index-reader"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READER
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">READER
+</pre></div>
 
 <p>outputs the name of the current read stream file, or the empty list if
 the read stream is the terminal.
 </p>
-<hr size="6">
+<hr>
 <a name="WRITER"></a>
-<a name="SEC95"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC94" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC96" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READER" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETREADPOS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> writer </h3>
+<a name="writer"></a>
+<h3 class="unnumberedsubsec">writer</h3>
+<a name="index-writer"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">WRITER
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">WRITER
+</pre></div>
 
 <p>outputs the name of the current write stream file, or the empty list if
 the write stream is the screen.
 </p>
-<hr size="6">
+<hr>
 <a name="SETREADPOS"></a>
-<a name="SEC96"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC95" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC97" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#WRITER" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETWRITEPOS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setreadpos </h3>
+<a name="setreadpos"></a>
+<h3 class="unnumberedsubsec">setreadpos</h3>
+<a name="index-setreadpos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETREADPOS charpos
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETREADPOS charpos
+</pre></div>
 
 <p>command.  Sets the file pointer of the read stream file so that the next
 <code>READLIST</code>, etc., will begin reading at the <var>charpos</var>th character in the
-file, counting from 0.  (That is, <tt>SETREADPOS 0</tt> will start reading from
+file, counting from 0.  (That is, <tt>SETREADPOS&nbsp;0</tt> will start reading from
 the beginning of the file.)  Meaningless if the read stream is the
 keyboard.
 </p>
-<p>See section <a href="#SEC73">readlist</a> .
+<p>See section <a href="#READLIST">readlist</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="SETWRITEPOS"></a>
-<a name="SEC97"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC96" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC98" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETREADPOS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#READPOS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setwritepos </h3>
+<a name="setwritepos"></a>
+<h3 class="unnumberedsubsec">setwritepos</h3>
+<a name="index-setwritepos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETWRITEPOS charpos
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETWRITEPOS charpos
+</pre></div>
 
 <p>command.  Sets the file pointer of the write stream file so that the
 next <code>PRINT</code>, etc., will begin writing at the <var>charpos</var>th character in the
-file, counting from 0.  (That is, <tt>SETWRITEPOS 0</tt> will start writing from
+file, counting from 0.  (That is, <tt>SETWRITEPOS&nbsp;0</tt> will start writing from
 the beginning of the file.)  Meaningless if the write stream is the
 screen.
 </p>
-<p>See section <a href="#SEC69">print</a> .
+<p>See section <a href="#PRINT">print</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="READPOS"></a>
-<a name="SEC98"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC97" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC99" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETWRITEPOS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#WRITEPOS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> readpos </h3>
+<a name="readpos"></a>
+<h3 class="unnumberedsubsec">readpos</h3>
+<a name="index-readpos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">READPOS
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">READPOS
+</pre></div>
 
 <p>outputs the file position of the current read stream file.
 </p>
-<hr size="6">
+<hr>
 <a name="WRITEPOS"></a>
-<a name="SEC99"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC98" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC100" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#READPOS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#EOFP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> writepos </h3>
+<a name="writepos"></a>
+<h3 class="unnumberedsubsec">writepos</h3>
+<a name="index-writepos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">WRITEPOS
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">WRITEPOS
+</pre></div>
 
 <p>outputs the file position of the current write stream file.
 </p>
-<hr size="6">
+<hr>
 <a name="EOFP"></a>
-<a name="SEC100"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC99" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC101" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#WRITEPOS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#FILEP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> eofp </h3>
+<a name="eofp"></a>
+<h3 class="unnumberedsubsec">eofp</h3>
+<a name="index-eofp"></a>
+<a name="index-eof_003f"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">EOFP
+<div class="example">
+<pre class="example">EOFP
 EOF?
-</pre></td></tr></table>
+</pre></div>
 
 <p>predicate, outputs <code>TRUE</code> if there are no more characters to be read in
 the read stream file, <code>FALSE</code> otherwise.
 </p>
-<hr size="6">
+<hr>
 <a name="FILEP"></a>
-<a name="SEC101"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC100" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC79" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#EOFP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILE-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> filep </h3>
+<a name="filep"></a>
+<h3 class="unnumberedsubsec">filep</h3>
+<a name="index-filep"></a>
+<a name="index-file_003f"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">FILEP filename
+<div class="example">
+<pre class="example">FILEP filename
 FILE? filename					(library procedure)
-</pre></td></tr></table>
+</pre></div>
 
 <p>predicate, outputs <code>TRUE</code> if a file of the specified name exists and can
 be read, <code>FALSE</code> otherwise.
 </p>
 
-<hr size="6">
+<hr>
 <a name="TERMINAL-ACCESS"></a>
-<a name="SEC102"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC101" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC103" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FILEP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COMMUNICATION" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#KEYP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 3.4 Terminal Access </h2>
+<a name="Terminal-Access"></a>
+<h2 class="section">3.4 Terminal Access</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC103">keyp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#KEYP">keyp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC104">cleartext</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#CLEARTEXT">cleartext</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC105">setcursor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#SETCURSOR">setcursor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC106">cursor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#CURSOR">cursor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC107">setmargins</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="#SETMARGINS">setmargins</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC108">settextcolor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+<tr><td align="left" valign="top"><a href="#SETTEXTCOLOR">settextcolor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC109">increasefont</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top"><a href="#INCREASEFONT">increasefont</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC110">settextsize</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top"><a href="#SETTEXTSIZE">settextsize</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC111">textsize</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top"><a href="#TEXTSIZE">textsize</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC112">setfont</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top"><a href="#SETFONT">setfont</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC113">font</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top"><a href="#FONT">font</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="KEYP"></a>
-<a name="SEC103"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC102" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC104" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#CLEARTEXT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> keyp </h3>
+<a name="keyp"></a>
+<h3 class="unnumberedsubsec">keyp</h3>
+<a name="index-keyp"></a>
+<a name="index-key_003f"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">KEYP
+<div class="example">
+<pre class="example">KEYP
 KEY?
-</pre></td></tr></table>
+</pre></div>
 
 <p>predicate, outputs <code>TRUE</code> if there are characters waiting to be read from
 the read stream.  If the read stream is a file, this is equivalent to
-<tt>NOT EOFP</tt>.  If the read stream is the terminal, then echoing is turned
+<tt>NOT&nbsp;EOFP</tt>.  If the read stream is the terminal, then echoing is turned
 off and the terminal is set to <code>cbreak</code> (character at a time instead of
 line at a time) mode.  It remains in this mode until some line-mode
 reading is requested (e.g., <code>READLIST</code>).  The Unix operating system
 forgets about any pending characters when it switches modes, so the
 first <code>KEYP</code> invocation will always output <code>FALSE</code>.
 </p>
-<p>See section <a href="#SEC100">eofp</a> ,
-<a href="#SEC73">readlist</a>
+<p>See section <a href="#EOFP">eofp</a> ,
+<a href="#READLIST">readlist</a>
 </p>
-<hr size="6">
+<hr>
 <a name="CLEARTEXT"></a>
-<a name="SEC104"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC103" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC105" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#KEYP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETCURSOR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> cleartext </h3>
+<a name="cleartext"></a>
+<h3 class="unnumberedsubsec">cleartext</h3>
+<a name="index-cleartext"></a>
+<a name="index-ct"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">CLEARTEXT
+<div class="example">
+<pre class="example">CLEARTEXT
 CT
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Clears the text window.
 </p>
-<hr size="6">
+<hr>
 <a name="SETCURSOR"></a>
-<a name="SEC105"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC104" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC106" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CLEARTEXT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#CURSOR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setcursor </h3>
+<a name="setcursor"></a>
+<h3 class="unnumberedsubsec">setcursor</h3>
+<a name="index-setcursor"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETCURSOR vector
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETCURSOR vector
+</pre></div>
 
 <p>command.  The input is a list of two numbers, the x and y coordinates of
 a text window position (origin in the upper left corner, positive direction
@@ -1417,58 +1467,60 @@ is southeast).  The text cursor is moved to the requested position.
 This command also forces the immediate printing of any buffered
 characters.
 </p>
-<hr size="6">
+<hr>
 <a name="CURSOR"></a>
-<a name="SEC106"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC105" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC107" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETCURSOR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETMARGINS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> cursor </h3>
+<a name="cursor"></a>
+<h3 class="unnumberedsubsec">cursor</h3>
+<a name="index-cursor"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">CURSOR
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">CURSOR
+</pre></div>
 
 <p>outputs a list containing the current x and y coordinates of the text
 cursor.  Logo may get confused about the current cursor position if,
 e.g., you type in a long line that wraps around or your program prints
 escape codes that affect the screen strangely.
 </p>
-<hr size="6">
+<hr>
 <a name="SETMARGINS"></a>
-<a name="SEC107"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC106" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC108" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CURSOR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETTEXTCOLOR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setmargins </h3>
+<a name="setmargins"></a>
+<h3 class="unnumberedsubsec">setmargins</h3>
+<a name="index-setmargins"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETMARGINS vector
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETMARGINS vector
+</pre></div>
 
 <p>command.  The input must be a list of two numbers, as for <code>SETCURSOR</code>.
 The effect is to clear the screen and then arrange for all further
@@ -1482,33 +1534,35 @@ purpose of this command is to accommodate the display of terminal
 screens in lecture halls with inadequate TV monitors that miss the top
 and left edges of the screen.
 </p>
-<p>See section <a href="#SEC105">setcursor</a> .
+<p>See section <a href="#SETCURSOR">setcursor</a> .
 </p>
 
-<hr size="6">
+<hr>
 <a name="SETTEXTCOLOR"></a>
-<a name="SEC108"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC107" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC109" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETMARGINS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#INCREASEFONT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> settextcolor </h3>
+<a name="settextcolor"></a>
+<h3 class="unnumberedsubsec">settextcolor</h3>
+<a name="index-settextcolor"></a>
+<a name="index-settc"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETTEXTCOLOR foreground background
+<div class="example">
+<pre class="example">SETTEXTCOLOR foreground background
 SETTC foreground background
-</pre></td></tr></table>
+</pre></div>
 
 <p>command (wxWidgets only).  The inputs are color numbers, or RGB color lists,
 as for turtle graphics.  The foreground and background colors for the
@@ -1526,60 +1580,63 @@ text printed by the program, not to the echoing of text typed by the user.
 Neither limitation applies to the text portion of splitscreen mode, which is
 actually drawn as graphics internally.
 </p>
-<p>See section <a href="usermanual_2.html#SEC64">standout</a> .
+<p>See section <a href="usermanual_2.html#STANDOUT">standout</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="INCREASEFONT"></a>
-<a name="SEC109"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC108" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC110" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETTEXTCOLOR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETTEXTSIZE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> increasefont </h3>
+<a name="increasefont"></a>
+<h3 class="unnumberedsubsec">increasefont</h3>
+<a name="index-increasefont"></a>
+<a name="index-decreasefont"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">INCREASEFONT
+<div class="example">
+<pre class="example">INCREASEFONT
 DECREASEFONT
-</pre></td></tr></table>
+</pre></div>
 
 <p>command (wxWidgets only).  Increase or decrease the size of the font
 used in the text and edit windows to the next larger or smaller
 available size.
 </p>
-<hr size="6">
+<hr>
 <a name="SETTEXTSIZE"></a>
-<a name="SEC110"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC109" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC111" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#INCREASEFONT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#TEXTSIZE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> settextsize </h3>
+<a name="settextsize"></a>
+<h3 class="unnumberedsubsec">settextsize</h3>
+<a name="index-settextsize"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETTEXTSIZE height
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETTEXTSIZE height
+</pre></div>
 
 <p>command (wxWidgets only).  Set the &quot;point size&quot; of the font used in
 the text and edit windows to the given integer input.  The desired
@@ -1590,110 +1647,113 @@ pixels of height is about 1.5 times the point size, but it varies for
 different fonts.  See <code>SETLABELHEIGHT</code> for a different approach used for
 the graphics window.
 </p>
-<hr size="6">
+<hr>
 <a name="TEXTSIZE"></a>
-<a name="SEC111"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC110" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC112" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETTEXTSIZE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SETFONT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> textsize </h3>
+<a name="textsize"></a>
+<h3 class="unnumberedsubsec">textsize</h3>
+<a name="index-textsize"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">TEXTSIZE
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">TEXTSIZE
+</pre></div>
 
 <p>(wxWidgets only) outputs the &quot;point size&quot; of the font used in the text
 and edit windows.  See <code>SETTEXTSIZE</code> for a discussion of font sizing.
 See <code>LABELSIZE</code> for a different approach used for the graphics window.
 </p>
-<hr size="6">
+<hr>
 <a name="SETFONT"></a>
-<a name="SEC112"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC111" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC113" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TEXTSIZE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#FONT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> setfont </h3>
+<a name="setfont"></a>
+<h3 class="unnumberedsubsec">setfont</h3>
+<a name="index-setfont"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SETFONT fontname
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SETFONT fontname
+</pre></div>
 
 <p>command (wxWidgets only).  Set the font family used in all windows
 to the one named by the input.  Try &lsquo;<tt>Courier</tt>&rsquo; or &lsquo;<tt>Monospace</tt>&rsquo; as likely
-possibilities.  Not all computers have the same fonts installed.  It's
+possibilities.  Not all computers have the same fonts installed.  It&rsquo;s
 a good idea to stick with monospace fonts (ones in which all
 characters have the same width).
 </p>
-<hr size="6">
+<hr>
 <a name="FONT"></a>
-<a name="SEC113"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC112" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC102" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SETFONT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#TERMINAL-ACCESS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> font </h3>
+<a name="font"></a>
+<h3 class="unnumberedsubsec">font</h3>
+<a name="index-font"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">FONT
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">FONT
+</pre></div>
 
 <p>(wxWidgets only) outputs the name of the font family used in all
 windows.
 </p>
 
 
-<hr size="6">
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Next chapter"> &gt;&gt; </a>]</td>
+<hr>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Brian Harvey</em> on <em>September, 3 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+  This document was generated on <i>December 27, 2019</i> using <a href="http://www.nongnu.org/texi2html/"><i>texi2html 5.0</i></a>.
  </font>
  <br>
 

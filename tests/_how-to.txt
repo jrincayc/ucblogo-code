@@ -1,0 +1,17 @@
+Running Tests
+-------------
+Open logo, then load the root test framework, "UnitTests.lg"
+
+To run all tests, type: RunAll
+
+To run individual tests, execute the name of the test, 
+such as: Tests.Arithmetic.Difference
+
+
+
+Creating Test Suites
+--------------------
+To create a new test suite, copy _suite-template.lg and rename 
+to "UnitTests-SuiteName.lg". Then follow the instructions in the 
+the template.
+

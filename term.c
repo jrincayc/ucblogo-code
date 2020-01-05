@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -71,7 +70,7 @@ int x_coord, y_coord, x_max, y_max;
 char PC;
 char *BC;
 char *UP;
-short ospeed;
+/* short ospeed; */
 char bp[1024];
 char cl_arr[40];
 char cm_arr[40];
@@ -114,6 +113,7 @@ void term_init(void) {
 #ifdef unix
     char *emacs; /* emacs change */
     int term_sg;
+    int tgetent_result;
 #endif
 
 #ifdef WIN32
@@ -146,41 +146,48 @@ void term_init(void) {
 #endif
     }
     tty_charmode = 0;
-    tgetent(bp, getenv("TERM"));
 
-    /* emacs changes */
+    /* The following section assumes
+     * x_max, y_max, cm_arr, cl_arr, so_arr, se_arr
+     * are preinitialized to 0 */
 
-    emacs = getenv("EMACS");
-
-    /* check if started from emacs */
-    if (!emacs || *emacs != 't') { /* read from termcap */
+    /* query terminal information from termcap database, if available */
+    tgetent_result = tgetent(bp, getenv("TERM"));
+    if (tgetent_result == 1) {
       x_max = tgetnum("co");
       y_max = tgetnum("li");
+
+      term_sg = tgetnum("sg");
+
+      x_coord = y_coord = 0;
+      termcap_getter("cm", cm_arr);
+      termcap_getter("cl", cl_arr);
+
+      if (term_sg <= 0) {
+          termcap_getter("so", so_arr);
+          termcap_getter("se", se_arr);
+      } else { /* no standout modes */
+	so_arr[0] = se_arr[0] = '\0';
+      }
     }
-    else { /* read environment variables */
+    
+    /* emacs detection */
+    emacs = getenv("EMACS");
+    if (emacs && *emacs == 't') { /* started from emacs */
+      emacs = getenv("EMACS");
       emacs = getenv("COLUMNS");
       if (!emacs) x_max = 0;
       else x_max = atoi(emacs);
       emacs = getenv("LINES");
       if (!emacs) y_max = 0;
       else y_max = atoi(emacs);
-    } 
+    }
+    /* end emacs detection */
 
-    /* end emacs changes */
-
+    /* if we still don't know our size, set some defaults */
     if (x_max <= 0) x_max = 80;
     if (y_max <= 0) y_max = 24;
-    term_sg = tgetnum("sg");
 
-    x_coord = y_coord = 0;
-    termcap_getter("cm", cm_arr);
-    termcap_getter("cl", cl_arr);
-
-    if (term_sg <= 0) {
-	termcap_getter("so", so_arr);
-	termcap_getter("se", se_arr);
-    } else	/* don't mess with stupid standout modes */
-	so_arr[0] = se_arr[0] = '\0';
 #endif
 #endif
 }

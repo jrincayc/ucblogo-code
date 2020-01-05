@@ -1,0 +1,235 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;             OOP TEST SUITE             ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [OOP Tests] [Tests.OOP.Setup]
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.OOP [
+  Tests.OOP.Ask
+  Tests.OOP.Exist
+  Tests.OOP.Make
+  Tests.OOP.MakeMany
+  Tests.OOP.OneOf
+  Tests.OOP.OneOfCheckVar
+  Tests.OOP.OverrideExist
+  Tests.OOP.Parents
+  Tests.OOP.TalkTo
+  Tests.OOP.Usual
+  Tests.OOP.UsualChain
+  
+  ;; The following are strictly regression tests
+
+  Tests.OOP.ChildWontChangeParent
+  Tests.OOP.MemberFunctionOverride
+  Tests.OOP.CaseSensitiveMemberVars
+  Tests.OOP.OverriddenMethods
+ ]
+
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.OOP.Setup
+  RunTests :Tests.OOP
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS & OBJECTS               ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to ignore :value
+end
+
+make "ABase kindof logo
+ask :ABase [to Exist]
+  have "avar
+  make "avar 1
+end
+
+make "ExistChild kindof logo
+ask :ExistChild [to Exist]
+  make "avar 2
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to safecheck :obj :var :expected
+  make "success 0
+  CATCH "Error [ignore (ask thing :obj [thing :var]) make "success 1]
+  OUTPUT IFELSE [equal? :success 0] [equal? 0 1] [equal? (ask thing :obj [thing :var]) 1]
+end
+
+to Tests.OOP.Ask
+  make "bob kindof logo
+  make "dummy ask :bob [self]
+  OUTPUT EQUAL? 1 1
+end
+
+to Tests.OOP.Exist
+  make "bob oneof :ABase
+  OUTPUT EQUAL? (ASK :bob [:avar]) 1
+end
+
+to Tests.OOP.Make
+  make "bob kindof logo
+  OUTPUT Equal? 1 1
+end
+
+to Tests.OOP.MakeMany
+  make "loqi kindof logo
+  make "geetha kindof logo
+  make "chaidan (kindof :loqi :geetha)
+  OUTPUT equal? (Count ask :chaidan [parents])  2
+end
+
+to Tests.OOP.OneOf
+  make "bob oneof :ABase
+  OUTPUT Equal? 1 1
+end
+
+to Tests.OOP.OneOfCheckVar
+  make "bob oneof :ABase
+  OUTPUT EQUAL? (ASK :bob [:avar]) 1
+end
+
+to Tests.OOP.OverrideExist
+  make "bob kindof :ExistChild
+  ask :bob [exist]
+  ;OUTPUT safecheck "bob "avar 2
+  OUTPUT Equal? (ask :bob [:avar]) 2
+end
+
+to Tests.OOP.Parents
+  make "bob kindof logo
+  make "jim kindof :bob
+  OUTPUT AND (ask :jim [parents]) = (list :bob) (ask :bob [parents]) = (list Logo)
+end
+
+
+to Tests.OOP.TalkTo
+  make "bob kindof logo
+  ask :bob [have "hat]
+  ask :bob [make "hat "red]
+  talkto :bob
+  make "result equal? :hat "red
+  talkto Logo
+  OUTPUT :result
+end
+
+;; Syntax to test
+;;	Usual.Method (inside an object proc call)
+;;	Overriding methods (by redefining exsiting methods)
+;;	Exist / overriding Exist
+;;	Usual.Exist (inside overriden exist)
+;;	Make "OBj OneOf :OtherObj (a combination of KindOf and Exist)
+;;	Make "NewObj (OneOf :Obj "prop value) -- initialize with specific values
+;;	HaveMake "Name Value (have combined with make)
+
+
+make "Usual1 something
+ask :Usual1 [to foo]
+  op "True
+end
+
+Make "Usual2 kindof :Usual1
+ask :Usual2 [to foo]
+  op usual.foo
+end  
+
+make "Usual3 kindof :Usual2
+ask :Usual3 [to foo]
+  op usual.foo
+end
+
+to Tests.OOP.Usual
+   OUTPUT equalp (ask :Usual2 [foo]) "True
+end
+
+to Tests.OOP.UsualChain
+   OUTPUT equalp (ask :Usual3 [foo]) "True
+end
+
+;; -------------------------------------------------
+;; REGRESSION TESTS
+;; -------------------------------------------------
+
+
+;; This regression tests verifies
+;; that when you change a child value
+;; the parent value remains unchanged
+
+to Tests.OOP.ChildWontChangeParent
+  make "bob oneof Logo
+  ask :bob [have "hat]
+  ask :bob [make "hat "blue]
+  make "joe oneof :bob
+  ask :joe [make "hat "red]
+  OUTPUT (ask :bob [:hat]) = (ask :joe [:hat])
+end
+
+
+to Tests.OOP.CaseSensitiveMemberVars
+  make "bob something
+  ask :bob [have "aVarIable]
+  ask :bob [make "aVarIable 1]
+  ask :bob [make "avariable 2]
+  OUTPUT equal? (ask :bob [:avariable]) 2
+end
+
+
+  make "a something
+  ask :a [to foo :x]
+    output :x
+    end
+  make "b kindof :a
+  ask :b [to foo]
+    OUTPUT usual.foo "True
+    end
+
+to Tests.OOP.OverriddenMethods
+  make "c kindof :b
+  (ask :c [make "baz foo])
+  OUTPUT equal? (ask :c [:baz]) "True
+end
+
+;; This is setup for the next test
+;; When an object has a function with the
+;; same name as its parent's, the child's method
+;; should be called, not the parent's method
+
+make "MemRegr KindOf Logo
+to OOP.Regr.foo
+  OUTPUT 1
+end
+
+ask :MemRegr [to OOP.Regr.foo]
+  OUTPUT 0
+end
+
+to Tests.OOP.MemberFunctionOverride
+  OUTPUT equal? (ASK :MemRegr [OOP.Regr.foo]) 0
+end
+
+
+;; TODO: Need to test the TO proc on objects
+;;       but logo doesn't like it when you use
+;;       TO inside a TO
+
