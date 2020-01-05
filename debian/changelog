@@ -2,14 +2,22 @@ ucblogo (6.1-0.1) unstable; urgency=medium
 
   * Non-maintainer upload.
   * New upstream release.
-  * debian/patches: Refresh old patches.
+    + Proper 64bit support. (Closes: #823867)
+  * debian/patches: Refresh all patches.
+  * debian/rules:
+    + Use autoreconf again with the help of custom patches on
+      Autotools buildsystem. (Closes: #940687)
   * debian/control:
     + Bump debhelper compat to v12.
     + Bump Standards-Version to 4.4.1.
+    + Let the whole package build against wxWidgets GTK3 library.
+      (Closes: #933478)
+    + Update Vcs-* fields to use git packaging repo under Salsa
+      Debian group.
   * debian/install: Install icons into /usr/share/pixmaps/ and
     /usr/share/icons/.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:08:15 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:19:52 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
