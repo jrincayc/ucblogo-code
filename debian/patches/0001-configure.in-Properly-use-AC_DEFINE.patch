@@ -3,14 +3,20 @@ Date: Sat, 4 Jan 2020 22:13:06 -0500
 Subject: configure.in: Properly use AC_DEFINE
 
 ---
- configure.in | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ configure.in | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/configure.in b/configure.in
-index 5176442..74e1b46 100644
+index 5176442..a673d0e 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -26,14 +26,14 @@ GRAPHICSFILE=" xgraphics.c "
+@@ -22,18 +22,20 @@ TERMFILE="term.c"
+ GRAPHICSOFILE=" xgraphics.o "
+ GRAPHICSFILE=" xgraphics.c "
+ 
++# Debian-specific: Pre-define SIGRET as "return 0;"
++AC_DEFINE([SIGRET], [return 0;], [Pre-define SIGRET macro.])
+ 
  AC_MSG_CHECKING([wxWidgets version])
  if wxversion=`$WXCONFIG --version`; then
      AC_MSG_RESULT([$wxversion])
@@ -28,7 +34,7 @@ index 5176442..74e1b46 100644
      TERMOFILE="wxterm.o"
      TERMFILE="wxterm.c"
      GRAPHICSOFILE=""
-@@ -54,18 +54,18 @@ AC_CHECK_LIB(bsd, signal)
+@@ -54,18 +56,18 @@ AC_CHECK_LIB(bsd, signal)
  
  tcap=no
  AC_CHECK_LIB(termcap, tgetstr,
