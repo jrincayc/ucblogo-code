@@ -1,0 +1,44 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Sat, 4 Jan 2020 22:13:06 -0500
+Subject: configure.in: Properly use AC_DEFINE
+
+---
+ configure.in | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 5176442..b1e2040 100644
+--- a/configure.in
++++ b/configure.in
+@@ -26,7 +26,7 @@ GRAPHICSFILE=" xgraphics.c "
+ AC_MSG_CHECKING([wxWidgets version])
+ if wxversion=`$WXCONFIG --version`; then
+     AC_MSG_RESULT([$wxversion])
+-    AC_DEFINE(HAVE_WX)
++    AC_DEFINE([HAVE_WX], [], [Have wxWidgets library])
+     WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
+     WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
+     LIBS="$LIBS "`$WXCONFIG --libs`;
+@@ -54,18 +54,18 @@ AC_CHECK_LIB(bsd, signal)
+ 
+ tcap=no
+ AC_CHECK_LIB(termcap, tgetstr,
+-	     AC_DEFINE(HAVE_LIBTERMCAP) LIBS="$LIBS -ltermcap" tcap=yes)
++	     AC_DEFINE([HAVE_LIBTERMCAP], [], [Have libtermcap support.]) LIBS="$LIBS -ltermcap" tcap=yes)
+ if test $tcap = no; then
+    AC_CHECK_LIB(termlib, tgetstr,
+-		AC_DEFINE(HAVE_LIBTERMLIB) LIBS="$LIBS -ltermlib" tcap=yes)
++		AC_DEFINE([HAVE_LIBTERMLIB], [], [Have libtermlib support.]) LIBS="$LIBS -ltermlib" tcap=yes)
+ fi
+ if test $tcap = no; then
+    AC_CHECK_LIB(curses, tgetstr,
+-		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lcurses" tcap=yes)
++		AC_DEFINE([HAVE_LIBCURSES], [], [Have libcurses support.]) LIBS="$LIBS -lcurses" tcap=yes)
+ fi
+ if test $tcap = no; then
+    AC_CHECK_LIB(ncurses, tgetstr,
+-		AC_DEFINE(HAVE_LIBCURSES) LIBS="$LIBS -lncurses" tcap=yes)
++		AC_DEFINE([HAVE_LIBCURSES], [], [Have libcurses support.]) LIBS="$LIBS -lncurses" tcap=yes)
+ fi
+ 
+ dnl Checks for header files.
