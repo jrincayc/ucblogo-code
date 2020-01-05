@@ -3,14 +3,14 @@ Date: Sat, 4 Jan 2020 22:13:06 -0500
 Subject: configure.in: Properly use AC_DEFINE
 
 ---
- configure.in | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ configure.in | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/configure.in b/configure.in
-index 5176442..b1e2040 100644
+index 5176442..74e1b46 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -26,7 +26,7 @@ GRAPHICSFILE=" xgraphics.c "
+@@ -26,14 +26,14 @@ GRAPHICSFILE=" xgraphics.c "
  AC_MSG_CHECKING([wxWidgets version])
  if wxversion=`$WXCONFIG --version`; then
      AC_MSG_RESULT([$wxversion])
@@ -19,6 +19,15 @@ index 5176442..b1e2040 100644
      WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
      WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
      LIBS="$LIBS "`$WXCONFIG --libs`;
+     CC="`$WXCONFIG --cc`"
+     CXX="`$WXCONFIG --cxx`"
+-    CXXFLAGS="$CXXFLAGS -DHAVE_WX `$WXCONFIG --cxxflags`";
+-    CFLAGS="$CFLAGS -DHAVE_WX "
++    CXXFLAGS="$CXXFLAGS `$WXCONFIG --cxxflags`";
++#    CFLAGS="$CFLAGS -DHAVE_WX "
+     TERMOFILE="wxterm.o"
+     TERMFILE="wxterm.c"
+     GRAPHICSOFILE=""
 @@ -54,18 +54,18 @@ AC_CHECK_LIB(bsd, signal)
  
  tcap=no
