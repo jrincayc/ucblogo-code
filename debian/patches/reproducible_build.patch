@@ -8,7 +8,7 @@ Use C locale for sorting to get reproducible build.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/makefile.in b/makefile.in
-index baaec6b..8831d99 100644
+index 19330a3..606ec94 100644
 --- a/makefile.in
 +++ b/makefile.in
 @@ -54,7 +54,7 @@ helpfiles:

@@ -1,1 +1,2 @@
 0001-configure.in-Properly-use-AC_DEFINE.patch
+reproducible_build.patch
