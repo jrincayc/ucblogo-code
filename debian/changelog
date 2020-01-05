@@ -1,11 +1,9 @@
-ucblogo (6.0+dfsg-3) UNRELEASED; urgency=medium
+ucblogo (6.1-1) unstable; urgency=medium
 
   * update http to https URLs where practical
-  * bump standards version
-  * bump to debhelper 12
-  * Switch to wxWidgets GTK 3 (closes: #933478)
+  * ACK NMU, mucho thanks!
 
- -- Barak A. Pearlmutter <bap@debian.org>  Wed, 16 Oct 2019 12:36:20 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 05 Jan 2020 21:32:23 +0000
 
 ucblogo (6.1-0.1) unstable; urgency=medium
 
