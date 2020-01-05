@@ -730,12 +730,12 @@ NODE *lhome(NODE *args) {
 }
 
 void cs_helper(int centerp) {    
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
     clearing_screen++;
 #endif
     prepare_to_draw;
     clear_screen;
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
     clearing_screen==0;
 #endif
     if (centerp) {
@@ -1715,7 +1715,7 @@ void save_vis(void) {
 void save_mode(void) {
     if (safe_to_save()) {
 	last_recorded = record[record_index] = SETPENMODE;
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
 	*(GC *)(record + record_index + One) = pen_mode;
 #else
 	*(int *)(record + record_index + One) = pen_mode;
@@ -1902,7 +1902,7 @@ void redraw_graphics(void) {
 		r_index += One;
 		break;
 	    case (SETPENMODE) :
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
 		set_pen_mode(*(GC *)(bufp + r_index + One));
 #else
 		set_pen_mode(*(int *)(bufp + r_index + One));
