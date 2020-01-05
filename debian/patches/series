@@ -1,2 +1,3 @@
 0001-configure.in-Properly-use-AC_DEFINE.patch
 reproducible_build.patch
+0003-graphics.c-Use-defined-HAVE_WX-instead-of-HAVE_WX.patch

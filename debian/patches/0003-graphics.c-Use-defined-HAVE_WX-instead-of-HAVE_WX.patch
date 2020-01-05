@@ -1,0 +1,45 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Sat, 4 Jan 2020 22:30:06 -0500
+Subject: graphics.c: Use !defined(HAVE_WX) instead of !HAVE_WX
+
+---
+ graphics.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/graphics.c b/graphics.c
+index 4f67573..2a3b5ac 100644
+--- a/graphics.c
++++ b/graphics.c
+@@ -730,12 +730,12 @@ NODE *lhome(NODE *args) {
+ }
+ 
+ void cs_helper(int centerp) {    
+-#if defined(x_window) && !HAVE_WX
++#if defined(x_window) && !defined(HAVE_WX)
+     clearing_screen++;
+ #endif
+     prepare_to_draw;
+     clear_screen;
+-#if defined(x_window) && !HAVE_WX
++#if defined(x_window) && !defined(HAVE_WX)
+     clearing_screen==0;
+ #endif
+     if (centerp) {
+@@ -1719,7 +1719,7 @@ void save_vis(void) {
+ void save_mode(void) {
+     if (safe_to_save()) {
+ 	last_recorded = record[record_index] = SETPENMODE;
+-#if defined(x_window) && !HAVE_WX
++#if defined(x_window) && !defined(HAVE_WX)
+ 	*(GC *)(record + record_index + One) = pen_mode;
+ #else
+ 	*(int *)(record + record_index + One) = pen_mode;
+@@ -1906,7 +1906,7 @@ void redraw_graphics(void) {
+ 		r_index += One;
+ 		break;
+ 	    case (SETPENMODE) :
+-#if defined(x_window) && !HAVE_WX
++#if defined(x_window) && !defined(HAVE_WX)
+ 		set_pen_mode(*(GC *)(bufp + r_index + One));
+ #else
+ 		set_pen_mode(*(int *)(bufp + r_index + One));
