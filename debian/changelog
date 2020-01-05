@@ -1,10 +1,12 @@
-ucblogo (6.1-0.1) UNRELEASED; urgency=medium
+ucblogo (6.1-0.1) unstable; urgency=medium
 
   * Non-maintainer upload.
   * New upstream release.
   * debian/patches: Refresh old patches.
+  * debian/control:
+    + Bump debhelper compat to v12.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 14:45:27 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:03:10 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
