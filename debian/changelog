@@ -1,3 +1,11 @@
+ucblogo (6.1-0.1) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release.
+  * debian/patches: Refresh old patches.
+
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 14:45:27 -0500
+
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
   * Adopt package (closes: #790725), many thanks to Hamish Moffatt!
