@@ -194,6 +194,12 @@ extern "C" int wxUnget_c(int c, FILE * f) {
   }
 }
 
+extern "C" void getExecutableDir(char * path, int maxlen) {
+  wxString executable = wxStandardPaths::Get().GetExecutablePath();
+  wxString executable_dir =  wxFileName(executable).GetPath();
+  strncpy(path, executable_dir, maxlen);
+  path[maxlen - 1] = '\0';
+}
 
 
 void doLoad(char * name, int length) {

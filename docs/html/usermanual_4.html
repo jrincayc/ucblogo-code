@@ -1,27 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Created on September, 3 2008 by texi2html 1.78 -->
-<!--
-Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+<!-- Created on December 27, 2019 by texi2html 5.0
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
 Maintained by: Many creative people.
 Send bugs and suggestions to <texi2html-bug@nongnu.org>
-
 -->
 <head>
-<title>BERKELEY LOGO 6.0: 4. Arithmetic</title>
+<title>BERKELEY LOGO 6.1: 4 Arithmetic</title>
 
-<meta name="description" content="BERKELEY LOGO 6.0: 4. Arithmetic">
-<meta name="keywords" content="BERKELEY LOGO 6.0: 4. Arithmetic">
+<meta name="description" content="BERKELEY LOGO 6.1: 4 Arithmetic">
+<meta name="keywords" content="BERKELEY LOGO 6.1: 4 Arithmetic">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
-<meta name="Generator" content="texi2html 1.78">
+<meta name="Generator" content="texi2html 5.0">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 <!--
 a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
 pre.display {font-family: serif}
 pre.format {font-family: serif}
 pre.menu-comment {font-family: serif}
@@ -30,9 +36,11 @@ pre.smalldisplay {font-family: serif; font-size: smaller}
 pre.smallexample {font-size: smaller}
 pre.smallformat {font-family: serif; font-size: smaller}
 pre.smalllisp {font-size: smaller}
-span.roman {font-family:serif; font-weight:normal;}
-span.sansserif {font-family:sans-serif; font-weight:normal;}
-ul.toc {list-style: none}
+span.nocodebreak {white-space:pre}
+span.nolinebreak {white-space:pre}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
 -->
 </style>
 
@@ -42,930 +50,968 @@ ul.toc {list-style: none}
 <body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
 
 <a name="ARITHMETIC"></a>
-<a name="SEC114"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="usermanual_3.html#SEC113" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual_3.html#SEC67" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="usermanual_3.html#COMMUNICATION" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_3.html#FONT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ Up ]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h1 class="chapter"> 4. Arithmetic </h1>
+<a name="Arithmetic"></a>
+<h1 class="chapter">4 Arithmetic</h1>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC115">4.1 Numeric Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
+<tr><td align="left" valign="top"><a href="#NUMERIC-OPERATIONS">4.1 Numeric Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC138">4.2 Numeric Predicates</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
+<tr><td align="left" valign="top"><a href="#NUMERIC-PREDICATES">4.2 Numeric Predicates</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC143">4.3 Random Numbers</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">              
+<tr><td align="left" valign="top"><a href="#RANDOM-NUMBERS">4.3 Random Numbers</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">              
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC146">4.4 Print Formatting</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
+<tr><td align="left" valign="top"><a href="#PRINT-FORMATTING">4.4 Print Formatting</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC148">4.5 Bitwise Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
+<tr><td align="left" valign="top"><a href="#BITWISE-OPERATIONS">4.5 Bitwise Operations</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">          
 </td></tr>
 </table>
 
 
 
-<hr size="6">
+<hr>
 <a name="NUMERIC-OPERATIONS"></a>
-<a name="SEC115"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC114" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC116" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SUM" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 4.1 Numeric Operations </h2>
+<a name="Numeric-Operations"></a>
+<h2 class="section">4.1 Numeric Operations</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC116">sum</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#SUM">sum</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC117">difference</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
+<tr><td align="left" valign="top"><a href="#DIFFERENCE">difference</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                  
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC118">minus</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#MINUS">minus</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC119">product</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+<tr><td align="left" valign="top"><a href="#PRODUCT">product</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC120">quotient</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#QUOTIENT">quotient</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC121">remainder</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#REMAINDER">remainder</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC122">modulo</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#MODULO">modulo</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC123">int</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#INT">int</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC124">round</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#ROUND">round</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC125">sqrt</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#SQRT">sqrt</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC126">power</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#POWER">power</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC127">exp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#EXP">exp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC128">log10</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#LOG10">log10</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC129">ln</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                          
+<tr><td align="left" valign="top"><a href="#LN">ln</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                          
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC130">sin</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#SIN">sin</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC131">radsin</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#RADSIN">radsin</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC132">cos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#COS">cos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC133">radcos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#RADCOS">radcos</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC134">arctan</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#ARCTAN">arctan</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC135">radarctan</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+<tr><td align="left" valign="top"><a href="#RADARCTAN">radarctan</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC136">iseq</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#ISEQ">iseq</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC137">rseq</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#RSEQ">rseq</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="SUM"></a>
-<a name="SEC116"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC115" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC117" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#DIFFERENCE" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> sum </h3>
+<a name="sum"></a>
+<h3 class="unnumberedsubsec">sum</h3>
+<a name="index-sum"></a>
+<a name="index-_002b"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SUM num1 num2
+<div class="example">
+<pre class="example">SUM num1 num2
 (SUM num1 num2 num3 ...)
 num1 + num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the sum of its inputs.
 </p>
-<hr size="6">
+<hr>
 <a name="DIFFERENCE"></a>
-<a name="SEC117"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC116" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC118" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SUM" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#MINUS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> difference </h3>
+<a name="difference"></a>
+<h3 class="unnumberedsubsec">difference</h3>
+<a name="index-difference"></a>
+<a name="index-_002d"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">DIFFERENCE num1 num2
+<div class="example">
+<pre class="example">DIFFERENCE num1 num2
 num1 - num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the difference of its inputs.  Minus sign means infix difference
 in ambiguous contexts (when preceded by a complete expression), unless
 it is preceded by a space and followed by a nonspace.  (See also <code>MINUS</code>.)
 </p>
-<hr size="6">
+<hr>
 <a name="MINUS"></a>
-<a name="SEC118"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC117" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC119" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#DIFFERENCE" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#PRODUCT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> minus </h3>
+<a name="minus"></a>
+<h3 class="unnumberedsubsec">minus</h3>
+<a name="index-minus"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">MINUS num
+<div class="example">
+<pre class="example">MINUS num
 - num
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the negative of its input.  Minus sign means unary minus if
 the previous token is an infix operator or open parenthesis, or it is
 preceded by a space and followed by a nonspace.  There is a difference
 in binding strength between the two forms:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">MINUS 3 + 4     means   -(3+4)
+<div class="example">
+<pre class="example">MINUS 3 + 4     means   -(3+4)
 - 3 + 4         means   (-3)+4
-</pre></td></tr></table>
+</pre></div>
 
-<hr size="6">
+<hr>
 <a name="PRODUCT"></a>
-<a name="SEC119"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC118" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC120" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#MINUS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#QUOTIENT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> product </h3>
+<a name="product"></a>
+<h3 class="unnumberedsubsec">product</h3>
+<a name="index-product"></a>
+<a name="index-_002a"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">PRODUCT num1 num2
+<div class="example">
+<pre class="example">PRODUCT num1 num2
 (PRODUCT num1 num2 num3 ...)
 num1 * num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the product of its inputs.
 </p>
-<hr size="6">
+<hr>
 <a name="QUOTIENT"></a>
-<a name="SEC120"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC119" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC121" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#PRODUCT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#REMAINDER" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> quotient </h3>
+<a name="quotient"></a>
+<h3 class="unnumberedsubsec">quotient</h3>
+<a name="index-quotient"></a>
+<a name="index-_002f"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">QUOTIENT num1 num2
+<div class="example">
+<pre class="example">QUOTIENT num1 num2
 (QUOTIENT num)
 num1 / num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the quotient of its inputs.  The quotient of two integers is an
 integer if and only if the dividend is a multiple of the divisor.  (In
-other words, <tt>QUOTIENT 5 2</tt> is 2.5, not 2, but <tt>QUOTIENT 4 2</tt>
+other words, <tt>QUOTIENT&nbsp;5&nbsp;2</tt> is 2.5, not 2, but <tt>QUOTIENT&nbsp;4&nbsp;2</tt>
 is 2, not 2.0 &mdash; it does the right thing.)  With a single input,
 <code>QUOTIENT</code> outputs the reciprocal of the input.
 </p>
-<hr size="6">
+<hr>
 <a name="REMAINDER"></a>
-<a name="SEC121"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC120" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC122" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#QUOTIENT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#MODULO" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> remainder </h3>
+<a name="remainder"></a>
+<h3 class="unnumberedsubsec">remainder</h3>
+<a name="index-remainder"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">REMAINDER num1 num2
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">REMAINDER num1 num2
+</pre></div>
 
 <p>outputs the remainder on dividing <var>num1</var> by <var>num2</var>; both must be
 integers and the result is an integer with the same sign as <var>num1</var>.
 </p>
-<hr size="6">
+<hr>
 <a name="MODULO"></a>
-<a name="SEC122"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC121" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC123" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#REMAINDER" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#INT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> modulo </h3>
+<a name="modulo"></a>
+<h3 class="unnumberedsubsec">modulo</h3>
+<a name="index-modulo"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">MODULO num1 num2
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">MODULO num1 num2
+</pre></div>
 
 <p>outputs the remainder on dividing <var>num1</var> by <var>num2</var>; both must be
 integers and the result is an integer with the same sign as <var>num2</var>.
 </p>
-<hr size="6">
+<hr>
 <a name="INT"></a>
-<a name="SEC123"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC122" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC124" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#MODULO" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ROUND" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> int </h3>
+<a name="int"></a>
+<h3 class="unnumberedsubsec">int</h3>
+<a name="index-int"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">INT num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">INT num
+</pre></div>
 
 <p>outputs its input with fractional part removed, i.e., an integer
 with the same sign as the input, whose absolute value is the
 largest integer less than or equal to the absolute value of
 the input.
 </p>
-<hr size="6">
+<hr>
 <a name="ROUND"></a>
-<a name="SEC124"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC123" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC125" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#INT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SQRT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> round </h3>
+<a name="round"></a>
+<h3 class="unnumberedsubsec">round</h3>
+<a name="index-round"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ROUND num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">ROUND num
+</pre></div>
 
 <p>outputs the nearest integer to the input.
 </p>
-<hr size="6">
+<hr>
 <a name="SQRT"></a>
-<a name="SEC125"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC124" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC126" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ROUND" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#POWER" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> sqrt </h3>
+<a name="sqrt"></a>
+<h3 class="unnumberedsubsec">sqrt</h3>
+<a name="index-sqrt"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SQRT num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SQRT num
+</pre></div>
 
 <p>outputs the square root of the input, which must be nonnegative.
 </p>
-<hr size="6">
+<hr>
 <a name="POWER"></a>
-<a name="SEC126"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC125" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC127" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SQRT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#EXP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> power </h3>
+<a name="power"></a>
+<h3 class="unnumberedsubsec">power</h3>
+<a name="index-power"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">POWER num1 num2
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">POWER num1 num2
+</pre></div>
 
 <p>outputs <var>num1</var> to the <var>num2</var> power.  If <var>num1</var> is negative, then
 <var>num2</var> must be an integer.
 </p>
-<hr size="6">
+<hr>
 <a name="EXP"></a>
-<a name="SEC127"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC126" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC128" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#POWER" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#LOG10" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> exp </h3>
+<a name="exp"></a>
+<h3 class="unnumberedsubsec">exp</h3>
+<a name="index-exp"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">EXP num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">EXP num
+</pre></div>
 
 <p>outputs <i>e</i> (2.718281828+) to the input power.
 </p>
-<hr size="6">
+<hr>
 <a name="LOG10"></a>
-<a name="SEC128"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC127" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC129" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#EXP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#LN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> log10 </h3>
+<a name="log10"></a>
+<h3 class="unnumberedsubsec">log10</h3>
+<a name="index-log10"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">LOG10 num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">LOG10 num
+</pre></div>
 
 <p>outputs the common logarithm of the input.
 </p>
-<hr size="6">
+<hr>
 <a name="LN"></a>
-<a name="SEC129"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC128" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC130" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LOG10" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#SIN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> ln </h3>
+<a name="ln"></a>
+<h3 class="unnumberedsubsec">ln</h3>
+<a name="index-ln"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">LN num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">LN num
+</pre></div>
 
 <p>outputs the natural logarithm of the input.
 </p>
-<hr size="6">
+<hr>
 <a name="SIN"></a>
-<a name="SEC130"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC129" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC131" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RADSIN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> sin </h3>
+<a name="sin"></a>
+<h3 class="unnumberedsubsec">sin</h3>
+<a name="index-sin"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">SIN degrees
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">SIN degrees
+</pre></div>
 
 <p>outputs the sine of its input, which is taken in degrees.
 </p>
-<hr size="6">
+<hr>
 <a name="RADSIN"></a>
-<a name="SEC131"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC130" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC132" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#SIN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#COS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> radsin </h3>
+<a name="radsin"></a>
+<h3 class="unnumberedsubsec">radsin</h3>
+<a name="index-radsin"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RADSIN radians
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">RADSIN radians
+</pre></div>
 
 <p>outputs the sine of its input, which is taken in radians.
 </p>
-<hr size="6">
+<hr>
 <a name="COS"></a>
-<a name="SEC132"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC131" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC133" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RADSIN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RADCOS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> cos </h3>
+<a name="cos"></a>
+<h3 class="unnumberedsubsec">cos</h3>
+<a name="index-cos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">COS degrees
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">COS degrees
+</pre></div>
 
 <p>outputs the cosine of its input, which is taken in degrees.
 </p>
-<hr size="6">
+<hr>
 <a name="RADCOS"></a>
-<a name="SEC133"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC132" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC134" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#COS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ARCTAN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> radcos </h3>
+<a name="radcos"></a>
+<h3 class="unnumberedsubsec">radcos</h3>
+<a name="index-radcos"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RADCOS radians
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">RADCOS radians
+</pre></div>
 
 <p>outputs the cosine of its input, which is taken in radians.
 </p>
-<hr size="6">
+<hr>
 <a name="ARCTAN"></a>
-<a name="SEC134"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC133" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC135" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RADCOS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RADARCTAN" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> arctan </h3>
+<a name="arctan"></a>
+<h3 class="unnumberedsubsec">arctan</h3>
+<a name="index-arctan"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ARCTAN num
+<div class="example">
+<pre class="example">ARCTAN num
 (ARCTAN x y)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the arctangent, in degrees, of its input.  With two inputs,
 outputs the arctangent of y/x, if x is nonzero, or 90 or &ndash;90 depending
 on the sign of y, if x is zero.
 </p>
-<hr size="6">
+<hr>
 <a name="RADARCTAN"></a>
-<a name="SEC135"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC134" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC136" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARCTAN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ISEQ" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> radarctan </h3>
+<a name="radarctan"></a>
+<h3 class="unnumberedsubsec">radarctan</h3>
+<a name="index-radarctan"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RADARCTAN num
+<div class="example">
+<pre class="example">RADARCTAN num
 (RADARCTAN x y)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the arctangent, in radians, of its input.  With two inputs,
 outputs the arctangent of y/x, if x is nonzero, or pi/2 or &ndash;pi/2
 depending on the sign of y, if x is zero.
 </p>
-<p>The expression <tt>2*(RADARCTAN 0 1)</tt> can be used to get the value of pi.
+<p>The expression <tt>2*(RADARCTAN&nbsp;0&nbsp;1)</tt> can be used to get the value of pi.
 </p>
-<hr size="6">
+<hr>
 <a name="ISEQ"></a>
-<a name="SEC136"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC135" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC137" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RADARCTAN" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RSEQ" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> iseq </h3>
+<a name="iseq"></a>
+<h3 class="unnumberedsubsec">iseq</h3>
+<a name="index-iseq"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ISEQ from to					(library procedure)
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">ISEQ from to					(library procedure)
+</pre></div>
 
 <p>outputs a list of the integers from <var>from</var> to <var>to</var>, inclusive.
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">? show iseq 3 7
+<div class="example">
+<pre class="example">? show iseq 3 7
 [3 4 5 6 7]
 ? show iseq 7 3
 [7 6 5 4 3]
-</pre></td></tr></table>
+</pre></div>
 
-<hr size="6">
+<hr>
 <a name="RSEQ"></a>
-<a name="SEC137"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC136" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC138" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC115" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ISEQ" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> rseq </h3>
+<a name="rseq"></a>
+<h3 class="unnumberedsubsec">rseq</h3>
+<a name="index-rseq"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RSEQ from to count				(library procedure)
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">RSEQ from to count				(library procedure)
+</pre></div>
 
 <p>outputs a list of <var>count</var> equally spaced rational numbers between
 <var>from</var> and <var>to</var>, inclusive.
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">? show rseq 3 5 9 
+<div class="example">
+<pre class="example">? show rseq 3 5 9 
 [3 3.25 3.5 3.75 4 4.25 4.5 4.75 5] 
 ? show rseq 3 5 5
 [3 3.5 4 4.5 5]
-</pre></td></tr></table>
+</pre></div>
 
 
-<hr size="6">
+<hr>
 <a name="NUMERIC-PREDICATES"></a>
-<a name="SEC138"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC137" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC139" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RSEQ" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#LESSP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 4.2 Numeric Predicates </h2>
+<a name="Numeric-Predicates"></a>
+<h2 class="section">4.2 Numeric Predicates</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC139">lessp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#LESSP">lessp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC140">greaterp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#GREATERP">greaterp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC141">lessequalp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#LESSEQUALP">lessequalp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC142">greaterequalp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#GREATEREQUALP">greaterequalp</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 </pre></th></tr></table>
 
 
-<hr size="6">
+<hr>
 <a name="LESSP"></a>
-<a name="SEC139"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC138" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC140" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC138" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#GREATERP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> lessp </h3>
+<a name="lessp"></a>
+<h3 class="unnumberedsubsec">lessp</h3>
+<a name="index-lessp"></a>
+<a name="index-less_003f"></a>
+<a name="index-_003c"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">LESSP num1 num2
+<div class="example">
+<pre class="example">LESSP num1 num2
 LESS? num1 num2
 num1 &lt; num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if its first input is strictly less than its second.
 </p>
-<hr size="6">
+<hr>
 <a name="GREATERP"></a>
-<a name="SEC140"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC139" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC141" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC138" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LESSP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#LESSEQUALP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> greaterp </h3>
+<a name="greaterp"></a>
+<h3 class="unnumberedsubsec">greaterp</h3>
+<a name="index-greaterp"></a>
+<a name="index-greater_003f"></a>
+<a name="index-_003e"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">GREATERP num1 num2
+<div class="example">
+<pre class="example">GREATERP num1 num2
 GREATER? num1 num2
 num1 &gt; num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if its first input is strictly greater than its second.
 </p>
-<hr size="6">
+<hr>
 <a name="LESSEQUALP"></a>
-<a name="SEC141"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC140" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC142" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC138" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#GREATERP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#GREATEREQUALP" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> lessequalp </h3>
+<a name="lessequalp"></a>
+<h3 class="unnumberedsubsec">lessequalp</h3>
+<a name="index-lessequalp"></a>
+<a name="index-lessequal_003f"></a>
+<a name="index-_003c_003d"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">LESSEQUALP num1 num2
+<div class="example">
+<pre class="example">LESSEQUALP num1 num2
 LESSEQUAL? num1 num2
 num1 &lt;= num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if its first input is less than or equal to its second.
 </p>
-<hr size="6">
+<hr>
 <a name="GREATEREQUALP"></a>
-<a name="SEC142"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC141" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC143" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC138" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LESSEQUALP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#NUMERIC-PREDICATES" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM-NUMBERS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> greaterequalp </h3>
+<a name="greaterequalp"></a>
+<h3 class="unnumberedsubsec">greaterequalp</h3>
+<a name="index-greaterequalp"></a>
+<a name="index-greaterequal_003f"></a>
+<a name="index-_003e_003d"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">GREATEREQUALP num1 num2
+<div class="example">
+<pre class="example">GREATEREQUALP num1 num2
 GREATEREQUAL? num1 num2
 num1 &gt;= num2
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if its first input is greater than or equal to its second.
 </p>
 
-<hr size="6">
+<hr>
 <a name="RANDOM-NUMBERS"></a>
-<a name="SEC143"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC142" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC144" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#GREATEREQUALP" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 4.3 Random Numbers </h2>
+<a name="Random-Numbers"></a>
+<h2 class="section">4.3 Random Numbers</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC144">random</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#RANDOM">random</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC145">rerandom</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
+<tr><td align="left" valign="top"><a href="#RERANDOM">rerandom</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                    
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="RANDOM"></a>
-<a name="SEC144"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC143" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC145" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC143" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM-NUMBERS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM-NUMBERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#RERANDOM" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> random </h3>
+<a name="random"></a>
+<h3 class="unnumberedsubsec">random</h3>
+<a name="index-random"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RANDOM num
+<div class="example">
+<pre class="example">RANDOM num
 (RANDOM start end)
-</pre></td></tr></table>
+</pre></div>
 
 <p>with one input, outputs a random nonnegative integer less than its
 input, which must be a positive integer.
@@ -973,33 +1019,34 @@ input, which must be a positive integer.
 <p>With two inputs, <code>RANDOM</code> outputs a random integer greater than or
 equal to the first input, and less than or equal to the second
 input.  Both inputs must be integers, and the first must be less
-than the second.  <tt>(RANDOM 0 9)</tt> is equivalent to <tt>RANDOM 10</tt>;
-<tt>(RANDOM 3 8)</tt> is equivalent to <tt>(RANDOM 6)+3</tt>.
+than the second.  <tt>(RANDOM&nbsp;0&nbsp;9)</tt> is equivalent to <tt>RANDOM&nbsp;10</tt>;
+<tt>(RANDOM&nbsp;3&nbsp;8)</tt> is equivalent to <tt>(RANDOM&nbsp;6)+3</tt>.
 </p>
-<hr size="6">
+<hr>
 <a name="RERANDOM"></a>
-<a name="SEC145"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC144" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC146" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC143" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RANDOM-NUMBERS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#PRINT-FORMATTING" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> rerandom </h3>
+<a name="rerandom"></a>
+<h3 class="unnumberedsubsec">rerandom</h3>
+<a name="index-rerandom"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">RERANDOM
+<div class="example">
+<pre class="example">RERANDOM
 (RERANDOM seed)
-</pre></td></tr></table>
+</pre></div>
 
 <p>command.  Makes the results of <code>RANDOM</code> reproducible.  Ordinarily the
 sequence of random numbers is different each time Logo is used.  If you need
@@ -1009,56 +1056,56 @@ you need more than one repeatable sequence, you can give <code>RERANDOM</code> a
 input; each possible input selects a unique sequence of numbers.
 </p>
 
-<hr size="6">
+<hr>
 <a name="PRINT-FORMATTING"></a>
-<a name="SEC146"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC145" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC147" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#RERANDOM" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#FORM" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 4.4 Print Formatting </h2>
+<a name="Print-Formatting"></a>
+<h2 class="section">4.4 Print Formatting</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC147">form</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
+<tr><td align="left" valign="top"><a href="#FORM">form</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                        
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="FORM"></a>
-<a name="SEC147"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC146" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC146" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#PRINT-FORMATTING" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#PRINT-FORMATTING" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> form </h3>
+<a name="form"></a>
+<h3 class="unnumberedsubsec">form</h3>
+<a name="index-form"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">FORM num width precision
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">FORM num width precision
+</pre></div>
 
 <p>outputs a word containing a printable representation of <var>num</var>, possibly
 preceded by spaces (and therefore not a number for purposes of
@@ -1066,221 +1113,227 @@ performing arithmetic operations), with at least <var>width</var> characters,
 including exactly <var>precision</var> digits after the decimal point.  (If
 <var>precision</var> is 0 then there will be no decimal point in the output.)
 </p>
-<p>As a debugging feature, (<tt>FORM num -1 format</tt>) will print the floating
+<p>As a debugging feature, (<tt>FORM&nbsp;num&nbsp;<span class="nolinebreak">-1</span>&nbsp;format</tt>) will print the floating
 point <var>num</var> according to the C printf <var>format</var>, to allow
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">to hex :num
+<div class="example">
+<pre class="example">to hex :num
 op form :num -1 &quot;|%08X %08X|
 end
-</pre></td></tr></table>
+</pre></div>
 
 <p>to allow finding out the exact result of floating point operations.  The
 precise format needed may be machine-dependent.
 </p>
 
-<hr size="6">
+<hr>
 <a name="BITWISE-OPERATIONS"></a>
-<a name="SEC148"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC147" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC149" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#FORM" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ARITHMETIC" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#BITAND" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 4.5 Bitwise Operations </h2>
+<a name="Bitwise-Operations"></a>
+<h2 class="section">4.5 Bitwise Operations</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC149">bitand</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#BITAND">bitand</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC150">bitor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
+<tr><td align="left" valign="top"><a href="#BITOR">bitor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                       
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC151">bitxor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#BITXOR">bitxor</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC152">bitnot</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#BITNOT">bitnot</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC153">ashift</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#ASHIFT">ashift</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC154">lshift</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+<tr><td align="left" valign="top"><a href="#LSHIFT">lshift</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="BITAND"></a>
-<a name="SEC149"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC148" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC150" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#BITOR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> bitand </h3>
+<a name="bitand"></a>
+<h3 class="unnumberedsubsec">bitand</h3>
+<a name="index-bitand"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">BITAND num1 num2
+<div class="example">
+<pre class="example">BITAND num1 num2
 (BITAND num1 num2 num3 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the bitwise <var>and</var> of its inputs, which must be integers.
 </p>
-<p>See section <a href="usermanual_5.html#SEC156">and</a> .
+<p>See section <a href="usermanual_5.html#AND">and</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="BITOR"></a>
-<a name="SEC150"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC149" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC151" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITAND" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#BITXOR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> bitor </h3>
+<a name="bitor"></a>
+<h3 class="unnumberedsubsec">bitor</h3>
+<a name="index-bitor"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">BITOR num1 num2
+<div class="example">
+<pre class="example">BITOR num1 num2
 (BITOR num1 num2 num3 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the bitwise <var>or</var> of its inputs, which must be integers.
 </p>
-<p>See section <a href="usermanual_5.html#SEC157">or</a> .
+<p>See section <a href="usermanual_5.html#OR">or</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="BITXOR"></a>
-<a name="SEC151"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC150" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC152" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITOR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#BITNOT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> bitxor </h3>
+<a name="bitxor"></a>
+<h3 class="unnumberedsubsec">bitxor</h3>
+<a name="index-bitxor"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">BITXOR num1 num2
+<div class="example">
+<pre class="example">BITXOR num1 num2
 (BITXOR num1 num2 num3 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs the bitwise <var>exclusive or</var> of its inputs, which must be integers.
 </p>
-<p>See section <a href="usermanual_5.html#SEC157">or</a> .
+<p>See section <a href="usermanual_5.html#OR">or</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="BITNOT"></a>
-<a name="SEC152"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC151" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC153" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITXOR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#ASHIFT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> bitnot </h3>
+<a name="bitnot"></a>
+<h3 class="unnumberedsubsec">bitnot</h3>
+<a name="index-bitnot"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">BITNOT num
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">BITNOT num
+</pre></div>
 
 <p>outputs the bitwise <var>not</var> of its input, which must be an integer.
 </p>
-<p>See section <a href="usermanual_5.html#SEC158">not</a> .
+<p>See section <a href="usermanual_5.html#NOT">not</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="ASHIFT"></a>
-<a name="SEC153"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC152" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC154" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITNOT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#LSHIFT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> ashift </h3>
+<a name="ashift"></a>
+<h3 class="unnumberedsubsec">ashift</h3>
+<a name="index-ashift"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">ASHIFT num1 num2
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">ASHIFT num1 num2
+</pre></div>
 
 <p>outputs <var>num1</var> arithmetic-shifted to the left by <var>num2</var> bits.  If
 <var>num2</var> is negative, the shift is to the right with sign extension.  The
 inputs must be integers.
 </p>
-<hr size="6">
+<hr>
 <a name="LSHIFT"></a>
-<a name="SEC154"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC153" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC148" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#ASHIFT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#BITWISE-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> lshift </h3>
+<a name="lshift"></a>
+<h3 class="unnumberedsubsec">lshift</h3>
+<a name="index-lshift"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">LSHIFT num1 num2
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">LSHIFT num1 num2
+</pre></div>
 
 <p>outputs <var>num1</var> logical-shifted to the left by <var>num2</var> bits.  If
 <var>num2</var> is negative, the shift is to the right with zero fill.  The inputs
@@ -1288,23 +1341,23 @@ must be integers.
 </p>
 
 
-<hr size="6">
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_5.html#SEC155" title="Next chapter"> &gt;&gt; </a>]</td>
+<hr>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_5.html#LOGICAL-OPERATIONS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Brian Harvey</em> on <em>September, 3 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+  This document was generated on <i>December 27, 2019</i> using <a href="http://www.nongnu.org/texi2html/"><i>texi2html 5.0</i></a>.
  </font>
  <br>
 

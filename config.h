@@ -1,17 +1,17 @@
-/* config.h.  Generated automatically by configure.  */
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
 /* Define if you need to in order for stat and other things to work.  */
 /* #undef _POSIX_SOURCE */
 
 /* Define as the return instruction for signal handlers. */
-#define SIGRET 
+#define SIGRET
 
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
 
 /* Define if signal handlers take an argument. */
-#define SIG_TAKES_ARG 
+#define SIG_TAKES_ARG
 
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 /* #undef size_t */
@@ -20,13 +20,13 @@
 #define STDC_HEADERS 1
 
 /* Define if you have the matherr function.  */
-#define HAVE_MATHERR 1
+/* #undef HAVE_MATHERR */
 
 /* Define if you have the sigsetmask function.  */
 #define HAVE_SIGSETMASK 1
 
 /* Define if you have the sigvec function.  */
-#define HAVE_SIGVEC 1
+/* #undef HAVE_SIGVEC */
 
 /* Define if you have the srandom function.  */
 #define HAVE_SRANDOM 1
@@ -50,13 +50,13 @@
 #define HAVE_STRING_H 1
   
 /* Define if you have the <termcap.h> header file.  */
-/* #undef HAVE_TERMCAP_H */
+#define HAVE_TERMCAP_H 1
   
 /* Define if you have the <termlib.h> header file.  */
 /* #undef HAVE_TERMLIB_H */
   
 /* Define if you have the <curses.h> header file.  */
-/* #undef HAVE_CURSES_H */
+#define HAVE_CURSES_H 1
 
 /* Define if you have the BSD library (-lBSD).  */
 #define HAVE_LIBBSD 1

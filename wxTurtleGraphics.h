@@ -213,6 +213,7 @@ public:
 	static wxColour colors[NUMCOLORS+SPECIAL_COLORS];
 
 private:
+	void DrawTurtle(wxDC &dc);
 
 	wxBitmap
 		*m_bitmap;

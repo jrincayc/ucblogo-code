@@ -1,0 +1,56 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;             Random Number Unit Tests   ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Random Numbers] [Tests.Random.Setup]
+
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Random [
+  ;list tests here
+  Tests.Random.RandomNumMonadic
+  Tests.Random.RandomNumDyadic
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Random.Setup
+  RunTests :Tests.Random
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.Random.RandomNumMonadic
+  OUTPUT (AND [(Random 1) = 0])
+end
+
+to Tests.Random.RandomNumDyadic
+  Make "Num3 (Random 3 5)
+  print (AND [(Random -1 0) = -1]
+              [GreaterEqual? :num3 3]
+              [LessEqual? :num3 5])
+end
+

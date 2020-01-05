@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -23,11 +22,20 @@
 #include <windows.h>
 #endif
 
+//#ifdef HAVE_UNISTD_H
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
 #include <string.h>
 #include <time.h>
+
+#ifdef HAVE_WX
+void getExecutableDir(char * path, int maxlen);
+#endif
 
 typedef struct priminfo {
     char *name;
@@ -492,7 +500,7 @@ void init(void) {
     int i = 0;
     NODE *iproc = NIL, *pname = NIL, *cnd = NIL;
     FILE *fp;
-    char linebuf[100];
+    char linebuf[256];
     char *sugar;
     static char sugarlib[100], sugarhelp[100], sugarcsls[100];
 #ifdef WIN32
@@ -646,12 +654,34 @@ nosugar:
 	RegCloseKey(regKey1);
     }
 #endif
-	
+
     if (logolib == NULL) logolib = libloc;
     if (helpfiles == NULL) helpfiles = helploc;
     if (csls == NULL) csls = cslsloc;
-	
+
 #ifdef HAVE_WX
+    //Check for Messages in logolib
+    {
+      FILE *message_fp;
+      char executable_dir[256], message_fn[256], new_logolib[256];
+      snprintf(message_fn, 256,"%s%sMessages", logolib, separator);
+      message_fp = fopen(message_fn, "r");
+      if (message_fp == NULL) {
+        //Messages not in logolib, try relative to executable
+        getExecutableDir(executable_dir, 256);
+        snprintf(new_logolib, 256, "%s%slogolib", executable_dir, separator);
+        snprintf(message_fn, 256, "%s%sMessages", new_logolib, separator);
+        message_fp = fopen(message_fn, "r");
+        if (message_fp != NULL) {
+          printf("Changing logolib from %s to %s\n", logolib, new_logolib);
+          logolib = malloc(sizeof(char)*(strlen(new_logolib)+1));
+          strcpy(logolib, new_logolib);
+        }
+      }
+      if (message_fp != NULL) {
+        fclose(message_fp);
+      }
+    }
 #ifndef __WXMSW__
 	// have to do this because we don't have __WXMAC__ in C
 	const char* wxMacGetCslsloc();
@@ -756,7 +786,7 @@ nosugar:
     the_generation = cons(NIL, NIL);
     Not_Enough_Node = cons(NIL, NIL);
 
-    sprintf(linebuf,"%s%sMessages", logolib, separator);
+    snprintf(linebuf, 256, "%s%sMessages", logolib, separator);
     fp = fopen("Messages", "r");
     if (fp == NULL)
 	fp = fopen(linebuf, "r");
@@ -764,6 +794,7 @@ nosugar:
 	fp = fopen("C:\\cygwin\\usr\\local\\lib\\logo\\logolib\\Messages", "r");
     if (fp == NULL) {
 	printf("Error -- Can't read Messages file.\n");
+	printf("logolib: %s\n", logolib);
 	exit(1);
     }
 

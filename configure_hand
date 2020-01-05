@@ -733,7 +733,7 @@ GRAPHICSFILE=" xgraphics.c "
 #Alan input
 # If wx is enabled, then x will be disabled.
 if test "$wx_enable" = maybe; then
-if test -x /usr/local/bin/wx-config ; then
+if test "-x /usr/local/bin/wx-config" -o "-x `which wx-config`"  ; then
     wx_enable='yes';
     echo "Found wx, activating it as default" ;
 fi
@@ -748,6 +748,8 @@ if test "$wx_enable" = yes; then
     elif test -x /usr/local/bin/wx-config ; then
 	echo "checking valid wx installation"
 	wx_config_path='/usr/local/bin/wx-config';
+    elif test -x `which wx-config` ; then
+      wx_config_path=`which wx-config`
     else
 	echo "configure: error: cannot find wx-config" 1>&2; exit 1;
     fi
@@ -756,8 +758,8 @@ if test "$wx_enable" = yes; then
 EOF
     WXOFILES="wxMain.o wxTerminal.o wxTurtleGraphics.o  TextEditor.o"
     WXSRCFILES="wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp"
-    LIBS="$LIBS "`$wx_config_path --host=gtk --libs`;
-    CXXFLAGS="$CXXFLAGS -DHAVE_WX "`$wx_config_path --host=gtk --cxxflags`;
+    LIBS="$LIBS "`$wx_config_path --libs`;
+    CXXFLAGS="$CXXFLAGS -DHAVE_WX "`$wx_config_path --cxxflags`;
     CFLAGS="$CFLAGS -DHAVE_WX "
     TERMOFILE="wxterm.o"
     TERMFILE="wxterm.c"
@@ -1820,7 +1822,7 @@ EOF
 fi
 
 
-for ac_func in usleep srandom sigvec sigsetmask matherr drem irint bcopy memcpy
+for ac_func in usleep srandom sigvec sigsetmask drem irint bcopy memcpy
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then

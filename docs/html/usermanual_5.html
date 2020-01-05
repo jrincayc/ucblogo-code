@@ -1,27 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Created on September, 3 2008 by texi2html 1.78 -->
-<!--
-Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+<!-- Created on December 27, 2019 by texi2html 5.0
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
 Maintained by: Many creative people.
 Send bugs and suggestions to <texi2html-bug@nongnu.org>
-
 -->
 <head>
-<title>BERKELEY LOGO 6.0: 5. Logical Operations</title>
+<title>BERKELEY LOGO 6.1: 5 Logical Operations</title>
 
-<meta name="description" content="BERKELEY LOGO 6.0: 5. Logical Operations">
-<meta name="keywords" content="BERKELEY LOGO 6.0: 5. Logical Operations">
+<meta name="description" content="BERKELEY LOGO 6.1: 5 Logical Operations">
+<meta name="keywords" content="BERKELEY LOGO 6.1: 5 Logical Operations">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
-<meta name="Generator" content="texi2html 1.78">
+<meta name="Generator" content="texi2html 5.0">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 <!--
 a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
 pre.display {font-family: serif}
 pre.format {font-family: serif}
 pre.menu-comment {font-family: serif}
@@ -30,9 +36,11 @@ pre.smalldisplay {font-family: serif; font-size: smaller}
 pre.smallexample {font-size: smaller}
 pre.smallformat {font-family: serif; font-size: smaller}
 pre.smalllisp {font-size: smaller}
-span.roman {font-family:serif; font-weight:normal;}
-span.sansserif {font-family:sans-serif; font-weight:normal;}
-ul.toc {list-style: none}
+span.nocodebreak {white-space:pre}
+span.nolinebreak {white-space:pre}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
 -->
 </style>
 
@@ -42,59 +50,59 @@ ul.toc {list-style: none}
 <body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
 
 <a name="LOGICAL-OPERATIONS"></a>
-<a name="SEC155"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="usermanual_4.html#SEC154" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC156" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual_4.html#SEC114" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="usermanual_4.html#ARITHMETIC" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_4.html#LSHIFT" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ Up ]</td>
+<td valign="middle" align="left">[<a href="#AND" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h1 class="chapter"> 5. Logical Operations </h1>
+<a name="Logical-Operations"></a>
+<h1 class="chapter">5 Logical Operations</h1>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top"><a href="#SEC156">and</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#AND">and</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC157">or</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                          
+<tr><td align="left" valign="top"><a href="#OR">or</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                          
 </td></tr>
-<tr><td align="left" valign="top"><a href="#SEC158">not</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+<tr><td align="left" valign="top"><a href="#NOT">not</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
 </td></tr>
 </table>
 
 
-<hr size="6">
+<hr>
 <a name="AND"></a>
-<a name="SEC156"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC155" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC157" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#OR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> and </h3>
+<a name="and"></a>
+<h2 class="unnumberedsec">and</h2>
+<a name="index-and"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">AND tf1 tf2
+<div class="example">
+<pre class="example">AND tf1 tf2
 (AND tf1 tf2 tf3 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if all inputs are <code>TRUE</code>, otherwise <code>FALSE</code>.  All inputs
 must be <code>TRUE</code> or <code>FALSE</code>.  (Comparison is case-insensitive regardless
@@ -105,37 +113,39 @@ or <code>FALSE</code> value.  List expressions are evaluated from left to right;
 as soon as a <code>FALSE</code> value is found, the remaining inputs are not
 examined.  Example:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">MAKE &quot;RESULT AND [NOT (:X = 0)] [(1 / :X) &gt; .5]
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">MAKE &quot;RESULT AND [NOT (:X = 0)] [(1 / :X) &gt; .5]
+</pre></div>
 
 <p>to avoid the division by zero if the first part is false.
 </p>
-<p>See section <a href="usermanual_11.html#SEC376">caseignoredp</a> .
+<p>See section <a href="usermanual_11.html#CASEIGNOREDP">caseignoredp</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="OR"></a>
-<a name="SEC157"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC156" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC158" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#AND" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#AND" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#NOT" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> or </h3>
+<a name="or"></a>
+<h3 class="unnumberedsubsec">or</h3>
+<a name="index-or"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">OR tf1 tf2
+<div class="example">
+<pre class="example">OR tf1 tf2
 (OR tf1 tf2 tf3 ...)
-</pre></td></tr></table>
+</pre></div>
 
 <p>outputs <code>TRUE</code> if any input is <code>TRUE</code>, otherwise <code>FALSE</code>.  All inputs
 must be <code>TRUE</code> or <code>FALSE</code>.  (Comparison is case-insensitive regardless
@@ -146,59 +156,61 @@ or <code>FALSE</code> value.  List expressions are evaluated from left to right;
 as soon as a <code>TRUE</code> value is found, the remaining inputs are not
 examined.  Example:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="example">IF OR :X=0 [some.long.computation] [...]
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">IF OR :X=0 [some.long.computation] [...]
+</pre></div>
 
 <p>to avoid the long computation if the first condition is met.
 </p>
-<p>See section <a href="usermanual_11.html#SEC376">caseignoredp</a> .
+<p>See section <a href="usermanual_11.html#CASEIGNOREDP">caseignoredp</a> .
 </p>
-<hr size="6">
+<hr>
 <a name="NOT"></a>
-<a name="SEC158"></a>
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC157" title="Previous section in reading order"> &lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next section in reading order"> &gt; </a>]</td>
-<td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="#SEC155" title="Up section"> Up </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next chapter"> &gt;&gt; </a>]</td>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#OR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#AND" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h3 class="unnumberedsubsec"> not </h3>
+<a name="not"></a>
+<h3 class="unnumberedsubsec">not</h3>
+<a name="index-not"></a>
 
-<table><tr><td>&nbsp;</td><td><pre class="example">NOT tf
-</pre></td></tr></table>
+<div class="example">
+<pre class="example">NOT tf
+</pre></div>
 
 <p>outputs <code>TRUE</code> if the input is <code>FALSE</code>, and vice versa.  The input can be
 a list, in which case it is taken as an expression to run; that
 expression must produce a <code>TRUE</code> or <code>FALSE</code> value.
 </p>
 
-<hr size="6">
-<table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC155" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_6.html#SEC159" title="Next chapter"> &gt;&gt; </a>]</td>
+<hr>
+<table class="header" cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#LOGICAL-OPERATIONS" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_6.html#GRAPHICS" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
-<td valign="middle" align="left">[<a href="usermanual.html#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual.html#INTRODUCTION" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="usermanual_13.html#SEC391" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="usermanual_13.html#INDEX" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="usermanual_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Brian Harvey</em> on <em>September, 3 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+  This document was generated on <i>December 27, 2019</i> using <a href="http://www.nongnu.org/texi2html/"><i>texi2html 5.0</i></a>.
  </font>
  <br>
 

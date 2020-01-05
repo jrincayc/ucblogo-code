@@ -1,0 +1,91 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;          Bitwise Operations            ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Bitwise Operations] [Tests.Bitwise.Setup]
+
+
+
+;; The list of all OOP unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Bitwise [
+  ;list tests here
+  Tests.Bitwise.BitAnd
+  Tests.Bitwise.BitOr
+  Tests.Bitwise.BitXOr
+  Tests.Bitwise.BitNot
+  Tests.Bitwise.AShift
+  Tests.Bitwise.LShift
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Bitwise.Setup
+  RunTests :Tests.Bitwise
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.Bitwise.BitAnd
+  OUTPUT (AND [EQUAL? (BITAND 0 1) 0]
+              [EQUAL? (BITAND 1 257) 1]
+              [EQUAL? (BITAND 256 1280) 256]
+              [EQUAL? (BITAND 2 4) 0])
+end
+
+to Tests.Bitwise.BitOr
+  OUTPUT (AND [EQUAL? (BITOR 0 1) 1]
+              [EQUAL? (BITOR 1 256) 257]
+              [EQUAL? (BITOR 256 1024) 1280]
+              [EQUAL? (BITOR 2 4) 6])
+end
+
+to Tests.Bitwise.BitXor
+  OUTPUT (AND [EQUAL? (BITXOR 0 1) 1]
+              [EQUAL? (BITXOR 1 256) 257]
+              [EQUAL? (BITXOR 256 1280) 1024]
+              [EQUAL? (BITXOR 7 7) 0])
+end
+
+to Tests.Bitwise.BitNot
+  OUTPUT (AND [EQUAL? (BITNOT 0) -1]
+              [EQUAL? (BITNOT 1) -2]
+              [EQUAL? (BITNOT -8) 7]
+              [EQUAL? (BITNOT -1) 0])
+end
+
+
+to Tests.Bitwise.AShift
+  OUTPUT (AND [EQUAL? (ASHIFT 0 1) 0]
+              [EQUAL? (ASHIFT 1 4) 16]
+              [EQUAL? (ASHIFT 2 -1) 1]
+              [EQUAL? (ASHIFT -1 -1) -1])
+end
+
+to Tests.Bitwise.LShift
+  OUTPUT (AND [EQUAL? (LSHIFT 0 1) 0]
+              [EQUAL? (LSHIFT 1 4) 16]
+              [EQUAL? (LSHIFT 2 -1) 1]
+              [GREATEREQUAL? (LSHIFT -1 -1) 0])
+end

@@ -17,7 +17,22 @@ typedef struct {
 
 
 pen_info* getPen();
-
+extern  void wxPrepare();
+extern void wxSetPenWidth(int width);
+extern void wxDrawLine(int x1, int y1, int x2, int y2, int vis);
+extern void wx_clear();
+extern void wxLabel(char * string);
+extern void wxTextScreen();
+extern void wxSplitScreen();
+extern void wxFullScreen();
+extern void wxSetInfo(int type, int val);
+extern int wxGetMouseX();
+extern int wxGetMouseY();
+extern int wxGetClickX();
+extern int wxGetClickY();
+extern int wxGetButton();
+extern int wxGetLastButton();
+extern void doFilled(int fillcolor, int count, struct mypoint *points);
 
 #define SCREEN_WIDTH		1
 #define SCREEN_HEIGHT		2

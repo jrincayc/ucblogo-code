@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +31,7 @@ NODE *eval_buttonact = NIL;
 
 /* node-value registers that don't need saving */
 
-NODE    *exp    = NIL,  /* the current expression */
+NODE    *expresn = NIL,  /* the current expression */
 	*val    = NIL,  /* the value of the last expression */
 	*stack  = NIL,  /* register stack */
 	*numstack = NIL,/* stack whose elements aren't objects */
@@ -53,7 +52,7 @@ NODE
 #define DEB_CONT 0	    /* set to 1 to log newcont/fetch_cont */
 
 #define do_debug(x) \
-    x(exp) x(unev) x(val) x(didnt_get_output) x(didnt_output_name) x(fun) \
+    x(expresn) x(unev) x(val) x(didnt_get_output) x(didnt_output_name) x(fun) \
     x(proc)
 #define deb_enum(x) \
     ndprintf(stdout, #x " = %s,  ", x);
@@ -268,22 +267,22 @@ NODE *bf3(NODE *name) {
 			getstrlen(string)-3, nodetype(string), strcpy);
 }
 
-NODE *deep_copy(NODE *exp) {
+NODE *deep_copy(NODE *expresn) {
     NODE *val, **p, **q;
     FIXNUM arridx;
 
-    if (exp == NIL) return NIL;
-    else if (is_list(exp)) {
-	val = cons(deep_copy(car(exp)), deep_copy(cdr(exp)));
-	val->n_obj = deep_copy(exp->n_obj);
-	settype(val, nodetype(exp));
-    } else if (nodetype(exp) == ARRAY) {
-	val = make_array(getarrdim(exp));
-	setarrorg(val, getarrorg(exp));
-	for (p = getarrptr(exp), q = getarrptr(val), arridx=0;
-	     arridx < getarrdim(exp); arridx++, p++)
+    if (expresn == NIL) return NIL;
+    else if (is_list(expresn)) {
+	val = cons(deep_copy(car(expresn)), deep_copy(cdr(expresn)));
+	val->n_obj = deep_copy(expresn->n_obj);
+	settype(val, nodetype(expresn));
+    } else if (nodetype(expresn) == ARRAY) {
+	val = make_array(getarrdim(expresn));
+	setarrorg(val, getarrorg(expresn));
+	for (p = getarrptr(expresn), q = getarrptr(val), arridx=0;
+	     arridx < getarrdim(expresn); arridx++, p++)
 	*q++ = deep_copy(*p);
-    } else val = exp;
+    } else val = expresn;
     return val;
 }
 
@@ -385,49 +384,49 @@ tail_eval_dispatch:
     tailcall = 1;
 eval_dispatch:
     debprint("eval_dispatch");
-    switch (nodetype(exp)) {
+    switch (nodetype(expresn)) {
 	case QUOTE:			/* quoted literal */
-	    val = /* deep_copy */ (node__quote(exp));
+	    val = /* deep_copy */ (node__quote(expresn));
 	    goto fetch_cont;
 	case COLON:			/* variable */
 
 #ifdef OBJECTS
-	    val = varValue(node__colon(exp));
+	    val = varValue(node__colon(expresn));
 #else
-	    val = valnode__colon(exp);
+	    val = valnode__colon(expresn);
 #endif
 	    while (val == UNBOUND && NOT_THROWING)
-		val = err_logo(NO_VALUE, node__colon(exp));
+		val = err_logo(NO_VALUE, node__colon(expresn));
 	    goto fetch_cont;
 	case CONS:			/* procedure application */
-	    if (tailcall == 1 && is_macro(car(exp)) &&
-				 (is_list(procnode__caseobj(car(exp)))
-		   || isName(car(exp), Name_goto))) {
+	    if (tailcall == 1 && is_macro(car(expresn)) &&
+				 (is_list(procnode__caseobj(car(expresn)))
+		   || isName(car(expresn), Name_goto))) {
 		/* tail call to user-defined macro must be treated as non-tail
 		 * because the expression returned by the macro
 		 * remains to be evaluated in the caller's context */
 		unev = NIL;
 		goto non_tail_eval;
 	    }
-	    fun = car(exp);
+	    fun = car(expresn);
 	    if (fun == Not_Enough_Node) {
 		err_logo(TOO_MUCH, NIL);    /* When does this happen? */
 		val = UNBOUND;
 		goto fetch_cont;
 	    }
 	    if (flag__caseobj(fun, PROC_SPECFORM)) {
-		argl = cdr(exp);
+		argl = cdr(expresn);
 		goto apply_dispatch;
 	    }
-	    if (cdr(exp) != NIL)
+	    if (cdr(expresn) != NIL)
 		goto ev_application;
 	    else
 		goto ev_no_args;
 	case ARRAY:			/* array must be copied */
-	    val = deep_copy(exp);
+	    val = deep_copy(expresn);
 	    goto fetch_cont;
 	default:
-	    val = exp;		/* self-evaluating */
+	    val = expresn;		/* self-evaluating */
 	    goto fetch_cont;
     }
 
@@ -438,20 +437,20 @@ ev_no_args:
 
 ev_application:
     /* Evaluate an application of a procedure with arguments. */
-    unev = cdr(exp);
+    unev = cdr(expresn);
     argl = NIL;
 eval_arg_loop:
     debprint("eval_arg_loop");
     if (unev == NIL) goto eval_args_done;
-    exp = car(unev);
-    if (exp == Not_Enough_Node) {
+    expresn = car(unev);
+    if (expresn == Not_Enough_Node) {
 	if (NOT_THROWING)
 	    err_logo(NOT_ENOUGH, NIL);
 	goto eval_args_done;
     }
 arg_from_macro:
-    if (nodetype(exp) != CONS) {    /* Don't bother saving registers */
-	newcont(after_const_arg);    /* if the exp isn't a proc call */
+    if (nodetype(expresn) != CONS) {    /* Don't bother saving registers */
+	newcont(after_const_arg);    /* if the expresn isn't a proc call */
 	goto eval_dispatch;
     }
     eval_save();
@@ -498,7 +497,7 @@ accumulate_arg:
 	    }
 	    goto eval_args_done;
 	}
-	exp = car(val);
+	expresn = car(val);
 	stopping_flag = RUN;
 	goto arg_from_macro;
     }
@@ -520,7 +519,17 @@ apply_dispatch:
     /* Load in the procedure's definition and decide whether it's a compound
      * procedure or a primitive procedure.
      */
+#ifdef OBJECTS
+    extern NODE* procValueWithParent(NODE*, NODE**);
+    NODE* parent = (NODE*)0;
+    proc = procValueWithParent(fun, &parent);
+    if (proc != UNDEFINED && parent != 0){ 
+      usual_parent = parent;
+    }
+#else
     proc = procnode__caseobj(fun);
+#endif
+
     if (is_macro(fun)) {
 	num2save(val_status,tailcall);
 	save2(didnt_get_output,current_unode);
@@ -528,6 +537,42 @@ apply_dispatch:
 	    /* We want a value, but not as actual arg */
 	newcont(macro_return);
     }
+
+#ifdef OBJECTS
+    
+    if (proc == UNDEFINED) {	/* for usual.foo support */
+      /* The function(fun) may be of the form usual.foo, in which case
+       * "usual." should be stripped away, and "foo" should be 
+       * resolved in the parent(s) of the current object
+       */
+      extern NODE *parent_list(NODE *obj);
+      NODE *string = cnv_node_to_strnode(fun);
+
+      // first rule out all words shorter than 8 chars
+      if (getstrlen(string) > 6) {
+	// check to see if name begins with "usual."
+	if (!low_strncmp(getstrptr(string), "usual.", 6)){
+	  usual_caller = current_object;
+	  NODE* parent = (NODE*)0;
+	  proc = getInheritedProcWithParent(make_strnode(getstrptr(string) + 6,
+					       getstrhead(string),
+					       getstrlen(string) - 6,
+					       nodetype(string),
+					       strnzcpy),
+					    usual_parent,
+					    &parent);
+	 
+	  // if a proc was found, usual_parent needs to be updated
+	  // to avoid infinite loops when usual is called multiple times
+	  if (proc != UNDEFINED) {
+      	    usual_parent = parent;
+	  }
+	}
+      }
+    }
+#endif
+
+
     if (proc == UNDEFINED) {	/* 5.0 punctuationless variables */
 	if (!varTrue(AllowGetSet)) {    /* No getter/setter allowed, punt */
 	    val = err_logo(DK_HOW, fun);
@@ -632,7 +677,7 @@ compound_apply:
     check_ibm_stop();
 #endif
 #ifdef HAVE_WX
-    check_wx_stop();
+    check_wx_stop(0);
 #endif
     if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
 	for (i = 0; i < trace_level; i++) print_space(writestream);
@@ -709,7 +754,7 @@ lambda_apply:
 		    }
 		    unev = tree__tree(list);
 		    val = UNBOUND;
-		    exp = car(unev);
+		    expresn = car(unev);
 		    pop(unev);
 		    if (unev != NIL) {
 			err_logo(BAD_DEFAULT, parm);
@@ -727,7 +772,7 @@ set_args_continue:
 				 RUNNABLE_ARG : ERR_MACRO, val);
 			} else {
 			    reset_args(var);
-			    exp = car(val);
+			    expresn = car(val);
 			    stopping_flag = RUN;
 			    didnt_get_output = cons_list(0, fun, ufun,
 							 list, END_OF_LIST);
@@ -785,7 +830,7 @@ set_args_continue:
     last_line = this_line;
     this_line = NIL;
 /*    proc = (is_list(fun) ? anonymous_function(fun) : procnode__caseobj(fun)); */
-/*  If that's uncommented, begin_apply must get proc from fun, not exp  */
+/*  If that's uncommented, begin_apply must get proc from fun, not expresn  */
     list = bodylist__procnode(proc);	/* get the body ... */
     make_tree_from_body(list);
     if (!is_tree(list) || treepair__tree(list)==NIL) {
@@ -854,36 +899,36 @@ nofix:	this_line = unparsed__line(unev);
 	    (void)reader(stdin, " >>> ");
 	}
     }
-    exp = car(unev);
+    expresn = car(unev);
     pop(unev);
-    if (exp != NIL &&
-        is_list(exp) && (is_tailform(procnode__caseobj(car(exp))))) {
-      i = (int)getprimpri(procnode__caseobj(car(exp)));
+    if (expresn != NIL &&
+        is_list(expresn) && (is_tailform(procnode__caseobj(car(expresn))))) {
+      i = (int)getprimpri(procnode__caseobj(car(expresn)));
       if (i == OUTPUT_PRIORITY) {
-	if (cadr(exp) == Not_Enough_Node) {
-	    err_logo(NOT_ENOUGH,car(exp));
+	if (cadr(expresn) == Not_Enough_Node) {
+	    err_logo(NOT_ENOUGH,car(expresn));
 	    val = UNBOUND;
 	    goto fetch_cont;
 	}
 	didnt_output_name = NIL;
 	if (val_status & OUTPUT_TAIL) {
-	    didnt_get_output = cons_list(0,car(exp),ufun,this_line,
+	    didnt_get_output = cons_list(0,car(expresn),ufun,this_line,
 					 END_OF_LIST);
-	    fun = car(exp);
-	    exp = cadr(exp);
+	    fun = car(expresn);
+	    expresn = cadr(expresn);
 	    val_status = VALUE_OK;
 	    goto tail_eval_dispatch;
 	} else if (val_status & OUTPUT_OK) {
 	    goto tail_eval_dispatch;
 	} else if (ufun == NIL) {
-	    err_logo(AT_TOPLEVEL,car(exp));
+	    err_logo(AT_TOPLEVEL,car(expresn));
 	    val = UNBOUND;
 	    goto fetch_cont;
 	} else if (val_status & STOP_OK) {
-	    didnt_get_output = cons_list(0,car(exp),ufun,this_line,
+	    didnt_get_output = cons_list(0,car(expresn),ufun,this_line,
 					 END_OF_LIST);
 	    val_status = VALUE_OK;
-	    exp = cadr(exp);
+	    expresn = cadr(expresn);
 	    newcont(op_want_stop);
 	    goto eval_dispatch;
 op_want_stop:
@@ -900,7 +945,7 @@ op_want_stop:
 	}
       } else if (i == STOP_PRIORITY) {
 	if (ufun == NIL) {
-	    err_logo(AT_TOPLEVEL,car(exp));
+	    err_logo(AT_TOPLEVEL,car(expresn));
 	} else if (val_status & STOP_TAIL) {
 	} else if (val_status & STOP_OK) {
 	    stopping_flag = STOP;
@@ -914,11 +959,11 @@ op_want_stop:
 		    err_logo(DIDNT_OUTPUT, NIL);
 	    }
 	} else {    /* show runresult [stop] inside a procedure */
-	    didnt_output_name = car(exp);
+	    didnt_output_name = car(expresn);
 	    if (NOT_THROWING) {
 		if (didnt_get_output == NIL || didnt_get_output == UNBOUND) {
 		/*  actually can happen: STOP during PAUSE */
-		    err_logo(AT_TOPLEVEL, car(exp));
+		    err_logo(AT_TOPLEVEL, car(expresn));
 		} else
 		    err_logo(DIDNT_OUTPUT, NIL);
 	    }
@@ -927,26 +972,26 @@ op_want_stop:
 	goto fetch_cont;
       } else { /* maybeoutput */
 	debprint("maybeoutput");
-	if (cadr(exp) == Not_Enough_Node) {
-	    err_logo(NOT_ENOUGH,car(exp));
+	if (cadr(expresn) == Not_Enough_Node) {
+	    err_logo(NOT_ENOUGH,car(expresn));
 	    val = UNBOUND;
 	    goto fetch_cont;
 	}
 	if (ufun == NIL) {
-	    err_logo(AT_TOPLEVEL,car(exp));
+	    err_logo(AT_TOPLEVEL,car(expresn));
 	    val = UNBOUND;
 	    goto fetch_cont;
 	}
 	if (val_status & OUTPUT_TAIL) {
 	    didnt_output_name = NIL;
 	    if (val_status & STOP_TAIL) {
-		exp = cadr(exp);
+		expresn = cadr(expresn);
 		didnt_get_output = NIL;
 		val_status = VALUE_OK | NO_VALUE_OK;
 	    } else {
-		didnt_get_output = cons_list(0,car(exp),ufun,
+		didnt_get_output = cons_list(0,car(expresn),ufun,
 					     this_line,END_OF_LIST);
-		exp = cadr(exp);
+		expresn = cadr(expresn);
 		val_status = VALUE_OK;
 	    }
 	    goto tail_eval_dispatch;
@@ -955,7 +1000,7 @@ op_want_stop:
 	    if (val_status & STOP_OK) {
 		didnt_get_output = NIL;
 		val_status = NO_VALUE_OK | VALUE_OK;
-		exp = cadr(exp);
+		expresn = cadr(expresn);
 		newcont(after_maybeoutput);
 		goto eval_dispatch;
 after_maybeoutput:
@@ -968,12 +1013,12 @@ after_maybeoutput:
 		goto eval_dispatch;
 	    }
 	} else if (val_status & STOP_TAIL) {
-	    exp = cadr(exp);
+	    expresn = cadr(expresn);
 	    didnt_get_output = UNBOUND;
 	    val_status = NO_VALUE_OK;
 	    goto tail_eval_dispatch;
 	} else if (val_status & STOP_OK) {
-	    exp = cadr(exp);
+	    expresn = cadr(expresn);
 	    didnt_get_output = UNBOUND;
 	    val_status = NO_VALUE_OK;
 	    newcont(after_maybeoutput);
@@ -1028,14 +1073,14 @@ fall_off_want_output:
 
 non_tail_eval:
     debprint("non_tail_eval");
-    if (nodetype(exp) != CONS) {    /* Don't bother saving registers */
-	newcont(after_constant);    /* if the exp isn't a proc call */
+    if (nodetype(expresn) != CONS) {    /* Don't bother saving registers */
+	newcont(after_constant);    /* if the expresn isn't a proc call */
 	goto eval_dispatch;
     }
     eval_save();
     didnt_get_output = UNBOUND;    /* tell EVAL we don't want a value */
     tailcall = 0;
-    if (nodetype(exp) == CONS && is_prim(procnode__caseobj(car(exp)))) {
+    if (nodetype(expresn) == CONS && is_prim(procnode__caseobj(car(expresn)))) {
 	newcont(no_reset_args);	    /* primitive */
     } else {
 	var = var_stack;
@@ -1270,6 +1315,7 @@ withobject_continuation:
     save2(current_unode,current_object);
     newcont(withobject_followup);
     current_object = car(val);
+    usual_parent = current_object;
     newcont(cont__cont(cdr(val)));
     list = val = val__cont(cdr(val));
     val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
@@ -1279,6 +1325,7 @@ withobject_followup:
     restore2(current_unode,current_object);
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
+    usual_parent = current_object;
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {
@@ -1306,12 +1353,12 @@ goto_continuation:
 	while (unev != NIL && !check_throwing) {
 	    if (nodetype(unev) == LINE)
 		this_line = unparsed__line(unev);
-	    exp = car(unev);
+	    expresn = car(unev);
 	    pop(unev);
-	    if (is_list (exp) &&
-		    (isName(car(exp), Name_tag)) &&
-		    (nodetype(cadr(exp)) == QUOTE) &&
-		    compare_node(val, node__quote(cadr(exp)), TRUE) == 0) {
+	    if (is_list (expresn) &&
+		    (isName(car(expresn), Name_tag)) &&
+		    (nodetype(cadr(expresn)) == QUOTE) &&
+		    compare_node(val, node__quote(cadr(expresn)), TRUE) == 0) {
 		val = cons(theName(Name_tag), unev);
 		stopping_flag = MACRO_RETURN;
 		goto fetch_cont;
@@ -1324,19 +1371,19 @@ goto_continuation:
 
 begin_apply:
     /* This is for lapply. */
-    exp = car(val);
-    while (nodetype(exp) == ARRAY && NOT_THROWING)
-	exp = err_logo(APPLY_BAD_DATA, exp);
+    expresn = car(val);
+    while (nodetype(expresn) == ARRAY && NOT_THROWING)
+	expresn = err_logo(APPLY_BAD_DATA, expresn);
     argl = append(cadr(val), NIL);
     val = UNBOUND;
     while (!is_list(argl) && NOT_THROWING)
 	argl = err_logo(APPLY_BAD_DATA, argl);
-    if (NOT_THROWING && exp != NIL) {
-	if (is_list(exp)) {		    /* template */
-	    if (is_list(car(exp)) && cdr(exp) != NIL) {
-		if (is_list(cadr(exp))) {
+    if (NOT_THROWING && expresn != NIL) {
+	if (is_list(expresn)) {		    /* template */
+	    if (is_list(car(expresn)) && cdr(expresn) != NIL) {
+		if (is_list(cadr(expresn))) {
 		    /* procedure text form [[param ...] [instr ...] ...] */
-		    proc = anonymous_function(exp);
+		    proc = anonymous_function(expresn);
 		    debprint("anon func");
 		    if (stopping_flag == THROWING) goto fetch_cont;
 		    tracing = 0;
@@ -1348,7 +1395,7 @@ begin_apply:
 		    goto lambda_apply;
 		}
 		/* lambda form [[param ...] instr ...] */
-		formals = car(exp);
+		formals = car(expresn);
 		if (tailcall <= 0) {
 		    save(var);
 		    var = var_stack;
@@ -1364,17 +1411,17 @@ begin_apply:
 		      argl = cdr(argl))
 		    setvalnode__caseobj(car(formals), car(argl));
 		if (formals != NIL) {
-		    err_logo(NOT_ENOUGH, exp);
+		    err_logo(NOT_ENOUGH, expresn);
 		    goto fetch_cont;
 		} else if (argl != NIL) {
 		    err_logo(DK_WHAT, car(argl));
 		    goto fetch_cont;
 		}
-		list = cdr(exp);
+		list = cdr(expresn);
 		goto lambda_qm;
 	    } else {		/* question-mark form [instr ...] */
 		qm_list = argl;
-		list = exp;
+		list = expresn;
 lambda_qm:
 		make_tree(list);
 		if (list == NIL || !is_tree(list)) {
@@ -1392,7 +1439,7 @@ lambda_qm:
 	} else {    /* name of procedure to apply */
 	    int min, max, n;
 	    NODE *arg;
-	    fun = intern(exp);
+	    fun = intern(expresn);
 	    check_library(fun);
 	    proc = procnode__caseobj(fun);
 	    while (proc == UNDEFINED && NOT_THROWING) {

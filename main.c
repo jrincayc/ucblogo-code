@@ -3,19 +3,18 @@
  *
  *	Copyright (C) 1993 by the Regents of the University of California
  *
- *      This program is free software; you can redistribute it and/or modify
+ *      This program is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
- *  
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *  
+ *
  *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -271,13 +270,13 @@ int main(int argc, char *argv[]) {
 #endif
       {
 #ifdef HAVE_WX
-	extern char *SVN;
+	extern char *GIT;
 #endif
-	char version[20];
+	char version[64];
 	lcleartext(NIL);
 #ifdef HAVE_WX
-	strcpy(version,"6.0");
-	strcat(version,SVN);
+	strcpy(version,"6.1");
+	strcat(version,GIT);
 #else
 	strcpy(version,"5.6");
 #endif
@@ -287,7 +286,7 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef HAVE_WX
-    setvalnode__caseobj(LogoVersion, make_floatnode(6.0));
+    setvalnode__caseobj(LogoVersion, make_floatnode(6.1));
 #else
     setvalnode__caseobj(LogoVersion, make_floatnode(5.6));
 #endif
@@ -315,7 +314,11 @@ int main(int argc, char *argv[]) {
     setvalnode__caseobj(CommandLine, command_line);
 
     silent_load(Startuplg, logolib);
-    silent_load(Startup, NULL); /* load startup.lg */
+#ifndef WIN32
+    silent_load(Startuplg, getenv("HOME")); /* load startup.lg */
+#else
+    silent_load(Startuplg, NULL); /* load startup.lg */
+#endif
     if (!strcmp(*argv2+strlen(*argv2)-4, "logo")) {
 	argv2++;
 	while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
