@@ -5,8 +5,9 @@ ucblogo (6.1-0.1) unstable; urgency=medium
   * debian/patches: Refresh old patches.
   * debian/control:
     + Bump debhelper compat to v12.
+    + Bump Standards-Version to 4.4.1.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:03:10 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:03:45 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
