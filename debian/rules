@@ -3,12 +3,7 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	# don't autoreconf, as configure is newer than configure.in
-	# -> configure.in doesn't contain wxwidgets related checks
-	dh $@ --without autoreconf
-
-override_dh_auto_configure:
-	dh_auto_configure -- --wx-enable --wx-config_path=wx-config
+	dh $@
 
 override_dh_auto_build:
 	dh_auto_build -- LIBLOC=/usr/share/ucblogo
