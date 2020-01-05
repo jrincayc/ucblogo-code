@@ -3,6 +3,8 @@ ucblogo (6.1-0.1) unstable; urgency=medium
   * Non-maintainer upload.
   * New upstream release.
     + Proper 64bit support. (Closes: #823867)
+    + No longer need a repacked dfsg tarball since all files
+      seem to be dfsg-comaptible.
   * debian/patches: Refresh all patches.
   * debian/rules:
     + Use autoreconf again with the help of custom patches on
@@ -18,7 +20,7 @@ ucblogo (6.1-0.1) unstable; urgency=medium
   * debian/install: Install icons into /usr/share/pixmaps/ and
     /usr/share/icons/.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:22:38 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:23:12 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
