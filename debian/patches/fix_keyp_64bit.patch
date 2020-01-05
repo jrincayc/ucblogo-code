@@ -10,10 +10,10 @@ Bug-Debian: https://bugs.debian.org/744802
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/files.c b/files.c
-index 64f1bc6..be3a7de 100644
+index 287ee16..86368fa 100644
 --- a/files.c
 +++ b/files.c
-@@ -689,7 +689,7 @@ NODE *leofp(NODE *args) {
+@@ -698,7 +698,7 @@ NODE *leofp(NODE *args) {
  
  NODE *lkeyp(NODE *args) {
  #if defined(unix) | defined(__WXMSW__)

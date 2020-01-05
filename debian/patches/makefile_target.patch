@@ -10,7 +10,7 @@ rename binary to ucblogo
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/makefile.in b/makefile.in
-index 7c0fde1..a2e12d3 100644
+index 19330a3..3ba78ee 100644
 --- a/makefile.in
 +++ b/makefile.in
 @@ -21,10 +21,10 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \

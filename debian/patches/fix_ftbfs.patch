@@ -11,10 +11,10 @@ Bug-Debian: https://bugs.debian.org/811956
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/coms.c b/coms.c
-index 3477af9..759b56e 100644
+index b51b4fb..d642055 100644
 --- a/coms.c
 +++ b/coms.c
-@@ -25,9 +25,9 @@ extern int check_wx_stop(int force_yield);
+@@ -24,9 +24,9 @@ extern int check_wx_stop(int force_yield);
  #endif
  
  #define WANT_EVAL_REGS 1
@@ -26,10 +26,10 @@ index 3477af9..759b56e 100644
  #include <unistd.h>
  #endif
 diff --git a/graphics.c b/graphics.c
-index 4632db2..2f81169 100644
+index 4f67573..5e6f387 100644
 --- a/graphics.c
 +++ b/graphics.c
-@@ -24,9 +24,9 @@
+@@ -23,9 +23,9 @@
  #endif /* WIN32 */
   
  #define WANT_EVAL_REGS 1

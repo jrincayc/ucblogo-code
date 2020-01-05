@@ -7,7 +7,7 @@ Subject: graphics.c: Use !defined(HAVE_WX) instead of !HAVE_WX
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/graphics.c b/graphics.c
-index 4f67573..2a3b5ac 100644
+index 5e6f387..76879e9 100644
 --- a/graphics.c
 +++ b/graphics.c
 @@ -730,12 +730,12 @@ NODE *lhome(NODE *args) {
