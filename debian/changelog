@@ -14,10 +14,11 @@ ucblogo (6.1-0.1) unstable; urgency=medium
       (Closes: #933478)
     + Update Vcs-* fields to use git packaging repo under Salsa
       Debian group.
+    + Use secure URI in the homepage field.
   * debian/install: Install icons into /usr/share/pixmaps/ and
     /usr/share/icons/.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:19:52 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:22:38 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
