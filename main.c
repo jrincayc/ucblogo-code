@@ -269,14 +269,10 @@ int main(int argc, char *argv[]) {
       if (1 || isatty(1))   // fix this.  for interactive from menu bar.
 #endif
       {
-#ifdef HAVE_WX
-	extern char *GIT;
-#endif
 	char version[64];
 	lcleartext(NIL);
 #ifdef HAVE_WX
 	strcpy(version,"6.1");
-	strcat(version,GIT);
 #else
 	strcpy(version,"5.6");
 #endif

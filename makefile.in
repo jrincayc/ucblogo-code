@@ -13,7 +13,7 @@ LINKER = @LINKER@
 
 OBJS 	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o git.o obj.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
+	  print.o wrksp.o nographics.o obj.o @WXOFILES@ @TERMOFILE@ @GRAPHICSOFILE@
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
@@ -29,9 +29,6 @@ everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
-
-git.c:	$(SRCS)
-	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
 
 tags:	$(SRCS)
 	ctags --format=1 -N $(SRCS) $(HDRS)
