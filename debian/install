@@ -1,4 +1,6 @@
 ucblogo		usr/bin
+ucblogo.png	usr/share/icons/hicolor/256x256/apps/
+ucblogo.xpm	usr/share/pixmaps/     
 logolib/*	usr/share/ucblogo/logolib
 helpfiles/*	usr/share/ucblogo/helpfiles
 csls/*		usr/share/ucblogo/csls

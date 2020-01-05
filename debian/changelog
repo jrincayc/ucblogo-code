@@ -6,8 +6,10 @@ ucblogo (6.1-0.1) unstable; urgency=medium
   * debian/control:
     + Bump debhelper compat to v12.
     + Bump Standards-Version to 4.4.1.
+  * debian/install: Install icons into /usr/share/pixmaps/ and
+    /usr/share/icons/.
 
- -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:03:45 -0500
+ -- Boyuan Yang <byang@debian.org>  Sun, 05 Jan 2020 15:08:15 -0500
 
 ucblogo (6.0+dfsg-2) unstable; urgency=medium
 
