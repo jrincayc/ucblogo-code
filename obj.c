@@ -29,13 +29,14 @@ extern NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
 NODE *logo_object, *current_object;
 NODE *name_arg(NODE *args);
 NODE *assoc(NODE *name, NODE *alist);
+BOOLEAN memq(NODE *item, NODE *list);
 
 FIXNUM gensymnum = 1;
 
 /* Creates new license plate for object */
 NODE *newplate(void) {
     char buffer[20];
-    sprintf(buffer,"G%d", gensymnum++);
+    sprintf(buffer,"G%ld", gensymnum++);
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
     return UNBOUND;
 }
@@ -813,7 +814,7 @@ NODE *lrepresentation(NODE *args) {
     }
 
     ndprintf(NULL, "}");
-    print_stringptr = '\0';
+    /* print_stringptr = '\0'; */
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);

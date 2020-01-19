@@ -309,8 +309,8 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 						       nodetype(name),
 						       strnzcpy),
 					  current_object);
-		  retval = gather_some_args(minargs__procnode(proc), 
-					    maxargs__procnode(proc), 
+		  retval = gather_some_args(getint(minargs__procnode(proc)), 
+					    getint(maxargs__procnode(proc)), 
 					    expr, 
 					    inparen, 
 					    ifnode);

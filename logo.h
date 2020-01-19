@@ -668,6 +668,7 @@ struct registers {
 #ifdef OBJECTS
 #define usual_parent (regs.r_usual_parent)
 #define usual_caller (regs.r_usual_caller)
+#include "obj.h"
 #endif
 
 #endif
