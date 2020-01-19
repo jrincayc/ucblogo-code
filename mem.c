@@ -17,6 +17,8 @@
  *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdarg.h>
+
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
@@ -100,8 +102,10 @@ int next_gen_gc = 0, max_gen = 0;
 
 int mark_gen_gc;
 
-/* #define GC_DEBUG 1 /* */
-/* #define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
+#if 0
+#define GC_DEBUG 1 /* */
+#define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
+#endif
 
 #ifdef GC_DEBUG
 long int num_examined;
@@ -214,10 +218,17 @@ void setcdr(NODE *nd, NODE *newcdr) {
 #pragma optimize("",off)
 #endif
 
+
+
 void do_gc(BOOLEAN full) {
+#if 1
+    jmp_buf env;
+    setjmp(env);
+#else
     register NODE *pa, *pb, *pc, *pd, *pe;	/* get registers onto stack */
     register int aa, bb, cc, dd, ee;
-    
+#endif
+
     int_during_gc = 0;
     inside_gc++;
     gc(full);
@@ -480,7 +491,8 @@ void gc(BOOLEAN no_error) {
 	return;
     }
 
-    check_throwing;
+    if (check_throwing)
+        return;
 
     top_stack = &top;
 
@@ -756,7 +768,7 @@ re_mark:
 			if (getstrhead(nd) != NULL &&
 				    decstrrefcnt(getstrhead(nd)) == 0)
 			    free(getstrhead(nd));
-			    break;
+			break;
 		}
 		settype (nd, NTFREE);
 	 	nd->next = free_list;
