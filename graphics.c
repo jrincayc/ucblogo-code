@@ -1458,10 +1458,6 @@ NODE *larc(NODE *arg) {
 
 int insidefill = 0;
 
-struct mypoint {
-    int x,y;
-};
-
 NODE *lfilled(NODE *args) {
     NODE *val, *arg;
     char *start, *ptr;

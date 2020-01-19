@@ -280,7 +280,7 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	if (print_backslashes && (getarrorg(nd) != 1)) {
 	    char org[] = "@	";
 
-	    sprintf(&org[1],"%d",getarrorg(nd));
+	    sprintf(&org[1],"%ld",getarrorg(nd));
 	    ndprintf(strm,org);
 	}
     } else if (ndty == QUOTE) {
