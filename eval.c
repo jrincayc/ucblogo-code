@@ -166,7 +166,7 @@ void numpush(FIXNUM obj, NODE **stack) {
     NODE *temp = newnode(CONT); /*GC*/
 
     temp->n_car = (NODE *)obj;
-    temp->n_cdr = *stack;
+    setcdr(temp, *stack); /*GC*/
     *stack = temp;
 }
 

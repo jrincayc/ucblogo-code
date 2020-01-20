@@ -28,7 +28,6 @@ extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
 extern int main(int, char *[]);
 extern void unblock_input(void);
-extern NODE **bottom_stack;
 extern void delayed_int(void);
 extern NODE *command_line;
 
@@ -122,7 +121,7 @@ extern void check_reserve_tank(void);
 /* parse.c */
 extern FILE *loadstream, *writestream, *readstream, *dribblestream;
 extern int input_blocking;
-extern NODE *current_line, *deepend_proc_name;
+extern NODE *deepend_proc_name;
 extern NODE *reader(FILE *, char *);
 extern NODE *parser(NODE *, BOOLEAN);
 extern NODE *lparse(NODE *);
