@@ -417,6 +417,7 @@ extern NODE *lbye(NODE *);
 extern NODE *lwait(NODE *);
 extern NODE *lshell(NODE *);
 NODE *runnable_arg(NODE *);
+extern NODE *ltime(NODE *);
 
 /* term.c */
 #ifndef HAVE_WX

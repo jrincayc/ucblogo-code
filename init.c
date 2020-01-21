@@ -447,6 +447,7 @@ PRIMTYPE prims[] = {
 #endif
     {"thing", 1, 1, 1, PREFIX_PRIORITY, lthing},
     {"throw", 1, 1, 2, PREFIX_PRIORITY, lthrow},
+    {"time", 0, 0, 0, PREFIX_PRIORITY, ltime},
     {"to", -1, -1, -1, PREFIX_PRIORITY, lto},
     {"tone", 2, 2, 2, PREFIX_PRIORITY, ltone},
     {"towards", 1, 1, 1, PREFIX_PRIORITY, ltowards},
@@ -852,3 +853,4 @@ nosugar:
     setflag__caseobj(Redefp, VAL_BURIED);
  */
 }
+

@@ -56,6 +56,12 @@ extern int check_wx_stop(int force_yield);
 #endif
 #endif
 
+#ifdef __APPLE__
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+
 NODE *make_cont(enum labels cont, NODE *val) {
 #ifdef __RZTC__
     union { enum labels lll;
@@ -579,4 +585,20 @@ NODE *lshell(NODE *args) {
     return(head);
 #endif
 #endif
+}
+
+NODE *ltime(NODE *args) {
+    NODE *val;
+    FLONUM fval = 0.0;
+#ifdef __APPLE__
+    struct timeval tp;
+
+    gettimeofday(&tp, NULL);
+    fval = tp.tv_sec + (FLONUM) tp.tv_usec / 1000000.0;
+#else
+    fval = (FLONUM) time(NULL);
+#endif
+    val = newnode(FLOATT);
+    setfloat(val, fval);
+    return val;
 }
