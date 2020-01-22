@@ -253,7 +253,7 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
     } else if ((unsigned int)nd < 200) {    /* for debugging */
 	char num[] = "{small}    ";
 
-	sprintf(&num[7],"%d",nd);
+	sprintf(&num[7],"%d", (int)nd);
 	ndprintf(strm,num);
     } else if ((ndty = nodetype(nd)) & NT_PRIM) {
 	ndprintf(strm, "PRIM");

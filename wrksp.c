@@ -1549,7 +1549,7 @@ NODE *lunstep(NODE *arg) {
     return unbury_helper(arg,PROC_STEPPED);
 }
 
-char *addsep(char *path) {
+const char *addsep(const char *path) {
     static char result[256];
 
     strcpy(result, path);

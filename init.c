@@ -676,7 +676,7 @@ nosugar:
         if (message_fp != NULL) {
           printf("Changing logolib from %s to %s\n", logolib, new_logolib);
           logolib = malloc(sizeof(char)*(strlen(new_logolib)+1));
-          strcpy(logolib, new_logolib);
+          strcpy((char*) logolib, new_logolib);
         }
       }
       if (message_fp != NULL) {
@@ -688,19 +688,19 @@ nosugar:
 	const char* wxMacGetCslsloc();
 	const char* wxMacGetHelploc();
 	const char* wxMacGetLibloc();
-	char* newlib;
-	char* newcsls;
-	char* newhelp;
+	const char* newlib;
+	const char* newcsls;
+	const char* newhelp;
 	// check if we are running wxMac
 	newlib = wxMacGetLibloc();
 	if(newlib)
-		logolib=newlib; 
-    //if (helpfiles == NULL) helpfiles = wxMacGetHelploc();
-    newcsls = wxMacGetCslsloc();
+		logolib = newlib; 
+        //if (helpfiles == NULL) helpfiles = wxMacGetHelploc();
+                newcsls = wxMacGetCslsloc();
 	if(newcsls)
 		csls = newcsls;
 	newhelp = wxMacGetHelploc();
-    if(newhelp)
+        if(newhelp)
 		helpfiles = newhelp;
 #endif
 #endif
