@@ -1,9 +1,14 @@
-# GFX = -DHAVE_WX
-# TERM_OBJS = wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o 
-# TERM_SRCS = wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp wxterm.c 
+ifeq ($(wxlogo),yes)
+GFX = -DHAVE_WX
+TERM_OBJS = wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o 
+TERM_SRCS = wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp  TextEditor.cpp wxterm.c 
+LIBS  =   -lm  -L/usr/local/lib   -framework IOKit -framework Carbon -framework Cocoa -framework AudioToolbox -framework System -framework OpenGL -lwx_osx_cocoau_xrc-3.1 -lwx_osx_cocoau_html-3.1 -lwx_osx_cocoau_qa-3.1 -lwx_osx_cocoau_core-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -lwx_baseu-3.1  -ltermcap 
+else
 GFX = -DX_DISPLAY_MISSING
 TERM_OBJS = term.o
 TERM_SRCS = term.c
+LIBS  = -lm -ltermcap 
+endif
 OBJLOGO = -DOBJECTS=1
 
 DBG     = -g
@@ -15,7 +20,6 @@ CFLAGS = $(OPT) $(C_FLAGS)
 CXX     = g++ $(DBG) -mmacosx-version-min=10.9 -Wall
 CXXFLAGS = $(OPT) $(GFX) $(OBJLOGO) -I/usr/local/lib/wx/include/osx_cocoa-unicode-3.1 -I/usr/local/include/wx-3.1 -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__ 
 LDFLAGS	= 
-LIBS  =   -lm  -L/usr/local/lib   -framework IOKit -framework Carbon -framework Cocoa -framework AudioToolbox -framework System -framework OpenGL -lwx_osx_cocoau_xrc-3.1 -lwx_osx_cocoau_html-3.1 -lwx_osx_cocoau_qa-3.1 -lwx_osx_cocoau_core-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -lwx_baseu-3.1  -ltermcap 
 prefix = /usr/local
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
