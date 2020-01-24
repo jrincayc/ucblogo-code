@@ -303,18 +303,24 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		  // the proc starts with "usual.", so chop it off and
 		  // try to find the proc name after the dot
 		  NODE *name = cnv_node_to_strnode(first);
-		  proc = getInheritedProc(make_strnode(getstrptr(name) + 6,
+		  proc = getInheritedProc(intern(
+                                              make_strnode(getstrptr(name) + 6,
 						       getstrhead(name),
 						       getstrlen(name) - 6,
 						       nodetype(name),
-						       strnzcpy),
+						       strnzcpy)),
 					  current_object);
-		  retval = gather_some_args(getint(minargs__procnode(proc)), 
-					    getint(maxargs__procnode(proc)), 
-					    expr, 
-					    inparen, 
-					    ifnode);
-		  return cons(first, retval);
+                  if (proc == UNDEFINED) {
+                      err_logo(DK_HOW, name);
+                      return cons(first, NIL);
+                  } else {
+		      retval = gather_some_args(getint(minargs__procnode(proc)),
+					        getint(maxargs__procnode(proc)),
+					        expr,
+					        inparen,
+					        ifnode);
+		      return cons(first, retval);
+                  }
 #endif /* OBJECTS */
 		} else {
 		    retval = cons(first, NIL);

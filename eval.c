@@ -554,11 +554,12 @@ apply_dispatch:
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
 	  usual_caller = current_object;
 	  NODE* parent = (NODE*)0;
-	  proc = getInheritedProcWithParent(make_strnode(getstrptr(string) + 6,
+	  proc = getInheritedProcWithParent(intern(
+                                             make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
 					       getstrlen(string) - 6,
 					       nodetype(string),
-					       strnzcpy),
+					       strnzcpy)),
 					    usual_parent,
 					    &parent);
 	 

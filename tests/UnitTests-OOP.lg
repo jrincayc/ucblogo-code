@@ -31,6 +31,7 @@ MAKE "Tests.OOP [
   Tests.OOP.MemberFunctionOverride
   Tests.OOP.CaseSensitiveMemberVars
   Tests.OOP.OverriddenMethods
+  Tests.OOP.UsualInLogo
  ]
 
 
@@ -195,7 +196,14 @@ to Tests.OOP.CaseSensitiveMemberVars
 end
 
 
+  to bar
+    output "True
+  end
+
   make "a something
+  ask :a [to bar]
+    output usual.bar
+  end
   ask :a [to foo :x]
     output :x
     end
@@ -208,6 +216,11 @@ to Tests.OOP.OverriddenMethods
   make "c kindof :b
   (ask :c [make "baz foo])
   OUTPUT equal? (ask :c [:baz]) "True
+end
+
+to Tests.OOP.UsualInLogo
+  make "c kindof :a
+  OUTPUT equal? (ask :c [bar]) "True
 end
 
 ;; This is setup for the next test
