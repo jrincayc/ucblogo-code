@@ -118,6 +118,9 @@ void make_tree(NODE *list) {
 
     NODE *tree = NIL;
     NODE *paren_line(NODE *);
+#ifdef OBJECTS
+    NODE *old_usual_parent = usual_parent;
+#endif
 
     if (list == NIL ||
 	(is_tree(list) && generation__tree(list) == the_generation))
@@ -131,6 +134,9 @@ void make_tree(NODE *list) {
 	if (tree_dk_how != NIL || stopping_flag==THROWING)
 	    setgeneration__tree(list, UNBOUND);
     }
+#ifdef OBJECTS
+    usual_parent = old_usual_parent;
+#endif
 }
 
 NODE *gather_args(NODE *, NODE *, NODE **, BOOLEAN, NODE **);
@@ -303,6 +309,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		  // the proc starts with "usual.", so chop it off and
 		  // try to find the proc name after the dot
 		  NODE *name = cnv_node_to_strnode(first);
+#if 0
 		  proc = getInheritedProc(intern(
                                               make_strnode(getstrptr(name) + 6,
 						       getstrhead(name),
@@ -310,6 +317,31 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 						       nodetype(name),
 						       strnzcpy)),
 					  current_object);
+#else
+                  NODE *parent = (NODE*)0;
+                  if (usual_parent == NIL)
+                        usual_parent = current_object;
+#ifdef DEB_USUAL_PARENT
+                        fprintf(stderr,"paren: current_object=%p usual_parent=%p logo_object=%p\n",
+                        current_object,
+                        usual_parent,
+                        logo_object);
+#endif
+                  proc = getInheritedProcWithParent(intern(
+                                              make_strnode(getstrptr(name) + 6,
+						       getstrhead(name),
+						       getstrlen(name) - 6,
+						       nodetype(name),
+						       strnzcpy)),
+					  usual_parent,
+                                          &parent);
+                  if (proc != UNDEFINED) {
+                      usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+                      fprintf(stderr,"paren: usual_parent => %p\n", parent);
+#endif
+                  }
+#endif
                   if (proc == UNDEFINED) {
                       err_logo(DK_HOW, name);
                       return cons(first, NIL);

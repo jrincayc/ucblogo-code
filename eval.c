@@ -525,6 +525,9 @@ apply_dispatch:
     proc = procValueWithParent(fun, &parent);
     if (proc != UNDEFINED && parent != 0){ 
       usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+      fprintf(stderr,"evalProcValue: usual_parent => %p\n", usual_parent);
+#endif
     }
 #else
     proc = procnode__caseobj(fun);
@@ -554,6 +557,12 @@ apply_dispatch:
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
 	  usual_caller = current_object;
 	  NODE* parent = (NODE*)0;
+#ifdef DEB_USUAL_PARENT
+          fprintf(stderr,"eval: current_object=%p usual_parent=%p logo_object=%p\n",
+                current_object,
+                usual_parent,
+                logo_object);
+#endif
 	  proc = getInheritedProcWithParent(intern(
                                              make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
@@ -567,6 +576,9 @@ apply_dispatch:
 	  // to avoid infinite loops when usual is called multiple times
 	  if (proc != UNDEFINED) {
       	    usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+            fprintf(stderr,"eval: usual_parent => %p\n", usual_parent);
+#endif
 	  }
 	}
       }
