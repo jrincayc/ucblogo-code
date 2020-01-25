@@ -32,6 +32,10 @@ MAKE "Tests.OOP [
   Tests.OOP.CaseSensitiveMemberVars
   Tests.OOP.OverriddenMethods
   Tests.OOP.UsualInLogo
+  Tests.OOP.OverriddenMethods1
+  Tests.OOP.OverriddenMethods2
+  Tests.OOP.OverriddenMethods3
+  Tests.OOP.OverriddenMethods4
  ]
 
 
@@ -221,6 +225,61 @@ end
 to Tests.OOP.UsualInLogo
   make "c kindof :a
   OUTPUT equal? (ask :c [bar]) "True
+end
+
+;; This is setup for the next test
+;; Methods are defined a different levels
+;; Check that the proper method will get called
+
+make "InheritA something
+ask :InheritA [to foo]
+  op "fooA
+end
+
+make "InheritB kindof :InheritA
+ask :InheritB [to bar]
+  op "barB
+end
+
+make "InheritC kindof :InheritB
+ask :InheritC [to foo]
+  op "fooC
+end
+
+ask :InheritC [to bar]
+  op "barC
+end
+
+ask :InheritC [to baz1]
+  op se foo bar
+end
+
+ask :InheritC [to baz2]
+  op se foo usual.bar
+end
+
+ask :InheritC [to baz3]
+  op se usual.foo bar
+end
+
+ask :InheritC [to baz4]
+  op se usual.foo usual.bar
+end
+
+to Tests.OOP.OverriddenMethods1
+  OUTPUT equal? (ask :InheritC [baz1]) [fooC barC]
+end
+
+to Tests.OOP.OverriddenMethods2
+  OUTPUT equal? (ask :InheritC [baz2]) [fooC barB]
+end
+
+to Tests.OOP.OverriddenMethods3
+  OUTPUT equal? (ask :InheritC [baz3]) [fooA barC]
+end
+
+to Tests.OOP.OverriddenMethods4
+  OUTPUT equal? (ask :InheritC [baz4]) [fooA barB]
 end
 
 ;; This is setup for the next test

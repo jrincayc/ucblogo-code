@@ -118,9 +118,6 @@ void make_tree(NODE *list) {
 
     NODE *tree = NIL;
     NODE *paren_line(NODE *);
-#ifdef OBJECTS
-    NODE *old_usual_parent = usual_parent;
-#endif
 
     if (list == NIL ||
 	(is_tree(list) && generation__tree(list) == the_generation))
@@ -134,9 +131,6 @@ void make_tree(NODE *list) {
 	if (tree_dk_how != NIL || stopping_flag==THROWING)
 	    setgeneration__tree(list, UNBOUND);
     }
-#ifdef OBJECTS
-    usual_parent = old_usual_parent;
-#endif
 }
 
 NODE *gather_args(NODE *, NODE *, NODE **, BOOLEAN, NODE **);
@@ -236,6 +230,9 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
     NODE *first = NIL, *tree = NIL, *pproc, *retval;
     NODE **ifnode = (NODE **)NIL;
+#ifdef OBJECT
+    NODE *old_usual_parent = usual_parent;
+#endif
 
     // no expression given
     if (*expr == NIL) {
@@ -344,6 +341,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 #endif
                   if (proc == UNDEFINED) {
                       err_logo(DK_HOW, name);
+                      usual_parent = old_usual_parent;
                       return cons(first, NIL);
                   } else {
 		      retval = gather_some_args(getint(minargs__procnode(proc)),
@@ -351,6 +349,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 					        expr,
 					        inparen,
 					        ifnode);
+                      usual_parent = old_usual_parent;
 		      return cons(first, retval);
                   }
 #endif /* OBJECTS */
