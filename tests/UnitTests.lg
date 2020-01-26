@@ -113,3 +113,4 @@ LOAD "UnitTests-Constructors.lg
 LOAD "UnitTests-Predicates.lg
 LOAD "UnitTests-Random.lg
 LOAD "UnitTests-OOP.lg
+LOAD "UnitTests-MemMgr.lg
