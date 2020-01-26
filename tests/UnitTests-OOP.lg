@@ -36,6 +36,10 @@ MAKE "Tests.OOP [
   Tests.OOP.OverriddenMethods2
   Tests.OOP.OverriddenMethods3
   Tests.OOP.OverriddenMethods4
+  Tests.OOP.MultipleInheritanceTalker
+  Tests.OOP.MultipleInheritanceShouter
+  Tests.OOP.MultipleInheritanceWhisperer
+  Tests.OOP.MultipleInheritanceCombination
  ]
 
 
@@ -281,6 +285,47 @@ end
 to Tests.OOP.OverriddenMethods4
   OUTPUT equal? (ask :InheritC [baz4]) [fooA barB]
 end
+
+
+;;; G.Drescher: "Object-oriented Logo"
+;;; in Lawler, Yazdani: "Artifical Intelligence and Education: Learning environments and tutoring systems", Intellect Books, 1987
+
+make "talker something
+ask :talker [have "name]
+ask :talker [make "name "gertrude]
+
+ask :talker [to say :msg]
+  op (sentence :name "says :msg)
+end
+
+make "shouter kindof :talker
+ask :shouter [to say :msg]
+  op (se "hey! usual.say :msg)
+end
+
+make "whisperer kindof :talker
+ask :whisperer [to say :msg]
+  op (se "shhh...  usual.say :msg)
+end
+
+make "combination (kindof :shouter :whisperer)
+
+to Tests.OOP.MultipleInheritanceTalker
+  OUTPUT equal? (ask :talker [say "hi]) [gertrude says hi]
+end
+
+to Tests.OOP.MultipleInheritanceShouter
+  OUTPUT equal? (ask :shouter [say "hello]) [hey! gertrude says hello]
+end
+
+to Tests.OOP.MultipleInheritanceWhisperer
+  OUTPUT equal? (ask :whisperer [say "howdy]) [shhh... gertrude says howdy]
+end
+
+to Tests.OOP.MultipleInheritanceCombination
+  OUTPUT equal? (ask :combination [say "howdy]) [hey! shhh... gertrude says howdy]
+end
+
 
 ;; This is setup for the next test
 ;; When an object has a function with the

@@ -563,7 +563,7 @@ apply_dispatch:
                 usual_parent,
                 logo_object);
 #endif
-	  proc = getInheritedProcWithParent(intern(
+	  proc = getInheritedProcWithParentList(intern(
                                              make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
 					       getstrlen(string) - 6,
@@ -1328,7 +1328,7 @@ withobject_continuation:
     save2(current_unode,current_object);
     newcont(withobject_followup);
     current_object = car(val);
-    usual_parent = current_object;
+    usual_parent = parent_list(current_object);
     newcont(cont__cont(cdr(val)));
     list = val = val__cont(cdr(val));
     val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
@@ -1338,7 +1338,7 @@ withobject_followup:
     restore2(current_unode,current_object);
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
-    usual_parent = current_object;
+    usual_parent = parent_list(current_object);
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {
