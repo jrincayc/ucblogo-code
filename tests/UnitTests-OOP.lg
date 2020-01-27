@@ -39,7 +39,10 @@ MAKE "Tests.OOP [
   Tests.OOP.MultipleInheritanceTalker
   Tests.OOP.MultipleInheritanceShouter
   Tests.OOP.MultipleInheritanceWhisperer
-  Tests.OOP.MultipleInheritanceCombination
+  Tests.OOP.MultipleInheritanceCombination1
+  Tests.OOP.MultipleInheritanceCombination2
+  Tests.OOP.ExistChain1
+  Tests.OOP.ExistChain2
  ]
 
 
@@ -298,17 +301,46 @@ ask :talker [to say :msg]
   op (sentence :name "says :msg)
 end
 
+ask :talker [to exist]
+  make "exist.chain fput "talker :exist.chain
+end
+
+;;
 make "shouter kindof :talker
 ask :shouter [to say :msg]
   op (se "hey! usual.say :msg)
 end
 
+ask :shouter [to exist]
+  usual.exist
+  make "exist.chain fput "shouter :exist.chain
+end
+
+;;
 make "whisperer kindof :talker
 ask :whisperer [to say :msg]
   op (se "shhh...  usual.say :msg)
 end
 
-make "combination (kindof :shouter :whisperer)
+ask :whisperer [to exist]
+  usual.exist
+  make "exist.chain fput "whisperer :exist.chain
+end
+
+
+;;
+make "combination1 (kindof :shouter :whisperer)
+ask :combination1 [to exist]
+  usual.exist
+  make "exist.chain fput "combination1 :exist.chain
+end
+
+;;
+make "combination2 (kindof :whisperer :shouter)
+ask :combination2 [to exist]
+  usual.exist
+  make "exist.chain fput "combination2 :exist.chain
+end
 
 to Tests.OOP.MultipleInheritanceTalker
   OUTPUT equal? (ask :talker [say "hi]) [gertrude says hi]
@@ -322,8 +354,26 @@ to Tests.OOP.MultipleInheritanceWhisperer
   OUTPUT equal? (ask :whisperer [say "howdy]) [shhh... gertrude says howdy]
 end
 
-to Tests.OOP.MultipleInheritanceCombination
-  OUTPUT equal? (ask :combination [say "howdy]) [hey! shhh... gertrude says howdy]
+to Tests.OOP.MultipleInheritanceCombination1
+  OUTPUT equal? (ask :combination1 [say "howdy]) [hey! shhh... gertrude says howdy]
+end
+
+to Tests.OOP.MultipleInheritanceCombination2
+  OUTPUT equal? (ask :combination2 [say "hola]) [shhh... hey! gertrude says hola]
+end
+
+to Tests.OOP.ExistChain1
+  make "exist.chain []
+  ask :combination1 [exist]
+  OUTPUT (equal? :exist.chain
+                 [combination1 shouter whisperer talker])
+end
+
+to Tests.OOP.ExistChain2
+  make "exist.chain []
+  ask :combination2 [exist]
+  OUTPUT (equal? :exist.chain
+                 [combination2 whisperer shouter talker])
 end
 
 
