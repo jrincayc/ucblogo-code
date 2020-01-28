@@ -45,6 +45,10 @@ NODE
 *output_node    = NIL,	/* the output of the current function */
 *output_unode	= NIL;	/* the unode in which we saw the output */
 
+#if defined(__GNUC__) && !defined(__clang__)
+#define USE_GCC_DISPATCH 1
+#endif
+
 #define DEBUGGING 0
 
 #if DEBUGGING
@@ -669,13 +673,26 @@ apply_dispatch:
 
 fetch_cont:
     {
+#ifdef USE_GCC_DISPATCH
+#define do_label(x) &&x,
+        static void *dispatch[] = {
+                do_list(do_label)
+                0
+        };
+#endif
 	enum labels x = (enum labels)cont;
 	cont = (FIXNUM)car(numstack);
 	numstack=cdr(numstack);
+#ifdef USE_GCC_DISPATCH
+        if (x >= NUM_TOKENS)
+            abort();
+        goto *dispatch[x];
+#else
 	switch (x) {
 	    do_list(do_case)
 	    default: abort();
 	}
+#endif
     }
 
 
