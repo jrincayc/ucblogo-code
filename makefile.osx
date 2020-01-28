@@ -12,18 +12,17 @@ endif
 OBJLOGO = -DOBJECTS=1
 
 DBG     = -g
-CC	= gcc $(DBG) -mmacosx-version-min=10.9 -Wall
-OPT0 = -g -O0
-OPT = -g -O2
+CC	= gcc-mp-8 $(DBG) -mmacosx-version-min=10.9 -Wall
+OPT = $(DBG) -O2
 C_FLAGS	= $(GFX) $(OBJLOGO) -DUSE_OLD_TTY
 CFLAGS = $(OPT) $(C_FLAGS)
-CXX     = g++ $(DBG) -mmacosx-version-min=10.9 -Wall
+CXX     = g++-mp-8 $(DBG) -mmacosx-version-min=10.9 -Wall
 CXXFLAGS = $(OPT) $(GFX) $(OBJLOGO) -I/usr/local/lib/wx/include/osx_cocoa-unicode-3.1 -I/usr/local/include/wx-3.1 -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__ 
 LDFLAGS	= 
 prefix = /usr/local
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
-LINKER = g++ $(DBG) -mmacosx-version-min=10.9
+LINKER = g++-mp-8 $(DBG) -mmacosx-version-min=10.9
 
 # LIBLOC      = `pwd`
 
@@ -44,9 +43,6 @@ logo:	$(OBJS)
 
 everything:	logo logolib/Messages helpfiles helpfiles/HELPCONTENTS
 #logo-mode
-
-mem.o:	mem.c
-	$(CC) $(C_FLAGS) $(OPT) -c mem.c
 
 git.c:	$(SRCS)
 	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
