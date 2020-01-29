@@ -170,7 +170,7 @@ void numpush(FIXNUM obj, NODE **stack) {
     NODE *temp = newnode(CONT); /*GC*/
 
     temp->n_car = (NODE *)obj;
-    setcdr(temp, *stack); /*GC*/
+    temp->n_cdr = *stack;
     *stack = temp;
 }
 
