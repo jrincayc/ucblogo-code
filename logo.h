@@ -424,15 +424,7 @@ typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;
 struct segment {
 	struct segment *next;
 	FIXNUM size;
-#ifdef mac
 	struct logo_node nodes[1];
-#else
-#ifdef __RZTC__
-	struct logo_node nodes[1];
-#else
-	struct logo_node nodes[1];
-#endif
-#endif
 };
 
 #define NOT_THROWING            (stopping_flag != THROWING)
