@@ -606,7 +606,6 @@ re_mark:
     mark(catch_tag);
     mark(arg);
 
-#if 1
     mark(proc);
     mark(argl);
     mark(unev);
@@ -625,7 +624,6 @@ re_mark:
 #ifdef OBJECTS
     mark(usual_parent);
     mark(usual_caller);
-#endif
 #endif
 
 
