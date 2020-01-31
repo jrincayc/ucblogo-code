@@ -158,7 +158,7 @@ NODE *restname, *restline;
 /* These variables are all externed in globals.h */
 
 CTRLTYPE    stopping_flag = RUN;
-const char  *logolib, *helpfiles, *csls;
+char  *logolib, *helpfiles, *csls;
 FIXNUM	    dont_fix_ift = 0;
 
 /* These variables are local to this file. */

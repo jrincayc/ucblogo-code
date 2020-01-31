@@ -676,7 +676,7 @@ nosugar:
         if (message_fp != NULL) {
           printf("Changing logolib from %s to %s\n", logolib, new_logolib);
           logolib = malloc(sizeof(char)*(strlen(new_logolib)+1));
-          strcpy((char*) logolib, new_logolib);
+          strcpy(logolib, new_logolib);
         }
       }
       if (message_fp != NULL) {

@@ -284,7 +284,7 @@ extern NODE *lcontinue(NODE *);
 extern NODE *var_stack;
 extern NODE *output_node, *output_unode, *last_call;
 extern CTRLTYPE stopping_flag;
-extern const char *logolib, *helpfiles, *csls;
+extern char *logolib, *helpfiles, *csls;
 extern FIXNUM dont_fix_ift;
 extern void eval_driver(NODE *);
 extern NODE *err_eval_driver(NODE *, BOOLEAN);
