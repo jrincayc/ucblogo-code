@@ -205,6 +205,8 @@ void check_valid_oldyoung(NODE *old, NODE *new) {
     }
 }
 
+/* clean_oldyoungs removes the free nodes from the oldyoungs list,
+   traversing the list just once. */
 void clean_oldyoungs(void) {
     NODE **prev;
     NODE *nd, *next;
