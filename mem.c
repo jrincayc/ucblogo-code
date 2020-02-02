@@ -151,7 +151,8 @@ BOOLEAN addseg(void) {
 
 #define NILP(x)         (NIL == (x))
 
-#define GC_OPT          1
+/* GC_OPT seems to work, but valid_pointer might be needed */
+// #define GC_OPT          1
 
 #ifdef GC_OPT
 #define VALID_PTR(x)    (!NILP(x))
