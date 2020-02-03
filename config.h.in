@@ -74,3 +74,6 @@
 
 /* Define if you have the wx library.  */
 #undef HAVE_WX
+
+/* Define if compiling with object oriented logo */
+#undef OBJECTS

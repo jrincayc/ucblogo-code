@@ -22,7 +22,6 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
-// #define OBJECTS 
 
 /* #define MEM_DEBUG */
 
