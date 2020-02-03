@@ -29,13 +29,14 @@ extern NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
 NODE *logo_object, *current_object;
 NODE *name_arg(NODE *args);
 NODE *assoc(NODE *name, NODE *alist);
+BOOLEAN memq(NODE *item, NODE *list);
 
 FIXNUM gensymnum = 1;
 
 /* Creates new license plate for object */
 NODE *newplate(void) {
     char buffer[20];
-    sprintf(buffer,"G%d", gensymnum++);
+    sprintf(buffer,"G%ld", gensymnum++);
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
     return UNBOUND;
 }
@@ -664,6 +665,31 @@ NODE *getInheritedProcWithParent(NODE *name, NODE *obj, NODE **parent){
     return result;
 }
 
+/*
+ * Finds an inherited procedure, returns it and also sets
+ * the parent handle to the tail of the parent list the proc came from
+ */
+NODE *getInheritedProcWithParentList(NODE *name,
+                                     NODE *parentList, NODE **parent){
+    NODE *result;
+
+    // initialize the return value
+    // incase there are no parents
+    result = UNDEFINED;
+
+    for (;
+	 parentList != NIL && result == UNDEFINED;
+	 parentList = cdr(parentList)) {
+      result = get_proc(name, car(parentList));
+      if (parent != 0){
+	*parent = cdr(parentList);
+      }
+    }
+
+    // result should be UNDEFINED or a proc at this point
+    return result;
+}
+
 
 /* Searches the parents for the given proc
  * if found, returns the proc 
@@ -684,24 +710,22 @@ NODE *getInheritedProc(NODE *name, NODE *obj){
 
     // result should be UNDEFINED or a proc at this point
     return result;
-
-    //return getInheritedProcWithParent(name, obj, (NODE**)0);
 }
 
 NODE *procValueWithParent(NODE *name, NODE **owner){
-  NODE *result, *parentList;
+  NODE *result;
 
   result = get_proc(name, current_object);
 
   if (result != UNDEFINED) {
     if (owner != 0){
-      *owner = current_object;
+      *owner = parent_list(current_object);
     }
     return result;
   }
   
   // search all parents, will return UNDEFINED if not found
-  return getInheritedProcWithParent(name, current_object, owner);
+  return getInheritedProcWithParentList(name, parent_list(current_object), owner);
 }
 
 NODE *procValue(NODE *name) {
@@ -813,7 +837,7 @@ NODE *lrepresentation(NODE *args) {
     }
 
     ndprintf(NULL, "}");
-    print_stringptr = '\0';
+    /* print_stringptr = '\0'; */
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);

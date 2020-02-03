@@ -230,6 +230,9 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
     NODE *first = NIL, *tree = NIL, *pproc, *retval;
     NODE **ifnode = (NODE **)NIL;
+#ifdef OBJECT
+    NODE *old_usual_parent = usual_parent;
+#endif
 
     // no expression given
     if (*expr == NIL) {
@@ -303,18 +306,42 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		  // the proc starts with "usual.", so chop it off and
 		  // try to find the proc name after the dot
 		  NODE *name = cnv_node_to_strnode(first);
-		  proc = getInheritedProc(make_strnode(getstrptr(name) + 6,
+                  NODE *parent = (NODE*)0;
+                  if (usual_parent == NIL)
+                        usual_parent = parent_list(current_object);
+#ifdef DEB_USUAL_PARENT
+                        fprintf(stderr,"paren: current_object=%p usual_parent=%p logo_object=%p\n",
+                        current_object,
+                        usual_parent,
+                        logo_object);
+#endif
+                  proc = getInheritedProcWithParentList(intern(
+                                              make_strnode(getstrptr(name) + 6,
 						       getstrhead(name),
 						       getstrlen(name) - 6,
 						       nodetype(name),
-						       strnzcpy),
-					  current_object);
-		  retval = gather_some_args(minargs__procnode(proc), 
-					    maxargs__procnode(proc), 
-					    expr, 
-					    inparen, 
-					    ifnode);
-		  return cons(first, retval);
+						       strnzcpy)),
+					  usual_parent,
+                                          &parent);
+                  if (proc != UNDEFINED) {
+                      usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+                      fprintf(stderr,"paren: usual_parent => %p\n", parent);
+#endif
+                  }
+                  usual_parent = old_usual_parent;
+                  if (proc == UNDEFINED) {
+                      err_logo(DK_HOW, name);
+                      return cons(first, NIL);
+                  } else {
+		      retval = gather_some_args(getint(minargs__procnode(proc)),
+					        getint(maxargs__procnode(proc)),
+					        expr,
+					        inparen,
+					        ifnode);
+                      usual_parent = old_usual_parent;
+		      return cons(first, retval);
+                  }
 #endif /* OBJECTS */
 		} else {
 		    retval = cons(first, NIL);

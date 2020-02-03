@@ -45,6 +45,10 @@ NODE
 *output_node    = NIL,	/* the output of the current function */
 *output_unode	= NIL;	/* the unode in which we saw the output */
 
+#if defined(__GNUC__) && !defined(__clang__)
+#define USE_GCC_DISPATCH 1
+#endif
+
 #define DEBUGGING 0
 
 #if DEBUGGING
@@ -154,7 +158,7 @@ NODE *restname, *restline;
 /* These variables are all externed in globals.h */
 
 CTRLTYPE    stopping_flag = RUN;
-char	    *logolib, *helpfiles, *csls;
+char  *logolib, *helpfiles, *csls;
 FIXNUM	    dont_fix_ift = 0;
 
 /* These variables are local to this file. */
@@ -525,6 +529,9 @@ apply_dispatch:
     proc = procValueWithParent(fun, &parent);
     if (proc != UNDEFINED && parent != 0){ 
       usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+      fprintf(stderr,"evalProcValue: usual_parent => %p\n", usual_parent);
+#endif
     }
 #else
     proc = procnode__caseobj(fun);
@@ -554,11 +561,18 @@ apply_dispatch:
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
 	  usual_caller = current_object;
 	  NODE* parent = (NODE*)0;
-	  proc = getInheritedProcWithParent(make_strnode(getstrptr(string) + 6,
+#ifdef DEB_USUAL_PARENT
+          fprintf(stderr,"eval: current_object=%p usual_parent=%p logo_object=%p\n",
+                current_object,
+                usual_parent,
+                logo_object);
+#endif
+	  proc = getInheritedProcWithParentList(intern(
+                                             make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
 					       getstrlen(string) - 6,
 					       nodetype(string),
-					       strnzcpy),
+					       strnzcpy)),
 					    usual_parent,
 					    &parent);
 	 
@@ -566,6 +580,9 @@ apply_dispatch:
 	  // to avoid infinite loops when usual is called multiple times
 	  if (proc != UNDEFINED) {
       	    usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+            fprintf(stderr,"eval: usual_parent => %p\n", usual_parent);
+#endif
 	  }
 	}
       }
@@ -656,13 +673,26 @@ apply_dispatch:
 
 fetch_cont:
     {
+#ifdef USE_GCC_DISPATCH
+#define do_label(x) &&x,
+        static void *dispatch[] = {
+                do_list(do_label)
+                0
+        };
+#endif
 	enum labels x = (enum labels)cont;
 	cont = (FIXNUM)car(numstack);
 	numstack=cdr(numstack);
+#ifdef USE_GCC_DISPATCH
+        if (x >= NUM_TOKENS)
+            abort();
+        goto *dispatch[x];
+#else
 	switch (x) {
 	    do_list(do_case)
 	    default: abort();
 	}
+#endif
     }
 
 
@@ -1315,7 +1345,7 @@ withobject_continuation:
     save2(current_unode,current_object);
     newcont(withobject_followup);
     current_object = car(val);
-    usual_parent = current_object;
+    usual_parent = parent_list(current_object);
     newcont(cont__cont(cdr(val)));
     list = val = val__cont(cdr(val));
     val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
@@ -1325,7 +1355,7 @@ withobject_followup:
     restore2(current_unode,current_object);
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
-    usual_parent = current_object;
+    usual_parent = parent_list(current_object);
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {

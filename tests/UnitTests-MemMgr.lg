@@ -1,0 +1,86 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;             MEMORY MANAGER TEST SUITE  ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [MemoryManager] [Tests.MemMgr.Setup]
+
+
+
+;; The list of all MemMgr unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.MemMgr [
+  ;list tests here
+  Tests.MemMgr.LongList
+  Tests.MemMgr.Garbage
+ ]
+
+;; Test Suite setup procedure, main entry 
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.MemMgr.Setup
+  RunTests :Tests.MemMgr
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+to Tests.MemMgr.LongList
+  (local "a "b "i)
+  make "a []
+  make "i 0
+  repeat 20000 [
+    make "a fput :i :a
+    make "i :i+1
+  ]
+  make "b []
+  while [not emptyp :a] [
+    make "b fput first :a :b
+    make "a bf :a
+  ]
+  OUTPUT (AND [EQUAL? :i 20000]
+              [EQUAL? count :a 0]
+              [EQUAL? count :b 20000])
+end
+
+to Tests.MemMgr.Garbage
+  (local "a "b "i "j "step)
+  make "a []
+  make "i 0
+  repeat 20000 [
+    make "a fput :i :a
+    make "i :i+1
+  ]
+  make "b []
+  make "j 0
+  make "step 1000
+  while [not emptyp :a] [
+    make "b fput first :a :b
+    make "a bf :a
+    make "j :j+1
+    if :j = :step [make "step :step + 1000]
+  ]
+  OUTPUT (AND [EQUAL? :i 20000]
+              [EQUAL? count :a 0]
+              [EQUAL? count :b 20000]
+              [EQUAL? :j 20000]
+              [EQUAL? :step 21000])
+end
+

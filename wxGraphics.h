@@ -15,6 +15,10 @@ typedef struct {
 } pen_info;
 
 
+struct mypoint {
+    int x,y;
+};
+
 
 pen_info* getPen();
 extern  void wxPrepare();

@@ -447,6 +447,7 @@ PRIMTYPE prims[] = {
 #endif
     {"thing", 1, 1, 1, PREFIX_PRIORITY, lthing},
     {"throw", 1, 1, 2, PREFIX_PRIORITY, lthrow},
+    {"time", 0, 0, 0, PREFIX_PRIORITY, ltime},
     {"to", -1, -1, -1, PREFIX_PRIORITY, lto},
     {"tone", 2, 2, 2, PREFIX_PRIORITY, ltone},
     {"towards", 1, 1, 1, PREFIX_PRIORITY, ltowards},
@@ -687,19 +688,19 @@ nosugar:
 	const char* wxMacGetCslsloc();
 	const char* wxMacGetHelploc();
 	const char* wxMacGetLibloc();
-	char* newlib;
-	char* newcsls;
-	char* newhelp;
+	const char* newlib;
+	const char* newcsls;
+	const char* newhelp;
 	// check if we are running wxMac
 	newlib = wxMacGetLibloc();
 	if(newlib)
-		logolib=newlib; 
-    //if (helpfiles == NULL) helpfiles = wxMacGetHelploc();
-    newcsls = wxMacGetCslsloc();
+		logolib = newlib; 
+        //if (helpfiles == NULL) helpfiles = wxMacGetHelploc();
+                newcsls = wxMacGetCslsloc();
 	if(newcsls)
 		csls = newcsls;
 	newhelp = wxMacGetHelploc();
-    if(newhelp)
+        if(newhelp)
 		helpfiles = newhelp;
 #endif
 #endif
@@ -852,3 +853,4 @@ nosugar:
     setflag__caseobj(Redefp, VAL_BURIED);
  */
 }
+

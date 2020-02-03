@@ -117,10 +117,10 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 
 #define WORDSIZE	(8*sizeof(long))
 
-#define NIL             (NODE *) 0
+#define NIL             ((NODE *) 0)
 #define UNBOUND         Unbound
 #define UNDEFINED       Unbound
-#define END_OF_LIST     (NODE *) 2
+#define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
 #ifdef __RZTC__
 #define SEG_SIZE	2000
@@ -146,59 +146,59 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 typedef long int NODETYPES;
 
 #ifdef OBJECTS
-#define NT_METHOD   (NODETYPES)0100000000
-#define NT_OBJ	    (NODETYPES)040000000
+#define NT_METHOD   ((NODETYPES)0100000000)
+#define NT_OBJ	    ((NODETYPES)040000000)
 #endif
-#define NT_LOCAL	(NODETYPES)020000000
-#define NT_STACK	(NODETYPES)010000000
-#define NT_CONT		(NODETYPES)04000000
-#define NT_INFIX	(NODETYPES)02000000
-#define NT_LINE		(NODETYPES)01000000
-#define NT_TAILFORM	(NODETYPES)0400000
-#define NT_MACRO	(NODETYPES)0200000
-#define NT_TREE		(NODETYPES)0100000
-#define NT_EMPTY	(NODETYPES)040000
-#define NT_AGGR		(NODETYPES)020000
-#define NT_LIST		(NODETYPES)010000
-#define NT_RUNP		(NODETYPES)004000
-#define NT_ARRAY	(NODETYPES)002000
-#define NT_WORD		(NODETYPES)001000
-#define NT_NUMBER	(NODETYPES)000400
-#define NT_FLOAT	(NODETYPES)000200
-#define NT_PRIM		(NODETYPES)000100
-#define NT_VBAR		(NODETYPES)000040
-#define NT_STRING	(NODETYPES)000020
-#define NT_BACKSL	(NODETYPES)000010
-#define NT_PUNCT	(NODETYPES)000004
-#define NT_COLON	(NODETYPES)000002
-#define NT_CASEOBJ	(NODETYPES)000001
+#define NT_LOCAL	((NODETYPES)020000000)
+#define NT_STACK	((NODETYPES)010000000)
+#define NT_CONT		((NODETYPES)04000000)
+#define NT_INFIX	((NODETYPES)02000000)
+#define NT_LINE		((NODETYPES)01000000)
+#define NT_TAILFORM	((NODETYPES)0400000)
+#define NT_MACRO	((NODETYPES)0200000)
+#define NT_TREE		((NODETYPES)0100000)
+#define NT_EMPTY	((NODETYPES)040000)
+#define NT_AGGR		((NODETYPES)020000)
+#define NT_LIST		((NODETYPES)010000)
+#define NT_RUNP		((NODETYPES)004000)
+#define NT_ARRAY	((NODETYPES)002000)
+#define NT_WORD		((NODETYPES)001000)
+#define NT_NUMBER	((NODETYPES)000400)
+#define NT_FLOAT	((NODETYPES)000200)
+#define NT_PRIM		((NODETYPES)000100)
+#define NT_VBAR		((NODETYPES)000040)
+#define NT_STRING	((NODETYPES)000020)
+#define NT_BACKSL	((NODETYPES)000010)
+#define NT_PUNCT	((NODETYPES)000004)
+#define NT_COLON	((NODETYPES)000002)
+#define NT_CASEOBJ	((NODETYPES)000001)
 
-#define	PNIL		(NODETYPES)(NT_EMPTY|NT_AGGR|NT_LIST)
-#define PUNBOUND	(NODETYPES)0
-#define CONS		(NODETYPES)(NT_AGGR|NT_LIST)
-#define STRING		(NODETYPES)(NT_WORD|NT_STRING)
-#define INT		(NODETYPES)(NT_WORD|NT_NUMBER)
-#define FLOATT		(NODETYPES)(NT_WORD|NT_NUMBER|NT_FLOAT)
-#define PRIM		(NODETYPES)(NT_PRIM)
-#define MACRO		(NODETYPES)(NT_PRIM|NT_MACRO)
-#define TAILFORM	(NODETYPES)(NT_PRIM|NT_TAILFORM)
-#define CASEOBJ		(NODETYPES)(NT_WORD|NT_CASEOBJ)
-#define INFIX		(NODETYPES)(NT_PRIM|NT_INFIX)
-#define TREE		(NODETYPES)(NT_AGGR|NT_LIST|NT_TREE)
-#define RUN_PARSE	(NODETYPES)(NT_AGGR|NT_LIST|NT_RUNP)
-#define QUOTE		(NODETYPES)(NT_WORD|NT_PUNCT)
-#define COLON		(NODETYPES)(NT_WORD|NT_PUNCT|NT_COLON)
-#define BACKSLASH_STRING (NODETYPES)(NT_WORD|NT_STRING|NT_BACKSL)
-#define VBAR_STRING	(NODETYPES)(NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR)
-#define ARRAY		(NODETYPES)(NT_AGGR|NT_ARRAY)
-#define LINE		(NODETYPES)(NT_LINE|NT_LIST|NT_AGGR)
-#define CONT		(NODETYPES)(NT_CONT|NT_LIST)
-#define STACK		(NODETYPES)(NT_STACK|NT_LIST)
-#define NTFREE		(NODETYPES)(-1)
-#define LOCALSAVE	(NODETYPES)(CONS|NT_LOCAL)
+#define	PNIL		((NODETYPES)(NT_EMPTY|NT_AGGR|NT_LIST))
+#define PUNBOUND	((NODETYPES)0)
+#define CONS		((NODETYPES)(NT_AGGR|NT_LIST))
+#define STRING		((NODETYPES)(NT_WORD|NT_STRING))
+#define INT		((NODETYPES)(NT_WORD|NT_NUMBER))
+#define FLOATT		((NODETYPES)(NT_WORD|NT_NUMBER|NT_FLOAT))
+#define PRIM		((NODETYPES)(NT_PRIM))
+#define MACRO		((NODETYPES)(NT_PRIM|NT_MACRO))
+#define TAILFORM	((NODETYPES)(NT_PRIM|NT_TAILFORM))
+#define CASEOBJ		((NODETYPES)(NT_WORD|NT_CASEOBJ))
+#define INFIX		((NODETYPES)(NT_PRIM|NT_INFIX))
+#define TREE		((NODETYPES)(NT_AGGR|NT_LIST|NT_TREE))
+#define RUN_PARSE	((NODETYPES)(NT_AGGR|NT_LIST|NT_RUNP))
+#define QUOTE		((NODETYPES)(NT_WORD|NT_PUNCT))
+#define COLON		((NODETYPES)(NT_WORD|NT_PUNCT|NT_COLON))
+#define BACKSLASH_STRING ((NODETYPES)(NT_WORD|NT_STRING|NT_BACKSL))
+#define VBAR_STRING	((NODETYPES)(NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR))
+#define ARRAY		((NODETYPES)(NT_AGGR|NT_ARRAY))
+#define LINE		((NODETYPES)(NT_LINE|NT_LIST|NT_AGGR))
+#define CONT		((NODETYPES)(NT_CONT|NT_LIST))
+#define STACK		((NODETYPES)(NT_STACK|NT_LIST))
+#define NTFREE		((NODETYPES)(-1))
+#define LOCALSAVE	((NODETYPES)(CONS|NT_LOCAL))
 #ifdef OBJECTS
-#define OBJECT      (NODETYPES)(NT_OBJ)
-#define METHOD	    (NODETYPES)(NT_AGGR|NT_LIST|NT_METHOD)
+#define OBJECT      ((NODETYPES)(NT_OBJ))
+#define METHOD	    ((NODETYPES)(NT_AGGR|NT_LIST|NT_METHOD))
 #endif
 
 #define aggregate(nd)	(nodetype(nd) & NT_AGGR)
@@ -424,15 +424,7 @@ typedef enum { RUN, STOP, OUTPUT, THROWING, MACRO_RETURN } CTRLTYPE;
 struct segment {
 	struct segment *next;
 	FIXNUM size;
-#ifdef mac
 	struct logo_node nodes[1];
-#else
-#ifdef __RZTC__
-	struct logo_node nodes[1];
-#else
-	struct logo_node nodes[0];
-#endif
-#endif
 };
 
 #define NOT_THROWING            (stopping_flag != THROWING)
@@ -487,7 +479,7 @@ struct segment {
 #define generation__line(l)	(generation__tree(unparsed__line(l)))
 #define tree__line(l)		l
 
-#define cont__cont(c)		(FIXNUM)car(c)
+#define cont__cont(c)		((FIXNUM)car(c))
 #define val__cont(c)		cdr(c)
 
 /* Object flags.  Ones settable by users via bury_helper must come in threes
@@ -512,8 +504,8 @@ struct segment {
 
 #define setflag__caseobj(c,f) ((obflags__caseobj(c))->n_int |= (f))
 #define clearflag__caseobj(c,f) ((obflags__caseobj(c))->n_int &= ~(f))
-#define flag__caseobj(c,f) (int)((obflags__caseobj(c))->n_int & (f))
-#define flag__object(o,f) (int)((obflags__object(o))->n_int & (f))
+#define flag__caseobj(c,f) (long)((obflags__caseobj(c))->n_int & (f))
+#define flag__object(o,f) (long)((obflags__object(o))->n_int & (f))
 #define setflag__object(c,f) ((obflags__object(c))->n_int |= (f))
 #define clearflag__object(c,f) ((obflags__object(c))->n_int &= ~(f))
 #define is_macro(c) (flag__caseobj(c, PROC_MACRO))
@@ -668,6 +660,7 @@ struct registers {
 #ifdef OBJECTS
 #define usual_parent (regs.r_usual_parent)
 #define usual_caller (regs.r_usual_caller)
+#include "obj.h"
 #endif
 
 #endif

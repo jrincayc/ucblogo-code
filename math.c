@@ -316,14 +316,15 @@ NODE *binary(NODE *args, char fcn) {
 	      case '/':
 		if (iarg == 0)
 		  err_logo(BAD_DATA_UNREC,arg);
-		else
+		else {
 		  if (ival % iarg != 0) {
 		    imode = FALSE;
 		    fval = (FLONUM)ival;
 		    farg = (FLONUM)iarg;
 		  }
 		  else ival /= iarg;
-		  break;
+                }
+		break;
 	      case '%':
 		if (iarg == 0)
 		  err_logo(BAD_DATA_UNREC,arg);

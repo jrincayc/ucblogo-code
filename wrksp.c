@@ -64,6 +64,8 @@ extern NODE* set_proc(NODE*, NODE*, NODE*);
 char *editor, *editorname, *tempdir;
 int to_pending = 0;
 
+int bck(int);
+
 NODE *make_procnode(NODE *lst, NODE *wrds, int min, int df, int max) {
     return(cons_list(0, lst, wrds, make_intnode((FIXNUM)min),
 		     make_intnode((FIXNUM)df), make_intnode((FIXNUM)max),
@@ -708,9 +710,11 @@ NODE *contentsListType(NODE *obj) {
     case c_PROCS:
         return getprocs(obj);
     case c_PLISTS:
+    case c_PRIMS:
+    case c_PROCSnPRIMS:
         err_logo(BAD_DATA, make_static_strnode("objects don't have plists!"));
-    return;
     }
+    return NIL;
 }
 
 void normal_special_contents_map(NODE *sym) {
@@ -730,7 +734,7 @@ void fmt_map_oblist(LSTFORM format) {
 
 /** new things **/
 /* get_contents with special format and normal format */
-NODE *get_special_contents(LSTFORM format, LSTTYP type) {
+NODE *get_special_contents(LSTTYP type, LSTFORM format) {
     cnt_list = NIL;
     cnt_last = NIL;
 
@@ -819,6 +823,8 @@ void special_contents_map(NODE *sym, LSTFORM format) {
 			if (bck(flag__object(sym,flag_check))) return;
 			break;
 		case c_PLISTS:
+                case c_PRIMS:
+                case c_PROCSnPRIMS:
 			err_logo(BAD_DATA, UNBOUND); //contents_list_type
     }
     putname(canonical__object(sym), logo_object, format);
@@ -1543,7 +1549,7 @@ NODE *lunstep(NODE *arg) {
     return unbury_helper(arg,PROC_STEPPED);
 }
 
-char *addsep(char *path) {
+const char *addsep(const char *path) {
     static char result[256];
 
     strcpy(result, path);
@@ -1782,7 +1788,7 @@ NODE *cpdf_newname(NODE *name, NODE*titleline) {
     p1 = p1+strspn(p1, " \t");
     p2 = p1+strcspn(p1, " \t");
     sprintf(buf, "%.*s%.*s%s",
-	    p1-titlestr, titlestr, getstrlen(nname), namestr, p2);
+	    (int)(p1-titlestr), titlestr, (int)getstrlen(nname), namestr, p2);
     return make_strnode(buf, NULL, strlen(buf), STRING, strcpy);
 }
 

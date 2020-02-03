@@ -31,6 +31,18 @@ MAKE "Tests.OOP [
   Tests.OOP.MemberFunctionOverride
   Tests.OOP.CaseSensitiveMemberVars
   Tests.OOP.OverriddenMethods
+  Tests.OOP.UsualInLogo
+  Tests.OOP.OverriddenMethods1
+  Tests.OOP.OverriddenMethods2
+  Tests.OOP.OverriddenMethods3
+  Tests.OOP.OverriddenMethods4
+  Tests.OOP.MultipleInheritanceTalker
+  Tests.OOP.MultipleInheritanceShouter
+  Tests.OOP.MultipleInheritanceWhisperer
+  Tests.OOP.MultipleInheritanceCombination1
+  Tests.OOP.MultipleInheritanceCombination2
+  Tests.OOP.ExistChain1
+  Tests.OOP.ExistChain2
  ]
 
 
@@ -195,7 +207,14 @@ to Tests.OOP.CaseSensitiveMemberVars
 end
 
 
+  to bar
+    output "True
+  end
+
   make "a something
+  ask :a [to bar]
+    output usual.bar
+  end
   ask :a [to foo :x]
     output :x
     end
@@ -209,6 +228,154 @@ to Tests.OOP.OverriddenMethods
   (ask :c [make "baz foo])
   OUTPUT equal? (ask :c [:baz]) "True
 end
+
+to Tests.OOP.UsualInLogo
+  make "c kindof :a
+  OUTPUT equal? (ask :c [bar]) "True
+end
+
+;; This is setup for the next test
+;; Methods are defined a different levels
+;; Check that the proper method will get called
+
+make "InheritA something
+ask :InheritA [to foo]
+  op "fooA
+end
+
+make "InheritB kindof :InheritA
+ask :InheritB [to bar]
+  op "barB
+end
+
+make "InheritC kindof :InheritB
+ask :InheritC [to foo]
+  op "fooC
+end
+
+ask :InheritC [to bar]
+  op "barC
+end
+
+ask :InheritC [to baz1]
+  op se foo bar
+end
+
+ask :InheritC [to baz2]
+  op se foo usual.bar
+end
+
+ask :InheritC [to baz3]
+  op se usual.foo bar
+end
+
+ask :InheritC [to baz4]
+  op se usual.foo usual.bar
+end
+
+to Tests.OOP.OverriddenMethods1
+  OUTPUT equal? (ask :InheritC [baz1]) [fooC barC]
+end
+
+to Tests.OOP.OverriddenMethods2
+  OUTPUT equal? (ask :InheritC [baz2]) [fooC barB]
+end
+
+to Tests.OOP.OverriddenMethods3
+  OUTPUT equal? (ask :InheritC [baz3]) [fooA barC]
+end
+
+to Tests.OOP.OverriddenMethods4
+  OUTPUT equal? (ask :InheritC [baz4]) [fooA barB]
+end
+
+
+;;; G.Drescher: "Object-oriented Logo"
+;;; in Lawler, Yazdani: "Artifical Intelligence and Education: Learning environments and tutoring systems", Intellect Books, 1987
+
+make "talker something
+ask :talker [have "name]
+ask :talker [make "name "gertrude]
+
+ask :talker [to say :msg]
+  op (sentence :name "says :msg)
+end
+
+ask :talker [to exist]
+  make "exist.chain fput "talker :exist.chain
+end
+
+;;
+make "shouter kindof :talker
+ask :shouter [to say :msg]
+  op (se "hey! usual.say :msg)
+end
+
+ask :shouter [to exist]
+  usual.exist
+  make "exist.chain fput "shouter :exist.chain
+end
+
+;;
+make "whisperer kindof :talker
+ask :whisperer [to say :msg]
+  op (se "shhh...  usual.say :msg)
+end
+
+ask :whisperer [to exist]
+  usual.exist
+  make "exist.chain fput "whisperer :exist.chain
+end
+
+
+;;
+make "combination1 (kindof :shouter :whisperer)
+ask :combination1 [to exist]
+  usual.exist
+  make "exist.chain fput "combination1 :exist.chain
+end
+
+;;
+make "combination2 (kindof :whisperer :shouter)
+ask :combination2 [to exist]
+  usual.exist
+  make "exist.chain fput "combination2 :exist.chain
+end
+
+to Tests.OOP.MultipleInheritanceTalker
+  OUTPUT equal? (ask :talker [say "hi]) [gertrude says hi]
+end
+
+to Tests.OOP.MultipleInheritanceShouter
+  OUTPUT equal? (ask :shouter [say "hello]) [hey! gertrude says hello]
+end
+
+to Tests.OOP.MultipleInheritanceWhisperer
+  OUTPUT equal? (ask :whisperer [say "howdy]) [shhh... gertrude says howdy]
+end
+
+to Tests.OOP.MultipleInheritanceCombination1
+  OUTPUT equal? (ask :combination1 [say "howdy]) [hey! shhh... gertrude says howdy]
+end
+
+to Tests.OOP.MultipleInheritanceCombination2
+  OUTPUT equal? (ask :combination2 [say "hola]) [shhh... hey! gertrude says hola]
+end
+
+to Tests.OOP.ExistChain1
+  make "exist.chain []
+  ask :combination1 [exist]
+  OUTPUT (equal? :exist.chain
+                 [combination1 shouter whisperer talker])
+end
+
+to Tests.OOP.ExistChain2
+  make "exist.chain []
+  ask :combination2 [exist]
+  OUTPUT (equal? :exist.chain
+                 [combination2 whisperer shouter talker])
+end
+
 
 ;; This is setup for the next test
 ;; When an object has a function with the
