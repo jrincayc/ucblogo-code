@@ -686,6 +686,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+enable_objects
 with_wx_config
 with_x
 '
@@ -1310,6 +1311,12 @@ if test -n "$ac_init_help"; then
      short | recursive ) echo "Configuration of ucblogo 6.1:";;
    esac
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-objects        enable object oriented logo features (default is no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3251,6 +3258,14 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+# Check whether --enable-objects was given.
+if test "${enable_objects+set}" = set; then :
+  enableval=$enable_objects; $as_echo "#define OBJECTS 1" >>confdefs.h
+
+fi
+
 
 
 WXCONFIG=wx-config

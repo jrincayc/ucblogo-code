@@ -7,6 +7,12 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
+AC_ARG_ENABLE([objects],
+[AS_HELP_STRING([--enable-objects],
+  [enable object oriented logo features (default is no)])],
+  [AC_DEFINE(OBJECTS)])
+
+
 WXCONFIG=wx-config
 AC_ARG_WITH(wx-config,
 [[  --with-wx-config=FILE   Use the given path to wx-config when determining
