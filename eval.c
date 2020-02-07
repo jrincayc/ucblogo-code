@@ -524,13 +524,20 @@ apply_dispatch:
      * procedure or a primitive procedure.
      */
 #ifdef OBJECTS
-    extern NODE* procValueWithParent(NODE*, NODE**);
+    extern NODE* procValueWithParent(NODE*, NODE*, NODE**);
     NODE* parent = (NODE*)0;
-    proc = procValueWithParent(fun, &parent);
+    if (NIL == usual_parent)
+      usual_parent = current_object;
+#ifdef DEB_USUAL_PARENT
+    dbUsual("evalProcValue BEFORE");
+#endif
+    proc = procValueWithParent(fun,
+                        usual_parent,
+                        &parent);
     if (proc != UNDEFINED && parent != 0){ 
       usual_parent = parent;
 #ifdef DEB_USUAL_PARENT
-      fprintf(stderr,"evalProcValue: usual_parent => %p\n", usual_parent);
+      dbUsual("evalProcValue AFTER");
 #endif
     }
 #else
@@ -560,12 +567,9 @@ apply_dispatch:
 	// check to see if name begins with "usual."
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
 	  usual_caller = current_object;
-	  NODE* parent = (NODE*)0;
+	  NODE* parent = NIL;
 #ifdef DEB_USUAL_PARENT
-          fprintf(stderr,"eval: current_object=%p usual_parent=%p logo_object=%p\n",
-                current_object,
-                usual_parent,
-                logo_object);
+          dbUsual("eval BEFORE");
 #endif
 	  proc = getInheritedProcWithParentList(intern(
                                              make_strnode(getstrptr(string) + 6,
@@ -581,7 +585,7 @@ apply_dispatch:
 	  if (proc != UNDEFINED) {
       	    usual_parent = parent;
 #ifdef DEB_USUAL_PARENT
-            fprintf(stderr,"eval: usual_parent => %p\n", usual_parent);
+            dbUsual("eval AFTER");
 #endif
 	  }
 	}
@@ -1343,9 +1347,12 @@ withobject_continuation:
     save2(didnt_output_name,didnt_get_output);
     num2save(val_status,tailcall);
     save2(current_unode,current_object);
+#ifdef DEB_USUAL_PARENT
+    dbUsual("withObjectCont");
+#endif
     newcont(withobject_followup);
     current_object = car(val);
-    usual_parent = parent_list(current_object);
+    usual_parent = current_object;
     newcont(cont__cont(cdr(val)));
     list = val = val__cont(cdr(val));
     val_status &= ~(STOP_TAIL | OUTPUT_TAIL);
@@ -1355,7 +1362,11 @@ withobject_followup:
     restore2(current_unode,current_object);
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
-    usual_parent = parent_list(current_object);
+    usual_parent = current_object;
+#ifdef DEB_USUAL_PARENT
+    dbUsual("withObjectFollow");
+#endif
+
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {

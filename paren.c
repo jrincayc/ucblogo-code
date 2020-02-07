@@ -303,17 +303,20 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 		    }
 #ifdef OBJECTS
 		} else if (is_usual(first)) {
+#define MINARGS(x)      (CONS == nodetype(x) ? \
+                                getint(minargs__procnode(proc)) : \
+                                getprimmin(proc))
+#define MAXARGS(x)      (CONS == nodetype(proc) ? \
+                                getint(maxargs__procnode(proc)) : \
+                                getprimmax(proc))
 		  // the proc starts with "usual.", so chop it off and
 		  // try to find the proc name after the dot
 		  NODE *name = cnv_node_to_strnode(first);
                   NODE *parent = (NODE*)0;
                   if (usual_parent == NIL)
-                        usual_parent = parent_list(current_object);
+                        usual_parent = current_object;
 #ifdef DEB_USUAL_PARENT
-                        fprintf(stderr,"paren: current_object=%p usual_parent=%p logo_object=%p\n",
-                        current_object,
-                        usual_parent,
-                        logo_object);
+                        dbUsual("paren BEFORE");
 #endif
                   proc = getInheritedProcWithParentList(intern(
                                               make_strnode(getstrptr(name) + 6,
@@ -326,7 +329,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
                   if (proc != UNDEFINED) {
                       usual_parent = parent;
 #ifdef DEB_USUAL_PARENT
-                      fprintf(stderr,"paren: usual_parent => %p\n", parent);
+                      dbUsual("paren AFTER");
 #endif
                   }
                   usual_parent = old_usual_parent;
@@ -334,8 +337,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
                       err_logo(DK_HOW, name);
                       return cons(first, NIL);
                   } else {
-		      retval = gather_some_args(getint(minargs__procnode(proc)),
-					        getint(maxargs__procnode(proc)),
+		      retval = gather_some_args(MINARGS(proc), MAXARGS(proc),
 					        expr,
 					        inparen,
 					        ifnode);

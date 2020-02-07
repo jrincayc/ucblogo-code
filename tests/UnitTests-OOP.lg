@@ -43,6 +43,8 @@ MAKE "Tests.OOP [
   Tests.OOP.MultipleInheritanceCombination2
   Tests.OOP.ExistChain1
   Tests.OOP.ExistChain2
+  Tests.OOP.DoubleDashed
+  Tests.OOP.DashedDouble
  ]
 
 
@@ -376,6 +378,78 @@ to Tests.OOP.ExistChain2
                  [combination2 whisperer shouter talker])
 end
 
+;; B.Harvey: canonical Object Logo example
+;; 4feb2020
+;;
+
+make "turtle something
+
+talkto :turtle
+
+to exist
+  usual.exist
+  have (list "pos "pen "dash.count "dash.len)
+  make "pos 0
+  make "pen "down
+  make "dash.count 0
+  make "dash.len 0
+end
+
+to setpos :x
+  make "pos :x
+end
+
+to penup
+  make "pen "up
+  make "dash.count :dash.count + 1
+end
+
+to pendown
+  make "pen "down
+end
+
+to forward :dist
+  if :pen = "down [make "dash.len :dash.len + :dist]
+  setpos :pos + :dist
+end
+
+make "double.turtle kindof :turtle
+talkto :double.turtle
+to forward :dist
+usual.forward 2*:dist
+end
+
+talkto logo
+make "dashed.turtle kindof :turtle
+talkto :dashed.turtle
+to forward :dist
+if :dist < 10 [usual.forward :dist stop]
+penup
+usual.forward 5
+pendown
+usual.forward 5
+forward :dist-10
+end
+
+talkto logo
+
+to Tests.OOP.DoubleDashed
+  ; 20 length-5 dashes
+  local "turtle1
+  make "turtle1 oneof (list :double.turtle :dashed.turtle)
+  ask :turtle1 [pendown forward 100]
+  OUTPUT (equal? ask :turtle1 [(se :pos :pen :dash.count :dash.len)]
+                 [200 down 20 100])
+end
+
+to Tests.OOP.DashedDouble
+  ; 10 length-10 dashes
+  local "turtle2
+  make "turtle2 oneof (list :dashed.turtle :double.turtle)
+  ask :turtle2 [pendown forward 100]
+  OUTPUT (equal? ask :turtle2 [(se :pos :pen :dash.count :dash.len)]
+                 [200 down 10 100])
+end
 
 ;; This is setup for the next test
 ;; When an object has a function with the
