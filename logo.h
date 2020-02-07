@@ -620,15 +620,16 @@ struct registers {
     NODE *r_current_unode;	/* a pair to identify this proc call */
     NODE *r_didnt_output_name;  /* name of the proc that didn't OP */
     NODE *r_didnt_get_output;	/* procedure wanting output from EVAL */
+#ifdef OBJECTS
+    NODE *r_usual_parent;  /* current_object or list of parents */
+    NODE *r_usual_caller;  /* caller of USUAL */
+#endif
+    /* NOTE: r_val_status must be first non-node in struct registers */
     FIXNUM r_val_status;    /* tells what EVAL_SEQUENCE should do: */
     FIXNUM r_tailcall;	    /* 0 in sequence, 1 for tail, -1 for arg */
     FIXNUM r_repcount;	    /* count for repeat */
     FIXNUM r_user_repcount;
     FIXNUM r_ift_iff_flag;
-#ifdef OBJECTS
-    NODE *r_usual_parent;
-    NODE *r_usual_caller;
-#endif
 
 };
 
