@@ -1572,7 +1572,7 @@ logo}.
 @xref{logo}.
 
 @node ONEOF, , SOMETHING, CONSTRUCTORS
-@unnumberedsubset oneof
+@unnumberedsubsec oneof
 @cindex oneof
 
 @example
@@ -1619,7 +1619,7 @@ corresponding even-numbered elements as values.  Thus
 
 @example
 make "obj (oneof logo "foo "bar "baz "garply)
-@example
+@end example
 
 will create a new object and then tell it to @code{exist}, which will in
 effect tell it to
@@ -1829,7 +1829,7 @@ These procedures are particularly useful when debugging.
 @menu
 * WHOSENAME::
 * WHOSEPROC::
-@end
+@end menu
 
 @node    WHOSENAME, WHOSEPROC, QUERIES, QUERIES
 @unnumberedsubsec whosename
