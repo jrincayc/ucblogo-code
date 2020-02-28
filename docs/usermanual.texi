@@ -1592,7 +1592,7 @@ values, which serve to @var{initialize} the newly created object.
 
 The output of @code{oneof} is usually called an @var{instance}.
 
-@xref{exist}.
+@xref{EXIST}.
 
 @node    MUTATORS, SELECTORS, CONSTRUCTORS, OBJECTS
 @section Mutators
@@ -1641,7 +1641,7 @@ one that does, you can specialize @code{exist}:
 > end
 @end example
 
-@xref{oneof}. @ref{usual}, @ref{havemake}.
+@xref{ONEOF}. @ref{USUAL}, @ref{HAVEMAKE}.
 
 @node HAVE, HAVEMAKE, EXIST, MUTATORS
 @unnumberedsubsec have
@@ -1655,7 +1655,7 @@ HAVE namelist
 tells the current object to create an object variable named @var{name},
 or object variables whose names are the elements of @var{namelist}.
 
-@xref{havemake}.
+@xref{HAVEMAKE}.
 
 @node HAVEMAKE, , HAVE, MUTATORS
 @unnumberedsubsec havemake
@@ -1674,7 +1674,7 @@ refer to the object's parent's variable named @var{name}:
 havemake "size :size/2
 @end example
 
-@xref{have}, @ref{make}.
+@xref{HAVE}, @ref{MAKE}.
 
 
 @node SELECTORS, MESSAGES, MUTATORS, OBJECTS
@@ -1751,7 +1751,7 @@ MYNAME? name
 outputs @code{true} if @var{name} is the name of an object variable
 owned (not inherited) by the current object, @code{false} otherwise.
 
-@xref{mynames}.
+@xref{MYNAMES}.
 
 @node    MYPROCS, MYPROCP, MYNAMEP, SELECTORS
 @unnumberedsubsec myprocs
@@ -1777,7 +1777,7 @@ MYPROC? name
 outputs @code{true} if @var{name} is the name of a procedure (a method)
 owned (not inherited) by the current object, @code{false} otherwise.
 
-@xref{myprocs}.
+@xref{MYPROCS}.
 
 @node    MESSAGES, QUERIES, SELECTORS, OBJECTS
 @section Messages
@@ -1803,7 +1803,7 @@ object, not the name of an object.)  @code{Talkto} can be used only at
 toplevel or within a @code{pause}  (when typing into a Logo prompt, not
 inside a procedure).
 
-@xref{ask}.
+@xref{ASK}.
 
 @node    ASK, , TALKTO, MESSAGES
 @unnumberedsubsec ask
@@ -1819,7 +1819,7 @@ command or operation.  Temporarily sets the current object to
 outputs its value.  As soon as @var{runlist} finishes, the current
 object is set back to its previous value.
 
-@xref{talkto}.
+@xref{TALKTO}.
 
 @node    QUERIES, USUAL, MESSAGES, OBJECTS
 @section Queries
