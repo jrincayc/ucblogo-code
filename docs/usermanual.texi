@@ -1454,11 +1454,11 @@ runparsed list are not themselves runparsed.
 @chapter Objects
 
 @menu
-* CONSTRUCTORS::                
-* MUTATORS::                    
-* SELECTORS::                   
+* OBJECT CONSTRUCTORS::                
+* OBJECT MUTATORS::                    
+* OBJECT SELECTORS::                   
 * MESSAGES::                  
-* QUERIES::
+* OBJECT QUERIES::
 * USUAL::
 @end menu
 
@@ -1538,11 +1538,11 @@ idea of how class/instance programming can be accommodated in a
 prototyping OOP language.
 
 
-@node    CONSTRUCTORS, MUTATORS, OBJECTS, OBJECTS
+@node    OBJECT CONSTRUCTORS, OBJECT MUTATORS, OBJECTS, OBJECTS
 @section Constructors
 
 
-@node  KINDOF, SOMETHING, CONSTRUCTORS, CONSTRUCTORS
+@node  KINDOF, SOMETHING, OBJECT CONSTRUCTORS, OBJECT CONSTRUCTORS
 @unnumberedsubsec kindof
 @cindex kindof
 
@@ -1557,7 +1557,7 @@ parents are @var{object1}, @var{object2}, etc., or the elements of
 @var{objectlist}.  There must be at least one input, and if a list, it
 may not be empty.
 
-@node SOMETHING, ONEOF, KINDOF, CONSTRUCTORS
+@node SOMETHING, ONEOF, KINDOF, OBJECT CONSTRUCTORS
 @unnumberedsubsec something
 @cindex something
 
@@ -1571,7 +1571,7 @@ logo}.
 
 @xref{logo}.
 
-@node ONEOF, , SOMETHING, CONSTRUCTORS
+@node ONEOF, , SOMETHING, OBJECT CONSTRUCTORS
 @unnumberedsubsec oneof
 @cindex oneof
 
@@ -1594,7 +1594,7 @@ The output of @code{oneof} is usually called an @var{instance}.
 
 @xref{EXIST}.
 
-@node    MUTATORS, SELECTORS, CONSTRUCTORS, OBJECTS
+@node    OBJECT MUTATORS, OBJECT SELECTORS, OBJECT CONSTRUCTORS, OBJECTS
 @section Mutators
 
 @menu
@@ -1603,7 +1603,7 @@ The output of @code{oneof} is usually called an @var{instance}.
 * HAVEMAKE::
 @end menu
 
-@node    EXIST, HAVE, MUTATORS, MUTATORS
+@node    EXIST, HAVE, OBJECT MUTATORS, OBJECT MUTATORS
 @unnumberedsubsec exist
 @cindex exist
 
@@ -1643,7 +1643,7 @@ one that does, you can specialize @code{exist}:
 
 @xref{ONEOF}. @ref{USUAL}, @ref{HAVEMAKE}.
 
-@node HAVE, HAVEMAKE, EXIST, MUTATORS
+@node HAVE, HAVEMAKE, EXIST, OBJECT MUTATORS
 @unnumberedsubsec have
 @cindex have
 
@@ -1657,7 +1657,7 @@ or object variables whose names are the elements of @var{namelist}.
 
 @xref{HAVEMAKE}.
 
-@node HAVEMAKE, , HAVE, MUTATORS
+@node HAVEMAKE, , HAVE, OBJECT MUTATORS
 @unnumberedsubsec havemake
 @cindex havemake
 
@@ -1677,7 +1677,7 @@ havemake "size :size/2
 @xref{HAVE}, @ref{MAKE}.
 
 
-@node SELECTORS, MESSAGES, MUTATORS, OBJECTS
+@node OBJECT SELECTORS, MESSAGES, OBJECT MUTATORS, OBJECTS
 @section selectors
 
 All selectors apply to the current object.  If you want to select from
@@ -1692,7 +1692,7 @@ another object, use @code{ask}.
 * MYPROCP::
 @end menu
 
-@node    SELF, PARENTS, SELECTORS, SELECTORS
+@node    SELF, PARENTS, OBJECT SELECTORS, OBJECT SELECTORS
 @unnumberedsubsec self
 @cindex self
 
@@ -1702,7 +1702,7 @@ SELF
 
 outputs the current object (not its name!).
 
-@node    PARENTS, MYNAMES, SELF, SELECTORS
+@node    PARENTS, MYNAMES, SELF, OBJECT SELECTORS
 @unnumberedsubsec parents
 @cindex parents
 
@@ -1727,7 +1727,7 @@ output remdup sentence parents map.se [ask ? [ancestors]] parents
 end
 @end example
 
-@node   MYNAMES, MYNAMEP, PARENTS, SELECTORS
+@node   MYNAMES, MYNAMEP, PARENTS, OBJECT SELECTORS
 @unnumberedsubsec mynames
 @cindex mynames
 
@@ -1738,7 +1738,7 @@ MYNAMES
 output a list of the names of the object variables owned (not inherited)
 by the current object.
 
-@node    MYNAMEP, MYPROCS, MYNAMES, SELECTORS
+@node    MYNAMEP, MYPROCS, MYNAMES, OBJECT SELECTORS
 @unnumberedsubsec mynamep
 @cindex mynamep
 @cindex myname?
@@ -1753,7 +1753,7 @@ owned (not inherited) by the current object, @code{false} otherwise.
 
 @xref{MYNAMES}.
 
-@node    MYPROCS, MYPROCP, MYNAMEP, SELECTORS
+@node    MYPROCS, MYPROCP, MYNAMEP, OBJECT SELECTORS
 @unnumberedsubsec myprocs
 @cindex{myprocs}
 
@@ -1764,7 +1764,7 @@ MYPROCS
 outputs a list of the names of the procedures (methods) owned by (not
 inherited by) the current object.
 
-@node    MYPROCP, , MYPROCS, SELECTORS
+@node    MYPROCP, , MYPROCS, OBJECT SELECTORS
 @unnumberedsubsec myprocp
 @cindex{myprocp}
 @cindex{myproc?}
@@ -1779,7 +1779,7 @@ owned (not inherited) by the current object, @code{false} otherwise.
 
 @xref{MYPROCS}.
 
-@node    MESSAGES, QUERIES, SELECTORS, OBJECTS
+@node    MESSAGES, OBJECT QUERIES, OBJECT SELECTORS, OBJECTS
 @section Messages
 
 The procedures in this section are for changing the current object,
@@ -1821,7 +1821,7 @@ object is set back to its previous value.
 
 @xref{TALKTO}.
 
-@node    QUERIES, USUAL, MESSAGES, OBJECTS
+@node    OBJECT QUERIES, USUAL, MESSAGES, OBJECTS
 @section Queries
 
 These procedures are particularly useful when debugging.
@@ -1831,7 +1831,7 @@ These procedures are particularly useful when debugging.
 * WHOSEPROC::
 @end menu
 
-@node    WHOSENAME, WHOSEPROC, QUERIES, QUERIES
+@node    WHOSENAME, WHOSEPROC, OBJECT QUERIES, OBJECT QUERIES
 @unnumberedsubsec whosename
 @cindex{whosename}
 
@@ -1843,7 +1843,7 @@ outputs the object that owns the currently accessible variable named
 @var{name}.  If there is no such accessible variable, or it's a
 procedure-local variable, an error is signalled.
 
-@node    WHOSEPROC, , WHOSENAME, QUERIES
+@node    WHOSEPROC, , WHOSENAME, OBJECT QUERIES
 @unnumberedsubsec whoseproc
 @cindex{whoseproc}
 
@@ -1854,7 +1854,7 @@ WHOSEPROC name
 outputs the object that owns the currently accessible procedure named
 @var{name}.  If there is no such procedure, an error is signalled.
 
-@node    USUAL, , QUERIES, OBJECTS
+@node    USUAL, , OBJECT QUERIES, OBJECTS
 @section usual
 @cindex{usual}
 
@@ -4679,7 +4679,7 @@ the output is a list of lists.  If these lists are printed, one per
 line, the result will look like a definition using @code{TO}.  Note: the output
 from @code{FULLTEXT} is not suitable for use as input to @code{DEFINE}!
 
-@xref{text}.
+@xref{TEXT}.
 
 
 @node COPYDEF,  , FULLTEXT, PROCEDURE DEFINITION
