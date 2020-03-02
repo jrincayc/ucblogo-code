@@ -1569,7 +1569,8 @@ creates and outputs an object whose parent is the @code{Logo} object.
 @code{make "foo something} is equivalent to @code{make "foo kindof
 logo}.
 
-@xref{logo}.
+@comment need to document LOGO primitive, and then can uncomment next line.
+@comment @xref{logo}.
 
 @node ONEOF, , SOMETHING, OBJECT CONSTRUCTORS
 @unnumberedsubsec oneof
