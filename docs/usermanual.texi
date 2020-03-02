@@ -43,7 +43,8 @@ Original written by: Brian Harvey
 
 @menu
 * INTRODUCTION::                
-* DATA STRUCTURE PRIMITIVES::   
+* DATA STRUCTURE PRIMITIVES::
+* OBJECTS::
 * COMMUNICATION::               
 * ARITHMETIC::                  
 * LOGICAL OPERATIONS::          
@@ -1756,7 +1757,7 @@ owned (not inherited) by the current object, @code{false} otherwise.
 
 @node    MYPROCS, MYPROCP, MYNAMEP, OBJECT SELECTORS
 @unnumberedsubsec myprocs
-@cindex{myprocs}
+@cindex myprocs
 
 @example
 MYPROCS
@@ -1767,8 +1768,8 @@ inherited by) the current object.
 
 @node    MYPROCP, , MYPROCS, OBJECT SELECTORS
 @unnumberedsubsec myprocp
-@cindex{myprocp}
-@cindex{myproc?}
+@cindex myprocp
+@cindex myproc?
 
 @example
 MYPROCP name
@@ -1787,13 +1788,13 @@ The procedures in this section are for changing the current object,
 either permanently (unless changed again) or just to send one message.
 
 @menu
-* TALKTO
-* ASK
+* TALKTO::
+* ASK::
 @end menu
 
-@node    TALKTO, ASK, MESSAGES, MESSAGES
+@node    TALKTO, ASK, , MESSAGES
 @unnumberedsubsec talkto
-@cindex{talkto}
+@cindex talkto
 
 @example
 TALKTO object
@@ -1808,7 +1809,7 @@ inside a procedure).
 
 @node    ASK, , TALKTO, MESSAGES
 @unnumberedsubsec ask
-@cindex{ask}
+@cindex ask
 
 @example
 ASK object runlist
@@ -1834,7 +1835,7 @@ These procedures are particularly useful when debugging.
 
 @node    WHOSENAME, WHOSEPROC, OBJECT QUERIES, OBJECT QUERIES
 @unnumberedsubsec whosename
-@cindex{whosename}
+@cindex whosename
 
 @example
 WHOSENAME name
@@ -1846,7 +1847,7 @@ procedure-local variable, an error is signalled.
 
 @node    WHOSEPROC, , WHOSENAME, OBJECT QUERIES
 @unnumberedsubsec whoseproc
-@cindex{whoseproc}
+@cindex whoseproc
 
 @example
 WHOSEPROC name
@@ -1857,7 +1858,7 @@ outputs the object that owns the currently accessible procedure named
 
 @node    USUAL, , OBJECT QUERIES, OBJECTS
 @section usual
-@cindex{usual}
+@cindex usual
 
 @example
 to foo ...
