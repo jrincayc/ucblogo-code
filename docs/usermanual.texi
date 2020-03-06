@@ -1463,6 +1463,11 @@ runparsed list are not themselves runparsed.
 * USUAL::
 @end menu
 
+Note: The object implementation in UCBLogo is new and still being
+worked on. It also is optional and may not be compiled into the
+version you are using. Bug reports and patches are greatly
+appreciated.
+
 An object is a data structure, like a list, except that instead of just
 a sequence of elements, an object has @var{named} elements, which are
 either variables or procedures.  (A procedure that belongs to an object
