@@ -43,7 +43,8 @@ Original written by: Brian Harvey
 
 @menu
 * INTRODUCTION::                
-* DATA STRUCTURE PRIMITIVES::   
+* DATA STRUCTURE PRIMITIVES::
+* OBJECTS::
 * COMMUNICATION::               
 * ARITHMETIC::                  
 * LOGICAL OPERATIONS::          
@@ -535,7 +536,7 @@ parentheses, brackets, infix operators, backslash, vertical bar, tilde, quote,
 question mark, colon, and semicolon.)
 
 
-@node   DATA STRUCTURE PRIMITIVES, COMMUNICATION, INTRODUCTION, Top
+@node   DATA STRUCTURE PRIMITIVES, OBJECTS, INTRODUCTION, Top
 @chapter Data Structure Primitives
 
 @menu
@@ -653,8 +654,7 @@ origin with @w{@t{@{a b c@}@@0}}.
 
 
 @xref{ITEM} ,
-@ref{SETITEM} ,
-@ref{PRINT} .
+@ref{SETITEM} .
 
 @node  MDARRAY, LISTTOARRAY, ARRAY, CONSTRUCTORS
 @unnumberedsubsec mdarray
@@ -795,10 +795,6 @@ op fput firsts :matrix transpose bfs :matrix
 end
 @end example
 
-@xref{MAP} ,
-@ref{MAPdSE} ,
-@ref{FOREACH}
-
 @node LAST, BUTFIRST, FIRSTS, SELECTORS
 @unnumberedsubsec last
 @cindex last
@@ -847,10 +843,6 @@ end
 
 but is provided as a primitive in order to speed up the iteration tools
 @code{MAP}, @code{MAP.SE}, and @code{FOREACH}.
-
-@xref{MAP} ,
-@ref{MAPdSE} ,
-@ref{FOREACH}
 
 @node BUTLAST, ITEM, BUTFIRSTS, SELECTORS
 @unnumberedsubsec butlast
@@ -1442,8 +1434,8 @@ outputs the list that would result if the input word were entered in
 response to a @code{READLIST} operation.  That is, @w{@t{PARSE READWORD}} has the same
 value as @code{READLIST} for the same characters read.
 
-@xref{READLIST} ,
-@ref{READWORD}
+@xref{READLIST} .
+
 
 @node  RUNPARSE,  , PARSE, QUERIES
 @unnumberedsubsec runparse
@@ -1459,8 +1451,480 @@ parentheses are separate members of the output.  Note that sublists of a
 runparsed list are not themselves runparsed.
 
 
+@node  OBJECTS, COMMUNICATION, DATA STRUCTURE PRIMITIVES, Top
+@chapter Objects
 
-@node   COMMUNICATION, ARITHMETIC, DATA STRUCTURE PRIMITIVES, Top
+@menu
+* OBJECT CONSTRUCTORS::                
+* OBJECT MUTATORS::                    
+* OBJECT SELECTORS::                   
+* MESSAGES::                  
+* OBJECT QUERIES::
+* USUAL::
+@end menu
+
+Note: The object implementation in UCBLogo is new and still being
+worked on. It also is optional and may not be compiled into the
+version you are using. Bug reports and patches are greatly
+appreciated.
+
+An object is a data structure, like a list, except that instead of just
+a sequence of elements, an object has @var{named} elements, which are
+either variables or procedures.  (A procedure that belongs to an object
+is sometimes called a @var{method}.)  In the object metaphor, instead of
+just having the one computer that does everything, we think of each
+object as capable of doing things.  One object can ask another object to
+do something for it.
+
+At any moment, there is a @var{current object}.  That object might have
+its own version of procedures that are available globally and documented
+in this manual.  So workspace operations such as @code{pots} or
+@code{erase} might have different effects depending on the current
+object.
+
+The initial current object is called @code{logo}; there is an operation
+that outputs that object.  Every object has one or more @var{parents,}
+and ultimately the parent of the parent... of an object has to be
+@code{logo}.  The primitive procedures in this manual belong to the
+@code{logo} object, as do global variables.
+
+Turtles are objects.  This is valuable in part so that you can customize
+the behavior of a turtle.  For example, if you're simulating a
+kaleidoscope, you might want half your turtles to swap the meanings of
+the @code{left} and @code{right} commands.  But given what's said above
+about there being a current object, and that the initial current object
+is @code{logo}, which isn't a turtle, you might think that you can't run
+@code{forward 100} without first creating a turtle object and making it
+the current object.  But a goal of this object system is that things
+that were easy in traditional Logo should still be easy.  And so, in
+addition to the current object, there is also a @var{default turtle}; if
+a turtle procedure is addressed to an object that isn't a turtle, there
+is a @code{logo} procedure for each turtle procedure that does the
+equivalent of
+@example
+to forward :distance
+ask defaultturtle [forward :distance]
+end
+@end example
+
+Unlike some other object oriented languages, Berkeley Logo does not
+distinguish between classes (kinds of objects, which mostly specify the
+procedures (the methods) of objects of that kind) and instances
+(individual concrete objects, with state memory in the form of variables
+belonging to the instance).  Instead we use @var{prototyping} OOP, in
+which any object (instance) can serve as the model, the prototype (the
+class), for other objects.
+
+Class/instance OOP is the right thing for large teams of programmers who
+need a detailed specification (in the form of class definitions) of the
+desired program behavior before they start writing code.  But
+prototyping OOP is the right thing for tinkering, for having a glimmer
+of an idea and playing around with it without a rigid specification.
+So, you want to have dogs in your program.  You start by @var{building a
+dog,} one you can see on the screen as you invent behaviors such as
+@code{roll.over} and @code{wag.tail}.  Then you make a bunch of objects
+with that dog as their parent, using that dog as a prototype.  But the
+prototype dog is still a particular dog, with a particular position,
+color, and so on.
+
+Having said that, sometimes you do want to distinguish a class object,
+which will mostly have procedures, with few or no variables, and its
+instance objects, which mostly inherit procedures from the class, but
+have their own individual variables.  To accommodate that style of work,
+we distinguish two ways to make a child object from a parent object.
+@code{Kindof} takes an object as input, and outputs a new object that
+inherits from the input object.  This is how to make a subclass that is
+mostly like the given class, but overrides certain behaviors.
+@code{Oneof} makes a child object, but @code{ask}s the new object to
+@code{exist} before outputting it.  Every object has an @code{exist}
+procedure, because it inherits one from @code{logo} if no intermediate
+ancestor specifies one.  The details come a little later in this
+section, in the @var{Constructors} subsection, but this is the general
+idea of how class/instance programming can be accommodated in a
+prototyping OOP language.
+
+
+@node    OBJECT CONSTRUCTORS, OBJECT MUTATORS, OBJECTS, OBJECTS
+@section Constructors
+
+
+@node  KINDOF, SOMETHING, OBJECT CONSTRUCTORS, OBJECT CONSTRUCTORS
+@unnumberedsubsec kindof
+@cindex kindof
+
+@example
+KINDOF object
+KINDOF objectlist
+(KINDOF object1 object2 ...)
+@end example
+
+creates and outputs an object whose parent is @var{object}, or whose
+parents are @var{object1}, @var{object2}, etc., or the elements of
+@var{objectlist}.  There must be at least one input, and if a list, it
+may not be empty.
+
+@node SOMETHING, ONEOF, KINDOF, OBJECT CONSTRUCTORS
+@unnumberedsubsec something
+@cindex something
+
+@example
+SOMETHING
+@end example
+
+creates and outputs an object whose parent is the @code{Logo} object.
+@code{make "foo something} is equivalent to @code{make "foo kindof
+logo}.
+
+@comment need to document LOGO primitive, and then can uncomment next line.
+@comment @xref{logo}.
+
+@node ONEOF, , SOMETHING, OBJECT CONSTRUCTORS
+@unnumberedsubsec oneof
+@cindex oneof
+
+@example
+ONEOF object
+ONEOF objectlist
+(ONEOF object input1 input2 ...)
+(ONEOF objectlist input1 input2 ...)
+@end example
+
+creates an object whose parent is @var{object} or whose parents are the
+elements of @var{objectlist}.  @code{Ask}s the new object to
+@code{exist}, and then outputs the object.  Before the object is @code{Ask}ed to
+@code{exist}, all remaining inputs after the first are collected into a
+list, which is made the value of the global variable @code{initlist}.
+The convention is that @code{initlist} contains alternating names and
+values, which serve to @var{initialize} the newly created object.
+
+The output of @code{oneof} is usually called an @var{instance}.
+
+@xref{EXIST}.
+
+@node    OBJECT MUTATORS, OBJECT SELECTORS, OBJECT CONSTRUCTORS, OBJECTS
+@section Mutators
+
+@menu
+* EXIST::
+* HAVE::
+* HAVEMAKE::
+@end menu
+
+@node    EXIST, HAVE, OBJECT MUTATORS, OBJECT MUTATORS
+@unnumberedsubsec exist
+@cindex exist
+
+@example
+exist
+@end example
+
+Initializes a new object.  It is run automatically by @code{oneof}.
+
+The default @code{exist} procedure creates object-local variables with
+the odd-numbered elements of @code{initlist} as names, and the
+corresponding even-numbered elements as values.  Thus
+
+@example
+make "obj (oneof logo "foo "bar "baz "garply)
+@end example
+
+will create a new object and then tell it to @code{exist}, which will in
+effect tell it to
+
+@example
+havemake "foo "bar
+havemake "baz "garply
+@end example
+
+Example:  Objects do not usually keep track of their instances.  To make
+one that does, you can specialize @code{exist}:
+
+@example
+? make "recordingobject something
+? ask :recordingobject [havemake "instances []]
+? ask :recordingobject [to exist]
+> usual.exist
+> make "instances [fput self :instances]
+> end
+@end example
+
+@xref{ONEOF}. @ref{USUAL}, @ref{HAVEMAKE}.
+
+@node HAVE, HAVEMAKE, EXIST, OBJECT MUTATORS
+@unnumberedsubsec have
+@cindex have
+
+@example
+HAVE name
+HAVE namelist
+@end example
+
+tells the current object to create an object variable named @var{name},
+or object variables whose names are the elements of @var{namelist}.
+
+@xref{HAVEMAKE}.
+
+@node HAVEMAKE, , HAVE, OBJECT MUTATORS
+@unnumberedsubsec havemake
+@cindex havemake
+
+@example
+HAVEMAKE name value
+@end example
+
+tells the current object to create an object variable named @var{name},
+and give it the value @var{value}.  Since procedure input values are
+computed before the procedure is run, the @var{value} expression may
+refer to the object's parent's variable named @var{name}:
+
+@example
+havemake "size :size/2
+@end example
+
+@xref{HAVE}, @ref{MAKE}.
+
+
+@node OBJECT SELECTORS, MESSAGES, OBJECT MUTATORS, OBJECTS
+@section selectors
+
+All selectors apply to the current object.  If you want to select from
+another object, use @code{ask}.
+
+@menu
+* SELF::
+* PARENTS::
+* MYNAMES::
+* MYNAMEP::
+* MYPROCS::
+* MYPROCP::
+@end menu
+
+@node    SELF, PARENTS, OBJECT SELECTORS, OBJECT SELECTORS
+@unnumberedsubsec self
+@cindex self
+
+@example
+SELF
+@end example
+
+outputs the current object (not its name!).
+
+@node    PARENTS, MYNAMES, SELF, OBJECT SELECTORS
+@unnumberedsubsec parents
+@cindex parents
+
+@example
+PARENTS
+@end example
+
+outputs a list containing the parent(s) of the current object.  All
+objects except for @code{logo} have at least one parent.  Note that the
+elements of the output list are objects, not names of objects.
+
+Examples:
+
+@example
+to grandparents
+output remdup (map.se [ask ? [parents]] parents)
+end
+
+to ancestors
+if emptyp parents [output (list self)]   ; can happen only if self=logo
+output remdup sentence parents map.se [ask ? [ancestors]] parents
+end
+@end example
+
+@node   MYNAMES, MYNAMEP, PARENTS, OBJECT SELECTORS
+@unnumberedsubsec mynames
+@cindex mynames
+
+@example
+MYNAMES
+@end example
+
+output a list of the names of the object variables owned (not inherited)
+by the current object.
+
+@node    MYNAMEP, MYPROCS, MYNAMES, OBJECT SELECTORS
+@unnumberedsubsec mynamep
+@cindex mynamep
+@cindex myname?
+
+@example
+MYNAMEP name
+MYNAME? name
+@end example
+
+outputs @code{true} if @var{name} is the name of an object variable
+owned (not inherited) by the current object, @code{false} otherwise.
+
+@xref{MYNAMES}.
+
+@node    MYPROCS, MYPROCP, MYNAMEP, OBJECT SELECTORS
+@unnumberedsubsec myprocs
+@cindex myprocs
+
+@example
+MYPROCS
+@end example
+
+outputs a list of the names of the procedures (methods) owned by (not
+inherited by) the current object.
+
+@node    MYPROCP, , MYPROCS, OBJECT SELECTORS
+@unnumberedsubsec myprocp
+@cindex myprocp
+@cindex myproc?
+
+@example
+MYPROCP name
+MYPROC? name
+@end example
+
+outputs @code{true} if @var{name} is the name of a procedure (a method)
+owned (not inherited) by the current object, @code{false} otherwise.
+
+@xref{MYPROCS}.
+
+@node    MESSAGES, OBJECT QUERIES, OBJECT SELECTORS, OBJECTS
+@section Messages
+
+The procedures in this section are for changing the current object,
+either permanently (unless changed again) or just to send one message.
+
+@menu
+* TALKTO::
+* ASK::
+@end menu
+
+@node    TALKTO, ASK, , MESSAGES
+@unnumberedsubsec talkto
+@cindex talkto
+
+@example
+TALKTO object
+@end example
+
+changes the current object to @var{object}.  (Note that the input is an
+object, not the name of an object.)  @code{Talkto} can be used only at
+toplevel or within a @code{pause}  (when typing into a Logo prompt, not
+inside a procedure).
+
+@xref{ASK}.
+
+@node    ASK, , TALKTO, MESSAGES
+@unnumberedsubsec ask
+@cindex ask
+
+@example
+ASK object runlist
+@end example
+
+command or operation.  Temporarily sets the current object to
+@var{object} while running the instructions or expression in
+@var{runlist}.  If @var{runlist} is an expression, then @code{ask}
+outputs its value.  As soon as @var{runlist} finishes, the current
+object is set back to its previous value.
+
+@xref{TALKTO}.
+
+@node    OBJECT QUERIES, USUAL, MESSAGES, OBJECTS
+@section Queries
+
+These procedures are particularly useful when debugging.
+
+@menu
+* WHOSENAME::
+* WHOSEPROC::
+@end menu
+
+@node    WHOSENAME, WHOSEPROC, OBJECT QUERIES, OBJECT QUERIES
+@unnumberedsubsec whosename
+@cindex whosename
+
+@example
+WHOSENAME name
+@end example
+
+outputs the object that owns the currently accessible variable named
+@var{name}.  If there is no such accessible variable, or it's a
+procedure-local variable, an error is signalled.
+
+@node    WHOSEPROC, , WHOSENAME, OBJECT QUERIES
+@unnumberedsubsec whoseproc
+@cindex whoseproc
+
+@example
+WHOSEPROC name
+@end example
+
+outputs the object that owns the currently accessible procedure named
+@var{name}.  If there is no such procedure, an error is signalled.
+
+@node    USUAL, , OBJECT QUERIES, OBJECTS
+@section usual
+@cindex usual
+
+@example
+to foo ...
+...
+USUAL.foo ...
+...
+end
+@end example
+
+@code{Usual} is not a procedure.  It's a special notation that can be
+used only inside a procedure definition; the word @code{usual} must be
+followed by a period and then the name of the procedure being defined.
+(That is, @code{usual.foo} can be used only inside the definition of
+@code{foo}.)  It refers to the procedure that would be inherited from a
+parent if this (re)definition didn't exist; it allows a specialized
+method to invoke the ordinary version.
+
+@example
+make "bigturtle kindof turtle
+ask :bigturtle [to forward :length]
+usual.forward 2 * :length
+end
+@end example
+
+If there is no inherited procedure of the same name, then calling
+@code{usual.___} does nothing if used as a command, or outputs an empty
+list if used as an operation.
+
+If an object has multiple parents, the behavior of @code{usual} may be
+confusing.  Suppose the current object has two parents, @code{A} and
+@code{B}, in that order.  Then @code{usual.foo} in the current object's
+own @code{foo} method refers to object @code{A}'s @code{foo}, but
+@code{usual.foo} within object @code{A}'s @code{foo} refers to object
+@code{B}'s @code{foo} in this situation, even though @code{A}'s parent
+isn't @code{B}.
+
+@example
+make "dashedturtle kindof turtle
+ask :dashedturtle [to forward :length]
+if not pendownp [usual.forward :length stop]
+if :length <= 5 [usual.forward :length stop]
+usual.forward 5
+penup
+usual.forward (ifelse :length <= 10 [:length-5] [5])
+pendown
+if :length > 10 [forward :length-10]    ; Note no USUAL here.
+end
+
+ask :dashedturtle [forward 25]
+- - -►
+
+make "bigdashed oneof (list :bigturtle :dashedturtle)
+make "dashedbig oneof (list :dashedturtle :bigturtle)
+ask :bigdashed [forward 25]
+- - - - - ►
+ask :dashedbig [forward 25]
+--  --  --►
+@end example
+
+
+@node   COMMUNICATION, ARITHMETIC, OBJECTS, Top
 @chapter Communication
 
 @menu
@@ -2823,8 +3287,6 @@ BITXOR num1 num2
 
 outputs the bitwise @var{exclusive or} of its inputs, which must be integers.
 
-@xref{OR} .
-
 @node  BITNOT, ASHIFT, BITXOR, BITWISE OPERATIONS
 @unnumberedsubsec bitnot
 @cindex bitnot
@@ -2897,8 +3359,6 @@ MAKE "RESULT AND [NOT (:X = 0)] [(1 / :X) > .5]
 
 to avoid the division by zero if the first part is false.
 
-@xref{CASEIGNOREDP} .
-
 @node  OR, NOT, AND, LOGICAL OPERATIONS
 @unnumberedsubsec or
 @cindex or
@@ -2922,8 +3382,6 @@ IF OR :X=0 [some.long.computation] [...]
 @end example
 
 to avoid the long computation if the first condition is met.
-
-@xref{CASEIGNOREDP} .
 
 @node  NOT,  , OR, LOGICAL OPERATIONS
 @unnumberedsubsec not
@@ -3340,7 +3798,6 @@ infinite graphics plane; the turtle can be anywhere on the plane.  (If
 you lose the turtle, @code{HOME} will bring it back to the center of the
 window.)  Compare @code{WRAP} and @code{FENCE}.
 
-@xref{HOME} .
 
 @node  FENCE, FILL, WINDOW, TURTLE AND WINDOW CONTROL
 @unnumberedsubsec fence
@@ -3664,8 +4121,6 @@ PE
 
 sets the pen's position to @code{DOWN} and mode to @code{ERASE}.
 
-@xref{ERASE} .
-
 @node  PENREVERSE, SETPENCOLOR, PENERASE, PEN AND BACKGROUND CONTROL
 @unnumberedsubsec penreverse
 @cindex penreverse
@@ -3678,8 +4133,6 @@ PX
 
 sets the pen's position to @code{DOWN} and mode to @code{REVERSE}.  (This may interact
 in system-dependent ways with use of color.)
-
-@xref{REVERSE} .
 
 @node  SETPENCOLOR, SETPALETTE, PENREVERSE, PEN AND BACKGROUND CONTROL
 @unnumberedsubsec setpencolor
@@ -3809,9 +4262,6 @@ PENMODE
 
 outputs one of the words @code{PAINT}, @code{ERASE}, or @code{REVERSE} according to the
 current pen mode.
-
-@xref{ERASE} ,
-@ref{REVERSE} .
 
 @node  PENCOLOR, PALETTE, PENMODE, PEN QUERIES
 @unnumberedsubsec pencolor
@@ -3953,10 +4403,6 @@ graphics window.  This file can be imported into other programs that
 understand EPS format.  Restrictions: the drawing cannot use @code{FILL},
 @code{PENERASE}, or @code{PENREVERSE}; any such instructions will be ignored in the
 translation to Postscript form.
-
-@xref{FILL} ,
-@xref{PENERASE} ,
-@xref{PENREVERSE} .
 
 
 @node MOUSE QUERIES,  , SAVING AND LOADING PICTURES, GRAPHICS
@@ -4240,10 +4686,8 @@ the output is a list of lists.  If these lists are printed, one per
 line, the result will look like a definition using @code{TO}.  Note: the output
 from @code{FULLTEXT} is not suitable for use as input to @code{DEFINE}!
 
-@xref{TO} ,
-@ref{EDIT} ,
-@ref{LOAD} ,
-@ref{DEFINE} .
+@xref{TEXT}.
+
 
 @node COPYDEF,  , FULLTEXT, PROCEDURE DEFINITION
 @unnumberedsubsec copydef
@@ -5881,7 +6325,6 @@ second input to @code{THROW} is not considered a return value.
 system, without printing the usual parting message and without deleting
 any editor temporary file written by EDIT.
 
-@xref{EDIT} .
 
 @node ERROR, PAUSE, THROW, CONTROL
 @unnumberedsubsec error
@@ -6408,7 +6851,6 @@ acceptable number of slots for @var{template}.  It is illegal to apply the
 primitive @code{TO} as a template, but anything else is okay.  @code{APPLY} outputs
 what @var{template} outputs, if anything.
 
-@xref{TO} .
 
 @node INVOKE, FOREACH, APPLY, TEMPLATE-BASED ITERATION
 @unnumberedsubsec invoke
@@ -6614,9 +7056,6 @@ if emptyp :inputs ~
 output reduce [ifelse ?1 > ?2 [?1] [?2]] :inputs
 end
 @end example
-
-@xref{SUM} ,
-@ref{APPLY} .
 
 @node CROSSMAP, CASCADE, REDUCE, TEMPLATE-BASED ITERATION
 @unnumberedsubsec crossmap
