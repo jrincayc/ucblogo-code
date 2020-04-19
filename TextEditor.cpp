@@ -42,6 +42,7 @@ wxTextCtrl(f, a, s, p, sz, b)
 
 void TextEditor::SetFont(wxFont font){
 	this->font = font;
+	SetForegroundColour(TurtleCanvas::colors[wxTerminal::terminal->m_curFG]);
 #ifdef __WXMAC__                                                        
 	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, font));
 	if(this->IsShown()){
