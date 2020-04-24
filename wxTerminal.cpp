@@ -182,6 +182,21 @@ enum
 // LogoApplication class
 // ----------------------------------------------------------------------------
 
+int utf8_length(char * s) {
+  char f = s[0];
+  //std::cout << "f" << f << (f & 0x80);
+  if((f & 0x80) == 0) { //0xxxxxxx
+    return 1;
+  } else if((f & 0xE0) == 0xC0) { //110xxxxx
+    return 2;
+  } else if((f & 0xF0) == 0xE0) { //1110xxxx
+    return 3;
+  } else if((f & 0xF8) == 0xF0) { //11110xxx
+    return 4;
+  } else {
+    return -1;
+  }
+}
 
 bool LogoApplication::OnInit()
 {
@@ -1726,11 +1741,13 @@ void wxTerminal::OnDraw(wxDC& dc)
   {
     tline = line_of(tlpos);
     for ( int col = 0; col < tline.line_length; col++ ) {
-      std::cout << char_of(tline) << " "<< (char_of(tline) & 0xFF) << " ";
-      DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, 1, &char_of(tline));
-      inc_charpos(tline);
+      //std::cout << char_of(tline) << " " << utf8_length(&char_of(tline)) << " "<< (char_of(tline) & 0xFF) << " ";
+      int len =  utf8_length(&char_of(tline));
+      DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, len, &char_of(tline));
+      //inc_charpos(tline);
+      tline.offset += len;
     }
-    std::cout << "\n";
+    //std::cout << "\n";
     inc_linepos(tlpos);
   }
 
