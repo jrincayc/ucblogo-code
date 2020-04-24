@@ -1740,11 +1740,14 @@ void wxTerminal::OnDraw(wxDC& dc)
   for ( int line = lineFrom; line <= lineTo; line++ )
   {
     tline = line_of(tlpos);
-    for ( int col = 0; col < tline.line_length; col++ ) {
+    int col = 0;
+    int len = 0;
+    for ( int c = 0; c < tline.line_length; c+=len ) {
       //std::cout << char_of(tline) << " " << utf8_length(&char_of(tline)) << " "<< (char_of(tline) & 0xFF) << " ";
-      int len =  utf8_length(&char_of(tline));
+      len =  utf8_length(&char_of(tline));
       DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, len, &char_of(tline));
       //inc_charpos(tline);
+      col++;
       tline.offset += len;
     }
     //std::cout << "\n";
