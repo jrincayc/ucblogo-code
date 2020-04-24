@@ -1092,6 +1092,8 @@ void wxTerminal::DoPaste(){
 		  wxTextDataObject data;
 		  wxTheClipboard->GetData( data );
 		  wxString s = data.GetText();
+		  wxCharBuffer cbuff = s.utf8_str();
+		  const char *buff = cbuff.data();
 		  
 		  int i; 
 		  //char chars[2];
@@ -1099,9 +1101,9 @@ void wxTerminal::DoPaste(){
 		  int num_newlines = 0;
 		  int len;
 		  char prev = ' ';
-		  for (i = 0; i < s.Length() && input_index < MAXINBUFF; i++){
+		  for (i = 0; i < strlen(cbuff)+1 && input_index < MAXINBUFF; i++){
 		    len = 1;
-		    c = s.GetChar(i);
+		    c = cbuff[i];
 		    if (c == '\n') {
 		      num_newlines++;
 		    }
@@ -1723,11 +1725,12 @@ void wxTerminal::OnDraw(wxDC& dc)
   for ( int line = lineFrom; line <= lineTo; line++ )
   {
     tline = line_of(tlpos);
-    for ( int col = 0; col < tline.line_length; col++ ) {      
+    for ( int col = 0; col < tline.line_length; col++ ) {
+      std::cout << char_of(tline) << " "<< (char_of(tline) & 0xFF) << " ";
       DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, 1, &char_of(tline));
       inc_charpos(tline);
     }
-
+    std::cout << "\n";
     inc_linepos(tlpos);
   }
 
