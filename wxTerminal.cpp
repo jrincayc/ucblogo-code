@@ -198,6 +198,21 @@ int utf8_length(char * s) {
   }
 }
 
+void inc_utf8_charpos(struct wxterm_charpos & cp) {
+  int len = utf8_length(&(cp.buf->cbuf[cp.offset]));
+  if(cp.offset + len >= WXTERM_CB_SIZE) {
+    int after = cp.offset + len - WXTERM_CB_SIZE;
+    if(!cp.buf->next) {
+      cp.buf->next = (wxterm_char_buffer *) malloc(sizeof(wxterm_char_buffer)); \
+      memset(cp.buf->next, '\0', sizeof(wxterm_char_buffer));
+    }
+    cp.buf = cp.buf->next;
+    cp.offset = after;
+  } else {
+    cp.offset += len;
+  }
+}
+
 bool LogoApplication::OnInit()
 {
 
@@ -1746,9 +1761,10 @@ void wxTerminal::OnDraw(wxDC& dc)
       //std::cout << char_of(tline) << " " << utf8_length(&char_of(tline)) << " "<< (char_of(tline) & 0xFF) << " ";
       len =  utf8_length(&char_of(tline));
       DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, len, &char_of(tline));
+      inc_utf8_charpos(tline);
       //inc_charpos(tline);
       col++;
-      tline.offset += len;
+      //tline.offset += len;
     }
     //std::cout << "\n";
     inc_linepos(tlpos);
