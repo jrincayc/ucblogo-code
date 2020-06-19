@@ -38,7 +38,8 @@ extern "C" int stop_quietly_flag;
 
 // externs from the logo interpreter 
 extern "C" int start (int , char **);
-extern "C" void redraw_graphics(); 
+extern "C" void redraw_graphics();
+extern "C" char *strnzcpy(char *, char *, int);
 
 // need to redraw turtle graphics
 int needToRefresh = 0;
@@ -203,27 +204,19 @@ extern "C" void getExecutableDir(char * path, int maxlen) {
 
 
 void doLoad(char * name, int length) {
-  int i = 0;
-  while (i < length && i < NAME_BUFFER_SIZE) {
-    nameBuffer[i] = name[i];
-    i++;
-  }
-  nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
-
-    (void)lload(cons(make_static_strnode(name),NIL));
+  nameBufferSize = length < NAME_BUFFER_SIZE? length : NAME_BUFFER_SIZE - 1;
+  strnzcpy(nameBuffer, name, nameBufferSize);
+  (void)lload(cons(make_static_strnode(nameBuffer),NIL));
     stop_quietly_flag = 1;
     logo_stop_flag = 1;
 }
 
 void doSave(char * name, int length) {
-  int i = 0;
-  while (i < length && i < NAME_BUFFER_SIZE) {
-    nameBuffer[i] = name[i];
-    i++;
-  }
+  nameBufferSize = length < NAME_BUFFER_SIZE? length : NAME_BUFFER_SIZE - 1;
+  strnzcpy(nameBuffer, name, nameBufferSize);
   nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
-  
-    (void)lsave(cons(make_static_strnode(name),NIL));
+
+    (void)lsave(cons(make_static_strnode(nameBuffer),NIL));
     stop_quietly_flag = 1;
     logo_stop_flag = 1;
   }
