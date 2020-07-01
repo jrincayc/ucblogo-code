@@ -477,15 +477,15 @@ extern "C" void new_line(FILE *);
 int firstloadsave = 1;
 extern "C" void *save_name;
 
-void doSave(char * name, int length);
-void doLoad(char * name, int length);
+void doSave(char * name);
+void doLoad(char * name);
 
 extern "C" void *cons(void*, void*);
 extern "C" void lsave(void*);
 
 void LogoFrame::OnSave(wxCommandEvent& event) {
-    if (save_name != NULL) {
-	lsave(cons(save_name, NULL));
+    if (save_name != NIL) {
+	lsave(cons(save_name, NIL));
     } else {
 	OnSaveAs(event);
     }
@@ -504,8 +504,7 @@ void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 //	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
-	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8),
-		   dialog.GetPath().length());
+	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8));
 	    new_line(stdout);
 	}
     firstloadsave = 0;
@@ -524,8 +523,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 );
 		
 	if (dialog.ShowModal() == wxID_OK) {
-	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8),
-		   dialog.GetPath().length());
+	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8));
 	    new_line(stdout);
 	}
     firstloadsave = 0;
