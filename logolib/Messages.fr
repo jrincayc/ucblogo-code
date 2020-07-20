@@ -3,11 +3,11 @@
 ; Lines starting with semicolon don't count in the line numbering
 ;  and may be added at will.
 Logo : erreur interne fatale
-Plus assez de mémoire
-Débordement de pile
+Plus assez de mÃ©moire
+DÃ©bordement de pile
 Tortue en dehors des limites
 %p n'aime pas l'argument %s
-%p ne donne pas de valeur à %p
+%p ne donne pas de valeur Ã  %p
 Pas assez d'arguments pour %p
 %p n'aime pas l'argument %s
 Trop de choses entre les ( )
@@ -15,60 +15,60 @@ Vous ne dites pas ce qu'il faut faire de %s
 Trop de '('
 %s n'a pas de valeur
 ')' inattendue
-Je ne connais pas la procédure %p
-Pas de CATCH correspondant à l'étiquette (tag) %p
-%p est déjà définie
-Arrêt...
-Déjà en train d'appliquer DRIBBLE
-Erreur système de fichiers: %p
+Je ne connais pas la procÃ©dure %p
+Pas de CATCH correspondant Ã  l'Ã©tiquette (tag) %p
+%p est dÃ©jÃ  dÃ©finie
+ArrÃªt...
+DÃ©jÃ  en train d'appliquer DRIBBLE
+Erreur systÃ¨me de fichiers: %p
 Supposant que vous voulez dire SINON (IFELSE) et non SI (IF)
-%p masquée dans un appel de procédure
+%p masquÃ©e dans un appel de procÃ©dure
 Throw "Error
 %p est une primitive
-Impossible d'utiliser POUR (TO) dans une procédure
-Je ne connais pas la procédure %p
+Impossible d'utiliser POUR (TO) dans une procÃ©dure
+Je ne connais pas la procÃ©dure %p
 %p sans TEST
 ']' inattendu
 '}' inattendu
 Impossible d'initialiser le graphisme
 La macro retourne %s au lieu d'une liste
 Vous ne dites pas ce qu'il faut faire de %s
-Ne peux utiliser %p que dans une procédure
+Ne peux utiliser %p que dans une procÃ©dure
 APPLY n'accepte pas l'argument %s
 FIN (END) dans une instruction multi-ligne dans %p
-Plus de mémoire (fatal)
+Plus de mÃ©moire (fatal)
 %p
 FIN (END) dans une instruction multi-ligne
-Expression par défaut de l'argument optionnel erronée: %S
+Expression par dÃ©faut de l'argument optionnel erronÃ©e: %S
 Ne peux utiliser RETOURNE (OUTPUT) ou STOPPE (STOP) dans RUNRESULT
 Supposant que vous voulez dire '%p' et non %p
 Impossible d'ouvrir fichier %p
-Fichier %p déjà ouvert
+Fichier %p dÃ©jÃ  ouvert
 Fichier %p non ouvert
 Runlist %s a plus qu'une expression
 Variable name %s is defined both dynamically and in current object
 ; Non-error messages (no numeric error code for these)
 Merci d'utiliser Logo.
-Bonne journée!
-Désolé, pas de shell sur le Mac.
-Tapez EXIT pour revenir à Logo
+Bonne journÃ©e!
+DÃ©solÃ©, pas de shell sur le Mac.
+Tapez EXIT pour revenir Ã  Logo
 dans %s\n%s
 ERRACT boucle
 Pause...
-arrête
+arrÃªte
 sort
-Fichier non trouvé: %t\n
-KEYP impossible, pas de FIONREAD sur ce système
-Mémoire insuffisante
+Fichier non trouvÃ©: %t\n
+KEYP impossible, pas de FIONREAD sur ce systÃ¨me
+MÃ©moire insuffisante
 Impossible d'ouvrir ce fichier
-Fichier déjà ouvert
+Fichier dÃ©jÃ  ouvert
 Fichier non ouvert
 Pprop
 Bienvenue dans Berkeley Logo version %t
-Vous devez être dans une procédure pour utiliser RETOURNE (OUTPUT) ou STOPPE (STOP)
-Attention: mémoire insuffisante pour lancer le ramasse-miette
-Ramasse-miette désactivé - Enregistrez vos données et quittez!
-%s définie\n
+Vous devez Ãªtre dans une procÃ©dure pour utiliser RETOURNE (OUTPUT) ou STOPPE (STOP)
+Attention: mÃ©moire insuffisante pour lancer le ramasse-miette
+Ramasse-miette dÃ©sactivÃ© - Enregistrez vos donnÃ©es et quittez!
+%s dÃ©finie\n
 Faire %s %s
 pour %p\nfin\n\n
 Plist %s = %s\n
@@ -81,7 +81,7 @@ fin
 retourne
 stoppe
 goto
-étiquette
+Ã©tiquette
 si
 sinon
 pour
