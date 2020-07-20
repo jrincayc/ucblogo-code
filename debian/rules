@@ -10,4 +10,4 @@ override_dh_auto_build:
 	$(MAKE) make-docs
 
 override_dh_auto_install:
-	# don't use upstream Makefile for installing
+	@echo "not using upstream Makefile for install"
