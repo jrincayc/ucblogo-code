@@ -2,8 +2,12 @@ ucblogo (6.1-1) unstable; urgency=medium
 
   * update http to https URLs where practical
   * ACK NMU, mucho thanks!
+  * Update standards version to 4.5.0, no changes needed.
+  * debhelper 13
+  * Rules-Requires-Root: no
+  * tweak debian/rules to print comment
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sun, 05 Jan 2020 21:32:23 +0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 20 Jul 2020 09:52:39 +0100
 
 ucblogo (6.1-0.1) unstable; urgency=medium
 
