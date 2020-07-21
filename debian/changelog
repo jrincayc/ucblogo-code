@@ -6,8 +6,9 @@ ucblogo (6.1-1) unstable; urgency=medium
   * debhelper 13
   * Rules-Requires-Root: no
   * tweak debian/rules to print comment
+  * patch to convert Messages.{fr,sp} to UTF-8
 
- -- Barak A. Pearlmutter <bap@debian.org>  Mon, 20 Jul 2020 09:52:39 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 22 Jul 2020 00:23:34 +0100
 
 ucblogo (6.1-0.1) unstable; urgency=medium
 
