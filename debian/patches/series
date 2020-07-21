@@ -7,3 +7,4 @@ documentation.patch
 0003-graphics.c-Use-defined-HAVE_WX-instead-of-HAVE_WX.patch
 0004-logo.h-Pre-define-SIGRET-as-return-0.patch
 0009-no-git.patch
+0010-encoding.patch
