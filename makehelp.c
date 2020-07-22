@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     FILE *tmp=fopen("helptemp", "w");
     FILE *all=fopen("helpfiles/ALL_NAMES", "w");
     char ch, *cp, *np, *tp;
-    int intab, three, col=5;
+    int intab, three;
 
     if (toc == NULL) {
 	fprintf(stderr, "Can't open HELPCONTENTS.\n");
