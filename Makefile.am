@@ -20,6 +20,10 @@ ucblogo_SOURCES = coms.c error.c eval.c files.c graphics.c init.c	\
  intern.c libloc.c lists.c logodata.c main.c math.c mem.c paren.c	\
  parse.c print.c wrksp.c
 
+if OBJECTS
+ucblogo_SOURCES += obj.c
+endif
+
 if WX
 # need C++ linker
 ucblogo_SOURCES += wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp
