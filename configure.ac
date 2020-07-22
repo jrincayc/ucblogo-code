@@ -59,9 +59,14 @@ AM_CONDITIONAL([DOCS], [test x${enable_docs} = xyes])
 
 dnl Enable Compiler Warnings
 AX_CFLAGS_WARN_ALL
+dnl Disable a warning with many false positives; perhaps rethink later
 AX_CHECK_COMPILE_FLAG([-Wno-write-strings],
 [CFLAGS="$CFLAGS -Wno-write-strings"
 CXXFLAGS="$CXXFLAGS -Wno-write-strings"])
+dnl Disable voluminous cloud of rather harmless warnings
+AX_CHECK_COMPILE_FLAG([-Wno-unused-variable],
+[CFLAGS="$CFLAGS -Wno-unused-variable"
+CXXFLAGS="$CXXFLAGS -Wno-unused-variable"])
 
 dnl Checks for libraries.
 AC_SEARCH_LIBS(sqrt,[m])
