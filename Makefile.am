@@ -1,4 +1,4 @@
-SUBDIRS = logolib csls helpfiles
+SUBDIRS = logolib csls helpfiles tests
 if DOCS
 SUBDIRS += docs
 endif
@@ -34,6 +34,48 @@ else
 ucblogo_SOURCES += nographics.c
 endif
 endif
+
+# Include otherwise-skipped files in distribution tarball
+
+# #include files used in build
+EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
+ nographics.h obj.h TextEditor.h wxGlobals.h wxGraphics.h wxMain.h	\
+ wxTerminal.h wxTurtleGraphics.h xgraphics.h
+
+# Source for utility program for regenerating ./helpfiles/ from ./usermanual
+# See below; needs to run in build environment.
+EXTRA_DIST += makehelp.c
+
+# Misc information, documentation, historical files, etc
+EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
+ gpl.html Info.plist kdbgrc.logo LICENSE logo.icns logo-Info.plist	\
+ logologo.ico logologo.png logo_win.rc makefile.msys newtermnotes	\
+ pbdevelopment.plist PkgInfo plm README.md ucblogo.bmp ucblogo.dsp	\
+ ucblogo.dsw ucblogo.png ucblogo.xpm usermanual inno/ucblogo.iss
+
+# Diagram of evaluator, in three formats because hey why not
+EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
+
+# Win32 API compliant graphics routines (unused)
+EXTRA_DIST += win32trm.c win32trm.h
+
+# IBM-specific graphics routines (unused)
+EXTRA_DIST += ztcterm.c ztcterm.h
+
+# Macintosh graphics routines (unused)
+EXTRA_DIST += macterm.c macterm.h
+
+# Ancient Makefile for Macintosh (unused)
+EXTRA_DIST += mac-makefile
+
+# Something to do with fonts on a Macintosh (unused)
+EXTRA_DIST += mac-fontmod/include/wx/mac/carbon/fontdlg.h	\
+ mac-fontmod/include/wx/mac/carbon/private.h			\
+ mac-fontmod/include/wx/mac/fontdlg.h				\
+ mac-fontmod/src/mac/carbon/bfontdlg.cpp			\
+ mac-fontmod/src/mac/carbon/bfontdlgosx.mm			\
+ mac-fontmod/src/mac/carbon/fontdlg.cpp				\
+ mac-fontmod/src/mac/carbon/fontdlgosx.mm
 
 # makehelp_SOURCES = makehelp.c
 

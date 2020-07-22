@@ -1,13 +1,13 @@
 helpfilesdir=$(pkgdatadir)/helpfiles
 
-helpfiles_DATA = allopen allowgetset and apply arc arctan arity array	\
- arrayp arraytolist ascii ashift back background backslashedp beforep	\
- bf bfs bg bitand bitnot bitor bitxor bk bl buried buriedp bury		\
- buryall buryname butfirst butfirsts butlast button buttonact buttonp	\
- bye cascade case caseignoredp catch char clean clearscreen cleartext	\
- clickpos close closeall co combine commandline cond contents		\
- continue copydef cos count crossmap cs cslsload ct cursor ddefmacro	\
- decreasefont define definedp deq dequeue difference dmacro		\
+dist_helpfiles_DATA = allopen allowgetset and apply arc arctan arity	\
+ array arrayp arraytolist ascii ashift back background backslashedp	\
+ beforep bf bfs bg bitand bitnot bitor bitxor bk bl buried buriedp	\
+ bury buryall buryname butfirst butfirsts butlast button buttonact	\
+ buttonp bye cascade case caseignoredp catch char clean clearscreen	\
+ cleartext clickpos close closeall co combine commandline cond		\
+ contents continue copydef cos count crossmap cs cslsload ct cursor	\
+ ddefmacro decreasefont define definedp deq dequeue difference dmacro	\
  dmaybeoutput doduntil dodwhile dribble dsetbf dsetfirst dsetitem	\
  dsetsegmentsize ed edall edit editfile edn edns edpl edpls edps	\
  emptyp eofp epspict equalp er erall erase erasefile erf ern erns	\
@@ -44,9 +44,9 @@ helpfiles_DATA = allopen allowgetset and apply arc arctan arity array	\
  unburyonedit unstep until untrace uppercase usealternatenames		\
  vbarredp wait while window word wordp wrap writepos writer xcor ycor
 
-helpfiles_DATA += RENAME-GRAVE-ACCENT
+dist_helpfiles_DATA += RENAME-GRAVE-ACCENT
 
-helpfiles_DATA += HELPCONTENTS ALL_NAMES
+nodist_helpfiles_DATA = HELPCONTENTS ALL_NAMES
 
 install-data-hook:
 	(cd "$(DESTDIR)$(helpfilesdir)" && \
