@@ -1,4 +1,7 @@
-SUBDIRS = docs logolib csls helpfiles
+SUBDIRS = logolib csls helpfiles
+if DOCS
+SUBDIRS += docs
+endif
 
 bin_PROGRAMS = ucblogo
 
