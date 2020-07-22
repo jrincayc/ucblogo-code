@@ -1897,7 +1897,7 @@ void redraw_graphics(void) {
 #endif
 		break;
 	    case (LABEL) :
- 		draw_string((unsigned char *)(bufp + r_index + One+1));
+ 		draw_string((char *)(bufp + r_index + One+1));
 		move_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += (One+2 + bufp[r_index + One] + (One-1)) & ~(One-1);
 		break;
