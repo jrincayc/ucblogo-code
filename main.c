@@ -276,6 +276,10 @@ int main(int argc, char *argv[]) {
 #else
 	strcpy(version,"5.6");
 #endif
+#ifdef GITID
+	extern char *GIT;
+	strcat(version, GIT);
+#endif
 	ndprintf(stdout, message_texts[WELCOME_TO], version);
 	new_line(stdout);
       }

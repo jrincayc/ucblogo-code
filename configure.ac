@@ -24,6 +24,16 @@ AS_IF([test x${enable_objects} = xyes],
  [AC_DEFINE([OBJECTS],[1],[enable object-oriented features])])
 AM_CONDITIONAL([OBJECTS], [test x${enable_objects} = xyes])
 
+AC_MSG_CHECKING([enable_gitid])
+AC_ARG_ENABLE([gitid],
+ [AS_HELP_STRING([--enable-gitid],
+  [enable including git id in version (default is no)])],,
+  [enable_gitid=no])
+AC_MSG_RESULT([$enable_gitid])
+AS_IF([test x${enable_gitid} = xyes],
+ [AC_DEFINE([GITID],[1],[enable gitid in version])])
+AM_CONDITIONAL([GITID], [test x${enable_gitid} = xyes])
+
 AM_OPTIONS_WXCONFIG
 
 AC_MSG_CHECKING([enable_wx])

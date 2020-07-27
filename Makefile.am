@@ -24,6 +24,13 @@ if OBJECTS
 ucblogo_SOURCES += obj.c
 endif
 
+if GITID
+ucblogo_SOURCES += git.c
+
+git.c:	$(SOURCES)
+	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
+endif
+
 if WX
 # need C++ linker
 ucblogo_SOURCES += wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp
