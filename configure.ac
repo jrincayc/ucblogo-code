@@ -42,6 +42,8 @@ AM_CONDITIONAL([WX], [test x${wxWin} = x1])
 AM_COND_IF([WX],
  [AC_DEFINE([HAVE_WX],[1],[Use wx library for GUI])
   AC_MSG_NOTICE([using wx library])
+  CC="`$WX_CONFIG_PATH --cc`"
+  CXX="`$WX_CONFIG_PATH --cxx`"
   CPPFLAGS="$WX_CPPFLAGS $CPPFLAGS"
   CXXFLAGS="$WX_CXXFLAGS_ONLY $CXXFLAGS"
   CFLAGS="$WX_CFLAGS_ONLY $CFLAGS"
