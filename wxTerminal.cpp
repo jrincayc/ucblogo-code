@@ -499,11 +499,7 @@ void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
 			    (firstloadsave ?
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-			      *wxEmptyString :
-#else
 			      wxStandardPaths::Get().GetDocumentsDir() :
-#endif
 			      ""),
 			    wxEmptyString,
 			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
@@ -526,11 +522,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 this,
 	 _T("Load Logo Workspace"),
 	 (firstloadsave ?
-#ifdef __WXMAC__   /* needed for wxWidgets 2.6 */
-	    *wxEmptyString :
-#else
 	    wxStandardPaths::Get().GetDocumentsDir() :
-#endif
 			  ""),
 	 wxEmptyString,
 	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
