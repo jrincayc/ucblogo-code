@@ -3,11 +3,11 @@ Title: Berkeley Logo documentation
 Section: Education
 
 Format: HTML
-Index: /usr/share/doc/ucblogo/usermanual.html
-Files: /usr/share/doc/ucblogo/usermanual.html
+Index: /usr/share/doc/ucblogo/ucblogo.html
+Files: /usr/share/doc/ucblogo/ucblogo.html
 
 Format: PDF
-Files: /usr/share/doc/ucblogo/usermanual.pdf.gz
+Files: /usr/share/doc/ucblogo/ucblogo.pdf.gz
 
 Format: Info
 Index: /usr/share/info/ucblogo.info.gz

@@ -5,9 +5,5 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@
 
-override_dh_auto_build:
-	dh_auto_build -- LIBLOC=/usr/share/ucblogo
-	$(MAKE) make-docs
-
-override_dh_auto_install:
-	@echo "not using upstream Makefile for install"
+execute_after_dh_auto_install:
+	-rm --verbose debian/*/usr/share/man/man1/logo.1

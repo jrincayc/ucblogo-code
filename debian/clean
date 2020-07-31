@@ -1,8 +1,0 @@
-makehelp
-{ucb,}logo
-helpfiles/HELPCONTENTS
-config.{cache,log,status,h}
-config.h.in
-makefile
-docs/html/*
-docs/*.{aux,cp,cps,dvi,ps,pdf,info,html,toc,log}
