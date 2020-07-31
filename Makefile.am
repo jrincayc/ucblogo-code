@@ -76,9 +76,6 @@ EXTRA_DIST += ztcterm.c ztcterm.h
 # Macintosh graphics routines (unused)
 EXTRA_DIST += macterm.c macterm.h
 
-# Ancient Makefile for Macintosh (unused)
-EXTRA_DIST += mac-makefile
-
 # Something to do with fonts on a Macintosh (unused)
 EXTRA_DIST += mac-fontmod/include/wx/mac/carbon/fontdlg.h	\
  mac-fontmod/include/wx/mac/carbon/private.h			\
