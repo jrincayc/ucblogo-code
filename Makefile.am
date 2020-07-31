@@ -26,10 +26,10 @@ endif
 
 if GITID
 ucblogo_SOURCES += git.c
-
+endif
 git.c:	$(SOURCES)
 	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
-endif
+
 
 if WX
 # need C++ linker
