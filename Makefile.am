@@ -98,7 +98,7 @@ regenerate-help-index: makehelp usermanual
 	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
 	./makehelp
 	@echo "Grave accent as filename is impossible with automake so work around it."
-	mv --verbose helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
+	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
 	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
 	-rm helptemp
 

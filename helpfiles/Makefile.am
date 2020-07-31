@@ -50,7 +50,7 @@ nodist_helpfiles_DATA = HELPCONTENTS ALL_NAMES
 
 install-data-hook:
 	(cd "$(DESTDIR)$(helpfilesdir)" && \
-	mv --verbose RENAME-GRAVE-ACCENT '`')
+	mv -v RENAME-GRAVE-ACCENT '`')
 
 uninstall-hook:
 	(cd "$(DESTDIR)$(helpfilesdir)" && \

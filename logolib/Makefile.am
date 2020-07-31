@@ -13,8 +13,8 @@ dist_logolib_DATA = RENAME-GRAVE-ACCENT RENAME-NUMBER-SIGN		\
 
 install-data-hook:
 	(cd "$(DESTDIR)$(logolibdir)" && \
-	mv --verbose RENAME-GRAVE-ACCENT '`' && \
-	mv --verbose RENAME-NUMBER-SIGN '#')
+	mv -v RENAME-GRAVE-ACCENT '`' && \
+	mv -v RENAME-NUMBER-SIGN '#')
 
 uninstall-hook:
 	(cd "$(DESTDIR)$(logolibdir)" && \
