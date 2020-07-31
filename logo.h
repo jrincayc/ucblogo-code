@@ -75,7 +75,6 @@
 #endif
 #else
 #define RETSIGTYPE void
-#define SIGRET return 0;
 #ifndef STDC_HEADERS
 #define STDC_HEADERS
 #endif
