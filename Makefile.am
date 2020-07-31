@@ -103,3 +103,26 @@ regenerate-help-index: makehelp usermanual
 	-rm helptemp
 
 all: regenerate-help-index
+
+mac: all
+	mkdir -p UCBLogo.app
+	mkdir -p UCBLogo.app/Contents
+	cp Info.plist UCBLogo.app/Contents/
+	cp PkgInfo UCBLogo.app/Contents/
+	cp pbdevelopment.plist UCBLogo.app/Contents/
+	mkdir -p UCBLogo.app/Contents/Resources/csls
+	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
+	cp -r helpfiles UCBLogo.app/Contents/Resources/
+	cp -r logolib UCBLogo.app/Contents/Resources/
+	cp logo.icns UCBLogo.app/Contents/Resources/
+	mkdir -p UCBLogo.app/Contents/MacOS/
+	cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
+
+ucblogo.dmg : mac
+	rm -f ucblogo.dmg ucblogo_base.dmg
+	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+	hdiutil attach ucblogo_base.dmg
+	cp -a UCBLogo.app /Volumes/UCBLogo/
+	cp docs/usermanual.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
+	hdiutil detach /Volumes/UCBLogo/
+	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
