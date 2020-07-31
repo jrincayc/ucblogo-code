@@ -34,17 +34,14 @@ AS_IF([test x${enable_gitid} = xyes],
  [AC_DEFINE([GITID],[1],[enable gitid in version])])
 AM_CONDITIONAL([GITID], [test x${enable_gitid} = xyes])
 
-AM_OPTIONS_WXCONFIG
+WX_CONFIG_OPTIONS
 
-AC_MSG_CHECKING([enable_wx])
-AC_ARG_ENABLE([wx],
-  [AS_HELP_STRING([--enable-wx],[use wxWidgets (default=no)])],,
-  [enable_wx=no])
-AC_MSG_RESULT([$enable_wx])
-AM_CONDITIONAL([WX], [test x${enable_wx} = xyes])
+WX_CONFIG_CHECK([3.0.0], [wxWin=1])
+
+AM_CONDITIONAL([WX], [test x${wxWin} = x1])
 AM_COND_IF([WX],
  [AC_DEFINE([HAVE_WX],[1],[Use wx library for GUI])
-  AM_PATH_WXCONFIG
+  AC_MSG_NOTICE([using wx library])
   CPPFLAGS="$WX_CPPFLAGS $CPPFLAGS"
   CXXFLAGS="$WX_CXXFLAGS_ONLY $CXXFLAGS"
   CFLAGS="$WX_CFLAGS_ONLY $CFLAGS"
