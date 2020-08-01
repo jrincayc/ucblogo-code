@@ -18,7 +18,12 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define WANT_EVAL_REGS 1
+#include "eval.h"
 #include "logo.h"
 #include "globals.h"
 
@@ -44,6 +49,10 @@ NODE
 *last_call	= NIL,	/* the last proc called */
 *output_node    = NIL,	/* the output of the current function */
 *output_unode	= NIL;	/* the unode in which we saw the output */
+
+#if defined(__GNUC__) && !defined(__clang__)
+#define USE_GCC_DISPATCH 1
+#endif
 
 #define DEBUGGING 0
 
@@ -154,7 +163,7 @@ NODE *restname, *restline;
 /* These variables are all externed in globals.h */
 
 CTRLTYPE    stopping_flag = RUN;
-char	    *logolib, *helpfiles, *csls;
+char  *logolib, *helpfiles, *csls;
 FIXNUM	    dont_fix_ift = 0;
 
 /* These variables are local to this file. */
@@ -520,11 +529,21 @@ apply_dispatch:
      * procedure or a primitive procedure.
      */
 #ifdef OBJECTS
-    extern NODE* procValueWithParent(NODE*, NODE**);
+    extern NODE* procValueWithParent(NODE*, NODE*, NODE**);
     NODE* parent = (NODE*)0;
-    proc = procValueWithParent(fun, &parent);
+    if (NIL == usual_parent)
+      usual_parent = current_object;
+#ifdef DEB_USUAL_PARENT
+    dbUsual("evalProcValue BEFORE");
+#endif
+    proc = procValueWithParent(fun,
+                        usual_parent,
+                        &parent);
     if (proc != UNDEFINED && parent != 0){ 
       usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+      dbUsual("evalProcValue AFTER");
+#endif
     }
 #else
     proc = procnode__caseobj(fun);
@@ -553,12 +572,16 @@ apply_dispatch:
 	// check to see if name begins with "usual."
 	if (!low_strncmp(getstrptr(string), "usual.", 6)){
 	  usual_caller = current_object;
-	  NODE* parent = (NODE*)0;
-	  proc = getInheritedProcWithParent(make_strnode(getstrptr(string) + 6,
+	  NODE* parent = NIL;
+#ifdef DEB_USUAL_PARENT
+          dbUsual("eval BEFORE");
+#endif
+	  proc = getInheritedProcWithParentList(intern(
+                                             make_strnode(getstrptr(string) + 6,
 					       getstrhead(string),
 					       getstrlen(string) - 6,
 					       nodetype(string),
-					       strnzcpy),
+					       strnzcpy)),
 					    usual_parent,
 					    &parent);
 	 
@@ -566,6 +589,9 @@ apply_dispatch:
 	  // to avoid infinite loops when usual is called multiple times
 	  if (proc != UNDEFINED) {
       	    usual_parent = parent;
+#ifdef DEB_USUAL_PARENT
+            dbUsual("eval AFTER");
+#endif
 	  }
 	}
       }
@@ -656,13 +682,26 @@ apply_dispatch:
 
 fetch_cont:
     {
+#ifdef USE_GCC_DISPATCH
+#define do_label(x) &&x,
+        static void *dispatch[] = {
+                do_list(do_label)
+                0
+        };
+#endif
 	enum labels x = (enum labels)cont;
 	cont = (FIXNUM)car(numstack);
 	numstack=cdr(numstack);
+#ifdef USE_GCC_DISPATCH
+        if (x >= NUM_TOKENS)
+            abort();
+        goto *dispatch[x];
+#else
 	switch (x) {
 	    do_list(do_case)
 	    default: abort();
 	}
+#endif
     }
 
 
@@ -1313,6 +1352,9 @@ withobject_continuation:
     save2(didnt_output_name,didnt_get_output);
     num2save(val_status,tailcall);
     save2(current_unode,current_object);
+#ifdef DEB_USUAL_PARENT
+    dbUsual("withObjectCont");
+#endif
     newcont(withobject_followup);
     current_object = car(val);
     usual_parent = current_object;
@@ -1326,6 +1368,10 @@ withobject_followup:
     num2restore(val_status,tailcall);
     restore2(didnt_output_name,didnt_get_output);
     usual_parent = current_object;
+#ifdef DEB_USUAL_PARENT
+    dbUsual("withObjectFollow");
+#endif
+
     if (current_unode != output_unode) {
 	if (STOPPING || RUNNING) output_node = UNBOUND;
 	if (stopping_flag == OUTPUT || STOPPING) {

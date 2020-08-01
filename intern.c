@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -42,7 +46,7 @@ FIXNUM hash(char *s, int len) {
 
     while (--len >= 0) {
 	h = (h << 4) + (FIXNUM)(*s++);
-	g = h & (0xf << (WORDSIZE-4));
+	g = h & ((FIXNUM)0xf << (WORDSIZE-4));
 	if (g != 0) {
 	    h ^= g ^ (g >> (WORDSIZE-8));
 	}

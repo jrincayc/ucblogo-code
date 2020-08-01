@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #endif /* WIN32 */
@@ -26,9 +30,12 @@
 #include "globals.h"
 
 #ifdef HAVE_WX
-#define getc getFromWX_2
-#define ungetc wxUnget_c
+#define sysGetC getFromWX_2
+#define sysUnGetC wxUnget_c
 int reading_char_now = 0;
+#else
+#define sysGetC getc
+#define sysUnGetC ungetc
 #endif
 
 #ifdef HAVE_TERMIO_H
@@ -413,7 +420,7 @@ void runstartup(NODE *oldst) {
     }
 }
 
-void silent_load(NODE *arg, char *prefix) {
+void silent_load(NODE *arg, const char *prefix) {
     FILE *tmp_stream;
     NODE *tmp_line, *exec_list;
     char load_path[200];
@@ -570,7 +577,7 @@ NODE *lreadchar(NODE *args) {
 	    reading_char_now = 0;
 	}
 	else
-	    c = (char)getc(readstream);
+	    c = (char)sysGetC(readstream);
 #else
 #ifndef TIOCSTI
     if (!setjmp(iblk_buf))
@@ -578,7 +585,7 @@ NODE *lreadchar(NODE *args) {
     {
 #ifdef mac
 	csetmode(C_RAW, stdin);
-	while ((c = (char)getc(readstream)) == EOF && readstream == stdin);
+	while ((c = (char)sysGetC(readstream)) == EOF && readstream == stdin);
 	csetmode(C_ECHO, stdin);
 #else /* !mac */
 #ifdef ibm
@@ -601,7 +608,7 @@ NODE *lreadchar(NODE *args) {
 	}
 #endif /* WIN32 */	
 	else
-		c = (char)getc(readstream);
+		c = (char)sysGetC(readstream);
 
 	if (c == 17) { /* control-q */
 	    to_pending = 0;
@@ -617,7 +624,7 @@ NODE *lreadchar(NODE *args) {
 	    return(lreadchar(NIL));
 	}
 #else /* !ibm */
-	c = (char)getc(readstream);
+	c = (char)sysGetC(readstream);
 #endif /* ibm */
 #endif /* mac */
     }
@@ -689,16 +696,16 @@ NODE *leofp(NODE *args) {
 #ifdef HAVE_WX
     if (interactive && readstream==stdin) return FalseName();
 #endif
-    c = getc(readstream);
+    c = sysGetC(readstream);
     if (c == EOF) return(TrueName());
 
-    ungetc(c,readstream);
+    sysUnGetC(c,readstream);
     return(FalseName());
 }
 
 NODE *lkeyp(NODE *args) {
 #if defined(unix) | defined(__WXMSW__)
-    long nc;
+    int nc;
 #endif
     int c;
 #ifdef WIN32
@@ -724,7 +731,7 @@ NODE *lkeyp(NODE *args) {
 
 #if defined(mac)
 	csetmode(C_RAW, stdin);
-	c = ungetc(getc(readstream), readstream);
+	c = sysUnGetC(sysGetC(readstream), readstream);
 	csetmode(C_ECHO, stdin);
 	return(c == EOF ? FalseName() : TrueName());
 #elif defined(ibm)
@@ -757,11 +764,11 @@ NODE *lkeyp(NODE *args) {
 #endif
 #endif /* wx */
     }
-    c = getc(readstream);
+    c = sysGetC(readstream);
     if (feof(readstream))
 	return(FalseName());
     else {
-	ungetc(c, readstream);
+	sysUnGetC(c, readstream);
 	return(TrueName());
     }
 }

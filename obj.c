@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -29,13 +33,14 @@ extern NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
 NODE *logo_object, *current_object;
 NODE *name_arg(NODE *args);
 NODE *assoc(NODE *name, NODE *alist);
+BOOLEAN memq(NODE *item, NODE *list);
 
 FIXNUM gensymnum = 1;
 
 /* Creates new license plate for object */
 NODE *newplate(void) {
     char buffer[20];
-    sprintf(buffer,"G%d", gensymnum++);
+    sprintf(buffer,"G%ld", gensymnum++);
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
     return UNBOUND;
 }
@@ -642,21 +647,39 @@ extern void dbprint(NODE*);
 
 /*
  * Finds an inherited procedure, returns it and also sets
- * the parent handle to the parent the proc came from
+ * the parent handle to the tail of the parent list the proc came from
  */
-NODE *getInheritedProcWithParent(NODE *name, NODE *obj, NODE **parent){
-    NODE *result, *parentList;
+NODE *getInheritedProcWithParentList(NODE *name,
+                                     NODE *objOrParents, NODE **parent){
+    NODE *result;
+    NODE *parentList;
 
     // initialize the return value
     // incase there are no parents
     result = UNDEFINED;
 
-    for (parentList = parent_list(obj);
+    if (NIL == objOrParents)
+      return result;
+
+    if (is_list(objOrParents)) {
+      if (car(objOrParents) == logo_object) {
+        result = get_proc(name, logo_object);
+        if (parent != 0)
+          *parent = objOrParents;
+        return result;
+      }
+      
+      parentList = cdr(objOrParents);
+    } else {
+      parentList = parent_list(objOrParents);
+    }
+
+    for (;
 	 parentList != NIL && result == UNDEFINED;
 	 parentList = cdr(parentList)) {
       result = get_proc(name, car(parentList));
       if (parent != 0){
-	*parent = car(parentList);      
+	*parent = parentList;
       }
     }
 
@@ -664,48 +687,33 @@ NODE *getInheritedProcWithParent(NODE *name, NODE *obj, NODE **parent){
     return result;
 }
 
+NODE *procValueWithParent(NODE *name, NODE *objOrParents, NODE **owner){
+  NODE *result;
+  NODE *obj, *parents;
 
-/* Searches the parents for the given proc
- * if found, returns the proc 
- * if not found, returns UNDEFINED
- */
-NODE *getInheritedProc(NODE *name, NODE *obj){
-    NODE *result, *parentList;
+  if (is_list(objOrParents)) {
+    obj = car(objOrParents);
+    parents = objOrParents;
+  } else {
+    obj = objOrParents;
+    parents = objOrParents;
+  }
 
-    // initialize the return value
-    // incase there are no parents
-    result = UNDEFINED;
-
-    for (parentList = parent_list(obj);
-	 parentList != NIL && result == UNDEFINED;
-	 parentList = cdr(parentList)) {
-      result = get_proc(name, car(parentList));
-    }
-
-    // result should be UNDEFINED or a proc at this point
-    return result;
-
-    //return getInheritedProcWithParent(name, obj, (NODE**)0);
-}
-
-NODE *procValueWithParent(NODE *name, NODE **owner){
-  NODE *result, *parentList;
-
-  result = get_proc(name, current_object);
+  result = get_proc(name, obj);
 
   if (result != UNDEFINED) {
     if (owner != 0){
-      *owner = current_object;
+        *owner = parents;
     }
     return result;
   }
   
   // search all parents, will return UNDEFINED if not found
-  return getInheritedProcWithParent(name, current_object, owner);
+  return getInheritedProcWithParentList(name, objOrParents, owner);
 }
 
 NODE *procValue(NODE *name) {
-  return procValueWithParent(name, (NODE**)0);
+  return procValueWithParent(name, current_object, (NODE**)0);
 }
 
 /*
@@ -813,10 +821,23 @@ NODE *lrepresentation(NODE *args) {
     }
 
     ndprintf(NULL, "}");
-    print_stringptr = '\0';
+    /* print_stringptr = '\0'; */
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
     return make_strnode(buffer, NULL, strlen(buffer), STRING, strnzcpy);
+}
+
+static void objDump(const char *msg, NODE *obj) {
+    fprintf(stderr,"%s: %p ", msg, obj);
+    lprint(cons(obj,NIL));
+}
+
+void dbUsual(const char *msg) {
+    fprintf(stderr,"%s: --->\n", msg);
+    objDump("current_object", current_object);
+    objDump("usual_parent", regs.r_usual_parent);
+    // objDump("logo_object", logo_object);
+    fprintf(stderr,"<--- \n");
 }
 
 #endif

@@ -1,20 +1,26 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 char line[100], line2[100], line3[100];
 char name[30] = "helpfiles/";
 char name2[30] = "helpfiles/";
 char tocname[20], tocname2[20];
 
-main() {
+int main(int argc, char **argv) {
     FILE *in=fopen("usermanual", "r");
     FILE *fp, *fp2;
     FILE *toc=fopen("helpfiles/HELPCONTENTS", "w");
     FILE *tmp=fopen("helptemp", "w");
     FILE *all=fopen("helpfiles/ALL_NAMES", "w");
     char ch, *cp, *np, *tp;
-    int intab, three, col=5;
+    int intab, three;
 
     if (toc == NULL) {
 	fprintf(stderr, "Can't open HELPCONTENTS.\n");

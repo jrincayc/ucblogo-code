@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -79,8 +83,6 @@ struct sgttyb tty_cooked, tty_cbreak;
 int interactive, tty_charmode;
 int getTermInfo(int type);
 int setTermInfo(int type, int val);
-
-extern char **environ, *tgoto(), *tgetstr();
 
 char *termcap_ptr;
 

@@ -8,6 +8,10 @@ CONTAINED IN #IF 0 BLOCKS:
 
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 
 #ifdef __GNUG__
@@ -115,11 +119,11 @@ char *fooargv[2] = {"UCBLogo", 0};
 
 // This is for stopping logo asynchronously
 #ifdef SIG_TAKES_ARG
-extern "C" RETSIGTYPE logo_stop(int);
-extern "C" RETSIGTYPE logo_pause(int);
+extern "C" void logo_stop(int);
+extern "C" void logo_pause(int);
 #else
-extern "C" RETSIGTYPE logo_stop();
-extern "C" RETSIGTYPE logo_pause();
+extern "C" void logo_stop();
+extern "C" void logo_pause();
 #endif
 int logo_stop_flag = 0;
 int logo_pause_flag = 0;
@@ -477,15 +481,15 @@ extern "C" void new_line(FILE *);
 int firstloadsave = 1;
 extern "C" void *save_name;
 
-void doSave(char * name, int length);
-void doLoad(char * name, int length);
+void doSave(char * name);
+void doLoad(char * name);
 
 extern "C" void *cons(void*, void*);
 extern "C" void lsave(void*);
 
 void LogoFrame::OnSave(wxCommandEvent& event) {
-    if (save_name != NULL) {
-	lsave(cons(save_name, NULL));
+    if (save_name != NIL) {
+	lsave(cons(save_name, NIL));
     } else {
 	OnSaveAs(event);
     }
@@ -494,7 +498,9 @@ void LogoFrame::OnSave(wxCommandEvent& event) {
 void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
 			    _T("Save Logo Workspace"),
-			    *wxEmptyString,
+			    (firstloadsave ?
+			      wxStandardPaths::Get().GetDocumentsDir() :
+			      ""),
 			    wxEmptyString,
 			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //			    "*",
@@ -504,8 +510,7 @@ void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 //	dialog.SetFilterIndex(1);
 	if (dialog.ShowModal() == wxID_OK)
 	{
-	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8),
-		   dialog.GetPath().length());
+	    doSave((char *)dialog.GetPath().char_str(wxConvUTF8));
 	    new_line(stdout);
 	}
     firstloadsave = 0;
@@ -516,7 +521,9 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	(
 	 this,
 	 _T("Load Logo Workspace"),
-	 *wxEmptyString,
+	 (firstloadsave ?
+	    wxStandardPaths::Get().GetDocumentsDir() :
+			  ""),
 	 wxEmptyString,
 	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
 //	 "*",
@@ -524,8 +531,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	 );
 		
 	if (dialog.ShowModal() == wxID_OK) {
-	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8),
-		   dialog.GetPath().length());
+	    doLoad((char *)dialog.GetPath().char_str(wxConvUTF8));
 	    new_line(stdout);
 	}
     firstloadsave = 0;
@@ -2167,7 +2173,7 @@ void wxTerminal::DebugOutputBuffer() {
   lpos.offset = 0;
   wxterm_charpos pos_1 = line_of(lpos);
   
-  //    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n cw: %d, ch: %d \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %d offset %d  \ncurr_line buf %d offset %d\n", m_width, m_height, m_charWidth, m_charHeight, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(int)curr_char_pos.buf, curr_char_pos.offset, (int)curr_line_pos.buf, curr_line_pos.offset);
+  //    fprintf(stderr, "WXTERMINAL STATS: \n  width: %d, height: %d, \n cw: %d, ch: %d \n x_max: %d, y_max: %d \n cursor_x: %d, cursor_y: %d \n last_logo_x : %d, last_logo_y: %d \ncurr_charpos buf %ld offset %d  \ncurr_line buf %ld offset %d\n", m_width, m_height, m_charWidth, m_charHeight, x_max, y_max,cursor_x, cursor_y, last_logo_x, last_logo_y,(long)curr_char_pos.buf, curr_char_pos.offset, (long)curr_line_pos.buf, curr_line_pos.offset);
   //    fprintf(stderr, "WXTERMINAL CHARACTER BUFFER\n###############\n");
   while(char_of(pos_1) != '\0') {
     if(char_of(pos_1) == '\n') {
@@ -2183,7 +2189,7 @@ void wxTerminal::DebugOutputBuffer() {
     fprintf(stderr, "\n#############\n");
     fprintf(stderr, "WXTERMINAL LINE BUFFER\n##############\n");
   for(int i = 0; i <= y_max; i++) {
-      //    fprintf(stderr, "LINE %d: buf: %d, offset: %d, len: %d\n", i,(int)line_of(lpos).buf, line_of(lpos).offset, line_of(lpos).line_length);
+      //    fprintf(stderr, "LINE %d: buf: %ld, offset: %d, len: %d\n", i,(long)line_of(lpos).buf, line_of(lpos).offset, line_of(lpos).line_length);
     inc_linepos(lpos);
   }
     fprintf(stderr, "\n#############\n\n");

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 #include <wx/wx.h>
 #include "LogoFrame.h"
@@ -39,6 +43,7 @@ extern "C" int stop_quietly_flag;
 // externs from the logo interpreter 
 extern "C" int start (int , char **);
 extern "C" void redraw_graphics(); 
+extern "C" char *strnzcpy(char *, char *, int);
 
 // need to redraw turtle graphics
 int needToRefresh = 0;
@@ -46,8 +51,6 @@ int needToRefresh = 0;
 
 // IO buffer handling
 char nameBuffer [NAME_BUFFER_SIZE];
-int nameBufferSize = 0;
-
 
 char output_buffer[MAXOUTBUFF];
 int output_index = 0;
@@ -202,28 +205,16 @@ extern "C" void getExecutableDir(char * path, int maxlen) {
 }
 
 
-void doLoad(char * name, int length) {
-  int i = 0;
-  while (i < length && i < NAME_BUFFER_SIZE) {
-    nameBuffer[i] = name[i];
-    i++;
-  }
-  nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
-
-    (void)lload(cons(make_static_strnode(name),NIL));
+void doLoad(char * name) {
+    strnzcpy(nameBuffer, name, NAME_BUFFER_SIZE - 1);
+    (void)lload(cons(make_static_strnode(nameBuffer),NIL));
     stop_quietly_flag = 1;
     logo_stop_flag = 1;
 }
 
-void doSave(char * name, int length) {
-  int i = 0;
-  while (i < length && i < NAME_BUFFER_SIZE) {
-    nameBuffer[i] = name[i];
-    i++;
-  }
-  nameBufferSize = (length >= NAME_BUFFER_SIZE? NAME_BUFFER_SIZE : length);
-  
-    (void)lsave(cons(make_static_strnode(name),NIL));
+void doSave(char * name) {
+    strnzcpy(nameBuffer, name, NAME_BUFFER_SIZE - 1);
+    (void)lsave(cons(make_static_strnode(nameBuffer),NIL));
     stop_quietly_flag = 1;
     logo_stop_flag = 1;
   }

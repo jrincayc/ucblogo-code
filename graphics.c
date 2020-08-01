@@ -18,14 +18,19 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #endif /* WIN32 */
  
 #define WANT_EVAL_REGS 1
-#include "logo.h"
-/*   #include "globals.h"   has been moved further down */
 #include <math.h>
+#include "logo.h"
+#include "eval.h"
+/*   #include "globals.h"   has been moved further down */
 
 #ifdef HAVE_WX
 #include "wxGraphics.h"
@@ -730,12 +735,12 @@ NODE *lhome(NODE *args) {
 }
 
 void cs_helper(int centerp) {    
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
     clearing_screen++;
 #endif
     prepare_to_draw;
     clear_screen;
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
     clearing_screen==0;
 #endif
     if (centerp) {
@@ -791,8 +796,7 @@ void setpos_commonpart(FLONUM target_x, FLONUM target_y) {
 					    wanna_x, wanna_y);
 	    tx = wanna_x/x_scale;
 	    ty = wanna_y/y_scale;
-#define sq(z) ((z)*(z))
-	    forward_helper(sqrt(sq(target_x - tx) + sq(target_y - ty)));
+	    forward_helper(hypot(target_x - tx, target_y - ty));
 	    turtle_heading = save_heading;
 	    wanna_x = scaled_x;
 	    wanna_y = scaled_y;
@@ -1458,10 +1462,6 @@ NODE *larc(NODE *arg) {
 
 int insidefill = 0;
 
-struct mypoint {
-    int x,y;
-};
-
 NODE *lfilled(NODE *args) {
     NODE *val, *arg;
     char *start, *ptr;
@@ -1719,7 +1719,7 @@ void save_vis(void) {
 void save_mode(void) {
     if (safe_to_save()) {
 	last_recorded = record[record_index] = SETPENMODE;
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
 	*(GC *)(record + record_index + One) = pen_mode;
 #else
 	*(int *)(record + record_index + One) = pen_mode;
@@ -1897,7 +1897,7 @@ void redraw_graphics(void) {
 #endif
 		break;
 	    case (LABEL) :
- 		draw_string((unsigned char *)(bufp + r_index + One+1));
+ 		draw_string((char *)(bufp + r_index + One+1));
 		move_to(screen_x_center+lastx, screen_y_center-lasty);
 		r_index += (One+2 + bufp[r_index + One] + (One-1)) & ~(One-1);
 		break;
@@ -1906,7 +1906,7 @@ void redraw_graphics(void) {
 		r_index += One;
 		break;
 	    case (SETPENMODE) :
-#if defined(x_window) && !HAVE_WX
+#if defined(x_window) && !defined(HAVE_WX)
 		set_pen_mode(*(GC *)(bufp + r_index + One));
 #else
 		set_pen_mode(*(int *)(bufp + r_index + One));

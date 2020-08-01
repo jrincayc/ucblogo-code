@@ -52,6 +52,7 @@ respective web sites.
 
 To build Logo under *nix, do this:
 ```
+	autoreconf --install
 	./configure
 	make
 ```

@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "logo.h"
 #include "globals.h"
 #include <signal.h>
@@ -79,7 +83,7 @@ NODE *lrandom(NODE *arg) {
 		range = getint(val);
 	    } else {		/* (random 3 10) => (3, 8) */
 		base = getint(val);
-		val = pos_int_arg(arg);
+		val = pos_int_arg(cdr(arg));
 		if (NOT_THROWING) { /* (random 0 9) <=> (random 10) */
 		    range = getint(val);
 		    range = range + 1 - base;
@@ -121,14 +125,13 @@ BOOLEAN handling_oflo = FALSE;
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE handle_oflo(int sig) {
+void handle_oflo(int sig) {
 #else
 #define sig_arg 
-RETSIGTYPE handle_oflo() {
+void handle_oflo() {
 #endif
     signal(SIGFPE, handle_oflo);
     if (handling_oflo) longjmp(oflo_buf,1);
-    SIGRET
 }
 
 void math_init() {
@@ -316,14 +319,15 @@ NODE *binary(NODE *args, char fcn) {
 	      case '/':
 		if (iarg == 0)
 		  err_logo(BAD_DATA_UNREC,arg);
-		else
+		else {
 		  if (ival % iarg != 0) {
 		    imode = FALSE;
 		    fval = (FLONUM)ival;
 		    farg = (FLONUM)iarg;
 		  }
 		  else ival /= iarg;
-		  break;
+                }
+		break;
 	      case '%':
 		if (iarg == 0)
 		  err_logo(BAD_DATA_UNREC,arg);

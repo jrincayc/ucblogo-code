@@ -28,19 +28,18 @@ extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
 extern int main(int, char *[]);
 extern void unblock_input(void);
-extern NODE **bottom_stack;
 extern void delayed_int(void);
 extern NODE *command_line;
 
 #if defined(SIG_TAKES_ARG)
-RETSIGTYPE logo_stop(int);
-RETSIGTYPE logo_pause(int);
-RETSIGTYPE mouse_down(int);
+void logo_stop(int);
+void logo_pause(int);
+void mouse_down(int);
 #define mouse_click mouse_down(0)
 #else
-RETSIGTYPE logo_stop(void);
-RETSIGTYPE logo_pause(void);
-RETSIGTYPE mouse_down(void);
+void logo_stop(void);
+void logo_pause(void);
+void mouse_down(void);
 #define mouse_click mouse_down()
 #endif
 
@@ -122,7 +121,7 @@ extern void check_reserve_tank(void);
 /* parse.c */
 extern FILE *loadstream, *writestream, *readstream, *dribblestream;
 extern int input_blocking;
-extern NODE *current_line, *deepend_proc_name;
+extern NODE *deepend_proc_name;
 extern NODE *reader(FILE *, char *);
 extern NODE *parser(NODE *, BOOLEAN);
 extern NODE *lparse(NODE *);
@@ -256,7 +255,7 @@ extern NODE *lsteppedp(NODE *);
 extern NODE *lunbury(NODE *);
 extern NODE *luntrace(NODE *);
 extern NODE *lunstep(NODE *);
-extern char *addsep(char *);
+extern const char *addsep(const char *);
 extern NODE *ledit(NODE *);
 extern NODE *leditfile(NODE *);
 extern NODE *lthing(NODE *);
@@ -370,7 +369,7 @@ extern NODE *lreader(NODE *);
 extern NODE *lwriter(NODE *);
 extern NODE *lerasefile(NODE *);
 extern NODE *lsave(NODE *);
-extern void silent_load(NODE *, char *);
+extern void silent_load(NODE *, const char *);
 extern NODE *lload(NODE *);
 extern NODE *lcslsload(NODE *);
 extern NODE *lsetprefix(NODE *);
@@ -418,6 +417,7 @@ extern NODE *lbye(NODE *);
 extern NODE *lwait(NODE *);
 extern NODE *lshell(NODE *);
 NODE *runnable_arg(NODE *);
+extern NODE *ltime(NODE *);
 
 /* term.c */
 #ifndef HAVE_WX
@@ -721,5 +721,7 @@ extern NODE *varInObjectHierarchy(NODE *, BOOLEAN);
 extern NODE *varInThisObject(NODE *, BOOLEAN);
 extern NODE *procValue(NODE *);
 extern NODE *parent_list(NODE *);
+
+extern void dbUsual(const char*);
 
 #endif

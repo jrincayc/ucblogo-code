@@ -18,15 +18,20 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef HAVE_WX
 #define fgets wx_fgets
 extern int check_wx_stop(int force_yield);
 #endif
 
 #define WANT_EVAL_REGS 1
+#include <math.h>
 #include "logo.h"
 #include "globals.h"
-#include <math.h>
+#include "eval.h"
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -54,6 +59,12 @@ extern int check_wx_stop(int force_yield);
 #ifdef HAVE_SGTTY_H
 #include <sgtty.h>
 #endif
+#endif
+
+#ifdef __APPLE__
+#include <sys/time.h>
+#else
+#include <time.h>
 #endif
 
 NODE *make_cont(enum labels cont, NODE *val) {
@@ -135,8 +146,6 @@ NODE *lthrow(NODE *arg) {
 NODE *lcatch(NODE *args) {
     return make_cont(catch_continuation, cons(car(args), lrun(cdr(args))));
 }
-
-extern NODE *evaluator(NODE *list, enum labels where);
 
 int torf_arg(NODE *args) {
     NODE *arg = car(args);
@@ -441,10 +450,10 @@ NODE *lwait(NODE *args) {
 #ifdef HAVE_USLEEP
 	    n = (unsigned int)getint(num);
 		
-		if (seconds = n / 60)
+		if ((seconds = n / 60))
 			sleep(seconds);
 			
-		if (microseconds = (n % 60) * 16667)
+		if ((microseconds = (n % 60) * 16667))
 			usleep(microseconds);
 #else
 	    n = (unsigned int)getint(num) / 60;
@@ -579,4 +588,20 @@ NODE *lshell(NODE *args) {
     return(head);
 #endif
 #endif
+}
+
+NODE *ltime(NODE *args) {
+    NODE *val;
+    FLONUM fval = 0.0;
+#ifdef __APPLE__
+    struct timeval tp;
+
+    gettimeofday(&tp, NULL);
+    fval = tp.tv_sec + (FLONUM) tp.tv_usec / 1000000.0;
+#else
+    fval = (FLONUM) time(NULL);
+#endif
+    val = newnode(FLOATT);
+    setfloat(val, fval);
+    return val;
 }

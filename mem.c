@@ -17,6 +17,12 @@
  *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <stdarg.h>
+
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
@@ -83,6 +89,8 @@ NODE *generation[NUM_GENS] = {NIL};
 
 /* ptr to list of nodes that point to younger nodes */
 NODE *oldyoungs = NIL;
+BOOLEAN oldyoungs_dirty = FALSE;
+#define DEBUGSTREAM     (dribblestream ? dribblestream : stdout)
 
 long int current_gc = 0;
 
@@ -100,11 +108,13 @@ int next_gen_gc = 0, max_gen = 0;
 
 int mark_gen_gc;
 
-/* #define GC_DEBUG 1 /* */
-/* #define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
+#if 0
+#define GC_DEBUG 1 /* */
+#define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
+#endif
 
 #ifdef GC_DEBUG
-long int num_examined;
+long int num_examined, num_visited;
 #endif
 
 NODE *lsetsegsz(NODE *args) {
@@ -143,6 +153,17 @@ BOOLEAN addseg(void) {
 #endif
 /* Think C tries to load ptr_val->node_type early if optimized */
 
+#define NILP(x)         (NIL == (x))
+
+/* GC_OPT seems to work, but valid_pointer might be needed */
+// #define GC_OPT          1
+
+#ifdef GC_OPT
+#define VALID_PTR(x)    (!NILP(x))
+#else
+#define VALID_PTR(x)    (valid_pointer(x))
+#endif
+
 BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     struct segment* current_seg;
     unsigned long int ptr = (unsigned long int)ptr_val;
@@ -174,7 +195,7 @@ NODETYPES nodetype(NODE *nd) {
 }
 
 void check_oldyoung(NODE *old, NODE *new) {
-    if (valid_pointer(new) && (new->my_gen < old->my_gen) &&
+    if (VALID_PTR(new) && (new->my_gen < old->my_gen) &&
 			      old->oldyoung_next == NIL) {
 	old->oldyoung_next = oldyoungs;
 	oldyoungs = old;
@@ -187,6 +208,37 @@ void check_valid_oldyoung(NODE *old, NODE *new) {
 	old->oldyoung_next = oldyoungs;
 	oldyoungs = old;
     }
+}
+
+/* clean_oldyoungs removes the free nodes from the oldyoungs list,
+   traversing the list just once. */
+void clean_oldyoungs(void) {
+    NODE **prev;
+    NODE *nd, *next;
+    long int num_cleaned;
+
+    if (FALSE == oldyoungs_dirty)
+        return;
+
+    num_cleaned = 0;
+    prev = &oldyoungs;
+    for (nd = oldyoungs; nd != NIL; ) {
+        if (NTFREE != nodetype(nd)) {
+             *prev = nd; prev = &(nd->oldyoung_next);
+             nd = nd->oldyoung_next;
+        } else {
+             next = nd->oldyoung_next;
+             nd->oldyoung_next = NIL;
+             nd = next;
+             num_cleaned++;
+        }
+    }
+    oldyoungs_dirty = FALSE;
+
+#ifdef GC_DEBUG
+    fprintf(DEBUGSTREAM, "oldyoungs %ld + ", num_cleaned); fflush(DEBUGSTREAM);
+#endif
+
 }
 
 /* setcar/cdr/object should be called only when the new pointee is really
@@ -214,10 +266,17 @@ void setcdr(NODE *nd, NODE *newcdr) {
 #pragma optimize("",off)
 #endif
 
+
+
 void do_gc(BOOLEAN full) {
+#if 1
+    jmp_buf env;
+    setjmp(env);
+#else
     register NODE *pa, *pb, *pc, *pd, *pe;	/* get registers onto stack */
     register int aa, bb, cc, dd, ee;
-    
+#endif
+
     int_during_gc = 0;
     inside_gc++;
     gc(full);
@@ -293,22 +352,22 @@ NODE **inter_gen_mark (NODE **prev) {
 	case OBJECT:
 	case METHOD:
 #endif
-	    if (valid_pointer(nd->n_car))
+	    if (VALID_PTR(nd->n_car))
 		mmark(nd->n_car);
-	    if (valid_pointer(nd->n_obj))
+	    if (VALID_PTR(nd->n_obj))
 		mmark(nd->n_obj);
 	case CONT:
-	    if (valid_pointer(nd->n_cdr))
+	    if (VALID_PTR(nd->n_cdr))
 		mmark(nd->n_cdr);
 	    break;
 	case STACK:
-	    if (valid_pointer(nd->n_cdr))
+	    if (VALID_PTR(nd->n_cdr))
 		mmark(nd->n_cdr);
 	    array_ptr = (NODE **)car(nd);
 	    loop = num_saved_nodes;
 	    while (--loop >= 0) {
 		tmp_node = *array_ptr++;
-		if (valid_pointer(tmp_node))
+		if (VALID_PTR(tmp_node))
 		    mmark(tmp_node);
 	    }
 	    break;
@@ -317,18 +376,18 @@ NODE **inter_gen_mark (NODE **prev) {
 	    loop = getarrdim(nd);
 	    while (--loop >= 0) {
 		tmp_node = *array_ptr++;
-		if (valid_pointer(tmp_node))
+		if (VALID_PTR(tmp_node))
 		    mmark(tmp_node);
 	    }
 	    break;
     }
-#ifdef WHYDOESNTTHISWORK
+// #ifdef WHYDOESNTTHISWORK
     if (!got_young) {	/* nd no longer points to younger */
 	*prev = nd->oldyoung_next;
    	nd->oldyoung_next = NIL;
    	return prev;
     }
-#endif
+// #endif
     return &(nd->oldyoung_next);
 }
 
@@ -344,8 +403,7 @@ void gc_inc () {
 	gctop++;
     if (gctop == gcbottom) { /* gc STACK overflow */
 #ifdef GC_DEBUG
-	printf("\nAllocating new GC stack\n");
-	if (dribblestream != NULL) fprintf(dribblestream,"\nAllocating new GC stack\n");
+	fprintf(DEBUGSTREAM,"\nAllocating new GC stack\n"); fflush(DEBUGSTREAM);
 #endif
 	if ((new_gcstack = (NODE**) malloc ((size_t) sizeof(NODE *) *
 				(gc_stack_size + GCMAX))) == NULL) {
@@ -387,7 +445,7 @@ void mark(NODE* nd) {
     NODE** array_ptr;
 
     if (gc_overflow_flag == 1) return;
-    if (!valid_pointer(nd)) return; /* NIL pointer */
+    if (!VALID_PTR(nd)) return; /* NIL pointer */
     if (nd->my_gen > mark_gen_gc) return; /* I'm too old */
     if (nd->mark_gc == current_gc) return; /* I'm already marked */
 
@@ -396,7 +454,7 @@ void mark(NODE* nd) {
 
     while (gcbottom != gctop) {
 	nd = *gcbottom;
-	if ((valid_pointer(nd)) && (nd->my_gen <= mark_gen_gc) &&
+	if ((VALID_PTR(nd)) && (nd->my_gen <= mark_gen_gc) &&
 		(nd->mark_gc != current_gc)) {
 	    if (nd->mark_gc == -1) {
 		nd->mark_gc = 0;    /* this is a caseobj during gctwa */
@@ -480,7 +538,8 @@ void gc(BOOLEAN no_error) {
 	return;
     }
 
-    check_throwing;
+    if (check_throwing)
+        return;
 
     top_stack = &top;
 
@@ -506,8 +565,7 @@ re_mark:
     current_gc++;
 
 #ifdef GC_DEBUG
-    printf("gen = %d\n", gen_gc);
-    if (dribblestream != NULL) fprintf(dribblestream,"gen = %d\n", gen_gc);
+    fprintf(DEBUGSTREAM, "gen = %d\n", gen_gc); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 
@@ -515,7 +573,38 @@ re_mark:
 
     /* Check globals for NODE pointers */
 
+    mark(current_line);
+    mark(command_line);    //
+    mark(deepend_proc_name);
+
+    mark(Listvalue);
+    mark(Dotsvalue);
+    mark(Unbound);
+    mark(Not_Enough_Node);
+
+    mark(cnt_list);
+    mark(cnt_last);
+    mark(throw_node);
+    mark(err_mesg);
+    mark(var_stack);
+    mark(output_node);
+    mark(output_unode);
+    mark(last_call);
     mark(Regs_Node);
+    mark(eval_buttonact);       //
+    mark(file_list);
+    mark(reader_name);
+    mark(writer_name);
+    mark(file_prefix);
+    mark(save_name);
+    mark(the_generation);
+    mark(tree_dk_how);          //
+#ifdef OBJECTS
+    mark(logo_object);
+    mark(current_object);
+    mark(askexist);
+#endif
+
     mark(stack);
     mark(numstack);
     mark(expresn);
@@ -523,54 +612,32 @@ re_mark:
     mark(parm);
     mark(catch_tag);
     mark(arg);
-    mark(var_stack);
-    mark(last_call);
-    mark(output_node);
-    mark(output_unode);
 
-    mark(throw_node);
-    mark(err_mesg);
-    mark(current_line);
-
-/*
+    mark(proc);
+    mark(argl);
+    mark(unev);
     mark(fun);
     mark(ufun);
+    mark(var);
+    mark(vsp);
+    mark(qm_list);
+    mark(formals);
     mark(last_ufun);
     mark(this_line);
     mark(last_line);
-    mark(var);
+    mark(current_unode);
     mark(didnt_output_name);
     mark(didnt_get_output);
-    mark(qm_list);
- */
-
-    mark(file_list);
-    mark(reader_name);
-    mark(writer_name);
-    mark(file_prefix);
-    mark(save_name);
-
-    mark(the_generation);
-    mark(Not_Enough_Node);
-    mark(Unbound);
-
-    mark(Listvalue);
-    mark(Dotsvalue);
-
-    mark(cnt_list);
-    mark(cnt_last);
-
-    mark(deepend_proc_name);
-
 #ifdef OBJECTS
-	mark(logo_object);
-	mark(current_object);
-	mark(askexist);
+    mark(usual_parent);
+    mark(usual_caller);
 #endif
 
+
+
+
 #ifdef GC_DEBUG
-    printf("globals %ld + ", num_examined);
-    if (dribblestream != NULL) fprintf(dribblestream,"globals %ld + ", num_examined);
+    fprintf(DEBUGSTREAM, "globals %ld + ", num_examined); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 
@@ -578,8 +645,7 @@ re_mark:
 	mark(hash_table[loop]);
 
 #ifdef GC_DEBUG
-    printf("oblist %ld + ", num_examined);
-    if (dribblestream != NULL) fprintf(dribblestream,"oblist %ld + ", num_examined);
+    fprintf(DEBUGSTREAM, "oblist %ld + ", num_examined); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 
@@ -612,18 +678,20 @@ re_mark:
     }
 
 #ifdef GC_DEBUG
-    printf("stack %ld + ", num_examined);
-    if (dribblestream != NULL) fprintf(dribblestream,"stack %ld + ", num_examined);
+    fprintf(DEBUGSTREAM, "stack %ld + ", num_examined); fflush(DEBUGSTREAM);
     num_examined = 0;
+    num_visited = 0;
 #endif
 
     /* check pointers from old generations to young */
-    for (prev = &oldyoungs; *prev != Unbound; prev = inter_gen_mark(prev)) ;
+    for (prev = &oldyoungs; *prev != Unbound; prev = inter_gen_mark(prev))
+#ifdef GC_DEBUG
+        num_visited++
+#endif
+        ;
 
 #ifdef GC_DEBUG
-    printf("inter_gen %ld marked\n", num_examined);
-    if (dribblestream != NULL)
-	fprintf(dribblestream,"inter_gen %ld marked\n", num_examined);
+    fprintf(DEBUGSTREAM, "inter_gen %ld marked %ld visited\n", num_examined, num_visited); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 
@@ -632,8 +700,7 @@ re_mark:
     if (gctwa) {
 
 #ifdef GC_DEBUG
-    printf("GCTWA: ");
-    if (dribblestream != NULL) fprintf(dribblestream,"GCTWA: ");
+    fprintf(DEBUGSTREAM, "GCTWA: "); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 	for (loop = 0; loop < HASH_LEN ; loop++) {
@@ -669,8 +736,7 @@ re_mark:
 	}
 
 #ifdef GC_DEBUG
-    printf("%ld collected\n", num_examined);
-    if (dribblestream != NULL) fprintf(dribblestream,"%ld collected\n", num_examined);
+    fprintf(DEBUGSTREAM, "%ld collected\n", num_examined); fflush(DEBUGSTREAM);
     num_examined = 0;
 #endif
 	gctwa = 0;
@@ -704,12 +770,15 @@ re_mark:
 			case OBJECT:
 			case METHOD:
 #endif
+                            clean_oldyoungs();
 			    check_oldyoung(nd, nd->n_car);
 			    check_oldyoung(nd, nd->n_obj);
 			case CONT:
+                            clean_oldyoungs();
 			    check_oldyoung(nd, nd->n_cdr);
 			    break;
 			case STACK:
+                            clean_oldyoungs();
 			    check_oldyoung(nd, nd->n_cdr);
 			    array_ptr = (NODE **)car(nd);
 			    i = num_saved_nodes;
@@ -719,6 +788,7 @@ re_mark:
 			    }
 			    break;
 			case ARRAY:
+                            clean_oldyoungs();
 			    array_ptr = getarrptr(nd);
 			    i = getarrdim(nd);
 			    while (--i >= 0) {
@@ -737,11 +807,15 @@ re_mark:
 		mem_nodes--;
          	*tmp_ptr = nd->next;
      		if (nd->oldyoung_next != NIL) {
+#ifdef GC_OPT
+                    oldyoungs_dirty = TRUE;
+#else
 		    for (prev = &oldyoungs; *prev != nd;
 			    prev = &((*prev)->oldyoung_next))
 		        ;
 		    *prev = nd->oldyoung_next;
 		    nd->oldyoung_next = NIL;
+#endif
 		}
         	switch (nodetype(nd)) {
 		    case ARRAY:
@@ -756,24 +830,22 @@ re_mark:
 			if (getstrhead(nd) != NULL &&
 				    decstrrefcnt(getstrhead(nd)) == 0)
 			    free(getstrhead(nd));
-			    break;
+			break;
 		}
 		settype (nd, NTFREE);
 	 	nd->next = free_list;
 	 	free_list = nd;
 	    }
 	}
+        clean_oldyoungs();
 #ifdef GC_DEBUG
-	printf("%ld + ", num_freed - freed_sofar);
-	if (dribblestream != NULL)
-	    fprintf(dribblestream,"%ld + ", num_freed - freed_sofar);
+	fprintf(DEBUGSTREAM, "%ld + ", num_freed - freed_sofar); fflush(DEBUGSTREAM);
 #endif
 	freed_sofar = num_freed;
     }
 
 #ifdef GC_DEBUG
-    printf("= %ld freed\n", num_freed);
-    if (dribblestream != NULL) fprintf(dribblestream,"= %ld freed\n", num_freed);
+    fprintf(DEBUGSTREAM, "= %ld freed\n", num_freed); fflush(DEBUGSTREAM);
 #endif
 
     if (num_freed > freed_threshold)
@@ -801,8 +873,7 @@ re_mark:
 
 #ifdef GC_DEBUG
 void prname(NODE *foo) {
-    ndprintf(stdout, "%s ", car(foo));
-    if (dribblestream != NULL) fprintf(dribblestream, "%s ", car(foo));
+    fprintf(DEBUGSTREAM, "%s ", (char*) car(foo)); fflush(DEBUGSTREAM);
 }
 #endif
 
