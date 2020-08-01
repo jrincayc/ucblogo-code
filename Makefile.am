@@ -84,8 +84,13 @@ EXTRA_DIST += mac-fontmod/include/wx/mac/carbon/fontdlg.h	\
  mac-fontmod/src/mac/carbon/bfontdlgosx.mm			\
  mac-fontmod/src/mac/carbon/fontdlg.cpp				\
  mac-fontmod/src/mac/carbon/fontdlgosx.mm
-
 # makehelp_SOURCES = makehelp.c
+
+# Make sure pdf built for distributions
+EXTRA_DIST += docs/ucblogo.pdf
+
+docs/ucblogo.pdf: docs/ucblogo.texi
+	cd docs && $(MAKE) ucblogo.pdf
 
 helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 
@@ -123,6 +128,6 @@ ucblogo.dmg : mac
 	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
 	cp -a UCBLogo.app /Volumes/UCBLogo/
-	cp docs/usermanual.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
+	cp docs/ucblogo.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
 	hdiutil detach /Volumes/UCBLogo/
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
