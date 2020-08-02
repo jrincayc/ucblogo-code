@@ -121,7 +121,7 @@ regenerate-help-index: makehelp usermanual
 
 all: regenerate-help-index
 
-mac: all
+mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	mkdir -p UCBLogo.app
 	mkdir -p UCBLogo.app/Contents
 	cp Info.plist UCBLogo.app/Contents/
@@ -135,7 +135,7 @@ mac: all
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
 
-ucblogo.dmg : mac
+ucblogo.dmg : mac docs/ucblogo.pdf
 	rm -f ucblogo.dmg ucblogo_base.dmg
 	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
