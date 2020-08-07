@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #endif /* WIN32 */
@@ -701,7 +705,7 @@ NODE *leofp(NODE *args) {
 
 NODE *lkeyp(NODE *args) {
 #if defined(unix) | defined(__WXMSW__)
-    long nc;
+    int nc;
 #endif
     int c;
 #ifdef WIN32

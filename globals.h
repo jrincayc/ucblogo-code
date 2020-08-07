@@ -32,14 +32,14 @@ extern void delayed_int(void);
 extern NODE *command_line;
 
 #if defined(SIG_TAKES_ARG)
-RETSIGTYPE logo_stop(int);
-RETSIGTYPE logo_pause(int);
-RETSIGTYPE mouse_down(int);
+void logo_stop(int);
+void logo_pause(int);
+void mouse_down(int);
 #define mouse_click mouse_down(0)
 #else
-RETSIGTYPE logo_stop(void);
-RETSIGTYPE logo_pause(void);
-RETSIGTYPE mouse_down(void);
+void logo_stop(void);
+void logo_pause(void);
+void mouse_down(void);
 #define mouse_click mouse_down()
 #endif
 

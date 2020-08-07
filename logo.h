@@ -22,6 +22,11 @@
 #ifndef _LOGO_H
 #define _LOGO_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+/* #define OBJECTS */
 
 /* #define MEM_DEBUG */
 
@@ -70,7 +75,6 @@
 #endif
 #else
 #define RETSIGTYPE void
-#define SIGRET 
 #ifndef STDC_HEADERS
 #define STDC_HEADERS
 #endif
@@ -104,7 +108,7 @@ extern char *getenv();
 #define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
-#define check_throwing (check_X11_stop() || stopping_flag == THROWING)
+#define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
 #endif

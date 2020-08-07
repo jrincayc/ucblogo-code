@@ -7,6 +7,10 @@
    this file.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifndef X_DISPLAY_MISSING
 
 #include <stdio.h>
@@ -23,15 +27,14 @@ int clearing_screen = 0;
 
 #ifdef SIG_TAKES_ARG
 #define sig_arg 0
-RETSIGTYPE x_win_resize(int sig)
+void x_win_resize(int sig)
 #else
 #define sig_arg 
-RETSIGTYPE x_win_resize()
+void x_win_resize()
 #endif
 {
     signal(SIGWINCH, x_win_resize);
     placate_x();
-    SIGRET
 }
 #endif	/* SIGWINCH */
 
