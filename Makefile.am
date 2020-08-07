@@ -24,12 +24,24 @@ if OBJECTS
 ucblogo_SOURCES += obj.c
 endif
 
+# The file git.c is a "built source" (see automake info page "Built
+# Sources Example"), a conditional source file, and should not be
+# included in distribution tarballs. It also may need to be
+# regenerated even if it seems up to date, since make cannot tell if a
+# git commit has occurred since git.c was generated. This is
+# accomplished by making it depend on a dummy phony target, which is
+# by definition never up to date. During regeneration, if git.c exists
+# it is replaced only if the new version differs, in order to avoid
+# unnecessary recompilation or linking.
 if GITID
-ucblogo_SOURCES += git.c
+nodist_ucblogo_SOURCES = git.c
 endif
-git.c:	$(SOURCES)
-	echo 'char* GIT = "('`git describe||echo NA|tr -d '\r'`')";' > git.c
-
+MOSTLYCLEANFILES = git.c
+.PHONY: FORCE
+FORCE:
+git.c: FORCE
+	echo 'char* GIT = "('`git describe --always||echo -n NA`')";' > git-c-temp
+	if cmp --quiet git-c-temp $@; then echo "$@ already up to date"; else echo "Refreshing $@"; mv git-c-temp $@; fi
 
 if WX
 # need C++ linker
@@ -45,6 +57,11 @@ else
 ucblogo_SOURCES += nographics.c
 endif
 endif
+
+# Desktop file, see https://freedesktop.org/wiki/Howto_desktop_files/
+
+desktopdir = $(datadir)/applications
+desktop_DATA = ucblogo.desktop
 
 # Include otherwise-skipped files in distribution tarball
 
@@ -109,7 +126,7 @@ regenerate-help-index: makehelp usermanual
 
 all: regenerate-help-index
 
-mac: all
+mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	mkdir -p UCBLogo.app
 	mkdir -p UCBLogo.app/Contents
 	cp Info.plist UCBLogo.app/Contents/
@@ -123,7 +140,7 @@ mac: all
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
 
-ucblogo.dmg : mac
+ucblogo.dmg : mac docs/ucblogo.pdf
 	rm -f ucblogo.dmg ucblogo_base.dmg
 	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
