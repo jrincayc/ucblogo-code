@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Berkeley Logo
+GenericName=UCBLogo
+Exec=ucblogo
+Icon=ucblogo
+Type=Application
+Categories=Education;Development;
+Keywords=Logo;Programming;

@@ -58,6 +58,11 @@ ucblogo_SOURCES += nographics.c
 endif
 endif
 
+# Desktop file, see https://freedesktop.org/wiki/Howto_desktop_files/
+
+desktopdir = $(datadir)/applications
+desktop_DATA = ucblogo.desktop
+
 # Include otherwise-skipped files in distribution tarball
 
 # #include files used in build
