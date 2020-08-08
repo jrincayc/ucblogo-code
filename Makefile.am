@@ -61,13 +61,14 @@ endif
 # Desktop file, see https://freedesktop.org/wiki/Howto_desktop_files/
 
 desktopdir = $(datadir)/applications
-desktop_DATA = ucblogo.desktop
+dist_desktop_DATA = ucblogo.desktop
 
 # Icons
+
 icons256dir = $(datadir)/icons/hicolor/256x256/apps
 pixmapsdir = $(datadir)/pixmaps
-icons256_DATA = ucblogo.png
-pixmaps_DATA = ucblogo.xpm
+dist_icons256_DATA = ucblogo.png
+dist_pixmaps_DATA = ucblogo.xpm
 
 # Include otherwise-skipped files in distribution tarball
 
