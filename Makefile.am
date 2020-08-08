@@ -63,6 +63,12 @@ endif
 desktopdir = $(datadir)/applications
 desktop_DATA = ucblogo.desktop
 
+# Icons
+icons256dir = $(datadir)/icons/hicolor/256x256/apps
+pixmapsdir = $(datadir)/pixmaps
+icons256_DATA = ucblogo.png
+pixmaps_DATA = ucblogo.xpm
+
 # Include otherwise-skipped files in distribution tarball
 
 # #include files used in build
@@ -79,7 +85,7 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
  gpl.html Info.plist kdbgrc.logo LICENSE logo.icns logo-Info.plist	\
  logologo.ico logologo.png logo_win.rc makefile.msys newtermnotes	\
  pbdevelopment.plist PkgInfo plm README.md ucblogo.bmp ucblogo.dsp	\
- ucblogo.dsw ucblogo.png ucblogo.xpm usermanual inno/ucblogo.iss
+ ucblogo.dsw usermanual inno/ucblogo.iss
 
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
