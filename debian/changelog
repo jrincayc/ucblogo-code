@@ -3,8 +3,9 @@ ucblogo (6.1-2) UNRELEASED; urgency=medium
   * track upstream changes
   * remove upstreamed quilt patches
   * take advantage of upstream build system improvements
+  * icons now installed by upstream build system
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sat, 01 Aug 2020 22:48:30 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 30 Sep 2020 12:36:46 +0100
 
 ucblogo (6.1-1) unstable; urgency=medium
 
