@@ -1961,7 +1961,7 @@ wxTerminal::GetChars(int x1, int y1, int x2, int y2)
 
   while(a.buf != b.buf) {
     //  size 10, offset 5,  copy 10-5=5 chars... yup
-    ret.Append((wxChar*)a.buf->cbuf+a.offset, WXTERM_CB_SIZE-a.offset);
+    ret.Append(wxString::FromAscii(a.buf->cbuf+a.offset, WXTERM_CB_SIZE-a.offset));
     if(a.buf->next) {
       a.offset = 0;
       a.buf = a.buf->next;
@@ -1971,7 +1971,7 @@ wxTerminal::GetChars(int x1, int y1, int x2, int y2)
       fprintf(stderr, "BAD (getchars)\n");
     }
   }
-  ret.Append((wxChar*)a.buf->cbuf+a.offset, b.offset - a.offset);
+  ret.Append(wxString::FromAscii(a.buf->cbuf+a.offset, b.offset - a.offset));
   return ret;
 }
 
