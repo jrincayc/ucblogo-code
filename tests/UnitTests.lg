@@ -115,3 +115,39 @@ LOAD "UnitTests-Predicates.lg
 LOAD "UnitTests-Random.lg
 LOAD "UnitTests-MemMgr.lg
 LOAD "UnitTests-OOP.lg
+
+
+;; Process any command line options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to ProcessCommandLineArgs :Args
+  IF EMPTY? :Args [ STOP ]
+  IF EQUAL? FIRST :Args "-x [
+    MAKE "RunAndExit "True
+    ProcessCommandLineArgs BUTFIRST :Args
+    STOP
+  ]
+  IF EQUAL? FIRST :Args "-f [
+    IFELSE NOT EMPTY? BUTFIRST :Args [
+      MAKE "OutputFilename FIRST BUTFIRST :Args
+      ProcessCommandLineArgs BUTFIRST BUTFIRST :Args
+      STOP
+    ] [
+      PRINT [not enough inputs to -f]
+      STOP
+    ]
+  ]
+  PRINT SENTENCE [I don't know how to] FIRST :Args
+  ProcessCommandLineArgs BUTFIRST :Args
+end
+
+ProcessCommandLineArgs :COMMAND.LINE
+
+IF NAME? "OutputFilename [
+  OPENWRITE :OutputFilename SETWRITE :OutputFilename
+]
+
+IF NAME? "RunAndExit [
+  RunAll
+  BYE
+]
