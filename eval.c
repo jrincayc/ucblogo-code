@@ -994,8 +994,11 @@ op_want_stop:
 		if (didnt_get_output == NIL || didnt_get_output == UNBOUND) {
 		/*  actually can happen: PRINT FOREACH ...
 		    will give didn't output message uplevel  */
-		} else
-		    err_logo(DIDNT_OUTPUT, NIL);
+                } else if (is_macro(fun)) {
+                    err_logo(ERR_MACRO, UNBOUND);
+                } else {
+                    err_logo(DIDNT_OUTPUT, NIL);
+                }
 	    }
 	} else {    /* show runresult [stop] inside a procedure */
 	    didnt_output_name = car(expresn);
