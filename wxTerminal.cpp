@@ -115,8 +115,6 @@ wxMenuBar* menuBar;
 
 extern "C" void wxTextScreen();
 
-char *fooargv[2] = {"UCBLogo", 0};
-
 // This is for stopping logo asynchronously
 #ifdef SIG_TAKES_ARG
 extern "C" void logo_stop(int);
@@ -130,6 +128,9 @@ int logo_pause_flag = 0;
 
 // this is a static reference to the main terminal
 wxTerminal *wxTerminal::terminal;
+
+// This is a static reference to the working directory
+wxString originalWorkingDir;
 
 
 // ----------------------------------------------------------------------------
@@ -182,6 +183,21 @@ enum
 	
 };
 
+
+// ----------------------------------------------------------------------------
+// misc functions
+// ----------------------------------------------------------------------------
+
+char *new_c_string_from_wx_string(wxString wxStr) {
+  char *cStr = (char *)malloc(sizeof(char) * (wxStr.length() + 1));
+
+  strncpy(cStr, (const char*)wxStr.mb_str(), wxStr.length());
+  cStr[wxStr.length()] = '\0';
+
+  return cStr;
+}
+
+
 // ----------------------------------------------------------------------------
 // LogoApplication class
 // ----------------------------------------------------------------------------
@@ -189,6 +205,8 @@ enum
 
 bool LogoApplication::OnInit()
 {
+  // capture the original working directory for any later relative file loads
+  originalWorkingDir = wxGetCwd();
 
   logoFrame = new LogoFrame
     (_T("Berkeley Logo"));
@@ -239,7 +257,23 @@ int LogoApplication::OnRun()
 
 #endif
 
-  start(1, fooargv);
+  // capture the command line arguments from wxWidgets for the interpreter
+  int argc = this->argc;
+  char **argv = (char **)malloc(sizeof(char *) * argc);
+
+  for(int i=0; i<argc; i++) {
+    argv[i] = new_c_string_from_wx_string(this->argv[i]);
+  }
+
+  // pass control to the interpreter
+  start(argc, argv);
+
+  // cleanup the captured command line arguments
+  for(int i=0; i<argc; i++) {
+    free(argv[i]);
+  }
+  free(argv);
+
   return 0;
 }
 
@@ -2731,3 +2765,15 @@ extern "C" void doClose() {
 }
 
 
+extern "C" char * wx_get_original_dir_name(void) {
+  return new_c_string_from_wx_string(originalWorkingDir);
+}
+
+extern "C" char * wx_get_current_dir_name(void) {
+  return new_c_string_from_wx_string(wxGetCwd());
+}
+
+extern "C" void wx_chdir(char *file_path) {
+  bool success = wxSetWorkingDirectory(wxString::FromAscii(file_path));
+  assert(success);
+}

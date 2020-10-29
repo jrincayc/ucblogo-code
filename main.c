@@ -215,6 +215,10 @@ void _far _cdecl do_ctrl_c(void) {
 #endif
 
 #ifdef HAVE_WX
+extern char * wx_get_original_dir_name(void);
+extern char * wx_get_current_dir_name(void);
+extern void wx_chdir(char *file_path);
+
 int wx_leave_mainloop = 0;
 int  start (int argc,char ** argv) {
 #else
@@ -294,11 +298,9 @@ int main(int argc, char *argv[]) {
 
     argv2 = argv; argc2 = argc;
 
-    if (!strcmp(*argv+strlen(*argv)-4, "logo")) {
-	argv++;
-	while (--argc > 0 && strcmp(*argv, "-") && NOT_THROWING) {
-	    argv++;
-	}
+    argv++;
+    while (--argc > 0 && strcmp(*argv, "-") && NOT_THROWING) {
+        argv++;
     }
 
     argv++;
@@ -319,12 +321,25 @@ int main(int argc, char *argv[]) {
 #else
     silent_load(Startuplg, NULL); /* load startup.lg */
 #endif
-    if (!strcmp(*argv2+strlen(*argv2)-4, "logo")) {
-	argv2++;
-	while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
-	    silent_load(NIL,*argv2++);
-	    }
+
+#ifdef HAVE_WX
+    char *current_wd = wx_get_current_dir_name();
+    char *original_wd = wx_get_original_dir_name();
+
+    wx_chdir(original_wd);
+#endif
+
+    argv2++;
+    while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
+        silent_load(NIL, *argv2++);
     }
+
+#ifdef HAVE_WX
+    wx_chdir(current_wd);
+
+    free(current_wd);
+    free(original_wd);
+#endif
 
     for (;;) {
 	if (NOT_THROWING) {
@@ -371,6 +386,8 @@ int main(int argc, char *argv[]) {
 	}
     }
     //prepare_to_exit(TRUE);
+#ifndef HAVE_WX
     exit(0);
+#endif
     return 0;
 }
