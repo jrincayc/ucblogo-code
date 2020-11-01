@@ -110,6 +110,7 @@ end
 LOAD "UnitTests-Arithmetic.lg
 LOAD "UnitTests-Bitwise.lg
 LOAD "UnitTests-Constructors.lg
+LOAD "UnitTests-Files.lg
 LOAD "UnitTests-Macros.lg
 LOAD "UnitTests-Predicates.lg
 LOAD "UnitTests-Random.lg
