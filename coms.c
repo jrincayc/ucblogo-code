@@ -24,7 +24,7 @@
 
 #ifdef HAVE_WX
 #define fgets wx_fgets
-extern int check_wx_stop(int force_yield);
+extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 
 #define WANT_EVAL_REGS 1

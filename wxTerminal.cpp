@@ -2647,7 +2647,7 @@ extern "C" void wx_enable_scrolling() {
 extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 
-extern "C" int check_wx_stop(int force_yield) {
+extern "C" int check_wx_stop(int force_yield, int pause_return_value) {
   logoEventManager->ProcessEvents(force_yield); 
 
   //give focus to terminal if text window shown
@@ -2676,7 +2676,7 @@ extern "C" int check_wx_stop(int force_yield) {
 #else
     logo_pause();
 #endif
-    return 0;
+    return pause_return_value;
   }
   return 0;
 }

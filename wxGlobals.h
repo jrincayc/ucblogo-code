@@ -89,7 +89,7 @@ extern wxMemoryDC *m_memDC;
 /* wxTextEdit */
 extern char * file; // using this is safe because the other thread is sleeping
 					// and it stack is also asleep
-extern "C" int check_wx_stop(int force_yield);
+extern "C" int check_wx_stop(int force_yield, int pause_return_value);
 extern "C" int internal_check();
 
 #define wxdprintf if (wx_Debugging) printf

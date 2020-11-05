@@ -68,7 +68,7 @@ extern int getch(void);
 #endif
 #define getc getFromWX_2
 #define getch getFromWX
-extern int check_wx_stop(int force_yield);
+extern int check_wx_stop(int force_yield, int pause_return_value);
 extern void wx_enable_scrolling();
 extern void wx_refresh();
 #endif

@@ -99,7 +99,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     return;
   }
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
-    if(check_wx_stop(1) || eval_buttonact) {  //force yielding
+    if(check_wx_stop(1, 0) || eval_buttonact) {  //force yielding
       break;
     }
     wx_refresh();
@@ -164,7 +164,7 @@ extern "C" char getFromWX_2(FILE * f)
       wxdprintf("after wxMain calling refresh()");	  
     }
     // Do this while the lock is released just in case the longjump occurs
-    if (check_wx_stop(1)) {   // force yield (1)
+    if (check_wx_stop(1, 1)) {   // force yield (1)
       putReturn = 1;
     }
     flushFile(stdout);
