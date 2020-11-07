@@ -304,9 +304,8 @@ void TurtleCanvas::OnSize(wxSizeEvent& event) {
   setInfo(SCREEN_HEIGHT, screen_height);
 
 #if USE_MEMDC  
-  m_memDC->SetDeviceOrigin( (m_w - screen_width)/2, 
-			    (m_h - screen_height)/2 );
-  
+  m_memDC->SetDeviceOrigin(m_w/2 - screen_width/2,
+                           m_h/2 - screen_height/2);
 #endif
 
   wxClientDC dc(this);
