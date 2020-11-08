@@ -404,7 +404,7 @@ LogoFrame::LogoFrame (const wxChar *title,
 		wxEXPAND |    // make horizontally stretchable
 		wxALL,        //   and make border all around
 		2 ); 
-     
+  topsizer->Layout();
 
   topsizer->Show(wxTerminal::terminal, 1);
   topsizer->Show(turtleGraphics, 0);
