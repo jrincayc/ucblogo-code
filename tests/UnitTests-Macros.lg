@@ -1,0 +1,94 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;            Macro Unit Tests            ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Macros] [Tests.Macro.Setup]
+
+
+
+;; The list of all Macro unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Macro [
+  ;list tests here
+  Tests.Macro.OutputStopWorksAsExpected
+  Tests.Macro.PlainStopErrorsAsExpected
+  Tests.Macro.FunctionStopErrorsAsExpected
+]
+
+;; Test Suite setup procedure, main entry
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Macro.Setup
+  RunTests :Tests.Macro
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.MACRO Tests.Macro._OutputStopMacro
+  OUTPUT [ STOP ]
+END
+
+TO Tests.Macro._CallOutputStop
+  Tests.Macro._OutputStopMacro
+  OUTPUT 1
+END
+
+.MACRO Tests.Macro._PlainStopMacro
+  STOP
+END
+
+TO Tests.Macro._StopFunction
+  STOP
+END
+
+TO Tests.Macro._CallStopFunction
+  OUTPUT Tests.Macro._StopFunction
+END
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+TO Tests.Macro.OutputStopWorksAsExpected
+  LOCALMAKE "result RUNRESULT [ Tests.Macro._CallOutputStop ]
+
+  OUTPUT EMPTY? :result
+END
+
+TO Tests.Macro.PlainStopErrorsAsExpected
+  CATCH "Error [ Tests.Macro._PlainStopMacro ]
+  LOCALMAKE "err ERROR
+
+  ; Message 29 is "Macro returned %s instead of a list"
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 29])
+END
+
+
+;; Not strictly a macro test; but, the functionality to handle this error
+;; is closely related to the functionality to catch a macro directly
+;; calling stop
+
+TO Tests.Macro.FunctionStopErrorsAsExpected
+  CATCH "Error [ Tests.Macro._CallStopFunction ]
+  LOCALMAKE "err ERROR
+
+  ; Message 5 is "%p didn't output to %p"
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 5])
+END
