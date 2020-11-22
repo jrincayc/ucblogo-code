@@ -99,7 +99,7 @@ extern char *getenv();
 
 #ifdef HAVE_WX
 #undef ibm
-#define check_throwing (check_wx_stop(0) || stopping_flag == THROWING)
+#define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
 #else
 #ifdef mac
 #define check_throwing (check_mac_stop() || stopping_flag == THROWING)

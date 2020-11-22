@@ -493,7 +493,7 @@ void TurtleCanvas::editCall(){
   editWindow->Load(wxString(file,wxConvUTF8));
   //need to busy wait and handle events...
   while(editor_active) {
-    if(check_wx_stop(1))
+    if(check_wx_stop(1, 0))
       break; 
     wxMilliSleep(10);
   }

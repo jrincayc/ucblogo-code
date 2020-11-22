@@ -22,7 +22,7 @@
 #ifdef HAVE_WX
 extern int start(int, char **);
 extern int wx_leave_mainloop;
-extern int check_wx_stop(int force_yield);
+extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
