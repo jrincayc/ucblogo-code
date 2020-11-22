@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: >
+        sudo apt-get install
+        autoconf-archive
+        libwxgtk3.0-dev
+    - name: Build Logo
+      run: |
+        autoreconf --install
+        ./configure --enable-objects --enable-gitid --disable-docs
+        make
+    - name: Run Tests
+      timeout-minutes: 2
+      env:
+        LOGOLIB: ${{ github.workspace }}/logolib
+      working-directory: tests
+      run: >
+        xvfb-run
+        -e /dev/stdout
+        --auto-servernum
+        $GITHUB_WORKSPACE/ucblogo UnitTests.lg
+        -
+        -f $GITHUB_WORKSPACE/logo-unit-test-results.txt
+        -x
+    - name: Grade Tests
+      # Add an error annotation to the job for each test that failed or had an error.
+      # Fail the step (and job) if any tests failed or had an error.
+      run: |
+        awk '/\.\.\./ && ! /Ok$/{print "::error::"$0}' logo-unit-test-results.txt
+        awk "/\.\.\./ && ! /Ok$/{exit 1}" logo-unit-test-results.txt	
+    - name: Archive Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: Logo Unit Test Results
+        path: logo-unit-test-results.txt
