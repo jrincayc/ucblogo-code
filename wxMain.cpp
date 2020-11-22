@@ -140,14 +140,14 @@ extern "C" void printToScreen(char c, FILE * stream)
 
 
 
-extern "C" char getFromWX_2(FILE * f) ;
+extern "C" int getFromWX_2(FILE * f);
 
-extern "C" char getFromWX() 
+extern "C" int getFromWX()
 { 
   return getFromWX_2(stdin);
 }
 
-extern "C" char getFromWX_2(FILE * f) 
+extern "C" int getFromWX_2(FILE * f)
 {
   int putReturn = 0;
  if (f != stdin) {
