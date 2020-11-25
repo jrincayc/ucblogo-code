@@ -2581,6 +2581,7 @@ be read, @code{FALSE} otherwise.
 
 @menu
 * KEYP::                        
+* LINEP::
 * CLEARTEXT::                   
 * SETCURSOR::                   
 * CURSOR::                      
@@ -2594,7 +2595,7 @@ be read, @code{FALSE} otherwise.
 @end menu
 
 
-@node  KEYP, CLEARTEXT, TERMINAL ACCESS, TERMINAL ACCESS
+@node  KEYP, LINEP, TERMINAL ACCESS, TERMINAL ACCESS
 @unnumberedsubsec keyp
 @cindex keyp
 @cindex key?
@@ -2615,6 +2616,23 @@ first @code{KEYP} invocation will always output @code{FALSE}.
 
 @xref{EOFP} ,
 @ref{READLIST}
+
+@node  LINEP, CLEARTEXT, KEYP, TERMINAL ACCESS
+@unnumberedsubsec linep
+@cindex linep
+@cindex line?
+
+@example
+LINEP
+LINE?
+@end example
+
+predicate, outputs @code{TRUE} if there is a line waiting to be read from
+the read stream.  If the read stream is a file, this is equivalent to
+@w{@t{NOT EOFP}}.  If the read stream is the terminal, then typed characters
+will be displayed and may be edited until @key{RET} is pressed.
+
+@xref{EOFP} .
 
 @node  CLEARTEXT, SETCURSOR, KEYP, TERMINAL ACCESS
 @unnumberedsubsec cleartext

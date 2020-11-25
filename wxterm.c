@@ -110,16 +110,24 @@ void term_init(void) {
   
 }
 
-
-
-void setCharMode(int);
+void setNormalInputMode();
+void setCharInputMode();
+void setLineInputMode();
 
 void charmode_on() {
-    setCharMode(1);
+    setCharInputMode();
 }
 
 void charmode_off() {
-  setCharMode(0);;
+    setNormalInputMode();
+}
+
+void linemode_on() {
+    setLineInputMode();
+}
+
+void linemode_off() {
+    setNormalInputMode();
 }
 
 char* wx_fgets(char* s, int n, FILE* stream) {
