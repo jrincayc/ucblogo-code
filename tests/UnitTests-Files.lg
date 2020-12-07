@@ -1,0 +1,132 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;           File Access Tests            ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Files] [Tests.File.Setup]
+
+
+
+;; The list of all File unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.File [
+  ;list tests here
+  Tests.File.WriteToCharBuffer
+  Tests.File.LegacyWriteToCharBuffer
+  Tests.File.InterleaveCharBufferWrites
+  Tests.File.OpenWriteCharBufferArgError
+  Tests.File.SetWriteCharBufferArgError
+]
+
+;; Test Suite setup procedure, main entry
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.File.Setup
+  RunTests :Tests.File
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; HELPERS, MISC                   ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                 ;;
+;; ADD INDIVIDUAL UNIT TESTS BELOW ;;
+;;                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all tests must return T/F indicating success/failure
+
+TO Tests.File.WriteToCharBuffer
+  LOCALMAKE "char.buffer [buffer 10]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  TYPE "01234
+  CLOSE :char.buffer
+  LOCALMAKE "short :buffer
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  TYPE "0123456789
+  CLOSE :char.buffer
+  LOCALMAKE "boundary :buffer
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  TYPE "0123456789ABCDEF
+  CLOSE :char.buffer
+  LOCALMAKE "long :buffer
+
+  SETWRITE :saved.writer
+
+  OUTPUT (AND [EQUAL? :short "01234]
+              [EQUAL? :boundary "0123456789]
+              [EQUAL? :long "0123456789])
+END
+
+TO Tests.File.LegacyWriteToCharBuffer
+  LOCALMAKE "char.buffer [buffer 10]
+  LOCALMAKE "saved.writer WRITER
+
+  SETWRITE :char.buffer
+  TYPE "hello
+  SETWRITE []
+
+  SETWRITE :saved.writer
+
+  OUTPUT EQUAL? :buffer "hello
+END
+
+TO Tests.File.InterleaveCharBufferWrites
+  LOCALMAKE "char.buffer.A [buffer.A 10]
+  LOCALMAKE "char.buffer.B [buffer.B 10]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer.A
+  OPENWRITE :char.buffer.B
+
+  SETWRITE :char.buffer.A
+  TYPE "he
+  SETWRITE :char.buffer.B
+  TYPE "wo
+  SETWRITE :char.buffer.A
+  TYPE "llo
+  SETWRITE :char.buffer.B
+  TYPE "rld
+
+  CLOSE :char.buffer.A
+  CLOSE :char.buffer.B
+
+  SETWRITE :saved.writer
+
+  OUTPUT (AND [EQUAL? :buffer.A "hello]
+              [EQUAL? :buffer.B "world])
+END
+
+TO Tests.File.OpenWriteCharBufferArgError
+  CATCH "Error [ OPENWRITE [SINGLEARG] ]
+  LOCALMAKE "err ERROR
+
+  ; Message 4 is "%p doesn't like %s as input"
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 4])
+END
+
+TO Tests.File.SetWriteCharBufferArgError
+  CATCH "Error [ SETWRITE [SINGLEARG] ]
+  LOCALMAKE "err ERROR
+
+  ; Message 4 is "%p doesn't like %s as input"
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 4])
+END

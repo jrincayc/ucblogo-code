@@ -157,11 +157,15 @@ FILE *open_file(NODE *arg, char *access) {
 	if (*access != 'w') {
 	    err_logo(BAD_DATA_UNREC, arg);
 	    return NULL;
+	} else if (cdr(arg) == NULL) {
+	    // No buffer size specified
+	    err_logo(BAD_DATA_UNREC, arg);
+	    return NULL;
 	} else {
 	    FIXNUM i = int_arg(cdr(arg));
 	    if (NOT_THROWING && i > 0 && cddr(arg) == NIL) {
-		char *tmp = (char *)malloc(i);
-		*tmp = '\0';
+		char *tmp = (char *)malloc(i + 1);
+		memset(tmp, '\0', i + 1);
 		return (FILE *)tmp;
 	    }
 	    err_logo(BAD_DATA_UNREC, car(arg));
@@ -247,9 +251,11 @@ NODE *lopen(NODE *arg, char *mode) {
     else if ((tmp = open_file(arg, mode)) != NULL) {
 	push(arg, file_list);
 	file_list->n_obj = (NODE *)tmp;
-    }
-    else
+    } else if (!is_list(arg)) {
+	// Normal variant (I.E. not print to string)
+	// Set an error message specific to actual files
 	err_logo(CANT_OPEN_ERROR, arg);
+    }
     return(UNBOUND);
 }
 
@@ -328,18 +334,27 @@ NODE *lsetwrite(NODE *arg) {
 	writestream = stdout;
 	writer_name = NIL;
     } else if (is_list(car(arg))) { /* print to string */
-	FIXNUM i = int_arg(cdar(arg));
-	if ((tmp = find_file(car(arg), FALSE)) != NULL) {
-	    writestream = NULL;
-	    writer_name = car(arg);
-	    print_stringptr = (char *)tmp + strlen((char *)tmp);
-	    print_stringlen = i - strlen((char *)tmp);
-	} else if (NOT_THROWING && i > 0 && cddr(car(arg)) == NIL) {
-	    writestream = NULL;
-	    writer_name = copy_list(car(arg));
-	    print_stringptr = write_buf = (char *)malloc(i);
-	    print_stringlen = i;
-	} else err_logo(BAD_DATA_UNREC, car(arg));
+        if (cdar(arg) == NULL) {
+            // No buffer size specified
+            err_logo(BAD_DATA_UNREC, car(arg));
+        } else {
+            FIXNUM i = int_arg(cdar(arg));
+
+            if ((tmp = find_file(car(arg), FALSE)) != NULL) {
+                writestream = NULL;
+                writer_name = car(arg);
+                print_stringptr = (char *)tmp + strlen((char *)tmp);
+                print_stringlen = (i + 1) - strlen((char *)tmp);
+            } else if (NOT_THROWING && i > 0 && cddr(car(arg)) == NIL) {
+                writestream = NULL;
+                writer_name = copy_list(car(arg));
+                print_stringptr = write_buf = (char *)malloc(i + 1);
+                memset(print_stringptr, '\0', i + 1);
+                print_stringlen = i + 1;
+            } else {
+                err_logo(BAD_DATA_UNREC, car(arg));
+            }
+        }
     } else if ((tmp = find_file(car(arg), FALSE)) != NULL) {
 	writestream = tmp;
 	writer_name = car(arg);
