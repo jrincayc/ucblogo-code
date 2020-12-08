@@ -784,8 +784,8 @@ NODE *llinep(NODE *args) {
 
         return(wxBuffContainsLine() ? TrueName() : FalseName());
 #else
-        // TODO: Handle non-wx terminals gracefully
-        return FalseName();
+        err_logo(NO_WXWIDGETS, NIL);
+        return UNBOUND;
 #endif /* HAVE_WX */
     }
 

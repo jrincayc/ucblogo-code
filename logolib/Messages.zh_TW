@@ -59,6 +59,7 @@ Variable name %s is defined both dynamically and in current object
 輸出
 找不到檔案: %t\n
 無法 KEYP，在這個系統上沒有 FIONREAD
+無法 %p，在這個系統上沒有 wxWidgets
 沒有足夠的記憶體
 我無法開啟那個檔案
 檔案已經開啟

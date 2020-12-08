@@ -59,6 +59,7 @@ stops
 outputs
 File not found: %t\n
 Can't KEYP, no FIONREAD on this system
+Can't %p, no wxWidgets on this system
 Not enough memory
 I can't open that file
 File already open
