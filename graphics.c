@@ -159,7 +159,12 @@ void draw_turtle(void) {
     int save_vis;
 
 #ifdef HAVE_WX
-    if (drawToPrinter) return;
+    // Support for XOR drawing in wxWidgets is currently platform
+    // dependent and likely to go away in the future.
+    // See: http://trac.wxwidgets.org/ticket/18050
+    //
+    // So, drawing the turtle is handled manually at the wx level.
+    return;
 #endif
 
     if (!turtle_shown) {

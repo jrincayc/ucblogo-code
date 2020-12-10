@@ -233,6 +233,8 @@ PRIMTYPE prims[] = {
     {"less?", 2, 2, 2, PREFIX_PRIORITY, llessp},
     {"lessequalp", 2, 2, 2, PREFIX_PRIORITY, llessequalp},
     {"lessequal?", 2, 2, 2, PREFIX_PRIORITY, llessequalp},
+    {"linep", 0, 0, 0, PREFIX_PRIORITY, llinep},
+    {"line?", 0, 0, 0, PREFIX_PRIORITY, llinep},
     {"list", 0, 2, -1, PREFIX_PRIORITY, llist},
     {"listp", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"listtoarray", 1, 1, 2, PREFIX_PRIORITY, llisttoarray},

@@ -187,6 +187,9 @@ NODE *err_logo(ERR_TYPES error_type, NODE *error_desc) {
 	case NO_TEST:
 	    err_mesg = cons_list(0, fun, END_OF_LIST);
 	    break;
+	case NO_WXWIDGETS:
+	    err_mesg = cons_list(0, fun, END_OF_LIST);
+	    break;
 	default:
 	    err_mesg = NIL;
     }

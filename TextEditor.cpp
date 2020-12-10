@@ -47,11 +47,6 @@ wxTextCtrl(f, a, s, p, sz, b)
 void TextEditor::SetFont(wxFont font){
 	this->font = font;
 	SetForegroundColour(TurtleCanvas::colors[wxTerminal::terminal->m_curFG]);
-#ifdef __WXMAC__                                                        
-	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, font));
-	if(this->IsShown()){
-		SetStyle(0,GetLastPosition(), wxTextAttr(wxNullColour,wxNullColour,font));
-#else
 	SetDefaultStyle(wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
 				   TurtleCanvas::colors[wxTerminal::terminal->m_curBG], font));
 	if(this->IsShown()){
@@ -60,18 +55,12 @@ void TextEditor::SetFont(wxFont font){
 				    TurtleCanvas::colors[wxTerminal::terminal->m_curBG],font));
     SetBackgroundColour(
 		TurtleCanvas::colors[wxTerminal::terminal->m_curBG]);
-#endif
 		Refresh();
 		Update();
 	}
 }
 
 void TextEditor::SetThisFont(wxCommandEvent& event) {
-#ifdef __WXMAC__                                                        
-	SetDefaultStyle(wxTextAttr(wxNullColour,wxNullColour, this->font));
-	if(this->IsShown()){
-		SetStyle(GetLastPosition()-1, GetLastPosition(), wxTextAttr(wxNullColour,wxNullColour,this->font));
-#else
 	SetDefaultStyle(wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
 				   TurtleCanvas::colors[wxTerminal::terminal->m_curBG], this->font));
 	if(this->IsShown()){
@@ -80,7 +69,6 @@ void TextEditor::SetThisFont(wxCommandEvent& event) {
 				    TurtleCanvas::colors[wxTerminal::terminal->m_curBG],this->font));
 	    SetBackgroundColour(
 			TurtleCanvas::colors[wxTerminal::terminal->m_curBG]);
-#endif
 		Refresh();
 		Update();
 		Refresh();

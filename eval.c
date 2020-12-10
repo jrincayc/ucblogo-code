@@ -716,7 +716,7 @@ compound_apply:
     check_ibm_stop();
 #endif
 #ifdef HAVE_WX
-    check_wx_stop(0);
+    check_wx_stop(0, 0);
 #endif
     if ((tracing = flag__caseobj(fun, PROC_TRACED))) {
 	for (i = 0; i < trace_level; i++) print_space(writestream);
@@ -994,8 +994,11 @@ op_want_stop:
 		if (didnt_get_output == NIL || didnt_get_output == UNBOUND) {
 		/*  actually can happen: PRINT FOREACH ...
 		    will give didn't output message uplevel  */
-		} else
-		    err_logo(DIDNT_OUTPUT, NIL);
+                } else if (is_macro(fun)) {
+                    err_logo(ERR_MACRO, UNBOUND);
+                } else {
+                    err_logo(DIDNT_OUTPUT, NIL);
+                }
 	    }
 	} else {    /* show runresult [stop] inside a procedure */
 	    didnt_output_name = car(expresn);

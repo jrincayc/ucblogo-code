@@ -99,7 +99,7 @@ extern "C" void wxLogoSleep(unsigned int milli) {
     return;
   }
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
-    if(check_wx_stop(1) || eval_buttonact) {  //force yielding
+    if(check_wx_stop(1, 0) || eval_buttonact) {  //force yielding
       break;
     }
     wx_refresh();
@@ -139,15 +139,40 @@ extern "C" void printToScreen(char c, FILE * stream)
 }
 
 
+extern "C" int wxBuffContainsLine() {
+  if (buff_push_index == buff_pop_index) {
+    return false;
+  } else if (buff_pop_index < buff_push_index) {
+    for (int i = buff_pop_index; i <= buff_push_index; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+  } else {
+    for (int i = 0; i <= buff_push_index; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+    for (int i = buff_pop_index; i < BUFF_LEN; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+  }
 
-extern "C" char getFromWX_2(FILE * f) ;
+  return false;
+}
 
-extern "C" char getFromWX() 
+
+extern "C" int getFromWX_2(FILE * f);
+
+extern "C" int getFromWX()
 { 
   return getFromWX_2(stdin);
 }
 
-extern "C" char getFromWX_2(FILE * f) 
+extern "C" int getFromWX_2(FILE * f)
 {
   int putReturn = 0;
  if (f != stdin) {
@@ -164,7 +189,7 @@ extern "C" char getFromWX_2(FILE * f)
       wxdprintf("after wxMain calling refresh()");	  
     }
     // Do this while the lock is released just in case the longjump occurs
-    if (check_wx_stop(1)) {   // force yield (1)
+    if (check_wx_stop(1, 1)) {   // force yield (1)
       putReturn = 1;
     }
     flushFile(stdout);

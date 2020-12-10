@@ -22,7 +22,7 @@
 #ifdef HAVE_WX
 extern int start(int, char **);
 extern int wx_leave_mainloop;
-extern int check_wx_stop(int force_yield);
+extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 extern NODE **bottom_stack; /*GC*/
 extern NODE *current_line, *exec_list;
@@ -381,6 +381,7 @@ extern NODE *lreadchar(NODE *);
 extern NODE *lreadchars(NODE *);
 extern NODE *leofp(NODE *);
 extern NODE *lkeyp(NODE *);
+extern NODE *llinep(NODE *);
 extern NODE *lreadpos(NODE *);
 extern NODE *lsetreadpos(NODE *);
 extern NODE *lwritepos(NODE *);
@@ -605,11 +606,12 @@ extern NODE *set_text_color(NODE *);
 extern void init_wx(int, char**);
 extern void printToScreen(char c, FILE * stream);
 extern void flushFile(FILE * stream);
-extern char getFromWX();
-extern char getFromWX_2(FILE * f);
+extern int getFromWX();
+extern int getFromWX_2(FILE * f);
 extern void wxLogoExit(int code);
 extern void wxLogoSleep(unsigned int milli);
 extern int wxUnget_c(int c, FILE * f);
+extern int wxBuffContainsLine();
 extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
