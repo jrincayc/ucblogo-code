@@ -90,8 +90,9 @@ char latest_history_buffer[MAXINBUFF];
 int latest_history_stored = 0;
 #endif
 
-// if logo is in character mode
-int logo_char_mode;
+// Input mode in logo
+enum LogoInputMode { LogoNormalInputMode, LogoCharInputMode, LogoLineInputMode };
+LogoInputMode logo_input_mode;
 extern "C" int reading_char_now;
 // the terminal DC
 wxFont old_font;
@@ -829,7 +830,7 @@ extern "C" void color_init(void);
 
 
   // start us out not in char mode
-  logo_char_mode = 0;
+  logo_input_mode = LogoNormalInputMode;
   // For printing the text
   htmlPrinter = 0;
   //  set_mode_flag(DESTRUCTBS);
@@ -1066,7 +1067,7 @@ void  wxTerminal::Flush (){
  */
 void wxTerminal::PassInputToInterp() {
   int i;  
-  if(logo_char_mode){
+  if (logo_input_mode == LogoCharInputMode) {
     //buff[buff_index++] = input_buffer[--input_index];
     buff_push(input_buffer[--input_index]);
     
@@ -1083,21 +1084,23 @@ void wxTerminal::PassInputToInterp() {
     int saw_newline = i;
 
     //so create a string of size i+1 and copy the contents over
-    char *histline = (char *)malloc(1+i);
-    for(i = 0; i < saw_newline; i++) {
-      histline[i] = input_buffer[i];
+    if (logo_input_mode == LogoNormalInputMode) {
+      char *histline = (char *)malloc(1+i);
+      for(i = 0; i < saw_newline; i++) {
+        histline[i] = input_buffer[i];
+      }
+      histline[saw_newline] = 0;
+      //put it in the history
+      *hist_inptr++ = histline;
+      if (hist_inptr >= &cmdHistory[HIST_MAX]) {  //wraparound
+        hist_inptr = cmdHistory;
+      }
+      if (*hist_inptr) {
+        free(*hist_inptr);
+        *hist_inptr = 0;
+      }
+      hist_outptr = hist_inptr;
     }
-    histline[saw_newline] = 0;
-    //put it in the history
-    *hist_inptr++ = histline;
-    if (hist_inptr >= &cmdHistory[HIST_MAX]) {  //wraparound
-      hist_inptr = cmdHistory;
-    }
-    if (*hist_inptr) { 
-      free(*hist_inptr);
-      *hist_inptr = 0;
-    }
-    hist_outptr = hist_inptr;
 
     for(i = saw_newline + 1; i < input_index; i++) {
       input_buffer[i - saw_newline - 1] = input_buffer[i];
@@ -1211,7 +1214,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
 
     do_keyact(keyCode);
   }
-  else if(logo_char_mode){
+  else if (logo_input_mode == LogoCharInputMode) {
     if (keyCode == WXK_RETURN) {
       keyCode = '\n';
     }
@@ -1258,7 +1261,7 @@ wxTerminal::OnChar(wxKeyEvent& event)
     m_inputReady = TRUE;
     m_inputLines++;
 
-    if(readingInstruction) {
+    if (readingInstruction || logo_input_mode == LogoLineInputMode) {
       setCursor(last_logo_x, last_logo_y);
       ProcessInput(); 
     }
@@ -2565,18 +2568,29 @@ wxTerminal::PrintChars(int len, char *data)
 // Functions called from the interpreter thread
 // ----------------------------------------------------------------------------
 
-extern "C" void setCharMode(int mode){
-	logo_char_mode = mode;
-	
-	//if turning charmode off, flush the
-	//buffer (not the input buffer, logo's buffer)
+void setInputMode(LogoInputMode new_logo_input_mode) {
+  // if turning charmode off, flush the
+  // buffer (not the input buffer, logo's buffer)
+  if (logo_input_mode == LogoCharInputMode && new_logo_input_mode != LogoCharInputMode) {
+    char tmp;
+    while(!buff_empty) {
+      buff_pop(tmp);
+    }
+  }
 
-	if(!logo_char_mode) {
-          char tmp;
-	  while(!buff_empty) {
-	    buff_pop(tmp);
-	  }
-        }
+  logo_input_mode = new_logo_input_mode;
+}
+
+extern "C" void setNormalInputMode() {
+  setInputMode(LogoNormalInputMode);
+}
+
+extern "C" void setCharInputMode() {
+  setInputMode(LogoCharInputMode);
+}
+
+extern "C" void setLineInputMode() {
+  setInputMode(LogoLineInputMode);
 }
 
 extern "C" void wxClearText() {

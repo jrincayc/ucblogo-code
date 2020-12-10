@@ -788,6 +788,31 @@ NODE *lkeyp(NODE *args) {
     }
 }
 
+NODE *llinep(NODE *args) {
+    int c;
+
+    if (readstream == stdin && interactive) {
+#ifdef HAVE_WX
+        linemode_on();
+        fflush(stdout);
+        fix_turtle_shownness();
+
+        return(wxBuffContainsLine() ? TrueName() : FalseName());
+#else
+        err_logo(NO_WXWIDGETS, NIL);
+        return UNBOUND;
+#endif /* HAVE_WX */
+    }
+
+    c = sysGetC(readstream);
+    if (feof(readstream)) {
+        return(FalseName());
+    } else {
+        sysUnGetC(c, readstream);
+        return(TrueName());
+    }
+}
+
 NODE *lreadpos(NODE *args) {
     return(make_intnode(ftell(readstream)));
 }

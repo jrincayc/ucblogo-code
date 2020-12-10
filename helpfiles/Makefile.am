@@ -16,7 +16,7 @@ dist_helpfiles_DATA = allopen allowgetset and apply arc arctan arity	\
  fullprintp fullscreen fulltext gc gensym global goto gprop		\
  greaterequalp greaterp heading help hideturtle home ht if ifelse iff	\
  iffalse ift iftrue ignore increasefont int invoke iseq item keyact	\
- keyp label labelsize last left lessequalp lessp list listp		\
+ keyp label labelsize last left lessequalp lessp linep list listp	\
  listtoarray ln load loadnoisily loadpict local localmake log10		\
  logoplatform logoversion lowercase lput lshift lt macroexpand macrop	\
  make map mapdse mdarray mditem mdsetitem member memberp minus modulo	\

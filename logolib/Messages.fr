@@ -59,6 +59,7 @@ arrête
 sort
 Fichier non trouvé: %t\n
 KEYP impossible, pas de FIONREAD sur ce système
+%p impossible, pas de wxWidgets sur ce système
 Mémoire insuffisante
 Impossible d'ouvrir ce fichier
 Fichier déjà ouvert

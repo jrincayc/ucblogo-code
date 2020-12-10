@@ -1,0 +1,8 @@
+LINEP
+LINE?
+
+	predicate, outputs TRUE if there is a line waiting to be
+	read from the read stream.  If the read stream is a file, this
+	is equivalent to NOT EOFP.  If the read stream is the terminal,
+	then typed characters will be displayed and may be edited until
+	the return key is pressed.

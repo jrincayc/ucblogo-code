@@ -139,6 +139,31 @@ extern "C" void printToScreen(char c, FILE * stream)
 }
 
 
+extern "C" int wxBuffContainsLine() {
+  if (buff_push_index == buff_pop_index) {
+    return false;
+  } else if (buff_pop_index < buff_push_index) {
+    for (int i = buff_pop_index; i <= buff_push_index; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+  } else {
+    for (int i = 0; i <= buff_push_index; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+    for (int i = buff_pop_index; i < BUFF_LEN; i++) {
+      if (buff[i] == '\n') {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 
 extern "C" int getFromWX_2(FILE * f);
 

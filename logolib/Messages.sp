@@ -59,6 +59,7 @@ se detuvo
 responde
 Archivo no encontrado: %t\n
 No se puede usar TECLAP, no hay FIONREAD en este sistema
+No se puede usar %p, no hay wxWidgets en este sistema
 No hay suficiente memoria
 No puedo abrir ese archivo
 Archivo ya está abierto
