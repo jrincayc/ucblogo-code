@@ -1,0 +1,379 @@
+name: CD
+
+on:
+  push:
+    branches:
+    - FEAT-CD
+
+jobs:
+  build_wxwidgets_linux:
+    name: Build wxWidgets for Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - name: wxWidgets Linux Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Install Dependencies
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      run: >
+        sudo apt-get install
+        libgtk-3-dev
+    - name: Build wxwidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      run: |
+        wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.tar.bz2
+        tar -xjf wxWidgets-3.0.5.tar.bz2
+        cd wxWidgets-3.0.5
+        mkdir build-static
+        cd build-static
+        ../configure --enable-debug --disable-shared
+        make -j2
+
+  build_wxwidgets_osx:
+    name: Build wxWidgets for OSX
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+    - name: wxWidgets OSX Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Build wxwidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      run: |
+        wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.tar.bz2
+        tar -xjf wxWidgets-3.0.5.tar.bz2
+        cd wxWidgets-3.0.5
+        mkdir build-static
+        cd build-static
+        ../configure --enable-debug --disable-shared --with-macosx-version-min=10.14
+        make -j2
+
+  build_wxwidgets_windows:
+    name: Build wxWidgets for Windows
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+    - name: Cache wxWidgets
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}\wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Setup MSYS2
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: >
+          make
+          mingw-w64-i686-gcc
+          unzip
+    - name: Download wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      shell: msys2 {0}
+      run: |
+        mkdir wxWidgets-3.0.5
+        cd wxWidgets-3.0.5
+        wget -q https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.zip
+        unzip -q wxWidgets-3.0.5.zip
+        rm wxWidgets-3.0.5.zip
+    - name: Configure wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}\wxWidgets-3.0.5
+      shell: msys2 {0}
+      env:
+        CFLAGS: -Os -Wno-narrowing
+        CXXFLAGS: -Os -Wno-narrowing
+      run: |
+        mkdir build-static
+        cd build-static
+        ../configure --enable-debug --disable-shared --with-msw --without-subdirs
+    - name: Build wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}\wxWidgets-3.0.5\build-static
+      shell: msys2 {0}
+      run: |
+        make -j2
+
+  download_inno_windows:
+    name: Download Inno for Windows
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+    - name: Cache inno
+      uses: actions/cache@v2
+      id: inno-cache
+      with:
+        path: ${{ runner.temp }}\innosetup-6.1.2
+        key: ${{ runner.os }}-innosetup-6.1.2
+    - name: Setup MSYS2
+      if: steps.inno-cache.outputs.cache-hit != 'true'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: >
+          unzip
+    - name: Download inno
+      if: steps.inno-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      shell: msys2 {0}
+      run: |
+        mkdir innosetup-6.1.2
+        cd innosetup-6.1.2
+        wget -q https://files.jrsoftware.org/is/6/innosetup-6.1.2.exe
+
+  build_linux:
+    name: Build Logo for Linux
+    needs: build_wxwidgets_linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: >
+        sudo apt-get install
+        autoconf-archive
+        libwxgtk3.0-dev
+        texlive
+        zip
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Build Logo for Linux
+      run: |
+        autoreconf --install
+        ./configure --enable-gitid --with-wx-config=${{ runner.temp }}/wxWidgets-3.0.5/build-static/wx-config
+        make -j2 dist
+        make -j2 dist-zip
+    - name: Archive ucblogo.tar.gz
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.tar.gz
+        path: >
+          *.tar.gz
+    - name: Archive ucblogo.zip
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.zip
+        path: >
+          *.zip
+    - name: Archive ucblogo.pdf
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs/ucblogo.pdf
+
+  build_osx:
+    name: Build Logo for OSX
+    needs: [ build_wxwidgets_osx, build_linux ]
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: >
+        brew install
+        autoconf-archive
+        automake
+        wxwidgets
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Download PDF manual
+      uses: actions/download-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Build Logo for OSX
+      run: |
+        autoreconf --install
+        ./configure --enable-gitid --with-wx-config=${{ runner.temp }}/wxWidgets-3.0.5/build-static/wx-config
+        make -j2 ucblogo.dmg
+    - name: Archive ucblogo.dmg
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.dmg
+        path: ucblogo.dmg
+
+  build_windows:
+    name: Build Logo for Windows
+    needs: [ download_inno_windows, build_wxwidgets_windows, build_linux ]
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: >
+          autoconf
+          autoconf-archive
+          automake
+          git
+          make
+          mingw-w64-i686-gcc
+          mingw-w64-i686-wxWidgets
+          zip
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}\wxWidgets-3.0.5
+        key: ${{ runner.os }}-wxWidgets-3.0.5
+    - name: Download PDF manual
+      uses: actions/download-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Build Logo
+      shell: msys2 {0}
+      env:
+        WX_CONFIG_FILE: ${{ runner.temp }}\wxWidgets-3.0.5\build-static\wx-config
+        CFLAGS: -Os
+        CXXFLAGS: -Os
+        LDFLAGS: -static
+      run: |
+        autoreconf --install
+        ./configure --enable-gitid --disable-docs --with-wx-config=$WX_CONFIG_FILE
+        make -j2
+        strip -s -R .comment -R .gnu.version --strip-unneeded ucblogo.exe
+    - name: Stage Inno Dist
+      shell: msys2 {0}
+      env:
+        BINDIR: /c/ucblogo/bin
+        LIBLOC: /c/ucblogo/lib/logo
+        MINGWBINDIR: /mingw32/bin
+      run: |
+        for d in $BINDIR $LIBLOC $LIBLOC/logolib $LIBLOC/helpfiles $LIBLOC/csls $LIBLOC/source; do [ -d $d ] || mkdir -p $d || exit 1; done
+        cp ucblogo.exe $BINDIR/ucblogo.exe
+        cp $MINGWBINDIR/libgcc_s_dw2-1.dll $MINGWBINDIR/libstdc++-6.dll $BINDIR/
+        cp -f logolib/* $LIBLOC/logolib/.
+        cp -f helpfiles/* $LIBLOC/helpfiles/.
+        cp -f csls/[a-z]* $LIBLOC/csls/.
+        cp -f LICENSE $LIBLOC/
+        cp -f README.md $LIBLOC/README.txt
+        cp -f *.[ch] makefile.msys ucblogo.xpm logo_win.rc logologo.ico $LIBLOC/source/
+        cp -f docs/ucblogo.pdf $LIBLOC/usermanual.pdf
+        find /c/ucblogo
+    - name: Inno Cache
+      uses: actions/cache@v2
+      id: inno-cache
+      with:
+        path: ${{ runner.temp }}\innosetup-6.1.2
+        key: ${{ runner.os }}-innosetup-6.1.2
+    - name: Install Inno
+      working-directory: ${{ runner.temp }}\innosetup-6.1.2
+      shell: pwsh
+      run: |
+        ./innosetup-6.1.2.exe /SP- /VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES
+    - name: Run Inno
+      working-directory: ${{ github.workspace }}\inno
+      shell: pwsh
+      run: |
+        iscc ucblogo.iss
+    - name: Archive installer
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogosetup.exe
+        path: inno/ucblogo61setup.exe
+
+  publish_dev_release:
+    name: Publish Development Release
+    needs: [ build_linux, build_osx, build_windows ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - name: Download Workflow Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        path: ./
+    - name: Find Versioned Artifacts
+      id: find-versioned-artifacts
+      # This attempts to hide the specifics of versions from the development release build
+      run: |
+        EXE_PATH=`find ucblogosetup.exe -type f -name 'ucblogo*setup.exe'`
+        echo "::set-output name=EXE_PATH::$EXE_PATH"
+        TAR_GZ_PATH=`find ucblogo.tar.gz -type f -name 'ucblogo*.tar.gz'`
+        echo "::set-output name=TAR_GZ_PATH::$TAR_GZ_PATH"
+        ZIP_PATH=`find ucblogo.zip -type f -name 'ucblogo*.zip'`
+        echo "::set-output name=ZIP_PATH::$ZIP_PATH"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: dev-latest
+        release_name: Development Build ${{ github.run_id }}
+        body: |
+          This is a development build of the UCB Logo programming language interpreter.
+          You are welcome to try it; but, it will be less stable than a versioned release.
+          Ref: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+        draft: false
+        prerelease: true
+    - name: Upload tar.gz
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.find-versioned-artifacts.outputs.TAR_GZ_PATH }}
+        asset_name: ucblogo-dev.tar.gz
+        asset_content_type: application/gzip
+    - name: Upload zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.find-versioned-artifacts.outputs.ZIP_PATH }}
+        asset_name: ucblogo-dev.zip
+        asset_content_type: application/zip
+    - name: Upload pdf
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ucblogo.pdf/ucblogo.pdf
+        asset_name: ucblogo_usermanual_dev.pdf
+        asset_content_type: application/pdf
+    - name: Upload dmg
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ucblogo.dmg/ucblogo.dmg
+        asset_name: UCBLogo-dev.dmg
+        asset_content_type: application/octet-stream
+    - name: Upload exe
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.find-versioned-artifacts.outputs.EXE_PATH }}
+        asset_name: ucblogo_dev_setup.exe
+        asset_content_type: application/octet-stream
