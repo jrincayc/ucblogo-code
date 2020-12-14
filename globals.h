@@ -428,6 +428,7 @@ extern int interactive;
 extern void term_init(void);
 extern void charmode_on(void);
 extern void charmode_off(void);
+extern void linemode_on(void);
 extern NODE *lcleartext(NODE *);
 extern NODE *lcursor(NODE *);
 extern NODE *lsetcursor(NODE *);
