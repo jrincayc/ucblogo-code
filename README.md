@@ -25,7 +25,7 @@ along with this program.  If not, see https://www.gnu.org/licenses/.
 
 This uses the repository https://github.com/jrincayc/ucblogo-code
 created for further UCBLogo development.
-The current version is 6.1
+The current version is 6.2
 
 Changes for this release:
 * The license has been changed to GPL3.
