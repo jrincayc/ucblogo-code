@@ -1,0 +1,294 @@
+name: CD
+
+on:
+  push:
+    branches:
+    - cd_*
+    - master
+    - release*
+
+env:
+  INNO_VERSION: 6.1.2
+  WX_WIDGETS_VERSION: 3.0.5
+
+jobs:
+
+  # ############################################################################
+  # The build_wxwidgets_<platform> jobs handle building and caching wxWidgets.
+  #
+  # This reduces total build time by a measurable amount, as wxWidgets can take
+  # over 30 minutes to build.
+  # ############################################################################
+
+  build_wxwidgets_linux:
+    name: Build wxWidgets for Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - name: Cache wxWidgets
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Install Dependencies
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      run: >
+        sudo apt-get install
+        libgtk-3-dev
+    - name: Download wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      run: |
+        wget https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WX_WIDGETS_VERSION }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
+        tar -xjf wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
+    - name: Build wxwidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        mkdir build-static
+        cd build-static
+        ../configure --disable-shared --enable-unicode
+        make -j2
+
+  build_wxwidgets_osx:
+    name: Build wxWidgets for OSX
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+    - name: Cache wxWidgets
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Download wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      run: |
+        wget https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WX_WIDGETS_VERSION }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
+        tar -xjf wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
+    - name: Build wxwidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        mkdir build-static
+        cd build-static
+        ../configure --disable-shared --enable-unicode --with-macosx-version-min=10.14
+        make -j2
+
+  build_wxwidgets_windows:
+    name: Build wxWidgets for Windows
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+    - name: Cache wxWidgets
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Install Dependencies
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: >
+          make
+          mingw-w64-i686-gcc
+          unzip
+    - name: Download wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      shell: msys2 {0}
+      run: |
+        mkdir wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        cd wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        wget -q https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WX_WIDGETS_VERSION }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}.zip
+        unzip -q wxWidgets-${{ env.WX_WIDGETS_VERSION }}.zip
+        rm wxWidgets-${{ env.WX_WIDGETS_VERSION }}.zip
+    - name: Build wxWidgets
+      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}\build\msw
+      shell: bash
+      # NOTE: using -j2 appears to cause problems on the MinGW builds
+      run: |
+        mingw32-make -f makefile.gcc SHARED=0 UNICODE=1 BUILD=release clean
+        mingw32-make -f makefile.gcc SHARED=0 UNICODE=1 BUILD=release
+
+  # ############################################################################
+  # The build_<platform> jobs handle building Logo for each platform.
+  #
+  # Linux is run first as it produces the PDF for the other platform builds
+  # to use.
+  # ############################################################################
+
+  build_linux:
+    name: Build Logo for Linux
+    needs: build_wxwidgets_linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Install Dependencies
+      run: >
+        sudo apt-get install
+        autoconf-archive
+        libwxgtk3.0-dev
+        texlive
+        zip
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Build Logo
+      env:
+        WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
+      run: |
+        autoreconf --install
+        ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
+        make -j2 dist
+        make -j2 dist-zip
+    - name: Archive ucblogo.tar.gz
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.tar.gz
+        path: >
+          *.tar.gz
+    - name: Archive ucblogo.zip
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.zip
+        path: >
+          *.zip
+    - name: Archive ucblogo.pdf
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs/ucblogo.pdf
+
+  build_osx:
+    name: Build Logo for OSX
+    needs: [ build_wxwidgets_osx, build_linux ]
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+    - name: Install Dependencies
+      run: >
+        brew install
+        autoconf-archive
+        automake
+        wxwidgets
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Download PDF manual
+      uses: actions/download-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Build Logo
+      env:
+        WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
+      run: |
+        autoreconf --install
+        ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
+        make -j2 ucblogo.dmg
+    - name: Archive ucblogo.dmg
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogo.dmg
+        path: ucblogo.dmg
+
+  download_inno_windows:
+    name: Download Inno for Windows
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+    - name: Cache inno
+      uses: actions/cache@v2
+      id: inno-cache
+      with:
+        path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
+        key: ${{ runner.os }}-innosetup-${{ env.INNO_VERSION }}
+    - name: Install Dependencies
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+    - name: Download inno
+      if: steps.inno-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ runner.temp }}
+      shell: msys2 {0}
+      run: |
+        mkdir innosetup-${{ env.INNO_VERSION }}
+        cd innosetup-${{ env.INNO_VERSION }}
+        wget -q https://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
+
+  build_windows:
+    name: Build Logo for Windows
+    needs: [ download_inno_windows, build_wxwidgets_windows, build_linux ]
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+    - name: Install Dependencies
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: >
+          make
+          mingw-w64-i686-gcc
+    - name: Inno Cache
+      uses: actions/cache@v2
+      id: inno-cache
+      with:
+        path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
+        key: ${{ runner.os }}-innosetup-${{ env.INNO_VERSION }}
+    - name: Install Inno
+      working-directory: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
+      shell: pwsh
+      run: |
+        ./innosetup-${{ env.INNO_VERSION }}.exe /SP- /VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES
+    - name: wxWidgets Cache
+      uses: actions/cache@v2
+      id: wxwidgets-cache
+      with:
+        path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Prepare Repository
+      shell: bash
+      run: |
+        git clean -x -d -f .
+        mingw32-make -f makefile.msys git.c
+        rm libloc.c
+    - name: Download PDF manual
+      uses: actions/download-artifact@v2
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Build Logo
+      shell: bash
+      env:
+        MINGW_BIN_DIR: D:\a\_temp\msys\msys64\mingw32\bin
+        WX_DIR: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        mingw32-make -f makefile.msys MINGW_BIN_DIR=$MINGW_BIN_DIR WX_DIR=$WX_DIR install_win
+    - name: Run Inno
+      working-directory: ${{ github.workspace }}\inno
+      shell: bash
+      run: |
+        iscc ucblogo.iss
+    - name: Archive installer
+      uses: actions/upload-artifact@v2
+      with:
+        name: ucblogosetup.exe
+        path: inno/ucblogo62setup.exe

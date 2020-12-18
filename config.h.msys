@@ -1,1 +1,2 @@
 #define RETSIGTYPE void
+#define VERSION "6.2pre"
