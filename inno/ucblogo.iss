@@ -3,13 +3,13 @@
 
 [Setup]
 AppName=Berkeley Logo
-AppVerName=Berkeley Logo 6.1
-AppVersion=6.1
+AppVerName=Berkeley Logo 6.2
+AppVersion=6.2
 AppPublisher=University of California, Berkeley
 AppPublisherURL=http://www.cs.berkeley.edu/~bh/logo.html
 AppSupportURL=https://github.com/jrincayc/ucblogo-code/issues
 AppUpdatesURL=https://github.com/jrincayc/ucblogo-code/releases
-OutputBaseFilename=ucblogo61setup
+OutputBaseFilename=ucblogo62setup
 OutputDir=.
 DefaultDirName={autopf}\UCBLogo
 DefaultGroupName=Berkeley Logo
