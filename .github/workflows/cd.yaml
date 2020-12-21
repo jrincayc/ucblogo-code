@@ -20,37 +20,6 @@ jobs:
   # over 30 minutes to build.
   # ############################################################################
 
-  build_wxwidgets_linux:
-    name: Build wxWidgets for Linux
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-    - name: Cache wxWidgets
-      uses: actions/cache@v2
-      id: wxwidgets-cache
-      with:
-        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-    - name: Install Dependencies
-      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
-      run: >
-        sudo apt-get install
-        libgtk-3-dev
-    - name: Download wxWidgets
-      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
-      working-directory: ${{ runner.temp }}
-      run: |
-        wget https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WX_WIDGETS_VERSION }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
-        tar -xjf wxWidgets-${{ env.WX_WIDGETS_VERSION }}.tar.bz2
-    - name: Build wxwidgets
-      if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
-      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-      run: |
-        mkdir build-static
-        cd build-static
-        ../configure --disable-shared --enable-unicode
-        make -j2
-
   build_wxwidgets_osx:
     name: Build wxWidgets for OSX
     runs-on: macos-latest
@@ -94,8 +63,9 @@ jobs:
       with:
         msystem: MINGW32
         install: >
-          make
-          mingw-w64-i686-gcc
+          git
+          base-devel
+          mingw-w64-i686-toolchain
           unzip
     - name: Download wxWidgets
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
@@ -110,7 +80,12 @@ jobs:
     - name: Build wxWidgets
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
       working-directory: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}\build\msw
-      shell: bash
+      shell: msys2 {0}
+      env:
+        # NOTE: wxWidgets 3.1.x has a fix for the narrowing issue; but, this
+        # approach should work for now given with wxWidgets 3.0.x
+        CFLAGS: -Wno-narrowing
+        CXXFLAGS: -Wno-narrowing
       # NOTE: using -j2 appears to cause problems on the MinGW builds
       run: |
         mingw32-make -f makefile.gcc SHARED=0 UNICODE=1 BUILD=release clean
@@ -125,7 +100,6 @@ jobs:
 
   build_linux:
     name: Build Logo for Linux
-    needs: build_wxwidgets_linux
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -136,20 +110,14 @@ jobs:
         libwxgtk3.0-dev
         texlive
         zip
-    - name: wxWidgets Cache
-      uses: actions/cache@v2
-      id: wxwidgets-cache
-      with:
-        path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Build Logo
-      env:
-        WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
       run: |
         autoreconf --install
-        ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
+        ./configure --enable-gitid
         make -j2 dist
         make -j2 dist-zip
     - name: Archive ucblogo.tar.gz
@@ -190,6 +158,8 @@ jobs:
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Download PDF manual
       uses: actions/download-artifact@v2
       with:
@@ -243,8 +213,10 @@ jobs:
       with:
         msystem: MINGW32
         install: >
-          make
-          mingw-w64-i686-gcc
+          git
+          base-devel
+          mingw-w64-i686-toolchain
+          unzip
     - name: Inno Cache
       uses: actions/cache@v2
       id: inno-cache
@@ -264,8 +236,10 @@ jobs:
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Prepare Repository
-      shell: bash
+      shell: msys2 {0}
       run: |
         git clean -x -d -f .
         mingw32-make -f makefile.msys git.c
@@ -275,16 +249,19 @@ jobs:
       with:
         name: ucblogo.pdf
         path: docs
+    - name: Find MinGW bin directory
+      shell: msys2 {0}
+      run: |
+        echo "MINGW_BIN_DIR=`dirname $(command -v gcc)`" >> $GITHUB_ENV
     - name: Build Logo
-      shell: bash
+      shell: msys2 {0}
       env:
-        MINGW_BIN_DIR: D:\a\_temp\msys\msys64\mingw32\bin
         WX_DIR: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
       run: |
         mingw32-make -f makefile.msys MINGW_BIN_DIR=$MINGW_BIN_DIR WX_DIR=$WX_DIR install_win
     - name: Run Inno
       working-directory: ${{ github.workspace }}\inno
-      shell: bash
+      shell: pwsh
       run: |
         iscc ucblogo.iss
     - name: Archive installer
