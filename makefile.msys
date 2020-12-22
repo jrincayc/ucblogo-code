@@ -1,10 +1,12 @@
 CC	= gcc
-CFLAGS	= -g -O -DHAVE_WX    -DX_DISPLAY_MISSING -O0
+CFLAGS	= -g -O -DHAVE_CONFIG_H -DHAVE_WX -DX_DISPLAY_MISSING -O0
 CXX     = g++
-CXXFLAGS =  -DHAVE_WX -I$(HOME)/wxWidgets-3.0.4/include -I$(HOME)/wxWidgets-3.0.4/lib/gcc_lib/mswu -D__WXDEBUG__ -D__WXMSW__ -mthreads
-LDFLAGS	=   -mwindows
-WX_LIB_LOC = $(HOME)/wxWidgets-3.0.4/lib/gcc_lib/
-LIBS  =   -lm  -L/usr/local/lib  -mwindows -mthreads  -mwindows -Wl,--subsystem,windows -mwindows -L$(WX_LIB_LOC)  -lwxmsw30u_richtext -lwxmsw30u_aui -lwxmsw30u_html -lwxmsw30u_adv -lwxmsw30u_core -lwxbase30u_net -lwxbase30u  -lwxregexu -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32 -lwsock32 -lgdi32
+MINGW_BIN_DIR = /mingw/bin
+WX_DIR = $(HOME)/wxWidgets-3.0.4
+CXXFLAGS =  -DHAVE_CONFIG_H -DHAVE_WX -I$(WX_DIR)/include -I$(WX_DIR)/lib/gcc_lib/mswu -D__WXDEBUG__ -D__WXMSW__ -mthreads
+LDFLAGS	=   -mwindows 
+WX_LIB_LOC = $(WX_DIR)/lib/gcc_lib/
+LIBS  =   -lm  -L/usr/local/lib  -mwindows -mthreads  -mwindows -Wl,--subsystem,windows -mwindows -L$(WX_LIB_LOC)  -lwxmsw30u_richtext -lwxmsw30u_aui -lwxmsw30u_html -lwxmsw30u_adv -lwxmsw30u_core -lwxbase30u_net -lwxbase30u  -lwxregexu -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 -lcomctl32 -lcomdlg32 -ladvapi32 -lwsock32 -lgdi32
 prefix = /c/ucblogo
 BINDIR        = $(prefix)/bin
 LIBLOC        = $(prefix)/lib/logo
@@ -48,11 +50,6 @@ libloc.c:
 	echo 'char *temploc="/tmp";' >> libloc.c
 	echo 'char *separator="/";' >> libloc.c
 
-logolib/Messages:	makelib Messages
-	chmod +x makelib
-	./makelib
-	cp -f Messages logolib
-
 helpfiles:
 	mkdir helpfiles
 
@@ -76,14 +73,14 @@ ship:
 install_win: all
 	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls $(LIBLOC)/source; do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp logo.exe $(BINDIR)/ucblogo.exe
-	cp /mingw/bin/libgcc_s_dw2-1.dll /mingw/bin/libstdc++-6.dll $(BINDIR)/
+	cp $(MINGW_BIN_DIR)/libgcc_s_dw2-1.dll $(MINGW_BIN_DIR)/libstdc++-6.dll $(MINGW_BIN_DIR)/libwinpthread-1.dll $(BINDIR)/
 	cp -f logolib/* $(LIBLOC)/logolib/.
 	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
 	cp -f csls/* $(LIBLOC)/csls/.
 	cp -f LICENSE $(LIBLOC)/
 	cp -f README.md $(LIBLOC)/README.txt
-	cp -f *.[ch]* makefile.msys ucblogo.xpm logo_win.rc logologo.ico makelib Messages docs/usermanual.texi $(LIBLOC)/source/
-	cp -f docs/usermanual.pdf $(LIBLOC)/
+	cp -f *.[ch]* makefile.msys ucblogo.xpm logo_win.rc logologo.ico docs/ucblogo.texi $(LIBLOC)/source/
+	cp -f docs/ucblogo.pdf $(LIBLOC)/
 	#(cd docs; prefix=$(prefix) LIBLOC=$(LIBLOC) BINDIR=$(BINDIR) $(MAKE) install)
 #	prefix=$(prefix); LIBLOC=$(LIBLOC); BINDIR=$(BINDIR); export prefix LIBLOC BINDIR; cd emacs; $(MAKE) install
 
