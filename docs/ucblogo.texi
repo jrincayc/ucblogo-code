@@ -1488,7 +1488,7 @@ in this manual.  So workspace operations such as @code{pots} or
 object.
 
 The initial current object is called @code{logo}; there is an operation
-that outputs that object.  Every object has one or more @var{parents,}
+that outputs that object.  Every object has one or more @var{parents},
 and ultimately the parent of the parent... of an object has to be
 @code{logo}.  The primitive procedures in this manual belong to the
 @code{logo} object, as do global variables.
@@ -1526,7 +1526,7 @@ desired program behavior before they start writing code.  But
 prototyping OOP is the right thing for tinkering, for having a glimmer
 of an idea and playing around with it without a rigid specification.
 So, you want to have dogs in your program.  You start by @var{building a
-dog,} one you can see on the screen as you invent behaviors such as
+dog}, one you can see on the screen as you invent behaviors such as
 @code{roll.over} and @code{wag.tail}.  Then you make a bunch of objects
 with that dog as their parent, using that dog as a prototype.  But the
 prototype dog is still a particular dog, with a particular position,
@@ -1552,6 +1552,11 @@ prototyping OOP language.
 @node    OBJECT CONSTRUCTORS, OBJECT MUTATORS, OBJECTS, OBJECTS
 @section Constructors
 
+@menu
+* KINDOF::
+* SOMETHING::
+* ONEOF::
+@end menu
 
 @node  KINDOF, SOMETHING, OBJECT CONSTRUCTORS, OBJECT CONSTRUCTORS
 @unnumberedsubsec kindof
@@ -2634,7 +2639,7 @@ will be displayed and may be edited until @key{RET} is pressed.
 
 @xref{EOFP} .
 
-@node  CLEARTEXT, SETCURSOR, KEYP, TERMINAL ACCESS
+@node  CLEARTEXT, SETCURSOR, LINEP, TERMINAL ACCESS
 @unnumberedsubsec cleartext
 @cindex cleartext
 @cindex ct
