@@ -28,10 +28,9 @@ created for further UCBLogo development.
 The current version is 6.2
 
 Changes for this release:
-* The license has been changed to GPL3.
-* The wxWidgets version updated to compile and run with version 3.0.
-* Adjustments made to compile and run on newer OSX versions.
-* Variety fixes like fixing implicit function definitions, fixing a line cursor behaviour, etc.
+* Added optional object oriented LOGO features ( --enable-objects )
+* autoconf based build system
+* Variety of bug fixes
 
 Here is an overview of the repository:
 * csls - Programs form [Brian Harvey's trilogy "Computer Science Logo Style"](https://people.eecs.berkeley.edu/~bh/).
@@ -50,12 +49,18 @@ respective web sites.
 
 ## Usage
 
-To build Logo under *nix, do this:
+To build Logo under *nix, install wxWidgets and other dependencies
+and then do this:
 ```
 	autoreconf --install
 	./configure
 	make
 ```
+
+Note that if you don't have autoconf, the release .tar.gz have already built
+configure files.
+
+[UCBLogo Releases](https://github.com/jrincayc/ucblogo-code/releases)
 
 ## Previous versions
 
