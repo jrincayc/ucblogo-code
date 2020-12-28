@@ -2,9 +2,9 @@ CC	= gcc
 CFLAGS	= -g -O -DHAVE_CONFIG_H -DHAVE_WX -DX_DISPLAY_MISSING -O0
 CXX     = g++
 MINGW_BIN_DIR = /mingw/bin
-WX_DIR = $(HOME)/wxWidgets-3.0.4
+WX_DIR = $(HOME)/wxWidgets-3.0.5
 CXXFLAGS =  -DHAVE_CONFIG_H -DHAVE_WX -I$(WX_DIR)/include -I$(WX_DIR)/lib/gcc_lib/mswu -D__WXDEBUG__ -D__WXMSW__ -mthreads
-LDFLAGS	=   -mwindows 
+LDFLAGS	=   -mwindows
 WX_LIB_LOC = $(WX_DIR)/lib/gcc_lib/
 LIBS  =   -lm  -L/usr/local/lib  -mwindows -mthreads  -mwindows -Wl,--subsystem,windows -mwindows -L$(WX_LIB_LOC)  -lwxmsw30u_richtext -lwxmsw30u_aui -lwxmsw30u_html -lwxmsw30u_adv -lwxmsw30u_core -lwxbase30u_net -lwxbase30u  -lwxregexu -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 -lcomctl32 -lcomdlg32 -ladvapi32 -lwsock32 -lgdi32
 prefix = /c/ucblogo
@@ -24,7 +24,7 @@ SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c config.h \
 
 HDRS	= globals.h logo.h xgraphics.h
 
-all:	logo.exe logolib/Messages helpfiles helpfiles/HELPCONTENTS
+all:	logo.exe
 
 mem.o:	mem.c
 	$(CC) $(CFLAGS) -O0 -c mem.c
