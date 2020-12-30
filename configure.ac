@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.69])
-AC_INIT([ucblogo],[6.2pre],[],[],[https://github.com/jrincayc/ucblogo-code])
+AC_INIT([ucblogo],[6.2],[],[],[https://github.com/jrincayc/ucblogo-code])
 AC_CONFIG_SRCDIR([logodata.c])
 AC_CONFIG_HEADER(config.h)
 
