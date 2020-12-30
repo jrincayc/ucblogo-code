@@ -41,7 +41,7 @@ Source: "C:\UCBLOGO\lib\logo\HELPFILES\*.*"; DestDir: "{app}\HELPFILE"; CopyMode
 Source: "C:\UCBLOGO\lib\logo\LOGOLIB\*.*"; DestDir: "{app}\LOGOLIB"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\LICENSE"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\README.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
-Source: "C:\UCBLOGO\lib\logo\usermanual.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
+Source: "C:\UCBLOGO\lib\logo\ucblogo.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
 Source: "C:\UCBLOGO\lib\logo\SOURCE\*.*"; DestDir: "{app}\SOURCE"; CopyMode: alwaysoverwrite; Components: source
 
 [Icons]

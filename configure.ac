@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.69])
-AC_INIT([ucblogo],[6.1],[],[],[https://github.com/jrincayc/ucblogo-code])
+AC_INIT([ucblogo],[6.2],[],[],[https://github.com/jrincayc/ucblogo-code])
 AC_CONFIG_SRCDIR([logodata.c])
 AC_CONFIG_HEADER(config.h)
 
@@ -34,6 +34,7 @@ AS_IF([test x${enable_gitid} = xyes],
  [AC_DEFINE([GITID],[1],[enable gitid in version])])
 AM_CONDITIONAL([GITID], [test x${enable_gitid} = xyes])
 
+m4_ifdef([WX_CONFIG_CHECK], [
 WX_CONFIG_OPTIONS
 
 WX_CONFIG_CHECK([3.0.0], [wxWin=1])
@@ -48,6 +49,11 @@ AM_COND_IF([WX],
   CXXFLAGS="$WX_CXXFLAGS_ONLY $CXXFLAGS"
   CFLAGS="$WX_CFLAGS_ONLY $CFLAGS"
   LIBS="$WX_LIBS $LIBS"])
+  ], [
+  AC_MSG_NOTICE([No WX_CONFIG_CHECK available])
+  AM_CONDITIONAL([WX], [test 1 = 0])
+])
+
 
 AC_MSG_CHECKING([enable_x11])
 AC_ARG_ENABLE([x11],
