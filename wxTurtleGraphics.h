@@ -24,7 +24,7 @@ struct line {
 	short int x2;
 	short int y2;
 	short int pw;
-	unsigned char color;
+	short int color;
 	unsigned char pm;
 	int vis;
 };

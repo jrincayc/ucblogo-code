@@ -1097,10 +1097,14 @@ NODE *lsetpencolor(NODE *arg) {
 	if (is_list(car(arg))) {
 	    val = make_intnode(PEN_COLOR_OFFSET);
 	    lsetpalette(cons(val,arg));
-	} else
+	} else {
 	    val = pos_int_arg(arg);
-	set_pen_color(getint(val));
-	save_color();
+	}
+
+	if (NOT_THROWING) {
+	    set_pen_color(getint(val));
+	    save_color();
+	}
 	done_drawing;
     }
     return(UNBOUND);
@@ -1119,9 +1123,13 @@ NODE *lsetbackground(NODE *arg) {
 	if (is_list(car(arg))) {
 	    val = make_intnode(BACKGROUND_COLOR_OFFSET);
 	    lsetpalette(cons(val,arg));
-	} else
+	} else {
 	    val = pos_int_arg(arg);
-	set_back_ground(getint(val));
+	}
+
+	if (NOT_THROWING) {
+	    set_back_ground(getint(val));
+	}
 	done_drawing;
     }
     return(UNBOUND);
@@ -1483,7 +1491,7 @@ NODE *lfilled(NODE *args) {
     } else
 	val = pos_int_arg(args);
     done_drawing;
-    color = getint(val);
+    color = getint(val) % NUMCOLORS;
 
     old_refresh = refresh_p;
     refresh_p = 1;  /* have to save polygon to fill it */
