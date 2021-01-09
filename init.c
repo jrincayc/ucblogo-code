@@ -561,7 +561,9 @@ nosugar:
 	helpfiles = getenv("LOGOHELP");
 	csls = getenv("CSLS");
     }
+#ifndef HAVE_WX
     editor = getenv("EDITOR");
+#endif /* HAVE_WX */
 #ifdef WIN32
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software", 0,
 		     KEY_READ, &regKey1) == ERROR_SUCCESS) {
@@ -597,6 +599,7 @@ nosugar:
 			strcpy(csls, buf);
 		    }
 		}
+#ifndef HAVE_WX
 	/*	editor = getenv("EDITOR"); */
 		if (editor == NULL) {
 		    bufsiz=200;
@@ -606,6 +609,7 @@ nosugar:
 			strcpy(editor, buf);
 		    }
 		}
+#endif /* HAVE_WX */
 		RegCloseKey(regKey3);
 	    }
 	    RegCloseKey(regKey2);
@@ -646,6 +650,7 @@ nosugar:
 			strcpy(csls, buf);
 		    }
 		}
+#ifndef HAVE_WX
 	/*	editor = getenv("EDITOR"); */
 		if (editor == NULL) {
 		    bufsiz=200;
@@ -655,6 +660,7 @@ nosugar:
 			strcpy(editor, buf);
 		    }
 		}
+#endif /* HAVE_WX */
 		RegCloseKey(regKey3);
 	    }
 	    RegCloseKey(regKey2);
@@ -711,12 +717,16 @@ nosugar:
 		helpfiles = newhelp;
 #endif
 #endif
-	
+
+#ifdef HAVE_WX
+    if (editor == NULL) editor = "";
+#else
 #ifdef unix
     if (editor == NULL) editor = "emacs";
 #else
     if (editor == NULL) editor = "jove";
-#endif
+#endif /* unix */
+#endif /* HAVE_WX */
     editorname = strrchr(editor, (int)'/');
     if (editorname == NULL) editorname = strrchr(editor, (int)'\\');
 #ifdef WIN32
