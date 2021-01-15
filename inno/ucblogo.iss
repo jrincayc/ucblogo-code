@@ -3,13 +3,13 @@
 
 [Setup]
 AppName=Berkeley Logo
-AppVerName=Berkeley Logo 6.1
-AppVersion=6.1
+AppVerName=Berkeley Logo 6.2
+AppVersion=6.2
 AppPublisher=University of California, Berkeley
 AppPublisherURL=http://www.cs.berkeley.edu/~bh/logo.html
 AppSupportURL=https://github.com/jrincayc/ucblogo-code/issues
 AppUpdatesURL=https://github.com/jrincayc/ucblogo-code/releases
-OutputBaseFilename=ucblogo61setup
+OutputBaseFilename=ucblogo62setup
 OutputDir=.
 DefaultDirName={autopf}\UCBLogo
 DefaultGroupName=Berkeley Logo
@@ -41,7 +41,7 @@ Source: "C:\UCBLOGO\lib\logo\HELPFILES\*.*"; DestDir: "{app}\HELPFILE"; CopyMode
 Source: "C:\UCBLOGO\lib\logo\LOGOLIB\*.*"; DestDir: "{app}\LOGOLIB"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\LICENSE"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
 Source: "C:\UCBLOGO\lib\logo\README.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: program
-Source: "C:\UCBLOGO\lib\logo\usermanual.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
+Source: "C:\UCBLOGO\lib\logo\ucblogo.pdf"; DestDir: "{app}\DOCS"; CopyMode: alwaysoverwrite; Components: pdf
 Source: "C:\UCBLOGO\lib\logo\SOURCE\*.*"; DestDir: "{app}\SOURCE"; CopyMode: alwaysoverwrite; Components: source
 
 [Icons]

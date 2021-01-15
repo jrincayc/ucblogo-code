@@ -1,4 +1,4 @@
-; Spanish version of Berkeley Logo messages file 6.1
+; Spanish version of Berkeley Logo messages file 6.2
 ; Error messages -- position in this file corresponds to error number
 ; Lines starting with semicolon don't count in the line numbering
 ;  and may be added at will.
