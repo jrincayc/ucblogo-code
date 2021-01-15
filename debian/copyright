@@ -9,7 +9,7 @@ Copyright: 1993-2008 Regents of the University of California
            Brian Harvey
            Michael Katz
            Douglas Orleans
-License: GPL-2+
+License: GPL-3+
 
 Files: debian/*
 Copyright: 1996 Dale Scheetz <dwarf@polaris.net>
@@ -31,3 +31,17 @@ License: GPL-2+
  .
  On Debian systems, the complete text of the GNU General
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3, or (at your option)
+ any later version.
+ .
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
