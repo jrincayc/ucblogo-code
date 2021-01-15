@@ -1,11 +1,14 @@
-ucblogo (6.1-2) UNRELEASED; urgency=medium
+ucblogo (6.2.1-1) unstable; urgency=medium
 
   * track upstream changes
   * remove upstreamed quilt patches
   * take advantage of upstream build system improvements
   * icons now installed by upstream build system
+  * new upstream release + subsequent bug fix
+  * bump policy
+  * license is now GPL-3+
 
- -- Barak A. Pearlmutter <bap@debian.org>  Wed, 30 Sep 2020 12:36:46 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 15 Jan 2021 17:55:48 +0000
 
 ucblogo (6.1-1) unstable; urgency=medium
 
