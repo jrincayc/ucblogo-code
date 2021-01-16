@@ -1,3 +1,9 @@
+ucblogo (6.2.1-2) unstable; urgency=medium
+
+  * build dependency on autoconf-archive for AX_CFLAGS...
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 16 Jan 2021 09:15:53 +0000
+
 ucblogo (6.2.1-1) unstable; urgency=medium
 
   * track upstream changes
