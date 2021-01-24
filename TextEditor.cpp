@@ -64,7 +64,9 @@ void TextEditor::SetThisFont(wxCommandEvent& event) {
 	SetDefaultStyle(wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
 				   TurtleCanvas::colors[wxTerminal::terminal->m_curBG], this->font));
 	if(this->IsShown()){
-		SetStyle(GetLastPosition()-1, GetLastPosition(),
+		wxTextPos lastPosition = GetLastPosition();
+
+		SetStyle(lastPosition > 0 ? lastPosition - 1 : 0, lastPosition,
 			 wxTextAttr(TurtleCanvas::colors[wxTerminal::terminal->m_curFG],
 				    TurtleCanvas::colors[wxTerminal::terminal->m_curBG],this->font));
 	    SetBackgroundColour(
