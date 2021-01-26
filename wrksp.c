@@ -1599,7 +1599,7 @@ NODE *ledit(NODE *args) {
     BOOLEAN was_graphics;
 #endif
 #ifdef HAVE_WX
-    BOOLEAN use_internal_editor = (editor == NULL || strlen(editor) < 1 || strncmp("jove", editor, 4) == 0);
+    BOOLEAN use_internal_editor = (editor == NULL || strlen(editor) < 1);
 #endif
     NODE *tmp_line = NIL, *exec_list = NIL;
 
