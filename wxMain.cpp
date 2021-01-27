@@ -274,3 +274,7 @@ extern "C" const char* wxMacGetHelploc(){
 #endif
 	return 0;
 }
+
+extern "C" long wxLaunchExternalEditor(char *editor, char *filename) {
+  return wxExecute(wxString::Format("%s %s", editor, filename), wxEXEC_SYNC);
+}
