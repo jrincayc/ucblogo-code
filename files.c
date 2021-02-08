@@ -272,7 +272,15 @@ NODE *lopenappend(NODE *arg) {
 }
 
 NODE *lopenupdate(NODE *arg) {
-    return(lopen(arg,"a+"));
+    NODE *tmp = lopen(arg,"r+");
+
+    if (NOT_THROWING) {
+        // Move to end of file to align with documentation and
+        // so an immediate write doesn't overwrite existing file contents.
+        fseek((FILE *)file_list->n_obj, 0, SEEK_END);
+    }
+
+    return(tmp);
 }
 
 NODE *lallopen(NODE *args) {
