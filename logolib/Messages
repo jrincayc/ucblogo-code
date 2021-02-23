@@ -15,7 +15,7 @@ You don't say what to do with %s
 too many ('s
 %s has no value
 unexpected ')'
-I don't know how  to %p
+I don't know how to %p
 Can't find catch tag for %p
 %p is already defined
 Stopping...
@@ -26,7 +26,7 @@ Assuming you mean IFELSE, not IF
 Throw "Error
 %p is a primitive
 Can't use TO inside a procedure
-I don't know how  to %p
+I don't know how to %p
 %p without TEST
 unexpected ']'
 unexpected '}'
