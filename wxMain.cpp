@@ -93,11 +93,8 @@ extern "C" void wxLogoSleep(unsigned int milli) {
   wxDateTime stop_waiting = wxDateTime::UNow() + wxTimeSpan(0,0,0,milli);
   flushFile(stdout);
   extern void wx_refresh();
+
   wx_refresh();
-  if(milli <= 100) {
-    wxMilliSleep(milli);
-    return;
-  }
   while(wxDateTime::UNow().IsEarlierThan(stop_waiting)) {
     if(check_wx_stop(1, 0) || eval_buttonact) {  //force yielding
       break;
