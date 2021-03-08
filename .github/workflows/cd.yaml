@@ -107,7 +107,7 @@ jobs:
       run: >
         sudo apt-get install
         autoconf-archive
-        libwxgtk3.0-dev
+        libwxgtk3.0-gtk3-dev
         texlive
         zip
     - name: Checkout Repository
