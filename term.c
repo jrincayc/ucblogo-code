@@ -262,6 +262,13 @@ NODE *lcleartext(NODE *args) {
 }
 
 NODE *lcursor(NODE *args) {
+
+    // Flush buffer so it doesn't impact cursor position.
+    fflush(stdout);
+#ifdef __RZTC__
+    zflush();
+#endif
+
     return(cons(make_intnode((FIXNUM)(x_coord-x_margin)),
 		cons(make_intnode((FIXNUM)(y_coord-y_margin)), NIL)));
 }
