@@ -593,6 +593,10 @@ NODE *lreadchar(NODE *args) {
     }
     charmode_on();
     input_blocking++;
+#ifndef TIOCSTI
+    if (!setjmp(iblk_buf))
+#endif
+    {
 #ifdef HAVE_WX
 	if (interactive && readstream==stdin) {
 	    reading_char_now = 1;
@@ -602,10 +606,6 @@ NODE *lreadchar(NODE *args) {
 	else
 	    c = (char)sysGetC(readstream);
 #else
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
-    {
 #ifdef mac
 	csetmode(C_RAW, stdin);
 	while ((c = (char)sysGetC(readstream)) == EOF && readstream == stdin);
@@ -650,8 +650,8 @@ NODE *lreadchar(NODE *args) {
 	c = (char)sysGetC(readstream);
 #endif /* ibm */
 #endif /* mac */
-    }
 #endif /* wx */
+    }
     input_blocking = 0;
 #ifdef HAVE_WX
     if ((!interactive || readstream!=stdin) && feof(readstream)) {
