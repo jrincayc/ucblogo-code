@@ -39,6 +39,7 @@
 
 #ifdef  HAVE_WX
 int wxEditFile(char *);
+long wxLaunchExternalEditor(char *, char *);
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -1597,6 +1598,9 @@ NODE *ledit(NODE *args) {
 #ifdef __RZTC__
     BOOLEAN was_graphics;
 #endif
+#ifdef HAVE_WX
+    BOOLEAN use_internal_editor = (editor == NULL || strlen(editor) < 1);
+#endif
     NODE *tmp_line = NIL, *exec_list = NIL;
 
     if (tmp_filename[0] == '\0' || args != NIL) {
@@ -1607,11 +1611,11 @@ NODE *ledit(NODE *args) {
 #endif
     }
 #ifdef HAVE_WX
-	if(!isEditFile){
+	if (!isEditFile && use_internal_editor) {
 		setTermInfo(EDIT_STATE,DO_LOAD);
 	}
 	isEditFile=0;
-#endif
+#endif /* HAVE_WX */
 
     if (args != NIL) {
 	holdstrm = writestream;
@@ -1631,10 +1635,24 @@ NODE *ledit(NODE *args) {
 #ifdef mac
     if (!mac_edit()) return(UNBOUND);
 #else	    /* !mac */
-#ifdef  HAVE_WX
-	doSave = wxEditFile(tmp_filename);
-    if(!doSave || getTermInfo(EDIT_STATE) != DO_LOAD)
-	return(UNBOUND);
+#ifdef HAVE_WX
+    if (use_internal_editor) {
+        doSave = wxEditFile(tmp_filename);
+        if(!doSave || getTermInfo(EDIT_STATE) != DO_LOAD)
+            return(UNBOUND);
+    } else {
+        if (0 != wxLaunchExternalEditor(editor, tmp_filename)) {
+            size_t err_buf_size = strlen(editor) + 1 + strlen(tmp_filename) + 1;
+            char *err_buf = malloc(err_buf_size);
+
+            memset(err_buf, '\0', err_buf_size);
+            sprintf(err_buf, "%s %s", editor, tmp_filename);
+            err_logo(FILE_ERROR, make_strnode(err_buf, NULL, err_buf_size - 1, STRING, strnzcpy));
+            free(err_buf);
+
+            return(UNBOUND);
+        }
+    }
 #else
 #ifdef ibm
 #ifdef __RZTC__

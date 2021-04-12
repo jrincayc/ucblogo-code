@@ -169,6 +169,10 @@ NODE *lcleartext(NODE *args) {
 
 NODE *lcursor(NODE *args) {
 	int x_coord, y_coord;
+
+	// Flush buffer so it doesn't impact cursor position.
+	flushFile(stdout);
+
 	x_coord=getTermInfo(X_COORD);
 	y_coord=getTermInfo(Y_COORD);
 

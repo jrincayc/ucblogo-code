@@ -21,7 +21,7 @@ jobs:
       run: >
         sudo apt-get install
         autoconf-archive
-        libwxgtk3.0-dev
+        libwxgtk3.0-gtk3-dev
     - name: Build Logo
       run: |
         autoreconf --install

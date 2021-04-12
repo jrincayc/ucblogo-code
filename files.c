@@ -272,7 +272,15 @@ NODE *lopenappend(NODE *arg) {
 }
 
 NODE *lopenupdate(NODE *arg) {
-    return(lopen(arg,"a+"));
+    NODE *tmp = lopen(arg,"r+");
+
+    if (NOT_THROWING) {
+        // Move to end of file to align with documentation and
+        // so an immediate write doesn't overwrite existing file contents.
+        fseek((FILE *)file_list->n_obj, 0, SEEK_END);
+    }
+
+    return(tmp);
 }
 
 NODE *lallopen(NODE *args) {
@@ -585,6 +593,10 @@ NODE *lreadchar(NODE *args) {
     }
     charmode_on();
     input_blocking++;
+#ifndef TIOCSTI
+    if (!setjmp(iblk_buf))
+#endif
+    {
 #ifdef HAVE_WX
 	if (interactive && readstream==stdin) {
 	    reading_char_now = 1;
@@ -594,10 +606,6 @@ NODE *lreadchar(NODE *args) {
 	else
 	    c = (char)sysGetC(readstream);
 #else
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
-    {
 #ifdef mac
 	csetmode(C_RAW, stdin);
 	while ((c = (char)sysGetC(readstream)) == EOF && readstream == stdin);
@@ -642,8 +650,8 @@ NODE *lreadchar(NODE *args) {
 	c = (char)sysGetC(readstream);
 #endif /* ibm */
 #endif /* mac */
-    }
 #endif /* wx */
+    }
     input_blocking = 0;
 #ifdef HAVE_WX
     if ((!interactive || readstream!=stdin) && feof(readstream)) {
