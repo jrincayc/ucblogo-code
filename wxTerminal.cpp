@@ -150,7 +150,6 @@ enum
 	Menu_File_Print_Text_Prev,
 	Menu_File_Print_Turtle,
 	Menu_File_Print_Turtle_Prev,
-	Menu_File_Quit,
 	
 	Menu_Edit = 300,
     Menu_Edit_Copy,
@@ -334,7 +333,7 @@ EVT_MENU(Menu_File_Print_Text,			LogoFrame::OnPrintText)
 EVT_MENU(Menu_File_Print_Text_Prev,		LogoFrame::OnPrintTextPrev)
 EVT_MENU(Menu_File_Print_Turtle,	TurtleCanvas::PrintTurtleWindow)
 EVT_MENU(Menu_File_Print_Turtle_Prev,   TurtleCanvas::TurtlePrintPreview)
-EVT_MENU(Menu_File_Quit,			LogoFrame::OnQuit)
+EVT_MENU(wxID_EXIT,				LogoFrame::OnQuit)
 EVT_MENU(Menu_Edit_Copy,			LogoFrame::DoCopy)
 EVT_MENU(Menu_Edit_Paste,			LogoFrame::DoPaste)
 EVT_MENU(Menu_Logo_Pause,			LogoFrame::DoPause)
@@ -468,7 +467,7 @@ void LogoFrame::SetUpMenu(){
 	fileMenu->Append( Menu_File_Print_Turtle, _T("Print Turtle Graphics"));
 	fileMenu->Append( Menu_File_Print_Turtle_Prev, _T("Turtle Graphics Print Preview"));
 	fileMenu->AppendSeparator();
-	fileMenu->Append(Menu_File_Quit, _T("Quit UCBLogo \tCtrl-Q"));
+	fileMenu->Append(wxID_EXIT, _T("Quit UCBLogo \tCtrl-Q"));
 	
 	
 	wxMenu *editMenu = new wxMenu;
