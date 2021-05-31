@@ -1,11 +1,5 @@
 /* This file implements the logo frame, which is the main frame that
    contains the terminal, turtle graphics and the editor.
-
-CONTAINED IN #IF 0 BLOCKS:
--- if user types input, presses UP, and then DOWN, it remembers it...
-   feature isn't very complete, though...
-   to implement, probably need TWO copies of the history buffer
-
 */
 
 #ifdef HAVE_CONFIG_H
@@ -77,18 +71,6 @@ char input_buffer [MAXINBUFF+1];
 int input_index = 0;
 // Where the cursor is in the input_buffer
 int input_current_pos = 0;
-
-
-//history storage
-char *cmdHistory[HIST_MAX] = {0};
-char **hist_inptr, **hist_outptr; 
-
-#if 0
-//temporary storage of currently typed input
-//so that if we retrieve history and then come back, we can see it again
-char latest_history_buffer[MAXINBUFF];
-int latest_history_stored = 0;
-#endif
 
 // Input mode in logo
 enum LogoInputMode { LogoNormalInputMode, LogoCharInputMode, LogoLineInputMode };
@@ -817,7 +799,7 @@ extern "C" void color_init(void);
   //curr_char_pos line_length not used!
 
   //initializing history
-  hist_inptr = hist_outptr = cmdHistory; 
+  m_command_history = new wxCommandHistory(HIST_MAX);
 
   m_width = width;
   m_height = height;
@@ -884,6 +866,7 @@ extern "C" void color_init(void);
 
 wxTerminal::~wxTerminal()
 {
+  delete m_command_history;
   //clean up the buffers
   wxTerminal::terminal = 0;
 }
@@ -1082,23 +1065,9 @@ void wxTerminal::PassInputToInterp() {
     }
     int saw_newline = i;
 
-    //so create a string of size i+1 and copy the contents over
+    // Save the command into command history.
     if (logo_input_mode == LogoNormalInputMode) {
-      char *histline = (char *)malloc(1+i);
-      for(i = 0; i < saw_newline; i++) {
-        histline[i] = input_buffer[i];
-      }
-      histline[saw_newline] = 0;
-      //put it in the history
-      *hist_inptr++ = histline;
-      if (hist_inptr >= &cmdHistory[HIST_MAX]) {  //wraparound
-        hist_inptr = cmdHistory;
-      }
-      if (*hist_inptr) {
-        free(*hist_inptr);
-        *hist_inptr = 0;
-      }
-      hist_outptr = hist_inptr;
+      m_command_history->handle_command_entered(input_buffer, saw_newline);
     }
 
     for(i = saw_newline + 1; i < input_index; i++) {
@@ -1462,127 +1431,54 @@ void wxTerminal::handle_clear_to_end() {
 #endif
 }
 
-
-
-// warning: the history buffer WRAPS around!
-// so to detect for the beginning/end, check for NULL string pointer
-
 void wxTerminal::handle_history_prev() {
-  
-  // Now get a history entry
-  if (--hist_outptr < cmdHistory) {
-    hist_outptr = &cmdHistory[HIST_MAX-1];
-  }
+  const char *history_line = m_command_history->handle_previous(input_buffer, input_index);
 
-  if (*hist_outptr == 0) {
+  if (history_line == NULL) {
+    // End of history reached.
     wxBell();
-    hist_outptr++;  //put it back to where it was
-    if (hist_outptr >= &cmdHistory[HIST_MAX]) {  //wraparound
-      hist_outptr = cmdHistory;      
-    }
+
+    // Don't overwrite oldest item.
     return;
   }
 
-#if 0
-  //if we're not currently storing anything 
-  //in latest_history_buffer:
-  //store current input buffer in it.
-  //we are about to change the input
-  if(!latest_history_stored) {
-    strcpy(latest_history_buffer, input_buffer);
-    latest_history_buffer[input_index] = 0;
-    latest_history_stored++;
-  }
-#endif
-
-  handle_home();  //go to the start of input
-
-  int hist_len = strlen((const char *) *hist_outptr);
-  strcpy(input_buffer, (char *)*hist_outptr);
-  PassInputToTerminal(hist_len, input_buffer);
-
-  m_inputLines = 0;
-
-  input_current_pos = hist_len;
-
-  handle_clear_to_end();  //clear to the old end of input_buffer
-
-  input_index = hist_len;
-
-  //cursor_x , cursor_y now at input's last location
-  last_input_x = cursor_x;
-  last_input_y = cursor_y;	
+  update_command_from_history(history_line);
 }
 
 void wxTerminal::handle_history_next() {
-  if (*hist_outptr != 0) { 
-      hist_outptr++;
-  }
+  const char *history_line = m_command_history->handle_next(input_buffer, input_index);
 
-  if (hist_outptr >= &cmdHistory[HIST_MAX]) {  //wraparound
-    hist_outptr = cmdHistory;
-  }
-
-
-  if(*hist_outptr == 0) {
-#if 0
-    //if latest_history_buffer is not empty, put that here.
-    if(latest_history_stored) {	
-      handle_home();  //go to front
-      int latest_len = strlen(latest_history_buffer);
-      PassInputToTerminal(latest_len, latest_history_buffer);
-      strcpy(input_buffer, latest_history_buffer);
-      input_current_pos = latest_len;
-
-      handle_clear_to_end();  //clear to old end of input
-
-      input_index = latest_len;
-
-      m_inputLines = 0;
-
-      latest_history_stored--;
-      
-      //cursor_x , cursor_y now at input's last location
-      last_input_x = cursor_x;
-      last_input_y = cursor_y;	
-    }
-    else {
-      wxBell();    
-    }
-#else
+  if (history_line == NULL) {
+    // End of history reached.
     wxBell();
-    handle_home();
-    handle_clear_to_end();
-    input_current_pos = 0;
-    input_index = 0;
-    m_inputLines = 0;
-      
-    //cursor_x , cursor_y now at input's last location
-    last_input_x = cursor_x;
-    last_input_y = cursor_y;	
-
-#endif
-    return;
   }
 
-    
-  handle_home();  //jump to beginning
+  update_command_from_history(history_line);
+}
 
-  int hist_len = strlen((const char *) *hist_outptr);
-  strcpy(input_buffer, (char *)*hist_outptr);
-  PassInputToTerminal(hist_len, input_buffer);
+void wxTerminal::update_command_from_history(const char *command_string) {
+  int command_len = 0;
+
+  // jump to beginning
+  handle_home();
+
+  if (command_string != NULL) {
+    command_len = strlen(command_string);
+    strcpy(input_buffer, command_string);
+    PassInputToTerminal(command_len, input_buffer);
+  }
 
   m_inputLines = 0;
+  input_current_pos = command_len;
 
-  input_current_pos = hist_len;
+  // clear to old end of input_buffer
+  handle_clear_to_end();
 
-  handle_clear_to_end(); //clear to old end of input_buffer
+  input_index = command_len;
 
-  input_index = hist_len;
-  
-  //cursor_x , cursor_y now at input's last location
+  // cursor_x, cursor_y now at input's last location
   last_input_x = cursor_x;
-  last_input_y = cursor_y;	
+  last_input_y = cursor_y;
 }
 
 void wxTerminal::handle_left() {

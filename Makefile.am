@@ -45,7 +45,7 @@ git.c: FORCE
 
 if WX
 # need C++ linker
-ucblogo_SOURCES += wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp
+ucblogo_SOURCES += wxMain.cpp wxTerminal.cpp wxCommandHistory.cpp wxTurtleGraphics.cpp
 ucblogo_SOURCES += TextEditor.cpp
 ucblogo_SOURCES += wxterm.c
 else
@@ -75,7 +75,7 @@ dist_pixmaps_DATA = ucblogo.xpm
 # #include files used in build
 EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  nographics.h obj.h TextEditor.h wxGlobals.h wxGraphics.h wxMain.h	\
- wxTerminal.h wxTurtleGraphics.h xgraphics.h
+ wxTerminal.h wxCommandHistory.h wxTurtleGraphics.h xgraphics.h
 
 # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # See below; needs to run in build environment.
