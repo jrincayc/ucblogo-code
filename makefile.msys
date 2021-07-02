@@ -16,11 +16,13 @@ LINKER = $(CXX)
 
 OBJS	= coms.o error.o eval.o files.o graphics.o init.o intern.o \
 	  libloc.o lists.o logodata.o main.o math.o mem.o paren.o parse.o \
-	  print.o wrksp.o nographics.o git.o wxMain.o wxTerminal.o wxTurtleGraphics.o TextEditor.o wxterm.o
+	  print.o wrksp.o nographics.o git.o wxMain.o wxTerminal.o \
+	  wxCommandHistory.o wxTurtleGraphics.o TextEditor.o wxterm.o
 
 SRCS	= coms.c error.c eval.c files.c graphics.c init.c intern.c config.h \
 	  libloc.c lists.c logodata.c main.c math.c mem.c paren.c parse.c \
-	  print.c wrksp.c nographics.c wxMain.cpp wxTerminal.cpp wxTurtleGraphics.cpp TextEditor.cpp wxterm.c
+	  print.c wrksp.c nographics.c wxMain.cpp wxTerminal.cpp \
+	  wxCommandHistory.cpp wxTurtleGraphics.cpp TextEditor.cpp wxterm.c
 
 HDRS	= globals.h logo.h xgraphics.h
 
