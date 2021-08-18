@@ -17,6 +17,9 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+    - name: Update Package Info
+      run: |
+        sudo apt-get update
     - name: Install Dependencies
       run: >
         sudo apt-get install
