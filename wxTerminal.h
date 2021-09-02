@@ -8,6 +8,8 @@
 #include <wx/html/htmprint.h>
 #include <wx/print.h>
 
+#include "wxCommandHistory.h"
+
 #define CURSOR_BLINK_DEFAULT_TIMEOUT	300
 #define CURSOR_BLINK_MAX_TIMEOUT	2000
 #define wxEVT_COMMAND_TERM_RESIZE        wxEVT_USER_FIRST + 1000
@@ -173,6 +175,9 @@ struct wxterm_linepos {
   wxterm_line_buffer *term_lines;
   wxterm_charpos curr_char_pos;
   wxterm_linepos curr_line_pos;
+
+  wxCommandHistory *m_command_history;
+
 public:
   int cursor_x, cursor_y;
 
@@ -290,6 +295,7 @@ public:
   void handle_clear_to_end();
   void handle_history_prev();
   void handle_history_next();
+  void update_command_from_history(const char *);
   void handle_left();
   void handle_right();
 

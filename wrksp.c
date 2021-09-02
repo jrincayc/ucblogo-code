@@ -138,8 +138,10 @@ NODE *ltext(NODE *args) {
 	} else if (is_prim(val)) {
 	    err_logo(IS_PRIM,name);
 	    return UNBOUND;
-	} else 
+	} else {
+	    untreeify_proc(val);
 	    return text__procnode(val);
+	}
     }
     return UNBOUND;
 }
