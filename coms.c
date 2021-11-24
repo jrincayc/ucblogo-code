@@ -23,7 +23,6 @@
 #endif
 
 #ifdef HAVE_WX
-#define fgets wx_fgets
 extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 
@@ -65,6 +64,10 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #include <sys/time.h>
 #else
 #include <time.h>
+#endif
+
+#ifdef HAVE_WX
+#define fgets wx_fgets
 #endif
 
 NODE *make_cont(enum labels cont, NODE *val) {

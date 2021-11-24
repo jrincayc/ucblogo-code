@@ -23,12 +23,6 @@
 #endif
 
 #include <ctype.h>
-
-#ifdef HAVE_WX
-#define fgets wx_fgets
-#endif
-
-#include <ctype.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -60,6 +54,10 @@ long wxLaunchExternalEditor(char *, char *);
 #ifdef HAVE_SGTTY_H
 #include <sgtty.h>
 #endif
+#endif
+
+#ifdef HAVE_WX
+#define fgets wx_fgets
 #endif
 
 #ifdef OBJECTS
