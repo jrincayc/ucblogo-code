@@ -1983,22 +1983,23 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
     }
 
   int coord_x, coord_y;
+  bool normal_colors = true;
   dc.SetBackgroundMode(wxSOLID);
   dc.SetTextBackground(TurtleCanvas::colors[bg_color]);
   dc.SetTextForeground(TurtleCanvas::colors[fg_color]);
   coord_y = y * m_charHeight; 
   coord_x = x * (m_charWidth);	
 
-  for(unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth){
-    //clear the pixels first
-    //dc.Blit(coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxCLEAR);
-    dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
-    //	  if(flags & BOLD && m_boldStyle == OVERSTRIKE)
-    //	  dc.DrawText(str, x + 1, y);
-    if(flags & INVERSE) {
-      InvertArea(dc, coord_x, coord_y, m_charWidth, m_charHeight);
-      //	    dc.Blit( coord_x, coord_y, m_charWidth, m_charHeight, &dc, coord_x, coord_y, wxINVERT);
+  for (unsigned int i = 0; i < str.Length(); i++, coord_x+=m_charWidth) {
+    if ((flags & INVERSE) && normal_colors) {
+      dc.SetTextBackground(TurtleCanvas::colors[fg_color]);
+      dc.SetTextForeground(TurtleCanvas::colors[bg_color]);
+    } else if (!(flags & INVERSE) && !normal_colors) {
+      dc.SetTextBackground(TurtleCanvas::colors[bg_color]);
+      dc.SetTextForeground(TurtleCanvas::colors[fg_color]);
     }
+
+    dc.DrawText(str.Mid(i, 1), coord_x, coord_y);
   }
 }
 
