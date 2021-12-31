@@ -1795,9 +1795,22 @@ wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_c
     //}
   }
   if (w > 0 && h > 0) {
-#ifndef __WXMAC__
-    dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
-#endif
+    wxRect area_rect(t_x, t_y, w, h);
+    wxBitmap area_src_bitmap = dc.GetAsBitmap(&area_rect);
+    wxImage scratch_image = area_src_bitmap.ConvertToImage();
+
+    for (int y=0; y<h; y++) {
+      for (int x=0; x<w; x++) {
+        unsigned char r = scratch_image.GetRed(x, y);
+        unsigned char g = scratch_image.GetGreen(x, y);
+        unsigned char b = scratch_image.GetBlue(x, y);
+
+        scratch_image.SetRGB(x, y, 255 - r, 255 - g, 255 - b);
+      }
+    }
+
+    wxBitmap scratch_image_bitmap(scratch_image);
+    dc.DrawBitmap(scratch_image_bitmap, t_x, t_y);
   }
 }
 
