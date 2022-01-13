@@ -1,3 +1,9 @@
+ucblogo (6.2.2-2) unstable; urgency=medium
+
+  * use update-alternatives mechanism for /usr/bin/logo and logo(1)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 13 Jan 2022 14:52:16 +0000
+
 ucblogo (6.2.2-1) unstable; urgency=medium
 
   * bump policy
