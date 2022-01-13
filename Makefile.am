@@ -143,6 +143,8 @@ mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
+	mv -v UCBLogo.app/Contents/Resources/logolib/RENAME-GRAVE-ACCENT 'UCBLogo.app/Contents/Resources/logolib/`'
+	mv -v UCBLogo.app/Contents/Resources/logolib/RENAME-NUMBER-SIGN 'UCBLogo.app/Contents/Resources/logolib/#'
 	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
