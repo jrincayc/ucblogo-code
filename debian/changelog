@@ -1,9 +1,9 @@
-ucblogo (6.2.1-3) UNRELEASED; urgency=medium
+ucblogo (6.2.2-1) unstable; urgency=medium
 
-  * track upstream changes
   * bump policy
+  * new upstream release
 
- -- Barak A. Pearlmutter <bap@debian.org>  Thu, 02 Sep 2021 14:33:18 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 13 Jan 2022 14:07:02 +0000
 
 ucblogo (6.2.1-2) unstable; urgency=medium
 
