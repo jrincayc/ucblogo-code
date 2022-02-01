@@ -130,6 +130,12 @@ struct wxterm_linepos {
     m_curX,
     m_curY,
     m_curFlags;
+  int m_normalized_sel_x1,
+    m_normalized_sel_y1,
+    m_normalized_sel_x2,
+    m_normalized_sel_y2;
+  wxColour m_selection_foreground,
+    m_selection_background;
 
   //used in enableScrolling
   int 
@@ -303,8 +309,9 @@ public:
 
 private:
   int MapKeyCode(int keyCode);
-  void InvertArea(wxDC &dc, int tx1, int tx2, int w, int h, bool scrolled_coord = FALSE);
-  void MarkSelection(wxDC &dc, bool scrolled_coord = FALSE);
+
+  void UpdateNormalizedTextSelection();
+  void UpdateSelectionColors();
 
   int CheckPlatformKeys(wxKeyEvent& event);
   void OnKeyDown(wxKeyEvent& event);
