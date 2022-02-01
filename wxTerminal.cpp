@@ -1792,27 +1792,43 @@ wxTerminal::HasSelection()
 }
 
 /*
- * Calculate the highlighting region for the selected text by normalizing
- * the selection coordinates to be from top-left to bottom-right regardless
- * of the mouse click/drag order.
+ * Calculate the highlighting region for the selected text.
+ *
+ * For single line selections, the two y values will be identical and the
+ * x values need to be normalized so m_selx1 < m_selx2.
+ *
+ * For multi-line selections, the two y values need to be normalized so
+ * m_sely1 < m_sely2. However, the x value assignment is more complex.
+ * The highlighting code will mark characters:
+ * - from m_selx1 to the end of the line on the first line
+ * - all characters on middle lines
+ * - from the beginning of the last line to m_selx2
+ *
+ * Therefore, for multi-line selections, m_selx1 and m_selx2 must be assigned
+ * based on m_sely1 and m_sely2.
  */
 void
 wxTerminal::UpdateNormalizedTextSelection()
 {
   if (m_sely1 == m_sely2 && m_selx1 > m_selx2) {
     // Single row selection, from right to left
+    // - copy the y values as-is
+    // - normalize the x values
     m_normalized_sel_x1 = m_selx2;
     m_normalized_sel_y1 = m_sely1;
     m_normalized_sel_x2 = m_selx1;
     m_normalized_sel_y2 = m_sely2;
   } else if (m_sely1 > m_sely2) {
     // Multi-row selection, from bottom to top
+    // - normalize the y values
+    // - swap the x values so they stay with the y values
     m_normalized_sel_x1 = m_selx2;
     m_normalized_sel_y1 = m_sely2;
     m_normalized_sel_x2 = m_selx1;
     m_normalized_sel_y2 = m_sely1;
   } else {
     // Single or multi-row selection, from top-left to bottom-right
+    // - copy both the x and y values as-is, since y is already in proper form
     m_normalized_sel_x1 = m_selx1;
     m_normalized_sel_y1 = m_sely1;
     m_normalized_sel_x2 = m_selx2;
