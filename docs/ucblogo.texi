@@ -3421,7 +3421,11 @@ NOT tf
 
 outputs @code{TRUE} if the input is @code{FALSE}, and vice versa.  The input can be
 a list, in which case it is taken as an expression to run; that
-expression must produce a @code{TRUE} or @code{FALSE} value.
+expression must produce a @code{TRUE} or @code{FALSE} value. The following example prints @code{true}:
+
+@example
+PRINT NOT "FALSE
+@end example
 
 
 @node   GRAPHICS, WORKSPACE MANAGEMENT, LOGICAL OPERATIONS, Top
