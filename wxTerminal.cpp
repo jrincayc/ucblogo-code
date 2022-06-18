@@ -289,6 +289,7 @@ void LogoEventManager::ProcessEvents(int force_yield)
     if(force_yield || foo == 0) {
       if(!inside_yield) {
         inside_yield++;
+        m_logoApp->ProcessIdle();
         m_logoApp->Yield(TRUE);
         inside_yield--;
       }
@@ -557,7 +558,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
@@ -571,7 +572,7 @@ void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
