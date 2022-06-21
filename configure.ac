@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.69])
 AC_INIT([ucblogo],[6.2.2],[],[],[https://github.com/jrincayc/ucblogo-code])
 AC_CONFIG_SRCDIR([logodata.c])
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AM_INIT_AUTOMAKE([subdir-objects foreign -Wall])
 
@@ -97,7 +97,6 @@ AM_COND_IF([X11],
  [AC_SEARCH_LIBS(XOpenDisplay, [X11])])
 
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([unistd.h string.h])
 AM_COND_IF([WX],,
  [AC_CHECK_HEADERS([sgtty.h termio.h termcap.h termlib.h curses.h])])
