@@ -289,6 +289,7 @@ void LogoEventManager::ProcessEvents(int force_yield)
     if(force_yield || foo == 0) {
       if(!inside_yield) {
         inside_yield++;
+        m_logoApp->ProcessIdle();
         m_logoApp->Yield(TRUE);
         inside_yield--;
       }
@@ -557,7 +558,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
@@ -571,7 +572,7 @@ void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
@@ -2418,20 +2419,19 @@ wxString * wxTerminal::get_text()
   wxString *outputString = new wxString();
   outputString->Clear();
   outputString->Append(_T("<HTML>\n"));
-  outputString->Append(_T("<BODY>\n"));
-  outputString->Append(_T("<FONT SIZE=2>\n"));
+  outputString->Append(_T("<BODY FONTSIZE='2'>\n"));
+  // The extra BR tag is needed to have the spacing between the first and second lines
+  // the same as the remaining lines.
+  outputString->Append(wxT("<CODE><BR>\n"));
+
   wxString txt = GetChars(0,0,x_max,y_max);
   txt.Replace(_T("\n"),_T("<BR>\n"));
+  txt.Replace(" ", "&nbsp;");
+
   outputString->Append(txt);
-  /*
-  wxterm_linepos tlpos = term_lines;
-  for(i=0;i<ymax;i++){
-    outputString->append(textString->Mid(linenumbers[i]*MAXWIDTH),MAXWIDTH);
-    outputString->append(_T("<BR>"));		
-    }*/
-  outputString->Append(_T("<\\FONT>"));
-  outputString->Append(_T("<\\BODY>"));
-  outputString->Append(_T("<\\HTML>"));
+  outputString->Append(_T("</CODE>"));
+  outputString->Append(_T("</BODY>"));
+  outputString->Append(_T("</HTML>"));
   //  delete textString;
   return outputString;
 }
