@@ -1391,6 +1391,8 @@ withobject_followup:
 
 goto_continuation:
     if (NOT_THROWING) {
+	NODE *goto_command_line = this_line;
+
 	if (ufun == NIL) {
 	    err_logo(AT_TOPLEVEL, theName(Name_goto));
 	    val = UNBOUND;
@@ -1413,6 +1415,9 @@ goto_continuation:
 		goto fetch_cont;
 	    }
 	}
+
+	// goto tag could not be found
+	this_line = goto_command_line;
 	err_logo(BAD_DATA_UNREC, val);
     }
     val = UNBOUND;
