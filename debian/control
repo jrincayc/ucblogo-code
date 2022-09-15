@@ -7,7 +7,7 @@ Rules-Requires-Root: no
 Homepage: https://people.eecs.berkeley.edu/~bh/logo.html
 Build-Depends: debhelper-compat (= 13),
 	autoconf-archive,
-	libncurses-dev, libx11-dev, libsm-dev, libice-dev, libwxgtk3.0-gtk3-dev,
+	libncurses-dev, libx11-dev, libsm-dev, libice-dev, libwxgtk3.2-dev,
 	texlive-latex-base, texinfo, ghostscript
 Vcs-Git: https://salsa.debian.org/debian/ucblogo.git
 Vcs-Browser: https://salsa.debian.org/debian/ucblogo
