@@ -1,3 +1,9 @@
+ucblogo (6.2.2-4) UNRELEASED; urgency=medium
+
+  * track upstream changes
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 16 Sep 2022 08:30:03 +0100
+
 ucblogo (6.2.2-3) unstable; urgency=medium
 
   * transition from wxwidgets3.0 to  wxwidgets3.2 (closes: #1019771)
