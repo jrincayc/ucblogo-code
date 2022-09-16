@@ -1190,15 +1190,26 @@ void save_palette(FILE *fp) {
     }
 }
 
-void restore_palette(FILE *fp) {
+int restore_palette(FILE *fp) {
     unsigned int colors[3];
     int i, nslots;
-    fread(&nslots, sizeof(int), 1, fp);
+    size_t records_read;
+
+    records_read = fread(&nslots, sizeof(int), 1, fp);
+    if (records_read != 1 || ferror(fp)) {
+        return -1;
+    }
+
     if (nslots > max_palette_slot) max_palette_slot = nslots;
     for (i=8; i <= nslots; i++) {
-	fread(colors, sizeof(int), 3, fp);
-	set_palette(i, colors[0], colors[1], colors[2]);
+        records_read = fread(colors, sizeof(int), 3, fp);
+        if (records_read != 3 || ferror(fp)) {
+            return -1;
+        }
+        set_palette(i, colors[0], colors[1], colors[2]);
     }
+
+    return 0;
 }
 
 NODE *lsetpensize(NODE *args) {
@@ -2078,6 +2089,8 @@ NODE *lloadpict(NODE *args) {
     static int bg;
     FIXNUM want, cnt, next, rec_idx;
     char *p, *buf=record_buffer, *newbuf;
+    size_t records_read;
+    int palette_read_status;
 
 #if defined(WIN32)||defined(ibm)
 	extern NODE *lopen(NODE *, char *);
@@ -2085,18 +2098,34 @@ NODE *lloadpict(NODE *args) {
 #else
     lopenread(args);
 #endif
+
+    if (!graphics_setup) {
+        graphics_setup++;
+        turtle_shown = TRUE;
+    }
+
     if (NOT_THROWING) {
 	prepare_to_draw;
 	fp = (FILE *)file_list->n_obj;
-	restore_palette(fp);
-	fread(&rec_idx, sizeof(FIXNUM), 1, fp);
-	if (rec_idx < 0 || rec_idx >= GR_SIZE) {
+	palette_read_status = restore_palette(fp);
+	if (palette_read_status != 0) {
+	    err_logo(FILE_ERROR, make_static_strnode("File bad format"));
+	    lclose(args);
+	    return UNBOUND;
+	}
+	records_read = fread(&rec_idx, sizeof(FIXNUM), 1, fp);
+	if (rec_idx < 0 || rec_idx >= GR_SIZE || records_read != 1 || ferror(fp)) {
 		err_logo(FILE_ERROR,
 				 make_static_strnode("File bad format"));
 		lclose(args);
 		return UNBOUND;
 	}
-	(void)fread(&next, One, 1, fp);
+	records_read = fread(&next, One, 1, fp);
+	if (records_read != 1 || ferror(fp)) {
+	    err_logo(FILE_ERROR, make_static_strnode("File bad format"));
+	    lclose(args);
+	    return UNBOUND;
+	}
 	while (next != 0) {
 	    want = GR_SIZE - One;
 	    p = buf + One;
@@ -2127,7 +2156,13 @@ NODE *lloadpict(NODE *args) {
 		*(char **)(buf) = newbuf;
 	    }
 	    buf = newbuf;
-	    (void)fread(&next, One, 1, fp);
+	    records_read = fread(&next, One, 1, fp);
+	    if (records_read != 1 || ferror(fp)) {
+	        done_drawing;
+	        err_logo(FILE_ERROR, make_static_strnode("File bad format"));
+	        lclose(args);
+	        return UNBOUND;
+	    }
 	}
 	want = rec_idx;
 	p = buf + One;
@@ -2145,7 +2180,13 @@ NODE *lloadpict(NODE *args) {
 	}
 	record = buf;
 	record_index = rec_idx;
-	fread(&bg, sizeof(int), 1, fp);
+	records_read = fread(&bg, sizeof(int), 1, fp);
+	if (records_read != 1 || ferror(fp)) {
+	    done_drawing;
+	    err_logo(FILE_ERROR, make_static_strnode("File bad format"));
+	    lclose(args);
+	    return UNBOUND;
+	}
 	lclose(args);
 	set_back_ground((FIXNUM)bg);
 	done_drawing;

@@ -822,7 +822,7 @@ void TurtleCanvas::TurtlePrintPreview(wxCommandEvent& WXUNUSED(event)) {
         return;
     }
     preview->SetZoom(100);
-    wxPreviewFrame *frame = new wxPreviewFrame(preview, wxTerminal::terminal->terminal, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
+    wxPreviewFrame *frame = new wxPreviewFrame(preview, logoFrame, _T("Turtle Graphics Preview"), wxPoint(100, 100), wxSize(600, 650));
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();

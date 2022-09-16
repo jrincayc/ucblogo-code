@@ -289,6 +289,7 @@ void LogoEventManager::ProcessEvents(int force_yield)
     if(force_yield || foo == 0) {
       if(!inside_yield) {
         inside_yield++;
+        m_logoApp->ProcessIdle();
         m_logoApp->Yield(TRUE);
         inside_yield--;
       }
@@ -557,7 +558,7 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
@@ -571,7 +572,7 @@ void LogoFrame::OnPrintText(wxCommandEvent& WXUNUSED(event)){
 void LogoFrame::OnPrintTextPrev(wxCommandEvent& WXUNUSED(event)){
 	wxHtmlEasyPrinting *htmlPrinter=wxTerminal::terminal->htmlPrinter;
 	if(!htmlPrinter){
-		htmlPrinter = new wxHtmlEasyPrinting();
+		htmlPrinter = new wxHtmlEasyPrinting(_T(""), logoFrame);
 		int fontsizes[] = { 6, 8, 12, 14, 16, 20, 24 };
 		htmlPrinter->SetFonts(_T("Courier"),_T("Courier"), fontsizes);
 	}
@@ -1658,10 +1659,15 @@ void wxTerminal::OnDraw(wxDC& dc)
   tlpos.offset = lineFrom;
   adjust_linepos(tlpos);
 
+  if (HasSelection()) {
+    UpdateNormalizedTextSelection();
+    UpdateSelectionColors();
+  }
+
   for ( int line = lineFrom; line <= lineTo; line++ )
   {
     tline = line_of(tlpos);
-    for ( int col = 0; col < tline.line_length; col++ ) {      
+    for ( int col = 0; col < tline.line_length; col++ ) {
       DrawText(dc, m_curFG, m_curBG, mode_of(tline), col, line, 1, &char_of(tline));
       inc_charpos(tline);
     }
@@ -1680,9 +1686,6 @@ void wxTerminal::OnDraw(wxDC& dc)
     dc.DrawLine( t_x, t_y, t_x, t_y + m_charHeight);
 
   }
-
-  MarkSelection(dc,FALSE);
-  
 }
 
 // gets the click coordinate (unscrolled) in terms of characters
@@ -1783,74 +1786,92 @@ wxTerminal::ClearSelection()
 
 }
 
-void 
-wxTerminal::InvertArea(wxDC &dc, int t_x, int t_y, int w, int h, bool scrolled_coord) {
-
-  if(scrolled_coord) {
-    CalcScrolledPosition(t_x,t_y,&t_x,&t_y);
-    //calculate if out of bounds
-    //    if(t_x < 0 || t_x > m_width * m_charWidth ||
-    //   t_y < 0 || t_y > m_height * m_charHeight) {
-    //  return;
-    //}
-  }
-  if (w > 0 && h > 0) {
-#ifndef __WXMAC__
-    dc.Blit( t_x, t_y, w, h, &dc, t_x, t_y, wxINVERT);
-#endif
-  }
-}
-
-
-void
-wxTerminal::MarkSelection(wxDC &dc, bool scrolled_coord) {
-
-  int 
-    pic_x1, pic_y1,
-    pic_x2, pic_y2;
-
-  if(m_sely1 > m_sely2 ||
-     (m_sely1 == m_sely2 && m_selx1 > m_selx2)) {
-    pic_x1 = m_selx2;
-    pic_y1 = m_sely2;
-    pic_x2 = m_selx1;
-    pic_y2 = m_sely1;
-  }
-  else {
-    pic_x1 = m_selx1;
-    pic_y1 = m_sely1;
-    pic_x2 = m_selx2;
-    pic_y2 = m_sely2;
-  }
-
-  if(pic_y1 == pic_y2) {
-    InvertArea(dc, 
-	       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
-	       (pic_x2 - pic_x1)*m_charWidth, m_charHeight,
-	       scrolled_coord);
-  }
-  else if(pic_y1 < pic_y2) {
-    InvertArea(dc, 
-	       pic_x1 * m_charWidth, pic_y1 * m_charHeight, 
-	       (x_max - pic_x1) * m_charWidth, m_charHeight,
-	       scrolled_coord);
-    InvertArea(dc, 
-	       0, (pic_y1 + 1)*m_charHeight,
-	       x_max * m_charWidth, (pic_y2 - pic_y1 - 1)*m_charHeight,
-	       scrolled_coord);
-    InvertArea(dc, 
-	       0, pic_y2*m_charHeight, 
-	       pic_x2*m_charWidth, m_charHeight,
-	       scrolled_coord);
-  }
-}
-
 bool
 wxTerminal::HasSelection()
 {
   return(m_selx1 != m_selx2 || m_sely1 != m_sely2);
 }
 
+/*
+ * Calculate the highlighting region for the selected text.
+ *
+ * For single line selections, the two y values will be identical and the
+ * x values need to be normalized so m_selx1 < m_selx2.
+ *
+ * For multi-line selections, the two y values need to be normalized so
+ * m_sely1 < m_sely2. However, the x value assignment is more complex.
+ * The highlighting code will mark characters:
+ * - from m_selx1 to the end of the line on the first line
+ * - all characters on middle lines
+ * - from the beginning of the last line to m_selx2
+ *
+ * Therefore, for multi-line selections, m_selx1 and m_selx2 must be assigned
+ * based on m_sely1 and m_sely2.
+ */
+void
+wxTerminal::UpdateNormalizedTextSelection()
+{
+  if (m_sely1 == m_sely2 && m_selx1 > m_selx2) {
+    // Single row selection, from right to left
+    // - copy the y values as-is
+    // - normalize the x values
+    m_normalized_sel_x1 = m_selx2;
+    m_normalized_sel_y1 = m_sely1;
+    m_normalized_sel_x2 = m_selx1;
+    m_normalized_sel_y2 = m_sely2;
+  } else if (m_sely1 > m_sely2) {
+    // Multi-row selection, from bottom to top
+    // - normalize the y values
+    // - swap the x values so they stay with the y values
+    m_normalized_sel_x1 = m_selx2;
+    m_normalized_sel_y1 = m_sely2;
+    m_normalized_sel_x2 = m_selx1;
+    m_normalized_sel_y2 = m_sely1;
+  } else {
+    // Single or multi-row selection, from top-left to bottom-right
+    // - copy both the x and y values as-is, since y is already in proper form
+    m_normalized_sel_x1 = m_selx1;
+    m_normalized_sel_y1 = m_sely1;
+    m_normalized_sel_x2 = m_selx2;
+    m_normalized_sel_y2 = m_sely2;
+  }
+}
+
+/*
+ * Calculate the foreground and background colors for selection highlighting.
+ * This tries to follow the system preferences with the caveat that the current
+ * terminal background color might be set to something that doesn't contrast with
+ * the system selection background color. In that case, the system settings for selection
+ * are swapped. This does assume the system will provide reasonable contrast between
+ * the two colors.
+ *
+ * Use the wxWidgets 3.1.x calculation of luminance so this can be updated to just use
+ * that API when 3.1.x becomes GA:
+ * https://docs.wxwidgets.org/3.1.5/classwx_colour.html#ab26df3bfab77f5a3c54e9caff93c78f8
+ */
+void
+wxTerminal::UpdateSelectionColors()
+{
+  double terminal_background_luminance =
+    0.299 * TurtleCanvas::colors[m_curBG].Red() / 255 +
+    0.587 * TurtleCanvas::colors[m_curBG].Green() / 255 +
+    0.114 * TurtleCanvas::colors[m_curBG].Blue() / 255;
+
+  double system_background_luminance =
+    0.299 * wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT).Red() / 255 +
+    0.587 * wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT).Green() / 255 +
+    0.114 * wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT).Blue() / 255;
+
+  if (abs(terminal_background_luminance - system_background_luminance) >= 0.5) {
+    // Reasonable contrast between system selection background and terminal background.
+    m_selection_foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT);
+    m_selection_background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+  } else {
+    // Invert the usage of the system colors so the selection stands out.
+    m_selection_foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+    m_selection_background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT);
+  }
+}
 
 /*
  * Gets characters from x1,y1 up to , but not including x2,y2
@@ -1971,9 +1992,35 @@ wxTerminal::DrawText(wxDC& dc, int fg_color, int bg_color, int flags,
 
   int coord_x, coord_y;
   bool normal_colors = !(flags & INVERSE);
+  bool selected_colors = false;
+
+  if (HasSelection()) {
+    if (m_normalized_sel_y1 == m_normalized_sel_y2) {
+      // Single row selection
+      selected_colors =
+        y == m_normalized_sel_y1 &&
+        x >= m_normalized_sel_x1 &&
+        x < m_normalized_sel_x2;
+    } else if (m_normalized_sel_y1 < m_normalized_sel_y2) {
+      // Multi-row selection
+      if (y == m_normalized_sel_y1) {
+        // First row
+        selected_colors = x >= m_normalized_sel_x1;
+      } else if (y == m_normalized_sel_y2) {
+        // Last row
+        selected_colors = x < m_normalized_sel_x2;
+      } else if (y > m_normalized_sel_y1 && y < m_normalized_sel_y2) {
+        // Middle row
+        selected_colors = true;
+      }
+    }
+  }
 
   dc.SetBackgroundMode(wxSOLID);
-  if (normal_colors) {
+  if (selected_colors) {
+    dc.SetTextBackground(m_selection_background);
+    dc.SetTextForeground(m_selection_foreground);
+  } else if (normal_colors) {
     dc.SetTextBackground(TurtleCanvas::colors[bg_color]);
     dc.SetTextForeground(TurtleCanvas::colors[fg_color]);
   } else {
@@ -2372,20 +2419,19 @@ wxString * wxTerminal::get_text()
   wxString *outputString = new wxString();
   outputString->Clear();
   outputString->Append(_T("<HTML>\n"));
-  outputString->Append(_T("<BODY>\n"));
-  outputString->Append(_T("<FONT SIZE=2>\n"));
+  outputString->Append(_T("<BODY FONTSIZE='2'>\n"));
+  // The extra BR tag is needed to have the spacing between the first and second lines
+  // the same as the remaining lines.
+  outputString->Append(wxT("<CODE><BR>\n"));
+
   wxString txt = GetChars(0,0,x_max,y_max);
   txt.Replace(_T("\n"),_T("<BR>\n"));
+  txt.Replace(" ", "&nbsp;");
+
   outputString->Append(txt);
-  /*
-  wxterm_linepos tlpos = term_lines;
-  for(i=0;i<ymax;i++){
-    outputString->append(textString->Mid(linenumbers[i]*MAXWIDTH),MAXWIDTH);
-    outputString->append(_T("<BR>"));		
-    }*/
-  outputString->Append(_T("<\\FONT>"));
-  outputString->Append(_T("<\\BODY>"));
-  outputString->Append(_T("<\\HTML>"));
+  outputString->Append(_T("</CODE>"));
+  outputString->Append(_T("</BODY>"));
+  outputString->Append(_T("</HTML>"));
   //  delete textString;
   return outputString;
 }
