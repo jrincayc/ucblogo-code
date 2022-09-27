@@ -54,6 +54,10 @@ NODE
 #define USE_GCC_DISPATCH 1
 #endif
 
+/* Hint:
+   make "redefp "true
+   to get lots of output after defining DEBUGGING 1
+*/
 #define DEBUGGING 0
 
 #if DEBUGGING
