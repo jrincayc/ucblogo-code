@@ -92,14 +92,15 @@ void vs_print() {
     printf(", stopping_flag = %s\n", names[stopping_flag]);
 }
 
-void debprint(char *name) {
+void debprintline(int line, char *name) {
     if (!varTrue(Redefp)) return;
-    printf("%s: ", name);
+    printf("%d %s: ", line, name);
     do_debug(deb_enum)
     vs_print();
     printf("current_unode=0x%x, output_unode=0x%x\n",current_unode,
 	   output_unode);
 }
+#define debprint(name) debprintline(__LINE__, name)
 #define debprint2(a,b) if (varTrue(Redefp)) ndprintf(stdout,a,b)
 #else
 #define debprint(name)
