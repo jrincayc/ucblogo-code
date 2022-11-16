@@ -146,9 +146,9 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define MACRO_PRIORITY	3
 #define PREFIX_PRIORITY 4
 
-typedef long int NODETYPES;
+//Original definition: typedef long int NODETYPES;
 
-enum NodeTypes {
+typedef enum NodeTypes  {
 #ifdef OBJECTS
   NT_METHOD =     0100000000,
   NT_OBJ =         040000000,
@@ -176,7 +176,7 @@ enum NodeTypes {
   NT_PUNCT	= 000004,
   NT_COLON	= 000002,
   NT_CASEOBJ	= 000001
-};
+} NODETYPES;
 
 #define	PNIL		((NODETYPES)(NT_EMPTY|NT_AGGR|NT_LIST))
 #define PUNBOUND	((NODETYPES)0)
