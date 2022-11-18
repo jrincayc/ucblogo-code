@@ -1,0 +1,6 @@
+Name: logo
+Link: /usr/bin/logo
+Alternative: /usr/bin/ucblogo
+Dependents:
+  /usr/share/man/man1/logo.1.gz logo.1.gz /usr/share/man/man1/ucblogo.1.gz
+Priority: 30
