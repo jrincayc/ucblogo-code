@@ -18,6 +18,10 @@ MAKE "Tests.Macro [
   Tests.Macro.OutputStopWorksAsExpected
   Tests.Macro.PlainStopErrorsAsExpected
   Tests.Macro.FunctionStopErrorsAsExpected
+  Tests.Macro.PlainStopInnerWorksAsExpected
+  Tests.Macro.RepeatStopWorksAsExpected
+  ;; Tests.Macro.RepeatEarlyStopWorksAsExpected
+  Tests.Macro.IfStopWorksAsExpected
 ]
 
 ;; Test Suite setup procedure, main entry
@@ -92,3 +96,73 @@ TO Tests.Macro.FunctionStopErrorsAsExpected
   OUTPUT (AND [NOT EMPTY? :err]
               [EQUAL? FIRST :err 5])
 END
+
+;; Test plain returning
+
+TO Tests.Macro._inner1
+ make "ret "false
+ stop
+end
+
+To Tests.Macro._middle1
+ Tests.Macro._inner1
+ make "ret "true
+end
+
+TO Tests.Macro.PlainStopInnerWorksAsExpected
+ make "ret "false
+ Tests.Macro._middle1
+ output :ret
+end
+
+;; Test returning from a repeat
+
+TO Tests.Macro._inner2
+ make "ret "false
+ repeat 1 [stop]
+end
+
+TO Tests.Macro._middle2
+ Tests.Macro._inner2
+ make "ret "true
+end
+
+TO Tests.Macro.RepeatStopWorksAsExpected
+ make "ret "false
+ middle2
+ output :ret
+end
+
+;; Test early return from repeat
+
+to Tests.Macro._inner3
+ make "ret "false
+ repeat 3 [stop]
+end
+
+to Tests.Macro._middle3
+ Tests.Macro._inner3
+ make "ret "true
+end
+
+to Tests.Macro.RepeatEarlyStopWorksAsExpected
+ make "ret "false
+ Tests.Macro._middle3
+ output :ret
+end
+
+to Tests.Macro._inner4
+ make "ret "false
+ if "true [stop]
+end
+
+to Tests.Macro._middle4
+ Tests.Macro._inner4
+ make "ret "true
+end
+
+to Tests.Macro.IfStopWorksAsExpected
+ make "ret "false
+ Tests.Macro._middle4
+ output :ret
+end
