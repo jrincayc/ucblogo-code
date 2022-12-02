@@ -20,7 +20,7 @@ MAKE "Tests.Macro [
   Tests.Macro.FunctionStopErrorsAsExpected
   Tests.Macro.PlainStopInnerWorksAsExpected
   Tests.Macro.RepeatStopWorksAsExpected
-  ;; Tests.Macro.RepeatEarlyStopWorksAsExpected
+  Tests.Macro.RepeatEarlyStopWorks
   Tests.Macro.IfStopWorksAsExpected
 ]
 
