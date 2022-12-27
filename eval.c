@@ -79,25 +79,25 @@ void vs_print() {
 			    "MACRO_RETURN"};
 
     if (!varTrue(Redefp)) return;
-    printf("Val_status = ");
+    ndprintf(stdout, "Val_status = ");
     for (i=0; i<6; i++) {
 	if (vs&1) {
-	    printf(vnames[i]);
+	    ndprintf(stdout, vnames[i]);
 	    vs >>= 1;
-	    if (vs != 0) printf("|");
+	    if (vs != 0) ndprintf(stdout, "|");
 	} else vs >>= 1;
 	if (vs == 0) break; 
     }
-    if (vs != 0) printf("0%o", vs<<6);
-    printf(", stopping_flag = %s\n", names[stopping_flag]);
+    if (vs != 0) ndprintf(stdout, "0%o", vs<<6);
+    ndprintf(stdout, ", stopping_flag = %s\n", names[stopping_flag]);
 }
 
 void debprintline(int line, char *name) {
     if (!varTrue(Redefp)) return;
-    printf("%d %s: ", line, name);
+    ndprintf(stdout, "%d %s: ", line, name);
     do_debug(deb_enum)
     vs_print();
-    printf("current_unode=0x%x, output_unode=0x%x\n",current_unode,
+    ndprintf(stdout, "current_unode=0x%x, output_unode=0x%x\n\n",current_unode,
 	   output_unode);
 }
 #define debprint(name) debprintline(__LINE__, name)
