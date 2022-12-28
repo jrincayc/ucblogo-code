@@ -86,15 +86,15 @@ void vs_print() {
 	    vs >>= 1;
 	    if (vs != 0) ndprintf(stdout, "|");
 	} else vs >>= 1;
-	if (vs == 0) break; 
+	if (vs == 0) break;
     }
     if (vs != 0) ndprintf(stdout, "0%o", vs<<6);
-    ndprintf(stdout, ", stopping_flag = %s\n", names[stopping_flag]);
+    ndprintf(stdout, ", stopping_flag = %t\n", names[stopping_flag]);
 }
 
 void debprintline(int line, char *name) {
     if (!varTrue(Redefp)) return;
-    ndprintf(stdout, "%d %s: ", line, name);
+    ndprintf(stdout, "%d %t: ", line, name);
     do_debug(deb_enum)
     vs_print();
     ndprintf(stdout, "current_unode=0x%x, output_unode=0x%x\n\n",current_unode,
