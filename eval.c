@@ -62,7 +62,7 @@ NODE
 
 #if DEBUGGING
 #define DEB_STACK 0	    /* set to 1 to log save/restore */
-#define DEB_CONT 0	    /* set to 1 to log newcont/fetch_cont */
+#define DEB_CONT 1	    /* set to 1 to log newcont/fetch_cont */
 
 #define do_debug(x) \
     x(expresn) x(unev) x(val) x(didnt_get_output) x(didnt_output_name) x(fun) \
@@ -94,7 +94,7 @@ void vs_print() {
 
 void debprintline(int line, char *name) {
     if (!varTrue(Redefp)) return;
-    ndprintf(stdout, "%d %t: ", line, name);
+    ndprintf(stdout, "%d %t:\n", line, name);
     do_debug(deb_enum)
     vs_print();
     ndprintf(stdout, "current_unode=0x%x, output_unode=0x%x\n\n",current_unode,
