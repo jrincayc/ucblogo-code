@@ -303,6 +303,7 @@ NODE *deep_copy(NODE *expresn) {
 int in_eval_save = 0;
 
 void eval_save() {
+    debprint("eval_save");
     push(NIL, stack);
     int_during_gc = 0;
     in_eval_save = 1;
@@ -320,6 +321,7 @@ void eval_save() {
 }
 
 void eval_restore() {
+    debprint("eval_restore");
     int_during_gc = 0;
     in_eval_save = 1;
     memcpy(&regs, car(stack), sizeof(regs));
