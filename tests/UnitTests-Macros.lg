@@ -129,7 +129,7 @@ end
 
 TO Tests.Macro.RepeatStopWorksAsExpected
  make "ret "false
- middle2
+ Tests.Macro._middle2
  output :ret
 end
 
@@ -145,7 +145,7 @@ to Tests.Macro._middle3
  make "ret "true
 end
 
-to Tests.Macro.RepeatEarlyStopWorksAsExpected
+to Tests.Macro.RepeatEarlyStopWorks
  make "ret "false
  Tests.Macro._middle3
  output :ret
