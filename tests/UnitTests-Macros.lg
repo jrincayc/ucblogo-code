@@ -22,6 +22,7 @@ MAKE "Tests.Macro [
   Tests.Macro.RepeatStopWorksAsExpected
   Tests.Macro.RepeatEarlyStopWorks
   Tests.Macro.IfStopWorksAsExpected
+  Tests.Macro.RepeatExitsCorrectly
 ]
 
 ;; Test Suite setup procedure, main entry
@@ -165,4 +166,24 @@ to Tests.Macro.IfStopWorksAsExpected
  make "ret "false
  Tests.Macro._middle4
  output :ret
+end
+
+to Tests.Macro._inner5
+repeat 10  [
+  make "Tests.Macro._count :Tests.Macro._count + 1
+  pr :Tests.Macro._count
+  if equalp :Tests.Macro._count 3 [stop]
+]
+end
+
+to Tests.Macro._middle5
+   Tests.Macro._inner5
+   pr :Tests.Macro._count
+end
+
+to Tests.Macro.RepeatExitsCorrectly
+ make "Tests.Macro._count 0
+ Tests.Macro._middle5
+ pr :Tests.Macro._count
+ output (equalp :Tests.Macro._count 3)
 end
