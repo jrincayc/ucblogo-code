@@ -994,7 +994,7 @@ op_want_stop:
 	    err_logo(AT_TOPLEVEL,car(expresn));
 	} else if (val_status & STOP_TAIL) {
 	} else if (val_status & STOP_OK) {
-	  //stopping_flag = STOP;
+	    stopping_flag = STOP;
 	    output_unode = current_unode;
 	} else if (val_status & OUTPUT_OK) {
 	    if (NOT_THROWING) {
@@ -1146,6 +1146,9 @@ no_reset_args:	/* allows catch "foo [local ...] to work */
 	dont_fix_ift = 0;
     }
     debprint("eval_sequence_continue");
+    if (stopping_flag == STOP) {
+        stopping_flag = RUN;
+    }
     if (stopping_flag == MACRO_RETURN) {
 	if (val != NIL && is_list(val) && (isName(car(val), Name_tag)))
 	    unev = cdr(val);	/* from goto */
