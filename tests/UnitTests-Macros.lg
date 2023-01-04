@@ -23,6 +23,7 @@ MAKE "Tests.Macro [
   Tests.Macro.RepeatEarlyStopWorks
   Tests.Macro.IfStopWorksAsExpected
   Tests.Macro.RepeatExitsCorrectly
+  Tests.Macro.StopExitsFor
 ]
 
 ;; Test Suite setup procedure, main entry
@@ -184,4 +185,13 @@ to Tests.Macro.RepeatExitsCorrectly
  make "Tests.Macro._count 0
  Tests.Macro._middle5
  output (equalp :Tests.Macro._count 3)
+end
+
+to Tests.Macro._forloop
+  for [i 1 10] [if :i=5 [stop] make "ret :i]
+end
+
+to Tests.Macro.StopExitsFor
+  Tests.Macro._forloop
+  output (equalp :ret 4)
 end
