@@ -116,6 +116,7 @@ LOAD "UnitTests-Predicates.lg
 LOAD "UnitTests-Random.lg
 LOAD "UnitTests-MemMgr.lg
 LOAD "UnitTests-OOP.lg
+LOAD "UnitTests-Control.lg
 
 
 ;; Process any command line options
