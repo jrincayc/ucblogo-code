@@ -24,6 +24,8 @@ MAKE "Tests.Macro [
   Tests.Macro.IfStopWorksAsExpected
   Tests.Macro.RepeatExitsCorrectly
   Tests.Macro.StopExitsFor
+  Tests.Macro.RunAndStop
+  Tests.Macro.IfAndStop
 ]
 
 ;; Test Suite setup procedure, main entry
@@ -194,4 +196,29 @@ end
 to Tests.Macro.StopExitsFor
   Tests.Macro._forloop
   output (equalp :ret 4)
+end
+
+to Tests.Macro._rettrue
+   make "ret "true
+end
+
+to Tests.Macro._RunAndStopBackend
+     run [Tests.Macro._rettrue stop]
+     make "ret "false
+end
+
+to Tests.Macro.RunAndStop
+   Tests.Macro._RunAndStopBackend
+   output :ret
+end
+
+
+to Tests.Macro._IfAndStopBackend
+     if "true [Tests.Macro._rettrue stop]
+     make "ret "false
+end
+
+to Tests.Macro.IfAndStop
+   Tests.Macro._IfAndStopBackend
+   output :ret
 end
