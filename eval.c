@@ -1147,6 +1147,8 @@ no_reset_args:	/* allows catch "foo [local ...] to work */
     }
     debprint("eval_sequence_continue");
     if (STOPPING) {
+        //Note, this should properly be set elsewhere, but
+        // sometimes is not.
         stopping_flag = RUN;
     }
     if (stopping_flag == MACRO_RETURN) {
