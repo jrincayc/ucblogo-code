@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 5
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Update Package Info
       run: |
         sudo apt-get update
@@ -51,7 +51,7 @@ jobs:
         awk "/\.\.\./ && ! /Ok$/{exit 1}" logo-unit-test-results.txt	
     - name: Archive Test Results
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Logo Unit Test Results
         path: logo-unit-test-results.txt
