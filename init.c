@@ -698,23 +698,30 @@ nosugar:
     }
 #ifndef __WXMSW__
 	// have to do this because we don't have __WXMAC__ in C
+	// if we might be running on a Mac, call C++ functions that will return
+	// an appropriate path if __WXMAC__ is defined and 0 otherwise.
+
 	const char* wxMacGetCslsloc();
 	const char* wxMacGetHelploc();
 	const char* wxMacGetLibloc();
 	const char* newlib;
 	const char* newcsls;
 	const char* newhelp;
-	// check if we are running wxMac
+
 	newlib = wxMacGetLibloc();
-	if(newlib)
-		logolib = newlib; 
-        //if (helpfiles == NULL) helpfiles = wxMacGetHelploc();
-                newcsls = wxMacGetCslsloc();
-	if(newcsls)
-		csls = newcsls;
+	if (newlib) {
+	  logolib = (char *)newlib;
+	}
+
+	newcsls = wxMacGetCslsloc();
+	if (newcsls) {
+	  csls = (char *)newcsls;
+	}
+
 	newhelp = wxMacGetHelploc();
-        if(newhelp)
-		helpfiles = newhelp;
+	if (newhelp) {
+	  helpfiles = (char *)newhelp;
+	}
 #endif
 #endif
 
