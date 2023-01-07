@@ -1,0 +1,156 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        ;;
+;;             BERKELEY LOGO              ;;
+;;            Control Unit Tests            ;;
+;;                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+InstallSuite [Controls] [Tests.Control.Setup]
+
+
+
+;; The list of all Control unit tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.Control [
+  ;list tests here
+  Tests.Control.PlainStopInnerWorks
+  Tests.Control.RepeatStopWorksAsExpected
+  Tests.Control.RepeatEarlyStopWorks
+  Tests.Control.IfStopWorksAsExpected
+  Tests.Control.RepeatExitsCorrectly
+  Tests.Control.StopExitsFor
+  Tests.Control.RunAndStop
+  Tests.Control.IfAndStop
+]
+
+;; Test Suite setup procedure, main entry
+;; point for all tests in this suite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to Tests.Control.Setup
+  RunTests :Tests.Control
+end
+
+;; Test plain returning
+
+TO Tests.Control._inner1
+ make "ret "false
+ stop
+end
+
+To Tests.Control._middle1
+ Tests.Control._inner1
+ make "ret "true
+end
+
+TO Tests.Control.PlainStopInnerWorks
+ make "ret "false
+ Tests.Control._middle1
+ output :ret
+end
+
+;; Test returning from a repeat
+
+TO Tests.Control._inner2
+ make "ret "false
+ repeat 1 [stop]
+end
+
+TO Tests.Control._middle2
+ Tests.Control._inner2
+ make "ret "true
+end
+
+TO Tests.Control.RepeatStopWorksAsExpected
+ make "ret "false
+ Tests.Control._middle2
+ output :ret
+end
+
+;; Test early return from repeat
+
+to Tests.Control._inner3
+ make "ret "false
+ repeat 3 [stop]
+end
+
+to Tests.Control._middle3
+ Tests.Control._inner3
+ make "ret "true
+end
+
+to Tests.Control.RepeatEarlyStopWorks
+ make "ret "false
+ Tests.Control._middle3
+ output :ret
+end
+
+to Tests.Control._inner4
+ make "ret "false
+ if "true [stop]
+end
+
+to Tests.Control._middle4
+ Tests.Control._inner4
+ make "ret "true
+end
+
+to Tests.Control.IfStopWorksAsExpected
+ make "ret "false
+ Tests.Control._middle4
+ output :ret
+end
+
+to Tests.Control._inner5
+repeat 10  [
+  make "Tests.Control._count :Tests.Control._count + 1
+  if equalp :Tests.Control._count 3 [stop]
+]
+end
+
+to Tests.Control._middle5
+   Tests.Control._inner5
+   make "ret "ignore
+end
+
+to Tests.Control.RepeatExitsCorrectly
+ make "Tests.Control._count 0
+ Tests.Control._middle5
+ output (equalp :Tests.Control._count 3)
+end
+
+to Tests.Control._forloop
+  for [i 1 10] [if :i=5 [stop] make "ret :i]
+end
+
+to Tests.Control.StopExitsFor
+  Tests.Control._forloop
+  output (equalp :ret 4)
+end
+
+to Tests.Control._rettrue
+   make "ret "true
+end
+
+to Tests.Control._RunAndStopBackend
+     run [Tests.Control._rettrue stop]
+     make "ret "false
+end
+
+to Tests.Control.RunAndStop
+   Tests.Control._RunAndStopBackend
+   output :ret
+end
+
+
+to Tests.Control._IfAndStopBackend
+     if "true [Tests.Control._rettrue stop]
+     make "ret "false
+end
+
+to Tests.Control.IfAndStop
+   Tests.Control._IfAndStopBackend
+   output :ret
+end

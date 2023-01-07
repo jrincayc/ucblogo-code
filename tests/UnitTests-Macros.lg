@@ -92,3 +92,4 @@ TO Tests.Macro.FunctionStopErrorsAsExpected
   OUTPUT (AND [NOT EMPTY? :err]
               [EQUAL? FIRST :err 5])
 END
+
