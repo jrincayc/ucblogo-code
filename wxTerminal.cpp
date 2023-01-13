@@ -1862,7 +1862,7 @@ wxTerminal::UpdateSelectionColors()
     0.587 * wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT).Green() / 255 +
     0.114 * wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT).Blue() / 255;
 
-  if (abs(terminal_background_luminance - system_background_luminance) >= 0.5) {
+  if (fabs(terminal_background_luminance - system_background_luminance) >= 0.5) {
     // Reasonable contrast between system selection background and terminal background.
     m_selection_foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT);
     m_selection_background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
