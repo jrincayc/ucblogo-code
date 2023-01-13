@@ -77,6 +77,8 @@ install_win: all
 	cp logo.exe $(BINDIR)/ucblogo.exe
 	cp $(MINGW_BIN_DIR)/libgcc_s_dw2-1.dll $(MINGW_BIN_DIR)/libstdc++-6.dll $(MINGW_BIN_DIR)/libwinpthread-1.dll $(BINDIR)/
 	cp -f logolib/* $(LIBLOC)/logolib/.
+	mv -v $(LIBLOC)/logolib/RENAME-GRAVE-ACCENT '$(LIBLOC)/logolib/`'
+	mv -v $(LIBLOC)/logolib/RENAME-NUMBER-SIGN '$(LIBLOC)/logolib/#'
 	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
 	cp -f csls/* $(LIBLOC)/csls/.
 	cp -f LICENSE $(LIBLOC)/
