@@ -151,7 +151,7 @@ mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 
 ucblogo.dmg : mac docs/ucblogo.pdf
 	rm -f ucblogo.dmg ucblogo_base.dmg
-	hdiutil create -size 15m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+	hdiutil create -size 20m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
 	hdiutil attach ucblogo_base.dmg
 	cp -a UCBLogo.app /Volumes/UCBLogo/
 	cp docs/ucblogo.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
