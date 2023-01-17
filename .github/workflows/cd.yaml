@@ -152,13 +152,18 @@ jobs:
         brew install
         autoconf-archive
         automake
-        wxwidgets
     - name: wxWidgets Cache
       uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Install wxwidgets
+      # Install wxwidgets from cache on build machine so autoconf has WX_CONFIG_CHECK
+      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        cd build-static
+        make install
     - name: Checkout Repository
       uses: actions/checkout@v3
       with:
