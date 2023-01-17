@@ -10,6 +10,7 @@ on:
 env:
   INNO_VERSION: 6.1.2
   WX_WIDGETS_VERSION: 3.0.5
+  TARGET_OSX_VERSION: 10.14
 
 jobs:
 
@@ -43,7 +44,7 @@ jobs:
       run: |
         mkdir build-static
         cd build-static
-        ../configure --disable-shared --enable-unicode --with-macosx-version-min=10.14
+        ../configure --disable-shared --enable-unicode --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }}
         make -j2
 
   build_wxwidgets_windows:
@@ -152,13 +153,18 @@ jobs:
         brew install
         autoconf-archive
         automake
-        wxwidgets
     - name: wxWidgets Cache
       uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Install wxwidgets
+      # Install wxwidgets from cache on build machine so autoconf has WX_CONFIG_CHECK
+      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        cd build-static
+        make install
     - name: Checkout Repository
       uses: actions/checkout@v3
       with:
@@ -171,6 +177,10 @@ jobs:
     - name: Build Logo
       env:
         WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
+        CFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CPPFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CXXFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        LDFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
       run: |
         autoreconf --install
         ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
