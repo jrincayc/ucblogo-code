@@ -86,7 +86,11 @@ NODE *lrandom(NODE *arg) {
 		val = pos_int_arg(cdr(arg));
 		if (NOT_THROWING) { /* (random 0 9) <=> (random 10) */
 		    range = getint(val);
-		    range = range + 1 - base;
+		    if (range <= base) {
+		        err_logo(BAD_DATA_UNREC, arg);
+		    } else {
+		        range = range + 1 - base;
+		    }
 		}
 	    }
 	}

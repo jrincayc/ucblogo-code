@@ -17,10 +17,13 @@ InstallSuite [Random Numbers] [Tests.Random.Setup]
 MAKE "Tests.Random [
   ;list tests here
   Tests.Random.RandomNumMonadic
+  Tests.Random.RandomNumMonadicBadInput
   Tests.Random.RandomNumDyadic
- ]
+  Tests.Random.RandomNumDyadicBadInput
+  Tests.Random.RandomNumDyadicBadRange
+]
 
-;; Test Suite setup procedure, main entry 
+;; Test Suite setup procedure, main entry
 ;; point for all tests in this suite
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -47,9 +50,38 @@ to Tests.Random.RandomNumMonadic
   OUTPUT (AND [(Random 1) = 0])
 end
 
+TO Tests.Random.RandomNumMonadicBadInput
+  CATCH "Error [ Random -10 ]
+  LOCALMAKE "err ERROR
+
+  ; Message 7 is "%p doesn't like %s as input"
+  ; for unexpected negative integers
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 7])
+END
+
 to Tests.Random.RandomNumDyadic
   Make "Num3 (Random 3 5)
   OUTPUT (AND [GreaterEqual? :num3 3]
               [LessEqual? :num3 5])
 end
 
+TO Tests.Random.RandomNumDyadicBadInput
+  CATCH "Error [ (Random -10 -5) ]
+  LOCALMAKE "err ERROR
+
+  ; Message 7 is "%p doesn't like %s as input"
+  ; for unexpected negative integers
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 7])
+END
+
+TO Tests.Random.RandomNumDyadicBadRange
+  CATCH "Error [ (Random 10 5) ]
+  LOCALMAKE "err ERROR
+
+  ; Message 4 is "%p doesn't like %s as input"
+  ; for parameter checks handled in procedure logic
+  OUTPUT (AND [NOT EMPTY? :err]
+              [EQUAL? FIRST :err 4])
+END
