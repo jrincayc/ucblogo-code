@@ -19,7 +19,7 @@ MAKE "Tests.Random [
   Tests.Random.RandomNumMonadic
   Tests.Random.RandomNumMonadicBadInput
   Tests.Random.RandomNumDyadic
-  Tests.Random.RandomNumDyadicBadInput
+  Tests.Random.RandomNumDyadicNegative
   Tests.Random.RandomNumDyadicBadRange
 ]
 
@@ -54,10 +54,10 @@ TO Tests.Random.RandomNumMonadicBadInput
   CATCH "Error [ Random -10 ]
   LOCALMAKE "err ERROR
 
-  ; Message 7 is "%p doesn't like %s as input"
+  ; Message 4 is "%p doesn't like %s as input"
   ; for unexpected negative integers
   OUTPUT (AND [NOT EMPTY? :err]
-              [EQUAL? FIRST :err 7])
+              [EQUAL? FIRST :err 4])
 END
 
 to Tests.Random.RandomNumDyadic
@@ -66,14 +66,10 @@ to Tests.Random.RandomNumDyadic
               [LessEqual? :num3 5])
 end
 
-TO Tests.Random.RandomNumDyadicBadInput
-  CATCH "Error [ (Random -10 -5) ]
-  LOCALMAKE "err ERROR
-
-  ; Message 7 is "%p doesn't like %s as input"
-  ; for unexpected negative integers
-  OUTPUT (AND [NOT EMPTY? :err]
-              [EQUAL? FIRST :err 7])
+TO Tests.Random.RandomNumDyadicNegative
+  Make "Num3 (Random -5 -3)
+  OUTPUT (AND [GreaterEqual? :num3 -5]
+              [LessEqual? :num3 -3])
 END
 
 TO Tests.Random.RandomNumDyadicBadRange

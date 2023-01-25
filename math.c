@@ -72,18 +72,35 @@ int numberp(NODE *snd) {
 	return (dr + 1);
 }
 
+
+/*
+   Return a random long. If random() is available,
+   invoke that directly; otherwise, construct a random long
+   from two calls to rand().
+*/
+long random_internal() {
+#ifdef HAVE_SRANDOM
+    return random();
+#else
+    return (((long)rand()) << 15) | rand();
+#endif
+}
+
 NODE *lrandom(NODE *arg) {
 	NODE *val;
-	unsigned long r, base, range;
+	long r, base, range;
 
-	val = pos_int_arg(arg);
+	val = integer_arg(arg);
 	if (NOT_THROWING) {
-	    if (cdr(arg)==0) {	/* (random 10) => (0, 10) */
+	    if (cdr(arg)==0) {	/* (random 10) => [0, 10) */
 		base = 0;
 		range = getint(val);
-	    } else {		/* (random 3 10) => (3, 8) */
+		if (range < 1) {
+		    err_logo(BAD_DATA_UNREC, arg);
+		}
+	    } else {		/* (random 3 10) => [3, 10] */
 		base = getint(val);
-		val = pos_int_arg(cdr(arg));
+		val = integer_arg(cdr(arg));
 		if (NOT_THROWING) { /* (random 0 9) <=> (random 10) */
 		    range = getint(val);
 		    if (range <= base) {
@@ -94,18 +111,16 @@ NODE *lrandom(NODE *arg) {
 		}
 	    }
 	}
+
 	if (NOT_THROWING) {
-#ifdef HAVE_SRANDOM
-	    r = (range <= 0 ? 0 : random() % range);
-#else
-	    r = (((long)rand()) << 15) | rand();
-	    r = (range <= 0 ? 0 : r % range);
-#endif
+	    r = (range <= 0 ? 0 : random_internal() % range);
 	    r += base;
 	    val = newnode(INT);
 	    setint(val, (FIXNUM)r);
 	    return(val);
-	} else return(UNBOUND);
+	} else {
+	    return(UNBOUND);
+	}
 }
 
 NODE *lrerandom(NODE *arg) {
