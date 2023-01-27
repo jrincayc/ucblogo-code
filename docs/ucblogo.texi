@@ -3362,6 +3362,9 @@ must be integers.
 @node   LOGICAL OPERATIONS, GRAPHICS, ARITHMETIC, Top
 @chapter Logical Operations
 
+@node AND OR NOT
+@section And, Or, and Not
+
 @menu
 * AND::                         
 * OR::                          
@@ -3370,7 +3373,7 @@ must be integers.
 
 
 @node  AND, OR, LOGICAL OPERATIONS, LOGICAL OPERATIONS
-@unnumberedsec and
+@unnumberedsubsec and
 @cindex and
 
 @example
