@@ -103,6 +103,11 @@ including adequate documentation.  This manual assumes that you already know
 how to program in Logo, and merely presents the details of this new
 implementation.  
 
+UCBLogo was originally implemented in 1988 on VAX computers at
+Berkeley, based on experience gained from implementing LSRHS Logo on
+PDP-11 computers in the 1970s.  Since then UCBLogo has been ported to
+other computer systems and operating systems.
+
 Read @cite{Computer Science Logo Style, Volume 1: 
  Symbolic Computing} by Brian Harvey (MIT Press, 1997) for a tutorial
 on Logo programming with emphasis on symbolic computation.
@@ -111,7 +116,7 @@ Here are the special features of this dialect of Logo:
 
 @display
 
-Source file compatible among Unix, DOS, Windows, and Mac platforms.
+Source file compatible among Unix, Windows, and Mac platforms.
 
 Random-access arrays.
 
@@ -134,7 +139,8 @@ Macros.
 @end display
 
 Features @strong{not} found in Berkeley Logo include robotics, music,
-animation, parallelism, and multimedia.  For those, buy a commercial version.
+animation, parallelism, and multimedia.  For those, a different implementation
+of Logo is needed.
 
 
 @node GETTER/SETTER VARIBLE SYNTAX, ENTERING AND LEAVING LOGO, OVERVIEW, INTRODUCTION
@@ -3356,6 +3362,9 @@ must be integers.
 @node   LOGICAL OPERATIONS, GRAPHICS, ARITHMETIC, Top
 @chapter Logical Operations
 
+@node AND OR NOT
+@section And, Or, and Not
+
 @menu
 * AND::                         
 * OR::                          
@@ -3364,7 +3373,7 @@ must be integers.
 
 
 @node  AND, OR, LOGICAL OPERATIONS, LOGICAL OPERATIONS
-@unnumberedsec and
+@unnumberedsubsec and
 @cindex and
 
 @example
