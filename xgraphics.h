@@ -129,6 +129,9 @@ typedef struct {
   GC  pm;
 } pen_info;
 
+void save_pen(pen_info *p);
+void restore_pen(pen_info *p);
+
 extern pen_info xgr_pen;
 
 #define p_info_x(p)              (p.xpos)
@@ -152,6 +155,7 @@ extern pen_info xgr_pen;
 #define pen_down                 pen_mode=draw_gc
 
 #define button                   get_button()
+int get_button(void);
 #define mouse_x                  get_mouse_x()
 #define mouse_y                  get_mouse_y()
 
