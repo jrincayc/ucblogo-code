@@ -23,9 +23,10 @@
 #endif
 
 #include <ctype.h>
-#include <sys/wait.h>
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <sys/wait.h>
 #endif
 
 #define WANT_EVAL_REGS 1
