@@ -23,6 +23,7 @@
 #endif
 
 #include <ctype.h>
+#include <sys/wait.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
