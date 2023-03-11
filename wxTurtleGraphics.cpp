@@ -255,7 +255,7 @@ TurtleCanvas::TurtleCanvas(wxFrame *parent)
 
   PrepareDC(*m_memDC);
   wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground
-				       +SPECIAL_COLORS],wxSOLID);
+				       +SPECIAL_COLORS], wxBRUSHSTYLE_SOLID);
   m_memDC->SelectObject(*m_bitmap);
   m_memDC->SetBackgroundMode( wxSOLID );
   m_memDC->SetBackground( myBrush );
@@ -359,7 +359,7 @@ void TurtleCanvas::DrawTurtle(wxDC &dc) {
   //move_to(screen_x_center + right_x, screen_y_center - right_y);
   //line_to(screen_x_center + left_x, screen_y_center - left_y);
   dc.SetPen(wxPen(colors[turtleFrame->xgr_pen.color+SPECIAL_COLORS],
-		  turtleFrame->xgr_pen.pw, wxSOLID));
+		  turtleFrame->xgr_pen.pw, wxPENSTYLE_SOLID));
   dc.DrawLine(screen_x_center + right_x, screen_y_center - right_y,
 	      screen_x_center + left_x, screen_y_center - left_y);
   //line_to(screen_x_center + top_x, screen_y_center - top_y);
@@ -432,20 +432,20 @@ void TurtleCanvas::drawOneLine(struct line *l, wxDC *dc) {
     if (l->pm==PEN_ERASE) {
 	myPen = wxPen(TurtleCanvas::colors[turtleFrame->back_ground+
 					    SPECIAL_COLORS],
-			l->pw, wxSOLID);
+			l->pw, wxPENSTYLE_SOLID);
 
     } else if (l->pm==PEN_REVERSE) {
 	unsigned int pr, pg, pb, br, bg, bb;
 	get_palette(l->color, &pr, &pg, &pb);
 	get_palette(turtleFrame->back_ground, &br, &bg, &bb);
 	xorColor=wxColour((pr^br)/256, (pg^bg)/256, (pb^bb)/256);
-	myPen = wxPen(xorColor, l->pw, wxSOLID);
+	myPen = wxPen(xorColor, l->pw, wxPENSTYLE_SOLID);
 
     } else if(drawToPrinter && turtleFrame->back_ground==0 && l->color==7){
-	myPen = wxPen( wxT("black"), l->pw, wxSOLID);
+	myPen = wxPen( wxT("black"), l->pw, wxPENSTYLE_SOLID);
     } else {
 	myPen = wxPen(TurtleCanvas::colors[l->color+SPECIAL_COLORS],
-			l->pw, wxSOLID);
+			l->pw, wxPENSTYLE_SOLID);
     }
     dc->SetPen(myPen);
 
@@ -549,7 +549,7 @@ extern "C" pen_info* getPen();
 
 void TurtleCanvas::realClearScreen(wxDC *dc) {
     wxBrush myBrush(TurtleCanvas::colors[turtleFrame->back_ground+
-					    SPECIAL_COLORS],wxSOLID);
+					    SPECIAL_COLORS], wxBRUSHSTYLE_SOLID);
     if(drawToPrinter && turtleFrame->back_ground==0){
 	    myBrush.SetColour(_T("white"));
     }
@@ -598,13 +598,13 @@ void TurtleCanvas::realdoFilled(int fillcolor, int count,
 
     if(drawToPrinter && turtleFrame->back_ground==0 &&
 		turtleFrame->xgr_pen.color==7){
-	myPen = wxPen( wxT("black"), turtleFrame->xgr_pen.pw, wxSOLID);
+	myPen = wxPen( wxT("black"), turtleFrame->xgr_pen.pw, wxPENSTYLE_SOLID);
     } else {
 	myPen = wxPen(colors[turtleFrame->xgr_pen.color+SPECIAL_COLORS],
-			turtleFrame->xgr_pen.pw, wxSOLID);
+			turtleFrame->xgr_pen.pw, wxPENSTYLE_SOLID);
     }
     dc->SetPen(myPen);
-    wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxSOLID);
+    wxBrush brush(TurtleCanvas::colors[fillcolor+SPECIAL_COLORS], wxBRUSHSTYLE_SOLID);
 
     dc->SetBrush(brush);
     dc->DrawPolygon(count, wxpoints);
