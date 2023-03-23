@@ -1,2 +1,2 @@
 version=4
-https://github.com/jrincayc/@PACKAGE@-code/tags .*/version_@ANY_VERSION@@ARCHIVE_EXT@
+https://github.com/jrincayc/@PACKAGE@-code/tags .*/version_([0-9.]+)@ARCHIVE_EXT@
