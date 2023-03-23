@@ -192,6 +192,11 @@ void ndprintf(FILE *strm, char *fmt, ...) {
 		sprintf(buf,"%ld",i);
 		cp = buf;
 		while ((ch = *cp++) != '\0') print_char(strm,ch);
+	    } else if (ch == 'x') { /* hexadecimal */
+		i = va_arg(ap, int);
+		sprintf(buf,"%lx",i);
+		cp = buf;
+		while ((ch = *cp++) != '\0') print_char(strm,ch);
 	    } else {
 		print_char(strm,'%');
 		print_char(strm,ch);

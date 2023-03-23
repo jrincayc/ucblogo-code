@@ -54,6 +54,10 @@ NODE
 #define USE_GCC_DISPATCH 1
 #endif
 
+/* Hint:
+   make "redefp "true
+   to get lots of output after defining DEBUGGING 1
+*/
 #define DEBUGGING 0
 
 #if DEBUGGING
@@ -75,27 +79,28 @@ void vs_print() {
 			    "MACRO_RETURN"};
 
     if (!varTrue(Redefp)) return;
-    printf("Val_status = ");
+    ndprintf(stdout, "Val_status = ");
     for (i=0; i<6; i++) {
 	if (vs&1) {
-	    printf(vnames[i]);
+	    ndprintf(stdout, vnames[i]);
 	    vs >>= 1;
-	    if (vs != 0) printf("|");
+	    if (vs != 0) ndprintf(stdout, "|");
 	} else vs >>= 1;
-	if (vs == 0) break; 
+	if (vs == 0) break;
     }
-    if (vs != 0) printf("0%o", vs<<6);
-    printf(", stopping_flag = %s\n", names[stopping_flag]);
+    if (vs != 0) ndprintf(stdout, "0%o", vs<<6);
+    ndprintf(stdout, ", stopping_flag = %t\n", names[stopping_flag]);
 }
 
-void debprint(char *name) {
+void debprintline(int line, char *name) {
     if (!varTrue(Redefp)) return;
-    printf("%s: ", name);
+    ndprintf(stdout, "%d %t:\n", line, name);
     do_debug(deb_enum)
     vs_print();
-    printf("current_unode=0x%x, output_unode=0x%x\n",current_unode,
+    ndprintf(stdout, "current_unode=0x%x, output_unode=0x%x\n\n",current_unode,
 	   output_unode);
 }
+#define debprint(name) debprintline(__LINE__, name)
 #define debprint2(a,b) if (varTrue(Redefp)) ndprintf(stdout,a,b)
 #else
 #define debprint(name)
@@ -1139,6 +1144,11 @@ no_reset_args:	/* allows catch "foo [local ...] to work */
 	dont_fix_ift = 0;
     }
     debprint("eval_sequence_continue");
+    if (STOPPING) {
+        //Note, this should properly be set elsewhere, but
+        // sometimes is not.
+        stopping_flag = RUN;
+    }
     if (stopping_flag == MACRO_RETURN) {
 	if (val != NIL && is_list(val) && (isName(car(val), Name_tag)))
 	    unev = cdr(val);	/* from goto */

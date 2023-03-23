@@ -25,7 +25,6 @@ along with this program.  If not, see https://www.gnu.org/licenses/.
 
 This uses the repository https://github.com/jrincayc/ucblogo-code
 created for further UCBLogo development.
-The current version is 6.2
 
 Changes for this release:
 * Added optional object oriented LOGO features ( --enable-objects )

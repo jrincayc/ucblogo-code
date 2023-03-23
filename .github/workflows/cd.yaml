@@ -10,6 +10,7 @@ on:
 env:
   INNO_VERSION: 6.1.2
   WX_WIDGETS_VERSION: 3.0.5
+  TARGET_OSX_VERSION: 10.14
 
 jobs:
 
@@ -26,7 +27,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Cache wxWidgets
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -43,7 +44,7 @@ jobs:
       run: |
         mkdir build-static
         cd build-static
-        ../configure --disable-shared --enable-unicode --with-macosx-version-min=10.14
+        ../configure --disable-shared --enable-unicode --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }}
         make -j2
 
   build_wxwidgets_windows:
@@ -52,7 +53,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Cache wxWidgets
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -114,7 +115,7 @@ jobs:
         texlive
         zip
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Build Logo
@@ -124,19 +125,19 @@ jobs:
         make -j2 dist
         make -j2 dist-zip
     - name: Archive ucblogo.tar.gz
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ucblogo.tar.gz
         path: >
           *.tar.gz
     - name: Archive ucblogo.zip
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ucblogo.zip
         path: >
           *.zip
     - name: Archive ucblogo.pdf
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ucblogo.pdf
         path: docs/ucblogo.pdf
@@ -152,31 +153,40 @@ jobs:
         brew install
         autoconf-archive
         automake
-        wxwidgets
     - name: wxWidgets Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+    - name: Install wxwidgets
+      # Install wxwidgets from cache on build machine so autoconf has WX_CONFIG_CHECK
+      working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+      run: |
+        cd build-static
+        make install
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Download PDF manual
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ucblogo.pdf
         path: docs
     - name: Build Logo
       env:
         WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
+        CFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CPPFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CXXFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        LDFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
       run: |
         autoreconf --install
         ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
         make -j2 ucblogo.dmg
     - name: Archive ucblogo.dmg
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ucblogo.dmg
         path: ucblogo.dmg
@@ -187,7 +197,7 @@ jobs:
     timeout-minutes: 5
     steps:
     - name: Cache inno
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: inno-cache
       with:
         path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
@@ -221,7 +231,7 @@ jobs:
           mingw-w64-i686-toolchain
           unzip
     - name: Inno Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: inno-cache
       with:
         path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
@@ -232,13 +242,13 @@ jobs:
       run: |
         ./innosetup-${{ env.INNO_VERSION }}.exe /SP- /VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES
     - name: wxWidgets Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Prepare Repository
@@ -248,7 +258,7 @@ jobs:
         mingw32-make -f makefile.msys git.c
         rm libloc.c
     - name: Download PDF manual
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ucblogo.pdf
         path: docs
@@ -268,7 +278,7 @@ jobs:
       run: |
         iscc ucblogo.iss
     - name: Archive installer
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ucblogosetup.exe
-        path: inno/ucblogo62setup.exe
+        path: inno/ucblogo*setup.exe
