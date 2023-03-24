@@ -78,7 +78,7 @@ jobs:
       run: |
         mkdir build-static
         cd build-static
-        ../configure --disable-shared --enable-unicode --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }} --with-libjpeg=builtin --with-libpng=builtin --without-libtiff
+        ../configure --disable-shared --enable-unicode --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }} --with-libjpeg=builtin --with-libpng=builtin --with-regex=builtin --without-libtiff
         make -j2
 
   build_wxwidgets_windows:
