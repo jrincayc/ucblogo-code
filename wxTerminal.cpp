@@ -837,7 +837,7 @@ extern "C" void color_init(void);
   SetMinSize(wxSize(50, 50));
 
   for(i = 0; i < 16; i++)
-    m_colorPens[i] = wxPen(m_colors[i], 1, wxSOLID);
+    m_colorPens[i] = wxPen(m_colors[i], 1, wxPENSTYLE_SOLID);
 
   m_printerFN = 0;
   m_printerName = 0;
