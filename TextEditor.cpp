@@ -42,6 +42,14 @@ wxTextCtrl(f, a, s, p, sz, b)
 	prevFind=0;
 	this->font = font;
 	SetFont(font);
+
+	// As of wxWidgets 3.1.1, there is support for selectively disabling OSX smart substitutions on text widgets.
+	// Smart substitution, particularly of quotes, causes bugs when editing code.
+#ifdef __WXOSX__
+#if wxCHECK_VERSION(3, 1, 1)
+	OSXDisableAllSmartSubstitutions();
+#endif // wxCHECK_VERSION
+#endif // __WXOSX__
 }
 
 void TextEditor::SetFont(wxFont font){
