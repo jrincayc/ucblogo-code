@@ -95,8 +95,8 @@ extern char **environ, *tgoto(), *tgetstr();
 
 char *termcap_ptr;
 
-int termcap_putter(char ch) {
-    *termcap_ptr++ = ch;
+int termcap_putter(int ch) {
+    *termcap_ptr++ = (char)ch;
     return 0;
 }
 

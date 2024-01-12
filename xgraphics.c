@@ -268,7 +268,7 @@ void placate_x()
   XConfigureEvent *xce;
   XMotionEvent    *xme;
   XButtonEvent    *xbe;
-    checkX;
+  checkX();
 
   while(XCheckWindowEvent(dpy, win, EVENT_MASK, (XEvent *)&event))
 
@@ -310,14 +310,14 @@ void check_X11_stop() {
 
     if (--count == 0) {
 	count = 300;
-	checkX;
+	checkX();
 	placate_x();
     }
 }
 
 int get_button()
 {
-  checkX;
+  checkX(0);
 
   placate_x();
 
@@ -326,7 +326,7 @@ int get_button()
 
 int get_mouse_x()
 {
-  checkX;
+  checkX(-1);
 
   placate_x();
 
@@ -336,7 +336,7 @@ int get_mouse_x()
 
 int get_mouse_y()
 {
-  checkX;
+  checkX(-1);
 
   placate_x();
 
