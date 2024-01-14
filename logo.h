@@ -69,6 +69,7 @@
 #ifndef unix
 #define unix
 #endif
+#define SIG_TAKES_ARG
 #include "config.h"
 #ifndef X_DISPLAY_MISSING
 #define x_window
