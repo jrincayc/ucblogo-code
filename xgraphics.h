@@ -29,6 +29,7 @@ void logofill(void);
 	return ret; \
     } \
 }
+/* XXX: Can this be safely used? */
 #define checkXnoreturn { \
     if (have_x < 0) real_window_init(); \
     if (!have_x) { \

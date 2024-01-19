@@ -96,6 +96,7 @@ extern char **environ, *tgoto(), *tgetstr();
 char *termcap_ptr;
 
 int termcap_putter(int ch) {
+    /* XXX: Should this check for any non-char values? */
     *termcap_ptr++ = (char)ch;
     return 0;
 }
