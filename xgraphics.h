@@ -22,15 +22,22 @@ void logofill(void);
 
 #define GR_SIZE         60000
 
-#define checkX { \
+#define checkX(ret) {			\
     if (have_x < 0) real_window_init(); \
     if (!have_x) { \
 	err_logo(BAD_GRAPH_INIT,NIL); \
-	return; \
+	return ret; \
+    } \
+}
+/* XXX: Can this be safely used? */
+#define checkXnoreturn { \
+    if (have_x < 0) real_window_init(); \
+    if (!have_x) { \
+	err_logo(BAD_GRAPH_INIT,NIL); \
     } \
 }
 
-#define prepare_to_draw          {checkX; placate_x();}
+#define prepare_to_draw          {checkXnoreturn; placate_x();}
 #define done_drawing             XFlush(dpy)
 extern void placate_x();
 
