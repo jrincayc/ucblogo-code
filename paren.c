@@ -229,12 +229,12 @@ int missing_space(NODE *name) {
 
 /* Parenthesize an expression.  Set expr to the node after the first full
  * expression.
- */ 
+ */
 NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
 
     NODE *first = NIL, *tree = NIL, *pproc, *retval;
     NODE **ifnode = (NODE **)NIL;
-#ifdef OBJECT
+#ifdef OBJECTS
     NODE *old_usual_parent = usual_parent;
 #endif
 
@@ -245,7 +245,7 @@ NODE *paren_expr(NODE **expr, BOOLEAN inparen) {
       return *expr;
     }
 
-    // get the first element in the expression, 
+    // get the first element in the expression,
     // and pop if off the stack
     first = car(*expr);
     pop(*expr);
