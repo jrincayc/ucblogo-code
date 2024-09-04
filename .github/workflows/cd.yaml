@@ -214,7 +214,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Download PDF manual
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ucblogo.pdf
         path: docs
@@ -302,7 +302,7 @@ jobs:
         mingw32-make -f makefile.msys git.c
         rm libloc.c
     - name: Download PDF manual
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ucblogo.pdf
         path: docs
