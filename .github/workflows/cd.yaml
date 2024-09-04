@@ -169,19 +169,19 @@ jobs:
         make -j2 dist
         make -j2 dist-zip
     - name: Archive ucblogo.tar.gz
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ucblogo.tar.gz
         path: >
           *.tar.gz
     - name: Archive ucblogo.zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ucblogo.zip
         path: >
           *.zip
     - name: Archive ucblogo.pdf
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ucblogo.pdf
         path: docs/ucblogo.pdf
@@ -230,7 +230,7 @@ jobs:
         ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
         make -j2 ucblogo.dmg
     - name: Archive ucblogo.dmg
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ucblogo.dmg
         path: ucblogo.dmg
@@ -322,7 +322,7 @@ jobs:
       run: |
         iscc ucblogo.iss
     - name: Archive installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ucblogosetup.exe
         path: inno/ucblogo*setup.exe
