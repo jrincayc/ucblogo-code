@@ -66,5 +66,5 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: Logo Unit Test Results
+        name: Logo Unit Test Results with ${{ matrix.wx_version }}
         path: logo-unit-test-results.txt
