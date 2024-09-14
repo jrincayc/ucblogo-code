@@ -445,9 +445,7 @@ NODE *lwait(NODE *args) {
 	n = (unsigned int)getint(num) * 100 / 6; // milliseconds
 	wxLogoSleep(n);
 	//check_throwing;
-	return(UNBOUND); 
-#endif
-
+#else
 	if (getint(num) > 0) {
 #ifdef unix
 #ifdef HAVE_USLEEP
@@ -485,8 +483,9 @@ NODE *lwait(NODE *args) {
 		if (n > 0) sleep(n);
 	    }
 	    input_blocking = 0;
-#endif
+#endif /* unix */
 	}
+#endif /* HAVE_WX */
     }
     return(UNBOUND);
 }
