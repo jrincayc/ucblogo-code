@@ -208,7 +208,8 @@ jobs:
       working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
       run: |
         cd build-static
-        make install
+        sudo make install
+        sudo cp ../wxwin.m4 /opt/homebrew/share/aclocal/
     - name: Checkout Repository
       uses: actions/checkout@v3
       with:
