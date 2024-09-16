@@ -8,7 +8,6 @@ on:
     - release*
 
 env:
-  INNO_VERSION: 6.1.2
   WX_WIDGETS_VERSION: 3.2.2.1
   TARGET_OSX_VERSION: 10.14
 
@@ -236,33 +235,9 @@ jobs:
         name: ucblogo.dmg
         path: ucblogo.dmg
 
-  download_inno_windows:
-    name: Download Inno for Windows
-    runs-on: windows-latest
-    timeout-minutes: 5
-    steps:
-    - name: Cache inno
-      uses: actions/cache@v3
-      id: inno-cache
-      with:
-        path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
-        key: ${{ runner.os }}-innosetup-${{ env.INNO_VERSION }}
-    - name: Install Dependencies
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW32
-    - name: Download inno
-      if: steps.inno-cache.outputs.cache-hit != 'true'
-      working-directory: ${{ runner.temp }}
-      shell: msys2 {0}
-      run: |
-        mkdir innosetup-${{ env.INNO_VERSION }}
-        cd innosetup-${{ env.INNO_VERSION }}
-        wget -q https://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
-
   build_windows:
     name: Build Logo for Windows
-    needs: [ download_inno_windows, build_wxwidgets_windows, build_linux ]
+    needs: [ build_wxwidgets_windows, build_linux ]
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
@@ -275,17 +250,6 @@ jobs:
           base-devel
           mingw-w64-i686-toolchain
           unzip
-    - name: Inno Cache
-      uses: actions/cache@v3
-      id: inno-cache
-      with:
-        path: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
-        key: ${{ runner.os }}-innosetup-${{ env.INNO_VERSION }}
-    - name: Install Inno
-      working-directory: ${{ runner.temp }}\innosetup-${{ env.INNO_VERSION }}
-      shell: pwsh
-      run: |
-        ./innosetup-${{ env.INNO_VERSION }}.exe /SP- /VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES
     - name: wxWidgets Cache
       uses: actions/cache@v3
       id: wxwidgets-cache
