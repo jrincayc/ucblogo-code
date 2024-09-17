@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Cache wxWidgets
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Cache wxWidgets
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -86,7 +86,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Cache wxWidgets
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -145,7 +145,7 @@ jobs:
         texlive
         zip
     - name: wxWidgets Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -158,7 +158,7 @@ jobs:
         sudo make install
         sudo cp ../wxwin.m4 /usr/share/aclocal/
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build Logo
@@ -197,7 +197,7 @@ jobs:
         autoconf-archive
         automake
     - name: wxWidgets Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -210,7 +210,7 @@ jobs:
         sudo make install
         sudo cp ../wxwin.m4 /opt/homebrew/share/aclocal/
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Download PDF manual
@@ -251,13 +251,13 @@ jobs:
           mingw-w64-i686-toolchain
           unzip
     - name: wxWidgets Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
         key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Prepare Repository
