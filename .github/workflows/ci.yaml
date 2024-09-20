@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 5
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Conditionally Add wxWidgets Unofficial Repo
       if: contains(matrix.wx_version, 'unofficial')
       run: |
