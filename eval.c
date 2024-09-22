@@ -58,11 +58,11 @@ NODE
    make "redefp "true
    to get lots of output after defining DEBUGGING 1
 */
-#define DEBUGGING 0
+#define DEBUGGING 1
 
 #if DEBUGGING
 #define DEB_STACK 0	    /* set to 1 to log save/restore */
-#define DEB_CONT 0	    /* set to 1 to log newcont/fetch_cont */
+#define DEB_CONT 1	    /* set to 1 to log newcont/fetch_cont */
 
 #define do_debug(x) \
     x(expresn) x(unev) x(val) x(didnt_get_output) x(didnt_output_name) x(fun) \
@@ -303,6 +303,7 @@ NODE *deep_copy(NODE *expresn) {
 int in_eval_save = 0;
 
 void eval_save() {
+    debprint("eval_save");
     push(NIL, stack);
     int_during_gc = 0;
     in_eval_save = 1;
@@ -320,6 +321,7 @@ void eval_save() {
 }
 
 void eval_restore() {
+    debprint("eval_restore");
     int_during_gc = 0;
     in_eval_save = 1;
     memcpy(&regs, car(stack), sizeof(regs));
