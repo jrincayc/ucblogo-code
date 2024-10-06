@@ -1,3 +1,10 @@
+ucblogo (6.2.4-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Define SIG_TAKES_ARG for glibc. (Closes: #1075594)
+
+ -- Chris Hofstaedtler <zeha@debian.org>  Sun, 06 Oct 2024 14:23:08 +0200
+
 ucblogo (6.2.4-1) unstable; urgency=medium
 
   * new upstream release
