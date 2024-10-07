@@ -91,8 +91,9 @@ char wx_font_face[300] = "Courier";   //300 matches lsetfont in wxterm.c
 int wx_font_size = 12;	
 int label_height = 15;
 
-int termcap_putter(char ch) {
-    *termcap_ptr++ = ch;
+int termcap_putter(int ch) {
+    /* XXX: Should this check for any non-char values? */
+    *termcap_ptr++ = (char)ch;
     return 0;
 }
 
