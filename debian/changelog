@@ -1,3 +1,14 @@
+ucblogo (6.2.4-2) unstable; urgency=medium
+
+  * Patches to:
+    - ack NMU GCC-14 patch (thanks Chris Hofstaedtler!)
+    - remove obsolete AC_PROG_GCC_TRADITIONAL macro
+    - allow config-time disabling use of wx library without uninstalling it
+    - update type of termcap_putter per modern glibc
+    - clean makehelp binary for build-source-after-build (closes: #1046787)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 07 Oct 2024 14:48:48 +0100
+
 ucblogo (6.2.4-1.1) unstable; urgency=medium
 
   * Non-maintainer upload.

@@ -1,1 +1,5 @@
-gcc14.patch
+0001-gcc14.patch
+0002-autoupdate.patch
+0003-autoconf-wx-option.patch
+0004-termcap_putter-type.patch
+0005-clean-makehelp.patch

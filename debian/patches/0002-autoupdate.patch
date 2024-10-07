@@ -1,0 +1,20 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Mon, 7 Oct 2024 08:38:30 +0100
+Subject: autoupdate
+
+---
+ configure.ac | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index edc1899..656ecbc 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -106,7 +106,6 @@ AC_TYPE_SIZE_T
+ 
+ dnl Checks for library functions.
+ AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy])
+-AC_PROG_GCC_TRADITIONAL
+ 
+ AC_SUBST(WXOFILES)
+ AC_SUBST(WXSRCFILES)

@@ -1,0 +1,35 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Mon, 7 Oct 2024 09:18:53 +0100
+Subject: termcap_putter type
+
+---
+ term.c   | 2 +-
+ wxterm.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/term.c b/term.c
+index 48ddc42..5e4ed2f 100644
+--- a/term.c
++++ b/term.c
+@@ -95,7 +95,7 @@ extern char **environ, *tgoto(), *tgetstr();
+ 
+ char *termcap_ptr;
+ 
+-int termcap_putter(char ch) {
++int termcap_putter(int ch) {
+     *termcap_ptr++ = ch;
+     return 0;
+ }
+diff --git a/wxterm.c b/wxterm.c
+index 17aea58..f5a2b9d 100644
+--- a/wxterm.c
++++ b/wxterm.c
+@@ -91,7 +91,7 @@ char wx_font_face[300] = "Courier";   //300 matches lsetfont in wxterm.c
+ int wx_font_size = 12;	
+ int label_height = 15;
+ 
+-int termcap_putter(char ch) {
++int termcap_putter(int ch) {
+     *termcap_ptr++ = ch;
+     return 0;
+ }

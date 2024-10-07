@@ -1,0 +1,23 @@
+From: Chris Hofstaedtler <zeha@debian.org>
+Date: Sun, 6 Oct 2024 14:23:08 +0200
+Subject: gcc14
+
+Fix FTBFS with GCC-14, https://bugs.debian.org/1075594
+===================================================================
+---
+ logo.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/logo.h b/logo.h
+index 314173f..b07d634 100644
+--- a/logo.h
++++ b/logo.h
+@@ -32,6 +32,8 @@
+ 
+ #define ecma	/* for European extended character set using parity bit */
+ 
++/* glibc */
++#define SIG_TAKES_ARG
+ 
+ #ifdef WIN32
+ #define ibm
