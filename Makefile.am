@@ -80,6 +80,7 @@ EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
 # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # See below; needs to run in build environment.
 EXTRA_DIST += makehelp.c
+CLEANFILES = makehelp
 
 # Misc information, documentation, historical files, etc
 EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\

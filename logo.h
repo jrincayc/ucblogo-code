@@ -32,6 +32,8 @@
 
 #define ecma	/* for European extended character set using parity bit */
 
+/* glibc */
+#define SIG_TAKES_ARG
 
 #ifdef WIN32
 #define ibm

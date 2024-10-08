@@ -34,7 +34,13 @@ AS_IF([test x${enable_gitid} = xyes],
  [AC_DEFINE([GITID],[1],[enable gitid in version])])
 AM_CONDITIONAL([GITID], [test x${enable_gitid} = xyes])
 
-m4_ifdef([WX_CONFIG_CHECK], [
+AC_MSG_CHECKING([enable_wx])
+AC_ARG_ENABLE([wx],
+       [AS_HELP_STRING([--enable-wx],[try to use wx library for graphics (default=yes)])],,[enable_wx=yes])
+AC_MSG_RESULT([$enable_wx])
+
+AS_IF([test x${enable_wx} = xyes],
+[m4_ifdef([WX_CONFIG_CHECK], [
 WX_CONFIG_OPTIONS
 
 WX_CONFIG_CHECK([3.0.0], [wxWin=1])
@@ -52,7 +58,8 @@ AM_COND_IF([WX],
   ], [
   AC_MSG_NOTICE([No WX_CONFIG_CHECK available])
   AM_CONDITIONAL([WX], [test 1 = 0])
-])
+])],
+ AM_CONDITIONAL([WX], [test 1 = 0]))
 
 
 AC_MSG_CHECKING([enable_x11])
@@ -106,7 +113,6 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy])
-AC_PROG_GCC_TRADITIONAL
 
 AC_SUBST(WXOFILES)
 AC_SUBST(WXSRCFILES)
