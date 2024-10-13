@@ -188,7 +188,7 @@ jobs:
         name: ucblogo.pdf
         path: docs/ucblogo.pdf
 
-  build_osx:
+  build_architecure_specific_osx:
     strategy:
       matrix:
         architecture: [ x86_64, arm64 ]
@@ -239,6 +239,56 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ucblogo-${{ matrix.architecture }}.dmg
+        path: ucblogo.dmg
+
+  build_universal_binary_osx:
+    name: Build universal binary for OSX
+    needs: [ build_architecure_specific_osx ]
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+    - name: Download PDF manual
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Download x86_64 disk image
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo-x86_64.dmg
+        path: ucblogo-x86_64
+    - name: Extract x86_64 application
+      run: |
+        hdiutil attach ucblogo-x86_64/ucblogo.dmg
+        cp -r /Volumes/UCBLogo/UCBLogo.app ucblogo-x86_64/UCBLogo.app
+        hdiutil detach /Volumes/UCBLogo
+    - name: Download arm64 disk image
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo-arm64.dmg
+        path: ucblogo-arm64
+    - name: Extract arm64 application
+      run: |
+        hdiutil attach ucblogo-arm64/ucblogo.dmg
+        cp -r /Volumes/UCBLogo/UCBLogo.app ucblogo-arm64/UCBLogo.app
+        hdiutil detach /Volumes/UCBLogo
+    - name: Build universal application
+      run: |
+        lipo -create -output ucblogo ucblogo-x86_64/UCBLogo.app/Contents/MacOS/UCBLogo ucblogo-arm64/UCBLogo.app/Contents/MacOS/UCBLogo
+        cp -r ucblogo-arm64/UCBLogo.app UCBLogo.app
+        cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
+    - name: Build Logo disk image
+      run: |
+        hdiutil create -size 20m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+        hdiutil attach ucblogo_base.dmg
+        cp -a UCBLogo.app /Volumes/UCBLogo/
+        cp docs/ucblogo.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
+        hdiutil detach /Volumes/UCBLogo/
+        hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
+    - name: Archive universal ucblogo.dmg
+      uses: actions/upload-artifact@v4
+      with:
+        name: ucblogo.dmg
         path: ucblogo.dmg
 
   build_windows:
