@@ -55,7 +55,10 @@ jobs:
         make -j2
 
   build_wxwidgets_osx:
-    name: Build wxWidgets for OSX
+    strategy:
+      matrix:
+        architecture: [ x86_64, arm64 ]
+    name: Build wxWidgets for OSX ${{ matrix.architecture }}
     runs-on: macos-latest
     timeout-minutes: 60
     steps:
@@ -64,7 +67,7 @@ jobs:
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}-${{ matrix.architecture }}
     - name: Download wxWidgets
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
       working-directory: ${{ runner.temp }}
@@ -77,7 +80,7 @@ jobs:
       run: |
         mkdir build-static
         cd build-static
-        ../configure --disable-shared --enable-unicode --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }} --with-libjpeg=builtin --with-libpng=builtin --with-regex=builtin --without-libtiff
+        ../configure --disable-shared --disable-sys-libs --enable-unicode --enable-macosx_arch=${{ matrix.architecture }} --with-macosx-version-min=${{ env.TARGET_OSX_VERSION }}
         make -j2
 
   build_wxwidgets_windows:
@@ -185,8 +188,11 @@ jobs:
         name: ucblogo.pdf
         path: docs/ucblogo.pdf
 
-  build_osx:
-    name: Build Logo for OSX
+  build_architecure_specific_osx:
+    strategy:
+      matrix:
+        architecture: [ x86_64, arm64 ]
+    name: Build Logo for OSX ${{ matrix.architecture }}
     needs: [ build_wxwidgets_osx, build_linux ]
     runs-on: macos-latest
     timeout-minutes: 15
@@ -201,7 +207,7 @@ jobs:
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}-${{ matrix.architecture }}
     - name: Install wxwidgets
       # Install wxwidgets from cache on build machine so autoconf has WX_CONFIG_CHECK
       working-directory: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}
@@ -221,15 +227,65 @@ jobs:
     - name: Build Logo
       env:
         WX_CONFIG_PATH: ${{ runner.temp }}/wxWidgets-${{ env.WX_WIDGETS_VERSION }}/build-static/wx-config
-        CFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
-        CPPFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
-        CXXFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
-        LDFLAGS: -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CFLAGS: ${{ matrix.architecture == 'x86_64' && '-arch x86_64 -masm=intel' || '' }} -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CPPFLAGS: ${{ matrix.architecture == 'x86_64' && '-arch x86_64 -masm=intel' || '' }} -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        CXXFLAGS: ${{ matrix.architecture == 'x86_64' && '-arch x86_64 -masm=intel' || '' }} -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
+        LDFLAGS: ${{ matrix.architecture == 'x86_64' && '-arch x86_64 -masm=intel' || '' }} -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
       run: |
         autoreconf --install
         ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
         make -j2 ucblogo.dmg
-    - name: Archive ucblogo.dmg
+    - name: Archive ucblogo.dmg ${{ matrix.architecture }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ucblogo-${{ matrix.architecture }}.dmg
+        path: ucblogo.dmg
+
+  build_universal_binary_osx:
+    name: Build universal binary for OSX
+    needs: [ build_architecure_specific_osx ]
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+    - name: Download PDF manual
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo.pdf
+        path: docs
+    - name: Download x86_64 disk image
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo-x86_64.dmg
+        path: ucblogo-x86_64
+    - name: Extract x86_64 application
+      run: |
+        hdiutil attach ucblogo-x86_64/ucblogo.dmg
+        cp -r /Volumes/UCBLogo/UCBLogo.app ucblogo-x86_64/UCBLogo.app
+        hdiutil detach /Volumes/UCBLogo
+    - name: Download arm64 disk image
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ucblogo-arm64.dmg
+        path: ucblogo-arm64
+    - name: Extract arm64 application
+      run: |
+        hdiutil attach ucblogo-arm64/ucblogo.dmg
+        cp -r /Volumes/UCBLogo/UCBLogo.app ucblogo-arm64/UCBLogo.app
+        hdiutil detach /Volumes/UCBLogo
+    - name: Build universal application
+      run: |
+        lipo -create -output ucblogo ucblogo-x86_64/UCBLogo.app/Contents/MacOS/UCBLogo ucblogo-arm64/UCBLogo.app/Contents/MacOS/UCBLogo
+        cp -r ucblogo-arm64/UCBLogo.app UCBLogo.app
+        cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
+    - name: Build Logo disk image
+      run: |
+        hdiutil create -size 20m -fs HFS+ -volname "UCBLogo" ucblogo_base.dmg
+        hdiutil attach ucblogo_base.dmg
+        cp -a UCBLogo.app /Volumes/UCBLogo/
+        cp docs/ucblogo.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
+        hdiutil detach /Volumes/UCBLogo/
+        hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
+    - name: Archive universal ucblogo.dmg
       uses: actions/upload-artifact@v4
       with:
         name: ucblogo.dmg
