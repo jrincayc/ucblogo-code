@@ -3,8 +3,8 @@
 
 [Setup]
 AppName=Berkeley Logo
-AppVerName=Berkeley Logo 6.2.4
-AppVersion=6.2.4
+AppVerName=Berkeley Logo 6.2.5
+AppVersion=6.2.5
 AppPublisher=University of California, Berkeley
 AppPublisherURL=http://www.cs.berkeley.edu/~bh/logo.html
 AppSupportURL=https://github.com/jrincayc/ucblogo-code/issues
