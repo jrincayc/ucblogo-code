@@ -91,7 +91,7 @@ struct sgttyb tty_cooked, tty_cbreak;
 
 int interactive, tty_charmode;
 
-extern char **environ, *tgoto(), *tgetstr();
+extern char **environ;
 
 char *termcap_ptr;
 

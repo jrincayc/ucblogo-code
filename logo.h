@@ -288,6 +288,7 @@ struct string_block {
 #define incstrrefcnt(sh)        (((sh)->str_refcnt)++)
 #define decstrrefcnt(sh)        (--((sh)->str_refcnt))
 
+typedef struct logo_node NODE;
 typedef struct logo_node {
     NODETYPES node_type;
     int my_gen; /* Nodes's Generation */ /*GC*/
@@ -307,7 +308,7 @@ typedef struct logo_node {
 	    FIXNUM nstring_len;
 	} nstring;
 	struct {
-	    struct logo_node * (*nprim_fun) ();
+	    struct logo_node * (*nprim_fun) (NODE *);
 	    short npriority;
 	    short nmin_args;
 	    short ndef_args;

@@ -346,11 +346,11 @@ NODE *find_to(NODE *line) {
 		    ((c = *(p-1)) == ' ' || c == '\t' || c == '\n'))
 		return make_strnode(p, getstrhead(line),
 				    getstrlen(line)-(p-lp),
-				    nodetype(line), strcpy);
+				    nodetype(line), strnzcpy);
 	    if (c == '[')
 		return make_strnode(p, getstrhead(line),
 				    strchr(p, ']')-p,
-				    nodetype(line), strcpy);
+				    nodetype(line), strnzcpy);
 	}
 	p++;
     }
@@ -1815,7 +1815,7 @@ NODE *cpdf_newname(NODE *name, NODE*titleline) {
     p2 = p1+strcspn(p1, " \t");
     sprintf(buf, "%.*s%.*s%s",
 	    (int)(p1-titlestr), titlestr, (int)getstrlen(nname), namestr, p2);
-    return make_strnode(buf, NULL, strlen(buf), STRING, strcpy);
+    return make_strnode(buf, NULL, strlen(buf), STRING, strnzcpy);
 }
 
 NODE *lcopydef(NODE *args) {

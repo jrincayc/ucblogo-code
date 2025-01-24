@@ -78,7 +78,8 @@ char *strnzcpy(char *s1, char *s2, int n) {
     return(s1);
 }
 
-char *word_strnzcpy(char *s1, NODE *kludge, int n) {  /* KLUDGE! */
+char *word_strnzcpy(char *s1, char *kludge_char, int n) {  /* KLUDGE! */
+    NODE *kludge = (NODE *)kludge_char;
     char *temp = s1;
 
     while (kludge != NIL) {
@@ -285,7 +286,7 @@ int noparitylow_strncmp(char *s1, char *s2, int n) {
 }
 
 NODE *make_strnode(char *strptr, struct string_block *strhead, int len,
-		   NODETYPES typ, char *(*copy_routine)())
+		   NODETYPES typ, char *(*copy_routine)(char *, char *, int))
 {
     NODE *strnode;
 

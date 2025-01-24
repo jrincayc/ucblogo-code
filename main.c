@@ -196,9 +196,13 @@ void do_keyact(int ch) {
     }
 }
 
-
+#ifdef SIG_TAKES_ARG
+void (*intfuns[])(int) = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
+#else
 void (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
 			     delayed_keyact};
+#endif
 
 void delayed_int() {
 #ifdef SIG_TAKES_ARG
