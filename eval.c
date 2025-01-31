@@ -278,7 +278,7 @@ void reset_args(NODE *old_stack) {
 NODE *bf3(NODE *name) {
     NODE *string = cnv_node_to_strnode(name);
     return make_strnode(getstrptr(string)+3, getstrhead(string),
-			getstrlen(string)-3, nodetype(string), strcpy);
+			getstrlen(string)-3, nodetype(string), strnzcpy);
 }
 
 NODE *deep_copy(NODE *expresn) {

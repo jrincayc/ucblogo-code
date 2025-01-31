@@ -48,7 +48,7 @@ typedef struct priminfo {
     short defargs;
     short maxargs;
     short priority;
-    NODE *(*prim) ();
+    NODE *(*prim) (NODE *);
 } PRIMTYPE;
 
 NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,

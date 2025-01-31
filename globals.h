@@ -50,7 +50,7 @@ extern jmp_buf iblk_buf;
 
 /* logodata.c */
 extern char *strnzcpy(char *, char *, int);
-extern char *word_strnzcpy(char *, NODE *, int);
+extern char *word_strnzcpy(char *, char *, int);
 extern char *noparity_strnzcpy(char *, char *, int);
 extern char *backslashed_strnzcpy(char *, char *, int);
 extern char *mend_strnzcpy(char *, char *, int);
@@ -62,7 +62,7 @@ extern int low_strncmp(char *, char *, int);
 extern int noparity_strncmp(char *, char *, int);
 extern int noparitylow_strncmp(char *, char *, int);
 extern NODE *make_strnode(char *, struct string_block *, int,
-			  NODETYPES, char *(*)());
+			  NODETYPES, char *(*)(char *, char *, int));
 extern void make_runparse(NODE *);
 extern NODE *make_quote(NODE *);
 extern NODE *maybe_quote(NODE *);
@@ -177,7 +177,7 @@ extern NODE *lbeforep(NODE *);
 
 /* intern.c */
 extern NODE *hash_table[HASH_LEN];
-void map_oblist(void (*)());
+void map_oblist(void (*)(NODE *));
 extern NODE *make_instance(NODE *, NODE *);
 extern NODE *intern(NODE *);
 
@@ -617,8 +617,8 @@ extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
-extern NODE*IncreaseFont(void *);
-extern NODE*DecreaseFont(void *);
+extern NODE*IncreaseFont(NODE *);
+extern NODE*DecreaseFont(NODE *);
 extern int turtlePosition_x;
 extern int turtlePosition_y;
 #define SCREEN_WIDTH		1

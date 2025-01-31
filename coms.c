@@ -543,7 +543,6 @@ NODE *lshell(NODE *args) {
 #endif
     return(UNBOUND);
 #else
-    extern FILE *popen();
     char cmdbuf[300];
     FILE *strm;
     NODE *head = NIL, *tail = NIL, *this;

@@ -27,7 +27,7 @@
 
 NODE *hash_table[HASH_LEN] = {NIL};
 
-void map_oblist(void (*fcn)()) {
+void map_oblist(void (*fcn)(NODE *)) {
     int i;
     NODE *nd;
 

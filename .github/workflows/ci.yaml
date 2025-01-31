@@ -16,7 +16,7 @@ jobs:
   build_and_test:
     strategy:
       matrix:
-        wx_version: [ libwxgtk3.0-gtk3-dev, libwxgtk3.2unofficial-dev ]
+        wx_version: [ libwxgtk3.2-dev ]
     name: Build and Test
     runs-on: ubuntu-latest
     timeout-minutes: 5
