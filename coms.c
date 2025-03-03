@@ -60,7 +60,7 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 #endif
 
-#ifdef __APPLE__
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #else
 #include <time.h>
@@ -594,7 +594,7 @@ NODE *lshell(NODE *args) {
 NODE *ltime(NODE *args) {
     NODE *val;
     FLONUM fval = 0.0;
-#ifdef __APPLE__
+#ifdef HAVE_GETTIMEOFDAY
     struct timeval tp;
 
     gettimeofday(&tp, NULL);

@@ -112,7 +112,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy])
+AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy gettimeofday])
 
 AC_SUBST(WXOFILES)
 AC_SUBST(WXSRCFILES)
