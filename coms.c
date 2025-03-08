@@ -37,10 +37,6 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #ifdef ibm
 #include "process.h"
 #endif
-#ifdef mac
-#include <console.h>
-#include <Events.h>
-#endif
 #ifdef __RZTC__
 #include <time.h>
 #include <controlc.h>
@@ -354,13 +350,6 @@ void prepare_to_exit(BOOLEAN okay) {
 	wxLogoExit (0);
 #endif
 
-#ifdef mac
-    if (okay) {
-	console_options.pause_atexit = 0;
-	exit(0);
-    }
-#endif
-
 #ifndef WIN32 /* sowings */
 #ifdef ibm
     ltextscreen(NIL);
@@ -413,10 +402,6 @@ NODE *lwait(NODE *args) {
 #if defined(unix) && HAVE_USLEEP
 	unsigned int seconds, microseconds;
 #endif
-#ifdef mac
-    long target;
-    extern void ProcessEvent(void);
-#endif
 
     num = pos_int_arg(args);
     if (NOT_THROWING) {
@@ -462,12 +447,6 @@ NODE *lwait(NODE *args) {
 #endif
 #elif defined(__RZTC__)
 	    usleep(getint(num) * 16667L);
-#elif defined(mac)
-	    target = getint(num)+TickCount();
-	    while (TickCount() < target) {
-		if (check_throwing) break;
-		ProcessEvent();
-	    }
 #elif defined(_MSC_VER)
 	    n = (unsigned int)getint(num);
 	    while (n > 60) {
@@ -491,10 +470,6 @@ NODE *lwait(NODE *args) {
 }
 
 NODE *lshell(NODE *args) {
-#if defined(mac)
-    printf("%s\n", message_texts[NOSHELL_MAC]);
-    return(UNBOUND);
-#else    
 #ifdef ibm
     NODE *arg;
     char doscmd[200];
@@ -587,7 +562,6 @@ NODE *lshell(NODE *args) {
     pclose(strm);
 #endif
     return(head);
-#endif
 #endif
 }
 

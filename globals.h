@@ -538,32 +538,6 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 extern NODE *lprintpict(NODE *), *lprinttext(NODE *);
 #endif
 
-#ifdef mac
-
-#define SIGQUIT SIGABRT
-
-/* macterm.c */
-extern void init_mac_memory(void);
-extern BOOLEAN check_mac_stop(void);
-extern void  term_init_mac(void);
-extern void mac_gotoxy(int, int);
-extern NODE *lsetwindowtitle(NODE *);
-extern NODE *lsettextfont(NODE *);
-extern NODE *lsettextsize(NODE *);
-extern NODE *lsettextstyle(NODE *);
-extern NODE *lsetwindowsize(NODE *);
-extern NODE *lsetwindowxy(NODE *);
-extern NODE *lnewconsole(NODE *);
-extern NODE *lgraphtext(NODE *);
-extern NODE *lregulartext(NODE *);
-extern NODE *lcaninverse(NODE *);
-
-extern BOOLEAN mac_edit();
-#ifndef SYMANTEC_C
-extern WindowPtr graphics_window, listener_window;
-#endif
-#endif
-
 #ifdef HAVE_WX
 extern NODE *lfont(NODE *);
 extern NODE *lsetlabelheight(NODE *);

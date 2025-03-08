@@ -48,11 +48,6 @@
 #endif
 #endif
 
-#ifdef THINK_C
-#define mac
-#define HAVE_MEMCPY
-#endif
-
 #ifdef __TURBOC__
 #define ibm
 #endif
@@ -67,7 +62,7 @@
 #define ibm
 #endif
 
-#if !defined(ibm) && !defined(mac)
+#if !defined(ibm)
 #ifndef unix
 #define unix
 #endif
@@ -104,9 +99,6 @@ extern char *getenv();
 #undef ibm
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
 #else
-#ifdef mac
-#define check_throwing (check_mac_stop() || stopping_flag == THROWING)
-#else
 #if defined(ibm)
 #define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
@@ -114,7 +106,6 @@ extern char *getenv();
 #define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
-#endif
 #endif
 #endif
 #endif

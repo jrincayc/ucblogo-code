@@ -98,17 +98,6 @@ EXTRA_DIST += win32trm.c win32trm.h
 # IBM-specific graphics routines (unused)
 EXTRA_DIST += ztcterm.c ztcterm.h
 
-# Macintosh graphics routines (unused)
-EXTRA_DIST += macterm.c macterm.h
-
-# Something to do with fonts on a Macintosh (unused)
-EXTRA_DIST += mac-fontmod/include/wx/mac/carbon/fontdlg.h	\
- mac-fontmod/include/wx/mac/carbon/private.h			\
- mac-fontmod/include/wx/mac/fontdlg.h				\
- mac-fontmod/src/mac/carbon/bfontdlg.cpp			\
- mac-fontmod/src/mac/carbon/bfontdlgosx.mm			\
- mac-fontmod/src/mac/carbon/fontdlg.cpp				\
- mac-fontmod/src/mac/carbon/fontdlgosx.mm
 # makehelp_SOURCES = makehelp.c
 
 # Make sure pdf built for distributions
