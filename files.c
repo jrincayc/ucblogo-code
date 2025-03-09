@@ -54,9 +54,6 @@ int reading_char_now = 0;
 #include <unistd.h>
 #endif
 
-#ifdef mac
-#include <console.h>
-#endif
 #ifdef ibm
 #ifndef _MSC_VER
 #include <bios.h>
@@ -606,11 +603,6 @@ NODE *lreadchar(NODE *args) {
 	else
 	    c = (char)sysGetC(readstream);
 #else
-#ifdef mac
-	csetmode(C_RAW, stdin);
-	while ((c = (char)sysGetC(readstream)) == EOF && readstream == stdin);
-	csetmode(C_ECHO, stdin);
-#else /* !mac */
 #ifdef ibm
 	if (interactive && readstream==stdin)
 #ifndef WIN32
@@ -649,7 +641,6 @@ NODE *lreadchar(NODE *args) {
 #else /* !ibm */
 	c = (char)sysGetC(readstream);
 #endif /* ibm */
-#endif /* mac */
 #endif /* wx */
     }
     input_blocking = 0;
@@ -752,12 +743,7 @@ NODE *lkeyp(NODE *args) {
 	win32_update_text();
 #endif
 
-#if defined(mac)
-	csetmode(C_RAW, stdin);
-	c = sysUnGetC(sysGetC(readstream), readstream);
-	csetmode(C_ECHO, stdin);
-	return(c == EOF ? FalseName() : TrueName());
-#elif defined(ibm)
+#if defined(ibm)
 #ifdef WIN32
 	old_mode = char_mode;
 	char_mode = 1;

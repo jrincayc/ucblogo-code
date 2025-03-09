@@ -57,10 +57,6 @@ jmp_buf iblk_buf;
 #include <unistd.h>
 #endif
 
-#ifdef mac
-#include <console.h>
-#endif
-
 NODE *current_line = NIL;
 NODE **bottom_stack; /*GC*/
 NODE *command_line = NIL;   /* 6.0 command line args after files */
@@ -70,10 +66,6 @@ int stop_quietly_flag=0;
 void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
-#ifdef mac
-	csetmode(C_ECHO, stdin);
-	fflush(stdin);
-#endif
 #ifdef TIOCSTI
 	ioctl(0,TIOCSTI,"\n");
 #else
@@ -124,7 +116,7 @@ void logo_pause()
 #ifdef HAVE_SIGSETMASK
 	sigsetmask(0);
 #else
-#if !defined(mac) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 	signal(SIGQUIT, logo_pause);
 #endif
 #endif
@@ -239,10 +231,6 @@ int main(int argc, char *argv[]) {
     openproc = &__open_std;
 #endif
 
-#ifdef mac
-    init_mac_memory();
-#endif
-
     bottom_stack = &exec_list; /*GC*/
 
 #ifndef HAVE_WX
@@ -265,11 +253,6 @@ int main(int argc, char *argv[]) {
 #else /* !ibm */
     signal(SIGINT, logo_stop);
 #endif /* ibm */
-#ifdef mac
-    signal(SIGQUIT, SIG_IGN);
-#else /* !mac */
-	//signal(SIGQUIT, logo_pause);
-#endif
     /* SIGQUITs never happen on the IBM */
 
     if (argc < 2) {

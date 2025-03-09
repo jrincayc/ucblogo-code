@@ -46,10 +46,6 @@
 #include <string.h>
 #endif
 
-#ifdef mac
-#include <console.h>
-#endif
-
 NODE *throw_node = NIL;
 NODE *err_mesg = NIL;
 ERR_TYPES erract_errtype;
@@ -282,10 +278,6 @@ NODE *lpause(NODE *args) {
 #endif
 	sav_input_blocking = input_blocking;
 	input_blocking = 0;
-#ifdef mac
-	csetmode(C_ECHO, stdin);
-	fflush(stdin);
-#endif
 	while (RUNNING) {
 	    if (uname != NIL) print_node(stdout, uname);
 	    elist = reader(stdin, "? ");

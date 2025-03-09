@@ -1634,9 +1634,6 @@ NODE *ledit(NODE *args) {
 	}
     }
     if (stopping_flag == THROWING) return(UNBOUND);
-#ifdef mac
-    if (!mac_edit()) return(UNBOUND);
-#else	    /* !mac */
 #ifdef HAVE_WX
     if (use_internal_editor) {
         doSave = wxEditFile(tmp_filename);
@@ -1682,7 +1679,6 @@ NODE *ledit(NODE *args) {
     wait(0);
 #endif	/* ibm */
 #endif /* wx */
-#endif	/* mac */
     holdstrm = loadstream;
     tmp_line = current_line;
     loadstream = fopen(tmp_filename, "r");

@@ -34,8 +34,6 @@
 
 #ifdef HAVE_WX
 #include "wxGraphics.h"
-#elif defined(mac)
-#include "macterm.h"
 #elif defined(WIN32)
 #include "win32trm.h"
 #elif defined(__RZTC__)
@@ -82,7 +80,7 @@ extern void wx_adjust_label_height();
 #define ENDFILL	      14
 #define COLORFILL     15
 
-/* NOTE: See the files (macterm.c and macterm.h) or (ibmterm.c and ibmterm.h)
+/* NOTE: See the files ibmterm.c and ibmterm.h
    for examples of the functions and macros that this file assumes exist. */
 
 #define One (sizeof(void *))
@@ -975,9 +973,6 @@ NODE *llabel(NODE *arg) {
 	prepare_to_draw;
 	draw_turtle();
 	theLength = strlen(textbuf);
-#ifdef mac
-	c_to_pascal_string(textbuf, theLength);
-#endif
 	label(textbuf);
 	save_string(textbuf,theLength);
 	draw_turtle();
@@ -2211,21 +2206,12 @@ void rgbprint(FILE *fp, int cnum) {
 		((double)g)/65535, ((double)b)/65535);
 }
 
-#ifdef mac
-extern void fixMacType(NODE *args);
-#endif
-
 NODE *lepspict(NODE *args) {
     FILE *fp;
     int r_index = One, act=0, lastx = 0, lasty = 0, vis = 0;
     char *bufp = record_buffer;
 
-#ifdef mac
-    fixMacType(args);
-    lopenappend(args);
-#else
     lopenwrite(args);
-#endif
     if (NOT_THROWING) {
 	fp = (FILE *)file_list->n_obj;
 

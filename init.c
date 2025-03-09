@@ -480,19 +480,6 @@ PRIMTYPE prims[] = {
     {"writepos", 0, 0, 0, PREFIX_PRIORITY, lwritepos},
     {"writer", 0, 0, 0, PREFIX_PRIORITY, lwriter},
 
-#ifdef mac
-    {"setwindowtitle", 1, 1, 1, PREFIX_PRIORITY, lsetwindowtitle},
-    {"settextfont", 1, 1, 1, PREFIX_PRIORITY, lsettextfont},
-    {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
-    {"settextstyle", 1, 1, 1, PREFIX_PRIORITY, lsettextstyle},
-    {"setwindowsize", 1, 1, 1, PREFIX_PRIORITY, lsetwindowsize},
-    {"setwindowxy", 1, 1, 1, PREFIX_PRIORITY, lsetwindowxy},
-    {"newconsole", 0, 0, 0, PREFIX_PRIORITY, lnewconsole},
-    {"graphtext", 0, 0, 0, PREFIX_PRIORITY, lgraphtext},
-    {"regulartext", 0, 0, 0, PREFIX_PRIORITY, lregulartext},
-    {"caninverse", 1, 1, 1, PREFIX_PRIORITY, lcaninverse},
-#endif
-
     {0, 0, 0, 0, 0, 0}
 };
 

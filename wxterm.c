@@ -29,10 +29,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef mac
-#include <console.h>
-#endif
-
 #ifdef HAVE_TERMIO_H
 #include <termios.h>
 #else

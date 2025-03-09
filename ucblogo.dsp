@@ -212,10 +212,6 @@ SOURCE=.\LogoFrame.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\macterm.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\nographics.h
 # End Source File
 # Begin Source File

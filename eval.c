@@ -714,9 +714,6 @@ fetch_cont:
 
 compound_apply:
     debprint("compound_apply");
-#ifdef mac
-    check_mac_stop();
-#endif
 #ifdef ibm
     check_ibm_stop();
 #endif
@@ -1308,9 +1305,6 @@ repeat_followup:
     }
     if (repcount > 0)    /* negative means forever */
 	--repcount;
-#ifdef mac
-    check_mac_stop();
-#endif
 #ifdef ibm
     check_ibm_stop();
 #endif

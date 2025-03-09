@@ -164,13 +164,9 @@ int matherr(struct exception *x) {
 }
 #endif
 
-#ifdef mac
-FLONUM degrad = 0.017453292520;
-#else
 FLONUM degrad = 3.141592653589793227020265931059839203954/180.0;
-#endif
 
-#if defined(mac)||defined(ibm)
+#if defined(ibm)
 #define errchk(x) {errno = 0; x; if (errno) err_logo(BAD_DATA_UNREC,arg);}
 #include <errno.h>
 #else

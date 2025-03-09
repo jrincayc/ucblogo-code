@@ -100,9 +100,7 @@ int rd_getc(FILE *strm) {
     c = getc(strm);
 #endif
     if (strm == stdin && c != EOF) update_coords(c);
-#ifndef mac
     if (c == '\r') return rd_getc(strm);
-#endif
 #ifdef ibm
     if (c == 17 && interactive && strm==stdin) { /* control-q */
 	to_pending = 0;
@@ -187,12 +185,6 @@ void rd_print_prompt(char *str) {
 #ifdef HAVE_WX
 	if(in_graphics_mode && !in_splitscreen)
 		lsplitscreen(NIL);
-#endif
-
-#ifdef mac
-    extern int in_fscreen(void);
-    if (in_fscreen())
-	lsplitscreen(NIL);
 #endif
 
     ndprintf(stdout,"%t",str);
@@ -296,9 +288,6 @@ charmode_off();
 	silent_load(LogoLogo, logolib);
 	c = rd_getc(strm);
     } */   /* 6.0 */
-#ifdef mac
-    if (c == '\r') c = '\n';	/* seen in raw mode by keyp, never read */
-#endif
     while (c != EOF && (vbar || paren || bracket || brace || c != '\n')
 		    && NOT_THROWING) {
 	if (dribbling) rd_putc(c, dribblestream);

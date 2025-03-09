@@ -31,10 +31,6 @@ int force_printwidth = -1, force_printdepth = -1;
 int x_margin=0, y_margin=0;
 void real_print_node(FILE *, NODE *, int, int);
 
-#ifdef mac
-BOOLEAN boldmode = 0;
-#endif
-
 void update_coords(char ch) {
     int i;
 
@@ -104,15 +100,6 @@ void update_coords(char ch) {
 void print_char(FILE *strm, char ch) {
     if (strm != NULL) {
 	if (interactive && strm==stdout) {
-#ifdef mac
-	    if (boldmode) {
-		if (ch == '\2')
-		    boldmode = 0;
-		else
-		    ch = ch | 0200;		/* Not so good in Europe */
-	    } else if (ch == '\1')
-		boldmode = 1;
-#endif
 #ifdef ibm
 	    if (ch == '\1')
 		ibm_bold_mode();
