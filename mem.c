@@ -29,20 +29,14 @@
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 /* #ifdef ibm */
-/* #ifndef __RZTC__ */
 /* #include <alloc.h> */
-/* #endif */
 /* #endif */
 
 #ifdef PUNY
 #define GCMAX 1000
 #else
-#ifdef __RZTC__
-#define GCMAX 3000
-#else
 #define GCMAX 16000
 
-#endif
 #endif
 
 NODE *gcstack[GCMAX];
@@ -633,7 +627,7 @@ re_mark:
 
     if (top_stack < bottom_stack) { /* check direction stack grows */
 	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
-#if defined(__RZTC__) || defined(GC_TWOBYTE)
+#if defined(GC_TWOBYTE)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
 #else
 	     tmp_ptr++
@@ -645,7 +639,7 @@ re_mark:
 	}
     } else {
 	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
-#if defined(__RZTC__) || defined(GC_TWOBYTE)
+#if defined(GC_TWOBYTE)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
 #else
 	     tmp_ptr--
@@ -841,9 +835,6 @@ re_mark:
 	    if (free_list == NIL)
 		err_logo(OUT_OF_MEM_UNREC, NIL);
 	}
-#ifdef __RZTC__
-	(void)addseg();
-#endif
     }
 
 #ifdef GC_DEBUG

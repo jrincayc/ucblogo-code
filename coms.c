@@ -37,12 +37,6 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #ifdef ibm
 #include "process.h"
 #endif
-#ifdef __RZTC__
-#include <time.h>
-#include <controlc.h>
-#include <dos.h>
-#include <msmouse.h>
-#endif
 
 #ifdef HAVE_TERMIO_H
 #ifdef HAVE_WX
@@ -67,17 +61,8 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
 
 NODE *make_cont(enum labels cont, NODE *val) {
-#ifdef __RZTC__
-    union { enum labels lll;
-	    NODE *ppp;} cast;
-#endif
     NODE *retval = cons(NIL, val);
-#ifdef __RZTC__
-    cast.lll = cont;
-    retval->n_car = cast.ppp;
-#else
     retval->n_car = (NODE *)cont;
-#endif
     settype(retval, CONT);
     return retval;
 }
@@ -354,11 +339,6 @@ void prepare_to_exit(BOOLEAN okay) {
 #ifdef ibm
     ltextscreen(NIL);
     ibm_plain_mode();
-#ifdef __RZTC__
-    msm_term();
-    zflush();
-    controlc_close();
-#endif
 #endif
 #endif /* !WIN32 */
 
@@ -383,9 +363,6 @@ NODE *lbye(NODE *args) {
 	lcleartext(NIL);
     ndprintf(stdout, "%t\n", message_texts[THANK_YOU]);
     ndprintf(stdout, "%t\n", message_texts[NICE_DAY]);
-#ifdef __RZTC__
-    printf("\n");
-#endif
     
 #ifdef HAVE_WX
     wx_leave_mainloop++;
@@ -421,9 +398,6 @@ NODE *lwait(NODE *args) {
       //fflush(stdout); /* csls v. 1 p. 7 */
 #endif
 
-#if defined(__RZTC__)
-	zflush();
-#endif
 	fix_turtle_shownness();
 
 #ifdef HAVE_WX
@@ -445,8 +419,6 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#elif defined(__RZTC__)
-	    usleep(getint(num) * 16667L);
 #elif defined(_MSC_VER)
 	    n = (unsigned int)getint(num);
 	    while (n > 60) {

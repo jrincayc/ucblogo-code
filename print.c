@@ -35,7 +35,7 @@ void update_coords(char ch) {
     int i;
 
 #ifdef ibm
-#if !defined(__RZTC__) && !defined(_MSC_VER) && !defined(WIN32)
+#if !defined(_MSC_VER) && !defined(WIN32)
     check_scroll();
 #endif
 #endif
@@ -105,9 +105,7 @@ void print_char(FILE *strm, char ch) {
 		ibm_bold_mode();
 	    if (ch == '\2')
 		ibm_plain_mode();
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-	    ztc_put_char(ch);
-#elif defined(TURBO_C)
+#if defined(TURBO_C)
 	    if (in_graphics_mode && ibm_screen_top == 0)
 		lsplitscreen();
 	    if (ch == '\n' || in_graphics_mode)

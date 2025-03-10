@@ -37,23 +37,12 @@
 
 #ifdef WIN32
 #define ibm
-#undef __RZTC__
 #define HAVE_MEMCPY
 #define SIG_TAKES_ARG
-#endif
-
-#ifdef __ZTC__
-#define __RZTC__
 #endif
 
 #ifdef __TURBOC__
 #define ibm
-#endif
-
-#ifdef __RZTC__
-#define ibm
-#define HAVE_MEMCPY
-#define SIG_TAKES_ARG
 #endif
 
 #ifdef _MSC_VER
@@ -117,12 +106,8 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
-#ifdef __RZTC__
-#define SEG_SIZE	2000
-#else
 #define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
                                  Performance */
-#endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
 #define HIST_MAX	50	/* number of remembered instruction lines */

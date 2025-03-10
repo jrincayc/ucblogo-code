@@ -36,9 +36,6 @@
 #include "wxGraphics.h"
 #elif defined(WIN32)
 #include "win32trm.h"
-#elif defined(__RZTC__)
-#include <fg.h>
-#include "ztcterm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
 #elif defined(ibm)
@@ -56,11 +53,7 @@ int turtlePosition_y=0;
 extern void wx_adjust_label_height();
 #endif
 
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-#define total_turtle_bottom_max (-(MaxY/2))
-#else
 #define total_turtle_bottom_max turtle_bottom_max
-#endif
 
 /* types of graphics moves that can be recorded */
 #define FINISHED       0    /* must be zero */
@@ -1262,20 +1255,6 @@ NODE *lsetscrunch(NODE *args) {
 			       (FLONUM)getint(ynode);
 	draw_turtle();
 	done_drawing;
-#ifdef __RZTC__
-	{
-	    FILE *fp = fopen("scrunch.dat","r");
-	    if (fp != NULL) {
-		fclose(fp);
-		fp = fopen("scrunch.dat","w");
-		if (fp != NULL) {
-		    fwrite(&x_scale, sizeof(FLONUM), 1, fp);
-		    fwrite(&y_scale, sizeof(FLONUM), 1, fp);
-		    fclose(fp);
-		}
-	    }
-	}
-#endif
 #ifdef HAVE_WX
 	//update the label height!
 
@@ -1836,9 +1815,6 @@ void redraw_graphics(void) {
     int lastx, lasty;
     pen_info saved_pen;
     BOOLEAN saved_shown;
-#if defined(__RZTC__) && !defined(WIN32)
-    BOOLEAN save_splitscreen = in_splitscreen;
-#endif
 #ifdef HAVE_WX
     char *start, *ptr;
     int start_idx, idx, count, color;
@@ -1865,10 +1841,6 @@ void redraw_graphics(void) {
     save_pen(&saved_pen);
     restore_pen(&orig_pen);
 	
-#if defined(__RZTC__) && !defined(WIN32)
-    full_screen;
-#endif
-
     erase_screen();
     wanna_x = wanna_y = turtle_x = turtle_y = turtle_heading = 0.0;
     out_of_bounds = FALSE;
@@ -2012,10 +1984,6 @@ void redraw_graphics(void) {
 
     restore_pen(&saved_pen);
     turtle_shown = saved_shown;
-
-#if defined(__RZTC__) && !defined(WIN32)
-    if (save_splitscreen) {split_screen;}
-#endif
 
     turtle_x = save_tx;
     turtle_y = save_ty;

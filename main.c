@@ -42,12 +42,6 @@
 #endif
 #endif
 
-#ifdef __RZTC__
-#include <signal.h>
-#define SIGQUIT SIGTERM
-#include <controlc.h>
-#endif
-
 #ifndef TIOCSTI
 #include <setjmp.h>
 jmp_buf iblk_buf;
@@ -92,9 +86,6 @@ void logo_stop()
         if (!stop_quietly_flag)
             err_logo(STOP_ERROR,NIL);
         stop_quietly_flag = 0;
-#ifdef __RZTC__
-	if (!input_blocking)
-#endif
 	  signal(SIGINT, logo_stop);
 	unblock_input();
     }
@@ -204,12 +195,6 @@ void delayed_int() {
 #endif
 }
 
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-void _far _cdecl do_ctrl_c(void) {
-    ctrl_c_count++;
-}
-#endif
-
 #ifdef HAVE_WX
 extern char * wx_get_original_dir_name(void);
 extern char * wx_get_current_dir_name(void);
@@ -246,10 +231,6 @@ int main(int argc, char *argv[]) {
 
 #ifdef ibm
     signal(SIGINT, SIG_IGN);
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-    _controlc_handler = do_ctrl_c;
-    controlc_open();
-#endif
 #else /* !ibm */
     signal(SIGINT, logo_stop);
 #endif /* ibm */
@@ -324,20 +305,11 @@ int main(int argc, char *argv[]) {
 	if (NOT_THROWING) {
 	    check_reserve_tank();
 	    current_line = reader(stdin,"? ");
-#ifdef __RZTC__
-		(void)feof(stdin);
-		if (!in_graphics_mode)
-		    printf(" \b");
-		fflush(stdout);
-#endif
 
 #ifndef WIN32
 	    if (feof(stdin) && !isatty(0)) lbye(NIL);
 #endif
 
-#ifdef __RZTC__
-	    if (feof(stdin)) clearerr(stdin);
-#endif
 	    if (NOT_THROWING) {
 		exec_list = parser(current_line, TRUE);
 		if (exec_list != NIL) eval_driver(exec_list);

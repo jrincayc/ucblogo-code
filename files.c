@@ -57,14 +57,9 @@ int reading_char_now = 0;
 #ifdef ibm
 #ifndef _MSC_VER
 #include <bios.h>
-#ifndef __RZTC__
 #include <alloc.h>
-#endif /* ZTC */
 #endif /* MSC_VER */
 extern int getch(), kbhit();
-#ifdef __RZTC__
-#include <conio.h>
-#endif
 #endif
 
 NODE *file_list = NULL;
@@ -735,9 +730,6 @@ NODE *lkeyp(NODE *args) {
 #ifdef HAVE_WX
 	return(wxKeyp() ? TrueName() : FalseName());
 #else
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-	zflush();
-#endif
 
 #ifdef WIN32
 	win32_update_text();

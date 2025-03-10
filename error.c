@@ -286,9 +286,6 @@ NODE *lpause(NODE *args) {
 #ifndef WIN32
 	    if (feof(stdin) && !isatty(0)) lbye(NIL);
 #endif
-#ifdef __RZTC__
-	    if (feof(stdin)) rewind(stdin);
-#endif
 	    if (elist != NIL) eval_driver(elist);
 	    if (stopping_flag == THROWING) {
 		if (compare_node(throw_node, Pause, TRUE) == 0) {
