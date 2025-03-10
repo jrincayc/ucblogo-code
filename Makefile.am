@@ -95,9 +95,6 @@ EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
 # Win32 API compliant graphics routines (unused)
 EXTRA_DIST += win32trm.c win32trm.h
 
-# IBM-specific graphics routines (unused)
-EXTRA_DIST += ztcterm.c ztcterm.h
-
 # makehelp_SOURCES = makehelp.c
 
 # Make sure pdf built for distributions
