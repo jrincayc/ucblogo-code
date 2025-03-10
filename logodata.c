@@ -27,7 +27,7 @@
 #include "globals.h"
 #include <stdarg.h>
 #ifdef ibm
-#if !defined(__RZTC__) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 #include <alloc.h>
 #endif
 #endif

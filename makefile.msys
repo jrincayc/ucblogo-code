@@ -66,6 +66,8 @@ makehelp:	makehelp.c
 clean:
 	rm -f *.o libloc.c
 	rm -Rf UCBLogo/
+	rm -f logo.exe
+	rm -f *.i *.ii *.s
 
 ship:
 	rm -f config.h config.cache config.log config.status

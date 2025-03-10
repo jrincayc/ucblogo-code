@@ -239,9 +239,6 @@ NODE *lcleartext(NODE *args) {
 	fflush(stdout); /* do it now! */
 #endif
 	fix_turtle_shownness();
-#if defined(__RZTC__)
-	zflush();
-#endif
 
     x_coord = x_margin;
     y_coord = y_margin;
@@ -252,9 +249,6 @@ NODE *lcursor(NODE *args) {
 
     // Flush buffer so it doesn't impact cursor position.
     fflush(stdout);
-#ifdef __RZTC__
-    zflush();
-#endif
 
     return(cons(make_intnode((FIXNUM)(x_coord-x_margin)),
 		cons(make_intnode((FIXNUM)(y_coord-y_margin)), NIL)));
@@ -287,9 +281,6 @@ NODE *lsetcursor(NODE *args) {
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
 #endif
 	fflush(stdout);
-#ifdef __RZTC__
-	zflush();
-#endif
     }
     return(UNBOUND);
 #endif /* !win32 (for non-windows version of this code) */

@@ -58,9 +58,6 @@
 extern int getch(void);
 #endif /* _MSC_VER */
 #endif
-#ifdef __RZTC__
-#include <disp.h>
-#endif
 
 # ifdef HAVE_WX
 #ifdef getc
@@ -93,12 +90,7 @@ int rd_getc(FILE *strm) {
 #endif
 
 #ifndef WIN32 /* skip this section ... */
-#ifdef __RZTC__
-    if (strm == stdin) zflush();
-    c = ztc_getc(strm);
-#else
     c = getc(strm);
-#endif
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
 #ifdef ibm
@@ -114,9 +106,7 @@ int rd_getc(FILE *strm) {
 	}
     }
     if (c == 23 && interactive && strm==stdin) { /* control-w */
-#ifndef __RZTC__
 	getc(strm); /* eat up the return */
-#endif
 
 #ifdef SIG_TAKES_ARG
 	logo_pause(0);
@@ -172,7 +162,7 @@ int rd_getc(FILE *strm) {
 
 void rd_print_prompt(char *str) {
 #ifdef ibm
-#if defined(__RZTC__) || defined(WIN32)
+#if defined(WIN32)
     if (in_graphics_mode && !in_splitscreen)
 #else
 #ifndef _MSC_VER
@@ -188,19 +178,9 @@ void rd_print_prompt(char *str) {
 #endif
 
     ndprintf(stdout,"%t",str);
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-    zflush();
-#endif
 }
 
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-void zrd_print_prompt(char *str) {
-    newline_bugfix();
-    rd_print_prompt(str);
-}
-#else
 #define zrd_print_prompt rd_print_prompt
-#endif
 
 #define into_line(chr) {if (phys_line >= p_end) { \
 				p_len += MAX_PHYS_LINE; \
@@ -363,10 +343,6 @@ charmode_off();
 #endif
     *phys_line = '\0';
     input_blocking = 0;
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-    fix_cursor();
-    if (interactive && strm == stdin) newline_bugfix();
-#endif
     if (dribbling)
 	rd_putc('\n', dribblestream);
     if (c == EOF && strm == stdin) {
