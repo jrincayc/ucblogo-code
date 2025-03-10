@@ -41,10 +41,6 @@
 #define SIG_TAKES_ARG
 #endif
 
-#ifdef __TURBOC__
-#define ibm
-#endif
-
 #ifdef _MSC_VER
 #define ibm
 #endif

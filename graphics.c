@@ -1851,10 +1851,6 @@ void redraw_graphics(void) {
     set_pen_width(1);
     set_pen_height(1);
 
-#ifdef __TURBOC__
-    moveto(p_info_x(orig_pen),p_info_y(orig_pen));
-#endif
-
     lastx = lasty = 0;
 
     while (bufp[r_index] != FINISHED) {
