@@ -37,9 +37,6 @@ extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 #ifdef PUNY
 #define GCMAX 1000
 #else
-#ifdef THINK_C
-#define GCMAX 8000
-#else
 #ifdef __RZTC__
 #define GCMAX 3000
 #else
@@ -47,13 +44,8 @@ extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 #endif
 #endif
-#endif
 
-#ifdef THINK_C
-extern NODE *gcstack[];
-#else
 NODE *gcstack[GCMAX];
-#endif
 
 NODE **mark_gcstack = gcstack;
 NODE **gctop = gcstack;
@@ -145,9 +137,6 @@ BOOLEAN addseg(void) {
   	return 0;
 }
 
-#ifdef THINK_C
-#pragma options(!global_optimizer)
-#endif
 #ifdef WIN32
 #pragma optimize("",off)
 #endif
@@ -182,9 +171,6 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     return 0;
 }
 
-#ifdef THINK_C
-#pragma options(global_optimizer)
-#endif
 #ifdef WIN32
 /* #pragma optimize("",on) */
 #endif
@@ -259,9 +245,6 @@ void setcdr(NODE *nd, NODE *newcdr) {
     check_valid_oldyoung(nd, newcdr);
 }
 
-#ifdef THINK_C
-#pragma options(honor_register)
-#endif
 #ifdef WIN32
 #pragma optimize("",off)
 #endif
@@ -311,9 +294,6 @@ NODE *newnode(NODETYPES type) {
     } else return &phony;
 }
 
-#ifdef THINK_C
-#pragma options(!honor_register)
-#endif
 #ifdef WIN32
 /* #pragma optimize("",on) */
 #endif
@@ -653,7 +633,7 @@ re_mark:
 
     if (top_stack < bottom_stack) { /* check direction stack grows */
 	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
-#if defined(THINK_C) || defined(__RZTC__) || defined(GC_TWOBYTE)
+#if defined(__RZTC__) || defined(GC_TWOBYTE)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
 #else
 	     tmp_ptr++
@@ -665,7 +645,7 @@ re_mark:
 	}
     } else {
 	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
-#if defined(THINK_C) || defined(__RZTC__) || defined(GC_TWOBYTE)
+#if defined(__RZTC__) || defined(GC_TWOBYTE)
 	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
 #else
 	     tmp_ptr--

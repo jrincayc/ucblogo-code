@@ -43,9 +43,7 @@
 #endif
 
 #ifdef __ZTC__
-#ifndef THINK_C
 #define __RZTC__
-#endif
 #endif
 
 #ifdef __TURBOC__
@@ -122,12 +120,8 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #ifdef __RZTC__
 #define SEG_SIZE	2000
 #else
-#ifdef THINK_C
-#define SEG_SIZE	4000
-#else
 #define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
                                  Performance */
-#endif
 #endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
