@@ -1,5 +1,5 @@
-char *libloc="/c/ucblogo/lib/logo/logolib";
-char *helploc="/c/ucblogo/lib/logo/helpfiles";
-char *cslsloc="/c/ucblogo/lib/logo/csls";
-char *temploc="/tmp";
+char *libloc=LIBLOC;		/* "/usr/local/lib/logo/logolib" */
+char *helploc=HELPLOC;		/* "/usr/local/lib/logo/helpfiles" */
+char *cslsloc=CSLSLOC;		/* "/usr/local/lib/logo/csls" */
+char *temploc=TEMPLOC;		/* "/tmp" */
 char *separator="/";
