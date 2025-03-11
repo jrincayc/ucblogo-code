@@ -72,12 +72,6 @@
 extern char *getenv();
 #endif
 
-#ifndef HAVE_WX
-#ifdef ibm
-#include <dos.h>
-#endif
-#endif
-
 #ifdef HAVE_WX
 #undef ibm
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
