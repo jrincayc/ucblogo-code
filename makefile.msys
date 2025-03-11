@@ -69,6 +69,9 @@ clean:
 	rm -f logo.exe
 	rm -f *.i *.ii *.s
 
+gitclean:
+	git clean -x -d -f .
+
 ship:
 	rm -f config.h config.cache config.log config.status
 	rm -f makefile makehelp logo *.o libloc.c
