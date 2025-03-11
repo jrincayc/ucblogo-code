@@ -53,10 +53,8 @@
 #include <ctype.h>
 
 #ifdef ibm
-#ifndef _MSC_VER
 #include <bios.h>
 extern int getch(void);
-#endif /* _MSC_VER */
 #endif
 
 # ifdef HAVE_WX
@@ -165,9 +163,7 @@ void rd_print_prompt(char *str) {
 #if defined(WIN32)
     if (in_graphics_mode && !in_splitscreen)
 #else
-#ifndef _MSC_VER
     if (in_graphics_mode && ibm_screen_top == 0)
-#endif /* _MSC_VER */
 #endif
 	lsplitscreen(NIL);
 #endif

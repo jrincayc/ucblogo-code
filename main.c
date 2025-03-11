@@ -107,9 +107,7 @@ void logo_pause()
 #ifdef HAVE_SIGSETMASK
 	sigsetmask(0);
 #else
-#if !defined(_MSC_VER)
 	signal(SIGQUIT, logo_pause);
-#endif
 #endif
 	lpause(NIL);
     }

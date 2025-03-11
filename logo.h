@@ -41,10 +41,6 @@
 #define SIG_TAKES_ARG
 #endif
 
-#ifdef _MSC_VER
-#define ibm
-#endif
-
 #if !defined(ibm)
 #ifndef unix
 #define unix

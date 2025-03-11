@@ -55,10 +55,8 @@ int reading_char_now = 0;
 #endif
 
 #ifdef ibm
-#ifndef _MSC_VER
 #include <bios.h>
 #include <alloc.h>
-#endif /* MSC_VER */
 extern int getch(), kbhit();
 #endif
 

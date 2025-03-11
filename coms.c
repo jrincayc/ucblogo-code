@@ -419,14 +419,6 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#elif defined(_MSC_VER)
-	    n = (unsigned int)getint(num);
-	    while (n > 60) {
-		_sleep(1000);
-		n -= 60;
-		if (check_throwing) n = 0;
-	    }
-	    if (n > 0) _sleep(n*1000/60);
 #else	/* unreachable, I think */
 	    if (!setjmp(iblk_buf)) {
 		input_blocking++;

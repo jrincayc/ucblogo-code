@@ -35,7 +35,7 @@ void update_coords(char ch) {
     int i;
 
 #ifdef ibm
-#if !defined(_MSC_VER) && !defined(WIN32)
+#if !defined(WIN32)
     check_scroll();
 #endif
 #endif
