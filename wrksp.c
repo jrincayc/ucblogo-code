@@ -42,10 +42,6 @@ long wxLaunchExternalEditor(char *, char *);
 #include <unistd.h>
 #endif
 
-#ifdef ibm
-#include "process.h"
-#endif
-
 #ifdef HAVE_TERMIO_H
 #ifdef HAVE_WX
 #include <termios.h>
@@ -1650,22 +1646,11 @@ NODE *ledit(NODE *args) {
         }
     }
 #else
-#ifdef ibm
-    if (spawnlp(P_WAIT, editor, editorname, tmp_filename, NULL)) {
-	err_logo(FILE_ERROR, make_static_strnode
-		 ("Could not launch the editor"));
-	return(UNBOUND);
-    }
-#ifdef WIN32
-    win32_repaint_screen();
-#endif
-#else	/* !ibm (so unix) */
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
 	exit(1);
     }
     wait(0);
-#endif	/* ibm */
 #endif /* wx */
     holdstrm = loadstream;
     tmp_line = current_line;

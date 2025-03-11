@@ -123,11 +123,6 @@ void term_init(void) {
     interactive = isatty(0);
 #endif
 
-#ifdef ibm
-#ifndef WIN32
-    term_init_ibm();
-#endif /* WIN32 */
-#else
     if (interactive) {
 #ifdef HAVE_TERMIO_H
 	ioctl(0,TCGETA,(char *)(&tty_cooked));
@@ -184,8 +179,6 @@ void term_init(void) {
     /* if we still don't know our size, set some defaults */
     if (x_max <= 0) x_max = 80;
     if (y_max <= 0) y_max = 24;
-
-#endif
 }
 
 void charmode_on() {
@@ -221,17 +214,8 @@ void charmode_off() {
 }
 
 NODE *lcleartext(NODE *args) {
-#ifdef ibm
-#ifndef WIN32 /* sowings */
-    ibm_clear_text();
-    ibm_gotoxy(x_margin, y_margin);
-#else /* WIN32 */
-    win32_clear_text();
-#endif /* WIN32 || !Win32 */
-#else /* !ibm */
     printf("%s", cl_arr);
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
-#endif /* ibm */
 
 #ifdef WIN32
 	win32_update_text();
@@ -275,11 +259,7 @@ NODE *lsetcursor(NODE *args) {
 	}
     }
     if (NOT_THROWING) {
-#ifdef ibm
-	ibm_gotoxy(x_coord, y_coord);
-#else
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
-#endif
 	fflush(stdout);
     }
     return(UNBOUND);

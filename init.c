@@ -407,7 +407,7 @@ PRIMTYPE prims[] = {
     {"setread", 1, 1, 1, PREFIX_PRIORITY, lsetread},
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
-#if defined(WIN32)|defined(ibm)|defined(HAVE_WX)
+#if defined(WIN32)|defined(HAVE_WX)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
 #endif

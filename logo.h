@@ -36,28 +36,20 @@
 #define SIG_TAKES_ARG
 
 #ifdef WIN32
-#define ibm
 #define HAVE_MEMCPY
 #define SIG_TAKES_ARG
+#define RETSIGTYPE void
+#ifndef STDC_HEADERS
+#define STDC_HEADERS
 #endif
-
-#ifdef _MSC_VER
-#define ibm
-#endif
-
-#if !defined(ibm)
+#else
 #ifndef unix
 #define unix
-#endif
 #define SIG_TAKES_ARG
 #include "config.h"
 #ifndef X_DISPLAY_MISSING
 #define x_window
 #endif
-#else
-#define RETSIGTYPE void
-#ifndef STDC_HEADERS
-#define STDC_HEADERS
 #endif
 #endif
 
@@ -73,17 +65,12 @@ extern char *getenv();
 #endif
 
 #ifdef HAVE_WX
-#undef ibm
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
-#else
-#if defined(ibm)
-#define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
 #define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
-#endif
 #endif
 #endif
 

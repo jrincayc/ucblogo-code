@@ -34,9 +34,6 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef ibm
-#include "process.h"
-#endif
 
 #ifdef HAVE_TERMIO_H
 #ifdef HAVE_WX
@@ -335,13 +332,6 @@ void prepare_to_exit(BOOLEAN okay) {
 	wxLogoExit (0);
 #endif
 
-#ifndef WIN32 /* sowings */
-#ifdef ibm
-    ltextscreen(NIL);
-    ibm_plain_mode();
-#endif
-#endif /* !WIN32 */
-
 #ifdef unix
 #ifndef HAVE_UNISTD_H
     extern int getpid();
@@ -442,54 +432,6 @@ NODE *lwait(NODE *args) {
 }
 
 NODE *lshell(NODE *args) {
-#ifdef ibm
-    NODE *arg;
-    char doscmd[200];
-/*  union REGS r;     */
-    char *old_stringptr = print_stringptr;
-    int old_stringlen = print_stringlen;
-
-    arg = car(args);
-    while (!is_list(arg) && NOT_THROWING) {
-	setcar(args, err_logo(BAD_DATA, arg));
-	arg = car(args);
-    }
-    if (arg == NIL) {
-	ndprintf(stdout, "%t\n", message_texts[TYPE_EXIT]);
-	if (spawnlp(P_WAIT, "command", "command", NULL))
-	    err_logo(FILE_ERROR,
-	      make_static_strnode
-		 ("Could not open shell (probably due to low memory)"));
-    }
-    else {
-	print_stringlen = 199;
-	print_stringptr = doscmd;
-	ndprintf((FILE *)NULL,"%p",arg);
-	*print_stringptr = '\0';
-	if (system(doscmd) < 0)
-	    err_logo(FILE_ERROR,
-	      make_static_strnode
-		 ("Could not open shell (probably due to low memory)"));
-	print_stringptr = old_stringptr;
-	print_stringlen = old_stringlen;
-    }
-/*
-    r.h.ah = 0x3;
-    r.h.al = 0;
-    r.h.dh = 0; r.h.dl = 0;
-    int86(0x21, &r, &r);
-    x_coord = x_margin;
-    y_coord = r.h.dh;
- */
-#ifndef WIN32
-    x_coord = x_margin;
-    y_coord = y_max;
-    ibm_gotoxy(x_coord, y_coord);
-#else
-    win32_repaint_screen();
-#endif
-    return(UNBOUND);
-#else
     char cmdbuf[300];
     FILE *strm;
     NODE *head = NIL, *tail = NIL, *this;
@@ -534,7 +476,6 @@ NODE *lshell(NODE *args) {
     pclose(strm);
 #endif
     return(head);
-#endif
 }
 
 NODE *ltime(NODE *args) {

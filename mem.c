@@ -28,10 +28,6 @@
 #include "globals.h"
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
-/* #ifdef ibm */
-/* #include <alloc.h> */
-/* #endif */
-
 #ifdef PUNY
 #define GCMAX 1000
 #else

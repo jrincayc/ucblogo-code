@@ -210,12 +210,6 @@ int main(int argc, char *argv[]) {
     int argc2;
     char **argv2;
 
-#ifdef SYMANTEC_C
-    extern void (*openproc)(void);
-    extern void __open_std(void);
-    openproc = &__open_std;
-#endif
-
     bottom_stack = &exec_list; /*GC*/
 
 #ifndef HAVE_WX
@@ -229,12 +223,7 @@ int main(int argc, char *argv[]) {
 
     math_init();
 
-#ifdef ibm
-    signal(SIGINT, SIG_IGN);
-#else /* !ibm */
     signal(SIGINT, logo_stop);
-#endif /* ibm */
-    /* SIGQUITs never happen on the IBM */
 
     if (argc < 2) {
 #ifndef WIN32

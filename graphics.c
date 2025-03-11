@@ -38,8 +38,6 @@
 #include "win32trm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
-#elif defined(ibm)
-#include "ibmterm.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
@@ -72,9 +70,6 @@ extern void wx_adjust_label_height();
 #define STARTFILL     13
 #define ENDFILL	      14
 #define COLORFILL     15
-
-/* NOTE: See the files ibmterm.c and ibmterm.h
-   for examples of the functions and macros that this file assumes exist. */
 
 #define One (sizeof(void *))
 #define Two (2*One)
@@ -1996,7 +1991,7 @@ NODE *lsavepict(NODE *args) {
     char *p;
     char *buf = record_buffer;
 	
-#if defined(WIN32)||defined(ibm)
+#if defined(WIN32)
 	extern NODE *lopen(NODE *, char *);
 	lopen(args,"wb");
 #else
@@ -2051,7 +2046,7 @@ NODE *lloadpict(NODE *args) {
     size_t records_read;
     int palette_read_status;
 
-#if defined(WIN32)||defined(ibm)
+#if defined(WIN32)
 	extern NODE *lopen(NODE *, char *);
 	lopen(args,"rb");
 #else

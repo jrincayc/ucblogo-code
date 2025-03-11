@@ -52,14 +52,7 @@
 
 #include <ctype.h>
 
-#ifdef ibm
-#ifndef _MSC_VER
-#include <bios.h>
-extern int getch(void);
-#endif /* _MSC_VER */
-#endif
-
-# ifdef HAVE_WX
+#ifdef HAVE_WX
 #ifdef getc
 #undef getc
 #endif
@@ -93,30 +86,6 @@ int rd_getc(FILE *strm) {
     c = getc(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
-#ifdef ibm
-    if (c == 17 && interactive && strm==stdin) { /* control-q */
-	to_pending = 0;
-	err_logo(STOP_ERROR,NIL);
-	if (input_blocking) {
-#ifdef SIG_TAKES_ARG
-	    logo_stop(0);
-#else
-	    logo_stop();
-#endif
-	}
-    }
-    if (c == 23 && interactive && strm==stdin) { /* control-w */
-	getc(strm); /* eat up the return */
-
-#ifdef SIG_TAKES_ARG
-	logo_pause(0);
-#else
-	logo_pause();
-#endif
-
-	return(rd_getc(strm));
-    }
-#endif
 #else /* WIN32 */
     if (strm == stdin) {
 	if (winPasteText && !line_avail) winDoPaste();
@@ -161,17 +130,6 @@ int rd_getc(FILE *strm) {
 }
 
 void rd_print_prompt(char *str) {
-#ifdef ibm
-#if defined(WIN32)
-    if (in_graphics_mode && !in_splitscreen)
-#else
-#ifndef _MSC_VER
-    if (in_graphics_mode && ibm_screen_top == 0)
-#endif /* _MSC_VER */
-#endif
-	lsplitscreen(NIL);
-#endif
-	
 #ifdef HAVE_WX
 	if(in_graphics_mode && !in_splitscreen)
 		lsplitscreen(NIL);

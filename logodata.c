@@ -26,11 +26,6 @@
 #include "logo.h"
 #include "globals.h"
 #include <stdarg.h>
-#ifdef ibm
-#if !defined(_MSC_VER)
-#include <alloc.h>
-#endif
-#endif
 
 char special_chars[] = " \t\n(?????+++~)[]-*/=<>\"\\:;|{}";
 
