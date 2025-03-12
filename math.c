@@ -166,12 +166,7 @@ int matherr(struct exception *x) {
 
 FLONUM degrad = 3.141592653589793227020265931059839203954/180.0;
 
-#if defined(ibm)
-#define errchk(x) {errno = 0; x; if (errno) err_logo(BAD_DATA_UNREC,arg);}
-#include <errno.h>
-#else
 #define errchk(x) x
-#endif
 
 NODE *binary(NODE *args, char fcn) {
     NODE *arg, *val;

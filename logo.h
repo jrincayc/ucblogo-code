@@ -36,45 +36,20 @@
 #define SIG_TAKES_ARG
 
 #ifdef WIN32
-#define ibm
-#undef __RZTC__
 #define HAVE_MEMCPY
 #define SIG_TAKES_ARG
+#define RETSIGTYPE void
+#ifndef STDC_HEADERS
+#define STDC_HEADERS
 #endif
-
-#ifdef __ZTC__
-#ifndef THINK_C
-#define __RZTC__
-#endif
-#endif
-
-#ifdef __TURBOC__
-#define ibm
-#endif
-
-#ifdef __RZTC__
-#define ibm
-#define HAVE_MEMCPY
-#define SIG_TAKES_ARG
-#endif
-
-#ifdef _MSC_VER
-#define ibm
-#endif
-
-#if !defined(ibm)
+#else
 #ifndef unix
 #define unix
-#endif
 #define SIG_TAKES_ARG
 #include "config.h"
 #ifndef X_DISPLAY_MISSING
 #define x_window
 #endif
-#else
-#define RETSIGTYPE void
-#ifndef STDC_HEADERS
-#define STDC_HEADERS
 #endif
 #endif
 
@@ -89,24 +64,13 @@
 extern char *getenv();
 #endif
 
-#ifndef HAVE_WX
-#ifdef ibm
-#include <dos.h>
-#endif
-#endif
-
 #ifdef HAVE_WX
-#undef ibm
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
-#else
-#if defined(ibm)
-#define check_throwing (check_ibm_stop() || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
 #define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
-#endif
 #endif
 #endif
 
@@ -119,16 +83,8 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
-#ifdef __RZTC__
-#define SEG_SIZE	2000
-#else
-#ifdef THINK_C
-#define SEG_SIZE	4000
-#else
 #define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
                                  Performance */
-#endif
-#endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
 #define HIST_MAX	50	/* number of remembered instruction lines */

@@ -36,13 +36,8 @@
 #include "wxGraphics.h"
 #elif defined(WIN32)
 #include "win32trm.h"
-#elif defined(__RZTC__)
-#include <fg.h>
-#include "ztcterm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
-#elif defined(ibm)
-#include "ibmterm.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
@@ -56,11 +51,7 @@ int turtlePosition_y=0;
 extern void wx_adjust_label_height();
 #endif
 
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-#define total_turtle_bottom_max (-(MaxY/2))
-#else
 #define total_turtle_bottom_max turtle_bottom_max
-#endif
 
 /* types of graphics moves that can be recorded */
 #define FINISHED       0    /* must be zero */
@@ -79,9 +70,6 @@ extern void wx_adjust_label_height();
 #define STARTFILL     13
 #define ENDFILL	      14
 #define COLORFILL     15
-
-/* NOTE: See the files ibmterm.c and ibmterm.h
-   for examples of the functions and macros that this file assumes exist. */
 
 #define One (sizeof(void *))
 #define Two (2*One)
@@ -1262,20 +1250,6 @@ NODE *lsetscrunch(NODE *args) {
 			       (FLONUM)getint(ynode);
 	draw_turtle();
 	done_drawing;
-#ifdef __RZTC__
-	{
-	    FILE *fp = fopen("scrunch.dat","r");
-	    if (fp != NULL) {
-		fclose(fp);
-		fp = fopen("scrunch.dat","w");
-		if (fp != NULL) {
-		    fwrite(&x_scale, sizeof(FLONUM), 1, fp);
-		    fwrite(&y_scale, sizeof(FLONUM), 1, fp);
-		    fclose(fp);
-		}
-	    }
-	}
-#endif
 #ifdef HAVE_WX
 	//update the label height!
 
@@ -1836,9 +1810,6 @@ void redraw_graphics(void) {
     int lastx, lasty;
     pen_info saved_pen;
     BOOLEAN saved_shown;
-#if defined(__RZTC__) && !defined(WIN32)
-    BOOLEAN save_splitscreen = in_splitscreen;
-#endif
 #ifdef HAVE_WX
     char *start, *ptr;
     int start_idx, idx, count, color;
@@ -1865,10 +1836,6 @@ void redraw_graphics(void) {
     save_pen(&saved_pen);
     restore_pen(&orig_pen);
 	
-#if defined(__RZTC__) && !defined(WIN32)
-    full_screen;
-#endif
-
     erase_screen();
     wanna_x = wanna_y = turtle_x = turtle_y = turtle_heading = 0.0;
     out_of_bounds = FALSE;
@@ -1878,10 +1845,6 @@ void redraw_graphics(void) {
     set_pen_color((FIXNUM)7);
     set_pen_width(1);
     set_pen_height(1);
-
-#ifdef __TURBOC__
-    moveto(p_info_x(orig_pen),p_info_y(orig_pen));
-#endif
 
     lastx = lasty = 0;
 
@@ -2013,10 +1976,6 @@ void redraw_graphics(void) {
     restore_pen(&saved_pen);
     turtle_shown = saved_shown;
 
-#if defined(__RZTC__) && !defined(WIN32)
-    if (save_splitscreen) {split_screen;}
-#endif
-
     turtle_x = save_tx;
     turtle_y = save_ty;
     turtle_heading = save_th;
@@ -2032,7 +1991,7 @@ NODE *lsavepict(NODE *args) {
     char *p;
     char *buf = record_buffer;
 	
-#if defined(WIN32)||defined(ibm)
+#if defined(WIN32)
 	extern NODE *lopen(NODE *, char *);
 	lopen(args,"wb");
 #else
@@ -2087,7 +2046,7 @@ NODE *lloadpict(NODE *args) {
     size_t records_read;
     int palette_read_status;
 
-#if defined(WIN32)||defined(ibm)
+#if defined(WIN32)
 	extern NODE *lopen(NODE *, char *);
 	lopen(args,"rb");
 #else

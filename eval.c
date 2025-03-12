@@ -714,9 +714,6 @@ fetch_cont:
 
 compound_apply:
     debprint("compound_apply");
-#ifdef ibm
-    check_ibm_stop();
-#endif
 #ifdef HAVE_WX
     check_wx_stop(0, 0);
 #endif
@@ -1305,9 +1302,6 @@ repeat_followup:
     }
     if (repcount > 0)    /* negative means forever */
 	--repcount;
-#ifdef ibm
-    check_ibm_stop();
-#endif
     if (RUNNING) goto repeat_again;
     val = UNBOUND;
     goto repeat_done;

@@ -549,34 +549,6 @@ extern NODE *set_text_color(NODE *);
 #endif
 
 
-#ifdef __RZTC__   /* ztcterm.c */
-extern BOOLEAN in_graphics_mode, in_splitscreen;
-extern int ibm_screen_bottom;
-#include <fg.h>
-extern fg_coord_t MaxX, MaxY;
-extern void outtext(char *);
-extern void init_ibm_memory(void);
-extern volatile int ctrl_c_count;
-extern BOOLEAN check_ibm_stop(void);
-extern void term_init_ibm(void);
-extern void ibm_gotoxy(int, int);
-extern void ibm_clear_text(void);
-extern void ibm_clear_screen(void);
-extern void ibm_plain_mode(void);
-extern void ibm_bold_mode(void);
-extern void erase_graphics_top(void);
-extern void ztc_set_penc(FIXNUM);
-extern void t_screen(void);
-extern void s_screen(void);
-extern void check_scroll(void);
-extern void ztc_put_char(int);
-extern void fix_cursor(void);
-extern void zflush(void);
-extern void newline_bugfix(void);
-extern void ztc_getcr(void);
-extern NODE *set_text_color(NODE *);
-#endif
-
 #ifdef HAVE_WX
 extern void init_wx(int, char**);
 extern void printToScreen(char c, FILE * stream);

@@ -54,19 +54,6 @@ int reading_char_now = 0;
 #include <unistd.h>
 #endif
 
-#ifdef ibm
-#ifndef _MSC_VER
-#include <bios.h>
-#ifndef __RZTC__
-#include <alloc.h>
-#endif /* ZTC */
-#endif /* MSC_VER */
-extern int getch(), kbhit();
-#ifdef __RZTC__
-#include <conio.h>
-#endif
-#endif
-
 NODE *file_list = NULL;
 NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
 int need_save = 0;  /* nonzero if workspace changed since save */
@@ -603,44 +590,7 @@ NODE *lreadchar(NODE *args) {
 	else
 	    c = (char)sysGetC(readstream);
 #else
-#ifdef ibm
-	if (interactive && readstream==stdin)
-#ifndef WIN32
-		c = (char)getch();
-#else /* WIN32 */
-	{
-	  win32_update_text();
-	  if (!char_avail)
-	    while(GetMessage(&msg, NULL, 0, 0))
-	    {
-	      TranslateMessage(&msg);
-	      DispatchMessage(&msg);
-	      if (char_avail)
-		break;
-	    }
-	  c = buffered_char;
-	  char_avail = 0;
-	}
-#endif /* WIN32 */	
-	else
-		c = (char)sysGetC(readstream);
-
-	if (c == 17) { /* control-q */
-	    to_pending = 0;
-	    err_logo(STOP_ERROR,NIL);
-	}
-	if (c == 23) { /* control-w */
-
-#ifdef SIG_TAKES_ARG
-	    logo_pause(0);
-#else
-	    logo_pause();
-#endif
-	    return(lreadchar(NIL));
-	}
-#else /* !ibm */
 	c = (char)sysGetC(readstream);
-#endif /* ibm */
 #endif /* wx */
     }
     input_blocking = 0;
@@ -735,31 +685,11 @@ NODE *lkeyp(NODE *args) {
 #ifdef HAVE_WX
 	return(wxKeyp() ? TrueName() : FalseName());
 #else
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-	zflush();
-#endif
 
 #ifdef WIN32
 	win32_update_text();
 #endif
 
-#if defined(ibm)
-#ifdef WIN32
-	old_mode = char_mode;
-	char_mode = 1;
-	while (PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
-	{
-	  TranslateMessage(&msg);
-	  DispatchMessage(&msg);
-	  if (char_avail/* ||cur_index */ )
-	    break;
-	}
-	char_mode = old_mode;
-	return ((char_avail /* ||cur_index */ ) ? TrueName() : FalseName());
-#else
-	return(kbhit() ? TrueName() : FalseName());
-#endif
-#else
 #ifdef FIONREAD
 	ioctl(0,FIONREAD,(int *)(&nc));
 #else
@@ -770,7 +700,6 @@ NODE *lkeyp(NODE *args) {
 	    return(TrueName());
 	else
 	    return(FalseName());
-#endif
 #endif /* wx */
     }
     c = sysGetC(readstream);

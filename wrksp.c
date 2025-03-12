@@ -42,10 +42,6 @@ long wxLaunchExternalEditor(char *, char *);
 #include <unistd.h>
 #endif
 
-#ifdef ibm
-#include "process.h"
-#endif
-
 #ifdef HAVE_TERMIO_H
 #ifdef HAVE_WX
 #include <termios.h>
@@ -1597,9 +1593,6 @@ NODE *ledit(NODE *args) {
     extern int getpid();
 #endif
 #endif
-#ifdef __RZTC__
-    BOOLEAN was_graphics;
-#endif
 #ifdef HAVE_WX
     BOOLEAN use_internal_editor = (editor == NULL || strlen(editor) < 1);
 #endif
@@ -1653,31 +1646,11 @@ NODE *ledit(NODE *args) {
         }
     }
 #else
-#ifdef ibm
-#ifdef __RZTC__
-    was_graphics = in_graphics_mode;
-    if (in_graphics_mode) t_screen();
-    zflush();
-#endif	/* ztc */
-    if (spawnlp(P_WAIT, editor, editorname, tmp_filename, NULL)) {
-	err_logo(FILE_ERROR, make_static_strnode
-		 ("Could not launch the editor"));
-	return(UNBOUND);
-    }
-#ifdef __RZTC__
-    if (was_graphics) s_screen();
-    else lcleartext(NIL);
-#endif	/* ztc */
-#ifdef WIN32
-    win32_repaint_screen();
-#endif
-#else	/* !ibm (so unix) */
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
 	exit(1);
     }
     wait(0);
-#endif	/* ibm */
 #endif /* wx */
     holdstrm = loadstream;
     tmp_line = current_line;
@@ -1888,9 +1861,6 @@ NODE *lhelp(NODE *args) {
 #endif
     FILE *fp;
     int lines;
-#ifdef __RZTC__
-    size_t len;
-#endif
 
     if (args == NIL) {
 /*
@@ -1924,16 +1894,6 @@ NODE *lhelp(NODE *args) {
 		fixhelp(getstrptr(arg), getstrlen(arg)));
 			//printf("Buffer: %s\n", buffer);
 
-#ifdef __RZTC__    /* defined(ibm) || defined(WIN32) */
-	if (strlen(buffer) > (len = strlen(addsep(helpfiles))+8)) {
-	    buffer[len+5] = '\0';
-	    buffer[len+4] = buffer[len+3];
-	    buffer[len+3] = buffer[len+2];
-	    buffer[len+2] = buffer[len+1];
-	    buffer[len+1] = buffer[len];
-	    buffer[len] = '.';
-	}
-#endif
     } else {
         err_logo(BAD_DATA_UNREC, car(args));
 	return UNBOUND;
@@ -1967,15 +1927,10 @@ NODE *lhelp(NODE *args) {
 #ifndef TIOCSTI
 		if (!setjmp(iblk_buf))
 #endif
-#ifdef __RZTC__
-		    ztc_getcr();
-		    print_char(stdout, '\n');
-#else
 #ifdef WIN32
 		    (void)reader(stdin, "");
 #else
 		    fgets(junk, 19, stdin);
-#endif
 #endif
 		input_blocking = 0;
 		update_coords('\n');

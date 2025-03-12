@@ -34,12 +34,6 @@ void real_print_node(FILE *, NODE *, int, int);
 void update_coords(char ch) {
     int i;
 
-#ifdef ibm
-#if !defined(__RZTC__) && !defined(_MSC_VER) && !defined(WIN32)
-    check_scroll();
-#endif
-#endif
-	
 #ifdef HAVE_WX
 	int getTermInfo(int type);
 #if 0
@@ -100,27 +94,7 @@ void update_coords(char ch) {
 void print_char(FILE *strm, char ch) {
     if (strm != NULL) {
 	if (interactive && strm==stdout) {
-#ifdef ibm
-	    if (ch == '\1')
-		ibm_bold_mode();
-	    if (ch == '\2')
-		ibm_plain_mode();
-#if defined(__RZTC__) && !defined(WIN32) /* sowings */
-	    ztc_put_char(ch);
-#elif defined(TURBO_C)
-	    if (in_graphics_mode && ibm_screen_top == 0)
-		lsplitscreen();
-	    if (ch == '\n' || in_graphics_mode)
-		rd_putc(ch, strm);
-	    else if (ch != '\1' && ch != '\2')
-		rd_putc(ch, stdout); /* takes advantage of bold attribute */
-#else /* WIN32 */
-	    if (ch != '\1' && ch != '\2')
-	      rd_putc(ch, strm);
-#endif /* ibm */
-#else /* Unix */
-	    rd_putc(ch, strm);
-#endif
+    rd_putc(ch, strm);
 	} else	    /* printing to stream but not screen */
 	    rd_putc(ch, strm);
 	if (strm == stdout) {
