@@ -29,10 +29,6 @@
 #undef WIN32
 #endif
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include "logo.h"
 #include "globals.h"
 
@@ -78,50 +74,9 @@ int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
     int c;
-#ifdef WIN32
-    MSG msg;
-#endif
-
-#ifndef WIN32 /* skip this section ... */
     c = getc(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
-#else /* WIN32 */
-    if (strm == stdin) {
-	if (winPasteText && !line_avail) winDoPaste();
-	if (!line_avail) {
-	    win32_text_cursor();
-	    while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-		if (line_avail)
-		    break;
-		}
-	    }
-      c = read_line[read_index++];
-      if (c == 17 && interactive && strm==stdin) { /* control-q */
-	to_pending = 0;
-	err_logo(STOP_ERROR,NIL);
-	line_avail = 0;
-	free(read_line);
-	if (input_blocking) logo_stop(0);
-	return('\n');
-    }
-    if (c == 23 && interactive && strm==stdin) { /* control-w */
-	line_avail = 0;
-	free(read_line);
-	logo_pause(0);
-	return(rd_getc(strm));
-    }
-      if (c == '\n') {
-	line_avail = 0;
-	free(read_line);
-      }
-    }
-    else /* reading from a file */
-      c = getc(strm);
-#endif /* WIN32 */
-
 #ifdef ecma
     return((c == EOF) ? c : ecma_clear(c));
 #else
@@ -191,11 +146,7 @@ NODE *reader(FILE *strm, char *prompt) {
 	    raw = 1;
     }
 charmode_off();
-#ifdef WIN32
-    dribbling = 0;
-#else
     dribbling = (dribblestream != NULL && strm == stdin);
-#endif
     if (p_line == 0) {
     	p_line = malloc(MAX_PHYS_LINE);
 	if (p_line == NULL) {
@@ -208,9 +159,6 @@ charmode_off();
     if (strm == stdin && *prompt) {
 	if (interactive) {
 	  rd_print_prompt(prompt);
-#ifdef WIN32
-	  win32_update_text();
-#endif
 	}
     }
     if (strm == stdin) {
@@ -367,13 +315,8 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 
 	/* skip through comments and line continuations */
 	while (!vbar && ((semi && ch == ';') ||
-#ifdef WIN32
-		(ch == '~' && (**inln == 012 || **inln == 015)))) {
-	    while (ch == '~' && (**inln == 012 || **inln == 015)) {
-#else
 		(ch == '~' && **inln == '\n'))) {
 	    while (ch == '~' && **inln == '\n') {
-#endif
 		if (++(*inln) >= inlimit) *inln = &terminate;
 		ch = **inln;
 		if (windex == 0) wptr = *inln;
@@ -390,22 +333,14 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 	    }
 
 	    if (semi && ch == ';') {
-#ifdef WIN32
-		if (**inln != 012 && **inln != 015)
-#else
 		if (**inln != '\n')
-#endif
 		do {
 		    ch = **inln;
 		    if (windex == 0) wptr = *inln;
 		    else broken = TRUE;
 		    if (++(*inln) >= inlimit) *inln = &terminate;
 		} 
-#ifdef WIN32
-		while (ch != '\0' && ch != '~' && **inln != 012 && **inln != 015);
-#else /* !Win32 */
 		while (ch != '\0' && ch != '~' && **inln != '\n');
-#endif
 		if (ch != '\0' && ch != '~') ch = '\n';
 	    }
 	}

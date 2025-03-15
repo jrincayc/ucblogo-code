@@ -1,0 +1,31 @@
+{
+    "C_Cpp.default.compilerPath": "C:/msys64/mingw32/bin/gcc.exe",
+    "terminal.integrated.profiles.windows": {
+        "MSYS2": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": [
+                "--login",
+                "-i"
+            ],
+            "env": {
+                "MSYSTEM": "MINGW64",
+                "CHERE_INVOKING": "1",
+                "MINGW_CHOST": "x86_64-w64-mingw32",
+                "MINGW_PACKAGE_PREFIX": "mingw-w64-x86_64",
+                "MSYSTEM_CARCH": "x86_64",
+                "MSYSTEM_CHOST": "x86_64-w64-mingw32",
+                "PS1": "\\[\\e]0;\\w\\a\\]\\n\\[\\e[32m\\]\\u@\\h \\[\\e[35m\\]$MSYSTEM\\[\\e[0m\\] \\[\\e[33m\\]\\w\\[\\e[0m\\]\\n\\$",
+                "MSYSCON": "mintty.exe",
+                "MSYSTEM_PREFIX": "/mingw64",
+                "PKG_CONFIG_SYSTEM_INCLUDE_PATH": "/mingw64/include",
+                "PKG_CONFIG_PATH": "/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig",
+                "MANPATH": "/mingw64/local/man:/mingw64/share/man:/usr/local/man:/usr/share/man:/usr/man:/share/man",
+                "INFOPATH": "/mingw64/local/info:/mingw64/share/info:/usr/local/info:/usr/share/info:/usr/info:/share/info",
+                "ACLOCAL_PATH": "/mingw64/share/aclocal:/usr/share/aclocal",
+                "PKG_CONFIG_SYSTEM_LIBRARY_PATH": "/mingw64/lib",
+                "XDG_DATA_DIRS": "/mingw64/share/:/usr/local/share/:/usr/share/",
+                "PATH": "/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl",
+            }
+        }
+    }
+}

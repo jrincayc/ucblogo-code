@@ -97,7 +97,6 @@ int termcap_putter(int ch) {
     return 0;
 }
 
-#ifdef unix
 void termcap_getter(char *cap, char *buf) {
     char temp[40];
     char *str;
@@ -108,20 +107,13 @@ void termcap_getter(char *cap, char *buf) {
     /* if (str == NULL) str = temp; */
     tputs(str,1,termcap_putter);
 }
-#endif
 
 void term_init(void) {
-#ifdef unix
     char *emacs; /* emacs change */
     int term_sg;
     int tgetent_result;
-#endif
 
-#ifdef WIN32
-    interactive = 1;
-#else
     interactive = isatty(0);
-#endif
 
     if (interactive) {
 #ifdef HAVE_TERMIO_H
@@ -182,7 +174,6 @@ void term_init(void) {
 }
 
 void charmode_on() {
-#ifdef unix
     if ((readstream == stdin) && interactive && !tty_charmode) {
 #ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cbreak));
@@ -191,14 +182,9 @@ void charmode_on() {
 #endif /* HAVE_TERMIO_H */
 	tty_charmode++;
     }
-#endif /* unix */
-#ifdef WIN32
-    win32_charmode_on();
-#endif
 }
 
 void charmode_off() {
-#ifdef unix
     if (tty_charmode) {
 #ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cooked));
@@ -207,21 +193,13 @@ void charmode_off() {
 #endif /* HAVE_TERMIO_H */
 	tty_charmode = 0;
     }
-#endif /* unix */
-#ifdef WIN32
-    win32_charmode_off();
-#endif
 }
 
 NODE *lcleartext(NODE *args) {
     printf("%s", cl_arr);
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
 
-#ifdef WIN32
-	win32_update_text();
-#else
 	fflush(stdout); /* do it now! */
-#endif
 	fix_turtle_shownness();
 
     x_coord = x_margin;
@@ -240,9 +218,6 @@ NODE *lcursor(NODE *args) {
 
 NODE *lsetcursor(NODE *args) {
 	fix_turtle_shownness();
-#ifdef WIN32
-    return (win32_lsetcursor(args));
-#else /* !win32 */
     NODE *arg;
 
     arg = pos_int_vector_arg(args);
@@ -263,7 +238,6 @@ NODE *lsetcursor(NODE *args) {
 	fflush(stdout);
     }
     return(UNBOUND);
-#endif /* !win32 (for non-windows version of this code) */
 }
 
 NODE *lsetmargins(NODE *args) {
