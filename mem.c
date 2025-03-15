@@ -173,10 +173,6 @@ BOOLEAN valid_pointer ( NODE *ptr_val) {
     return 0;
 }
 
-#ifdef WIN32
-/* #pragma optimize("",on) */
-#endif
-
 NODETYPES nodetype(NODE *nd) {
     if (nd == NIL) return (PNIL);
     return(nd->node_type);
