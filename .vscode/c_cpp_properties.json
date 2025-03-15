@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "WIN32", 
+                "HAVE_WX", 
+                "HAVE_CONFIG_C", 
+                "X_DISPLAY_MISSING",
+                "__WXDEBUG__",
+                "__WXMSW__"
+            ]
+        }
+    ],
+    "version": 4
+}
