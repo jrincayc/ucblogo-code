@@ -33,3 +33,5 @@ Makefile.in
 *.exe
 git.c
 logo_win.res
+.vscode/browse.*
+.*
