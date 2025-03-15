@@ -378,14 +378,7 @@ NODE *lwait(NODE *args) {
       return(UNBOUND);
       #endif*/
 #ifndef HAVE_WX
-#ifdef WIN32
-      win32_update_text();
-#else
       fflush(stdout); /* csls v. 1 p. 7 */
-#endif
-#else
-      //doesn't seem to work in WX. now done in wxLogoSleep
-      //fflush(stdout); /* csls v. 1 p. 7 */
 #endif
 
 	fix_turtle_shownness();
