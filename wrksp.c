@@ -1863,11 +1863,6 @@ NODE *lhelp(NODE *args) {
     int lines;
 
     if (args == NIL) {
-/*
- #ifdef WIN32
-	sprintf(buffer, "%sHELPCONT", addsep(helpfiles));
- #else
- */
 	sprintf(buffer, "%sHELPCONTENTS", addsep(helpfiles));
 /* #endif */
     } else if (is_word(car(args)) && car(args) != Null_Word) {

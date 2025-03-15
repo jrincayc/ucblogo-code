@@ -466,7 +466,6 @@ void silent_load(NODE *arg, const char *prefix) {
 	    for (cp = load_path; *cp != '\0'; cp++)
 		if (*cp == '?') *cp = 'Q';
 	}
-	/*  strcpy(load_path, eight_dot_three(load_path));  */
 /* #endif */
     }
     tmp_stream = loadstream;
