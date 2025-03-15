@@ -350,6 +350,8 @@ NODE **inter_gen_mark (NODE **prev) {
 		    mmark(tmp_node);
 	    }
 	    break;
+        default:
+	    //no special gc handling
     }
 // #ifdef WHYDOESNTTHISWORK
     if (!got_young) {	/* nd no longer points to younger */
@@ -473,6 +475,8 @@ void mark(NODE* nd) {
 			gc_inc();
 		    }
 		break;
+	        default:
+		    //no special gc handling
 	    }
 	}
 no_mark:
@@ -766,6 +770,8 @@ re_mark:
 				check_oldyoung(nd, tmp_node);
 			    }
 			    break;
+		        default:
+			    //no special gc handling
 		    }
        		} else {
 		    /* keep in this gen */
@@ -801,6 +807,8 @@ re_mark:
 				    decstrrefcnt(getstrhead(nd)) == 0)
 			    free(getstrhead(nd));
 			break;
+		    default:
+		        //No special memory handleing done
 		}
 		settype (nd, NTFREE);
 	 	nd->next = free_list;
