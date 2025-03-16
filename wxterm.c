@@ -64,8 +64,6 @@ char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
 
-struct termios tty_cooked, tty_cbreak;
-
 int interactive, tty_charmode;
 int getTermInfo(int type);
 int setTermInfo(int type, int val);

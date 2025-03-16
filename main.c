@@ -53,7 +53,9 @@ int stop_quietly_flag=0;
 void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
+#ifdef HAVE_IOCTRL_H
 	ioctl(0,TIOCSTI,"\n");
+#endif
     }
 }
 
