@@ -35,17 +35,6 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#include <termios.h>
-#else
-#include <termio.h>
-#endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
-#endif
 
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
@@ -402,13 +391,6 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#else	/* unreachable, I think */
-	    if (!setjmp(iblk_buf)) {
-		input_blocking++;
-		n = ((unsigned int)getint(num)+30) / 60;
-		if (n > 0) sleep(n);
-	    }
-	    input_blocking = 0;
 #endif /* unix */
 	}
 #endif /* HAVE_WX */

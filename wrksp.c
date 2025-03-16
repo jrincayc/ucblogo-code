@@ -42,16 +42,14 @@ long wxLaunchExternalEditor(char *, char *);
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_WX
@@ -1919,9 +1917,6 @@ NODE *lhelp(NODE *args) {
 #endif
 		ndprintf(writestream, message_texts[MORE_HELP]);
 		input_blocking++;
-#ifndef TIOCSTI
-		if (!setjmp(iblk_buf))
-#endif
 #ifdef WIN32
 		    (void)reader(stdin, "");
 #else

@@ -32,18 +32,14 @@
 #include "logo.h"
 #include "globals.h"
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#ifndef NEW_WIN32
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#endif
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #include <ctype.h>
@@ -166,9 +162,6 @@ charmode_off();
 	erract_errtype = FATAL;
     }
 
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf)) {
-#endif
     c = rd_getc(strm);
 /*    if ((c=='\b' || c=='\127') && strm==stdin && interactive) {
 	silent_load(LogoLogo, logolib);
@@ -244,9 +237,6 @@ charmode_off();
 	}
 	if (c != EOF) c = rd_getc(strm);
     }
-#ifndef TIOCSTI
-    }
-#endif
     *phys_line = '\0';
     input_blocking = 0;
     if (dribbling)

@@ -35,3 +35,7 @@ git.c
 logo_win.res
 .vscode/browse.*
 .*
+*~
+*.swp
+
+

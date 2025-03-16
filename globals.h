@@ -43,11 +43,6 @@ void mouse_down(void);
 #define mouse_click mouse_down()
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
-#endif
-
 /* logodata.c */
 extern char *strnzcpy(char *, char *, int);
 extern char *word_strnzcpy(char *, char *, int);
