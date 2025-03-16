@@ -34,8 +34,7 @@
 #include <sanitizer/asan_interface.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
 #elif defined(HAVE_TERMIO_H)
 #include <termio.h>

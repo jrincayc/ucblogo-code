@@ -36,3 +36,7 @@ logo_win.res
 *.dSYM/
 .vscode/browse.*
 .*
+*~
+*.swp
+
+
