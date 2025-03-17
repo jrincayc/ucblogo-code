@@ -115,7 +115,7 @@ NODE *lrandom(NODE *arg) {
 	if (NOT_THROWING) {
 	    r = (range <= 0 ? 0 : random_internal() % range);
 	    r += base;
-	    val = newnode(INT);
+	    val = newnode(INTT);
 	    setint(val, (FIXNUM)r);
 	    return(val);
 	} else {
@@ -187,7 +187,7 @@ NODE *binary(NODE *args, char fcn) {
 	arg = numeric_arg(args);
     args = cdr(args);
     if (stopping_flag == THROWING) return UNBOUND;
-    if (nodetype(arg) == INT) {
+    if (nodetype(arg) == INTT) {
 	imode = TRUE;
 	ival = getint(arg);
     } else {
@@ -290,7 +290,7 @@ NODE *binary(NODE *args, char fcn) {
 	args = cdr(args);
 	if (stopping_flag == THROWING) return UNBOUND;
 
-	if (nodetype(arg) == INT) {
+	if (nodetype(arg) == INTT) {
 	    if (imode) iarg = getint(arg);
 	    else farg = (FLONUM)getint(arg);
 	} else {
@@ -431,7 +431,7 @@ NODE *binary(NODE *args, char fcn) {
 		    fval += farg;
 		break;
 	      default: /* logical op */
-		if (nodetype(arg) == INT)
+		if (nodetype(arg) == INTT)
 		  err_logo(BAD_DATA_UNREC, make_floatnode(fval));
 		else
 		  err_logo(BAD_DATA_UNREC,arg);
@@ -444,7 +444,7 @@ NODE *binary(NODE *args, char fcn) {
     }	/* end dyadic */
     if (NOT_THROWING) {
 	if (imode) {
-	    val = newnode(INT);
+	    val = newnode(INTT);
 	    setint(val, ival);
 	} else {
 	    val = newnode(FLOATT);
@@ -564,8 +564,8 @@ int compare_numnodes(NODE *n1, NODE *n2) {
     FLONUM f;
     FIXNUM i;
 
-    if (nodetype(n1) == INT) {
-	if (nodetype(n2) == INT) {
+    if (nodetype(n1) == INTT) {
+	if (nodetype(n2) == INTT) {
 	    i = getint(n1) - getint(n2);
 	    return (i == 0L ? 0 : (i > 0L ? 1 : -1));
 	} else {
@@ -574,7 +574,7 @@ int compare_numnodes(NODE *n1, NODE *n2) {
 	}
     }
     else {
-	if (nodetype(n2) == INT) {
+	if (nodetype(n2) == INTT) {
 	    f = getfloat(n1) - (FLONUM)getint(n2);
 	    return(f == 0.0 ? 0 : (f > 0.0 ? 1 : -1));
 	}

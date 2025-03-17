@@ -251,7 +251,7 @@ NODE *pos_int_arg(NODE *args) {
     FLONUM f;
 
     val = cnv_node_to_numnode(arg);
-    while ((nodetype(val) != INT || getint(val) < 0) && NOT_THROWING) {
+    while ((nodetype(val) != INTT || getint(val) < 0) && NOT_THROWING) {
 	if (nodetype(val) == FLOATT &&
 		    fmod((f = getfloat(val)), 1.0) == 0.0 &&
 		    f >= 0.0 && f < (FLONUM)MAXLOGOINT) {
@@ -268,7 +268,7 @@ NODE *pos_int_arg(NODE *args) {
 	val = cnv_node_to_numnode(arg);
     }
     setcar(args,val);
-    if (nodetype(val) == INT) return(val);
+    if (nodetype(val) == INTT) return(val);
     return UNBOUND;
 }
 
