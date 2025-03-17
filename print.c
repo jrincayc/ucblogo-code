@@ -323,7 +323,7 @@ int find_limit(NODE *nd, int forced) {
     if (forced >= 0) return forced;
     if (nd == NIL) return(-1);
     nd = cnv_node_to_numnode(valnode__caseobj(nd));
-    if (nodetype(nd) == INT) val = getint(nd);
+    if (nodetype(nd) == INTT) val = getint(nd);
     return(val);
 }
 

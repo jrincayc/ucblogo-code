@@ -88,7 +88,7 @@ NODE *get_bodywords(NODE *pproc, NODE *name) {
     while (val != NIL) {
 	if (is_list(car(val)))
 	    setcdr(tail, cons(cons(make_colon(caar(val)), cdar(val)), NIL));
-	else if (nodetype(car(val)) == INT)
+	else if (nodetype(car(val)) == INTT)
 	    setcdr(tail, cons(car(val),NIL));
 	else
 	    setcdr(tail, cons(make_colon(car(val)),NIL));
@@ -255,7 +255,7 @@ NODE *define_helper(NODE *args, BOOLEAN macro_flag) {
 		}
 		if (cdr(arg) == NIL)
 		    maximum = -1;
-	    } else if (nodetype(arg) == INT) {
+	    } else if (nodetype(arg) == INTT) {
 		if ((unsigned)getint(arg) <= (unsigned) maximum &&
 		     getint(arg) >= minimum) {
 			deflt = getint(arg);
@@ -408,7 +408,7 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		    setcar(arg, node__quote(car(arg)));
 		if (cdr(arg) == NIL)
 		    maximum = -1;
-	    } else if (nodetype(arg) == INT) {
+	    } else if (nodetype(arg) == INTT) {
 		if ((unsigned)getint(arg) <= (unsigned) maximum &&
 		     getint(arg) >= minimum) {
 			deflt = getint(arg);

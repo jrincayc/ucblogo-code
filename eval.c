@@ -729,7 +729,7 @@ lambda_apply:
     	 formals != NIL;
 	 formals = cdr(formals)) {
 	    parm = car(formals);
-	    if (nodetype(parm) == INT) break;	/* default # args */
+	    if (nodetype(parm) == INTT) break;	/* default # args */
 	    if (argl != NIL) {
 		arg = car(argl);
 		if (tracing) {
