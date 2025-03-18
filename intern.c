@@ -57,6 +57,7 @@ FIXNUM hash(char *s, int len) {
 NODE *make_case(NODE *casestrnd, NODE *obj) {
     NODE *new_caseobj, *clistptr;
 
+    do_gc(FALSE);
     clistptr = caselistptr__object(obj);
     new_caseobj = make_caseobj(casestrnd, obj);
     setcdr(clistptr, cons(new_caseobj, cdr(clistptr)));
