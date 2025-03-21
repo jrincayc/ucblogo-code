@@ -30,6 +30,10 @@
 #include "logo.h"
 #include "globals.h"
 
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#endif
+
 #ifdef HAVE_TERMIO_H
 #ifdef HAVE_WX
 #include <termios.h>
@@ -193,6 +197,31 @@ void delayed_int() {
 #endif
 }
 
+void set_bottom_stack(volatile NODE** bottom) {
+#ifdef __SANITIZE_ADDRESS__
+	// ASAN does unholy things
+	volatile void** real_ptr;
+	// void* fake_stack = 
+	// Theoretically ASAN can be configured not do stack checks, so check
+	// if we're using a fake stack right now.
+	// if (fake_stack) {
+		// If the stack variable is in the fake stack, real_ptr will contain
+		// the real stack address of the fake stack frame pointer.
+		// That's the address of the bottom of the real stack.
+		real_ptr = 	__asan_addr_is_in_fake_stack(
+			__asan_get_current_fake_stack(),
+			&bottom, 
+			NULL, NULL
+		);
+		// Otherwise the variable is on the real stack so treat it normally.
+	// }
+	// bottom_stack = fake_stack && real_ptr ? real_ptr : &bottom;
+	bottom_stack = real_ptr ? real_ptr : bottom;
+#else
+	bottom_stack = bottom;
+#endif
+}
+
 #ifdef HAVE_WX
 extern char * wx_get_original_dir_name(void);
 extern char * wx_get_current_dir_name(void);
@@ -204,11 +233,13 @@ int  start (int argc,char ** argv) {
 int main(int argc, char *argv[]) {
 #endif
     NODE *exec_list = NIL;
+	
+	set_bottom_stack(&exec_list); /* GC */
+
     NODE *cl_tail = NIL;
     int argc2;
     char **argv2;
 
-    bottom_stack = &exec_list; /*GC*/
 
 #ifndef HAVE_WX
 #ifdef x_window

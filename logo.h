@@ -26,6 +26,13 @@
 #include "config.h"
 #endif
 
+// Address Sanitizer check
+#if defined(__has_feature)
+#   if __has_feature(address_sanitizer) // for clang
+#       define __SANITIZE_ADDRESS__ // GCC already sets this
+#   endif
+#endif
+
 /* #define OBJECTS */
 
 /* #define MEM_DEBUG */
@@ -240,6 +247,9 @@ struct string_block {
 typedef struct logo_node NODE;
 typedef struct logo_node {
     NODETYPES node_type;
+#ifdef SERIALIZE_OBJECTS
+    unsigned long long int id;
+#endif
     int my_gen; /* Nodes's Generation */ /*GC*/
     int gen_age; /* How many times to GC at this generation */
     long int mark_gc;	/* when marked */

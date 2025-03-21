@@ -28,6 +28,10 @@
 #include "globals.h"
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#endif
+
 #ifdef PUNY
 #define GCMAX 1000
 #else
@@ -93,6 +97,10 @@ int mark_gen_gc;
 #if 0
 #define GC_DEBUG 1 /* */
 #define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
+#endif
+
+#ifdef SERIALIZE_OBJECTS
+unsigned long long int next_node_id = 0;
 #endif
 
 #ifdef GC_DEBUG
@@ -268,6 +276,9 @@ NODE *newnode(NODETYPES type) {
     }
     if (newnd != NIL) {
 	free_list = newnd->next;
+#ifdef SERIALIZE_OBJECTS
+	newnd->id = next_node_id++;
+#endif
 	newnd->n_car = NIL;
 	newnd->n_cdr = NIL;
 	newnd->n_obj = NIL;
@@ -487,9 +498,110 @@ no_mark:
     }
 }
 
-void gc(BOOLEAN no_error) {
+void __attribute__((no_sanitize_address)) mark_stack(volatile NODE** top){
+    /* Check Stack for NODE pointers */
+    volatile NODE** top_stack;
+	volatile NODE** tmp_ptr;
+
+#ifdef __SANITIZE_ADDRESS__
+	volatile void* fake_stack = __asan_get_current_fake_stack();
+	volatile void* fake_frame_beg;
+	volatile void* fake_frame_end;
+	volatile NODE** fake_ptr;
+	volatile void* real_ptr;
+	real_ptr = __asan_addr_is_in_fake_stack(
+			__asan_get_current_fake_stack(), 
+			(void*)top, NULL, NULL
+		);
+	top_stack = real_ptr ? real_ptr : top;
+#else
+    top_stack = top; /*GC*/
+#endif
+
+	// printf("top %llx bottom %llx\n", top_stack, bottom_stack);
+    if (top_stack < bottom_stack) { /* check direction stack grows */
+	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
+#if defined(GC_TWOBYTE)
+	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
+#else
+	     tmp_ptr++
+#endif
+	     ) {
+// Under ASAN stack frames may be allocated on the heap and require an
+// extra level of indirection to access stack variables. The real stack
+// frame only contains a pointer to the fake frame.
+#ifdef __SANITIZE_ADDRESS__
+		real_ptr = __asan_addr_is_in_fake_stack(
+			fake_stack, (void*)*tmp_ptr, &fake_frame_beg, 
+			&fake_frame_end
+		);
+		if (real_ptr) {
+			// Pointer to fake stack frame
+			for (fake_ptr = fake_frame_beg; 
+				fake_ptr < fake_frame_end; 
+				fake_ptr++) 
+			{
+				// Pointer on fake stack
+				if (valid_pointer(*fake_ptr)) {
+					mark(*fake_ptr);
+				}
+			}
+		}
+		else {
+			// Pointer on real stack
+			if (valid_pointer(*tmp_ptr)) {
+				mark(*tmp_ptr);
+			}
+		}
+#else
+		if (valid_pointer(*tmp_ptr)) {
+		    mark(*tmp_ptr);
+		}
+#endif
+	}
+    } else {
+	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
+#if defined(GC_TWOBYTE)
+	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
+#else
+		tmp_ptr--
+#endif
+	     ) {
+#ifdef __SANITIZE_ADDRESS__
+		real_ptr = __asan_addr_is_in_fake_stack(
+			fake_stack, (void*)*tmp_ptr, &fake_frame_beg, 
+			&fake_frame_end
+		);
+		if (real_ptr) {
+			// Pointer to fake stack frame
+			// fake stack always grows this way
+			for (fake_ptr = fake_frame_beg; 
+				fake_ptr < fake_frame_end; 
+				fake_ptr++) 
+			{
+				// Pointer on fake stack
+				if (valid_pointer(*fake_ptr)) {
+					mark(*fake_ptr);
+				}
+			}
+		}
+		else {
+			// Pointer on real stack
+			if (valid_pointer(*tmp_ptr)) {
+				mark(*tmp_ptr);
+			}
+		}
+#else
+		if (valid_pointer(*tmp_ptr)) {
+		    mark(*tmp_ptr);
+		}
+#endif
+	}
+    }
+}
+
+void gc (BOOLEAN no_error)  {
     NODE *top;
-    NODE **top_stack;
     NODE *nd, *tmpnd;
     long int num_freed = 0;
     NODE **tmp_ptr, **prev;
@@ -514,8 +626,6 @@ void gc(BOOLEAN no_error) {
 
     if (check_throwing)
         return;
-
-    top_stack = &top;
 
     mark_gen_gc = gen_gc = (no_error ? max_gen : next_gen_gc);
 
@@ -623,33 +733,7 @@ re_mark:
     num_examined = 0;
 #endif
 
-    /* Check Stack for NODE pointers */
-
-    if (top_stack < bottom_stack) { /* check direction stack grows */
-	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
-#if defined(GC_TWOBYTE)
-	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
-#else
-	     tmp_ptr++
-#endif
-	     ) {
-		if (valid_pointer(*tmp_ptr)) {
-		    mark(*tmp_ptr);
-		}
-	}
-    } else {
-	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
-#if defined(GC_TWOBYTE)
-	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
-#else
-	     tmp_ptr--
-#endif
-	     ) {
-		if (valid_pointer(*tmp_ptr)) {
-		    mark(*tmp_ptr);
-		}
-	}
-    }
+mark_stack(&top);
 
 #ifdef GC_DEBUG
     fprintf(DEBUGSTREAM, "stack %ld + ", num_examined); fflush(DEBUGSTREAM);
