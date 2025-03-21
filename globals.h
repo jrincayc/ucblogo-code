@@ -30,6 +30,7 @@ extern int main(int, char *[]);
 extern void unblock_input(void);
 extern void delayed_int(void);
 extern NODE *command_line;
+extern unsigned long long int next_node_id;
 
 #if defined(SIG_TAKES_ARG)
 void logo_stop(int);
