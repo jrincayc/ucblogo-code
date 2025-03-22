@@ -54,7 +54,7 @@ FIXNUM hash(char *s, int len) {
     return h % HASH_LEN;
 }
 
-NODE *make_case(NODE *casestrnd, NODE *obj) {
+NODE __attribute__((optimize(0), noinline)) *make_case(NODE *casestrnd, NODE *obj) {
     NODE *new_caseobj, *clistptr, *tmp;
 
     tmp = cons(NIL, NIL);
@@ -66,7 +66,7 @@ NODE *make_case(NODE *casestrnd, NODE *obj) {
     return(new_caseobj);
 }
 
-NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
+NODE __attribute__((optimize(0), noinline)) *make_object(NODE *canonical, NODE *oproc, NODE *val,
 		  NODE *plist, NODE *casestrnd) {
     NODE *temp;
 
@@ -76,7 +76,7 @@ NODE *make_object(NODE *canonical, NODE *oproc, NODE *val,
     return(temp);
 }
 
-NODE *make_instance(NODE *casend, NODE *lownd) {
+NODE __attribute__((optimize(0), noinline)) *make_instance(NODE *casend, NODE *lownd) {
     NODE *obj;
     FIXNUM hashind;
 
@@ -128,7 +128,7 @@ NODE *find_case(NODE *strnd, NODE *obj) {
     else return(car(clist));
 }
 
-NODE *intern(NODE *nd) {
+NODE __attribute__((optimize(0), noinline)) *intern(NODE *nd) {
     NODE *obj, *casedes, *lownd;
 
     if (nodetype(nd) == CASEOBJ) return(nd);

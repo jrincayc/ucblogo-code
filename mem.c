@@ -166,7 +166,11 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     return 0;
 }
 
-NODETYPES nodetype(NODE *nd) {
+#ifdef WIN32
+/* #pragma optimize("",on) */
+#endif
+
+NODETYPES __attribute__((optimize(0))) nodetype(NODE *nd) {
     if (nd == NIL) return (PNIL);
     return(nd->node_type);
 }
