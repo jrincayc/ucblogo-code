@@ -90,7 +90,7 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
-#define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
+#define SEG_SIZE        9 /* Should be a fairly big number for optimal GC
                                  Performance */
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
@@ -243,6 +243,8 @@ struct string_block {
 #define setstrrefcnt(sh, v)     ((sh)->str_refcnt = (v))
 #define incstrrefcnt(sh)        (((sh)->str_refcnt)++)
 #define decstrrefcnt(sh)        (--((sh)->str_refcnt))
+
+#define SERIALIZE_OBJECTS
 
 typedef struct logo_node NODE;
 typedef struct logo_node {

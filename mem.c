@@ -173,7 +173,7 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
 /* #pragma optimize("",on) */
 #endif
 
-NODETYPES nodetype(NODE *nd) {
+NODETYPES __attribute__((optimize(0))) nodetype(NODE *nd) {
     if (nd == NIL) return (PNIL);
     return(nd->node_type);
 }
