@@ -298,7 +298,7 @@ NODE *lright(NODE *arg) {
     
     val = numeric_arg(arg);
     if (NOT_THROWING) {
-	if (nodetype(val) == INT)
+	if (nodetype(val) == INTT)
 	    a = (FLONUM)getint(val);
 	else
 	    a = getfloat(val);
@@ -313,7 +313,7 @@ NODE *lleft(NODE *arg) {
     
     val = numeric_arg(arg);
     if (NOT_THROWING) {
-	if (nodetype(val) == INT)
+	if (nodetype(val) == INTT)
 	    a = (FLONUM)getint(val);
 	else
 	    a = getfloat(val);
@@ -537,7 +537,7 @@ FLONUM get_number(NODE *arg) {
     NODE *val = numeric_arg(arg);
 
     if (NOT_THROWING) {
-	if (nodetype(val) == INT)
+	if (nodetype(val) == INTT)
 	    return (FLONUM)getint(val);
 	else
 	    return getfloat(val);
@@ -613,7 +613,7 @@ NODE *lsetheading(NODE *arg) {
     if (NOT_THROWING) {
 	prepare_to_draw;
 	draw_turtle();
-	if (nodetype(val) == INT)
+	if (nodetype(val) == INTT)
 	    turtle_heading = (FLONUM)getint(val);
 	else
 	    turtle_heading = getfloat(val);
@@ -640,9 +640,9 @@ NODE *vec_arg_helper(NODE *args, BOOLEAN floatok, BOOLEAN three) {
 	    val2 = cnv_node_to_numnode(cadr(arg));
 		if (three) val3 = cnv_node_to_numnode(car(cddr(arg)));
 	    if (val1 != UNBOUND && val2 != UNBOUND &&
-		(floatok || (nodetype(val1) == INT && getint(val1) >= 0 &&
-			     nodetype(val2) == INT && getint(val2) >= 0 &&
-				 (!three || (nodetype(val3) == INT && getint(val3) >= 0))))) {
+		(floatok || (nodetype(val1) == INTT && getint(val1) >= 0 &&
+			     nodetype(val2) == INTT && getint(val2) >= 0 &&
+				 (!three || (nodetype(val3) == INTT && getint(val3) >= 0))))) {
 		setcar(arg, val1);
 		setcar(cdr(arg), val2);
 		if (three) setcar (cddr(arg), val3);
@@ -1375,12 +1375,12 @@ NODE *larc(NODE *arg) {
 
     if (NOT_THROWING) {
 
-	if (nodetype(val1) == INT)
+	if (nodetype(val1) == INTT)
 	    angle = (FLONUM)getint(val1);
 	else
 	    angle = getfloat(val1);
 
-	if (nodetype(val2) == INT)
+	if (nodetype(val2) == INTT)
 	    radius = (FLONUM)getint(val2);
 	else
 	    radius = getfloat(val2);

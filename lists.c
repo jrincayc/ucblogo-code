@@ -499,7 +499,7 @@ NODE *integer_arg(NODE *args) {
     FLONUM f;
 
     val = cnv_node_to_numnode(arg);
-    while ((nodetype(val) != INT) && NOT_THROWING) {
+    while ((nodetype(val) != INTT) && NOT_THROWING) {
 	if (nodetype(val) == FLOATT &&
 		    fmod((f = getfloat(val)), 1.0) == 0.0 &&
 		    f >= -(FLONUM)MAXLOGOINT && f < (FLONUM)MAXLOGOINT) {
@@ -516,7 +516,7 @@ NODE *integer_arg(NODE *args) {
 	val = cnv_node_to_numnode(arg);
     }
     setcar(args,val);
-    if (nodetype(val) == INT) return(val);
+    if (nodetype(val) == INTT) return(val);
     return UNBOUND;
 }
 
@@ -669,7 +669,7 @@ NODE *llisttoarray(NODE *args) {
 
     if (cdr(args) != NIL) {
 	p = cnv_node_to_numnode(car(cdr(args)));
-	while (nodetype(p) != INT && NOT_THROWING) {
+	while (nodetype(p) != INTT && NOT_THROWING) {
 	    setcar(cdr(args), err_logo(BAD_DATA, car(cdr(args))));
 	    p = cnv_node_to_numnode(car(cdr(args)));
 	}
@@ -718,7 +718,7 @@ FLONUM float_arg(NODE *args) {
     }
     setcar(args,val);
     if (nodetype(val) == FLOATT) return getfloat(val);
-    if (nodetype(val) == INT) return (FLONUM)getint(val);
+    if (nodetype(val) == INTT) return (FLONUM)getint(val);
     return 0.0;
 }
 
