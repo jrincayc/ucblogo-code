@@ -210,7 +210,7 @@ void set_bottom_stack(volatile NODE** bottom) {
 		// That's the address of the bottom of the real stack.
 		real_ptr = 	__asan_addr_is_in_fake_stack(
 			__asan_get_current_fake_stack(),
-			&bottom, 
+			bottom, 
 			NULL, NULL
 		);
 		// Otherwise the variable is on the real stack so treat it normally.
