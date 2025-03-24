@@ -60,7 +60,7 @@ FIXNUM seg_size = SEG_SIZE;
 
 /* A new segment of nodes is added if fewer than freed_threshold nodes are
    freed in one GC run */
-#define freed_threshold ((long int)(seg_size * 0.4))
+#define freed_threshold ((size_t)(seg_size * 0.4))
 
 NODE *free_list = NIL;                /* global ptr to free node list */
 struct segment *segment_list = NULL;  /* global ptr to segment list */
@@ -153,16 +153,16 @@ BOOLEAN addseg(void) {
 
 BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     struct segment* current_seg;
-    unsigned long int ptr = (unsigned long int)ptr_val;
+    size_t ptr = (size_t)ptr_val;
     FIXNUM size;
    
     if (ptr_val == NIL) return 0;
     for (current_seg = segment_list; current_seg != NULL;
 		current_seg = current_seg->next) {
 	size = current_seg->size;
-	if ((ptr >= (unsigned long int)&current_seg->nodes[0]) &&
-	    (ptr <= (unsigned long int)&current_seg->nodes[size-1]) &&
-	    ((ptr - (unsigned long int)&current_seg->nodes[0])%
+	if ((ptr >= (size_t)&current_seg->nodes[0]) &&
+	    (ptr <= (size_t)&current_seg->nodes[size-1]) &&
+	    ((ptr - (size_t)&current_seg->nodes[0])%
 	                 (sizeof(struct logo_node)) == 0))
 	    return (ptr_val->node_type != NTFREE);
     }
