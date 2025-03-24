@@ -1,0 +1,71 @@
+This document describes how Address Sanitizer is integrated with ucblogo.
+
+It has become best-practice to use such tools to verify C/C++ programs to help
+ensure memory-safety, security, stability, rapid dev/text/debug cycles, etc.
+That or don't use C.
+
+Address Sanitizer (ASAN) is a runtime library developed by Google and integrated
+into GCC (and clang) which can detect various types of subtle C memory
+management bugs.
+
+ASAN instruments code by rewriting it and managing variable allocation itself.
+In order to check for stack related errors, it creates it's own "fake" stack on
+the heap and allocates most (but not all) stack variables on the fake stack.  
+
+This is transparent to pure ANSI-C code that makes no platform-specific
+assumptions. The stack is undefined behavior as far as C is concerned.
+
+Unfortunately every practical mark and sweep memory manager for C makes platform
+specific assumptions about the stack, as they must check it for accessible
+memory objects. Fortunately this is a reasonable assumption for modern desktop
+systems, which invariable feature a contiguously addressed stack on which
+automatic variable are allocated, and, with some hacks, we can get the extents
+and iterate it.
+
+Unfortunately ASAN breaks this assumption by allocating stack frames on the heap
+and putting pointers to them on the real stack, which adds a level of
+indirection.
+
+Of course Google would like to use ASAN to check Chrome, probably why they wrote
+it, and Chrome uses a typical M&S GC with stack inspection. So they added an API
+to ASAN to smooth over the differences with minor code changes. As the stack is
+marked an ASAN function checks for pointers to fake stack frames and if found
+returns the extents of the fake frame extents to also be marked.
+
+ASAN also provides an API for manually poisoning memory regions, like free NODE
+objects.
+
+In our project most of this happens in mem.c, except for getting the address of
+the bottom of the stack which is in main.c as always.
+
+ASAN adds overhead resulting in about a 2x slowdown so it's not suitable for
+production builds. Better performance can be obtained by enabling compiler
+optimizations.
+
+To build ucblogo with ASAN pass the flags in CFLAGS to the configure script, eg.
+
+    CFLAGS="-O2 -g3 -fsanitize=address -static-libasan -fno-omit-frame-pointer" CXXFLAGS="-O2 -g3 -fsanitize=address -static-libasan -fno-omit-frame-pointer" ./configure --prefix=$HOME --enable-objects
+
+then make and test as normal.
+
+To make GDB stop before exiting when ASAN hits a bug, set a breakpoint on the
+ASAN Die function
+
+    break __sanitizer::Die
+
+You may also find the following GDB breakpoints useful
+
+    break err_logo
+    dprintf mem.c:872,"free %V %V\n",nd,*nd
+    dprintf mem.c:299,"newnode %V %V\n",newnd,*newnd
+    break mem.c:299
+    commands
+        bt
+        c
+    end
+
+This will report where and when nodes are allocated and free-ed. It is especialy
+useful in conjunction with -DSERIALIZE_OBJECTS so unique objects can be tracked
+through their complete lifecycle.
+
+More useful debugging tools are given in gdb.rc
