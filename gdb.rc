@@ -38,14 +38,14 @@ define pcons
         printf "node %14.d %V %V %V\n",$arg0->id,$arg0->node_type, $arg0,*$arg0
         if $arg0->node_type != -1 && !($arg0->node_type & $NT_EMPTY)
             if $arg0->node_type & $NT_TREE
-                pconstree $arg0->nunion->ncons->nobj
+                pcons $arg0->nunion->ncons->nobj
             end
             if $arg0->node_type & $NT_LIST || $arg0->node_type & $NT_AGGR
-                pconstree $arg0->nunion->ncons->ncar
-                pconstree $arg0->nunion->ncons->ncdr
+                pcons $arg0->nunion->ncons->ncar
+                pcons $arg0->nunion->ncons->ncdr
             end
             if $arg0->node_type & $NT_CASEOBJ
-                pconstree $arg0->nunion->ncons->ncar
+                pcons $arg0->nunion->ncons->ncar
             end
         end
     end
