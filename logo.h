@@ -244,7 +244,9 @@ struct string_block {
 #define incstrrefcnt(sh)        (((sh)->str_refcnt)++)
 #define decstrrefcnt(sh)        (--((sh)->str_refcnt))
 
-#define SERIALIZE_OBJECTS
+// Assign a unique serial number to each object allocated so that it can be
+// tracked through it's complete lifecycle.
+// #define SERIALIZE_OBJECTS
 
 typedef struct logo_node NODE;
 typedef struct logo_node {

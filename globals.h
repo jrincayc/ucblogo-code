@@ -30,7 +30,9 @@ extern int main(int, char *[]);
 extern void unblock_input(void);
 extern void delayed_int(void);
 extern NODE *command_line;
+#ifdef SERIALIZE_OBJECTS
 extern unsigned long long int next_node_id;
+#endif
 
 #if defined(SIG_TAKES_ARG)
 void logo_stop(int);
@@ -675,5 +677,3 @@ extern NODE *parent_list(NODE *);
 extern void dbUsual(const char*);
 
 #endif
-
-void do_gc(BOOLEAN full);
