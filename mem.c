@@ -31,6 +31,11 @@ extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 #ifdef __SANITIZE_ADDRESS__
 #include <sanitizer/asan_interface.h>
+#define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#else
+#define POISON_NODE(nd) ()
+#define UNPOISON_NODE(nd) ()
 #endif
 
 #ifdef PUNY
@@ -131,6 +136,8 @@ BOOLEAN addseg(void) {
             newseg->nodes[p].next = free_list;
             free_list = &newseg->nodes[p];
 	    settype(&newseg->nodes[p], NTFREE);
+		POISON_NODE(&newseg->nodes[p]);
+
 	}
 	return 1;
     } else
@@ -261,6 +268,7 @@ NODE *newnode(NODETYPES type) {
 	do_gc(FALSE);
     }
     if (newnd != NIL) {
+	UNPOISON_NODE(newnd);
 	free_list = newnd->next;
 #ifdef SERIALIZE_OBJECTS
 	newnd->id = next_node_id++;
@@ -784,6 +792,8 @@ mark_stack(&top);
     }
 
     /* Begin Sweep Phase */
+	// For deep debugging
+	// goto skip_sweep;
    	
     for (loop = gen_gc; loop >= 0; loop--) {
 	tmp_ptr = &generation[loop];
@@ -879,7 +889,8 @@ mark_stack(&top);
 		settype (nd, NTFREE);
 	 	nd->next = free_list;
 	 	free_list = nd;
-	    }
+		POISON_NODE(nd);
+	 }
 	}
         clean_oldyoungs();
 #ifdef GC_DEBUG
@@ -899,6 +910,7 @@ mark_stack(&top);
     else
 	next_gen_gc = 0;
 
+skip_sweep:
     if (num_freed < freed_threshold) {
 	if (!addseg() && num_freed < 50 && gen_gc == max_gen && !no_error) {
 	    err_logo(OUT_OF_MEM, NIL);
@@ -943,6 +955,7 @@ void fill_reserve_tank(void) {
 
     while (--i >= 0) {	/* make pairs not in any generation */
 	if ((newnd = free_list) == NIL) break;
+	UNPOISON_NODE(newnd);
 	free_list = newnd->next;
 	settype(newnd, CONS);
 	newnd->n_car = NIL;
