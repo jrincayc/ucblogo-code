@@ -109,18 +109,6 @@ void debprintline(int line, char *name) {
 #define DEB_CONT 0
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#include <termios.h>
-#else
-#include <termio.h>
-#endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
-#endif
-
 #if DEB_STACK
 NODE *restname, *restline;
 #define save(register) (    debprint2("saving " #register " = %s ", register), \

@@ -30,23 +30,16 @@
 #include "logo.h"
 #include "globals.h"
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-jmp_buf iblk_buf;
-#endif
- 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -60,10 +53,8 @@ int stop_quietly_flag=0;
 void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
-#ifdef TIOCSTI
+#ifdef HAVE_IOCTRL_H
 	ioctl(0,TIOCSTI,"\n");
-#else
-	longjmp(iblk_buf,1);
 #endif
     }
 }

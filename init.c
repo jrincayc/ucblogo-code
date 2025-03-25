@@ -254,11 +254,6 @@ PRIMTYPE prims[] = {
     {"macrop", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"macro?", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"make", 2, 2, 2, PREFIX_PRIORITY, lmake},
-#ifndef HAVE_WX
-#if defined(WIN32)
-    {"maximize.window", 1, 1, 1, PREFIX_PRIORITY, maximize},
-#endif
-#endif
     {"member", 2, 2, 2, PREFIX_PRIORITY, lmember},
     {"memberp", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"member?", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
@@ -407,11 +402,9 @@ PRIMTYPE prims[] = {
     {"setread", 1, 1, 1, PREFIX_PRIORITY, lsetread},
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
-#if defined(WIN32)|defined(HAVE_WX)
+#if defined(HAVE_WX)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
-#endif
-#ifdef HAVE_WX
     {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
 #endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
