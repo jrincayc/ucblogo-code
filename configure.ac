@@ -66,6 +66,17 @@ Or configure with --disable-wx to build without graphics.])
  AM_CONDITIONAL([WX], [test 1 = 0]))
 
 
+AC_MSG_CHECKING([enable_wasm])
+AC_ARG_ENABLE([wasm],
+  [AS_HELP_STRING([--enable-wasm],[use Web Assembly (default=no)])],,
+  [enable_wasm=no])
+AC_MSG_RESULT([$enable_wasm])
+AM_CONDITIONAL([WASM], [test x${enable_wasm} = xyes])
+AM_COND_IF([WASM],
+ [AC_DEFINE([__EMSCRIPTEN__],[1],[Target Web Assembly])],
+ [AC_DEFINE([WASM_MISSING],[1],[ix-nay on the asmway])])
+
+
 AC_MSG_CHECKING([enable_x11])
 AC_ARG_ENABLE([x11],
   [AS_HELP_STRING([--enable-x11],[use x11Widgets (default=no)])],,
@@ -132,7 +143,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS([usleep srandom sigsetmask matherr drem irint memcpy gettimeofday])
+AC_CHECK_FUNCS([usleep srandom sigsetmask drem irint memcpy gettimeofday tgoto])
 
 AC_SUBST(WXOFILES)
 AC_SUBST(WXSRCFILES)

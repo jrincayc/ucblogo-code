@@ -105,6 +105,20 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
             }
+        },
+        {
+            "name": "Emscripten",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/jeff/ucblogo-code/emsdk/upstream/**"
+            ],
+            "defines": [
+                "__EMSCRIPTEN__"
+            ],
+            "cStandard": "c89",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64",
+            "compilerPath": "/usr/bin/clang"
         }
     ],
     "version": 4

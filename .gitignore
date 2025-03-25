@@ -36,7 +36,10 @@ logo_win.res
 *.dSYM/
 .vscode/browse.*
 .*
-*~
 *.swp
-
-
+*~
+*.wasm
+*.map
+ucblogo.html
+ucblogo.js
+ucblogo.mjs

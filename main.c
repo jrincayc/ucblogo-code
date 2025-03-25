@@ -27,6 +27,10 @@
 #include <process.h>  /* needed? */
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "logo.h"
 #include "globals.h"
 

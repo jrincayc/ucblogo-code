@@ -1,4 +1,5 @@
-SUBDIRS = logolib csls helpfiles tests
+# SUBDIRS = logolib csls helpfiles tests
+SUBDIRS = logolib csls tests
 if DOCS
 SUBDIRS += docs
 endif
@@ -78,10 +79,10 @@ EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  wxGraphics.h wxMain.h wxTerminal.h wxCommandHistory.h			\
  wxTurtleGraphics.h xgraphics.h
 
-# Source for utility program for regenerating ./helpfiles/ from ./usermanual
-# See below; needs to run in build environment.
-EXTRA_DIST += makehelp.c
-CLEANFILES = makehelp
+# # Source for utility program for regenerating ./helpfiles/ from ./usermanual
+# # See below; needs to run in build environment.
+# EXTRA_DIST += makehelp.c
+# CLEANFILES = makehelp
 
 # Misc information, documentation, historical files, etc
 EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
@@ -101,22 +102,22 @@ EXTRA_DIST += docs/ucblogo.pdf
 docs/ucblogo.pdf: docs/ucblogo.texi
 	cd docs && $(MAKE) ucblogo.pdf
 
-helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
+# helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 
 # Redirection with this phony target avoids the stanza being run
 # twice, thus avoiding unecessary work and a race condition.
 
-.PHONY: regenerate-help-index
+# .PHONY: regenerate-help-index
+# 
+# regenerate-help-index: makehelp usermanual
+# 	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
+# 	./makehelp
+# 	@echo "Grave accent as filename is impossible with automake so work around it."
+# 	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
+# 	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
+# 	-rm helptemp
 
-regenerate-help-index: makehelp usermanual
-	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
-	./makehelp
-	@echo "Grave accent as filename is impossible with automake so work around it."
-	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
-	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
-	-rm helptemp
-
-all: regenerate-help-index
+all: 
 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	mkdir -p UCBLogo.app
@@ -142,3 +143,5 @@ ucblogo.dmg : mac docs/ucblogo.pdf
 	cp docs/ucblogo.pdf /Volumes/UCBLogo/UCBLogoUserManual.pdf
 	hdiutil detach /Volumes/UCBLogo/
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
+
+CLEANFILES = ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
