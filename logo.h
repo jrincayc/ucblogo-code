@@ -26,6 +26,12 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#define EMSLEEP(ticks) (emscripten_sleep(ticks))
+#else
+#define EMSLEEP(ticks) (0)
+#endif
+
 // Address Sanitizer check
 #if defined(__has_feature)
 #   if __has_feature(address_sanitizer) // for clang

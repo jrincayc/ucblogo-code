@@ -25,6 +25,10 @@
 #include "globals.h"
 #include <stdarg.h>
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 int print_stringlen;
 char *print_stringptr;
 int force_printwidth = -1, force_printdepth = -1;
@@ -106,6 +110,12 @@ void print_char(FILE *strm, char ch) {
 	if (--print_stringlen > 0)
 	    *print_stringptr++ = ch;
     }
+// WASM note: with JSPI this errors with
+//   Uncaught (in promise) SuspendError: trying to suspend JS frames
+//  This might be part of why Asyncify was crashing
+#ifdef __EMSCRIPTEN__
+		emscripten_sleep(0);
+#endif
 }
 
 void print_space(FILE *strm) {
@@ -176,6 +186,9 @@ void ndprintf(FILE *strm, char *fmt, ...) {
     if (!strm) *print_stringptr = '\0';
     va_end(ap);
     force_printwidth = force_printdepth = -1;
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(1);
+#endif
 }
 
 void dbprint(NODE *data) {
