@@ -29,6 +29,35 @@
 #undef WIN32
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+// Emscripten FS API is synchronous and blocking. That's fine for printing but
+// completely for blocking input. So we have to implement our own async getc.
+EM_ASYNC_JS(char, em_getc, (FILE *ignored), {
+	// Flush to make sure the prompt gets printed
+	// TODO flush less often
+	_fflush(0); 
+	const char = await new Promise((res, rej) => {
+		// TODO probably a better way than reinstalling the handler every time
+		document.addEventListener("nextChar", (event) => {
+			const char = event.detail.char;
+			console.debug(`getc ${event.detail.char}`);
+			res(event.detail.char);
+		},
+		{ once: true })
+	});
+	// Convert to int so it converts to C char and not a string
+	return char.charCodeAt(0);
+});
+
+#define GETC em_getc
+
+EM_JS(void, em_fflush, (int fh), {
+	_fflush(fh)
+});
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -48,7 +77,7 @@
 #ifdef getc
 #undef getc
 #endif
-#define getc getFromWX_2
+#define GETC getFromWX_2
 #define getch getFromWX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 extern void wx_enable_scrolling();
@@ -70,7 +99,7 @@ int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
     int c;
-    c = getc(strm);
+    c = GETC(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
 #ifdef ecma
@@ -87,6 +116,14 @@ void rd_print_prompt(char *str) {
 #endif
 
     ndprintf(stdout,"%t",str);
+#ifdef __EMSCRIPTEN__
+	// Emscripten output is line-buffered, so emit a newline to make the prompt
+	// appear
+	putc('\n', stdout);
+	fflush(stdout);
+	em_fflush(0);
+	EMSLEEP(100);
+#endif
 }
 
 #define zrd_print_prompt rd_print_prompt
