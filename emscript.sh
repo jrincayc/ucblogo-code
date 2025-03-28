@@ -6,12 +6,12 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-export CFLAGS="-std=c90 -Wno-int-conversion -g -fsanitize=undefined -fsanitize=address"
+export CFLAGS="-g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -Wno-int-conversion -fsanitize=undefined -fsanitize=address"
 export CXXFLAGS="-g -fsanitize=undefined -fsanitize=address"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
-emconfigure ./configure --cache-file=.config.cache --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-wasm \
+emconfigure ./configure --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-wasm \
 && emmake make clean \
 && emmake make \
 && em++ -g2 -Og -gsource-map -Wno-write-strings -Wno-unused-variable \
