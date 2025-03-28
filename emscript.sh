@@ -6,15 +6,16 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-export CFLAGS="-std=c90 -Wno-int-conversion -Og -g2 -fsanitize=undefined -fsanitize=address"
-export CXXFLAGS="-Og -g2 -fsanitize=undefined -fsanitize=address"
-export EMCC_DEBUG=1
+export CFLAGS="-std=c90 -Wno-int-conversion -g -fsanitize=undefined -fsanitize=address"
+export CXXFLAGS="-g -fsanitize=undefined -fsanitize=address"
+# export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
 emconfigure ./configure --cache-file=.config.cache --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-wasm \
 && emmake make clean \
 && emmake make \
-&& em++ -g2 -Og -gsource-map -Wno-write-strings -Wno-unused-variable -o ucblogo.html \
+&& em++ -g2 -Og -gsource-map -Wno-write-strings -Wno-unused-variable \
+-o ucblogo.html \
 ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
@@ -34,7 +35,9 @@ ucblogo-nographics.o \
 -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$addOnExit' \
 -fsanitize=undefined \
 -fsanitize=address \
--fno-sanitize=alignment
+--shell-file shell.html \
+--save-temps
+# -fno-sanitize=alignment \
 # -s EXIT_RUNTIME=1 \
 # -s EXPORT_NAME=ucblogo \
 # -s STANDALONE_WASM \
