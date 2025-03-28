@@ -227,7 +227,7 @@ int  start (int argc,char ** argv) {
 #else
 int main(int argc, char *argv[]) {
 #endif
-    NODE *exec_list = NIL;
+    volatile NODE *exec_list = NIL;
 	
 	set_bottom_stack(&exec_list); /* GC */
 
