@@ -68,7 +68,7 @@ int ecma_get(int ch) {
 #endif
 
 char *strnzcpy(char *s1, char *s2, int n) {
-    strncpy(s1, s2, n);
+    strncpy(s1, s2, n + 1);
     s1[n] = '\0';
     return(s1);
 }
