@@ -31,8 +31,10 @@
 
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>
+typedef struct termios termio_t; 
 #elif defined(HAVE_TERMIO_H)
 #include <termio.h>
+typedef struct termio termio_t;
 #endif
 
 #ifdef HAVE_SYS_IOCTL_H
@@ -72,7 +74,7 @@ char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
 
-struct termio tty_cooked, tty_cbreak;
+termio_t tty_cooked, tty_cbreak;
 
 int interactive, tty_charmode;
 
