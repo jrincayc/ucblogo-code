@@ -78,7 +78,7 @@ termio_t tty_cooked, tty_cbreak;
 
 int interactive, tty_charmode;
 
-extern char **environ;
+extern char **environ, *tgoto();
 
 char *termcap_ptr;
 
@@ -90,19 +90,20 @@ int termcap_putter(int ch) {
 
 void termcap_getter(char *cap, char *buf) {
     char temp[40];
-    char *str;
+    char *str = 0;
     char *temp_ptr = temp;
 
     termcap_ptr = buf;
-    str=tgetstr(cap,&temp_ptr);
+    // FIXME
+    // str=tgetstr(cap,&temp_ptr);
     /* if (str == NULL) str = temp; */
-    tputs(str,1,termcap_putter);
+    // tputs(str,1,termcap_putter);
 }
 
 void term_init(void) {
     char *emacs; /* emacs change */
     int term_sg;
-    int tgetent_result;
+    int tgetent_result = 0;
 
     interactive = isatty(0);
 
@@ -120,20 +121,21 @@ void term_init(void) {
      * are preinitialized to 0 */
 
     /* query terminal information from termcap database, if available */
-    tgetent_result = tgetent(bp, getenv("TERM"));
+    // FIXME
+    // tgetent_result = tgetent(bp, getenv("TERM"));
     if (tgetent_result == 1) {
-      x_max = tgetnum("co");
-      y_max = tgetnum("li");
+    //   x_max = tgetnum("co");
+    //   y_max = tgetnum("li");
 
-      term_sg = tgetnum("sg");
+    //   term_sg = tgetnum("sg");
 
       x_coord = y_coord = 0;
-      termcap_getter("cm", cm_arr);
-      termcap_getter("cl", cl_arr);
+    //   termcap_getter("cm", cm_arr);
+    //   termcap_getter("cl", cl_arr);
 
       if (term_sg <= 0) {
-          termcap_getter("so", so_arr);
-          termcap_getter("se", se_arr);
+        //   termcap_getter("so", so_arr);
+        //   termcap_getter("se", se_arr);
       } else { /* no standout modes */
 	so_arr[0] = se_arr[0] = '\0';
       }
@@ -173,7 +175,9 @@ void charmode_off() {
 
 NODE *lcleartext(NODE *args) {
     printf("%s", cl_arr);
+#ifdef HAVE_TGOTO
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
+#endif
 
 	fflush(stdout); /* do it now! */
 	fix_turtle_shownness();
@@ -210,7 +214,9 @@ NODE *lsetcursor(NODE *args) {
 	}
     }
     if (NOT_THROWING) {
+#ifdef HAVE_TGOTO
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
+#endif
 	fflush(stdout);
     }
     return(UNBOUND);
