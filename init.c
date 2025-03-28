@@ -42,6 +42,13 @@
 void getExecutableDir(char * path, int maxlen);
 #endif
 
+#ifdef HAVE_SRANDOM
+#include <stdlib.h>
+#ifdef __EMSCRIPTEN__
+extern void srandom(int);
+#endif
+#endif
+
 typedef struct priminfo {
     char *name;
     short minargs;

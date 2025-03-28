@@ -30,6 +30,9 @@
 
 #ifdef HAVE_SRANDOM
 #include <stdlib.h>
+#ifdef __EMSCRIPTEN__
+extern void srandom(int);
+#endif
 #endif
 
 #define isdigit(dig)    (dig >= '0' && dig <= '9')
