@@ -29,29 +29,40 @@
 #undef WIN32
 #endif
 
+#include <stdio.h>
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 
 // Emscripten FS API is synchronous and blocking. That's fine for printing but
-// completely for blocking input. So we have to implement our own async getc.
-EM_ASYNC_JS(char, em_getc, (FILE *ignored), {
-	// Flush to make sure the prompt gets printed
-	// TODO flush less often
-	_fflush(0); 
-	const char = await new Promise((res, rej) => {
-		// TODO probably a better way than reinstalling the handler every time
-		document.addEventListener("nextChar", (event) => {
-			const char = event.detail.char;
-			console.debug(`getc ${event.detail.char}`);
-			res(event.detail.char);
-		},
-		{ once: true })
-	});
+// completely useless for blocking input. So we have to implement our own async
+// getc for reading stdin.
+EM_ASYNC_JS(char, em_getc, (), {
+	let char;
+	if (document) {
+		char = await new Promise((res, rej) => {
+			// TODO probably a better way than reinstalling the handler every time
+			document.addEventListener("nextChar", (event) => {
+				const char = event.detail.char;
+				console.debug(`getc ${event.detail.char}`);
+				res(event.detail.char);
+			},
+			{ once: true })
+		});
+	} else {
+		char = process.stdin.read(1);
+		while (char == null) {
+			await new Promise((res,rej)=>{setTimeout(res,20)});
+			char = process.stdin.read(1);
+		}
+	}
 	// Convert to int so it converts to C char and not a string
 	return char.charCodeAt(0);
 });
 
-#define GETC em_getc
+int GETC(FILE* stream) {
+	return stream == stdin ? em_getc() : getc(stream);
+}
 
 EM_JS(void, em_fflush, (int fh), {
 	_fflush(fh)
@@ -117,12 +128,9 @@ void rd_print_prompt(char *str) {
 
     ndprintf(stdout,"%t",str);
 #ifdef __EMSCRIPTEN__
-	// Emscripten output is line-buffered, so emit a newline to make the prompt
+	// Emscripten output is line-buffered, so emit newline to make the prompt
 	// appear
 	putc('\n', stdout);
-	fflush(stdout);
-	em_fflush(0);
-	EMSLEEP(100);
 #endif
 }
 
