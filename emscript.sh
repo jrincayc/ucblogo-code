@@ -9,32 +9,15 @@
 # export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
 # export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
 export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
-export CXXFLAGS="-O0 -g"
+export CXXFLAGS="-O0 -g -ferror-limit=0"
+export LDFLAGS="-ferror-limit=0"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
 emconfigure ./configure --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-objects --enable-wasm \
 && emmake make clean \
-&& emmake make \
-&& em++ $CXXFLAGS \
--o ucblogo.html \
-ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
-ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
-ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
-ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-ucblogo-nographics.o ucblogo-obj.o \
---embed-file logolib \
---pre-js pre.js \
---embed-file tests \
--s JSPI \
--s ASYNCIFY_STACK_SIZE=100000 \
--s ALLOW_MEMORY_GROWTH \
---emrun \
--s ENVIRONMENT=web,webview,worker,node,shell \
--s STRICT_JS \
--s EMIT_PRODUCERS_SECTION \
--sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$addOnExit' \
---shell-file shell.html
+&& emmake make ucblogo.html
+
 # -s ASYNCIFY_ADVISE \
 # --save-temps
 # -s EXIT_RUNTIME=1 \
@@ -44,14 +27,10 @@ ucblogo-nographics.o ucblogo-obj.o \
 # -s STACK_OVERFLOW_CHECK=1 \
 # -s SAFE_HEAP=2 \
 
-
-
-
 #--embed-file ucblogo.wasm.map \
 #-s EXCEPTION_DEBUG=1  \
 #-s ASYNCIFY_ADVISE=1 \
 #-s ASYNCIFY_DEBUG=1 
-
 
 # Doesn't work with asyncify
 # Does it work with JSPI?

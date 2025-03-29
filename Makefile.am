@@ -55,9 +55,14 @@ ucblogo_SOURCES += term.c
 if X11
 ucblogo_SOURCES += xgraphics.c
 else
+if WASM
+ucblogo_SOURCES += webgraphics.c
+else
 ucblogo_SOURCES += nographics.c
 endif
 endif
+endif
+
 
 # Desktop file, see https://freedesktop.org/wiki/Howto_desktop_files/
 
@@ -77,8 +82,8 @@ dist_pixmaps_DATA = ucblogo.xpm
 EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  nographics.h obj.h TextEditor.h turtleshape.h wxGlobals.h		\
  wxGraphics.h wxMain.h wxTerminal.h wxCommandHistory.h			\
- wxTurtleGraphics.h xgraphics.h
-
+ wxTurtleGraphics.h xgraphics.h webgraphics.h
+ 
 # # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # # See below; needs to run in build environment.
 # EXTRA_DIST += makehelp.c
@@ -118,6 +123,27 @@ docs/ucblogo.pdf: docs/ucblogo.texi
 # 	-rm helptemp
 
 all: 
+
+ucblogo.html: ucblogo
+	em++ $(CXXFLAGS) \
+	-o ucblogo.html \
+	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
+	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
+	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
+	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
+	ucblogo-obj.o ucblogo-webgraphics.o \
+	--embed-file logolib \
+	--pre-js pre.js \
+	--embed-file tests \
+	-s JSPI \
+	-s ASYNCIFY_STACK_SIZE=100000 \
+	-s ALLOW_MEMORY_GROWTH \
+	--emrun \
+	-s ENVIRONMENT=web,webview,worker,node,shell \
+	-s STRICT_JS \
+	-s EMIT_PRODUCERS_SECTION \
+	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
+	--shell-file shell.html
 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	mkdir -p UCBLogo.app
