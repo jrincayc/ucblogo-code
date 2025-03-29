@@ -102,7 +102,7 @@ void termcap_getter(char *cap, char *buf) {
 
 void term_init(void) {
     char *emacs; /* emacs change */
-    int term_sg;
+    int term_sg = 0;
     int tgetent_result = 0;
 
     interactive = isatty(0);
