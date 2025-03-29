@@ -6,21 +6,21 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-export CFLAGS="-g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -Wno-int-conversion -fsanitize=undefined -fsanitize=address"
-export CXXFLAGS="-g -fsanitize=undefined -fsanitize=address"
+export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
+export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
-emconfigure ./configure --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-wasm \
+emconfigure ./configure --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-objects --enable-wasm \
 && emmake make clean \
 && emmake make \
-&& em++ -g2 -Og -gsource-map -Wno-write-strings -Wno-unused-variable \
+&& em++ $CXXFLAGS \
 -o ucblogo.html \
 ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-ucblogo-nographics.o \
+ucblogo-nographics.o ucblogo-obj.o \
 --embed-file logolib \
 --pre-js pre.js \
 --embed-file tests \
