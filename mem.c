@@ -906,7 +906,8 @@ mark_stack(&top);
     else
 	next_gen_gc = 0;
 
-skip_sweep:
+// for deep debugging
+// skip_sweep:
     if (num_freed < freed_threshold) {
 	if (!addseg() && num_freed < 50 && gen_gc == max_gen && !no_error) {
 	    err_logo(OUT_OF_MEM, NIL);
