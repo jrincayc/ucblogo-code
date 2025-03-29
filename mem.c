@@ -513,11 +513,11 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
 
 #ifdef __SANITIZE_ADDRESS__
 	 void* fake_stack = __asan_get_current_fake_stack();
-	 void* fake_frame_beg;
-	 void* fake_frame_end;
-	 NODE** fake_ptr;
-	 void* real_ptr;
-	real_ptr = __asan_addr_is_in_fake_stack(
+	 NODE* fake_frame_beg;
+	 NODE* fake_frame_end;
+	 NODE* fake_ptr;
+	 NODE** real_ptr;
+	real_ptr = (NODE**)__asan_addr_is_in_fake_stack(
 			__asan_get_current_fake_stack(), 
 			(void*)top, NULL, NULL
 		);
@@ -540,8 +540,8 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
 // frame only contains a pointer to the fake frame.
 #ifdef __SANITIZE_ADDRESS__
 		real_ptr = __asan_addr_is_in_fake_stack(
-			fake_stack, (void*)*tmp_ptr, &fake_frame_beg, 
-			&fake_frame_end
+			fake_stack, (void*)*tmp_ptr, (void*)&fake_frame_beg, 
+			(void*)&fake_frame_end
 		);
 		if (real_ptr) {
 			// Pointer to fake stack frame
@@ -550,8 +550,8 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
 				fake_ptr++) 
 			{
 				// Pointer on fake stack
-				if (valid_pointer(*fake_ptr)) {
-					mark(*fake_ptr);
+				if (valid_pointer(fake_ptr)) {
+					mark(fake_ptr);
 				}
 			}
 		}
@@ -577,8 +577,8 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
 	     ) {
 #ifdef __SANITIZE_ADDRESS__
 		real_ptr = __asan_addr_is_in_fake_stack(
-			fake_stack, (void*)*tmp_ptr, &fake_frame_beg, 
-			&fake_frame_end
+			fake_stack, (void*)*tmp_ptr, (void*)&fake_frame_beg, 
+			(void*)&fake_frame_end
 		);
 		if (real_ptr) {
 			// Pointer to fake stack frame
@@ -588,8 +588,8 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
 				fake_ptr++) 
 			{
 				// Pointer on fake stack
-				if (valid_pointer(*fake_ptr)) {
-					mark(*fake_ptr);
+				if (valid_pointer(fake_ptr)) {
+					mark(fake_ptr);
 				}
 			}
 		}
