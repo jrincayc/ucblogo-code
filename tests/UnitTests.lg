@@ -107,16 +107,18 @@ end
 ;LOAD "UnitTests-LogoLib-Loops.lg
 ;LOAD "UnitTests-Mem.lg
 
-LOAD "UnitTests-Arithmetic.lg
-LOAD "UnitTests-Bitwise.lg
-LOAD "UnitTests-Constructors.lg
-LOAD "UnitTests-Files.lg
-LOAD "UnitTests-Macros.lg
-LOAD "UnitTests-Predicates.lg
-LOAD "UnitTests-Random.lg
-LOAD "UnitTests-MemMgr.lg
-LOAD "UnitTests-OOP.lg
-LOAD "UnitTests-Control.lg
+MAKE "testhome "tests/
+
+LOAD "tests/UnitTests-Arithmetic.lg
+LOAD "tests/UnitTests-Bitwise.lg
+LOAD "tests/UnitTests-Constructors.lg
+LOAD "tests/UnitTests-Files.lg
+LOAD "tests/UnitTests-Macros.lg
+LOAD "tests/UnitTests-Predicates.lg
+LOAD "tests/UnitTests-Random.lg
+LOAD "tests/UnitTests-MemMgr.lg
+LOAD "tests/UnitTests-OOP.lg
+LOAD "tests/UnitTests-Control.lg
 
 
 ;; Process any command line options
