@@ -31,7 +31,7 @@
 #ifdef HAVE_SRANDOM
 #include <stdlib.h>
 #ifdef __EMSCRIPTEN__
-extern void srandom(int);
+extern void srandom(unsigned int);
 #endif
 #endif
 
