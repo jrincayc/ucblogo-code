@@ -6,8 +6,10 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
-export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
+# export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
+# export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
+export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
+export CXXFLAGS="-O0 -g"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
@@ -25,7 +27,6 @@ ucblogo-nographics.o ucblogo-obj.o \
 --pre-js pre.js \
 --embed-file tests \
 -s JSPI \
--s ASYNCIFY_ADVISE \
 -s ASYNCIFY_STACK_SIZE=100000 \
 -s ALLOW_MEMORY_GROWTH \
 --emrun \
@@ -33,11 +34,9 @@ ucblogo-nographics.o ucblogo-obj.o \
 -s STRICT_JS \
 -s EMIT_PRODUCERS_SECTION \
 -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$addOnExit' \
--fsanitize=undefined \
--fsanitize=address \
---shell-file shell.html \
---save-temps
-# -fno-sanitize=alignment \
+--shell-file shell.html
+# -s ASYNCIFY_ADVISE \
+# --save-temps
 # -s EXIT_RUNTIME=1 \
 # -s EXPORT_NAME=ucblogo \
 # -s STANDALONE_WASM \
