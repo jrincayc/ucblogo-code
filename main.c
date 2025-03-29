@@ -195,7 +195,7 @@ void delayed_int() {
 void set_bottom_stack( NODE** bottom) {
 #ifdef __SANITIZE_ADDRESS__
 	// ASAN does unholy things
-	 void** real_ptr;
+	 NODE** real_ptr;
 	// void* fake_stack = 
 	// Theoretically ASAN can be configured not do stack checks, so check
 	// if we're using a fake stack right now.
@@ -203,7 +203,7 @@ void set_bottom_stack( NODE** bottom) {
 		// If the stack variable is in the fake stack, real_ptr will contain
 		// the real stack address of the fake stack frame pointer.
 		// That's the address of the bottom of the real stack.
-		real_ptr = 	__asan_addr_is_in_fake_stack(
+		real_ptr = (NODE**) __asan_addr_is_in_fake_stack(
 			__asan_get_current_fake_stack(),
 			bottom, 
 			NULL, NULL
@@ -227,7 +227,7 @@ int  start (int argc,char ** argv) {
 #else
 int main(int argc, char *argv[]) {
 #endif
-    volatile NODE *exec_list = NIL;
+    NODE *exec_list = NIL;
 	
 	set_bottom_stack(&exec_list); /* GC */
 
