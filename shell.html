@@ -47,7 +47,6 @@
     </style>
   </head>
   <body>
-    <hr/>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -56,8 +55,7 @@
     <div hidden class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-    <hr/>
-    <div hidden class="emscripten">
+    <div hidden style="display:none" class="emscripten">
       <input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
       &nbsp;&nbsp;&nbsp;
@@ -65,13 +63,11 @@
                                                                                 document.getElementById('resize').checked)">
     </div>
     
-    <hr/>
-    <textarea class="emscripten" id="output" rows="8"></textarea>
-    <hr>
+    <textarea readonly class="emscripten" id="output" rows="25"></textarea>
 
     <form id="logoInputForm">
-      <input name="logoInputText" type="text">
-      <input type="submit">run</input>
+      <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
+      <input type="submit" label="Run"/>
     </form>
     
 
@@ -150,9 +146,10 @@
           const inputForm = document.getElementById('logoInputForm');
           inputForm.addEventListener("submit", async (event) => {
               event.preventDefault();
-              let chars = new FormData(event.target)
+              let line = new FormData(event.target)
                   .get('logoInputText')
-                  .split("");
+              Module.print(line);
+              let chars = line.split("");
               chars.push("\n");
               while (chars.length) {
                   document.dispatchEvent(
@@ -164,6 +161,7 @@
                   console.debug("dispatch: nextChar");
                   await new Promise(r=>setTimeout(r,1));
               }
+              document.getElementById('logoInputText').value = "";
               return false;
           })
       });
