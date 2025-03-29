@@ -33,8 +33,8 @@ extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 #define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
 #define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
 #else
-#define POISON_NODE(nd) (0)
-#define UNPOISON_NODE(nd) (0)
+#define POISON_NODE(nd) ((void)0)
+#define UNPOISON_NODE(nd) ((void)0)
 #endif
 
 #ifdef PUNY
