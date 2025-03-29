@@ -197,10 +197,10 @@ void delayed_int() {
 #endif
 }
 
-void set_bottom_stack(volatile NODE** bottom) {
+void set_bottom_stack( NODE** bottom) {
 #ifdef __SANITIZE_ADDRESS__
 	// ASAN does unholy things
-	volatile void** real_ptr;
+	 void** real_ptr;
 	// void* fake_stack = 
 	// Theoretically ASAN can be configured not do stack checks, so check
 	// if we're using a fake stack right now.

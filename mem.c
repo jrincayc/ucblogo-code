@@ -158,7 +158,7 @@ BOOLEAN addseg(void) {
 #define VALID_PTR(x)    (valid_pointer(x))
 #endif
 
-BOOLEAN valid_pointer (volatile NODE *ptr_val) {
+BOOLEAN valid_pointer ( NODE *ptr_val) {
     struct segment* current_seg;
     size_t ptr = (size_t)ptr_val;
     FIXNUM size;
@@ -506,17 +506,17 @@ no_mark:
     }
 }
 
-void __attribute__((no_sanitize_address)) mark_stack(volatile NODE** top){
+void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
     /* Check Stack for NODE pointers */
-    volatile NODE** top_stack;
-	volatile NODE** tmp_ptr;
+     NODE** top_stack;
+	 NODE** tmp_ptr;
 
 #ifdef __SANITIZE_ADDRESS__
-	volatile void* fake_stack = __asan_get_current_fake_stack();
-	volatile void* fake_frame_beg;
-	volatile void* fake_frame_end;
-	volatile NODE** fake_ptr;
-	volatile void* real_ptr;
+	 void* fake_stack = __asan_get_current_fake_stack();
+	 void* fake_frame_beg;
+	 void* fake_frame_end;
+	 NODE** fake_ptr;
+	 void* real_ptr;
 	real_ptr = __asan_addr_is_in_fake_stack(
 			__asan_get_current_fake_stack(), 
 			(void*)top, NULL, NULL
