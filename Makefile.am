@@ -132,7 +132,7 @@ ucblogo.html: ucblogo
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
 	ucblogo-obj.o ucblogo-webgraphics.o \
 	--pre-js pre.js \
-	--embed-file webdist/share@/share \
+	--embed-file dist/share@/share \
 	--embed-file tests \
 	-s JSPI \
 	-s ASYNCIFY_STACK_SIZE=100000 \

@@ -1,13 +1,12 @@
-
-/* A dummy graphics header file for computers without graphics */
+// UCB Logo Web Graphics
 
 #define GR_SIZE 1
 
-#define prepare_to_draw nop()
-#define done_drawing nop()
+// #define prepare_to_draw nop()
+// #define done_drawing nop()
 
-#define prepare_to_draw_turtle nop()
-#define done_drawing_turtle nop()
+#define prepare_to_draw web_prepare_to_draw();
+#define done_drawing web_done_drawing();
 
 #define screen_left 1
 #define screen_right 100
@@ -32,24 +31,13 @@
 #define turtle_half_bottom 6.0
 #define turtle_side 19.0
 
-#define clear_screen nop()
-
-#define line_to(x,y) nop()
-#define move_to(x,y) nop()
-#define draw_string(s) nop()
-#define set_pen_vis(v) nop()
-#define set_pen_mode(m) nop()
-#define set_pen_color(c) nop()
-#define set_pen_width(w) nop()
-#define set_pen_height(h) nop()
-#define set_pen_x(x) nop()
-#define set_pen_y(y) nop()
-#define set_back_ground(c) nop()
+#define clear_screen web_clear_screen()
 
 /* pen_info is a stucture type with fields for the various
    pen characteristics including the location, size, color,
    mode (e.g. XOR or COPY), pattern, visibility (0 = visible) */
 
+//fixme copypasta somebody elses
 typedef struct { int dummy; } pen_info;
 
 #define p_info_x(p) p.dummy
@@ -65,35 +53,25 @@ typedef struct { int dummy; } pen_info;
 #define get_node_pen_pattern make_intnode(0)
 #define back_ground bg
 
-#define pen_reverse nop()
-#define pen_erase nop()
-#define pen_down nop()
+#define pen_reverse web_pen_reverse()
+#define pen_erase web_pen_erase()
+#define pen_down web_pen_down()
 
 #define button FALSE
 #define mouse_x 0
 #define mouse_y 0
 
-#define full_screen nop()
-#define split_screen nop()
-#define text_screen nop()
+#define full_screen web_full_screen()
+#define split_screen web_split_screen()
+#define text_screen web_text_screen()
 
-#define save_pen(p) nop()
-#define restore_pen(p) nop()
-#define plain_xor_pen() nop()
-#define label(s) nop()
-#define tone(p,d) nop()
-#define get_pen_pattern(p) nop()
-#define set_pen_pattern(p) nop()
-#define fmod(x,y) x
-#define set_list_pen_pattern(p) nop()
+// #define fmod(x,y) x
 
-#define prepare_to_draw_turtle nop();
-#define done_drawing_turtle nop();
+#define prepare_to_draw_turtle web_prepare_to_draw_turtle()
+#define done_drawing_turtle web_done_drawing()
 
 extern int pw, ph, pc, pm, pv, px, py, bg;
 extern void nop();
 
-#define logofill nop
-#define set_palette nop
-#define get_palette nop
-#define erase_screen nop
+void get_palette();
+void set_palette();
