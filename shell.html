@@ -158,7 +158,6 @@
                           { detail: { char: chars.shift() } }
                       )
                   );
-                  console.debug("dispatch: nextChar");
                   await new Promise(r=>setTimeout(r,1));
               }
               document.getElementById('logoInputText').value = "";

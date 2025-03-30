@@ -44,7 +44,6 @@ EM_ASYNC_JS(char, em_getc, (), {
 			// TODO probably a better way than reinstalling the handler every time
 			document.addEventListener("nextChar", (event) => {
 				const char = event.detail.char;
-				console.debug(`getc ${event.detail.char}`);
 				res(event.detail.char);
 			},
 			{ once: true })
