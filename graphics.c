@@ -36,6 +36,8 @@
 #include "wxGraphics.h"
 #elif defined(x_window)
 #include "xgraphics.h"
+#elif defined(__EMSCRIPTEN__)
+#include "webgraphics.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
