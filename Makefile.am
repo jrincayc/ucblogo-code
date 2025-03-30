@@ -123,7 +123,7 @@ regenerate-help-index: makehelp usermanual
 
 all: 
 
-ucblogo.html: ucblogo
+ucblogo.html: ucblogo shell.html pre.js
 	em++ $(CXXFLAGS) \
 	-o ucblogo.html \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
