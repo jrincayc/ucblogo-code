@@ -14,7 +14,9 @@ export LDFLAGS="-ferror-limit=0"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
-emconfigure ./configure --disable-docs --disable-x11 --disable-wx --prefix=/ --datadir=/logolib --enable-objects --enable-wasm \
+emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
+--prefix=`pwd`/dist \
+--enable-objects --enable-wasm \
 && emmake make clean \
 && emmake make ucblogo.html
 
