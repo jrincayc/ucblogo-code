@@ -1,5 +1,4 @@
-# SUBDIRS = logolib csls helpfiles tests
-SUBDIRS = logolib csls tests
+SUBDIRS = logolib csls helpfiles tests
 if DOCS
 SUBDIRS += docs
 endif
@@ -86,8 +85,8 @@ EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  
 # # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # # See below; needs to run in build environment.
-# EXTRA_DIST += makehelp.c
-# CLEANFILES = makehelp
+EXTRA_DIST += makehelp.c
+CLEANFILES = makehelp
 
 # Misc information, documentation, historical files, etc
 EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
@@ -99,7 +98,7 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
 
-# makehelp_SOURCES = makehelp.c
+makehelp_SOURCES = makehelp.c
 
 # Make sure pdf built for distributions
 EXTRA_DIST += docs/ucblogo.pdf
@@ -107,20 +106,20 @@ EXTRA_DIST += docs/ucblogo.pdf
 docs/ucblogo.pdf: docs/ucblogo.texi
 	cd docs && $(MAKE) ucblogo.pdf
 
-# helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
+helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 
 # Redirection with this phony target avoids the stanza being run
 # twice, thus avoiding unecessary work and a race condition.
 
-# .PHONY: regenerate-help-index
-# 
-# regenerate-help-index: makehelp usermanual
-# 	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
-# 	./makehelp
-# 	@echo "Grave accent as filename is impossible with automake so work around it."
-# 	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
-# 	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
-# 	-rm helptemp
+.PHONY: regenerate-help-index
+
+regenerate-help-index: makehelp usermanual
+	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
+	./makehelp
+	@echo "Grave accent as filename is impossible with automake so work around it."
+	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
+	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
+	-rm helptemp
 
 all: 
 
@@ -132,8 +131,8 @@ ucblogo.html: ucblogo
 	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
 	ucblogo-obj.o ucblogo-webgraphics.o \
-	--embed-file logolib \
 	--pre-js pre.js \
+	--embed-file webdist/share@/share \
 	--embed-file tests \
 	-s JSPI \
 	-s ASYNCIFY_STACK_SIZE=100000 \
@@ -170,4 +169,4 @@ ucblogo.dmg : mac docs/ucblogo.pdf
 	hdiutil detach /Volumes/UCBLogo/
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
 
-CLEANFILES = ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
+CLEANFILES += ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
