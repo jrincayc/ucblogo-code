@@ -67,6 +67,8 @@ int GETC(FILE* stream) {
 EM_JS(void, em_fflush, (int fh), {
 	_fflush(fh)
 });
+#else
+#define GETC getc
 #endif
 
 #include "logo.h"
