@@ -92,9 +92,6 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
 
-# Win32 API compliant graphics routines (unused)
-EXTRA_DIST += win32trm.c win32trm.h
-
 # makehelp_SOURCES = makehelp.c
 
 # Make sure pdf built for distributions

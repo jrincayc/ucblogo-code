@@ -26,16 +26,14 @@
 #include "logo.h"
 #include "globals.h"
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -264,18 +262,12 @@ void memcpy(char *to, char *from, size_t len) {
 NODE *lpause(NODE *args) {
     NODE *elist = NIL, *val = UNBOUND, *uname = NIL;
     int sav_input_blocking;
-#ifndef TIOCSTI
-    jmp_buf sav_iblk;
-#endif
 
     if (err_mesg != NIL) err_print(NULL);
     ndprintf(stdout, "%t\n", message_texts[PAUS_ING]);
     if (inside_evaluator) {
 	uname = ufun;
 	ufun = NIL;
-#ifndef TIOCSTI
-	memcpy((char *)(&sav_iblk), (char *)(&iblk_buf), sizeof(jmp_buf));
-#endif
 	sav_input_blocking = input_blocking;
 	input_blocking = 0;
 	while (RUNNING) {
@@ -292,10 +284,6 @@ NODE *lpause(NODE *args) {
 		    val = output_node;
 		    output_node = UNBOUND;
 		    stopping_flag = RUN;
-#ifndef TIOCSTI
-		    memcpy((char *)(&iblk_buf), (char *)(&sav_iblk),
-			   sizeof(jmp_buf));
-#endif
 		    input_blocking = sav_input_blocking;
 			if (uname != NIL) {
 				ufun = uname;
@@ -307,9 +295,6 @@ NODE *lpause(NODE *args) {
 		}
 	    }
 	}
-#ifndef TIOCSTI
-	memcpy((char *)(&iblk_buf), (char *)(&sav_iblk), sizeof(jmp_buf));
-#endif
 	input_blocking = sav_input_blocking;
 	unblock_input();
 	if (uname != NIL) {

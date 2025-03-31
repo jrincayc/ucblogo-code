@@ -43,11 +43,6 @@ void mouse_down(void);
 #define mouse_click mouse_down()
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
-#endif
-
 /* logodata.c */
 extern char *strnzcpy(char *, char *, int);
 extern char *word_strnzcpy(char *, char *, int);
@@ -594,8 +589,6 @@ extern int clearing_screen;
 #endif
 
 #ifdef WIN32
-/* Win32trm.c */
-
 #undef WIN32_DEBUG
 
 #undef CONSOLE
@@ -608,26 +601,13 @@ extern void WinDebug(char *);
 extern char *read_line, buffered_char;
 extern int char_mode;
 extern int line_avail, char_avail;
-extern void win32_advance_line(void);
-extern char *eight_dot_three(char *);
-extern BOOLEAN check_ibm_stop(void);
-extern NODE* win32_lsetcursor(NODE *);
-extern int win32_putc(int, FILE*);
 extern void win32_charmode_off(void), win32_charmode_on(void);
-extern void win32_repaint_screen(void);
-extern void win32_clear_text(void);
-extern void ibm_plain_mode(void);
-extern void ibm_bold_mode(void);
 extern void win32_update_text(void);
-extern void moveto(int, int);
-extern void lineto(int, int);
 extern void draw_string(char *);
-extern int win32_screen_bottom(void);
 extern void win32_text_cursor(void);
 extern NODE *set_text_color(NODE *);
 extern void winDoPaste(void);
 extern char *winPasteText;
-extern NODE *maximize(NODE *);
 
 #define SIGQUIT SIGABRT
 
@@ -636,11 +616,7 @@ extern NODE *maximize(NODE *);
 #ifdef HAVE_WX
 #define rd_putc printToScreen
 #else
-#ifdef WIN32
-#define rd_putc win32_putc
-#else /* !WIN32 */
 #define rd_putc putc
-#endif
 #endif
 
 #ifdef OBJECTS

@@ -1,0 +1,111 @@
+{
+    "env": {
+        "myIncludePath": [
+            "${workspaceFolder}",
+            "/usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0",
+            "/usr/include/wx-3.0"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "Linux",
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [],
+            "includePath": [
+                "${myIncludePath}"
+            ],
+            "defines": [
+                "HAVE_CONFIG_H",
+                "_FILE_OFFSET_BITS=64",
+                "WXUSINGDLL",
+                "__WXGTK__"
+            ],
+            "cStandard": "c90",
+            "cppStandard": "gnu++14",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "forcedInclude": [],
+            "compileCommands": [],
+            "dotConfig": "${workspaceFolder}/.config",
+            "mergeConfigurations": true,
+            "customConfigurationVariables": {
+                "myVar": "myvalue"
+            },
+            "browse": {
+                "path": [
+                    "${myIncludePath}",
+                    "/usr/include",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        },
+        {
+            "name": "win32",
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [],
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${myIncludePath}"
+            ],
+            "defines": [
+                "WIN32",
+                "HAVE_WX",
+                "HAVE_CONFIG_C",
+                "X_DISPLAY_MISSING",
+                "__WXDEBUG__",
+                "__WXMSW__"
+            ],
+            "cStandard": "c90",
+            "cppStandard": "gnu++14",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "forcedInclude": [],
+            "compileCommands": [],
+            "dotConfig": "${workspaceFolder}/.config",
+            "mergeConfigurations": true,
+            "customConfigurationVariables": {
+                "myVar": "myvalue"
+            },
+            "browse": {
+                "path": [
+                    "${myIncludePath}",
+                    "/usr/include",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        },
+        {
+            "name": "dos",
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [],
+            "includePath": [
+                "${myIncludePath}"
+            ],
+            "defines": [
+                "__TURBOC__"
+            ],
+            "cStandard": "c90",
+            "cppStandard": "gnu++14",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "forcedInclude": [],
+            "compileCommands": [],
+            "dotConfig": "${workspaceFolder}/.config",
+            "mergeConfigurations": true,
+            "customConfigurationVariables": {
+                "myVar": "myvalue"
+            },
+            "browse": {
+                "path": [
+                    "${myIncludePath}",
+                    "/usr/include",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        }
+    ],
+    "version": 4
+}
