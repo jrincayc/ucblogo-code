@@ -1,3 +1,5 @@
+const SVG = 'http://www.w3.org/2000/svg';
+
 Module.preRun = () => {
     const PREFIX = "/share/ucblogo";
     ENV.LOGOLIB = PREFIX + "/logolib";
@@ -16,17 +18,24 @@ Module.graphics.pen_info = {
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
-Module.graphics.clear_screen = () => { console.log("clear_screen") };
+Module.graphics.clear_screen = () => {
+    console.log("clear_screen");
+    const dr = document.getElementById('logoDrawingContainer');
+    const g = document.getElementById('logoDrawingElements');
+    dr.removeChild(g);
+    const newg = document.createElementNS(SVG, 'g')
+    newg.id = 'logoDrawingElements';
+    dr.appendChild(newg);
+};
 Module.graphics.prepare_to_draw = () => { console.log(`prepare_to_draw ${[]}`) };
 Module.graphics.done_drawing = () => { console.log(`done_drawing ${[]}`) };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit ${[v]}`) };
-Module.graphics.clear_screen = () => { console.log(`clear_screen ${[]}`) };
 Module.graphics.line_to = (x, y) => {
     console.log(`line_to ${[x, y]}`);
     const g = Module.graphics;
     const pen_info = g.pen_info;
-    const ld = document.getElementById('logoDrawing')
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const ld = document.getElementById('logoDrawingElements')
+    const line = document.createElementNS(SVG, 'line');
     line.setAttribute("stroke-width", pen_info.sz);
     line.setAttribute("pen-color", pen_info.c);
     line.setAttribute("x1", x);
