@@ -22,6 +22,10 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #ifdef HAVE_WX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
@@ -355,17 +359,23 @@ NODE *lbye(NODE *args) {
 NODE *lwait(NODE *args) {
     NODE *num;
     unsigned int n;
+
 #if defined(unix) && HAVE_USLEEP
 	unsigned int seconds, microseconds;
 #endif
-
     num = pos_int_arg(args);
     if (NOT_THROWING) {
-      /*#ifdef HAVE_WX
-      n = (unsigned int)getint(num) * 10; // milliseconds
-      wxLogoSleep(n);
-      return(UNBOUND);
-      #endif*/
+#ifdef __EMSCRIPTEN__
+        n = (unsigned int)getint(num) * 100 / 6; // milliseconds
+        EMSLEEP(n);
+        return (UNBOUND);
+#endif
+
+        /*#ifdef HAVE_WX
+        n = (unsigned int)getint(num) * 10; // milliseconds
+        wxLogoSleep(n);
+        return(UNBOUND);
+        #endif*/
 #ifndef HAVE_WX
       fflush(stdout); /* csls v. 1 p. 7 */
 #endif
