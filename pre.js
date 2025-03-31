@@ -13,7 +13,8 @@ Module.graphics.pen_info = {
     y: 0,
     h: 0,
     sz: 1,
-    c: 0
+    c: 0,
+    fntsz: 12
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -55,7 +56,17 @@ Module.graphics.move_to = (x, y) => {
     const turtle = document.getElementById('logoTurtleTranslated');
     turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
-Module.graphics.draw_str = (s) => { console.log(`draw_str ${[s]}`) };
+Module.graphics.label = (s) => {
+    console.log(`label ${[s]}`);
+    const g = Module.graphics;
+    const pen_info = g.pen_info;
+    const ld = document.getElementById('logoDrawingElements')
+    const text = document.createElementNS(SVG, 'text');
+    text.textContent = UTF8ToString(s);
+    text.setAttribute('x', pen_info.x);
+    text.setAttribute('y', pen_info.y);
+    ld.appendChild(text);
+};
 Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
 Module.graphics.set_pen_color = (c) => {
@@ -82,7 +93,6 @@ Module.graphics.text_screen = () => { console.log(`text_screen ${[]}`) };
 Module.graphics.save_pen = (p) => { console.log(`save_pen ${[p]}`) };
 Module.graphics.restore_pen = (p) => { console.log(`restore_pen ${[p]}`) };
 Module.graphics.plain_xor_pen = () => { console.log(`plain_xor_pen ${[]}`) };
-Module.graphics.label = (s) => { console.log(`label ${[s]}`) };
 // use https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
 Module.graphics.tone = (pitch, duration) => { console.log(`tone ${[pitch, duration]}`) };
 Module.graphics.set_pen_pattern = (pat) => { console.log(`set_pen_pattern ${[pat]}`) };

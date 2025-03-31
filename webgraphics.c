@@ -42,10 +42,6 @@ EM_JS(void, move_to, (FIXNUM x, FIXNUM y), {
    Module.graphics.move_to(x, y);
 });
 
-EM_JS(void, draw_string, (char *s), {
-   Module.graphics.draw_str(s);
-});
-
 EM_JS(void, set_pen_vis, (BOOLEAN v), {
    Module.graphics.set_pen_vis(v);
 });

@@ -125,7 +125,7 @@ void tone(int, int);
 #define wxlPrintText() ((void)0)
 #define get_pen_pattern(pen_info) ((void)0)
 void erase_screen();
-void draw_string(char *);
+#define draw_string(s) label(s);
 void set_pen_mode(int);
 #define set_pen_pattern(a) ((void)0)
 
