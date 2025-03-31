@@ -9,7 +9,8 @@ Module.graphics = {};
 Module.graphics.pen_info = {
     x: 0,
     y: 0,
-    h: 0
+    h: 0,
+    sz: 0,
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -21,16 +22,18 @@ Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit ${[v]}`)
 Module.graphics.clear_screen = () => { console.log(`clear_screen ${[]}`) };
 Module.graphics.line_to = (x, y) => {
     console.log(`line_to ${[x, y]}`);
+    const g = Module.graphics;
+    const pen_info = g.pen_info;
     const ld = document.getElementById('logoDrawing')
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute("stroke-width", 1);
+    line.setAttribute("stroke-width", pen_info.sz);
     line.setAttribute("x1", x);
     line.setAttribute("y1", y);
-    line.setAttribute("x2", Module.graphics.pen_info.x);
-    line.setAttribute("y2", Module.graphics.pen_info.y);
+    line.setAttribute("x2", pen_info.x);
+    line.setAttribute("y2", pen_info.y);
     ld.appendChild(line);
-    Module.graphics.pen_info.x = x;
-    Module.graphics.pen_info.y = y;
+    pen_info.x = x;
+    pen_info.y = y;
     const turtle = document.getElementById('logoTurtleTranslated');
     turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
@@ -45,8 +48,14 @@ Module.graphics.draw_str = (s) => { console.log(`draw_str ${[s]}`) };
 Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
 Module.graphics.set_pen_color = (c) => { console.log(`set_pen_color ${[c]}`) };
-Module.graphics.set_pen_width = (w) => { console.log(`set_pen_width ${[w]}`) };
-Module.graphics.set_pen_height = (h) => { console.log(`set_pen_height ${[h]}`) };
+Module.graphics.set_pen_width = (w) => {
+    console.log(`set_pen_width ${[w]}`);
+    Module.graphics.pen_info.sz = w;
+};
+Module.graphics.set_pen_height = (w) => {
+    console.log(`set_pen_height ${[w]}`);
+    Module.graphics.pen_info.sz = w;
+};
 Module.graphics.set_pen_x = () => { console.log(`set_pen_x ${[]}`) };
 Module.graphics.set_pen_y = () => { console.log(`set_pen_y ${[]}`) };
 Module.graphics.set_back_ground = (c) => { console.log(`set_back_ground ${[c]}`) };
