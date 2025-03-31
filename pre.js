@@ -6,6 +6,10 @@ Module.preRun = () => {
 };
 Module.env = {};
 Module.graphics = {};
+Module.graphics.pen_info = {
+    x: 0,
+    y: 0
+};
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
@@ -14,8 +18,24 @@ Module.graphics.prepare_to_draw = () => { console.log(`prepare_to_draw ${[]}`) }
 Module.graphics.done_drawing = () => { console.log(`done_drawing ${[]}`) };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit ${[v]}`) };
 Module.graphics.clear_screen = () => { console.log(`clear_screen ${[]}`) };
-Module.graphics.line_to = (x, y) => { console.log(`line_to ${[x, y]}`) };
-Module.graphics.move_to = (x, y) => { console.log(`move_to ${[x, y]}`) };
+Module.graphics.line_to = (x, y) => {
+    console.log(`line_to ${[x, y]}`);
+    const ld = document.getElementById('logoDrawing')
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute("stroke-width", 1);
+    line.setAttribute("x1", x);
+    line.setAttribute("y1", y);
+    line.setAttribute("x2", Module.graphics.pen_info.x);
+    line.setAttribute("y2", Module.graphics.pen_info.x);
+    window.requestAnimationFrame(() => {
+        ld.appendChild(line);
+    })
+};
+Module.graphics.move_to = (x, y) => {
+    console.log(`move_to ${[x, y]}`)
+    Module.graphics.pen_info.x = x;
+    Module.graphics.pen_info.y = y;
+};
 Module.graphics.draw_str = (s) => { console.log(`draw_str ${[s]}`) };
 Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };

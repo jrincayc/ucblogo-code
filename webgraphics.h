@@ -1,6 +1,12 @@
 // UCB Logo Web Graphics
 
+#define NUMCOLORS 512
 #define GR_SIZE 1
+struct mypoint
+{
+   int x;
+   int y;
+};
 
 // #define prepare_to_draw nop()
 // #define done_drawing nop()
@@ -8,10 +14,10 @@
 #define prepare_to_draw web_prepare_to_draw();
 #define done_drawing web_done_drawing();
 
-#define screen_left 1
-#define screen_right 100
-#define screen_top 1
-#define screen_bottom 100
+#define screen_left 0
+#define screen_right 640
+#define screen_top 0
+#define screen_bottom 480
 
 #define screen_height (1 + screen_bottom - screen_top)
 #define screen_width (1 + screen_right - screen_left)
@@ -38,40 +44,91 @@
    mode (e.g. XOR or COPY), pattern, visibility (0 = visible) */
 
 //fixme copypasta somebody elses
-typedef struct { int dummy; } pen_info;
+typedef struct
+{
+   int color;
+   int xpos;
+   int ypos;
+   int vis;
+   int pw;
+   int ph;
+   int pen_md;
+} pen_info;
 
-#define p_info_x(p) p.dummy
-#define p_info_y(p) p.dummy
+void save_pen(pen_info *p);
+void restore_pen(pen_info *p);
 
-#define pen_width pw
-#define pen_height ph
-#define pen_color pc
-#define pen_mode pm
-#define pen_vis pv
-#define pen_x px
-#define pen_y py
-#define get_node_pen_pattern make_intnode(0)
+extern pen_info xgr_pen;
+
+#define p_info_x(p) (p.xpos)
+#define p_info_y(p) (p.ypos)
+
+#define pen_width xgr_pen.pw
+#define pen_height xgr_pen.ph
+#define pen_color xgr_pen.color
+#define pen_mode xgr_pen.pen_md
+#define pen_vis xgr_pen.vis
+#define pen_x (xgr_pen.xpos)
+#define pen_y (xgr_pen.ypos)
+#define get_node_pen_pattern (cons(make_intnode(-1), NIL))
+
 #define back_ground bg
 
 #define pen_reverse web_pen_reverse()
 #define pen_erase web_pen_erase()
 #define pen_down web_pen_down()
 
-#define button FALSE
-#define mouse_x 0
-#define mouse_y 0
+#define button web_get_button()
+#define mouse_x web_get_mouse_x()
+#define mouse_y web_get_mouse_y()
 
 #define full_screen web_full_screen()
 #define split_screen web_split_screen()
 #define text_screen web_text_screen()
+
+#define plain_xor_pen() web_pen_reverse()
 
 // #define fmod(x,y) x
 
 #define prepare_to_draw_turtle web_prepare_to_draw_turtle()
 #define done_drawing_turtle web_done_drawing()
 
-extern int pw, ph, pc, pm, pv, px, py, bg;
-extern void nop();
+extern void nop(int, int, int, int);
 
-void get_palette();
-void set_palette();
+extern void set_palette(int, unsigned int, unsigned int, unsigned int);
+extern void get_palette(int, unsigned int *, unsigned int *, unsigned int *);
+void set_pen_color(int);
+void web_prepare_to_draw();
+void web_prepare_to_draw_turtle();
+void web_done_drawing();
+void set_pen_vis(BOOLEAN);
+void web_pen_reverse();
+void set_pen_width(int);
+void set_pen_height(int);
+void move_to(FIXNUM, FIXNUM);
+void line_to(FIXNUM, FIXNUM);
+void web_clear_screen();
+void logofill();
+void label(char *);
+void web_split_screen();
+void web_full_screen();
+void web_pen_down();
+void web_pen_erase();
+void set_back_ground(int);
+#define set_list_pen_pattern(arg) (nop())
+int web_get_mouse_x();
+int web_get_mouse_y();
+int web_get_button();
+void tone(int, int);
+#define doFilled(a, b, c) nop()
+#define wxlPrintPreviewPict() (nop())
+#define wxlPrintPict() (nop())
+#define wxlPrintPreviewText() (nop())
+#define wxlPrintText() (nop())
+#define get_pen_pattern(pen_info) (nop())
+void erase_screen();
+void draw_string(char *);
+void set_pen_mode(int);
+#define set_pen_pattern (nop())
+
+extern int bg;

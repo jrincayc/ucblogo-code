@@ -1474,7 +1474,7 @@ NODE *larc(NODE *arg) {
     return(UNBOUND);
 }
 
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 
 int insidefill = 0;
 

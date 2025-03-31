@@ -8,11 +8,13 @@
 #include "globals.h"
 #include "webgraphics.h"
 
-int pw, ph, pc, pm, pv, px, py, bg;
+int bg;
+
+pen_info xgr_pen;
 
 char *LogoPlatformName = "Web Assembly/SVG";
 
-void nop(int, int, int, int)
+void nop(int a, int b, int c, int d)
 {
 }
 
@@ -109,29 +111,12 @@ EM_JS(void, restore_pen, (pen_info * p), {
    Module.graphics.restore_pen(p);
 });
 
-EM_JS(void, plain_xor_pen, (), {
-   Module.graphics.plain_xor_pen();
-});
-
 EM_JS(void, label, (char *s), {
    Module.graphics.label(s);
 });
 
 EM_JS(void, tone, (int pitch, int duration), {
    Module.graphics.tone(pitch, duration);
-});
-
-EM_JS(void, set_pen_pattern, (char *pat), {
-   Module.graphics.set_pen_pattern(pat);
-});
-
-EM_JS(char *, get_pen_pattern, (char *buf), {
-   Module.graphics.get_pen_pattern(pat);
-   // FIXME how to return string buffer?
-});
-
-EM_JS(void, set_list_pen_pattern, (char *pat), {
-   Module.graphics.set_list_pen_pattern(pat);
 });
 
 EM_JS(void, web_prepare_to_draw_turtle, (), {
@@ -147,15 +132,27 @@ EM_JS(void, logofill, (), {
 });
 
 // FIXME
-EM_JS(void, set_palette, (int i, char *c1, char *c2, char *c3), {
+EM_JS(void, set_palette, (int i, unsigned int c1, unsigned int c2, unsigned int c3), {
    Module.graphics.set_palette(i, c1, c2, c3);
 });
 
 // FIXME
-EM_JS(void, get_palette, (int *i, char **c1, char **c2, char **c3), {
+EM_JS(void, get_palette, (int i, unsigned int *c1, unsigned int *c2, unsigned int *c3), {
    Module.graphics.get_pallette();
 });
 
 EM_JS(void, erase_screen, (), {
    Module.graphics.erase_screen();
+});
+
+EM_JS(int, web_get_mouse_x, (), {
+   Module.graphics.web_get_mouse_x();
+});
+
+EM_JS(int, web_get_mouse_y, (), {
+   Module.graphics.web_get_mouse_y();
+});
+
+EM_JS(int, web_get_button, (), {
+   Module.graphics.web_get_button();
 });
