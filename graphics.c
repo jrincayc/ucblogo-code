@@ -1287,8 +1287,7 @@ NODE *lmousepos(NODE *args) {
 		cons(make_floatnode(mouse_y/y_scale), NIL)));
 }
 
-#ifdef HAVE_WX
-
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 NODE *lclickpos(NODE *args) {
     return(cons(make_floatnode(click_x/x_scale),
 		cons(make_floatnode(click_y/y_scale), NIL)));

@@ -1,15 +1,15 @@
 // UCB Logo Web Graphics
 
 #define NUMCOLORS 512
-#define GR_SIZE 1
+#define GR_SIZE 60000
 struct mypoint
 {
    int x;
    int y;
 };
 
-// #define prepare_to_draw nop()
-// #define done_drawing nop()
+// #define prepare_to_draw (void)0
+// #define done_drawing (void)0
 
 #define prepare_to_draw web_prepare_to_draw();
 #define done_drawing web_done_drawing();
@@ -93,8 +93,6 @@ extern pen_info xgr_pen;
 #define prepare_to_draw_turtle web_prepare_to_draw_turtle()
 #define done_drawing_turtle web_done_drawing()
 
-extern void nop(int, int, int, int);
-
 extern void set_palette(int, unsigned int, unsigned int, unsigned int);
 extern void get_palette(int, unsigned int *, unsigned int *, unsigned int *);
 void set_pen_color(int);
@@ -115,20 +113,24 @@ void web_full_screen();
 void web_pen_down();
 void web_pen_erase();
 void set_back_ground(int);
-#define set_list_pen_pattern(arg) (nop())
+#define set_list_pen_pattern(arg) ((void)0)
 int web_get_mouse_x();
 int web_get_mouse_y();
 int web_get_button();
 void tone(int, int);
-#define doFilled(a, b, c) nop()
-#define wxlPrintPreviewPict() (nop())
-#define wxlPrintPict() (nop())
-#define wxlPrintPreviewText() (nop())
-#define wxlPrintText() (nop())
-#define get_pen_pattern(pen_info) (nop())
+#define doFilled(a, b, c) ((void)0)
+#define wxlPrintPreviewPict() ((void)0)
+#define wxlPrintPict() ((void)0)
+#define wxlPrintPreviewText() ((void)0)
+#define wxlPrintText() ((void)0)
+#define get_pen_pattern(pen_info) ((void)0)
 void erase_screen();
 void draw_string(char *);
 void set_pen_mode(int);
-#define set_pen_pattern (nop())
+#define set_pen_pattern(a) ((void)0)
 
 extern int bg;
+
+#define click_x webGetClickX()
+#define click_y webGetClickY()
+#define lastbutton webGetLastButton()

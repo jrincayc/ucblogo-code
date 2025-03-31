@@ -26,7 +26,7 @@ Module.graphics.line_to = (x, y) => {
     line.setAttribute("x1", x);
     line.setAttribute("y1", y);
     line.setAttribute("x2", Module.graphics.pen_info.x);
-    line.setAttribute("y2", Module.graphics.pen_info.x);
+    line.setAttribute("y2", Module.graphics.pen_info.y);
     window.requestAnimationFrame(() => {
         ld.appendChild(line);
     })
@@ -55,6 +55,7 @@ Module.graphics.save_pen = (p) => { console.log(`save_pen ${[p]}`) };
 Module.graphics.restore_pen = (p) => { console.log(`restore_pen ${[p]}`) };
 Module.graphics.plain_xor_pen = () => { console.log(`plain_xor_pen ${[]}`) };
 Module.graphics.label = (s) => { console.log(`label ${[s]}`) };
+// use https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
 Module.graphics.tone = (pitch, duration) => { console.log(`tone ${[pitch, duration]}`) };
 Module.graphics.set_pen_pattern = (pat) => { console.log(`set_pen_pattern ${[pat]}`) };
 Module.graphics.get_pen_pattern = (pat) => { console.log(`get_pen_pattern ${[pat]}`) };
