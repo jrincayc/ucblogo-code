@@ -8,7 +8,8 @@ Module.env = {};
 Module.graphics = {};
 Module.graphics.pen_info = {
     x: 0,
-    y: 0
+    y: 0,
+    h: 0
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -27,14 +28,18 @@ Module.graphics.line_to = (x, y) => {
     line.setAttribute("y1", y);
     line.setAttribute("x2", Module.graphics.pen_info.x);
     line.setAttribute("y2", Module.graphics.pen_info.y);
-    window.requestAnimationFrame(() => {
-        ld.appendChild(line);
-    })
+    ld.appendChild(line);
+    Module.graphics.pen_info.x = x;
+    Module.graphics.pen_info.y = y;
+    const turtle = document.getElementById('logoTurtleTranslated');
+    turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
 Module.graphics.move_to = (x, y) => {
     console.log(`move_to ${[x, y]}`)
     Module.graphics.pen_info.x = x;
     Module.graphics.pen_info.y = y;
+    const turtle = document.getElementById('logoTurtleTranslated');
+    turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
 Module.graphics.draw_str = (s) => { console.log(`draw_str ${[s]}`) };
 Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
@@ -66,3 +71,8 @@ Module.graphics.logofill = () => { console.log(`logofill ${[]}`) };
 Module.graphics.set_palette = (i, c1, c2, c3) => { console.log(`set_palette ${[i, c1, c2, c3]}`) };
 Module.graphics.get_pallette = () => { console.log(`get_pallette ${[]}`) };
 Module.graphics.erase_screen = () => { console.log(`erase_screen ${[]}`) };
+Module.graphics.draw_turtle = (heading) => {
+    console.log(`draw_turtle ${heading}`);
+    const turtle = document.getElementById('logoTurtle');
+    turtle.setAttribute('transform', `rotate(${heading})`);
+}

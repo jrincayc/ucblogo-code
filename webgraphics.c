@@ -156,3 +156,7 @@ EM_JS(int, web_get_mouse_y, (), {
 EM_JS(int, web_get_button, (), {
    Module.graphics.web_get_button();
 });
+
+EM_JS(void, web_draw_turtle, (int heading), {
+   Module.graphics.draw_turtle(heading);
+});

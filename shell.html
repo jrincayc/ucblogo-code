@@ -118,82 +118,95 @@
     <input type="submit" label="Run" />
   </form>
 
-  <svg id=logoDrawing version="1.1" xmlns="http://www.w3.org/2000/svg" width="640" height="480"
-    viewBox="0 0 640 480" style="transform: scale(-1, -1)">
-  
+  <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"
+    style="transform: scale(1, 1)">
+
     <style>
       line {
         stroke: black;
       }
-  
+
       *[pencolor="0"] {
         stroke: rgb(0%, 0%, 0%);
       }
-  
+
       *[pencolor="1"] {
         stroke: rgb(0%, 0%, 99.6108949416342%);
       }
-  
+
       *[pencolor="2"] {
         stroke: rgb(0%, 99.6108949416342%, 0%);
       }
-  
+
       *[pencolor="3"] {
         stroke: rgb(0%, 99.6108949416342%, 99.6108949416342%);
       }
-  
+
       *[pencolor="4"] {
         stroke: rgb(99.6108949416342%, 0%, 0%);
       }
-  
+
       *[pencolor="5"] {
         stroke: rgb(99.6108949416342%, 0%, 99.6108949416342%);
       }
-  
+
       *[pencolor="6"] {
         stroke: rgb(99.6108949416342%, 99.6108949416342%, 0%);
       }
-  
+
       *[pencolor="7"] {
         stroke: rgb(99.6108949416342%, 99.6108949416342%, 99.6108949416342%);
       }
-  
+
       *[pencolor="8"] {
         stroke: rgb(60.5477988860914%, 37.5005722133211%, 23.0472266727703%);
       }
-  
+
       *[pencolor="9"] {
         stroke: rgb(76.9542992294194%, 53.1258106355383%, 7.03135728999771%);
       }
-  
+
       *[pencolor="10"] {
         stroke: rgb(39.0630960555428%, 63.2822156099794%, 25.0003814755474%);
       }
-  
+
       *[pencolor="11"] {
         stroke: rgb(46.8757152666514%, 73.0479896238651%, 73.0479896238651%);
       }
-  
+
       *[pencolor="12"] {
         stroke: rgb(99.6108949416342%, 58.2040131227588%, 46.485084306096%);
       }
-  
+
       *[pencolor="13"] {
         stroke: rgb(56.2508583199817%, 44.1412985427634%, 81.2512397955291%);
       }
-  
+
       *[pencolor="14"] {
         stroke: rgb(99.6108949416342%, 63.6728465705348%, 0%);
       }
-  
+
       *[pencolor="15"] {
         stroke: rgb(71.4854657816434%, 71.4854657816434%, 71.4854657816434%);
       }
-  
+
       line {
         stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      #logoTurtle {
+        transform-box: fill-box;
+        transform-origin: center;
       }
     </style>
+    <g id="logoTurtleTranslated" transform="translate(320, 240)">
+      <g id="logoTurtle">
+        <line stroke-width="1" x1="0" y1="18" x2="12" y2="18"></line>
+        <line stroke-width="1" x1="0" y1="18" x2="6" y2="0"></line>
+        <line stroke-width="1" x1="12" y1="18" x2="6" y2="0"></line>
+      </g>
+    </g>
   </svg>
 
   <script type='text/javascript'>
