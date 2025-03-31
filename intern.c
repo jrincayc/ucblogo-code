@@ -55,11 +55,14 @@ FIXNUM hash(char *s, int len) {
 }
 
 NODE *make_case(NODE *casestrnd, NODE *obj) {
-    NODE *new_caseobj, *clistptr;
+    NODE *new_caseobj, *clistptr, *tmp;
 
+    tmp = cons(NIL, NIL);
     clistptr = caselistptr__object(obj);
     new_caseobj = make_caseobj(casestrnd, obj);
-    setcdr(clistptr, cons(new_caseobj, cdr(clistptr)));
+    setcar(tmp, new_caseobj);
+    setcdr(tmp, cdr(clistptr));
+    setcdr(clistptr, tmp);
     return(new_caseobj);
 }
 
