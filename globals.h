@@ -674,5 +674,3 @@ extern NODE *parent_list(NODE *);
 extern void dbUsual(const char*);
 
 #endif
-
-void do_gc(BOOLEAN full);
