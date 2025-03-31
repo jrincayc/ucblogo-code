@@ -10,7 +10,8 @@ Module.graphics.pen_info = {
     x: 0,
     y: 0,
     h: 0,
-    sz: 0,
+    sz: 1,
+    c: 0
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -27,6 +28,7 @@ Module.graphics.line_to = (x, y) => {
     const ld = document.getElementById('logoDrawing')
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute("stroke-width", pen_info.sz);
+    line.setAttribute("pen-color", pen_info.c);
     line.setAttribute("x1", x);
     line.setAttribute("y1", y);
     line.setAttribute("x2", pen_info.x);
@@ -47,7 +49,10 @@ Module.graphics.move_to = (x, y) => {
 Module.graphics.draw_str = (s) => { console.log(`draw_str ${[s]}`) };
 Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
-Module.graphics.set_pen_color = (c) => { console.log(`set_pen_color ${[c]}`) };
+Module.graphics.set_pen_color = (c) => {
+    console.log(`set_pen_color ${[c]}`);
+    Module.graphics.pen_info.c = c;
+};
 Module.graphics.set_pen_width = (w) => {
     console.log(`set_pen_width ${[w]}`);
     Module.graphics.pen_info.sz = w;
