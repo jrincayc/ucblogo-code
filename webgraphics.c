@@ -156,3 +156,29 @@ EM_JS(int, web_get_button, (), {
 EM_JS(void, web_draw_turtle, (int heading), {
    Module.graphics.draw_turtle(heading);
 });
+
+EM_JS(void, adjust_label_height, (int label_height), {
+   Module.graphics.adjust_label_height(label_height);
+});
+
+NODE *lsetlabelheight(NODE *arg)
+{
+   NODE *val = integer_arg(arg);
+   int label_height = getint(val);
+   adjust_label_height(label_height);
+   return (UNBOUND);
+}
+
+EM_JS(void, get_label_size, (int *w, int *h), {
+   const {width, height} = Module.graphics.get_label_size();
+   setValue(h, height, 'i32');
+   setValue(w, width, 'i32');
+});
+
+NODE *llabelsize(NODE *arg)
+{
+   int w, h;
+   get_label_size(&w, &h);
+   return cons(make_intnode(w / x_scale),
+               cons(make_intnode(h / y_scale), NIL));
+}

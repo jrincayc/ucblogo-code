@@ -538,7 +538,7 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 extern NODE *lprintpict(NODE *), *lprinttext(NODE *);
 #endif
 
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern NODE *lfont(NODE *);
 extern NODE *lsetlabelheight(NODE *);
 extern NODE *llabelsize(NODE *);

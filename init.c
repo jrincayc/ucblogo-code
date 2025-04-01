@@ -231,8 +231,8 @@ PRIMTYPE prims[] = {
     {"kindof", 1, 1, -1, PREFIX_PRIORITY, lkindof},
 #endif
     {"label", 1, 1, 1, PREFIX_PRIORITY, llabel},
-#ifdef HAVE_WX
-    {"labelsize", 0, 0, 0, PREFIX_PRIORITY, llabelsize},	
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
+    {"labelsize", 0, 0, 0, PREFIX_PRIORITY, llabelsize},
 #endif
     {"last", 1, 1, 1, PREFIX_PRIORITY, llast},
     {"left", 1, 1, 1, PREFIX_PRIORITY, lleft},
@@ -299,7 +299,7 @@ PRIMTYPE prims[] = {
     {"parents", 0, 0, 0, PREFIX_PRIORITY, lparents},
 #endif
     {"parse", 1, 1, 1, PREFIX_PRIORITY, lparse},
-    {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},	       
+    {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},
     {"pc", 0, 0, 0, PREFIX_PRIORITY, lpencolor},
     {"pd", 0, 0, 0, PREFIX_PRIORITY, lpendown},
     {"pe", 0, 0, 0, PREFIX_PRIORITY, lpenerase},
@@ -394,7 +394,7 @@ PRIMTYPE prims[] = {
     {"setheading", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"sethelploc", 1, 1, 1, PREFIX_PRIORITY, lsethelploc},
     {"setitem", 3, 3, 3, PREFIX_PRIORITY, lsetitem},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"setlabelheight", 1, 1, 1, PREFIX_PRIORITY, lsetlabelheight},
 #endif
     {"setlibloc", 1, 1, 1, PREFIX_PRIORITY, lsetlibloc},
@@ -482,8 +482,7 @@ PRIMTYPE prims[] = {
     {"writepos", 0, 0, 0, PREFIX_PRIORITY, lwritepos},
     {"writer", 0, 0, 0, PREFIX_PRIORITY, lwriter},
 
-    {0, 0, 0, 0, 0, 0}
-};
+    {0, 0, 0, 0, 0, 0}};
 
 struct wdtrans translations[NUM_WORDS];
 

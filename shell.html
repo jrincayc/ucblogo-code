@@ -87,10 +87,36 @@
         transform: rotate(360deg);
       }
     }
+
+    /* LOGO Colors */
+    :root {
+      --logo-color-0: black;
+      --logo-color-1: blue;
+      --logo-color-2: green;
+      --logo-color-3: cyan;
+      --logo-color-4: red;
+      --logo-color-5: magenta;
+      --logo-color-6: yellow;
+      --logo-color-7: white;
+      --logo-color-8: brown;
+      --logo-color-9: tan;
+      --logo-color-10: darkgreen;
+      --logo-color-11: aquamarine;
+      --logo-color-12: salmon;
+      --logo-color-13: purple;
+      --logo-color-14: orange;
+      --logo-color-15: grey;
+    }
+
   </style>
 </head>
 
 <body>
+  <span id="theLetterM" style="
+                              position: absolute;
+                              visibility: hidden;
+                              font-size: 12;
+                          ">M</span>
   <figure style="overflow:visible;" id="spinner">
     <div class="spinner"></div>
     <center style="margin-top:0.5em"><strong>emscripten</strong></center>
@@ -122,74 +148,6 @@
     style="transform: scale(1, 1)">
 
     <style>
-      line {
-        stroke: black;
-      }
-
-      *[pen-color="0"] {
-        stroke: rgb(0%, 0%, 0%);
-      }
-
-      *[pen-color="1"] {
-        stroke: rgb(0%, 0%, 99.6108949416342%);
-      }
-
-      *[pen-color="2"] {
-        stroke: rgb(0%, 99.6108949416342%, 0%);
-      }
-
-      *[pen-color="3"] {
-        stroke: rgb(0%, 99.6108949416342%, 99.6108949416342%);
-      }
-
-      *[pen-color="4"] {
-        stroke: rgb(99.6108949416342%, 0%, 0%);
-      }
-
-      *[pen-color="5"] {
-        stroke: rgb(99.6108949416342%, 0%, 99.6108949416342%);
-      }
-
-      *[pen-color="6"] {
-        stroke: rgb(99.6108949416342%, 99.6108949416342%, 0%);
-      }
-
-      *[pen-color="7"] {
-        stroke: rgb(99.6108949416342%, 99.6108949416342%, 99.6108949416342%);
-      }
-
-      *[pen-color="8"] {
-        stroke: rgb(60.5477988860914%, 37.5005722133211%, 23.0472266727703%);
-      }
-
-      *[pen-color="9"] {
-        stroke: rgb(76.9542992294194%, 53.1258106355383%, 7.03135728999771%);
-      }
-
-      *[pen-color="10"] {
-        stroke: rgb(39.0630960555428%, 63.2822156099794%, 25.0003814755474%);
-      }
-
-      *[pen-color="11"] {
-        stroke: rgb(46.8757152666514%, 73.0479896238651%, 73.0479896238651%);
-      }
-
-      *[pen-color="12"] {
-        stroke: rgb(99.6108949416342%, 58.2040131227588%, 46.485084306096%);
-      }
-
-      *[pen-color="13"] {
-        stroke: rgb(56.2508583199817%, 44.1412985427634%, 81.2512397955291%);
-      }
-
-      *[pen-color="14"] {
-        stroke: rgb(99.6108949416342%, 63.6728465705348%, 0%);
-      }
-
-      *[pen-color="15"] {
-        stroke: rgb(71.4854657816434%, 71.4854657816434%, 71.4854657816434%);
-      }
-
       line {
         stroke-linecap: round;
         stroke-linejoin: round;
