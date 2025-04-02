@@ -1729,7 +1729,11 @@ void save_move(void) {
 }
 
 void save_vis(void) {
-    if (safe_to_save()) {
+#ifdef __EMSCRIPTEN__
+	set_pen_vis(pen_vis);
+	return;
+#endif
+	if (safe_to_save()) {
 	last_recorded = record[record_index] = SETPENVIS;
 	record[record_index + 1] = pen_vis;
 	record_index += One;

@@ -42,7 +42,7 @@ EM_JS(void, move_to, (FIXNUM x, FIXNUM y), {
    Module.graphics.move_to(x, y);
 });
 
-EM_JS(void, set_pen_vis, (BOOLEAN v), {
+EM_JS(void, set_pen_vis, (int v), {
    Module.graphics.set_pen_vis(v);
 });
 
@@ -197,4 +197,5 @@ void graphics_init()
 {
    web_graphics_init();
    set_pen_color(7);
+   set_pen_vis(0);
 }

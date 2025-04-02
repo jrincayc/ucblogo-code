@@ -39,15 +39,18 @@ Module.graphics.line_to = (x, y) => {
     console.log(`line_to ${[x, y]}`);
     const g = Module.graphics;
     const pen_info = g.pen_info;
-    const ld = document.getElementById('logoDrawingElements')
-    const el = document.createElementNS(SVG, 'line');
-    el.setAttribute("stroke-width", pen_info.sz);
-    el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
-    el.setAttribute("x1", x);
-    el.setAttribute("y1", y);
-    el.setAttribute("x2", pen_info.x);
-    el.setAttribute("y2", pen_info.y);
-    ld.appendChild(el);
+    debugger;
+    if (pen_info.v == 0) {
+        const ld = document.getElementById('logoDrawingElements')
+        const el = document.createElementNS(SVG, 'line');
+        el.setAttribute("stroke-width", pen_info.sz);
+        el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
+        el.setAttribute("x1", x);
+        el.setAttribute("y1", y);
+        el.setAttribute("x2", pen_info.x);
+        el.setAttribute("y2", pen_info.y);
+        ld.appendChild(el);
+    };
     pen_info.x = x;
     pen_info.y = y;
     const turtle = document.getElementById('logoTurtleTranslated');
@@ -73,7 +76,10 @@ Module.graphics.label = (s) => {
     el.setAttribute('y', pen_info.y);
     ld.appendChild(el);
 };
-Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
+Module.graphics.set_pen_vis = (v) => {
+    Module.graphics.pen_info.v = v;
+    console.log(`set_pen_vis ${[v]}`)
+};
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
 Module.graphics.set_pen_color = (c) => {
     console.log(`set_pen_color ${[c]}`);

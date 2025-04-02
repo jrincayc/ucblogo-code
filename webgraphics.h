@@ -99,7 +99,7 @@ void set_pen_color(int);
 void web_prepare_to_draw();
 void web_prepare_to_draw_turtle();
 void web_done_drawing();
-void set_pen_vis(BOOLEAN);
+void set_pen_vis(int);
 void web_pen_reverse();
 void set_pen_width(int);
 void set_pen_height(int);
