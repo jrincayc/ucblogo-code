@@ -15,6 +15,11 @@ Module.graphics.pen_info = {
     c: 0,
     fntsz: 12
 };
+Module.graphics.graphics_init = () => {
+    const g = Module.graphics;
+    console.log("graphics_init");
+    g.clear_screen();
+};
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
@@ -72,7 +77,10 @@ Module.graphics.set_pen_vis = (v) => { console.log(`set_pen_vis ${[v]}`) };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
 Module.graphics.set_pen_color = (c) => {
     console.log(`set_pen_color ${[c]}`);
-    Module.graphics.pen_info.c = c;
+    const pen_info = Module.graphics.pen_info;
+    const el = document.getElementById('logoTurtleTranslated');
+    pen_info.c = c;
+    el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
 };
 Module.graphics.set_pen_width = (w) => {
     console.log(`set_pen_width ${[w]}`);
@@ -81,10 +89,18 @@ Module.graphics.set_pen_width = (w) => {
 Module.graphics.set_pen_height = (w) => {
     console.log(`set_pen_height ${[w]}`);
     Module.graphics.pen_info.sz = w;
+    const el = document.getElementById('logoTurtle');
+    el.style.setProperty('stroke-width', w);
 };
 // Module.graphics.set_pen_x = () => { console.log(`set_pen_x ${[]}`) };
 // Module.graphics.set_pen_y = () => { console.log(`set_pen_y ${[]}`) };
-Module.graphics.set_back_ground = (c) => { console.log(`set_back_ground ${[c]}`) };
+Module.graphics.set_back_ground = (c) => {
+    console.log(`set_back_ground ${[c]}`)
+    const pen_info = Module.graphics.pen_info;
+    const el = document.getElementById("logoBackground")
+    el.style.setProperty('fill', `var(--logo-color-${c})`);
+    pen_info.bg = c;
+};
 Module.graphics.pen_reverse = () => { console.log(`pen_reverse ${[]}`) };
 Module.graphics.pen_erase = () => { console.log(`pen_erase ${[]}`) };
 Module.graphics.pen_down = () => { console.log(`pen_down ${[]}`) };

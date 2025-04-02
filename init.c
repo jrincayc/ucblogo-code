@@ -42,6 +42,10 @@
 void getExecutableDir(char * path, int maxlen);
 #endif
 
+#ifdef __EMSCRIPTEN__
+extern void graphics_init();
+#endif
+
 #ifdef HAVE_SRANDOM
 #include <stdlib.h>
 #ifdef __EMSCRIPTEN__
@@ -857,6 +861,10 @@ nosugar:
 
 #ifdef OBJECTS
     obj_init();
+#endif
+
+#ifdef __EMSCRIPTEN__
+graphics_init();
 #endif
 
 /*  Uncomment these to print debugging messages right away! */

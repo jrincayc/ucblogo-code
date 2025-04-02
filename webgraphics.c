@@ -70,9 +70,15 @@ EM_JS(void, set_pen_y, (int y), {
    Module.graphics.set_pen_y();
 });
 
-EM_JS(void, set_back_ground, (int c), {
+EM_JS(void, web_set_back_ground, (int c), {
    Module.graphics.set_back_ground(c);
 });
+
+void set_back_ground(int c)
+{
+   bg = c;
+   web_set_back_ground(c);
+}
 
 EM_JS(void, web_pen_reverse, (), {
    Module.graphics.pen_reverse();
@@ -181,4 +187,14 @@ NODE *llabelsize(NODE *arg)
    get_label_size(&w, &h);
    return cons(make_intnode(w / x_scale),
                cons(make_intnode(h / y_scale), NIL));
+}
+
+EM_JS(void, web_graphics_init, (), {
+   Module.graphics.graphics_init();
+});
+
+void graphics_init()
+{
+   web_graphics_init();
+   set_pen_color(7);
 }
