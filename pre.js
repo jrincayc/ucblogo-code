@@ -13,7 +13,8 @@ Module.graphics.pen_info = {
     y: 240,
     sz: 1,
     c: 0,
-    fntsz: 12
+    fntsz: 12,
+    mode: 'normal',
 };
 Module.graphics.graphics_init = () => {
     const g = Module.graphics;
@@ -43,6 +44,7 @@ Module.graphics.line_to = (x, y) => {
         const ld = document.getElementById('logoDrawingElements')
         const el = document.createElementNS(SVG, 'line');
         el.setAttribute("stroke-width", pen_info.sz);
+        el.style.setProperty("mix-blend-mode", pen_info.mode);
         el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
         el.setAttribute("x1", x);
         el.setAttribute("y1", y);
@@ -106,7 +108,10 @@ Module.graphics.set_back_ground = (c) => {
     el.style.setProperty('fill', `var(--logo-color-${c})`);
     pen_info.bg = c;
 };
-Module.graphics.pen_reverse = () => { console.log(`pen_reverse ${[]}`) };
+Module.graphics.pen_reverse = () => { 
+    console.log(`pen_reverse ${[]}`) 
+    Module.graphics.pen_info.mode = 'difference';
+};
 Module.graphics.pen_erase = () => { console.log(`pen_erase ${[]}`) };
 Module.graphics.pen_down = () => { console.log(`pen_down ${[]}`) };
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
