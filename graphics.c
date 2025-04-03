@@ -336,6 +336,7 @@ void forward_helper(FLONUM d) {
     FIXNUM rx2, ry2;
 
 wraploop:
+	YIELD;
     if (newd != 0.0) d = newd;
     real_heading = -turtle_heading + 90.0;
     x1 = screen_x_coord;

@@ -454,6 +454,7 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 	    lastnode = tnode;
 	    tnode = NIL;
 	}
+	YIELD;
     } while (ch);
     return(outline);
 }
@@ -595,6 +596,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 	if (outline == NIL) outline = tnode;
 	else setcdr(lastnode, tnode);
 	lastnode = tnode;
+	YIELD;
     }
     return(outline);
 }
@@ -633,7 +635,8 @@ NODE *runparse(NODE *ndlist) {
 	    }
 	}
 	if (check_throwing) break;
-    }
+	YIELD;
+	}
     return(outline);
 }
 

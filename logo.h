@@ -97,8 +97,13 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
-#define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
-                                 Performance */
+
+/* SEG_SIZE should be a fairly big number for optimal GC Performance */
+#ifdef __EMSCRIPTEN__
+#define SEG_SIZE        (32/*MB*/ * 1024/*KB*/ * 1024/*B*/ / sizeof(NODE)) 
+#else
+#define SEG_SIZE        16000
+#endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
 #define HIST_MAX	50	/* number of remembered instruction lines */

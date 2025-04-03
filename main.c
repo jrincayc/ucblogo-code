@@ -52,6 +52,29 @@
 #include <unistd.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+// Yields execution to browser so it can handle events; IE cooperative
+// multitasking.
+// Web best-practice is not blocking for longer than 200ms
+// Longer and Chrome will log warnings about it
+// Long enough and Chrome will prompt the user to close the page
+// So call this periodically from inside any potentially long running loops
+// LOGO users can explicitly yield by calling `wait 0`
+void yield() {
+	// Hacky was to throttle yielding
+	// I tried polling the time but it's too slow
+	// Could do it in a separate thread maybe
+	// This may require additional tuning
+	// It's a tradeoff between throughput and latency
+	static const int YIELD_EVERY = 100;
+	static int yield_needed = YIELD_EVERY;
+	if (--yield_needed == 0) {
+		emscripten_sleep(0);
+		yield_needed = YIELD_EVERY;
+	}
+}
+#endif
+
 NODE *current_line = NIL;
 NODE **bottom_stack; /*GC*/
 NODE *command_line = NIL;   /* 6.0 command line args after files */

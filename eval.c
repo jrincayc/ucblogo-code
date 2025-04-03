@@ -275,6 +275,7 @@ NODE *deep_copy(NODE *expresn) {
 
     if (expresn == NIL) return NIL;
     else if (is_list(expresn)) {
+	YIELD;
 	val = cons(deep_copy(car(expresn)), deep_copy(cdr(expresn)));
 	val->n_obj = deep_copy(expresn->n_obj);
 	settype(val, nodetype(expresn));
@@ -385,6 +386,7 @@ end_line:
 tail_eval_dispatch:
     tailcall = 1;
 eval_dispatch:
+	YIELD;
     debprint("eval_dispatch");
     switch (nodetype(expresn)) {
 	case QUOTE:			/* quoted literal */
@@ -517,6 +519,7 @@ eval_args_done:
     argl = reverse(argl);
 /* --------------------- APPLY ---------------------------- */
 apply_dispatch:
+	YIELD;
     debprint("apply_dispatch");
     /* Load in the procedure's definition and decide whether it's a compound
      * procedure or a primitive procedure.
@@ -712,6 +715,7 @@ compound_apply:
     }
 /* Bind the actuals to the formals */
 lambda_apply:
+	YIELD;
     vsp = var_stack;	/* remember where we came in */
     for (formals = formals__procnode(proc);
     	 formals != NIL;
@@ -836,6 +840,7 @@ set_args_continue:
 		setvalnode__caseobj(car(parm), arg);
 	    }
 	    if (argl != NIL) pop(argl);
+		YIELD;
     }
     if (argl != NIL) {
 	err_logo(TOO_MUCH, fun);
@@ -881,6 +886,7 @@ set_args_continue:
 /* Fall through from proc body, call from start or fsubr argument */
 
 eval_sequence:
+	YIELD;
     debprint("eval_sequence");
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
@@ -958,6 +964,7 @@ nofix:	this_line = unparsed__line(unev);
 	    newcont(op_want_stop);
 	    goto eval_dispatch;
 op_want_stop:
+	YIELD;
 	    if (NOT_THROWING) err_logo(DK_WHAT_UP, val);
 	    goto fetch_cont;
 	} else if (val_status & VALUE_OK) {
@@ -1033,6 +1040,7 @@ op_want_stop:
 		newcont(after_maybeoutput);
 		goto eval_dispatch;
 after_maybeoutput:
+		YIELD;
 		if (val == UNBOUND)
 		    lstop(NIL);
 		else
@@ -1068,12 +1076,14 @@ after_maybeoutput:
 	} else if (val_status & VALUE_OK) {
 	} else if (val_status & OUTPUT_OK) {
 next_stop_want_output:
+	YIELD;
 	    save(didnt_get_output);
 	    didnt_get_output = UNBOUND;
 	    val_status &= ~OUTPUT_TAIL;
 	    newcont(fall_off_want_output);
 	    goto tail_eval_dispatch;
 fall_off_want_output:
+	YIELD;
 	    restore(didnt_get_output);
 	    if (stopping_flag == OUTPUT) {
 		goto fetch_cont;    /* repeat body did output */
@@ -1101,6 +1111,7 @@ fall_off_want_output:
     }
 
 non_tail_eval:
+	YIELD;
     debprint("non_tail_eval");
     if (nodetype(expresn) != CONS) {    /* Don't bother saving registers */
 	newcont(after_constant);    /* if the expresn isn't a proc call */
@@ -1118,6 +1129,7 @@ non_tail_eval:
     goto eval_dispatch;
 
 eval_sequence_continue:
+	YIELD;
     reset_args(var);
 no_reset_args:	/* allows catch "foo [local ...] to work */
     eval_restore();
@@ -1400,6 +1412,7 @@ goto_continuation:
 		stopping_flag = MACRO_RETURN;
 		goto fetch_cont;
 	    }
+		YIELD;
 	}
 
 	// goto tag could not be found

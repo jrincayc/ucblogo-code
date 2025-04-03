@@ -110,10 +110,7 @@ void print_char(FILE *strm, char ch) {
 	if (--print_stringlen > 0)
 	    *print_stringptr++ = ch;
     }
-// WASM note: with JSPI this errors with
-//   Uncaught (in promise) SuspendError: trying to suspend JS frames
-//  This might be part of why Asyncify was crashing
-	EMSLEEP(0);
+	YIELD;
 }
 
 void print_space(FILE *strm) {
@@ -184,7 +181,7 @@ void ndprintf(FILE *strm, char *fmt, ...) {
     if (!strm) *print_stringptr = '\0';
     va_end(ap);
     force_printwidth = force_printdepth = -1;
-	EMSLEEP(0);
+	YIELD;
 }
 
 void dbprint(NODE *data) {
