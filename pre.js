@@ -26,6 +26,7 @@ Module.graphics.done_drawing = () => { console.log("done_drawing") };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
 Module.graphics.clear_screen = () => {
     console.log("clear_screen");
+    if (typeof document === 'undefined') return;
     const dr = document.getElementById('logoDrawingContainer');
     const g = document.getElementById('logoDrawingElements');
     dr.removeChild(g);
@@ -37,6 +38,7 @@ Module.graphics.prepare_to_draw = () => { console.log(`prepare_to_draw ${[]}`) }
 Module.graphics.done_drawing = () => { console.log(`done_drawing ${[]}`) };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit ${[v]}`) };
 Module.graphics.line_to = (x, y) => {
+    if (typeof document === 'undefined') return;
     // console.log(`line_to ${[x, y]}`);
     const g = Module.graphics;
     const pen_info = g.pen_info;
@@ -58,6 +60,7 @@ Module.graphics.line_to = (x, y) => {
     turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
 Module.graphics.move_to = (x, y) => {
+    if (typeof document === 'undefined') return;
     // console.log(`move_to ${[x, y]}`)
     Module.graphics.pen_info.x = x;
     Module.graphics.pen_info.y = y;
@@ -65,6 +68,7 @@ Module.graphics.move_to = (x, y) => {
     turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
 };
 Module.graphics.label = (s) => {
+    if (typeof document === 'undefined') return;
     console.log(`label ${[s]}`);
     const g = Module.graphics;
     const pen_info = g.pen_info;
@@ -78,11 +82,13 @@ Module.graphics.label = (s) => {
     ld.appendChild(el);
 };
 Module.graphics.set_pen_vis = (v) => {
+    if (typeof document === 'undefined') return;
     Module.graphics.pen_info.v = v;
     console.log(`set_pen_vis ${[v]}`)
 };
 Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
 Module.graphics.set_pen_color = (c) => {
+    if (typeof document === 'undefined') return;
     console.log(`set_pen_color ${[c]}`);
     const pen_info = Module.graphics.pen_info;
     const el = document.getElementById('logoTurtleTranslated');
@@ -90,10 +96,12 @@ Module.graphics.set_pen_color = (c) => {
     el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
 };
 Module.graphics.set_pen_width = (w) => {
+    if (typeof document === 'undefined') return;
     console.log(`set_pen_width ${[w]}`);
     Module.graphics.pen_info.sz = w;
 };
 Module.graphics.set_pen_height = (w) => {
+    if (typeof document === 'undefined') return;
     console.log(`set_pen_height ${[w]}`);
     Module.graphics.pen_info.sz = w;
     const el = document.getElementById('logoTurtle');
@@ -102,6 +110,7 @@ Module.graphics.set_pen_height = (w) => {
 // Module.graphics.set_pen_x = () => { console.log(`set_pen_x ${[]}`) };
 // Module.graphics.set_pen_y = () => { console.log(`set_pen_y ${[]}`) };
 Module.graphics.set_back_ground = (c) => {
+    if (typeof document === 'undefined') return;
     console.log(`set_back_ground ${[c]}`)
     const pen_info = Module.graphics.pen_info;
     const el = document.getElementById("logoBackground")
