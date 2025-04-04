@@ -557,6 +557,7 @@ NODE *lback(NODE *arg) {
 NODE *lshowturtle(NODE *args) {
 #ifdef __EMSCRIPTEN__
 	web_show_turtle();
+    user_turtle_shown = TRUE;
     return(UNBOUND);
 #endif
     if(!graphics_setup) graphics_setup++;
@@ -583,10 +584,10 @@ void internal_hideturtle() {
 NODE *lhideturtle(NODE *args) {
 #ifdef __EMSCRIPTEN__
 	web_hide_turtle();
-    return(UNBOUND);
-#endif
+#else
     internal_hideturtle();
-    user_turtle_shown = FALSE;
+#endif
+	user_turtle_shown = FALSE;
     return(UNBOUND);
 }
 

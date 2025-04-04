@@ -98,7 +98,7 @@ extern void get_palette(int, unsigned int *, unsigned int *, unsigned int *);
 void set_pen_color(int);
 void web_prepare_to_draw();
 void web_prepare_to_draw_turtle();
-void web_done_drawing(int turtle_shown);
+void web_done_drawing();
 void set_pen_vis(int);
 void web_pen_reverse();
 void set_pen_width(int);
