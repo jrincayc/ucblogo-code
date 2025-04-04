@@ -159,3 +159,9 @@ Module.graphics.adjust_label_height = (h) => {
     const theLetterM = document.getElementById('theLetterM');
     theLetterM.style.setProperty('font-size', h + 'px');
 };
+Module.graphics.hide_turtle = () => {
+    document.getElementById('logoTurtle').style.setProperty('display', 'none');
+};
+Module.graphics.show_turtle = () => {
+    document.getElementById('logoTurtle').style.setProperty('display', 'initial');
+};

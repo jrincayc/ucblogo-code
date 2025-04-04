@@ -91,14 +91,14 @@ extern pen_info xgr_pen;
 // #define fmod(x,y) x
 
 #define prepare_to_draw_turtle web_prepare_to_draw_turtle()
-#define done_drawing_turtle web_done_drawing()
+#define done_drawing_turtle web_done_drawing(turtle_shown)
 
 extern void set_palette(int, unsigned int, unsigned int, unsigned int);
 extern void get_palette(int, unsigned int *, unsigned int *, unsigned int *);
 void set_pen_color(int);
 void web_prepare_to_draw();
 void web_prepare_to_draw_turtle();
-void web_done_drawing();
+void web_done_drawing(int turtle_shown);
 void set_pen_vis(int);
 void web_pen_reverse();
 void set_pen_width(int);

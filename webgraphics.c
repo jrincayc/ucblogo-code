@@ -189,6 +189,14 @@ NODE *llabelsize(NODE *arg)
                cons(make_intnode(h / y_scale), NIL));
 }
 
+EM_JS(void, web_hide_turtle, (), {
+   Module.graphics.hide_turtle();
+});
+
+EM_JS(void, web_show_turtle, (), {
+   Module.graphics.show_turtle();
+});
+
 EM_JS(void, web_graphics_init, (), {
    Module.graphics.graphics_init();
 });
