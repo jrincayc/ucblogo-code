@@ -187,7 +187,7 @@ PRIMTYPE prims[] = {
     {"fd", 1, 1, 1, PREFIX_PRIORITY, lforward},
     {"fence", 0, 0, 0, PREFIX_PRIORITY, lfence},
     {"fill", 0, 0, 0, PREFIX_PRIORITY, lfill},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"filled", 2, 2, 2, PREFIX_PRIORITY, lfilled},
 #endif
     {"first", 1, 1, 1, PREFIX_PRIORITY, lfirst},

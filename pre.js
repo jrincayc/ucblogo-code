@@ -165,3 +165,26 @@ Module.graphics.hide_turtle = () => {
 Module.graphics.show_turtle = () => {
     document.getElementById('logoTurtle').style.setProperty('display', 'initial');
 };
+Module.graphics.filled_begin = (color) => {
+    const el = document.createElementNS(SVG, 'polygon');
+    const ld = document.getElementById('logoDrawingElements')
+    ld.appendChild(el);
+    const pen_info = Module.graphics.pen_info;
+    el.style.setProperty('fill', `var(--logo-color-${color})`);
+    el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
+    el.style.setProperty('stroke-linecap', 'round');
+    el.style.setProperty('stroke-linejoin', 'round');
+    el.style.setProperty('stroke-width', pen_info.sz);
+    Module.graphics.filled_poly = el;
+}
+Module.graphics.filled_add_point = (x, y) => {
+    const svgel = document.getElementById('logoDrawing')
+    const poly = Module.graphics.filled_poly;
+    const point = svgel.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    Module.graphics.filled_poly.points.appendItem(point);
+}
+Module.graphics.filled_end = () => {
+    delete Module.graphics.filled_poly;
+}

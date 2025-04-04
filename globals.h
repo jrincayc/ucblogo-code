@@ -493,7 +493,7 @@ extern NODE *lwrap(NODE *);
 extern NODE *lfence(NODE *);
 extern NODE *lwindow(NODE *);
 extern NODE *lfill(NODE *);
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern NODE *lfilled(NODE *);
 #endif
 extern NODE *llabel(NODE *);

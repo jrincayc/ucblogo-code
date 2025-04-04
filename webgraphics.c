@@ -197,6 +197,27 @@ EM_JS(void, web_show_turtle, (), {
    Module.graphics.show_turtle();
 });
 
+EM_JS(void, web_filled_begin, (int color), {
+   Module.graphics.filled_begin(color);
+});
+
+EM_JS(void, web_filled_end, (), {
+   Module.graphics.filled_end();
+});
+
+EM_JS(void, web_filled_add_point, (int x, int y), {
+   Module.graphics.filled_add_point(x, y);
+});
+
+void doFilled(int fillcolor, int count, mypoint_t *points) {
+   web_filled_begin(fillcolor);
+   for (size_t n = 0; n < count; n++){
+      const mypoint_t pnt = points[n];
+      web_filled_add_point(pnt.x, pnt.y);
+   }
+   web_filled_end();
+}
+
 EM_JS(void, web_graphics_init, (), {
    Module.graphics.graphics_init();
 });

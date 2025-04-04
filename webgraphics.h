@@ -2,11 +2,11 @@
 
 #define NUMCOLORS 512
 #define GR_SIZE 60000
-struct mypoint
+typedef struct mypoint
 {
    int x;
    int y;
-};
+} mypoint_t;
 
 // #define prepare_to_draw (void)0
 // #define done_drawing (void)0
@@ -118,7 +118,7 @@ int web_get_mouse_x();
 int web_get_mouse_y();
 int web_get_button();
 void tone(int, int);
-#define doFilled(a, b, c) ((void)0)
+void doFilled(int color, int count, mypoint_t* points);
 #define wxlPrintPreviewPict() ((void)0)
 #define wxlPrintPict() ((void)0)
 #define wxlPrintPreviewText() ((void)0)
