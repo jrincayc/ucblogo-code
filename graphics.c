@@ -1319,7 +1319,7 @@ NODE *lbuttonp(NODE *args) {
 }
 
 NODE *lbutton(NODE *args) {
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     return(make_intnode(lastbutton));
 #else
     return(make_intnode(button));

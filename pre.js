@@ -41,6 +41,13 @@ Module.graphics.graphics_init = () => {
     console.log("graphics_init");
     g.clear_screen();
     g.masknum = 0;
+    const ld = document.getElementById('logoDrawing');
+    ld.addEventListener('mousemove', (evt) => {
+        g.lastmove = evt;
+    });
+    ld.addEventListener('click', (evt) => {
+        g.lastclick = evt;
+    });
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -287,4 +294,26 @@ Module.graphics.filled_add_point = (x, y) => {
 }
 Module.graphics.filled_end = () => {
     delete Module.graphics.filled_poly;
+}
+Module.graphics.web_get_buttonp = () => {
+    return Module.graphics.lastclick?.button || 0;
+}
+Module.graphics.web_get_button = () => {
+    const b = Module.graphics.lastclick?.button;
+    if (b) {
+        delete Module.graphics.lastclick.button;
+    }
+    return b || 0;
+}
+Module.graphics.web_get_mouse_x = () => {
+    return Module.graphics.lastmove?.offsetX - 320 || 0;
+}
+Module.graphics.web_get_mouse_y = () => {
+    return Module.graphics.lastmove?.offsetY * -1 + 240 || 0;
+}
+Module.graphics.web_get_click_x = () => {
+    return Module.graphics.lastclick?.offsetX - 320 || 0;
+}
+Module.graphics.web_get_click_y = () => {
+    return Module.graphics.lastclick?.offsetY * -1 + 240 || 0;
 }

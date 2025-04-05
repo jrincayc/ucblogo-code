@@ -139,7 +139,7 @@ PRIMTYPE prims[] = {
     {"clean", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"clearscreen", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cleartext", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
 #endif
     {"close", 1, 1, 1, PREFIX_PRIORITY, lclose},
