@@ -1,5 +1,26 @@
 const SVG = 'http://www.w3.org/2000/svg';
 
+Module.graphics = {};
+
+Module.graphics.logoColors = [
+{r: 0, g: 0, b: 0},
+{r: 0, g: 0, b: 99.6108949416342},
+{r: 0, g: 99.6108949416342, b: 0},
+{r: 0, g: 99.6108949416342, b: 99.6108949416342},
+{r: 99.6108949416342, g: 0, b: 0},
+{r: 99.6108949416342, g: 0, b: 99.6108949416342},
+{r: 99.6108949416342, g: 99.6108949416342, b: 0},
+{r: 99.6108949416342, g: 99.6108949416342, b: 99.6108949416342},
+{r: 60.5477988860914, g: 37.5005722133211, b: 23.0472266727703},
+{r: 76.9542992294194, g: 53.1258106355383, b: 7.03135728999771},
+{r: 39.0630960555428, g: 63.2822156099794, b: 25.0003814755474},
+{r: 46.8757152666514, g: 73.0479896238651, b: 73.0479896238651},
+{r: 99.6108949416342, g: 58.2040131227588, b: 46.485084306096},
+{r: 56.2508583199817, g: 44.1412985427634, b: 81.2512397955291},
+{r: 99.6108949416342, g: 63.6728465705348, b: 0},
+{r: 71.4854657816434, g: 71.4854657816434, b: 71.4854657816434},
+];
+
 Module.preRun = () => {
     const PREFIX = "/share/ucblogo";
     ENV.LOGOLIB = PREFIX + "/logolib";
@@ -7,7 +28,6 @@ Module.preRun = () => {
     ENV.CSLS = PREFIX + "/csls";
 };
 Module.env = {};
-Module.graphics = {};
 Module.graphics.pen_info = {
     x: 320,
     y: 240,
@@ -194,8 +214,31 @@ Module.graphics.set_list_pen_pattern = (pat) => { console.log(`set_list_pen_patt
 Module.graphics.prepare_to_draw_turtle = () => { console.log(`prepare_to_draw_turtle ${[]}`) };
 Module.graphics.web_done_drawing_turtle = () => { console.log(`web_done_drawing_turtle ${[]}`) };
 Module.graphics.logofill = () => { console.log(`logofill ${[]}`) };
-Module.graphics.set_palette = (i, c1, c2, c3) => { console.log(`set_palette ${[i, c1, c2, c3]}`) };
-Module.graphics.get_pallette = () => { console.log(`get_pallette ${[]}`) };
+Module.graphics.set_palette = (i, r, g, b) => { 
+    console.log(`set_palette ${[i, r, g, b]}`);
+    const logoColors = Module.graphics.logoColors;
+    const styleElement = document.getElementById('logoColors');
+    const conv = n => n * 100 / 65535;
+    const c = logoColors[i] = {r: conv(r), g: conv(g), b: conv(b)};
+    styleElement.textContent = (
+`:root {
+${logoColors.map((c, idx) => `
+    --logo-color-${idx}: rgb(${c.r}%, ${c.g}%, ${c.b}%);`).join('\n')}
+}
+`);
+}
+Module.graphics.get_palette = (i, pR, pG, pB) => { 
+    console.log(`get_palette ${i}}`);
+    const logoColors = Module.graphics.logoColors;
+    const styleElement = document.getElementById('logoColors').style;
+        const {r, g, b} = logoColors[i] || {r: 0, g: 0, b: 0};
+        const setpv = (p, v) => {
+            setValue(p, v * 65535 / 100, 'i32');
+        }
+        setpv(pR, r);
+        setpv(pG, g);
+        setpv(pB, b);
+};
 Module.graphics.erase_screen = () => { console.log(`erase_screen ${[]}`) };
 Module.graphics.draw_turtle = (heading) => {
     console.log(`draw_turtle ${heading}`);
