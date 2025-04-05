@@ -20,11 +20,13 @@ Module.graphics.graphics_init = () => {
     const g = Module.graphics;
     console.log("graphics_init");
     g.clear_screen();
+    g.masknum = 0;
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
 Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
 Module.graphics.clear_screen = () => {
+    // FIXME to work with mask erasing
     console.log("clear_screen");
     if (typeof document === 'undefined') return;
     const dr = document.getElementById('logoDrawingContainer');
@@ -33,6 +35,13 @@ Module.graphics.clear_screen = () => {
     const newg = document.createElementNS(SVG, 'g')
     newg.id = 'logoDrawingElements';
     dr.appendChild(newg);
+    const rect = document.createElementNS(SVG, 'rect');
+    rect.setAttribute('style', 'height: 100%; width: 100%;');
+    newg.appendChild(rect);
+    const defs = document.getElementById('logoDefs');
+    defs.replaceChildren([]);
+    delete Module.graphics.mask;
+    Module.graphics.masknum = 0;
 };
 Module.graphics.prepare_to_draw = () => { console.log(`prepare_to_draw ${[]}`) };
 Module.graphics.done_drawing = () => { console.log(`done_drawing ${[]}`) };
@@ -43,11 +52,18 @@ Module.graphics.line_to = (x, y) => {
     const g = Module.graphics;
     const pen_info = g.pen_info;
     if (pen_info.v == 0) {
-        const ld = document.getElementById('logoDrawingElements')
+        const g = Module.graphics;
+        const masknum = Module.graphics.masknum;
+        const ld = document.getElementById(g.mask ? `logoMask${masknum}` : 'logoDrawingElements')
         const el = document.createElementNS(SVG, 'line');
         el.setAttribute("stroke-width", pen_info.sz);
-        el.style.setProperty("mix-blend-mode", pen_info.mode);
-        el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
+        if (g.mask) {
+            el.setAttribute('stroke', `black`);
+        }
+        else {
+            el.style.setProperty("mix-blend-mode", pen_info.mode);
+            el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
+        }
         el.setAttribute("x1", x);
         el.setAttribute("y1", y);
         el.setAttribute("x2", pen_info.x);
@@ -121,8 +137,49 @@ Module.graphics.pen_reverse = () => {
     console.log(`pen_reverse ${[]}`) 
     Module.graphics.pen_info.mode = 'difference';
 };
-Module.graphics.pen_erase = () => { console.log(`pen_erase ${[]}`) };
-Module.graphics.pen_down = () => { console.log(`pen_down ${[]}`) };
+Module.graphics.pen_erase = () => { 
+    console.log(`pen_erase ${[]}`) 
+    // create new mask in defs
+    // apply mask to current logoDrawingElements
+    // when pen != erase start new logoDrawingElements
+    const ld = document.getElementById('logoDrawing');
+    const lde = document.getElementById('logoDrawingElements');
+    const defs = document.getElementById('logoDefs');
+    const masknum = Module.graphics.masknum;
+    const g = Module.graphics;
+    const mask = document.createElementNS(SVG, 'mask');
+    mask.setAttribute('id', `logoMask${masknum}`);
+    const rect = document.createElementNS(SVG, 'rect');
+    rect.setAttribute('x', 0);
+    rect.setAttribute('y', 0);
+    rect.setAttribute('height', 480);
+    rect.setAttribute('width', 640);
+    rect.setAttribute('fill', 'white');
+    mask.appendChild(rect);
+    defs.appendChild(mask);
+    lde.setAttribute('mask', `url('#logoMask${masknum}')`);
+    lde.setAttribute('maskUnits', "userSpaceOnUse");
+    Module.graphics.mask = mask;
+};
+Module.graphics.pen_down = () => { 
+    console.log(`pen_down ${[]}`)
+    Module.graphics.pen_info.mode = 'initial';
+    if (Module.graphics.mask) {
+        const dr = document.getElementById('logoDrawingContainer');
+        const g = document.getElementById('logoDrawingElements');
+        dr.removeChild(g);
+        g.removeAttribute('id');
+        const newg = document.createElementNS(SVG, 'g')
+        newg.id = 'logoDrawingElements';
+        dr.appendChild(newg);
+        const rect = document.createElementNS(SVG, 'rect');
+        rect.setAttribute('style', 'height: 100%; width: 100%;');
+        newg.appendChild(rect);
+        newg.appendChild(g);
+        delete Module.graphics.mask;
+        delete Module.graphics.masknum++;
+    }
+};
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
 Module.graphics.split_screen = () => { console.log(`split_screen ${[]}`) };
 Module.graphics.text_screen = () => { console.log(`text_screen ${[]}`) };
