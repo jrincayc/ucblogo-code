@@ -45,9 +45,16 @@ Module.graphics.graphics_init = () => {
     ld.addEventListener('mousemove', (evt) => {
         g.lastmove = evt;
     });
-    ld.addEventListener('click', (evt) => {
+    ld.addEventListener('mouseup', (evt) => {
         g.lastclick = evt;
-    });
+        Module.ccall('mouse_down', 'void', [], []);
+        evt.preventDefault();
+        return false;
+    }, {capture: true});
+    ld.addEventListener('contextmenu', (evt) => {
+        evt.preventDefault();
+        return false;
+    }, {capture: true});
 };
 Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
 Module.graphics.done_drawing = () => { console.log("done_drawing") };
@@ -300,10 +307,13 @@ Module.graphics.web_get_buttonp = () => {
 }
 Module.graphics.web_get_button = () => {
     const b = Module.graphics.lastclick?.button;
-    if (b) {
+    if (b != undefined) {
         delete Module.graphics.lastclick.button;
+        if (b == 0) return 1;
+        if (b == 1) return 3;
+        if (b == 2) return 2;
     }
-    return b || 0;
+    return 0;
 }
 Module.graphics.web_get_mouse_x = () => {
     return Module.graphics.lastmove?.offsetX - 320 || 0;

@@ -78,9 +78,18 @@ extern pen_info xgr_pen;
 #define pen_erase web_pen_erase()
 #define pen_down web_pen_down()
 
-#define button web_get_button()
 #define mouse_x web_get_mouse_x()
+int web_get_mouse_x();
 #define mouse_y web_get_mouse_y()
+int web_get_mouse_y();
+#define click_x web_get_click_x()
+int web_get_click_x();
+#define click_y web_get_click_y()
+int web_get_click_y();
+#define lastbutton web_get_button()
+int web_get_button();
+#define button web_get_buttonp()
+int web_get_buttonp();
 
 #define full_screen web_full_screen()
 #define split_screen web_split_screen()
@@ -93,8 +102,8 @@ extern pen_info xgr_pen;
 #define prepare_to_draw_turtle web_prepare_to_draw_turtle()
 #define done_drawing_turtle web_done_drawing(turtle_shown)
 
-extern void set_palette(int, unsigned int, unsigned int, unsigned int);
-extern void get_palette(int, unsigned int *, unsigned int *, unsigned int *);
+void set_palette(int slot, unsigned int R, unsigned int G, unsigned int B);
+void get_palette(int slot, unsigned int *R, unsigned int *G, unsigned int *B);
 void set_pen_color(int);
 void web_prepare_to_draw();
 void web_prepare_to_draw_turtle();
@@ -114,9 +123,6 @@ void web_pen_down();
 void web_pen_erase();
 void set_back_ground(int);
 #define set_list_pen_pattern(arg) ((void)0)
-int web_get_mouse_x();
-int web_get_mouse_y();
-int web_get_button();
 void tone(int, int);
 void doFilled(int color, int count, mypoint_t* points);
 #define wxlPrintPreviewPict() ((void)0)
@@ -131,6 +137,3 @@ void set_pen_mode(int);
 
 extern int bg;
 
-#define click_x webGetClickX()
-#define click_y webGetClickY()
-#define lastbutton webGetLastButton()

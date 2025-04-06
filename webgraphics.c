@@ -133,14 +133,12 @@ EM_JS(void, logofill, (), {
    Module.graphics.logofill();
 });
 
-// FIXME
-EM_JS(void, set_palette, (int i, unsigned int c1, unsigned int c2, unsigned int c3), {
-   Module.graphics.set_palette(i, c1, c2, c3);
+EM_JS(void, set_palette, (int i, unsigned int R, unsigned int G, unsigned int B), {
+   Module.graphics.set_palette(i, R, G, B);
 });
 
-// FIXME
-EM_JS(void, get_palette, (int i, unsigned int *c1, unsigned int *c2, unsigned int *c3), {
-   Module.graphics.get_pallette();
+EM_JS(void, get_palette, (int i, uint32_t *pR, uint32_t *pG, uint32_t *pB), {
+   Module.graphics.get_palette(i, pR, pG, pB);
 });
 
 EM_JS(void, erase_screen, (), {
@@ -148,15 +146,27 @@ EM_JS(void, erase_screen, (), {
 });
 
 EM_JS(int, web_get_mouse_x, (), {
-   Module.graphics.web_get_mouse_x();
+   return Module.graphics.web_get_mouse_x();
 });
 
 EM_JS(int, web_get_mouse_y, (), {
-   Module.graphics.web_get_mouse_y();
+   return Module.graphics.web_get_mouse_y();
+});
+
+EM_JS(int, web_get_click_x, (), {
+   return Module.graphics.web_get_click_x();
+});
+
+EM_JS(int, web_get_click_y, (), {
+   return Module.graphics.web_get_click_y();
 });
 
 EM_JS(int, web_get_button, (), {
-   Module.graphics.web_get_button();
+   return Module.graphics.web_get_button();
+});
+
+EM_JS(int, web_get_buttonp, (), {
+   return Module.graphics.web_get_buttonp();
 });
 
 EM_JS(void, web_draw_turtle, (int heading), {
@@ -228,3 +238,8 @@ void graphics_init()
    set_pen_color(7);
    set_pen_vis(0);
 }
+
+EM_JS(int, web_keyp, (), {
+   //FIXME
+   return 0;
+});

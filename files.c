@@ -34,8 +34,10 @@
 #define sysUnGetC wxUnget_c
 int reading_char_now = 0;
 #else
+#ifndef __EMSCRIPTEN__
 #define sysGetC getc
 #define sysUnGetC ungetc
+#endif
 #endif
 
 #if defined(HAVE_TERMIOS_H)
@@ -51,6 +53,44 @@ int reading_char_now = 0;
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+// Emscripten FS API is synchronous and blocking. That's fine for printing but
+// completely useless for blocking input. So we have to implement our own async
+// getc for reading stdin.
+EM_ASYNC_JS(char, em_getc, (), {
+	let char;
+	if (typeof document != 'undefined') {
+		char = await new Promise((res, rej) => {
+			// TODO probably a better way than reinstalling the handler every time
+			document.addEventListener("nextChar", (event) => {
+				const char = event.detail.char;
+				res(event.detail.char);
+			},
+			{ once: true })
+		});
+	} else {
+		char = process.stdin.read(1);
+		while (char == null) {
+			await new Promise((res,rej)=>{setTimeout(res,20)});
+			char = process.stdin.read(1);
+		}
+	}
+	// Convert to int so it converts to C char and not a string
+	return char.charCodeAt(0);
+});
+
+int sysGetC(FILE* stream) {
+	return stream == stdin ? em_getc() : getc(stream);
+}
+
+EM_JS(void, em_fflush, (int fh), {
+	_fflush(fh)
+});
+#endif
+
 
 NODE *file_list = NULL;
 NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
@@ -656,6 +696,15 @@ NODE *leofp(NODE *args) {
 }
 
 NODE *lkeyp(NODE *args) {
+#ifdef __EMSCRIPTEN__
+    if (web_keyp()) {
+        return TrueName();
+    }
+    else {
+        return FalseName();
+    }
+#endif
+
 #if defined(unix) | defined(__WXMSW__)
     int nc;
 #endif

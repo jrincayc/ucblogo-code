@@ -33,41 +33,6 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-
-// Emscripten FS API is synchronous and blocking. That's fine for printing but
-// completely useless for blocking input. So we have to implement our own async
-// getc for reading stdin.
-EM_ASYNC_JS(char, em_getc, (), {
-	let char;
-	if (typeof document != 'undefined') {
-		char = await new Promise((res, rej) => {
-			// TODO probably a better way than reinstalling the handler every time
-			document.addEventListener("nextChar", (event) => {
-				const char = event.detail.char;
-				res(event.detail.char);
-			},
-			{ once: true })
-		});
-	} else {
-		char = process.stdin.read(1);
-		while (char == null) {
-			await new Promise((res,rej)=>{setTimeout(res,20)});
-			char = process.stdin.read(1);
-		}
-	}
-	// Convert to int so it converts to C char and not a string
-	return char.charCodeAt(0);
-});
-
-int GETC(FILE* stream) {
-	return stream == stdin ? em_getc() : getc(stream);
-}
-
-EM_JS(void, em_fflush, (int fh), {
-	_fflush(fh)
-});
-#else
-#define GETC getc
 #endif
 
 #include "logo.h"
@@ -89,7 +54,7 @@ EM_JS(void, em_fflush, (int fh), {
 #ifdef getc
 #undef getc
 #endif
-#define GETC getFromWX_2
+#define sysGetC getFromWX_2
 #define getch getFromWX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 extern void wx_enable_scrolling();
@@ -111,7 +76,7 @@ int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
     int c;
-    c = GETC(strm);
+    c = sysGetC(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
 #ifdef ecma

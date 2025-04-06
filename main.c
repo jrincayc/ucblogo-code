@@ -53,6 +53,9 @@
 #endif
 
 #ifdef __EMSCRIPTEN__
+
+int yield_enabled = 1;
+
 // Yields execution to browser so it can handle events; IE cooperative
 // multitasking.
 // Web best-practice is not blocking for longer than 200ms
@@ -68,9 +71,10 @@ void yield() {
 	// It's a tradeoff between throughput and latency
 	static const int YIELD_EVERY = 100;
 	static int yield_needed = YIELD_EVERY;
-	if (--yield_needed == 0) {
+	if (yield_enabled && --yield_needed == 0) {
 		emscripten_sleep(0);
 		yield_needed = YIELD_EVERY;
+		// process incoming events
 	}
 }
 #endif
@@ -153,7 +157,9 @@ void mouse_down()
 	    if (inside_evaluator) {
 		eval_buttonact = line;
 	    } else {
+		yield_enabled = 0;
 		eval_driver(line);
+		yield_enabled = 1;
 		fix_turtle_shownness();
 	    }
 	}

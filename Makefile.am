@@ -130,7 +130,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-obj.o ucblogo-webgraphics.o \
+	ucblogo-webgraphics.o \
 	--pre-js pre.js \
 	--embed-file dist/share@/share \
 	--embed-file tests \
@@ -142,8 +142,11 @@ ucblogo.html: ucblogo shell.html pre.js
 	-s STRICT_JS \
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
-	--shell-file shell.html
+	--shell-file shell.html \
+	-sEXPORTED_RUNTIME_METHODS=ccall \
+	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact
 
+# ucblogo-obj.o 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	mkdir -p UCBLogo.app
 	mkdir -p UCBLogo.app/Contents
