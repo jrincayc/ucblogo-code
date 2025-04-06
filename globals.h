@@ -654,11 +654,11 @@ extern NODE *parent_list(NODE *);
 
 extern void dbUsual(const char*);
 
+#endif
+
 #ifdef __EMSCRIPTEN__
 extern void yield();
 #define YIELD (yield())
 #else
 #define YIELD ((void)0)
-#endif
-
 #endif
