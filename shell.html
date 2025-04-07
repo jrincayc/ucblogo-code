@@ -88,14 +88,27 @@
       }
     }
 
-    </style>
-    <style id="logoColors">
+    .flex {
+      display: flex;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    .wrap {
+      flex-wrap: wrap;
+    }
+
+    .col {
+      flex-direction: column;
+    }
+  </style>
+  <style id="logoColors">
     /* LOGO Colors */
     :root {
       --logo-color-0: black;
       --logo-color-1: rgb(0%, 0%, 99.6108949416342%);
       --logo-color-2: rgb(0%, 99.6108949416342%, 0%);
-      --logo-color-3: rgb(0%, 99.6108949416342%, 99.6108949416342%);
+      --logo-color-3: rgb(103, 243, 243);
       --logo-color-4: rgb(99.6108949416342%, 0%, 0%);
       --logo-color-5: rgb(99.6108949416342%, 0%, 99.6108949416342%);
       --logo-color-6: rgb(99.6108949416342%, 99.6108949416342%, 0%);
@@ -109,7 +122,6 @@
       --logo-color-14: rgb(99.6108949416342%, 63.6728465705348%, 0%);
       --logo-color-15: rgb(71.4854657816434%, 71.4854657816434%, 71.4854657816434%);
     }
-
   </style>
 </head>
 
@@ -139,49 +151,56 @@
                                                                                 document.getElementById('resize').checked)">
   </div>
 
-  <textarea readonly class="emscripten" id="output" rows="25"></textarea>
+  <div class="flex wrap">
+    <div class="flex col">
+      <div class="flex">
+        <textarea readonly class="emscripten" id="output" rows="25"></textarea>
+      </div>
+      <div class="flex">
+        <form id="logoInputForm">
+          <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
+          <input type="submit" label="Run" />
+        </form>
+      </div>
+    </div>
+    <div class="flex">
+    <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"
+      style="transform: scale(1, 1)">
 
-  <form id="logoInputForm">
-    <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
-    <input type="submit" label="Run" />
-  </form>
+      <style>
+        line {
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
 
-  <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"
-    style="transform: scale(1, 1)">
+        #logoTurtle {
+          transform-box: fill-box;
+          transform-origin: center;
+        }
 
-    <style>
-      line {
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-
-      #logoTurtle {
-        transform-box: fill-box;
-        transform-origin: center;
-      }
-
-      .sizer {
-        fill: none;
-        stroke: none;
-        height: 100%;
-        width: 100%;
-      }
-    </style>
-    <defs id="logoDefs"></defs>
-    <g id="logoDrawingContainer">
-      <rect id="logoBackground" style="height: 100%; width: 100%"></rect>
-      <g id="logoDrawingElements">
-      <rect class="sizer" style="height: 100%; width: 100%"></rect>
+        .sizer {
+          fill: none;
+          stroke: none;
+          height: 100%;
+          width: 100%;
+        }
+      </style>
+      <defs id="logoDefs"></defs>
+      <g id="logoDrawingContainer">
+        <rect id="logoBackground" style="height: 100%; width: 100%"></rect>
+        <g id="logoDrawingElements">
+          <rect class="sizer" style="height: 100%; width: 100%"></rect>
+        </g>
       </g>
-    </g>
-    <g id="logoTurtleTranslated" transform="translate(314, 231)" style="stroke: black">
-      <g id="logoTurtle">
-        <line x1="0" y1="18" x2="12" y2="18"></line>
-        <line x1="0" y1="18" x2="6" y2="0"></line>
-        <line x1="12" y1="18" x2="6" y2="0"></line>
+      <g id="logoTurtleTranslated" transform="translate(314, 231)" style="stroke: black">
+        <g id="logoTurtle">
+          <line x1="0" y1="18" x2="12" y2="18"></line>
+          <line x1="0" y1="18" x2="6" y2="0"></line>
+          <line x1="12" y1="18" x2="6" y2="0"></line>
+        </g>
       </g>
-    </g>
-  </svg>
+    </svg>
+  </div>
 
   <script type='text/javascript'>
     var statusElement = document.getElementById('status');
