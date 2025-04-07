@@ -653,6 +653,7 @@ apply_dispatch:
 		print_char(stdout, ')');
 	    new_line(stdout);
 	}
+	YIELD;
 	val = (*getprimfun(proc))(argl);
         if (tracing && NOT_THROWING) {
 	    for (i = 0; i < trace_level; i++) {
@@ -677,6 +678,7 @@ apply_dispatch:
 #endif
 
 fetch_cont:
+	YIELD;
     {
 #ifdef USE_GCC_DISPATCH
 #define do_label(x) &&x,

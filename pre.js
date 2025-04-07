@@ -45,9 +45,16 @@ Module.graphics.graphics_init = () => {
     ld.addEventListener('mousemove', (evt) => {
         g.lastmove = evt;
     });
-    ld.addEventListener('mouseup', (evt) => {
+    Module.graphics.buttonp = false;
+    ld.addEventListener('mousedown', (evt) => {
         g.lastclick = evt;
+        Module.graphics.buttonp = true;
         Module.ccall('mouse_down', 'void', [], []);
+        evt.preventDefault();
+        return false;
+    }, {capture: true});
+    ld.addEventListener('mouseup', (evt) => {
+        Module.graphics.buttonp = false;
         evt.preventDefault();
         return false;
     }, {capture: true});
@@ -303,8 +310,7 @@ Module.graphics.filled_end = () => {
     delete Module.graphics.filled_poly;
 }
 Module.graphics.web_get_buttonp = () => {
-    const b = Module.graphics.lastclick && true;
-    return b;
+    return Module.graphics.buttonp;
 }
 Module.graphics.web_get_button = () => {
     const b = Module.graphics.lastclick?.button;

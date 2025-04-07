@@ -70,14 +70,14 @@ void yield() {
 	// This may require additional tuning
 	// It's a tradeoff between throughput and latency
 	static int tlast;
-	static const int YIELD_EVERY = 100;
+	static const int YIELD_EVERY = 10000;
 	static int yield_needed = YIELD_EVERY;
 	if (yield_enabled && --yield_needed == 0) {
-		int tnow = EM_ASM_INT({ return Date.now() }); // ms
-		if (tnow - tlast > 100) {
+		// int tnow = EM_ASM_INT({ return Date.now() }); // ms
+		// if (tnow - tlast > 100) {
 			emscripten_sleep(0);
-		}
-		tlast = tnow;
+		// }
+		// tlast = tnow;
 		yield_needed = YIELD_EVERY;
 		// process incoming events
 	}
@@ -164,8 +164,8 @@ void mouse_down()
 	    } else {
 		yield_enabled = 0;
 		eval_driver(line);
-		yield_enabled = 1;
 		fix_turtle_shownness();
+		yield_enabled = 1;
 	    }
 	}
     }
