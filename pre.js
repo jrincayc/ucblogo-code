@@ -97,7 +97,7 @@ Module.graphics.line_to = (x, y) => {
         const masknum = Module.graphics.masknum;
         const ld = document.getElementById(g.mask ? `logoMask${masknum}` : 'logoDrawingElements')
         const el = document.createElementNS(SVG, 'line');
-        el.setAttribute("stroke-width", pen_info.sz);
+        el.setAttribute("stroke-width", `${pen_info.sz}px`);
         if (g.mask) {
             el.setAttribute('stroke', `black`);
         }
@@ -105,10 +105,10 @@ Module.graphics.line_to = (x, y) => {
             el.style.setProperty("mix-blend-mode", pen_info.mode);
             el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
         }
-        el.setAttribute("x1", x);
-        el.setAttribute("y1", y);
-        el.setAttribute("x2", pen_info.x);
-        el.setAttribute("y2", pen_info.y);
+        el.setAttribute("x1", x + 0.5);
+        el.setAttribute("y1", y + 0.5);
+        el.setAttribute("x2", pen_info.x + 0.5);
+        el.setAttribute("y2", pen_info.y + 0.5);
         ld.appendChild(el);
     };
     pen_info.x = x;
@@ -293,8 +293,6 @@ Module.graphics.filled_begin = (color) => {
     const pen_info = Module.graphics.pen_info;
     el.style.setProperty('fill', `var(--logo-color-${color})`);
     el.style.setProperty('stroke', `var(--logo-color-${pen_info.c})`);
-    el.style.setProperty('stroke-linecap', 'round');
-    el.style.setProperty('stroke-linejoin', 'round');
     el.style.setProperty('stroke-width', pen_info.sz);
     Module.graphics.filled_poly = el;
 }
