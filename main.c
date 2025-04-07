@@ -53,6 +53,8 @@
 #endif
 
 #ifdef __EMSCRIPTEN__
+#include <time.h>
+#include <sys/time.h>
 
 int yield_enabled = 1;
 
@@ -72,14 +74,28 @@ void yield() {
 	static int tlast;
 	static const int YIELD_EVERY = 10000;
 	static int yield_needed = YIELD_EVERY;
+	static const long long MAXBLOCKDS = 200 * 10 ^ 6;
+	static struct timespec ts;
+	static long long curtimeds; // Deciseconds (1/10th seconds)
+	static long long lasttimeds;
+
 	if (yield_enabled && --yield_needed == 0) {
 		// int tnow = EM_ASM_INT({ return Date.now() }); // ms
 		// if (tnow - tlast > 100) {
-			emscripten_sleep(0);
+			// emscripten_sleep(0);
 		// }
 		// tlast = tnow;
+		if (clock_gettime(CLOCK_MONOTONIC, &ts))
+		{
+			err_logo(STOP_ERROR, NIL);
+			exit(EXIT_FAILURE);
+		}
+		if (ts.tv_nsec - lasttimeds >= MAXBLOCKDS || lasttimeds > ts.tv_nsec)
+		{
+			emscripten_sleep(0);
+		}
+		lasttimeds = curtimeds;
 		yield_needed = YIELD_EVERY;
-		// process incoming events
 	}
 }
 #endif
