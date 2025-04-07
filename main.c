@@ -69,10 +69,15 @@ void yield() {
 	// Could do it in a separate thread maybe
 	// This may require additional tuning
 	// It's a tradeoff between throughput and latency
+	static int tlast;
 	static const int YIELD_EVERY = 100;
 	static int yield_needed = YIELD_EVERY;
 	if (yield_enabled && --yield_needed == 0) {
-		emscripten_sleep(0);
+		int tnow = EM_ASM_INT({ return Date.now() }); // ms
+		if (tnow - tlast > 100) {
+			emscripten_sleep(0);
+		}
+		tlast = tnow;
 		yield_needed = YIELD_EVERY;
 		// process incoming events
 	}
