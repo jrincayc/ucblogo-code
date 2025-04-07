@@ -303,12 +303,13 @@ Module.graphics.filled_end = () => {
     delete Module.graphics.filled_poly;
 }
 Module.graphics.web_get_buttonp = () => {
-    return Module.graphics.lastclick?.button || 0;
+    const b = Module.graphics.lastclick && true;
+    return b;
 }
 Module.graphics.web_get_button = () => {
     const b = Module.graphics.lastclick?.button;
     if (b != undefined) {
-        delete Module.graphics.lastclick.button;
+        delete Module.graphics.lastclick;
         if (b == 0) return 1;
         if (b == 1) return 3;
         if (b == 2) return 2;
