@@ -159,12 +159,19 @@
         transform-box: fill-box;
         transform-origin: center;
       }
+
+      .sizer {
+        fill: none;
+        stroke: none;
+        height: 100%;
+        width: 100%;
+      }
     </style>
     <defs id="logoDefs"></defs>
     <g id="logoDrawingContainer">
       <rect id="logoBackground" style="height: 100%; width: 100%"></rect>
       <g id="logoDrawingElements">
-      <rect style="height: 100%; width: 100%"></rect>
+      <rect class="sizer" style="height: 100%; width: 100%"></rect>
       </g>
     </g>
     <g id="logoTurtleTranslated" transform="translate(314, 231)" style="stroke: black">

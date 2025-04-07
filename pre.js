@@ -70,7 +70,7 @@ Module.graphics.clear_screen = () => {
     newg.id = 'logoDrawingElements';
     dr.appendChild(newg);
     const rect = document.createElementNS(SVG, 'rect');
-    rect.setAttribute('style', 'height: 100%; width: 100%;');
+    rect.setAttribute('class', 'sizer');
     newg.appendChild(rect);
     const defs = document.getElementById('logoDefs');
     defs.replaceChildren([]);
@@ -207,7 +207,7 @@ Module.graphics.pen_down = () => {
         newg.id = 'logoDrawingElements';
         dr.appendChild(newg);
         const rect = document.createElementNS(SVG, 'rect');
-        rect.setAttribute('style', 'height: 100%; width: 100%;');
+        rect.setAttribute('class', 'sizer');
         newg.appendChild(rect);
         newg.appendChild(g);
         delete Module.graphics.mask;
