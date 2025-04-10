@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="icon" type="image/x-icon" href="logologo.ico">
   <title>UCB Logo Web Edition</title>
   <style>
     .emscripten {
@@ -194,6 +195,9 @@
       </g>
       <g id="logoTurtleTranslated" transform="translate(314, 231)" style="stroke: black">
         <g id="logoTurtle">
+          <!-- <g transform="rotate(90 24 24)">
+            <text style="font-size: 48px" >🐢</text>
+          </g> -->
           <line x1="0" y1="18" x2="12" y2="18"></line>
           <line x1="0" y1="18" x2="6" y2="0"></line>
           <line x1="12" y1="18" x2="6" y2="0"></line>
@@ -281,16 +285,9 @@
         Module.print(line);
         let chars = line.split("");
         chars.push("\n");
-        while (chars.length) {
-          document.dispatchEvent(
-            new CustomEvent(
-              "nextChar",
-              { detail: { char: chars.shift() } }
-            )
-          );
-          await new Promise(r => setTimeout(r, 1));
-        }
+        Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
+        document.dispatchEvent(new CustomEvent("getcharready"));
         return false;
       })
     });

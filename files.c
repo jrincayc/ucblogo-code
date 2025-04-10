@@ -61,16 +61,13 @@ int reading_char_now = 0;
 // completely useless for blocking input. So we have to implement our own async
 // getc for reading stdin.
 EM_ASYNC_JS(char, em_getc, (), {
-	let char;
+    let char;   
 	if (typeof document != 'undefined') {
-		char = await new Promise((res, rej) => {
-			// TODO probably a better way than reinstalling the handler every time
-			document.addEventListener("nextChar", (event) => {
-				const char = event.detail.char;
-				res(event.detail.char);
-			},
-			{ once: true })
+        if (!Module.FS_runjs_getChar_buffer.length)
+		await new Promise((res, rej) => {
+			document.addEventListener('getcharready', res, { once: true });
 		});
+        char = Module.FS_runjs_getChar_buffer.shift();
 	} else {
 		char = process.stdin.read(1);
 		while (char == null) {

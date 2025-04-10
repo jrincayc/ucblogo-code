@@ -3,29 +3,102 @@ const SVG = 'http://www.w3.org/2000/svg';
 Module.graphics = {};
 
 Module.graphics.logoColors = [
-{r: 0, g: 0, b: 0},
-{r: 0, g: 0, b: 99.6108949416342},
-{r: 0, g: 99.6108949416342, b: 0},
-{r: 0, g: 99.6108949416342, b: 99.6108949416342},
-{r: 99.6108949416342, g: 0, b: 0},
-{r: 99.6108949416342, g: 0, b: 99.6108949416342},
-{r: 99.6108949416342, g: 99.6108949416342, b: 0},
-{r: 99.6108949416342, g: 99.6108949416342, b: 99.6108949416342},
-{r: 60.5477988860914, g: 37.5005722133211, b: 23.0472266727703},
-{r: 76.9542992294194, g: 53.1258106355383, b: 7.03135728999771},
-{r: 39.0630960555428, g: 63.2822156099794, b: 25.0003814755474},
-{r: 46.8757152666514, g: 73.0479896238651, b: 73.0479896238651},
-{r: 99.6108949416342, g: 58.2040131227588, b: 46.485084306096},
-{r: 56.2508583199817, g: 44.1412985427634, b: 81.2512397955291},
-{r: 99.6108949416342, g: 63.6728465705348, b: 0},
-{r: 71.4854657816434, g: 71.4854657816434, b: 71.4854657816434},
+    { r: 0, g: 0, b: 0 },
+    { r: 0, g: 0, b: 99.6108949416342 },
+    { r: 0, g: 99.6108949416342, b: 0 },
+    { r: 0, g: 99.6108949416342, b: 99.6108949416342 },
+    { r: 99.6108949416342, g: 0, b: 0 },
+    { r: 99.6108949416342, g: 0, b: 99.6108949416342 },
+    { r: 99.6108949416342, g: 99.6108949416342, b: 0 },
+    { r: 99.6108949416342, g: 99.6108949416342, b: 99.6108949416342 },
+    { r: 60.5477988860914, g: 37.5005722133211, b: 23.0472266727703 },
+    { r: 76.9542992294194, g: 53.1258106355383, b: 7.03135728999771 },
+    { r: 39.0630960555428, g: 63.2822156099794, b: 25.0003814755474 },
+    { r: 46.8757152666514, g: 73.0479896238651, b: 73.0479896238651 },
+    { r: 99.6108949416342, g: 58.2040131227588, b: 46.485084306096 },
+    { r: 56.2508583199817, g: 44.1412985427634, b: 81.2512397955291 },
+    { r: 99.6108949416342, g: 63.6728465705348, b: 0 },
+    { r: 71.4854657816434, g: 71.4854657816434, b: 71.4854657816434 },
 ];
-
+Module.FS_runjs_getChar_buffer = [];
 Module.preRun = () => {
     const PREFIX = "/share/ucblogo";
     ENV.LOGOLIB = PREFIX + "/logolib";
     ENV.LOGOHELP = PREFIX + "/helpfiles";
     ENV.CSLS = PREFIX + "/csls";
+
+    const runjs_ops = {
+        put_char(tty, val) {
+            if (val === 0 || val === 10) {
+                Module.runjs(UTF8ArrayToString(tty.output)); tty.output = [];
+            } else {
+                if (val != 0) tty.output.push(val);
+            }
+        },
+        fsync(tty) {
+            if (tty.output?.length > 0) {
+                Module.runjs(UTF8ArrayToString(tty.output));
+                tty.output = [];
+            }
+        },
+    };
+    const RUNJS_MAJOR = 10;
+    TTY.register(FS.makedev(RUNJS_MAJOR, 0), runjs_ops);
+    FS.mkdev('/dev/runjs', FS.makedev(RUNJS_MAJOR, 0));
+};
+
+const BLON = {
+    stringify: function (obj) {
+        const addBrackets = (s) => `[${s}]`;
+        const noAddBrackets = (s) => s;
+        const helper = (addBrackets) => (val) => {
+            if (typeof val === 'undefined') {
+                return 'undefined';
+            } else if (val === null) {
+                return 'null';
+            } else if (typeof val === 'boolean') {
+                return val.toString();
+            } else if (typeof val === 'number') {
+                return val.toString();
+            } else if (typeof val == 'string') {
+                return `|${val
+                        .replace('\\', '\\\\')
+                        .replace('\n', '\\n')
+                        .replace('|', '\\|')
+                    }|`;
+            } else if (Array.isArray(val)) {
+                return addBrackets(`${val.map(v => innerHelper(v)).join(' ')
+                    }`);
+            } else /* object */ {
+                return addBrackets(`${Object.entries(val)
+                        .flat()
+                        .map(v => innerHelper(v))
+                        .join(' ')
+                    }`);
+            }
+        };
+        const outerHelper = helper(noAddBrackets);
+        const innerHelper = helper(addBrackets);
+        return outerHelper(obj);
+    }
+};
+Module.FS_runjs_getChar_buffer_append_obj = (obj) => {
+    // Module.FS_runjs_getChar_buffer
+    //     .push(...intArrayFromString(BLON.stringify(obj), true));
+    // Module.FS_runjs_getChar_buffer.push(10);
+    let chars = BLON.stringify(obj).split("");
+    chars.push("\n");
+    Module.FS_runjs_getChar_buffer.push(...chars);
+    document.dispatchEvent(new CustomEvent("getcharready"));
+}
+Module.FS_runjs_getChar_buffer_append_str = (str) => {
+    let chars = str.split("");
+    chars.push("\n");
+    Module.FS_runjs_getChar_buffer.push(...chars);
+    document.dispatchEvent(new CustomEvent("getcharready"));
+}
+Module.runjs = (expr) => {
+    Module.FS_runjs_getChar_buffer_append_obj(eval(expr));
 };
 Module.env = {};
 Module.graphics.pen_info = {
@@ -38,7 +111,7 @@ Module.graphics.pen_info = {
 };
 Module.graphics.graphics_init = () => {
     const g = Module.graphics;
-    console.log("graphics_init");
+    // console.log("graphics_init");
     g.clear_screen();
     g.masknum = 0;
     const ld = document.getElementById('logoDrawing');
@@ -52,23 +125,29 @@ Module.graphics.graphics_init = () => {
         Module.ccall('mouse_down', 'void', [], []);
         evt.preventDefault();
         return false;
-    }, {capture: true});
+    }, { capture: true });
     ld.addEventListener('mouseup', (evt) => {
         Module.graphics.buttonp = false;
         evt.preventDefault();
         return false;
-    }, {capture: true});
+    }, { capture: true });
     ld.addEventListener('contextmenu', (evt) => {
         evt.preventDefault();
         return false;
-    }, {capture: true});
+    }, { capture: true });
 };
-Module.graphics.prepare_to_draw = () => { console.log("prepare_to_draw") };
-Module.graphics.done_drawing = () => { console.log("done_drawing") };
-Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit(${v})`) };
+Module.graphics.prepare_to_draw = () => { 
+    // console.log("prepare_to_draw") 
+};
+Module.graphics.done_drawing = () => { 
+    // console.log("done_drawing")
+};
+Module.graphics.prepare_to_exit = (v) => { 
+    // console.log(`prepare_to_exit(${v})`) 
+};
 Module.graphics.clear_screen = () => {
     // FIXME to work with mask erasing
-    console.log("clear_screen");
+    // console.log("clear_screen");
     if (typeof document === 'undefined') return;
     const dr = document.getElementById('logoDrawingContainer');
     const g = document.getElementById('logoDrawingElements');
@@ -84,9 +163,15 @@ Module.graphics.clear_screen = () => {
     delete Module.graphics.mask;
     Module.graphics.masknum = 0;
 };
-Module.graphics.prepare_to_draw = () => { console.log(`prepare_to_draw ${[]}`) };
-Module.graphics.done_drawing = () => { console.log(`done_drawing ${[]}`) };
-Module.graphics.prepare_to_exit = (v) => { console.log(`prepare_to_exit ${[v]}`) };
+Module.graphics.prepare_to_draw = () => { 
+    // console.log(`prepare_to_draw ${[]}`) 
+};
+Module.graphics.done_drawing = () => { 
+    // console.log(`done_drawing ${[]}`) 
+};
+Module.graphics.prepare_to_exit = (v) => { 
+    // console.log(`prepare_to_exit ${[v]}`) 
+};
 Module.graphics.line_to = (x, y) => {
     if (typeof document === 'undefined') return;
     // console.log(`line_to ${[x, y]}`);
@@ -126,7 +211,7 @@ Module.graphics.move_to = (x, y) => {
 };
 Module.graphics.label = (s) => {
     if (typeof document === 'undefined') return;
-    console.log(`label ${[s]}`);
+    // console.log(`label ${[s]}`);
     const g = Module.graphics;
     const pen_info = g.pen_info;
     const ld = document.getElementById('logoDrawingElements')
@@ -141,12 +226,14 @@ Module.graphics.label = (s) => {
 Module.graphics.set_pen_vis = (v) => {
     if (typeof document === 'undefined') return;
     Module.graphics.pen_info.v = v;
-    console.log(`set_pen_vis ${[v]}`)
+    // console.log(`set_pen_vis ${[v]}`)
 };
-Module.graphics.set_pen_mode = (m) => { console.log(`set_pen_mode ${[m]}`) };
+Module.graphics.set_pen_mode = (m) => { 
+    // console.log(`set_pen_mode ${[m]}`) 
+};
 Module.graphics.set_pen_color = (c) => {
     if (typeof document === 'undefined') return;
-    console.log(`set_pen_color ${[c]}`);
+    // console.log(`set_pen_color ${[c]}`);
     const pen_info = Module.graphics.pen_info;
     const el = document.getElementById('logoTurtleTranslated');
     pen_info.c = c;
@@ -154,12 +241,12 @@ Module.graphics.set_pen_color = (c) => {
 };
 Module.graphics.set_pen_width = (w) => {
     if (typeof document === 'undefined') return;
-    console.log(`set_pen_width ${[w]}`);
+    // console.log(`set_pen_width ${[w]}`);
     Module.graphics.pen_info.sz = w;
 };
 Module.graphics.set_pen_height = (w) => {
     if (typeof document === 'undefined') return;
-    console.log(`set_pen_height ${[w]}`);
+    // console.log(`set_pen_height ${[w]}`);
     Module.graphics.pen_info.sz = w;
     const el = document.getElementById('logoTurtle');
     el.style.setProperty('stroke-width', w);
@@ -168,18 +255,18 @@ Module.graphics.set_pen_height = (w) => {
 // Module.graphics.set_pen_y = () => { console.log(`set_pen_y ${[]}`) };
 Module.graphics.set_back_ground = (c) => {
     if (typeof document === 'undefined') return;
-    console.log(`set_back_ground ${[c]}`)
+    // console.log(`set_back_ground ${[c]}`)
     const pen_info = Module.graphics.pen_info;
     const el = document.getElementById("logoBackground")
     el.style.setProperty('fill', `var(--logo-color-${c})`);
     pen_info.bg = c;
 };
-Module.graphics.pen_reverse = () => { 
-    console.log(`pen_reverse ${[]}`) 
+Module.graphics.pen_reverse = () => {
+    // console.log(`pen_reverse ${[]}`)
     Module.graphics.pen_info.mode = 'difference';
 };
-Module.graphics.pen_erase = () => { 
-    console.log(`pen_erase ${[]}`) 
+Module.graphics.pen_erase = () => {
+    // console.log(`pen_erase ${[]}`)
     // create new mask in defs
     // apply mask to current logoDrawingElements
     // when pen != erase start new logoDrawingElements
@@ -202,8 +289,8 @@ Module.graphics.pen_erase = () => {
     lde.setAttribute('maskUnits', "userSpaceOnUse");
     Module.graphics.mask = mask;
 };
-Module.graphics.pen_down = () => { 
-    console.log(`pen_down ${[]}`)
+Module.graphics.pen_down = () => {
+    // console.log(`pen_down ${[]}`)
     Module.graphics.pen_info.mode = 'initial';
     if (Module.graphics.mask) {
         const dr = document.getElementById('logoDrawingContainer');
@@ -224,57 +311,79 @@ Module.graphics.pen_down = () => {
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
 Module.graphics.split_screen = () => { console.log(`split_screen ${[]}`) };
 Module.graphics.text_screen = () => { console.log(`text_screen ${[]}`) };
-Module.graphics.save_pen = (p) => { console.log(`save_pen ${[p]}`) };
-Module.graphics.restore_pen = (p) => { console.log(`restore_pen ${[p]}`) };
-Module.graphics.plain_xor_pen = () => { console.log(`plain_xor_pen ${[]}`) };
+Module.graphics.save_pen = (p) => { 
+    // console.log(`save_pen ${[p]}`) 
+};
+Module.graphics.restore_pen = (p) => { 
+    // console.log(`restore_pen ${[p]}`) 
+};
+Module.graphics.plain_xor_pen = () => { 
+    // console.log(`plain_xor_pen ${[]}`) 
+};
 // use https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-Module.graphics.tone = (pitch, duration) => { console.log(`tone ${[pitch, duration]}`) };
-Module.graphics.set_pen_pattern = (pat) => { console.log(`set_pen_pattern ${[pat]}`) };
-Module.graphics.get_pen_pattern = (pat) => { console.log(`get_pen_pattern ${[pat]}`) };
-Module.graphics.set_list_pen_pattern = (pat) => { console.log(`set_list_pen_pattern ${[pat]}`) };
-Module.graphics.prepare_to_draw_turtle = () => { console.log(`prepare_to_draw_turtle ${[]}`) };
-Module.graphics.web_done_drawing_turtle = () => { console.log(`web_done_drawing_turtle ${[]}`) };
-Module.graphics.logofill = () => { console.log(`logofill ${[]}`) };
-Module.graphics.set_palette = (i, r, g, b) => { 
-    console.log(`set_palette ${[i, r, g, b]}`);
+Module.graphics.tone = (pitch, duration) => { 
+    // console.log(`tone ${[pitch, duration]}`) 
+};
+Module.graphics.set_pen_pattern = (pat) => { 
+    // console.log(`set_pen_pattern ${[pat]}`) 
+};
+Module.graphics.get_pen_pattern = (pat) => { 
+    // console.log(`get_pen_pattern ${[pat]}`) 
+};
+Module.graphics.set_list_pen_pattern = (pat) => { 
+    // console.log(`set_list_pen_pattern ${[pat]}`) 
+};
+Module.graphics.prepare_to_draw_turtle = () => { 
+    // console.log(`prepare_to_draw_turtle ${[]}`) 
+};
+Module.graphics.web_done_drawing_turtle = () => { 
+    // console.log(`web_done_drawing_turtle ${[]}`) 
+};
+Module.graphics.logofill = () => { 
+    // console.log(`logofill ${[]}`) 
+};
+Module.graphics.set_palette = (i, r, g, b) => {
+    // console.log(`set_palette ${[i, r, g, b]}`);
     const logoColors = Module.graphics.logoColors;
     const styleElement = document.getElementById('logoColors');
     const conv = n => n * 100 / 65535;
-    const c = logoColors[i] = {r: conv(r), g: conv(g), b: conv(b)};
+    const c = logoColors[i] = { r: conv(r), g: conv(g), b: conv(b) };
     styleElement.textContent = (
-`:root {
+        `:root {
 ${logoColors.map((c, idx) => `
     --logo-color-${idx}: rgb(${c.r}%, ${c.g}%, ${c.b}%);`).join('\n')}
 }
 `);
 }
-Module.graphics.get_palette = (i, pR, pG, pB) => { 
-    console.log(`get_palette ${i}}`);
+Module.graphics.get_palette = (i, pR, pG, pB) => {
+    // console.log(`get_palette ${i}}`);
     const logoColors = Module.graphics.logoColors;
     const styleElement = document.getElementById('logoColors').style;
-        const {r, g, b} = logoColors[i] || {r: 0, g: 0, b: 0};
-        const setpv = (p, v) => {
-            setValue(p, v * 65535 / 100, 'i32');
-        }
-        setpv(pR, r);
-        setpv(pG, g);
-        setpv(pB, b);
+    const { r, g, b } = logoColors[i] || { r: 0, g: 0, b: 0 };
+    const setpv = (p, v) => {
+        setValue(p, v * 65535 / 100, 'i32');
+    }
+    setpv(pR, r);
+    setpv(pG, g);
+    setpv(pB, b);
 };
-Module.graphics.erase_screen = () => { console.log(`erase_screen ${[]}`) };
+Module.graphics.erase_screen = () => { 
+    // console.log(`erase_screen ${[]}`) 
+};
 Module.graphics.draw_turtle = (heading) => {
-    console.log(`draw_turtle ${heading}`);
+    // console.log(`draw_turtle ${heading}`);
     const turtle = document.getElementById('logoTurtle');
     turtle.setAttribute('transform', `rotate(${heading})`);
 };
 Module.graphics.get_label_size = () => {
-    console.log('get_label_size');
+    // console.log('get_label_size');
     const pen_info = Module.graphics.pen_info;
     const theLetterM = document.getElementById('theLetterM');
     const { width } = theLetterM.getBoundingClientRect();
     return { width: Math.floor(width), height: pen_info.fntsz };
 };
 Module.graphics.adjust_label_height = (h) => {
-    console.log(`adjust_label_height ${h}`);
+    // console.log(`adjust_label_height ${h}`);
     const pen_info = Module.graphics.pen_info;
     pen_info.fntsz = h;
     const theLetterM = document.getElementById('theLetterM');
@@ -331,4 +440,52 @@ Module.graphics.web_get_click_x = () => {
 }
 Module.graphics.web_get_click_y = () => {
     return Module.graphics.lastclick?.offsetY * -1 + 240 || 0;
+}
+Module.upgradeLogoElements = () => {
+    class LogoElement extends HTMLElement {
+        static observedAttributes = ['id', 'class', 'style', 'hidden', 'accesskey', 'checked', 'data-logo', 'disabled', 'draggable', 'height', 'loop', 'controls', 'name', 'open', 'readonly', 'reversed', 'rows', 'selected', 'size', 'slot', 'value', 'width', 'wrap'];
+
+        constructor() {
+            super(); // Must call first
+            // User code here
+            Module.FS_runjs_getChar_buffer_append_obj(
+                ['logoElConstructed', this.getAttribute('id')]
+            );
+        }
+
+        connectedCallback() {
+            Module.FS_runjs_getChar_buffer_append_obj(
+                ['logoElConnected', this.getAttribute('id')]
+            );
+        }
+
+        disconnectedCallback() {
+            Module.FS_runjs_getChar_buffer_append_obj(
+                ['logoElDisconnected', this.getAttribute('id')]
+            );
+        }
+
+        adoptedCallback() {
+            Module.FS_runjs_getChar_buffer_append_obj(
+                ['logoElAdopted', this.getAttribute('id')]
+            );
+        }
+
+        attributeChangedCallback(name, oldValue, newValue) {
+            Module.FS_runjs_getChar_buffer_append_obj([
+                    'logoElAttributeChanged',
+                    this.getAttribute('id'),
+                    name, oldValue, newValue
+            ]);
+        }
+    }
+    customElements.define("logo-element", LogoElement);
+}
+
+function logostop() {
+    Module.FS_runjs_getChar_buffer_append_obj('logoStop');
+}
+
+function logoRun(runliststr) {
+    Module.FS_runjs_getChar_buffer_append_str(runliststr);
 }
