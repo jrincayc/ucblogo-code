@@ -62,18 +62,18 @@ const BLON = {
                 return val.toString();
             } else if (typeof val == 'string') {
                 return `|${val
-                        .replace('\\', '\\\\')
-                        .replace('\n', '\\n')
-                        .replace('|', '\\|')
+                    .replace('\\', '\\\\')
+                    .replace('\n', '\\n')
+                    .replace('|', '\\|')
                     }|`;
             } else if (Array.isArray(val)) {
                 return addBrackets(`${val.map(v => innerHelper(v)).join(' ')
                     }`);
             } else /* object */ {
                 return addBrackets(`${Object.entries(val)
-                        .flat()
-                        .map(v => innerHelper(v))
-                        .join(' ')
+                    .flat()
+                    .map(v => innerHelper(v))
+                    .join(' ')
                     }`);
             }
         };
@@ -136,13 +136,13 @@ Module.graphics.graphics_init = () => {
         return false;
     }, { capture: true });
 };
-Module.graphics.prepare_to_draw = () => { 
+Module.graphics.prepare_to_draw = () => {
     // console.log("prepare_to_draw") 
 };
-Module.graphics.done_drawing = () => { 
+Module.graphics.done_drawing = () => {
     // console.log("done_drawing")
 };
-Module.graphics.prepare_to_exit = (v) => { 
+Module.graphics.prepare_to_exit = (v) => {
     // console.log(`prepare_to_exit(${v})`) 
 };
 Module.graphics.clear_screen = () => {
@@ -163,13 +163,13 @@ Module.graphics.clear_screen = () => {
     delete Module.graphics.mask;
     Module.graphics.masknum = 0;
 };
-Module.graphics.prepare_to_draw = () => { 
+Module.graphics.prepare_to_draw = () => {
     // console.log(`prepare_to_draw ${[]}`) 
 };
-Module.graphics.done_drawing = () => { 
+Module.graphics.done_drawing = () => {
     // console.log(`done_drawing ${[]}`) 
 };
-Module.graphics.prepare_to_exit = (v) => { 
+Module.graphics.prepare_to_exit = (v) => {
     // console.log(`prepare_to_exit ${[v]}`) 
 };
 Module.graphics.line_to = (x, y) => {
@@ -228,7 +228,7 @@ Module.graphics.set_pen_vis = (v) => {
     Module.graphics.pen_info.v = v;
     // console.log(`set_pen_vis ${[v]}`)
 };
-Module.graphics.set_pen_mode = (m) => { 
+Module.graphics.set_pen_mode = (m) => {
     // console.log(`set_pen_mode ${[m]}`) 
 };
 Module.graphics.set_pen_color = (c) => {
@@ -311,35 +311,35 @@ Module.graphics.pen_down = () => {
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
 Module.graphics.split_screen = () => { console.log(`split_screen ${[]}`) };
 Module.graphics.text_screen = () => { console.log(`text_screen ${[]}`) };
-Module.graphics.save_pen = (p) => { 
+Module.graphics.save_pen = (p) => {
     // console.log(`save_pen ${[p]}`) 
 };
-Module.graphics.restore_pen = (p) => { 
+Module.graphics.restore_pen = (p) => {
     // console.log(`restore_pen ${[p]}`) 
 };
-Module.graphics.plain_xor_pen = () => { 
+Module.graphics.plain_xor_pen = () => {
     // console.log(`plain_xor_pen ${[]}`) 
 };
 // use https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-Module.graphics.tone = (pitch, duration) => { 
+Module.graphics.tone = (pitch, duration) => {
     // console.log(`tone ${[pitch, duration]}`) 
 };
-Module.graphics.set_pen_pattern = (pat) => { 
+Module.graphics.set_pen_pattern = (pat) => {
     // console.log(`set_pen_pattern ${[pat]}`) 
 };
-Module.graphics.get_pen_pattern = (pat) => { 
+Module.graphics.get_pen_pattern = (pat) => {
     // console.log(`get_pen_pattern ${[pat]}`) 
 };
-Module.graphics.set_list_pen_pattern = (pat) => { 
+Module.graphics.set_list_pen_pattern = (pat) => {
     // console.log(`set_list_pen_pattern ${[pat]}`) 
 };
-Module.graphics.prepare_to_draw_turtle = () => { 
+Module.graphics.prepare_to_draw_turtle = () => {
     // console.log(`prepare_to_draw_turtle ${[]}`) 
 };
-Module.graphics.web_done_drawing_turtle = () => { 
+Module.graphics.web_done_drawing_turtle = () => {
     // console.log(`web_done_drawing_turtle ${[]}`) 
 };
-Module.graphics.logofill = () => { 
+Module.graphics.logofill = () => {
     // console.log(`logofill ${[]}`) 
 };
 Module.graphics.set_palette = (i, r, g, b) => {
@@ -367,7 +367,7 @@ Module.graphics.get_palette = (i, pR, pG, pB) => {
     setpv(pG, g);
     setpv(pB, b);
 };
-Module.graphics.erase_screen = () => { 
+Module.graphics.erase_screen = () => {
     // console.log(`erase_screen ${[]}`) 
 };
 Module.graphics.draw_turtle = (heading) => {
@@ -473,9 +473,9 @@ Module.upgradeLogoElements = () => {
 
         attributeChangedCallback(name, oldValue, newValue) {
             Module.FS_runjs_getChar_buffer_append_obj([
-                    'logoElAttributeChanged',
-                    this.getAttribute('id'),
-                    name, oldValue, newValue
+                'logoElAttributeChanged',
+                this.getAttribute('id'),
+                name, oldValue, newValue
             ]);
         }
     }
@@ -486,6 +486,26 @@ function logostop() {
     Module.FS_runjs_getChar_buffer_append_obj('logoStop');
 }
 
-function logoRun(runliststr) {
-    Module.FS_runjs_getChar_buffer_append_str(runliststr);
+function logoRun(runliststr, echo) {
+    if (echo) {
+        Module.FS_runjs_getChar_buffer_append_str(`pr [${runliststr}] ${runliststr}`);
+    } else {
+        Module.FS_runjs_getChar_buffer_append_str(runliststr);
+    }
 }
+
+Module.uploadFile = async file => {
+    FS.writeFile(file.name, new Uint8Array(await file.arrayBuffer()));
+};
+Module.uploadFileButtonClicked = async evt => {
+    try {
+        await Promise.all(Array.from(evt.target.files).map(async f => {
+            await Module.uploadFile(f);
+            logoRun(`load "|${f.name.replace('|', '\\|')}|`, true);
+        }));
+    }
+    catch (error) {
+        window.alert(`Error uploading files ${error.toString()}`);
+        throw error;
+    }
+};
