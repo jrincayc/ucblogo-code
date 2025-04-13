@@ -509,3 +509,14 @@ Module.uploadFileButtonClicked = async evt => {
         throw error;
     }
 };
+Module.downloadSessionClicked = async (event) => {
+    logoRun(`save "/tmp/ucblogo_session.lgo`, true);
+    await new Promise(res=>setTimeout(res,0));
+    const contents = FS.readFile('/tmp/ucblogo_session.lgo');
+    var stringContents = new TextDecoder().decode(contents);
+    const blob = new Blob(stringContents.split(''), {type: "text/plain;charset=UTF-8"});
+    let element = document.createElement('a');
+    element.setAttribute('download', 'ucblogo_session.lgo');
+    element.setAttribute('href', URL.createObjectURL(blob));
+    element.click();
+};

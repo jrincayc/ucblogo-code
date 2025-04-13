@@ -154,6 +154,23 @@
 
   <div class="flex wrap">
     <div class="flex col">
+      <div class="flex wrap">
+        <div>
+          Upload files to Logo:
+          <input type="file" multiple id="uploadFileInput" />
+          <script>
+            document.getElementById('uploadFileInput').addEventListener('change', evt => Module.uploadFileButtonClicked(evt));
+          </script>
+        </div>
+        <div>
+          <button type="button" onclick="Module.downloadSessionClicked(event)">
+            Download Logo session
+          </button>
+          <script>
+            // document.getElementById('uploadFileInput').addEventListener('change', evt=>Module.uploadFileButtonClicked(evt));
+          </script>
+        </div>
+      </div>
       <div class="flex">
         <textarea readonly class="emscripten" id="output" rows="25"></textarea>
       </div>
@@ -207,13 +224,7 @@
         </g>
       </svg>
     </div>
-    <div>
-      Upload files to Logo:
-      <input type="file" multiple id="uploadFileInput" />
-      <script>
-        document.getElementById('uploadFileInput').addEventListener('change', evt=>Module.uploadFileButtonClicked(evt));
-      </script>
-    </div>
+
     <!-- <div>
       Logo Files
       <file-list data-files="">
