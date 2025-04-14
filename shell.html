@@ -16,7 +16,7 @@
 
     textarea.emscripten {
       font-family: monospace;
-      width: 80%;
+      width: 100%;
     }
 
     div.emscripten {
@@ -85,24 +85,53 @@
       }
 
       to {
-        transform: rotate(360deg);
+        transform: rotate(360deg); 
       }
     }
 
     .flex {
       display: flex;
-      flex-grow: 1;
       justify-content: center;
+    }
+
+    .grow {
+      flex-grow: 1;
     }
 
     .wrap {
       flex-wrap: wrap;
     }
 
+    .reverse {
+      flex-wrap: wrap-reverse;
+    }
+
     .col {
       flex-direction: column;
     }
+
+    body {
+      margin: 0px;
+    }
+
+    .appContainer {
+      width: 100%;
+    }
+
+    *{
+      box-sizing: border-box;
+    }
   </style>
+  <script>
+    window.addEventListener('resize', ()=>{
+      document.getElementById('appContainer')
+      .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+    })
+    window.addEventListener('load', ()=>{
+      document.getElementById('appContainer')
+      .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+    })
+  </script>
   <style id="logoColors">
     /* LOGO Colors */
     :root {
@@ -152,38 +181,27 @@
                                                                                 document.getElementById('resize').checked)">
   </div>
 
-  <div class="flex wrap">
-    <div class="flex col">
-      <div class="flex wrap">
-        <div>
-          Upload files to Logo:
-          <input type="file" multiple id="uploadFileInput" />
-          <script>
-            document.getElementById('uploadFileInput').addEventListener('change', evt => Module.uploadFileButtonClicked(evt));
-          </script>
-        </div>
-        <div>
-          <button type="button" onclick="Module.downloadSessionClicked(event)">
-            Download Logo session
-          </button>
-          <script>
-            // document.getElementById('uploadFileInput').addEventListener('change', evt=>Module.uploadFileButtonClicked(evt));
-          </script>
-        </div>
-      </div>
+  <div id="appContainer" class="appContainer flex col">
+    <div class="flex">
       <div class="flex">
-        <textarea readonly class="emscripten" id="output" rows="25"></textarea>
+        <input type="file" multiple id="uploadFileInput" />
+        <label label-for="uploadFileInput">Upload</label>
+        <script>
+          document.getElementById('uploadFileInput').addEventListener('change', evt => Module.uploadFileButtonClicked(evt));
+        </script>
       </div>
+
       <div class="flex">
-        <form id="logoInputForm">
-          <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
-          <input type="submit" label="Run" />
-        </form>
+        <button type="button" onclick="Module.downloadSessionClicked(event)">
+          Download Logo session
+        </button>
       </div>
     </div>
-    <div class="flex">
-      <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" width="640" height="480"
-        viewBox="0 0 640 480" style="transform: scale(1, 1)" aria-labelledby="uniqueTitleID" role="group">
+
+    <div class="flex" id="svgContainer" style="max-height: 80%;">
+      <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 640 480" style="transform: scale(1, 1); display: none; width: 100%; position: static;"
+      aria-labelledby="uniqueTitleID" role="group">
         <title id="uniqueTitleID">Turtle Graphics Drawing</title>
 
         <style>
@@ -223,6 +241,21 @@
           </g>
         </g>
       </svg>
+    </div>
+
+    <div class="flex grow">
+      <div class="flex grow">
+        <textarea rows="4" readonly class="emscripten" id="output"></textarea>
+      </div>
+    </div>
+
+    <div class="flex">
+      <div class="flex grow">
+        <form id="logoInputForm" class="flex" style="width: 100%">
+          <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
+          <input type="submit" label="Run" />
+        </form>
+      </div>
     </div>
 
     <!-- <div>
