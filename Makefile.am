@@ -136,6 +136,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	--embed-file tests \
 	--embed-file web.lgo \
 	--embed-file logologo.ico \
+	--embed-file webstartup.lg@/share/ucblogo/logolib/startup.lg \
 	-s JSPI \
 	-s ASYNCIFY_STACK_SIZE=100000 \
 	-s ALLOW_MEMORY_GROWTH \
