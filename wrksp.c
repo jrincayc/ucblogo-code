@@ -1849,6 +1849,24 @@ char *fixhelp(char *ptr, int len) {
     return result;
 }
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+EM_ASYNC_JS(int, web_get_any_key, (), {
+	await new Promise((res,rej)=>{
+		window.addEventListener(
+			'keydown', 
+			event=>{
+				event.preventDefault();
+				res();
+				return false;
+			}, 
+			{once: true}
+		);
+	});
+});
+#endif
+
+
 char inops[] = "+-*/=<>";
 
 NODE *lhelp(NODE *args) {
@@ -1917,8 +1935,11 @@ NODE *lhelp(NODE *args) {
 #endif
 		ndprintf(writestream, message_texts[MORE_HELP]);
 		input_blocking++;
-#ifdef WIN32
+#if defined(WIN32)
 		    (void)reader(stdin, "");
+#elif defined(__EMSCRIPTEN__)
+			putchar('\n');
+			web_get_any_key();
 #else
 		    fgets(junk, 19, stdin);
 #endif
