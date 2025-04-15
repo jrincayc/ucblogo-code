@@ -118,6 +118,7 @@ void web_clear_screen();
 void logofill();
 void label(char *);
 void web_split_screen();
+void web_text_screen();
 void web_full_screen();
 void web_pen_down();
 void web_pen_erase();

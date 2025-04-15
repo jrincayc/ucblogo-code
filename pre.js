@@ -137,7 +137,8 @@ Module.graphics.graphics_init = () => {
     }, { capture: true });
 };
 Module.graphics.prepare_to_draw = () => {
-    // console.log("prepare_to_draw") 
+    console.log("prepare_to_draw"); 
+    Module.graphics.split_screen();
 };
 Module.graphics.done_drawing = () => {
     // console.log("done_drawing")
@@ -162,12 +163,6 @@ Module.graphics.clear_screen = () => {
     defs.replaceChildren([]);
     delete Module.graphics.mask;
     Module.graphics.masknum = 0;
-};
-Module.graphics.prepare_to_draw = () => {
-    // console.log(`prepare_to_draw ${[]}`) 
-};
-Module.graphics.done_drawing = () => {
-    // console.log(`done_drawing ${[]}`) 
 };
 Module.graphics.prepare_to_exit = (v) => {
     // console.log(`prepare_to_exit ${[v]}`) 
@@ -309,8 +304,22 @@ Module.graphics.pen_down = () => {
     }
 };
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
-Module.graphics.split_screen = () => { console.log(`split_screen ${[]}`) };
-Module.graphics.text_screen = () => { console.log(`text_screen ${[]}`) };
+Module.graphics.split_screen = () => {
+    console.log(`split_screen ${[]}`);
+    document.getElementById('logoDrawing')
+        .style.setProperty('display', 'block');
+    document.getElementById('logoInputContainer')
+        .style.setProperty('display', 'flex');
+    window.dispatchEvent(new Event('resize'));
+};
+Module.graphics.text_screen = () => {
+    console.log(`text_screen ${[]}`);
+    document.getElementById('logoDrawing')
+        .style.setProperty('display', 'none');
+    document.getElementById('logoInputContainer')
+        .style.setProperty('display', 'flex');
+    window.dispatchEvent(new Event('resize'));
+};
 Module.graphics.save_pen = (p) => {
     // console.log(`save_pen ${[p]}`) 
 };
@@ -511,10 +520,10 @@ Module.uploadFileButtonClicked = async evt => {
 };
 Module.downloadSessionClicked = async (event) => {
     logoRun(`save "/tmp/ucblogo_session.lgo`, true);
-    await new Promise(res=>setTimeout(res,0));
+    await new Promise(res => setTimeout(res, 0));
     const contents = FS.readFile('/tmp/ucblogo_session.lgo');
     var stringContents = new TextDecoder().decode(contents);
-    const blob = new Blob(stringContents.split(''), {type: "text/plain;charset=UTF-8"});
+    const blob = new Blob(stringContents.split(''), { type: "text/plain;charset=UTF-8" });
     let element = document.createElement('a');
     element.setAttribute('download', 'ucblogo_session.lgo');
     element.setAttribute('href', URL.createObjectURL(blob));

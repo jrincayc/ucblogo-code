@@ -1007,9 +1007,7 @@ NODE *llabel(NODE *arg) {
 }
 
 NODE *ltextscreen(NODE *args) {
-	// FIXME on emscripten
-	// throws a signature mismatch on NOP
-    // text_screen;
+    text_screen;
     screen_mode = SCREEN_TEXT;
     return(UNBOUND);
 }
