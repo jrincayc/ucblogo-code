@@ -1,3 +1,66 @@
+make "runjsdev "/dev/runjs
+openwrite :runjsdev
+bury "runjsdev
+
+to runjs :js
+    setwrite :runjsdev
+    pr :js
+    setwrite []
+end
+bury "runjs
+
+make "redefp "true
+bury "redefp
+
+er "fullscreen
+er "fs
+er "splitscreen
+er "ss
+er "textscreen
+er "ts
+
+to fullscreen
+pr [fullscreen not available]
+stop
+runjs "|document.getElementById('logoDrawing').style.setProperty('display', 'block') ; document.getElementById('logoInputContainer').style.setProperty('display', 'none')|
+ignore readword
+runjs "|window.dispatchEvent(new Event('resize'))|
+ignore readword
+end
+bury "fullscreen
+copydef "fs "fullscreen
+bury "fs
+
+to splitscreen
+runjs "|document.getElementById('logoDrawing').style.setProperty('display', 'block') ; document.getElementById('logoInputContainer').style.setProperty('display', 'flex')|
+ignore readword
+runjs "|window.dispatchEvent(new Event('resize'))|
+ignore readword
+end
+bury "splitscreen
+copydef "ss "splitscreen
+bury "ss
+
+to textscreen
+runjs "|document.getElementById('logoDrawing').style.setProperty('display', 'none') ; document.getElementById('logoInputContainer').style.setProperty('display', 'flex')|
+ignore readword
+runjs "|window.dispatchEvent(new Event('resize'))|
+ignore readword
+end
+bury "textscreen
+copydef "ts "textscreen
+bury "ts
+
+to setshaperendering :mode
+if not member? :mode [geometricprecision crispedges optimizespeed] [
+    (pr :mode [must be one of geometricprecision crispedges or optimizespeed])
+    stop
+]
+runjs (word "|document.getElementById('logoDrawing').style.setProperty('shape-rendering', '| :mode "|')|)
+ignore readword
+end
+bury "setshaperendering
+
 pr [Web Edition]
 pr []
 pr [Home: https://github.com/jrincayc/ucblogo-code/]
@@ -12,4 +75,12 @@ pr [To run demos:]
 pr [cslsload "mines mines]
 pr [cslsload "dotgame dotgame]
 pr [cslsload "basic basic]
- 
+pr []
+pr [To turn off anti-aliasing]
+pr "|setshaperendering "crispedges ; or "geometricprecision or "optimizespeed|
+pr []
+pr [To call JavaScript from Logo]
+pr "|runjs "\|console.log('Called JS from Logo')\||
+pr []
+pr [To call Logo from Javascript]
+pr "|logoRun('pr [Called Logo from JS]')|

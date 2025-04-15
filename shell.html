@@ -85,7 +85,7 @@
       }
 
       to {
-        transform: rotate(360deg); 
+        transform: rotate(360deg);
       }
     }
 
@@ -118,18 +118,20 @@
       width: 100%;
     }
 
-    *{
+    * {
       box-sizing: border-box;
     }
   </style>
   <script>
-    window.addEventListener('resize', ()=>{
+    window.addEventListener('resize', () => {
       document.getElementById('appContainer')
-      .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+        .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+      outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
     })
-    window.addEventListener('load', ()=>{
-      document.getElementById('appContainer')
-      .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+    window.addEventListener('load', () => {
+      window.dispatchEvent(new Event('resize'));
+      document.getElementById('logoInputText').focus();
+      document.getElementById('logoInputText').select();
     })
   </script>
   <style id="logoColors">
@@ -199,9 +201,9 @@
     </div>
 
     <div class="flex" id="svgContainer" style="max-height: 80%;">
-      <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 640 480" style="transform: scale(1, 1); display: none; width: 100%; position: static;"
-      aria-labelledby="uniqueTitleID" role="group">
+      <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"
+        style="transform: scale(1, 1); display: none; width: 100%; position: static;" aria-labelledby="uniqueTitleID"
+        role="group">
         <title id="uniqueTitleID">Turtle Graphics Drawing</title>
 
         <style>
@@ -243,18 +245,22 @@
       </svg>
     </div>
 
-    <div class="flex grow">
-      <div class="flex grow">
-        <textarea rows="4" readonly class="emscripten" id="output"></textarea>
-      </div>
-    </div>
+    <div class="flex grow" id="logoInputContainer" style="width: 100%">
+      <div class="flex col grow">
+        <div class="flex grow">
+          <textarea rows="4" readonly class="emscripten" id="output"></textarea>
+        </div>
 
-    <div class="flex">
-      <div class="flex grow">
-        <form id="logoInputForm" class="flex" style="width: 100%">
-          <input name="logoInputText" id="logoInputText" type="text" style="width: 100%">
-          <input type="submit" label="Run" />
-        </form>
+        <div class="flex">
+          <form id="logoInputForm" class="flex" style="width: 100%">
+            <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" placeholder="Enter Logo commands here"
+              onkeydown="Module.handleKeyDown(event)"
+              spellcheck="off"
+              autocomplete="off"
+            ></input>
+            <input type="submit" label="Run"></input>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -295,7 +301,8 @@
         console.log(...args);
         if (outputElement) {
           var text = args.join(' ');
-          outputElement.value += text + "\n";
+          outputElement.value += text;
+          outputElement.value += "\n";
           outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
         }
       },
@@ -345,6 +352,8 @@
         event.preventDefault();
         let line = new FormData(event.target)
           .get('logoInputText')
+        Module.commandHistory.unshift(line);
+        Module.commandHistoryIdx = -1;
         Module.print(line);
         let chars = line.split("");
         chars.push("\n");

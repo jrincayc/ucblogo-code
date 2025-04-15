@@ -92,11 +92,10 @@ void rd_print_prompt(char *str) {
 		lsplitscreen(NIL);
 #endif
 
-    ndprintf(stdout,"%t",str);
 #ifdef __EMSCRIPTEN__
-	// Emscripten output is line-buffered, so emit newline to make the prompt
-	// appear
-	putc('\n', stdout);
+	EM_ASM({outputElement.value += UTF8ToString($0)}, str);
+#else
+    ndprintf(stdout,"%t",str);
 #endif
 }
 

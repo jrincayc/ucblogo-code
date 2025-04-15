@@ -520,3 +520,26 @@ Module.downloadSessionClicked = async (event) => {
     element.setAttribute('href', URL.createObjectURL(blob));
     element.click();
 };
+Module.commandHistory = [];
+Module.commandHistoryIdx = -1;
+Module.currentCommand = null;
+Module.handleKeyDown = evt => {
+    if (evt.key == "ArrowDown") {
+        if (Module.commandHistoryIdx == -1) {
+            document.getElementById('logoInputText').value = Module.currentCommand;
+            return;
+        }
+        document.getElementById('logoInputText').value = Module.commandHistory[Module.commandHistoryIdx];
+        --Module.commandHistoryIdx;
+    }
+    else if (evt.key == "ArrowUp") {
+        if (Module.commandHistoryIdx == Module.commandHistory.length - 1) {
+            return;
+        }
+        if (Module.commandHistoryIdx == -1) {
+            Module.currentCommand = document.getElementById('logoInputText').value;
+        }
+        ++Module.commandHistoryIdx;
+        document.getElementById('logoInputText').value = Module.commandHistory[Module.commandHistoryIdx];
+    }
+};
