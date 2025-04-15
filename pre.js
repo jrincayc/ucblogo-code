@@ -137,7 +137,7 @@ Module.graphics.graphics_init = () => {
     }, { capture: true });
 };
 Module.graphics.prepare_to_draw = () => {
-    console.log("prepare_to_draw"); 
+    console.log("prepare_to_draw");
     Module.graphics.split_screen();
 };
 Module.graphics.done_drawing = () => {
@@ -526,6 +526,42 @@ Module.downloadSessionClicked = async (event) => {
     const blob = new Blob(stringContents.split(''), { type: "text/plain;charset=UTF-8" });
     let element = document.createElement('a');
     element.setAttribute('download', 'ucblogo_session.lgo');
+    element.setAttribute('href', URL.createObjectURL(blob));
+    element.click();
+};
+Module.downloadDrawingClicked = async (event) => {
+    const domparser = new DOMParser();
+    const drawing = domparser.parseFromString(
+        document.getElementById('logoDrawing').outerHTML,
+        'text/xml'
+    );
+    const logoColors = drawing.createElement('style');
+    const fixColor = (el, attr) => {
+        const val = el.style.getPropertyValue(attr);
+        const colorMatch = val.match(/var\(--logo-color-(\d+)\)/);
+        if (colorMatch) {
+            const color = colorMatch[1];
+            const c = Module.graphics.logoColors[color] || 7;
+            el.setAttribute(attr, `rgb(${c.r}%, ${c.g}%, ${c.b}%)`);
+            el.style.removeProperty(attr);
+        }
+    };
+    for (const el of drawing.querySelectorAll('*')) {
+        fixColor(el, 'stroke');
+        fixColor(el, 'fill');
+    }
+    logoColors.innerHTML = document.getElementById('logoColors').innerHTML;
+    drawing.querySelector('svg').appendChild(logoColors);
+    drawing.querySelector('style').textContent += '* { font-family: monospace }'
+    const markup =
+        '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
+        + drawing.querySelector('svg').outerHTML
+    const blob = new Blob(
+        markup.split(''),
+        { type: "image/svg+xml;charset=UTF-8" }
+    );
+    let element = document.createElement('a');
+    element.setAttribute('download', 'ucblogo_drawing.svg');
     element.setAttribute('href', URL.createObjectURL(blob));
     element.click();
 };

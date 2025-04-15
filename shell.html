@@ -7,6 +7,9 @@
   <link rel="icon" type="image/x-icon" href="logologo.ico">
   <title>UCB Logo Web Edition</title>
   <style>
+    * {
+      font-family: monospace;
+    }
     .emscripten {
       padding-right: 0;
       margin-left: auto;
@@ -161,7 +164,6 @@
   <span id="theLetterM" style="
                               position: absolute;
                               visibility: hidden;
-                              font-size: 12;
                           ">M</span>
   <figure style="overflow:visible;" id="spinner">
     <div class="spinner"></div>
@@ -196,6 +198,9 @@
       <div class="flex">
         <button type="button" onclick="Module.downloadSessionClicked(event)">
           Download Logo session
+        </button>
+        <button type="button" onclick="Module.downloadDrawingClicked(event)">
+          Download Drawing
         </button>
       </div>
     </div>
