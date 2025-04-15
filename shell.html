@@ -10,6 +10,7 @@
     * {
       font-family: monospace;
     }
+
     .emscripten {
       padding-right: 0;
       margin-left: auto;
@@ -188,8 +189,11 @@
   <div id="appContainer" class="appContainer flex col">
     <div class="flex">
       <div class="flex">
-        <input type="file" multiple id="uploadFileInput" />
-        <label label-for="uploadFileInput">Upload</label>
+        <input style="display: none" type="file" multiple id="uploadFileInput">
+        <button type="button" onclick="document.getElementById('uploadFileInput').click()">
+          <label>Upload Logo File</label>
+        </button>
+        </input>
         <script>
           document.getElementById('uploadFileInput').addEventListener('change', evt => Module.uploadFileButtonClicked(evt));
         </script>
@@ -201,6 +205,9 @@
         </button>
         <button type="button" onclick="Module.downloadDrawingClicked(event)">
           Download Drawing
+        </button>
+        <button type="button" onclick="document.getElementById('settings').open = true">
+          Settings
         </button>
       </div>
     </div>
@@ -258,11 +265,9 @@
 
         <div class="flex">
           <form id="logoInputForm" class="flex" style="width: 100%">
-            <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" placeholder="Enter Logo commands here"
-              onkeydown="Module.handleKeyDown(event)"
-              spellcheck="off"
-              autocomplete="off"
-            ></input>
+            <input name="logoInputText" id="logoInputText" type="text" style="width: 100%"
+              placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="off"
+              autocomplete="off"></input>
             <input type="submit" label="Run"></input>
           </form>
         </div>
@@ -278,6 +283,50 @@
         </template>
       </file-list>
     </div> -->
+    <dialog id="splash">
+      Splash Dialog
+    </dialog>
+    <dialog id="files">
+      File browser dialog
+    </dialog>
+    <dialog id="settings">
+      <div style="border-bottom: 1px solid black">Settings</div>
+      <ul>
+        <!-- <li>
+          <input type="checkbox">
+          <label>Expandable drawing</label>
+          </input>
+        </li>
+        <li>
+          <input type="checkbox">
+          <label>Drawing size</label>
+          </input>
+        </li> -->
+        <li>
+          <label>Shape rendering mode</label>
+          <ul>
+            <li>
+              <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
+                (anti-aliasing)</label>
+              </input>
+            </li>
+            <li>
+              <input type=radio name="shapeRenderingMode" value="crispedges"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
+                (no anti-aliasing)</label></input>
+            </li>
+            <li>
+              <input type=radio name="shapeRenderingMode" value="optimizespeed"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
+                (no anti-aliasing)</label></input>
+            </li>
+          </ul>
+          </input>
+        </li>
+      </ul>
+      <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
+    </dialog>
   </div>
 
   <script type='text/javascript'>
