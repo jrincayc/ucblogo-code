@@ -98,7 +98,19 @@ Module.FS_runjs_getChar_buffer_append_str = (str) => {
     document.dispatchEvent(new CustomEvent("getcharready"));
 }
 Module.runjs = (expr) => {
-    Module.FS_runjs_getChar_buffer_append_obj(eval(expr));
+    let r;
+    try {
+        r = eval(expr);
+    }
+    catch (error) {
+        r = error.toString();
+    }
+    if (r instanceof Promise) {
+        r.then(r2 => Module.FS_runjs_getChar_buffer_append_obj(r2)).catch(window.alert)
+    }
+    else {
+        Module.FS_runjs_getChar_buffer_append_obj(r);
+    }
 };
 Module.env = {};
 Module.graphics.pen_info = {
