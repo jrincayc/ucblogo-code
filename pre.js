@@ -127,6 +127,7 @@ Module.graphics.graphics_init = () => {
     g.clear_screen();
     g.masknum = 0;
     const ld = document.getElementById('logoDrawing');
+    Module.graphics.set_back_ground(0);
     ld.addEventListener('mousemove', (evt) => {
         g.lastmove = evt;
     });
