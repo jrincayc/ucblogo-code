@@ -171,7 +171,7 @@ Module.graphics.clear_screen = () => {
     const rect = document.createElementNS(SVG, 'rect');
     rect.setAttribute('class', 'sizer');
     newg.appendChild(rect);
-    const defs = document.getElementById('logoDefs');
+    const defs = Module.graphics.getDefs();
     defs.replaceChildren([]);
     delete Module.graphics.mask;
     Module.graphics.masknum = 0;
@@ -279,7 +279,7 @@ Module.graphics.pen_erase = () => {
     // when pen != erase start new logoDrawingElements
     const ld = document.getElementById('logoDrawing');
     const lde = document.getElementById('logoDrawingElements');
-    const defs = document.getElementById('logoDefs');
+    const defs = Module.graphics.getDefs();
     const masknum = Module.graphics.masknum;
     const g = Module.graphics;
     const mask = document.createElementNS(SVG, 'mask');
@@ -600,3 +600,23 @@ Module.handleKeyDown = evt => {
         document.getElementById('logoInputText').value = Module.commandHistory[Module.commandHistoryIdx];
     }
 };
+Module.makeSprite = name => {
+    const drawing = document.getElementById('logoDrawing');
+    const defs = Module.graphics.getSpriteDefs();
+    const drawingContainer = document.getElementById('logoDrawingContainer');
+    const sprite = document.getElementById('logoDrawingElements');
+    sprite.setAttribute('id', `logoSprite${encodeURI(name)}`);
+    defs.appendChild(sprite);
+    const newElements = document.createElementNS(SVG, 'g');
+    newElements.setAttribute('id', 'logoDrawingElements')
+    drawingContainer.appendChild(newElements);
+}
+Module.setTurtle = name => {
+    document.getElementById('logoTurtleUse').setAttribute('href', `#logoSprite${encodeURI(name)}`);
+}
+Module.graphics.getDefs = () => {
+    return document.getElementById('logoDefs');
+}
+Module.graphics.getSpriteDefs = () => {
+    return document.getElementById('logoSpriteDefs');
+}

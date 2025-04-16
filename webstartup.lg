@@ -17,6 +17,22 @@ ignore readword
 end
 bury "setshaperendering
 
+to animate
+runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
+ignore readword
+end
+bury "animate
+
+to makesprite :name
+runjs apply "word `[Module.makeSprite(' ,:name ')]
+ignore readword
+end
+
+to setturtle :spritename
+runjs apply "word `[Module.setTurtle(' ,:spritename ')]
+ignore readword
+end
+
 pr [Web Edition]
 pr []
 pr [Home: https://github.com/jrincayc/ucblogo-code/]

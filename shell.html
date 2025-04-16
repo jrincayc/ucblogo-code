@@ -238,6 +238,13 @@
           }
         </style>
         <defs id="logoDefs"></defs>
+        <defs id="logoSpriteDefs">
+            <g id="logoSpriteTurtle">
+              <line x1="0" y1="18" x2="12" y2="18"></line>
+              <line x1="0" y1="18" x2="6" y2="0"></line>
+              <line x1="12" y1="18" x2="6" y2="0"></line>
+            </g>
+        </defs>
         <g id="logoDrawingContainer">
           <rect id="logoBackground" style="height: 100%; width: 100%"></rect>
           <g id="logoDrawingElements">
@@ -246,12 +253,7 @@
         </g>
         <g id="logoTurtleTranslated" transform="translate(314, 231)" style="stroke: black">
           <g id="logoTurtle">
-            <!-- <g transform="rotate(90 24 24)">
-            <text style="font-size: 48px" >🐢</text>
-          </g> -->
-            <line x1="0" y1="18" x2="12" y2="18"></line>
-            <line x1="0" y1="18" x2="6" y2="0"></line>
-            <line x1="12" y1="18" x2="6" y2="0"></line>
+            <use id="logoTurtleUse" href="#logoSpriteTurtle" />
           </g>
         </g>
       </svg>
