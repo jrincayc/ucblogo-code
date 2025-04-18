@@ -436,7 +436,16 @@
         document.getElementById('logoInputText').value = "";
         document.dispatchEvent(new CustomEvent("getcharready"));
         return false;
-      })
+      });
+      screen.orientation.addEventListener("change", (event)=>{
+        if (event.target.type.startsWith('landscape')) {
+          const logoDrawing = document.getElementById('logoDrawing');
+          logoDrawing.requestFullscreen();
+        }
+        else {
+          document.exitFullscreen();
+        }
+      });
     });
 
   </script>
