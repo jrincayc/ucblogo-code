@@ -117,6 +117,8 @@
 
     body {
       margin: 0px;
+      padding: 8px;
+      padding-bottom: 16px;
     }
 
     .appContainer {
@@ -126,11 +128,15 @@
     * {
       box-sizing: border-box;
     }
+
+    svg {
+      will-change: transform;
+    }
   </style>
   <script>
     window.addEventListener('resize', () => {
       document.getElementById('appContainer')
-        .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight}px;`)
+        .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight - 8 - 16}px;`)
       outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
     })
     window.addEventListener('load', () => {
@@ -237,14 +243,25 @@
             height: 100%;
             width: 100%;
           }
+
+          #logoTurtle, #logoTurtleTranslated {
+            will-change: transform;
+          }
         </style>
         <defs id="logoDefs"></defs>
         <defs id="logoSpriteDefs">
-            <g id="logoSpriteTurtle">
+          <symbol id="logoSpriteTurtle" height="18" width="12" viewBox="0 0 12 18" style="overflow: visible">
+            <g style="transform: translate(-50%, -50%)">
               <line x1="0" y1="18" x2="12" y2="18"></line>
               <line x1="0" y1="18" x2="6" y2="0"></line>
               <line x1="12" y1="18" x2="6" y2="0"></line>
             </g>
+          </symbol>
+          <symbol id="logoSpriteUnicodeTurtle" height="32px" width="32px" viewbox="0 0 32 32">
+            <g style="transform: translate(-50%, -50%)">
+              <text font-size="32px">🐢</text>
+            </g>
+          </symbol>
         </defs>
         <g id="logoDrawingContainer">
           <rect id="logoBackground" style="height: 100%; width: 100%"></rect>

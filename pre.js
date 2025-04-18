@@ -104,6 +104,7 @@ Module.runjs = (expr) => {
     }
     catch (error) {
         r = error.toString();
+        window.alert(r);
     }
     if (r instanceof Promise) {
         r.then(r2 => Module.FS_runjs_getChar_buffer_append_obj(r2)).catch(window.alert)
@@ -165,7 +166,7 @@ Module.graphics.clear_screen = () => {
     if (typeof document === 'undefined') return;
     const dr = document.getElementById('logoDrawingContainer');
     const g = document.getElementById('logoDrawingElements');
-    dr.removeChild(g);
+    if (g) dr.removeChild(g);
     const newg = document.createElementNS(SVG, 'g')
     newg.id = 'logoDrawingElements';
     dr.appendChild(newg);
@@ -207,7 +208,7 @@ Module.graphics.line_to = (x, y) => {
     pen_info.x = x;
     pen_info.y = y;
     const turtle = document.getElementById('logoTurtleTranslated');
-    turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
+    turtle.setAttribute('transform', `translate(${x}, ${y})`);
 };
 Module.graphics.move_to = (x, y) => {
     if (typeof document === 'undefined') return;
@@ -215,7 +216,7 @@ Module.graphics.move_to = (x, y) => {
     Module.graphics.pen_info.x = x;
     Module.graphics.pen_info.y = y;
     const turtle = document.getElementById('logoTurtleTranslated');
-    turtle.setAttribute('transform', `translate(${x - 6}, ${y - 9})`);
+    turtle.setAttribute('transform', `translate(${x}, ${y})`);
 };
 Module.graphics.label = (s) => {
     if (typeof document === 'undefined') return;
@@ -602,15 +603,23 @@ Module.handleKeyDown = evt => {
     }
 };
 Module.makeSprite = name => {
+    debugger;
     const drawing = document.getElementById('logoDrawing');
     const defs = Module.graphics.getSpriteDefs();
     const drawingContainer = document.getElementById('logoDrawingContainer');
-    const sprite = document.getElementById('logoDrawingElements');
+    const elements = document.getElementById('logoDrawingElements');
+    const sprite = document.createElementNS(SVG, 'symbol');
     sprite.setAttribute('id', `logoSprite${encodeURI(name)}`);
+    sprite.setAttribute('width', "640");
+    sprite.setAttribute('height', "480");
+    sprite.setAttribute('viewBox', "0 0 640 480");
+    sprite.setAttribute('style', '');
+    sprite.style.setProperty('overflow', 'visible');
+    elements.style.setProperty('transform', 'translate(-50%, -50%)')
+    elements.setAttribute('id', '');
     defs.appendChild(sprite);
-    const newElements = document.createElementNS(SVG, 'g');
-    newElements.setAttribute('id', 'logoDrawingElements')
-    drawingContainer.appendChild(newElements);
+    sprite.appendChild(elements);
+    Module.graphics.clear_screen();
 }
 Module.setTurtle = name => {
     document.getElementById('logoTurtleUse').setAttribute('href', `#logoSprite${encodeURI(name)}`);
