@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="interactive-widget=resizes-content,   width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/x-icon" href="logologo.ico">
   <title>UCB Logo Web Edition</title>
   <style>
@@ -459,6 +460,15 @@
         }
       });
     });
+
+    // Google workbox service worker
+    // For offline support
+    if ('serviceWorker' in navigator) {
+      // Register a service worker after the load event
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
 
   </script>
   {{{ SCRIPT }}}
