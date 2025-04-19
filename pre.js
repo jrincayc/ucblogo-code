@@ -583,23 +583,29 @@ Module.commandHistory = [];
 Module.commandHistoryIdx = -1;
 Module.currentCommand = null;
 Module.handleKeyDown = evt => {
+    const inputText = document.getElementById('logoInputText');
     if (evt.key == "ArrowDown") {
-        if (Module.commandHistoryIdx == -1) {
-            document.getElementById('logoInputText').value = Module.currentCommand;
-            return;
-        }
-        document.getElementById('logoInputText').value = Module.commandHistory[Module.commandHistoryIdx];
+        evt.preventDefault();
+        if (Module.commandHistoryIdx == -1 )
+            return false;
         --Module.commandHistoryIdx;
+        if (Module.commandHistoryIdx == -1 ) 
+            inputText.value = Module.currentCommand;
+        else
+            inputText.value = Module.commandHistory[Module.commandHistoryIdx];
+            inputText.setSelectionRange(inputText.value.length, inputText.value.length);
+        return false;
     }
     else if (evt.key == "ArrowUp") {
-        if (Module.commandHistoryIdx == Module.commandHistory.length - 1) {
-            return;
-        }
-        if (Module.commandHistoryIdx == -1) {
-            Module.currentCommand = document.getElementById('logoInputText').value;
-        }
+        evt.preventDefault();
+        if (Module.commandHistoryIdx == Module.commandHistory.length - 1)
+            return false;
+        if (Module.commandHistoryIdx == -1)
+            Module.currentCommand = inputText.value;
         ++Module.commandHistoryIdx;
-        document.getElementById('logoInputText').value = Module.commandHistory[Module.commandHistoryIdx];
+        inputText.value = Module.commandHistory[Module.commandHistoryIdx];
+        inputText.setSelectionRange(inputText.value.length, inputText.value.length);
+        return false;
     }
 };
 Module.makeSprite = name => {
@@ -630,3 +636,13 @@ Module.graphics.getDefs = () => {
 Module.graphics.getSpriteDefs = () => {
     return document.getElementById('logoSpriteDefs');
 }
+Module.handleCommandHistorySelectChanged = (event) => {
+    const inputText = document.getElementById('logoInputText');
+    if (Module.commandHistoryIdx == -1) {
+        Module.currentCommand = inputText.value;
+    }
+    Module.commandHistoryIdx = parseInt(document.getElementById('commandHistorySelect').value, 10);
+    inputText.value = Module.commandHistory[Module.commandHistoryIdx];
+    inputText.focus();
+    document.getElementById('commandHistorySelect').value = '';
+};
