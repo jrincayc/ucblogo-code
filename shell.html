@@ -135,6 +135,18 @@
     }
   </style>
   <script>
+    if (!WebAssembly.promising) {
+      document.addEventListener('DOMContentLoaded', (event) => {
+        event.preventDefault();
+        document.querySelector('body').innerHTML = `
+          <h3>You must enable JSPI in chrome://flags to use UCB Logo Web Edition</h3>
+          <img src="chromeflagsjspi.png"></img>
+        `;
+        window.alert("You must enable JSPI in chrome://flags to use Logo");
+        throw new Error("Fatal: JSPI not available");
+        return false;
+      }, { capture: true })
+    }
     window.addEventListener('resize', () => {
       document.getElementById('appContainer')
         .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight - 8 - 16}px;`)
@@ -286,14 +298,14 @@
 
         <div class="flex">
           <form id="logoInputForm" class="flex" style="width: 100%">
-            <input name="logoInputText" id="logoInputText" type="text" style="width: 100%"
-              enterkeyhint="enter"	
+            <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" enterkeyhint="enter"
               placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="off"
               autocomplete="off"></input>
             <select id="commandHistorySelect" style="max-width: 18px;"
               oninput="Module.handleCommandHistorySelectChanged(event)">
             </select>
-            <input type="submit" value="Run" onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
+            <input type="submit" value="Run"
+              onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
           </form>
         </div>
       </div>
