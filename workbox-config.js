@@ -8,5 +8,11 @@ module.exports = {
 		/^utm_/,
 		/^fbclid$/
 	],
-	navigateFallback: '/ucblogo-code/ucblogo.html'
+	navigateFallback: '/ucblogo-code/ucblogo.html',
+	runtimeCaching: [
+		{
+			handler: 'NetworkFirst',
+			urlPattern: '*'
+		}
+	]
 };
