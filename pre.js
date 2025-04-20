@@ -122,6 +122,8 @@ Module.graphics.pen_info = {
     fntsz: 12,
     mode: 'normal',
 };
+Module.graphics.lastclick = {offsetX: 0, offsetY: 0, button: 0};
+Module.graphics.lastmove = {offsetX: 0, offsetY: 0, button: 0};
 Module.graphics.graphics_init = () => {
     const g = Module.graphics;
     // console.log("graphics_init");
@@ -133,13 +135,18 @@ Module.graphics.graphics_init = () => {
         g.lastmove = evt;
     });
     Module.graphics.buttonp = false;
-    ld.addEventListener('mousedown', (evt) => {
+    const handleMouseDown = (evt) => {
         g.lastclick = evt;
         Module.graphics.buttonp = true;
         Module.ccall('mouse_down', 'void', [], []);
         evt.preventDefault();
         return false;
-    }, { capture: true });
+    };
+    // if (document.ontouchstart) {
+        // ld.addEventListener('touchstart', handleMouseDown, { capture: true });
+    // } else {
+        ld.addEventListener('mousedown', handleMouseDown, { capture: true });
+    // }
     ld.addEventListener('mouseup', (evt) => {
         Module.graphics.buttonp = false;
         evt.preventDefault();
@@ -452,17 +459,29 @@ Module.graphics.web_get_button = () => {
     }
     return 0;
 }
+Module.graphics.screenToSVGCoords = (screenX, screenY) => {
+    const ld = document.getElementById('logoDrawing');
+    const p = ld.createSVGPoint();
+    p.x = screenX;
+    p.y = screenY;
+    const svgp = p.matrixTransform(ld.getScreenCTM().inverse());
+    return svgp;
+}
 Module.graphics.web_get_mouse_x = () => {
-    return Module.graphics.lastmove?.offsetX - 320 || 0;
+    const {offsetX, offsetY} = Module.graphics.lastmove;
+    return Module.graphics.screenToSVGCoords(clientX, clientY).x - 320;
 }
 Module.graphics.web_get_mouse_y = () => {
-    return Module.graphics.lastmove?.offsetY * -1 + 240 || 0;
+    const {clientX, clientY} = Module.graphics.lastmove;
+    return Module.graphics.screenToSVGCoords(clientX, clientY).y * -1 + 240;
 }
 Module.graphics.web_get_click_x = () => {
-    return Module.graphics.lastclick?.offsetX - 320 || 0;
+    const {clientX, clientY} = Module.graphics.lastclick;
+    return Module.graphics.screenToSVGCoords(clientX, clientY).x - 320;
 }
 Module.graphics.web_get_click_y = () => {
-    return Module.graphics.lastclick?.offsetY * -1 + 240 || 0;
+    const {clientX, clientY} = Module.graphics.lastclick;
+    return Module.graphics.screenToSVGCoords(clientX, clientY).y * -1 + 240;
 }
 Module.upgradeLogoElements = () => {
     class LogoElement extends HTMLElement {
@@ -586,14 +605,14 @@ Module.handleKeyDown = evt => {
     const inputText = document.getElementById('logoInputText');
     if (evt.key == "ArrowDown") {
         evt.preventDefault();
-        if (Module.commandHistoryIdx == -1 )
+        if (Module.commandHistoryIdx == -1)
             return false;
         --Module.commandHistoryIdx;
-        if (Module.commandHistoryIdx == -1 ) 
+        if (Module.commandHistoryIdx == -1)
             inputText.value = Module.currentCommand;
         else
             inputText.value = Module.commandHistory[Module.commandHistoryIdx];
-            inputText.setSelectionRange(inputText.value.length, inputText.value.length);
+        inputText.setSelectionRange(inputText.value.length, inputText.value.length);
         return false;
     }
     else if (evt.key == "ArrowUp") {
