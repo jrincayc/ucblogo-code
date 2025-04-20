@@ -158,7 +158,7 @@ Module.graphics.graphics_init = () => {
     }, { capture: true });
 };
 Module.graphics.prepare_to_draw = () => {
-    console.log("prepare_to_draw");
+    // console.log("prepare_to_draw");
     Module.graphics.split_screen();
 };
 Module.graphics.done_drawing = () => {
@@ -326,7 +326,9 @@ Module.graphics.pen_down = () => {
 };
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
 Module.graphics.split_screen = () => {
-    console.log(`split_screen ${[]}`);
+    if (Module.graphics.mode == 'split_screen') return;
+    Module.graphics.mode = 'split_screen';
+    // console.log(`split_screen ${[]}`);
     document.getElementById('logoDrawing')
         .style.setProperty('display', 'block');
     document.getElementById('logoInputContainer')
@@ -334,6 +336,8 @@ Module.graphics.split_screen = () => {
     window.dispatchEvent(new Event('resize'));
 };
 Module.graphics.text_screen = () => {
+    if (Module.graphics.mode == 'text_screen') return;
+    Module.graphics.mode = 'text_screen';
     console.log(`text_screen ${[]}`);
     document.getElementById('logoDrawing')
         .style.setProperty('display', 'none');
