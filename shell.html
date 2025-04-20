@@ -143,7 +143,6 @@
     window.addEventListener('load', () => {
       window.dispatchEvent(new Event('resize'));
       document.getElementById('logoInputText').focus();
-      document.getElementById('logoInputText').select();
     })
   </script>
   <style id="logoColors">
@@ -288,12 +287,13 @@
         <div class="flex">
           <form id="logoInputForm" class="flex" style="width: 100%">
             <input name="logoInputText" id="logoInputText" type="text" style="width: 100%"
+              enterkeyhint="enter"	
               placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="off"
               autocomplete="off"></input>
             <select id="commandHistorySelect" style="max-width: 18px;"
               oninput="Module.handleCommandHistorySelectChanged(event)">
             </select>
-            <input type="submit" value="Run"></input>
+            <input type="submit" value="Run" onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
           </form>
         </div>
       </div>
@@ -429,6 +429,7 @@
       const inputForm = document.getElementById('logoInputForm');
       inputForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        document.getElementById('logoInputText').focus();
         let line = new FormData(event.target)
           .get('logoInputText')
         Module.commandHistory.unshift(line);
