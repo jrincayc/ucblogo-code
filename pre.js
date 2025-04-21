@@ -104,6 +104,7 @@ Module.runjs = (expr) => {
     }
     catch (error) {
         r = error.toString();
+        console.error(error);
         window.alert(r);
     }
     if (r instanceof Promise) {

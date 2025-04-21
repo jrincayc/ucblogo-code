@@ -1,9 +1,11 @@
-openwrite "/dev/runjs
-
 to runjs :js
+    localmake "oldwriter writer
+    openwrite "/dev/runjs
     setwrite "/dev/runjs
     pr :js
-    setwrite []
+    close "/dev/runjs
+    setwrite :oldwriter
+    op readword
 end
 bury "runjs
 
@@ -12,25 +14,21 @@ if not member? :mode [geometricprecision crispedges optimizespeed] [
     (pr :mode [must be one of geometricprecision crispedges or optimizespeed])
     stop
 ]
-runjs (word "|document.getElementById('logoDrawing').style.setProperty('shape-rendering', '| :mode "|')|)
-ignore readword
+ignore runjs (word "|document.getElementById('logoDrawing').style.setProperty('shape-rendering', '| :mode "|')|)
 end
 bury "setshaperendering
 
 to animate
-runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
-ignore readword
+ignore runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
 end
 bury "animate
 
 to makesprite :name
-runjs apply "word `[Module.makeSprite(' ,:name ')]
-ignore readword
+ignore runjs apply "word `[Module.makeSprite(' ,:name ')]
 end
 
 to setturtle :spritename
-runjs apply "word `[Module.setTurtle(' ,:spritename ')]
-ignore readword
+ignore runjs apply "word `[Module.setTurtle(' ,:spritename ')]
 end
 
 pr [Web Edition]
