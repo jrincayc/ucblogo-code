@@ -123,8 +123,8 @@ Module.graphics.pen_info = {
     fntsz: 12,
     mode: 'normal',
 };
-Module.graphics.lastclick = {offsetX: 0, offsetY: 0, button: 0};
-Module.graphics.lastmove = {offsetX: 0, offsetY: 0, button: 0};
+Module.graphics.lastclick = { offsetX: 0, offsetY: 0, button: 0 };
+Module.graphics.lastmove = { offsetX: 0, offsetY: 0, button: 0 };
 Module.graphics.graphics_init = () => {
     const g = Module.graphics;
     // console.log("graphics_init");
@@ -144,9 +144,9 @@ Module.graphics.graphics_init = () => {
         return false;
     };
     // if (document.ontouchstart) {
-        // ld.addEventListener('touchstart', handleMouseDown, { capture: true });
+    // ld.addEventListener('touchstart', handleMouseDown, { capture: true });
     // } else {
-        ld.addEventListener('mousedown', handleMouseDown, { capture: true });
+    ld.addEventListener('mousedown', handleMouseDown, { capture: true });
     // }
     ld.addEventListener('mouseup', (evt) => {
         Module.graphics.buttonp = false;
@@ -473,19 +473,19 @@ Module.graphics.screenToSVGCoords = (screenX, screenY) => {
     return svgp;
 }
 Module.graphics.web_get_mouse_x = () => {
-    const {offsetX, offsetY} = Module.graphics.lastmove;
+    const { offsetX, offsetY } = Module.graphics.lastmove;
     return Module.graphics.screenToSVGCoords(clientX, clientY).x - 320;
 }
 Module.graphics.web_get_mouse_y = () => {
-    const {clientX, clientY} = Module.graphics.lastmove;
+    const { clientX, clientY } = Module.graphics.lastmove;
     return Module.graphics.screenToSVGCoords(clientX, clientY).y * -1 + 240;
 }
 Module.graphics.web_get_click_x = () => {
-    const {clientX, clientY} = Module.graphics.lastclick;
+    const { clientX, clientY } = Module.graphics.lastclick;
     return Module.graphics.screenToSVGCoords(clientX, clientY).x - 320;
 }
 Module.graphics.web_get_click_y = () => {
-    const {clientX, clientY} = Module.graphics.lastclick;
+    const { clientX, clientY } = Module.graphics.lastclick;
     return Module.graphics.screenToSVGCoords(clientX, clientY).y * -1 + 240;
 }
 Module.upgradeLogoElements = () => {
@@ -670,3 +670,40 @@ Module.handleCommandHistorySelectChanged = (event) => {
     inputText.focus();
     document.getElementById('commandHistorySelect').value = '';
 };
+Module.editor = {};
+Module.editor.applyClicked = (event) => {
+    FS.writeFile(Module.editor.filepath, document.getElementById('editorTextArea').value);
+    document.getElementById('editorDialog').close();
+    document.getElementById('editorDialog').dispatchEvent(new CustomEvent('close'));
+};
+Module.editor.discardClicked = (event) => {
+    document.getElementById('editorDialog').close();
+    document.getElementById('editorTextArea').value = '';
+    document.getElementById('editorDialog').dispatchEvent(new CustomEvent('close'));
+};
+Module.editor.edit = async (filepath) => {
+    return new Promise((res, rej) => {
+        let contents = '';
+        Module.editor.filepath = filepath;
+        try {
+            try {
+                contents = UTF8ArrayToString(FS.readFile(filepath));
+            }
+            catch (error) {
+                if (error.errno == 44) {
+                    // file not found
+                    console.warn(`${filepath} does not exist, will attempt to create it`)
+                }
+                else {
+                    rej(err);
+                }
+            }
+            document.getElementById('editorTextArea').value = contents;
+            document.getElementById('editorDialog').showModal();
+            document.getElementById('editorDialog').addEventListener('close', res, { once: true });
+        }
+        catch (err) {
+            rej(err);
+        }
+    })
+}

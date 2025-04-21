@@ -310,8 +310,9 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- <div>
+  <!-- <div>
       Logo Files
       <file-list data-files="">
         <li>No Files Uploaded Yet</li>
@@ -320,16 +321,16 @@
         </template>
       </file-list>
     </div> -->
-    <dialog id="splash">
-      Splash Dialog
-    </dialog>
-    <dialog id="files">
-      File browser dialog
-    </dialog>
-    <dialog id="settings">
-      <div style="border-bottom: 1px solid black">Settings</div>
-      <ul>
-        <!-- <li>
+  <dialog id="splash">
+    Splash Dialog
+  </dialog>
+  <dialog id="files">
+    File browser dialog
+  </dialog>
+  <dialog id="settings">
+    <div style="border-bottom: 1px solid black">Settings</div>
+    <ul>
+      <!-- <li>
           <input type="checkbox">
           <label>Expandable drawing</label>
           </input>
@@ -339,32 +340,63 @@
           <label>Drawing size</label>
           </input>
         </li> -->
-        <li>
-          <label>Shape rendering mode</label>
-          <ul>
-            <li>
-              <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
-                (anti-aliasing)</label>
-              </input>
-            </li>
-            <li>
-              <input type=radio name="shapeRenderingMode" value="crispedges"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
-                (no anti-aliasing)</label></input>
-            </li>
-            <li>
-              <input type=radio name="shapeRenderingMode" value="optimizespeed"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
-                (no anti-aliasing)</label></input>
-            </li>
-          </ul>
-          </input>
-        </li>
-      </ul>
-      <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
-    </dialog>
-  </div>
+      <li>
+        <label>Shape rendering mode</label>
+        <ul>
+          <li>
+            <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
+              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
+              (anti-aliasing)</label>
+            </input>
+          </li>
+          <li>
+            <input type=radio name="shapeRenderingMode" value="crispedges"
+              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
+              (no anti-aliasing)</label></input>
+          </li>
+          <li>
+            <input type=radio name="shapeRenderingMode" value="optimizespeed"
+              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
+              (no anti-aliasing)</label></input>
+          </li>
+        </ul>
+        </input>
+      </li>
+    </ul>
+    <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
+  </dialog>
+  <dialog id="editorDialog">
+    <div class="flex col">
+      <div class="flex grow">
+        <textarea id="editorTextArea"></textarea>
+      </div>
+      <div class="flex">
+        <button type="button" id="editorApplyButton" onclick="Module.editor.applyClicked(event)">
+          <label>Apply</label>
+        </button>
+        <button type="button" id="editorDiscardButton" onclick="Module.editor.discardClicked(event)">
+          <label>Discard</label>
+        </button>
+      </div>
+    </div>
+    <style>
+      #editorDialog {
+        height: 100%;
+        width: 100%;
+        padding: 0px;
+      }
+
+      #editorDialog>div {
+        height: 100%;
+        width: 100%;
+      }
+
+      #editorTextArea {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </dialog>
 
   <script type='text/javascript'>
     var statusElement = document.getElementById('status');
