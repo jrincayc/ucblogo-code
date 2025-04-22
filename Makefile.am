@@ -132,7 +132,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
 	ucblogo-webgraphics.o \
 	--pre-js pre.js \
-	--embed-file dist/share@/share \
+	--embed-file dist/share/ucblogo@/share/ucblogo \
 	--embed-file tests \
 	--embed-file web.lgo \
 	--embed-file logologo.ico \
@@ -141,7 +141,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	-s ASYNCIFY_STACK_SIZE=100000 \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
-	-s ENVIRONMENT=web,webview,worker,node,shell \
+	-s ENVIRONMENT=web,node \
 	-s STRICT_JS \
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
