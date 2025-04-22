@@ -5,12 +5,28 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="interactive-widget=resizes-content,   width=device-width, initial-scale=1" />
+  <!-- requires CORS -->
+  <link rel="preload" href="ucblogo.wasm" as="fetch" />
+  <link rel="preload" href="ucblogo.js" as="script" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/x-icon" href="logologo.ico">
   <title>UCB Logo Web Edition</title>
   <style>
     * {
-      font-family: monospace;
+      font-family: ui-monospace, 
+             Menlo, Monaco, 
+             "Cascadia Mono", "Segoe UI Mono", 
+             "Roboto Mono", 
+             "Oxygen Mono", 
+             "Ubuntu Mono", 
+             "Source Code Pro",
+             "Fira Mono", 
+             "Droid Sans Mono", 
+             "Consolas", "Courier New", monospace;
+    }
+
+    textarea {
+      resize: none;
     }
 
     .emscripten {
