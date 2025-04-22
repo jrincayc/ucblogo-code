@@ -17,5 +17,5 @@
             "sizes": "512x512"
         }
     ],
-    "display": "fullscreen"
+    "display": "standalone"
 }
