@@ -1,7 +1,10 @@
 module.exports = {
+	maximumFileSizeToCacheInBytes: 10000000000,
 	globDirectory: './',
 	globPatterns: [
-		'*.{wasm,html,png,ico,json,js}'
+		'ucblogo.html',
+		'ucblogo.js',
+		'ucblogo.wasm',
 	],
 	swDest: 'sw.js',
 	ignoreURLParametersMatching: [
@@ -12,7 +15,10 @@ module.exports = {
 	runtimeCaching: [
 		{
 			handler: 'NetworkFirst',
-			urlPattern: '*'
+			urlPattern: /.*/
 		}
-	]
+	],
+	modifyURLPrefix: {
+		'': '/ucblogo-code/',
+	}
 };
