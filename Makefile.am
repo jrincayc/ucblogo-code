@@ -147,7 +147,8 @@ ucblogo.html: ucblogo shell.html pre.js
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
 	--shell-file shell.html \
 	-sEXPORTED_RUNTIME_METHODS=ccall \
-	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact
+	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact \
+	 -lidbfs.js
 
 # ucblogo-obj.o 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES

@@ -1,5 +1,36 @@
 const SVG = 'http://www.w3.org/2000/svg';
 
+Module.onRuntimeInitialized = () => {
+    // Mount IDBFS
+    FS.mkdir('/d');
+    FS.mount(IDBFS, {autoPersist: true}, '/d');
+    FS.chdir('/d');
+
+    // Load existing data from IDBFS (if any)
+    FS.syncfs(true, function (err) {
+        if (err) {
+            console.error("Error syncing from IDBFS:", err);
+        } else {
+            console.log("IDBFS synced (read).");
+        }
+    });
+}
+
+// staticInit() {
+//     FS.nameTable = new Array(4096);
+
+//     FS.mount(MEMFS, {}, '/');
+
+//     FS.createDefaultDirectories();
+//     FS.createDefaultDevices();
+//     FS.createSpecialDirectories();
+
+//     FS.filesystems = {
+//       'MEMFS': MEMFS,
+//     };
+//   },
+
+
 Module.graphics = {};
 
 Module.graphics.logoColors = [
