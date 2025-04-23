@@ -134,7 +134,7 @@
     body {
       margin: 0px;
       padding: 8px;
-      padding-bottom: 16px;
+      /* padding-bottom: 16px; */
     }
 
     .appContainer {
@@ -223,7 +223,7 @@
   <div id="appContainer" class="appContainer flex col">
     <div class="flex">
       <div class="flex">
-        <input style="display: none" type="file" multiple id="uploadFileInput">
+        <input multiple id="uploadFileInput" style="display: none" type="file" accept=".lg,.lgo,.logo">
         <button type="button" onclick="document.getElementById('uploadFileInput').click()">
           <label>Upload Logo File</label>
         </button>
@@ -325,43 +325,49 @@
         </div>
 
         <div class="flex">
-          <button type="button" onmousedown="Module.softKeyDown(event, '\x22')">
+          <style>
+            .softkey {
+              height: 42px;
+              width: 42px;
+            }
+          </style>
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\x22')">
             <label>"</label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, ':')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ':')">
             <label>:</label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '[')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '[')">
             <label>[</label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, ']')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ']')">
             <label>]<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '{')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '{')">
             <label>{<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '}')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '}')">
             <label>}<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '<')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '<')">
             <label>&lt;<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '>')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '>')">
             <label>&gt;<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '|')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '|')">
             <label>|<label>
           </button>
 
-          <button type="button" onmousedown="Module.softKeyDown(event, '`')">
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '`')">
             <label>`<label>
           </button>
         </div>
@@ -439,9 +445,12 @@
     </div>
     <style>
       #editorDialog {
-        height: 100%;
-        width: 100%;
+        height: 100vh;
+        width: 100vw;
         padding: 0px;
+        padding: 8px;
+        max-width: none;
+        max-height: none;
       }
 
       #editorDialog>div {
