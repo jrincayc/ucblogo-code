@@ -741,10 +741,13 @@ Module.editor.edit = async (filepath) => {
 Module.softKeyDown = (event, key) => {
     event.preventDefault(); // Stop button from taking focus
     const inputtext = document.getElementById('logoInputText');
-    const {selectionStart} = inputtext;
-    inputtext.value = inputtext.value.slice(0, selectionStart)
-        + key + inputtext.value.slice(selectionStart, inputtext.value.length);
-    inputtext.focus();
-    inputtext.setSelectionRange(selectionStart+1, selectionStart+1);
+    const editor = document.getElementById('editorDialog');
+    const editortext = document.getElementById('editorTextArea');
+    const targettext = editor.open ? editortext : inputtext;
+    const {selectionStart} = targettext;
+    targettext.value = targettext.value.slice(0, selectionStart)
+        + key + targettext.value.slice(selectionStart, targettext.value.length);
+    targettext.focus();
+    targettext.setSelectionRange(selectionStart+1, selectionStart+1);
     return false;
 }
