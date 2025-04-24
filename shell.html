@@ -6,22 +6,27 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="interactive-widget=resizes-content,   width=device-width, initial-scale=1" />
   <link rel="preload" href="ucblogo.js" as="script" />
-  <link rel="preload" href="ucblogo.wasm" as="fetch" crossorigin/>
+  <link rel="preload" href="ucblogo.wasm" as="fetch" crossorigin />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/x-icon" href="logologo.ico">
   <title>UCB Logo Web Edition</title>
+  <style id="logoFontSize">
+    * {
+      font-size: medium;
+    }
+  </style>
   <style>
     * {
-      font-family: ui-monospace, 
-             Menlo, Monaco, 
-             "Cascadia Mono", "Segoe UI Mono", 
-             "Roboto Mono", 
-             "Oxygen Mono", 
-             "Ubuntu Mono", 
-             "Source Code Pro",
-             "Fira Mono", 
-             "Droid Sans Mono", 
-             "Consolas", "Courier New", monospace;
+      font-family: ui-monospace,
+        Menlo, Monaco,
+        "Cascadia Mono", "Segoe UI Mono",
+        "Roboto Mono",
+        "Oxygen Mono",
+        "Ubuntu Mono",
+        "Source Code Pro",
+        "Fira Mono",
+        "Droid Sans Mono",
+        "Consolas", "Courier New", monospace;
     }
 
     textarea {
@@ -36,7 +41,6 @@
     }
 
     textarea.emscripten {
-      font-family: monospace;
       width: 100%;
     }
 
@@ -193,6 +197,7 @@
       --logo-color-15: rgb(71.4854657816434%, 71.4854657816434%, 71.4854657816434%);
     }
   </style>
+
 </head>
 
 <body>
@@ -374,9 +379,8 @@
 
       </div>
     </div>
-  </div>
 
-  <!-- <div>
+    <!-- <div>
       Logo Files
       <file-list data-files="">
         <li>No Files Uploaded Yet</li>
@@ -385,16 +389,16 @@
         </template>
       </file-list>
     </div> -->
-  <dialog id="splash">
-    Splash Dialog
-  </dialog>
-  <dialog id="files">
-    File browser dialog
-  </dialog>
-  <dialog id="settings">
-    <div style="border-bottom: 1px solid black">Settings</div>
-    <ul>
-      <!-- <li>
+    <dialog id="splash">
+      Splash Dialog
+    </dialog>
+    <dialog id="files">
+      File browser dialog
+    </dialog>
+    <dialog id="settings">
+      <div style="border-bottom: 1px solid black">Settings</div>
+      <ul>
+        <!-- <li>
           <input type="checkbox">
           <label>Expandable drawing</label>
           </input>
@@ -404,66 +408,95 @@
           <label>Drawing size</label>
           </input>
         </li> -->
-      <li>
-        <label>Shape rendering mode</label>
-        <ul>
-          <li>
-            <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
-              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
-              (anti-aliasing)</label>
-            </input>
-          </li>
-          <li>
-            <input type=radio name="shapeRenderingMode" value="crispedges"
-              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
-              (no anti-aliasing)</label></input>
-          </li>
-          <li>
-            <input type=radio name="shapeRenderingMode" value="optimizespeed"
-              onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
-              (no anti-aliasing)</label></input>
-          </li>
-        </ul>
-        </input>
-      </li>
-    </ul>
-    <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
-  </dialog>
-  <dialog id="editorDialog">
-    <div class="flex col">
-      <div class="flex grow">
-        <textarea id="editorTextArea"></textarea>
+        <li>
+          <label>Shape rendering mode</label>
+          <ul>
+            <li>
+              <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
+                (anti-aliasing)</label>
+              </input>
+            </li>
+            <li>
+              <input type=radio name="shapeRenderingMode" value="crispedges"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
+                (no anti-aliasing)</label></input>
+            </li>
+            <li>
+              <input type=radio name="shapeRenderingMode" value="optimizespeed"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
+                (no anti-aliasing)</label></input>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <label>Font Size</label>
+          <ul>
+            <li>
+              <input type="radio" name="logoFontSize" value="small"
+                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'small'">
+              <label>Small</label>
+              </input>
+            </li>
+            <li>
+              <input type="radio" checked name="logoFontSize" value="medium"
+                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'medium'">
+              <label>Medium</label>
+              </input>
+            </li>
+            <li>
+              <input type="radio" name="logoFontSize" value="large"
+                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'large'">
+              <label>Large</label>
+              </input>
+            </li>
+            <li>
+              <input type="radio" name="logoFontSize" value="x-large"
+                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'x-large'">
+              <label>Extra-Large</label>
+              </input>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
+    </dialog>
+    <dialog id="editorDialog">
+      <div class="flex col">
+        <div class="flex grow">
+          <textarea id="editorTextArea"></textarea>
+        </div>
+        <div class="flex">
+          <button type="button" id="editorApplyButton" onclick="Module.editor.applyClicked(event)">
+            <label>Apply</label>
+          </button>
+          <button type="button" id="editorDiscardButton" onclick="Module.editor.discardClicked(event)">
+            <label>Discard</label>
+          </button>
+        </div>
       </div>
-      <div class="flex">
-        <button type="button" id="editorApplyButton" onclick="Module.editor.applyClicked(event)">
-          <label>Apply</label>
-        </button>
-        <button type="button" id="editorDiscardButton" onclick="Module.editor.discardClicked(event)">
-          <label>Discard</label>
-        </button>
-      </div>
-    </div>
-    <style>
-      #editorDialog {
-        height: 100vh;
-        width: 100vw;
-        padding: 0px;
-        padding: 8px;
-        max-width: none;
-        max-height: none;
-      }
+      <style>
+        #editorDialog {
+          height: 100%;
+          width: 100vw;
+          padding: 0px;
+          padding: 8px;
+          max-width: none;
+          max-height: none;
+        }
 
-      #editorDialog>div {
-        height: 100%;
-        width: 100%;
-      }
+        #editorDialog>div {
+          height: 100%;
+          width: 100%;
+        }
 
-      #editorTextArea {
-        height: 100%;
-        width: 100%;
-      }
-    </style>
-  </dialog>
+        #editorTextArea {
+          height: 100%;
+          width: 100%;
+        }
+      </style>
+    </dialog>
+  </div>
 
   <script type='text/javascript'>
     var statusElement = document.getElementById('status');
