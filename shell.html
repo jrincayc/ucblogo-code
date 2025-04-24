@@ -329,54 +329,7 @@
           </form>
         </div>
 
-        <div class="flex">
-          <style>
-            .softkey {
-              height: 42px;
-              width: 42px;
-            }
-          </style>
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\x22')">
-            <label>"</label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ':')">
-            <label>:</label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '[')">
-            <label>[</label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ']')">
-            <label>]<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '{')">
-            <label>{<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '}')">
-            <label>}<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '<')">
-            <label>&lt;<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '>')">
-            <label>&gt;<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '|')">
-            <label>|<label>
-          </button>
-
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '`')">
-            <label>`<label>
-          </button>
-        </div>
-
+        <logo-soft-keys></logo-soft-keys>
       </div>
     </div>
 
@@ -474,6 +427,7 @@
             <label>Discard</label>
           </button>
         </div>
+        <logo-soft-keys></logo-soft-keys>
       </div>
       <style>
         #editorDialog {
@@ -625,6 +579,63 @@
       event.returnValue = true;
     };
     window.addEventListener("beforeunload", beforeUnloadHandler);
+
+    class LogoSoftKeys extends HTMLElement {
+      constructor() {
+        super();
+        this.innerHTML = `
+        <div class="flex">
+          <style>
+            .softkey {
+              height: 42px;
+              width: 42px;
+            }
+          </style>
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\x22')">
+            <label>"</label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ':')">
+            <label>:</label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '[')">
+            <label>[</label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ']')">
+            <label>]<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '{')">
+            <label>{<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '}')">
+            <label>}<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '<')">
+            <label>&lt;<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '>')">
+            <label>&gt;<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '|')">
+            <label>|<label>
+          </button>
+
+          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\`')">
+            <label>\`<label>
+          </button>
+        </div>
+        `;
+      }
+      // Element functionality written in here
+    }
+    customElements.define("logo-soft-keys", LogoSoftKeys);
 
   </script>
   {{{ SCRIPT }}}
