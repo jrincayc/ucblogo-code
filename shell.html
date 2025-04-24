@@ -319,7 +319,7 @@
         <div class="flex">
           <form id="logoInputForm" class="flex" style="width: 100%">
             <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" enterkeyhint="enter"
-              placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="off"
+              placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="false"
               autocomplete="off" autocapitalize="off" autocorrect="off"></input>
             <select id="commandHistorySelect" style="max-width: 18px;"
               oninput="Module.handleCommandHistorySelectChanged(event)">
@@ -417,7 +417,8 @@
     <dialog id="editorDialog">
       <div class="flex col">
         <div class="flex grow">
-          <textarea id="editorTextArea"></textarea>
+          <textarea id="editorTextArea" spellcheck="false"
+              autocomplete="off" autocapitalize="off" autocorrect="off"></textarea>
         </div>
         <div class="flex">
           <button type="button" id="editorApplyButton" onclick="Module.editor.applyClicked(event)">
