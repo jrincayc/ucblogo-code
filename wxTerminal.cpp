@@ -1156,11 +1156,14 @@ extern "C" void do_keyact(int);
 void
 wxTerminal::OnChar(wxKeyEvent& event)
 {
-  if(event.HasModifiers()) {
-    //If the key event has control or alt pressed, let something else handle it
+  //If the key event has control or alt pressed, let something else handle it
+  int modCode = (int) event.GetModifiers();
+  if((modCode == wxMOD_ALT) || (modCode == wxMOD_CONTROL)
+     || (modCode == (wxMOD_CONTROL | wxMOD_SHIFT))) {
     event.Skip();
     return;
   }
+
   ClearSelection();
   int
       keyCode = 0,
