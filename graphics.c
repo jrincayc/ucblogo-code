@@ -34,8 +34,6 @@
 
 #ifdef HAVE_WX
 #include "wxGraphics.h"
-#elif defined(WIN32)
-#include "win32trm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
 #else

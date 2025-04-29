@@ -22,6 +22,7 @@
 #endif
 
 #include <stdarg.h>
+#include <setjmp.h>
 
 #define WANT_EVAL_REGS 1
 #include "logo.h"
@@ -34,6 +35,7 @@ extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 #define GCMAX 16000
 
 #endif
+
 
 NODE *gcstack[GCMAX];
 
@@ -127,11 +129,6 @@ BOOLEAN addseg(void) {
   	return 0;
 }
 
-#ifdef WIN32
-#pragma optimize("",off)
-#endif
-/* Think C tries to load ptr_val->node_type early if optimized */
-
 #define NILP(x)         (NIL == (x))
 
 /* GC_OPT seems to work, but valid_pointer might be needed */
@@ -160,10 +157,6 @@ BOOLEAN valid_pointer (volatile NODE *ptr_val) {
     }
     return 0;
 }
-
-#ifdef WIN32
-/* #pragma optimize("",on) */
-#endif
 
 NODETYPES nodetype(NODE *nd) {
     if (nd == NIL) return (PNIL);
@@ -235,20 +228,9 @@ void setcdr(NODE *nd, NODE *newcdr) {
     check_valid_oldyoung(nd, newcdr);
 }
 
-#ifdef WIN32
-#pragma optimize("",off)
-#endif
-
-
-
 void do_gc(BOOLEAN full) {
-#if 1
-    jmp_buf env;
+    jmp_buf env; /* get registers onto stack */
     setjmp(env);
-#else
-    register NODE *pa, *pb, *pc, *pd, *pe;	/* get registers onto stack */
-    register int aa, bb, cc, dd, ee;
-#endif
 
     int_during_gc = 0;
     inside_gc++;
@@ -283,10 +265,6 @@ NODE *newnode(NODETYPES type) {
 	return(newnd);
     } else return &phony;
 }
-
-#ifdef WIN32
-/* #pragma optimize("",on) */
-#endif
 
 NODE *cons(NODE *x, NODE *y) {
     NODE *val = newnode(CONS);

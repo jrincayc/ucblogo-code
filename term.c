@@ -29,16 +29,14 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #undef TRUE
@@ -46,9 +44,6 @@
 
 #ifdef HAVE_TERMCAP_H
 #include <termcap.h>
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
 #else
 #ifdef HAVE_TERMLIB_H
 #include <termlib.h>
@@ -77,13 +72,7 @@ char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
 
-#ifdef HAVE_TERMIO_H
 struct termio tty_cooked, tty_cbreak;
-#else
-#ifdef HAVE_SGTTY_H
-struct sgttyb tty_cooked, tty_cbreak;
-#endif
-#endif
 
 int interactive, tty_charmode;
 
@@ -97,7 +86,6 @@ int termcap_putter(int ch) {
     return 0;
 }
 
-#ifdef unix
 void termcap_getter(char *cap, char *buf) {
     char temp[40];
     char *str;
@@ -108,34 +96,20 @@ void termcap_getter(char *cap, char *buf) {
     /* if (str == NULL) str = temp; */
     tputs(str,1,termcap_putter);
 }
-#endif
 
 void term_init(void) {
-#ifdef unix
     char *emacs; /* emacs change */
     int term_sg;
     int tgetent_result;
-#endif
 
-#ifdef WIN32
-    interactive = 1;
-#else
     interactive = isatty(0);
-#endif
 
     if (interactive) {
-#ifdef HAVE_TERMIO_H
 	ioctl(0,TCGETA,(char *)(&tty_cooked));
 	tty_cbreak = tty_cooked;
 	tty_cbreak.c_cc[VMIN] = '\01';
 	tty_cbreak.c_cc[VTIME] = '\0';
 	tty_cbreak.c_lflag &= ~(ECHO|ICANON);
-#else
-	ioctl(0,TIOCGETP,(char *)(&tty_cooked));
-	tty_cbreak = tty_cooked;
-	tty_cbreak.sg_flags |= CBREAK;
-	tty_cbreak.sg_flags &= ~ECHO;
-#endif
     }
     tty_charmode = 0;
 
@@ -182,46 +156,24 @@ void term_init(void) {
 }
 
 void charmode_on() {
-#ifdef unix
     if ((readstream == stdin) && interactive && !tty_charmode) {
-#ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cbreak));
-#else /* !HAVE_TERMIO_H */
-	ioctl(0,TIOCSETP,(char *)(&tty_cbreak));
-#endif /* HAVE_TERMIO_H */
 	tty_charmode++;
     }
-#endif /* unix */
-#ifdef WIN32
-    win32_charmode_on();
-#endif
 }
 
 void charmode_off() {
-#ifdef unix
     if (tty_charmode) {
-#ifdef HAVE_TERMIO_H
 	ioctl(0,TCSETA,(char *)(&tty_cooked));
-#else /* !HAVE_TERMIO_H */
-	ioctl(0,TIOCSETP,(char *)(&tty_cooked));
-#endif /* HAVE_TERMIO_H */
 	tty_charmode = 0;
     }
-#endif /* unix */
-#ifdef WIN32
-    win32_charmode_off();
-#endif
 }
 
 NODE *lcleartext(NODE *args) {
     printf("%s", cl_arr);
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
 
-#ifdef WIN32
-	win32_update_text();
-#else
 	fflush(stdout); /* do it now! */
-#endif
 	fix_turtle_shownness();
 
     x_coord = x_margin;
@@ -240,9 +192,6 @@ NODE *lcursor(NODE *args) {
 
 NODE *lsetcursor(NODE *args) {
 	fix_turtle_shownness();
-#ifdef WIN32
-    return (win32_lsetcursor(args));
-#else /* !win32 */
     NODE *arg;
 
     arg = pos_int_vector_arg(args);
@@ -263,7 +212,6 @@ NODE *lsetcursor(NODE *args) {
 	fflush(stdout);
     }
     return(UNBOUND);
-#endif /* !win32 (for non-windows version of this code) */
 }
 
 NODE *lsetmargins(NODE *args) {
