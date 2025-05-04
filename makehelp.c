@@ -8,10 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-char line[100], line2[100], line3[100];
-char name[30] = "helpfiles/";
-char name2[30] = "helpfiles/";
-char tocname[20], tocname2[20];
+#define BUFSIZE (1024)
+
+char line[BUFSIZE], line2[BUFSIZE], line3[BUFSIZE];
+char name[BUFSIZE] = "helpfiles/";
+char name2[BUFSIZE] = "helpfiles/";
+char tocname[BUFSIZE], tocname2[BUFSIZE];
 
 int main(int argc, char **argv) {
     FILE *in=fopen("usermanual", "r");
