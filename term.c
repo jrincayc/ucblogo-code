@@ -29,16 +29,14 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#ifdef HAVE_TERMIOS_H
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #undef TRUE
