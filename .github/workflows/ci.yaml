@@ -10,7 +10,7 @@ on:
     - master
 
 env:
-  WX_WIDGETS_VERSION: 3.2.2.1
+  WX_WIDGETS_VERSION: 3.2.9
 
 jobs:
   build_and_test:
