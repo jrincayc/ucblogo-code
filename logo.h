@@ -68,6 +68,7 @@ extern char *getenv(const char *);
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
+#define x_window
 #define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
