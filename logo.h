@@ -61,13 +61,14 @@
 #else
 #include <sys/types.h>
 #include <malloc.h>
-extern char *getenv();
+extern char *getenv(const char *);
 #endif
 
 #ifdef HAVE_WX
 #define check_throwing (check_wx_stop(0, 0) || stopping_flag == THROWING)
 #else
 #if defined(HAVE_X11)
+#define x_window
 #define check_throwing (check_X11_stop() , (stopping_flag == THROWING))
 #else
 #define check_throwing (stopping_flag == THROWING)
