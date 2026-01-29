@@ -61,7 +61,7 @@
 #else
 #include <sys/types.h>
 #include <malloc.h>
-extern char *getenv();
+extern char *getenv(const char *);
 #endif
 
 #ifdef HAVE_WX
