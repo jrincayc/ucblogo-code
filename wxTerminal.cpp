@@ -2738,5 +2738,8 @@ extern "C" char * wx_get_current_dir_name(void) {
 
 extern "C" void wx_chdir(char *file_path) {
   bool success = wxSetWorkingDirectory(wxString::FromAscii(file_path));
+  if(!success) {
+    fprintf(stderr,"Failed chdir '%s'\n", file_path);
+  }
   assert(success);
 }
