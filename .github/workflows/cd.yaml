@@ -8,7 +8,7 @@ on:
     - release*
 
 env:
-  WX_WIDGETS_VERSION: 3.2.2.1
+  WX_WIDGETS_VERSION: 3.2.9
   TARGET_OSX_VERSION: 10.14
 
 jobs:
