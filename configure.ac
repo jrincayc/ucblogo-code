@@ -104,9 +104,7 @@ AM_COND_IF([X11],
  [AC_SEARCH_LIBS(XOpenDisplay, [X11])])
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([unistd.h string.h])
-AM_COND_IF([WX],,
- [AC_CHECK_HEADERS([sgtty.h termio.h termcap.h termlib.h curses.h])])
+AC_CHECK_HEADERS([termios.h termio.h termcap.h termlib.h curses.h sys/ioctl.h unistd.h string.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T

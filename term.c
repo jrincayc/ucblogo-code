@@ -29,16 +29,14 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#ifdef HAVE_TERMIOS_H
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #undef TRUE
@@ -77,7 +75,9 @@ char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
 
-#ifdef HAVE_TERMIO_H
+#if defined(HAVE_TERMIOS_H)
+struct termios tty_cooked, tty_cbreak;
+#elif defined(HAVE_TERMIO_H)
 struct termio tty_cooked, tty_cbreak;
 #else
 #ifdef HAVE_SGTTY_H
@@ -124,7 +124,7 @@ void term_init(void) {
 #endif
 
     if (interactive) {
-#ifdef HAVE_TERMIO_H
+#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
 	ioctl(0,TCGETA,(char *)(&tty_cooked));
 	tty_cbreak = tty_cooked;
 	tty_cbreak.c_cc[VMIN] = '\01';
@@ -184,7 +184,7 @@ void term_init(void) {
 void charmode_on() {
 #ifdef unix
     if ((readstream == stdin) && interactive && !tty_charmode) {
-#ifdef HAVE_TERMIO_H
+#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
 	ioctl(0,TCSETA,(char *)(&tty_cbreak));
 #else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cbreak));
@@ -200,7 +200,7 @@ void charmode_on() {
 void charmode_off() {
 #ifdef unix
     if (tty_charmode) {
-#ifdef HAVE_TERMIO_H
+#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
 	ioctl(0,TCSETA,(char *)(&tty_cooked));
 #else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cooked));
