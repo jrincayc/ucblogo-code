@@ -93,7 +93,7 @@ typedef struct { int dummy; } pen_info;
 extern int pw, ph, pc, pm, pv, px, py, bg;
 extern void nop();
 
-#define logofill nop
-#define set_palette nop
-#define get_palette nop
-#define erase_screen nop
+#define logofill() nop()
+#define set_palette(i, r, g, b) nop()
+#define get_palette(i, r, g, b) nop()
+#define erase_screen() nop()
