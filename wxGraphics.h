@@ -173,13 +173,6 @@ extern void get_palette(int, unsigned int*, unsigned int*, unsigned int*);
 extern void save_pen(pen_info*), restore_pen(pen_info*);
 extern void logofill();
 
-
-
-
-/* The sparc has fmod.  So I use it. */
-/* #define fmod(x,y)                x */
-
-
 extern void nop();
 
 

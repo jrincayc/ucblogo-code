@@ -187,10 +187,6 @@ int get_button(void);
 extern void set_palette(int, unsigned int, unsigned int, unsigned int);
 extern void get_palette(int, unsigned int*, unsigned int*, unsigned int*);
 
-/* The sparc has fmod.  So I use it. */
-/* #define fmod(x,y)                x */
-
-
 extern void nop();
 
 /* Global X variables. */
