@@ -83,6 +83,13 @@ AC_ARG_ENABLE([docs],
 AC_MSG_RESULT([$enable_docs])
 AM_CONDITIONAL([DOCS], [test x${enable_docs} = xyes])
 
+dnl The PDF Manual is built with texi2dvi, which requires tex
+AS_IF([test x${enable_docs} = xyes],
+ [AC_CHECK_PROGS([TEX], [tex], [no])
+  AS_IF([test "x$TEX" = xno],
+   [AC_MSG_ERROR([tex not found; it is required to build the PDF manual.
+Install TeX or pass --disable-docs to skip documentation.])])])
+
 dnl Enable Compiler Warnings
 AX_CFLAGS_WARN_ALL
 dnl Disable a warning with many false positives; perhaps rethink later
