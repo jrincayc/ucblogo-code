@@ -56,7 +56,11 @@ AM_COND_IF([WX],
   CFLAGS="$WX_CFLAGS_ONLY $CFLAGS"
   LIBS="$WX_LIBS $LIBS"])
   ], [
-  AC_MSG_NOTICE([No WX_CONFIG_CHECK available])
+  AC_MSG_ERROR([aclocal did not find wxwin.m4, so wxWidgets cannot be detected.
+If wxWidgets is already installed, wxwin.m4 is outside aclocal's search path.
+Re-run autoreconf with ACLOCAL_PATH set to the directory holding wxwin.m4.
+
+Or configure with --disable-wx to build without graphics.])
   AM_CONDITIONAL([WX], [test 1 = 0])
 ])],
  AM_CONDITIONAL([WX], [test 1 = 0]))
