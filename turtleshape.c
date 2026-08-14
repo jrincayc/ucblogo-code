@@ -115,6 +115,13 @@ int turtle_shape(FLONUM x, FLONUM y, FLONUM heading,
     cos_real_heading = cos((FLONUM)(real_heading*degrad));
     sin_real_heading = sin((FLONUM)(real_heading*degrad));
 
+    /* cos(90*degrad) is 6e-17 rather than zero, which is enough to tip a
+       vertex sitting on a half step across g_round's tie, so the shape and
+       its mirror land on different pixels.  Headings that are multiples of
+       ninety must come out exact. */
+    if (fabs(cos_real_heading) < 1e-12) cos_real_heading = 0.0;
+    if (fabs(sin_real_heading) < 1e-12) sin_real_heading = 0.0;
+
     for (i = 0; i < count; i++) {
 	FLONUM forward = vertices[i].forward;
 	FLONUM right = vertices[i].right;
