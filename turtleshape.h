@@ -50,6 +50,12 @@ extern int turtle_shape(FLONUM x, FLONUM y, FLONUM heading,
    contains the whole shape, in turtle steps. */
 extern FLONUM turtle_shape_extent(void);
 
+/* Shapes are numbered from zero; shape zero is the default. */
+extern int turtle_shape_count(void);
+extern char *turtle_shape_name(int shape);	/* NULL if out of range */
+extern int current_turtle_shape(void);
+extern BOOLEAN set_turtle_shape(int shape);	/* FALSE if out of range */
+
 #ifdef __cplusplus
 }
 #endif

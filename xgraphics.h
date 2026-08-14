@@ -63,8 +63,6 @@ extern void placate_x();
 #define screen_x_coord ((screen_x_center) + turtle_x)
 #define screen_y_coord ((screen_y_center) - turtle_y)
 
-#define turtle_height 18
-
 #define clear_screen		 XClearWindow(dpy, win)
 
 #define erase_screen()		 XClearWindow(dpy, win)

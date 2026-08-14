@@ -175,7 +175,7 @@ void draw_turtle(void) {
     forward(-1);
     draw_turtle_helper();
     /* all that follows is for "turtle wrap" effect */
-    if ((turtle_y > turtle_top_max - turtle_height) &&
+    if ((turtle_y > turtle_top_max - turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_y -= (screen_height + 1);
 	draw_turtle_helper();
@@ -183,7 +183,7 @@ void draw_turtle(void) {
 	check_x_low();
 	turtle_y += (screen_height + 1);
     }
-    if ((turtle_y < turtle_bottom_max + turtle_height) &&
+    if ((turtle_y < turtle_bottom_max + turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_y += (screen_height + 1);
 	draw_turtle_helper();
@@ -202,7 +202,7 @@ void draw_turtle(void) {
 }
 
 void check_x_high(void) {
-    if ((turtle_x > turtle_right_max - turtle_height) &&
+    if ((turtle_x > turtle_right_max - turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_x -= (screen_width + 1);
 	draw_turtle_helper();
@@ -211,7 +211,7 @@ void check_x_high(void) {
 }
 
 void check_x_low(void) {
-    if ((turtle_x < turtle_left_max + turtle_height) &&
+    if ((turtle_x < turtle_left_max + turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_x += (screen_width + 1);
 	draw_turtle_helper();
@@ -588,6 +588,43 @@ void fix_turtle_shownness() {
 
 NODE *lshownp(NODE *args) {
     return(user_turtle_shown ? TrueName() : FalseName());
+}
+
+static int shape_index_from_name(NODE *name) {
+    int i;
+
+    for (i = 0; i < turtle_shape_count(); i++) {
+	if (compare_node(name, make_static_strnode(turtle_shape_name(i)),
+			 TRUE) == 0)
+	    return i;
+    }
+    return -1;
+}
+
+NODE *lsetshape(NODE *args) {
+    NODE *arg = car(args);
+    int shape = -1;
+
+    if (is_word(arg)) shape = shape_index_from_name(arg);
+    if (shape < 0) {
+	arg = pos_int_arg(args);
+	if (NOT_THROWING) shape = (int)getint(arg);
+    }
+    if (NOT_THROWING) {
+	BOOLEAN changed;
+
+	prepare_to_draw;
+	draw_turtle();
+	changed = set_turtle_shape(shape);
+	draw_turtle();
+	done_drawing;
+	if (!changed) err_logo(BAD_DATA, car(args));
+    }
+    return(UNBOUND);
+}
+
+NODE *lshape(NODE *args) {
+    return(make_static_strnode(turtle_shape_name(current_turtle_shape())));
 }
 
 NODE *lsetheading(NODE *arg) {
