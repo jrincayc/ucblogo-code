@@ -43,6 +43,7 @@
 #endif /* end this whole big huge tree */
 
 #include "globals.h"
+#include "turtleshape.h"
 
 #ifdef HAVE_WX
 int drawToPrinter=0;
@@ -219,13 +220,9 @@ void check_x_low(void) {
 }
 void draw_turtle_helper(void) {
     pen_info saved_pen;
-    FLONUM real_heading;
-    int left_x, left_y, right_x, right_y, top_x, top_y;
-#if 1	/* Evan Marshall Manning <manning@alumni.caltech.edu> */
-    double cos_real_heading, sin_real_heading;
-    FLONUM delta_x, delta_y;
-#endif
-   
+    struct turtle_shape_point points[MAX_TURTLE_SHAPE_POINTS];
+    int count, i;
+
     prepare_to_draw;
     prepare_to_draw_turtle;
     save_pen(&saved_pen);
@@ -234,29 +231,16 @@ void draw_turtle_helper(void) {
     set_pen_width(1);
     set_pen_height(1);
 
-    real_heading = -turtle_heading + 90.0;
- 
-    cos_real_heading = cos((FLONUM)(real_heading*degrad));
-    sin_real_heading = sin((FLONUM)(real_heading*degrad));
- 
-    delta_x = x_scale*(FLONUM)(sin_real_heading*turtle_half_bottom);
-    delta_y = y_scale*(FLONUM)(cos_real_heading*turtle_half_bottom);
- 
-    left_x = g_round(turtle_x - delta_x);
-    left_y = g_round(turtle_y + delta_y);
- 
-    right_x = g_round(turtle_x + delta_x);
-    right_y = g_round(turtle_y - delta_y);
- 
-    top_x = g_round(turtle_x + x_scale*(FLONUM)(cos_real_heading*turtle_side));
-    top_y = g_round(turtle_y + y_scale*(FLONUM)(sin_real_heading*turtle_side));
- 
-    /* move to right, draw to left, draw to top, draw to right */
-    move_to(screen_x_center + right_x, screen_y_center - right_y);
-    line_to(screen_x_center + left_x, screen_y_center - left_y);
-    line_to(screen_x_center + top_x, screen_y_center - top_y);
-    line_to(screen_x_center + right_x, screen_y_center - right_y);
- 
+    count = turtle_shape(turtle_x, turtle_y, turtle_heading,
+			 x_scale, y_scale,
+			 screen_x_center, screen_y_center, points);
+
+    move_to(points[0].x, points[0].y);
+    for (i = 1; i < count; i++) {
+	line_to(points[i].x, points[i].y);
+    }
+    line_to(points[0].x, points[0].y);
+
     restore_pen(&saved_pen);
     done_drawing_turtle;
     done_drawing;
