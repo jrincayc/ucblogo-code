@@ -28,6 +28,15 @@
 #include "globals.h"
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#else
+#define POISON_NODE(nd) ((void)0)
+#define UNPOISON_NODE(nd) ((void)0)
+#endif
+
 #ifdef PUNY
 #define GCMAX 1000
 #else
@@ -56,7 +65,7 @@ FIXNUM seg_size = SEG_SIZE;
 
 /* A new segment of nodes is added if fewer than freed_threshold nodes are
    freed in one GC run */
-#define freed_threshold ((long int)(seg_size * 0.4))
+#define freed_threshold ((size_t)(seg_size * 0.4))
 
 NODE *free_list = NIL;                /* global ptr to free node list */
 struct segment *segment_list = NULL;  /* global ptr to segment list */
@@ -95,6 +104,10 @@ int mark_gen_gc;
 #define GC_TWOBYTE 1 /* Use 2-byte stack offset in mark phase */
 #endif
 
+#ifdef SERIALIZE_OBJECTS
+unsigned long long int next_node_id = 0;
+#endif
+
 #ifdef GC_DEBUG
 long int num_examined, num_visited;
 #endif
@@ -121,6 +134,8 @@ BOOLEAN addseg(void) {
             newseg->nodes[p].next = free_list;
             free_list = &newseg->nodes[p];
 	    settype(&newseg->nodes[p], NTFREE);
+		POISON_NODE(&newseg->nodes[p]);
+
 	}
 	return 1;
     } else
@@ -143,18 +158,18 @@ BOOLEAN addseg(void) {
 #define VALID_PTR(x)    (valid_pointer(x))
 #endif
 
-BOOLEAN valid_pointer (volatile NODE *ptr_val) {
+BOOLEAN valid_pointer ( NODE *ptr_val) {
     struct segment* current_seg;
-    unsigned long int ptr = (unsigned long int)ptr_val;
+    size_t ptr = (size_t)ptr_val;
     FIXNUM size;
    
     if (ptr_val == NIL) return 0;
     for (current_seg = segment_list; current_seg != NULL;
 		current_seg = current_seg->next) {
 	size = current_seg->size;
-	if ((ptr >= (unsigned long int)&current_seg->nodes[0]) &&
-	    (ptr <= (unsigned long int)&current_seg->nodes[size-1]) &&
-	    ((ptr - (unsigned long int)&current_seg->nodes[0])%
+	if ((ptr >= (size_t)&current_seg->nodes[0]) &&
+	    (ptr <= (size_t)&current_seg->nodes[size-1]) &&
+	    ((ptr - (size_t)&current_seg->nodes[0])%
 	                 (sizeof(struct logo_node)) == 0))
 	    return (ptr_val->node_type != NTFREE);
     }
@@ -267,7 +282,11 @@ NODE *newnode(NODETYPES type) {
 	do_gc(FALSE);
     }
     if (newnd != NIL) {
+	UNPOISON_NODE(newnd);
 	free_list = newnd->next;
+#ifdef SERIALIZE_OBJECTS
+	newnd->id = next_node_id++;
+#endif
 	newnd->n_car = NIL;
 	newnd->n_cdr = NIL;
 	newnd->n_obj = NIL;
@@ -487,9 +506,110 @@ no_mark:
     }
 }
 
-void gc(BOOLEAN no_error) {
+void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
+    /* Check Stack for NODE pointers */
+     NODE** top_stack;
+	 NODE** tmp_ptr;
+
+#ifdef __SANITIZE_ADDRESS__
+	 void* fake_stack = __asan_get_current_fake_stack();
+	 NODE* fake_frame_beg;
+	 NODE* fake_frame_end;
+	 NODE* fake_ptr;
+	 NODE** real_ptr;
+	real_ptr = (NODE**)__asan_addr_is_in_fake_stack(
+			__asan_get_current_fake_stack(), 
+			(void*)top, NULL, NULL
+		);
+	top_stack = real_ptr ? real_ptr : top;
+#else
+    top_stack = top; /*GC*/
+#endif
+
+	// printf("top %llx bottom %llx\n", top_stack, bottom_stack);
+    if (top_stack < bottom_stack) { /* check direction stack grows */
+	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
+#if defined(GC_TWOBYTE)
+	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
+#else
+	     tmp_ptr++
+#endif
+	     ) {
+// Under ASAN stack frames may be allocated on the heap and require an
+// extra level of indirection to access stack variables. The real stack
+// frame only contains a pointer to the fake frame.
+#ifdef __SANITIZE_ADDRESS__
+		real_ptr = __asan_addr_is_in_fake_stack(
+			fake_stack, (void*)*tmp_ptr, (void*)&fake_frame_beg, 
+			(void*)&fake_frame_end
+		);
+		if (real_ptr) {
+			// Pointer to fake stack frame
+			for (fake_ptr = fake_frame_beg; 
+				fake_ptr < fake_frame_end; 
+				fake_ptr++) 
+			{
+				// Pointer on fake stack
+				if (valid_pointer(fake_ptr)) {
+					mark(fake_ptr);
+				}
+			}
+		}
+		else {
+			// Pointer on real stack
+			if (valid_pointer(*tmp_ptr)) {
+				mark(*tmp_ptr);
+			}
+		}
+#else
+		if (valid_pointer(*tmp_ptr)) {
+		    mark(*tmp_ptr);
+		}
+#endif
+	}
+    } else {
+	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
+#if defined(GC_TWOBYTE)
+	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
+#else
+		tmp_ptr--
+#endif
+	     ) {
+#ifdef __SANITIZE_ADDRESS__
+		real_ptr = __asan_addr_is_in_fake_stack(
+			fake_stack, (void*)*tmp_ptr, (void*)&fake_frame_beg, 
+			(void*)&fake_frame_end
+		);
+		if (real_ptr) {
+			// Pointer to fake stack frame
+			// fake stack always grows this way
+			for (fake_ptr = fake_frame_beg; 
+				fake_ptr < fake_frame_end; 
+				fake_ptr++) 
+			{
+				// Pointer on fake stack
+				if (valid_pointer(fake_ptr)) {
+					mark(fake_ptr);
+				}
+			}
+		}
+		else {
+			// Pointer on real stack
+			if (valid_pointer(*tmp_ptr)) {
+				mark(*tmp_ptr);
+			}
+		}
+#else
+		if (valid_pointer(*tmp_ptr)) {
+		    mark(*tmp_ptr);
+		}
+#endif
+	}
+    }
+}
+
+void gc (BOOLEAN no_error)  {
     NODE *top;
-    NODE **top_stack;
     NODE *nd, *tmpnd;
     long int num_freed = 0;
     NODE **tmp_ptr, **prev;
@@ -514,8 +634,6 @@ void gc(BOOLEAN no_error) {
 
     if (check_throwing)
         return;
-
-    top_stack = &top;
 
     mark_gen_gc = gen_gc = (no_error ? max_gen : next_gen_gc);
 
@@ -623,33 +741,7 @@ re_mark:
     num_examined = 0;
 #endif
 
-    /* Check Stack for NODE pointers */
-
-    if (top_stack < bottom_stack) { /* check direction stack grows */
-	for (tmp_ptr = top_stack; tmp_ptr <= bottom_stack; 
-#if defined(GC_TWOBYTE)
-	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)+2)
-#else
-	     tmp_ptr++
-#endif
-	     ) {
-		if (valid_pointer(*tmp_ptr)) {
-		    mark(*tmp_ptr);
-		}
-	}
-    } else {
-	for (tmp_ptr = top_stack; tmp_ptr >= bottom_stack; 
-#if defined(GC_TWOBYTE)
-	     tmp_ptr = (NODE **)(((unsigned long int)tmp_ptr)-2)
-#else
-	     tmp_ptr--
-#endif
-	     ) {
-		if (valid_pointer(*tmp_ptr)) {
-		    mark(*tmp_ptr);
-		}
-	}
-    }
+mark_stack(&top);
 
 #ifdef GC_DEBUG
     fprintf(DEBUGSTREAM, "stack %ld + ", num_examined); fflush(DEBUGSTREAM);
@@ -718,6 +810,8 @@ re_mark:
     }
 
     /* Begin Sweep Phase */
+	// For deep debugging
+	// goto skip_sweep;
    	
     for (loop = gen_gc; loop >= 0; loop--) {
 	tmp_ptr = &generation[loop];
@@ -813,7 +907,8 @@ re_mark:
 		settype (nd, NTFREE);
 	 	nd->next = free_list;
 	 	free_list = nd;
-	    }
+		POISON_NODE(nd);
+	 }
 	}
         clean_oldyoungs();
 #ifdef GC_DEBUG
@@ -833,6 +928,7 @@ re_mark:
     else
 	next_gen_gc = 0;
 
+skip_sweep:
     if (num_freed < freed_threshold) {
 	if (!addseg() && num_freed < 50 && gen_gc == max_gen && !no_error) {
 	    err_logo(OUT_OF_MEM, NIL);
@@ -877,6 +973,7 @@ void fill_reserve_tank(void) {
 
     while (--i >= 0) {	/* make pairs not in any generation */
 	if ((newnd = free_list) == NIL) break;
+	UNPOISON_NODE(newnd);
 	free_list = newnd->next;
 	settype(newnd, CONS);
 	newnd->n_car = NIL;

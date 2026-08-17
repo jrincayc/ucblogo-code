@@ -1,0 +1,52 @@
+# Dump a list of all nodes in all segments.
+# Highly recommended to pipe output to a file
+# pipe dumpnodes | cat > nodes.txt
+define dumpnodes
+    set $seg=segment_list
+    while $seg
+        set $noden=0
+        while $noden < $seg->size
+            set $node = $seg->nodes + $noden
+            printf "node %V %V %V %V\n",$node->id, $node->node_type, $node, *$node
+            set $noden=$noden+1
+        end
+        set $seg=$seg->next
+    end
+end
+
+# Given an address, if it is a pointer to a fake stack variable, returns the
+# pointer to the real stack frame.
+# Otherwise returns NULL.
+# Mostly useful for checking if a variable is on the ASAN fake stack or not.
+define realstack
+    p (void*)__asan_addr_is_in_fake_stack( \
+        (void*)__asan_get_current_fake_stack(), \
+        $arg0, \
+        NULL, NULL \
+    )
+end
+
+set $NT_LIST=010000
+set $NT_TREE=0100000
+set $NT_AGGR=020000
+set $NT_EMPTY=040000
+set $NT_CASEOBJ=000001
+
+# Walk and print a NODE tree.
+define pcons
+    if $arg0
+        printf "node %14.d %V %V %V\n",$arg0->id,$arg0->node_type, $arg0,*$arg0
+        if $arg0->node_type != -1 && !($arg0->node_type & $NT_EMPTY)
+            if $arg0->node_type & $NT_TREE
+                pcons $arg0->nunion->ncons->nobj
+            end
+            if $arg0->node_type & $NT_LIST || $arg0->node_type & $NT_AGGR
+                pcons $arg0->nunion->ncons->ncar
+                pcons $arg0->nunion->ncons->ncdr
+            end
+            if $arg0->node_type & $NT_CASEOBJ
+                pcons $arg0->nunion->ncons->ncar
+            end
+        end
+    end
+end
