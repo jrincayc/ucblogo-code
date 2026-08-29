@@ -134,6 +134,7 @@ PRIMTYPE prims[] = {
     {"clean", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"wegtekening", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"clearscreen", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
+    {"wisscherm", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cleartext", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
 #ifdef HAVE_WX
     {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
@@ -147,6 +148,7 @@ PRIMTYPE prims[] = {
     {"cosinus", 1, 1, 1, PREFIX_PRIORITY, lcos},
     {"count", 1, 1, 1, PREFIX_PRIORITY, lcount},
     {"cs", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
+    {"ws", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cslsload", 1, 1, 1, PREFIX_PRIORITY, lcslsload},
     {"ct", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
     {"cursor", 0, 0, 0, PREFIX_PRIORITY, lcursor},
