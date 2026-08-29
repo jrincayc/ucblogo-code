@@ -124,7 +124,13 @@ void term_init(void) {
 #endif
 
     if (interactive) {
-#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
+#if defined(HAVE_TERMIOS_H)
+	tcgetattr(0, &tty_cooked);
+	tty_cbreak = tty_cooked;
+	tty_cbreak.c_cc[VMIN] = '\01';
+	tty_cbreak.c_cc[VTIME] = '\0';
+	tty_cbreak.c_lflag &= ~(ECHO|ICANON);
+#elif defined(HAVE_TERMIO_H)
 	ioctl(0,TCGETA,(char *)(&tty_cooked));
 	tty_cbreak = tty_cooked;
 	tty_cbreak.c_cc[VMIN] = '\01';
@@ -184,7 +190,9 @@ void term_init(void) {
 void charmode_on() {
 #ifdef unix
     if ((readstream == stdin) && interactive && !tty_charmode) {
-#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
+#if defined(HAVE_TERMIOS_H)
+	tcsetattr(0, TCSANOW, &tty_cbreak);
+#elif defined(HAVE_TERMIO_H)
 	ioctl(0,TCSETA,(char *)(&tty_cbreak));
 #else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cbreak));
@@ -200,7 +208,9 @@ void charmode_on() {
 void charmode_off() {
 #ifdef unix
     if (tty_charmode) {
-#if defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)
+#if defined(HAVE_TERMIOS_H)
+	tcsetattr(0, TCSANOW, &tty_cooked);
+#elif defined(HAVE_TERMIO_H)
 	ioctl(0,TCSETA,(char *)(&tty_cooked));
 #else /* !HAVE_TERMIO_H */
 	ioctl(0,TIOCSETP,(char *)(&tty_cooked));
