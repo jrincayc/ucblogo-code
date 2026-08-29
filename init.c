@@ -275,6 +275,7 @@ PRIMTYPE prims[] = {
     {"list?", 1, 1, 1, PREFIX_PRIORITY, llistp},
     {"ln", 1, 1, 1, PREFIX_PRIORITY, lln},
     {"load", 1, 1, 1, PREFIX_PRIORITY, lload},
+    {"laad", 1, 1, 1, PREFIX_PRIORITY, lload},
     {"loadpict", 1, 1, 1, PREFIX_PRIORITY, lloadpict},
     {"local", 1, 1, -1, PREFIX_PRIORITY, llocal},
     {"lokaal", 1, 1, -1, PREFIX_PRIORITY, llocal},
