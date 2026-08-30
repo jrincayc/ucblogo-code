@@ -28,10 +28,6 @@
 #define screen_x_coord ((screen_x_center) + turtle_x)
 #define screen_y_coord ((screen_y_center) - turtle_y)
 
-#define turtle_height 18
-#define turtle_half_bottom 6.0
-#define turtle_side 19.0
-
 #define clear_screen nop()
 
 #define line_to(x,y) nop()
