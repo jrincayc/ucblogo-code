@@ -77,9 +77,10 @@ Geen hulp beschikbaar.\n
 Geen hulp beschikbaar over %p.\n
 --meer--
 ; Speciale Logo-woorden, vooral gebruikt in door Logo gegenereerde meldingen
-; WAAR en ONWAAR worden gegenereerd door predicaten en geaccepteerd door ALS etc.
-waar
-onwaar
+; WELWAAR en NIETWAAR (officiële SuperLogo-termen) worden gegenereerd door
+; predicaten en geaccepteerd door ALS etc.
+welwaar
+nietwaar
 ; Einde van een procedure
 eind
 ; Namen van primitieven die de evaluator speciaal behandelt
