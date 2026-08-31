@@ -48,6 +48,14 @@ extern "C" int readingInstruction;
 #ifdef __WXMAC__
     #include "CoreFoundation/CFBundle.h"
 #endif
+#ifdef __WXOSX__
+    // For nudging EditorFrame's native NSWindow into
+    // NSWindowCollectionBehaviorFullScreenAuxiliary further down -- uses
+    // the plain ObjC runtime C API so this stays a .cpp file instead of
+    // needing a separate Objective-C++ (.mm) translation unit.
+    #include <objc/objc.h>
+    #include <objc/message.h>
+#endif
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #include <wx/fontdlg.h>
 
@@ -81,6 +89,7 @@ wxFont old_font;
 wxTextAttr old_style;
 // when edit is called in logo
 TextEditor * editWindow;
+wxFrame * editorFrame;
 // the turtle graphics we are using
 TurtleCanvas * turtleGraphics; 
 // this contains the previous 3 window
@@ -340,6 +349,80 @@ END_EVENT_TABLE()
 
 extern "C" void wxSetTextColor(int fg, int bg);
 
+// A standalone top-level window that hosts the (single, reused) TextEditor
+// control, so EDIT opens in its own window instead of swapping out the
+// terminal/graphics panels in the main frame. Has its own independent menu
+// bar; the main LogoFrame's menu is never touched for editing anymore.
+class EditorFrame : public wxFrame {
+public:
+    EditorFrame(wxWindow *parent)
+	: wxFrame(parent, wxID_ANY, _T("Logo Editor"), wxDefaultPosition,
+		  wxSize(500, 400)) {
+#ifdef __WXOSX__
+	// Without this, macOS treats this independent top-level window as
+	// belonging to the normal desktop Space, not the LogoFrame's fullscreen
+	// Space. Opening it while LogoFrame is fullscreen then shunts the user
+	// to the regular desktop, and switching back leaves the fullscreen
+	// window's focus/cursor broken. FullScreenAuxiliary lets this window
+	// appear alongside a fullscreen window in its own Space instead.
+	id nsWindow = (id)GetWXWindow();
+	if (nsWindow) {
+	    typedef unsigned long (*GetterFn)(id, SEL);
+	    typedef void (*SetterFn)(id, SEL, unsigned long);
+	    SEL getSel = sel_registerName("collectionBehavior");
+	    SEL setSel = sel_registerName("setCollectionBehavior:");
+	    unsigned long behavior = ((GetterFn)objc_msgSend)(nsWindow, getSel);
+	    behavior |= (1UL << 8); // NSWindowCollectionBehaviorFullScreenAuxiliary
+	    ((SetterFn)objc_msgSend)(nsWindow, setSel, behavior);
+	}
+#endif
+    }
+
+    // Called once, after both this frame and the (single, reused)
+    // TextEditor exist -- editWindow must be constructed with this frame
+    // as its wx-parent before this runs, so the two can't be built in one
+    // constructor without a chicken-and-egg problem.
+    void AttachEditor(TextEditor *editor) {
+	wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+	sizer->Add(editor, 1, wxEXPAND);
+	SetSizer(sizer);
+
+	wxMenuBar *mb = new wxMenuBar();
+
+	wxMenu *fileMenu = new wxMenu();
+	fileMenu->Append(Edit_Menu_File_Close_Accept, _T("Sluiten en wijzigingen accepteren \tAlt-A"));
+	fileMenu->Append(Edit_Menu_File_Close_Reject, _T("Sluiten en wijzigingen ongedaan maken \tAlt-R"));
+	fileMenu->AppendSeparator();
+	fileMenu->Append(Edit_Menu_File_Page_Setup, _T("Pagina-instellingen"));
+	fileMenu->Append(Edit_Menu_File_Print_Text, _T("Afdrukken... \tCtrl-P"));
+	mb->Append(fileMenu, _T("&Bestand"));
+
+	wxMenu *editMenu = new wxMenu();
+	editMenu->Append(Edit_Menu_Edit_Cut, _T("Knippen \tCtrl-X"));
+	editMenu->Append(Edit_Menu_Edit_Copy, _T("Kopiëren \tCtrl-C"));
+	editMenu->Append(Edit_Menu_Edit_Paste, _T("Plakken \tCtrl-V"));
+	editMenu->AppendSeparator();
+	editMenu->Append(Edit_Menu_Edit_Find, _T("Zoeken... \tCtrl-F"));
+	editMenu->Append(Edit_Menu_Edit_Find_Next, _T("Volgende zoeken \tCtrl-G"));
+	mb->Append(editMenu, _T("&Bewerken"));
+
+	SetMenuBar(mb);
+
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->OnCloseAccept(); }, Edit_Menu_File_Close_Accept);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->OnCloseReject(); }, Edit_Menu_File_Close_Reject);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->DoPrint(); }, Edit_Menu_File_Print_Text);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->DoCut(); }, Edit_Menu_Edit_Cut);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->DoCopy(); }, Edit_Menu_Edit_Copy);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->DoPaste(); }, Edit_Menu_Edit_Paste);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->OnFind(); }, Edit_Menu_Edit_Find);
+	Bind(wxEVT_MENU, [editor](wxCommandEvent&) { editor->OnFindNext(); }, Edit_Menu_Edit_Find_Next);
+	// Closing the window via the titlebar/dock behaves the same as
+	// "Close and Revert Changes" -- matches TextEditor's own EVT_CLOSE
+	// handling from when it used to receive close events directly.
+	Bind(wxEVT_CLOSE_WINDOW, [editor](wxCloseEvent&) { editor->OnCloseReject(); }, wxID_ANY);
+    }
+};
+
 //this should compute the size based on the chosen font!
 LogoFrame::LogoFrame (const wxChar *title,
  int xpos, int ypos,
@@ -364,17 +447,19 @@ LogoFrame::LogoFrame (const wxChar *title,
   AdjustSize();
 
     wxSetTextColor(7+SPECIAL_COLORS, 0+SPECIAL_COLORS);
-  editWindow = new TextEditor( this, -1, _T(""), wxDefaultPosition,
+  // EDIT opens in its own standalone window (EditorFrame) rather than as a
+  // panel swapped into this frame's topsizer -- editWindow's C++ parent is
+  // that frame, not this one, and it is intentionally not added to topsizer.
+  // NULL (not "this") on purpose: on macOS, a wxFrame parented to a window
+  // that later enters native fullscreen becomes a Cocoa "child window" of
+  // it, which can make the parent's fullscreen exit hang. This window
+  // doesn't need to be a child of the main frame to work correctly.
+  editorFrame = new EditorFrame(NULL);
+  editWindow = new TextEditor( editorFrame, -1, _T(""), wxDefaultPosition,
 			      wxSize(100,60), wxTE_MULTILINE|wxTE_RICH, f);
+  ((EditorFrame *)editorFrame)->AttachEditor(editWindow);
   wxTerminal::terminal->isEditFile=0;
-  
-  topsizer->Add(
-		editWindow,
-		1,            // make vertically stretchable
-		wxEXPAND |    // make horizontally stretchable
-		wxALL,        //   and make border all around
-		2 );  
- 
+
   topsizer->Add(
 		turtleGraphics,
 		4,            // make vertically stretchable
@@ -391,8 +476,8 @@ LogoFrame::LogoFrame (const wxChar *title,
 
   topsizer->Show(wxTerminal::terminal, 1);
   topsizer->Show(turtleGraphics, 0);
-  topsizer->Show(editWindow, 0);
-  
+
+
   SetSizer( topsizer ); 
   
   //SetAutoLayout(true);
@@ -440,48 +525,48 @@ void LogoFrame::SetUpMenu(){
 
 	
 	wxMenu *fileMenu = new wxMenu;
-	fileMenu->Append( Menu_File_Load, _T("Load Logo Session \tCtrl-O"));
-	fileMenu->Append( Menu_File_Save, _T("Save Logo Session \tCtrl-S"));
-	fileMenu->Append( Menu_File_Save_As, _T("Save As..."));
+	fileMenu->Append( Menu_File_Load, _T("Logo-sessie openen \tCtrl-O"));
+	fileMenu->Append( Menu_File_Save, _T("Logo-sessie opslaan \tCtrl-S"));
+	fileMenu->Append( Menu_File_Save_As, _T("Opslaan als..."));
 	fileMenu->AppendSeparator();
-	fileMenu->Append( Menu_File_Page_Setup, _T("Page Setup"));
-	fileMenu->Append( Menu_File_Print_Text, _T("Print Text Window"));
-	fileMenu->Append( Menu_File_Print_Text_Prev, _T("Print Preview Text Window"));
-	fileMenu->Append( Menu_File_Print_Turtle, _T("Print Turtle Graphics"));
-	fileMenu->Append( Menu_File_Print_Turtle_Prev, _T("Turtle Graphics Print Preview"));
+	fileMenu->Append( Menu_File_Page_Setup, _T("Pagina-instellingen"));
+	fileMenu->Append( Menu_File_Print_Text, _T("Tekstvenster afdrukken"));
+	fileMenu->Append( Menu_File_Print_Text_Prev, _T("Afdrukvoorbeeld tekstvenster"));
+	fileMenu->Append( Menu_File_Print_Turtle, _T("Schildpadtekening afdrukken"));
+	fileMenu->Append( Menu_File_Print_Turtle_Prev, _T("Afdrukvoorbeeld schildpadtekening"));
 	fileMenu->AppendSeparator();
-	fileMenu->Append(wxID_EXIT, _T("Quit UCBLogo \tCtrl-Q"));
+	fileMenu->Append(wxID_EXIT, _T("UCBLogo afsluiten \tCtrl-Q"));
 	
 	
 	wxMenu *editMenu = new wxMenu;
 		
-	menuBar->Append(fileMenu, _T("&File"));
-	menuBar->Append(editMenu, _T("&Edit"));
+	menuBar->Append(fileMenu, _T("&Bestand"));
+	menuBar->Append(editMenu, _T("&Bewerken"));
 
 	wxMenu *logoMenu = new wxMenu;
 // #ifdef __WXMSW__
-// 	editMenu->Append(Menu_Edit_Copy, _T("Copy \tCtrl-C"));
-// 	editMenu->Append(Menu_Edit_Paste, _T("Paste \tCtrl-V"));
+// 	editMenu->Append(Menu_Edit_Copy, _T("Kopiëren \tCtrl-C"));
+// 	editMenu->Append(Menu_Edit_Paste, _T("Plakken \tCtrl-V"));
 // 
 // 	logoMenu->Append(Menu_Logo_Pause, _T("Pause \tCtrl-P"));
 // 	logoMenu->Append(Menu_Logo_Stop, _T("Stop \tCtrl-S"));	
 // #else
-	editMenu->Append(Menu_Edit_Copy, _T("Copy \tCtrl-C"));
-	editMenu->Append(Menu_Edit_Paste, _T("Paste \tCtrl-V"));
+	editMenu->Append(Menu_Edit_Copy, _T("Kopiëren \tCtrl-C"));
+	editMenu->Append(Menu_Edit_Paste, _T("Plakken \tCtrl-V"));
 
-	logoMenu->Append(Menu_Logo_Pause, _T("Pause \tAlt-P"));
-	logoMenu->Append(Menu_Logo_Stop, _T("Stop \tAlt-S"));
+	logoMenu->Append(Menu_Logo_Pause, _T("Pauzeren \tAlt-P"));
+	logoMenu->Append(Menu_Logo_Stop, _T("Stoppen \tAlt-S"));
 // #endif
 	menuBar->Append(logoMenu, _T("&Logo"));
 	
 	wxMenu *fontMenu = new wxMenu;
-	fontMenu->Append(Menu_Font_Choose, _T("Select Font..."));
-	fontMenu->Append(Menu_Font_Inc, _T("Increase Font Size \tCtrl-+"));
-	fontMenu->Append(Menu_Font_Dec, _T("Decrease Font Size \tCtrl--"));
-	menuBar->Append(fontMenu, _T("&Font"));
+	fontMenu->Append(Menu_Font_Choose, _T("Lettertype kiezen..."));
+	fontMenu->Append(Menu_Font_Inc, _T("Lettertype groter \tCtrl-+"));
+	fontMenu->Append(Menu_Font_Dec, _T("Lettertype kleiner \tCtrl--"));
+	menuBar->Append(fontMenu, _T("&Lettertype"));
 	
 	/*wxMenu *helpMenu = new wxMenu;
-	helpMenu->Append(Menu_Help_Man, _T("Browse Online Manual"));
+	helpMenu->Append(Menu_Help_Man, _T("Online handleiding bekijken"));
 	menuBar->Append(helpMenu, _T("&Help"));*/
 	
 	SetMenuBar(menuBar);
@@ -514,12 +599,12 @@ void LogoFrame::OnSave(wxCommandEvent& event) {
 
 void LogoFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
 	wxFileDialog dialog(this,
-			    _T("Save Logo Workspace"),
+			    _T("Logo-sessie opslaan"),
 			    (firstloadsave ?
 			      wxStandardPaths::Get().GetDocumentsDir() :
 			      ""),
 			    wxEmptyString,
-			    _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
+			    _T("Logo-sessies (*.lg)|*.lg|Alle bestanden (*)|*"),
 //			    "*",
 			    wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxFD_CHANGE_DIR
 			    );
@@ -537,12 +622,12 @@ void LogoFrame::OnLoad(wxCommandEvent& WXUNUSED(event)){
 	wxFileDialog dialog
 	(
 	 this,
-	 _T("Load Logo Workspace"),
+	 _T("Logo-sessie openen"),
 	 (firstloadsave ?
 	    wxStandardPaths::Get().GetDocumentsDir() :
 			  ""),
 	 wxEmptyString,
-	 _T("Logo workspaces(*.lg)|*.lg|All files(*)|*"),
+	 _T("Logo-sessies (*.lg)|*.lg|Alle bestanden (*)|*"),
 //	 "*",
 	 wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_CHANGE_DIR
 	 );

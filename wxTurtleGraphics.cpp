@@ -474,14 +474,13 @@ extern "C" int turtle_shown;
 extern "C" void draw_turtle();
 extern int editor_active;  //from TextEditor.cpp
 
-void TurtleCanvas::editCall(){ 
-  editor_active = 1;  
+void TurtleCanvas::editCall(){
+  editor_active = 1;
   editWindow->Clear();
-  topsizer->Show(wxTerminal::terminal, 0);
-  topsizer->Show(turtleGraphics, 0);
-  topsizer->Show(editWindow, 1);
-  logoFrame->SetUpEditMenu();
-  topsizer->Layout();
+  // EDIT opens in its own window (see EditorFrame in wxTerminal.cpp) --
+  // the main frame's terminal/graphics panels stay exactly as they are.
+  editorFrame->Show();
+  editorFrame->Raise();
   editWindow->SetFocus();
   FILE * filestream;
   filestream = fopen(file, "r");
