@@ -38,6 +38,8 @@
 #include "win32trm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
+#elif defined(EM_GRAPHICS)
+#include "emgraphics.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
@@ -153,7 +155,7 @@ void draw_turtle(void) {
     return;
 #endif
 
-#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window)
+#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window) && !defined(EM_GRAPHICS)
     // No real graphics backend (headless/nographics build): there is no
     // turtle icon to actually draw, and the recursive forward(-1)/
     // forward(1) calls below (used elsewhere to erase/redraw the turtle
@@ -718,6 +720,14 @@ NODE *ltowards(NODE *args) {
 NODE *lpos(NODE *args) {
     return(cons(make_floatnode(cut_error(turtle_x/x_scale)),
 	cons(make_floatnode(cut_error(turtle_y/y_scale)), NIL)));
+}
+
+NODE *lxcor(NODE *args) {
+    return(make_floatnode(cut_error(turtle_x/x_scale)));
+}
+
+NODE *lycor(NODE *args) {
+    return(make_floatnode(cut_error(turtle_y/y_scale)));
 }
 
 NODE *lscrunch(NODE *args) {
@@ -1660,7 +1670,7 @@ NODE *lprinttext(NODE *args) {
 BOOLEAN safe_to_save(void) {
     char *newbuf;
 
-#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window)
+#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window) && !defined(EM_GRAPHICS)
     // No real graphics backend (headless/nographics build): nographics.h
     // defines GR_SIZE as 1, so record_buffer (declared as
     // char record_buffer[GR_SIZE]) is a single byte -- yet the code below
