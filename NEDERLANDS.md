@@ -62,6 +62,8 @@ UCBLogo-app, en zet `usealternatenames` aan: `make "usealternatenames "true`.
 | `zetpos` | `setpos` |
 | `zetx` / `zety` / `zetxy` | `setx` / `sety` / `setxy` |
 | `positie` | `pos` |
+| `xcoordinaat` | `xcor` |
+| `ycoordinaat` | `ycor` |
 | `wegturtle` / `wegt` | `hideturtle` / `ht` |
 | `kom` | `showturtle` / `st` |
 | `laatzien` / `lz` | `show` *(print met behoud van haakjes — géén turtle-commando!)* |
@@ -132,7 +134,8 @@ UCBLogo-app, en zet `usealternatenames` aan: `make "usealternatenames "true`.
 | `verschil` | `difference` |
 | `macht` | `power` |
 | `wortel` | `sqrt` |
-| `sinus` / `cosinus` / `arctangens` | `sin` / `cos` / `arctan` |
+| `sinus` / `cosinus` / `tangens` / `arctangens` | `sin` / `cos` / `tan` / `arctan` |
+| `absolutewaarde` | `abs` |
 | `afronding` | `round` |
 | `mod` | `modulo` |
 | `integer` | `int` |

@@ -40,6 +40,9 @@ Verplaatst de schildpad naar een nieuwe x-coördinaat, y-coördinaat, of allebei
 **`positie`**
 Geeft de huidige positie van de schildpad terug, als lijst `[x y]`.
 
+**`xcoordinaat`** / **`ycoordinaat`**
+Geven alleen de x- respectievelijk y-coördinaat van de schildpad terug (in plaats van de hele `positie`-lijst).
+
 **`rand`**
 Zet de schildpad in "rand"-stand (de standaardstand): loopt hij van de ene kant van het scherm af, dan verschijnt hij aan de overkant weer.
 
@@ -295,8 +298,11 @@ Optellen, vermenigvuldigen, delen, aftrekken.
 **`wortel :getal`**
 Vierkantswortel.
 
-**`sinus :graden`** / **`cosinus :graden`** / **`arctangens :getal`**
+**`sinus :graden`** / **`cosinus :graden`** / **`tangens :graden`** / **`arctangens :getal`**
 Goniometrische functies, hoek in graden.
+
+**`absolutewaarde :getal`**
+Geeft de absolute waarde terug (maakt negatieve getallen positief, positieve getallen blijven ongewijzigd).
 
 **`afronding :getal`**
 Rondt af naar het dichtstbijzijnde hele getal.
