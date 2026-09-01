@@ -153,6 +153,7 @@ PRIMTYPE prims[] = {
     {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
 #endif
     {"close", 1, 1, 1, PREFIX_PRIORITY, lclose},
+    {"sluit", 1, 1, 1, PREFIX_PRIORITY, lclose},
     {"co", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lcontinue},
     {"contents", 0, 0, 0, PREFIX_PRIORITY, lcontents},
     {"continue", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, lcontinue},
@@ -364,9 +365,13 @@ PRIMTYPE prims[] = {
 #endif
     {"op", 1, 1, 1, OUTPUT_PRIORITY, loutput},
     {"openappend", 1, 1, 1, PREFIX_PRIORITY, lopenappend},
+    {"opentoevoeg", 1, 1, 1, PREFIX_PRIORITY, lopenappend},
     {"openread", 1, 1, 1, PREFIX_PRIORITY, lopenread},
+    {"openlees", 1, 1, 1, PREFIX_PRIORITY, lopenread},
     {"openupdate", 1, 1, 1, PREFIX_PRIORITY, lopenupdate},
+    {"openbijwerk", 1, 1, 1, PREFIX_PRIORITY, lopenupdate},
     {"openwrite", 1, 1, 1, PREFIX_PRIORITY, lopenwrite},
+    {"openschrijf", 1, 1, 1, PREFIX_PRIORITY, lopenwrite},
     {"or", 0, 2, -1, PREFIX_PRIORITY, lor},
     {"of", 0, 2, -1, PREFIX_PRIORITY, lor},
     {"output", 1, 1, 1, OUTPUT_PRIORITY, loutput},
@@ -531,6 +536,7 @@ PRIMTYPE prims[] = {
     {"zetpos", 1, 1, 1, PREFIX_PRIORITY, lsetpos},
     {"setprefix", 1, 1, 1, PREFIX_PRIORITY, lsetprefix},
     {"setread", 1, 1, 1, PREFIX_PRIORITY, lsetread},
+    {"zetlees", 1, 1, 1, PREFIX_PRIORITY, lsetread},
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
 #if defined(WIN32)|defined(HAVE_WX)
@@ -543,6 +549,7 @@ PRIMTYPE prims[] = {
 #endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
     {"setwrite", 1, 1, 1, PREFIX_PRIORITY, lsetwrite},
+    {"zetschrijf", 1, 1, 1, PREFIX_PRIORITY, lsetwrite},
     {"setwritepos", 1, 1, 1, PREFIX_PRIORITY, lsetwritepos},
     {"setx", 1, 1, 1, PREFIX_PRIORITY, lsetx},
     {"zetx", 1, 1, 1, PREFIX_PRIORITY, lsetx},

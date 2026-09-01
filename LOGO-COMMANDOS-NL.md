@@ -350,6 +350,35 @@ Geeft `waar` terug als er een toets is ingedrukt die nog niet gelezen is.
 **`wisbestand "bestandsnaam`** (`wb`)
 Verwijdert het opgegeven bestand van schijf.
 
+**`openschrijf "bestandsnaam`**
+Opent een bestand om naartoe te schrijven (maakt het aan als het nog niet bestaat, anders wordt de inhoud overschreven). Schrijf er pas echt naartoe nadat je met `zetschrijf` de uitvoer erheen hebt omgeleid.
+
+**`openlees "bestandsnaam`**
+Opent een bestaand bestand om uit te lezen. Lees er pas echt uit nadat je met `zetlees` de invoer erheen hebt omgeleid.
+
+**`opentoevoeg "bestandsnaam`**
+Als `openschrijf`, maar bestaande inhoud blijft staan — nieuwe tekst komt erachteraan.
+
+**`openbijwerk "bestandsnaam`**
+Opent een bestand voor zowel lezen als schrijven.
+
+**`zetschrijf "bestandsnaam`** (of `zetschrijf []` voor terug naar het scherm)
+Stuurt alles wat `print`/`printperregel`/etc. daarna produceren naar het opgegeven, al geopende bestand in plaats van naar het scherm.
+
+**`zetlees "bestandsnaam`** (of `zetlees []` voor terug naar het toetsenbord)
+Laat `leeswoord`/`leeslijst`/etc. daarna lezen uit het opgegeven, al geopende bestand in plaats van van het toetsenbord.
+
+**`sluit "bestandsnaam`**
+Sluit een eerder met `openschrijf`/`openlees`/`opentoevoeg`/`openbijwerk` geopend bestand.
+
+```logo
+openschrijf "dagboek.txt
+zetschrijf "dagboek.txt
+printperregel [Vandaag leerde ik Logo.]
+zetschrijf []
+sluit "dagboek.txt
+```
+
 ## Voorbeeld: een eenvoudige procedure
 
 ```logo

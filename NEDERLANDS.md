@@ -88,6 +88,13 @@ UCBLogo-app, en zet `usealternatenames` aan: `make "usealternatenames "true`.
 | Nederlands | Engels |
 |---|---|
 | `wb` / `wisbestand` | `erasefile` |
+| `openschrijf` | `openwrite` |
+| `openlees` | `openread` |
+| `opentoevoeg` | `openappend` |
+| `openbijwerk` | `openupdate` |
+| `zetschrijf` | `setwrite` |
+| `zetlees` | `setread` |
+| `sluit` | `close` |
 | `zetcursor` | `setcursor` |
 | `zetkleurov` | `settc` *(tekstkleur)* |
 
