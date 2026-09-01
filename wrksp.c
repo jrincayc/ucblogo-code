@@ -1645,6 +1645,17 @@ NODE *ledit(NODE *args) {
             return(UNBOUND);
         }
     }
+#elif defined(EM_GRAPHICS)
+    /* No fork()/execlp() of an external editor process here: on Android
+     * (API 29+) an app cannot write out and then exec a fresh executable
+     * (W^X enforcement), so there is no external editor binary to launch.
+     * em_edit_file() hands the temp file to the host app instead, which
+     * shows its own blocking edit UI and rewrites the file in place before
+     * returning -- the reload logic below is unaware of the difference.
+     * Declared here rather than pulling in emgraphics.h, whose line_to/
+     * move_to/etc macros would collide with this file's own identifiers. */
+    extern void em_edit_file(char *tmp_filename);
+    em_edit_file(tmp_filename);
 #else
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
