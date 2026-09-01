@@ -83,12 +83,23 @@ AC_ARG_ENABLE([docs],
 AC_MSG_RESULT([$enable_docs])
 AM_CONDITIONAL([DOCS], [test x${enable_docs} = xyes])
 
-dnl The PDF Manual is built with texi2dvi, which requires tex
+dnl The manual is built by makeinfo (info and html) and by texi2dvi,
+dnl which drives pdftex for the PDF.  Check for all three: texi2dvi and
+dnl makeinfo come from GNU Texinfo, pdftex from a TeX distribution, and
+dnl they are packaged separately on most systems.
 AS_IF([test x${enable_docs} = xyes],
- [AC_CHECK_PROGS([TEX], [tex], [no])
-  AS_IF([test "x$TEX" = xno],
-   [AC_MSG_ERROR([tex not found; it is required to build the PDF manual.
-Install TeX or pass --disable-docs to skip documentation.])])])
+ [docs_missing=
+  AC_CHECK_PROG([HAVE_MAKEINFO], [makeinfo], [yes], [no])
+  AS_IF([test x$HAVE_MAKEINFO = xno], [docs_missing="$docs_missing makeinfo"])
+  AC_CHECK_PROG([HAVE_TEXI2DVI], [texi2dvi], [yes], [no])
+  AS_IF([test x$HAVE_TEXI2DVI = xno], [docs_missing="$docs_missing texi2dvi"])
+  AC_CHECK_PROGS([DOCS_PDFTEX], [pdfetex pdftex], [no])
+  AS_IF([test x$DOCS_PDFTEX = xno], [docs_missing="$docs_missing pdftex"])
+  AS_IF([test -n "$docs_missing"],
+   [AC_MSG_ERROR([missing tools required to build the manual:$docs_missing
+makeinfo and texi2dvi come from GNU Texinfo; pdftex comes from a TeX
+distribution such as TeX Live or MacTeX.
+Install them, or pass --disable-docs to skip documentation.])])])
 
 dnl Enable Compiler Warnings
 AX_CFLAGS_WARN_ALL
