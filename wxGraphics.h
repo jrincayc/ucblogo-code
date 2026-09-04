@@ -80,10 +80,6 @@ extern void doFilled(int fillcolor, int count, struct mypoint *points);
 #define screen_x_coord ((screen_x_center) + turtle_x)
 #define screen_y_coord ((screen_y_center) - turtle_y)
 
-#define turtle_height 18
-#define turtle_half_bottom 6.0
-#define turtle_side 19.0
-
 #define refresh_screen()         wx_refresh();
 #define clear_screen		 wx_clear();
 
@@ -172,13 +168,6 @@ extern void set_palette(int, unsigned int, unsigned int, unsigned int);
 extern void get_palette(int, unsigned int*, unsigned int*, unsigned int*);
 extern void save_pen(pen_info*), restore_pen(pen_info*);
 extern void logofill();
-
-
-
-
-/* The sparc has fmod.  So I use it. */
-/* #define fmod(x,y)                x */
-
 
 extern void nop();
 

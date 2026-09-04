@@ -1,0 +1,5 @@
+SHAPE
+
+	outputs the word TRIANGLE or TURTLE depending on the shape in which
+	the turtle is currently drawn.  See SETSHAPE.
+

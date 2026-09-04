@@ -3737,6 +3737,7 @@ list of numbers.)
 @menu
 * SHOWTURTLE::                  
 * HIDETURTLE::                  
+* SETSHAPE::
 * CLEAN::                       
 * CLEARSCREEN::                 
 * WRAP::                        
@@ -3767,7 +3768,7 @@ ST
 
 makes the turtle visible.
 
-@node  HIDETURTLE, CLEAN, SHOWTURTLE, TURTLE AND WINDOW CONTROL
+@node  HIDETURTLE, SETSHAPE, SHOWTURTLE, TURTLE AND WINDOW CONTROL
 @unnumberedsubsec hideturtle
 @cindex hideturtle
 @cindex ht
@@ -3781,7 +3782,28 @@ makes the turtle invisible.  It's a good idea to do this while you're in
 the middle of a complicated drawing, because hiding the turtle speeds up
 the drawing substantially.
 
-@node  CLEAN, CLEARSCREEN, HIDETURTLE, TURTLE AND WINDOW CONTROL
+@node  SETSHAPE, CLEAN, HIDETURTLE, TURTLE AND WINDOW CONTROL
+@unnumberedsubsec setshape
+@cindex setshape
+
+@example
+SETSHAPE shapenumber.or.name
+@end example
+
+sets the shape in which the turtle is drawn.  The input is either a shape
+number or the name of a shape:
+
+@example
+ 0  triangle     1  turtle
+@end example
+
+The shape affects only the appearance of the turtle cursor; the turtle's
+position, heading, and pen are unchanged, as are the lines it draws.  The
+triangle is the initial shape.  See @code{SHAPE}.
+
+@xref{SHAPE} .
+
+@node  CLEAN, CLEARSCREEN, SETSHAPE, TURTLE AND WINDOW CONTROL
 @unnumberedsubsec clean
 @cindex clean
 
@@ -4027,6 +4049,7 @@ moved, resized, or overlayed.
 * SHOWNP::                      
 * SCREENMODE::                  
 * TURTLEMODE::                  
+* SHAPE::
 * LABELSIZE::
 @end menu
 
@@ -4059,7 +4082,7 @@ SCREENMODE
 outputs the word @code{TEXTSCREEN}, @code{SPLITSCREEN}, or @code{FULLSCREEN} depending
 on the current screen mode.
 
-@node TURTLEMODE, LABELSIZE, SCREENMODE, TURTLE AND WINDOW QUERIES
+@node TURTLEMODE, SHAPE, SCREENMODE, TURTLE AND WINDOW QUERIES
 @unnumberedsubsec turtlemode
 @cindex turtlemode
 
@@ -4070,7 +4093,20 @@ TURTLEMODE
 outputs the word @code{WRAP}, @code{FENCE}, or @code{WINDOW} depending on the current
 turtle mode.
 
-@node  LABELSIZE, , TURTLEMODE, TURTLE AND WINDOW QUERIES
+@node SHAPE, LABELSIZE, TURTLEMODE, TURTLE AND WINDOW QUERIES
+@unnumberedsubsec shape
+@cindex shape
+
+@example
+SHAPE
+@end example
+
+outputs the word @code{TRIANGLE} or @code{TURTLE} depending on the shape in
+which the turtle is currently drawn.  See @code{SETSHAPE}.
+
+@xref{SETSHAPE} .
+
+@node  LABELSIZE, , SHAPE, TURTLE AND WINDOW QUERIES
 @unnumberedsubsec labelsize
 @cindex labelsize
 

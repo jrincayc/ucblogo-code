@@ -539,6 +539,7 @@ PRIMTYPE prims[] = {
     {"zetlees", 1, 1, 1, PREFIX_PRIORITY, lsetread},
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
+    {"setshape", 1, 1, 1, PREFIX_PRIORITY, lsetshape},
 #if defined(WIN32)|defined(HAVE_WX)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"zetkleurov", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
@@ -557,6 +558,7 @@ PRIMTYPE prims[] = {
     {"zetxy", 2, 2, 2, PREFIX_PRIORITY, lsetxy},
     {"sety", 1, 1, 1, PREFIX_PRIORITY, lsety},
     {"zety", 1, 1, 1, PREFIX_PRIORITY, lsety},
+    {"shape", 0, 0, 0, PREFIX_PRIORITY, lshape},
     {"shell", 1, 1, 2, PREFIX_PRIORITY, lshell},
     {"show", 0, 1, -1, PREFIX_PRIORITY, lshow},
     {"shownp", 0, 0, 0, PREFIX_PRIORITY, lshownp},
