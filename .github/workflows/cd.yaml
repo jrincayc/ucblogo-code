@@ -233,7 +233,7 @@ jobs:
         LDFLAGS: ${{ matrix.architecture == 'x86_64' && '-arch x86_64 -masm=intel' || '' }} -mmacosx-version-min=${{ env.TARGET_OSX_VERSION }}
       run: |
         autoreconf --install
-        ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH
+        ./configure --enable-gitid --with-wx-config=$WX_CONFIG_PATH --disable-docs
         make -j2 ucblogo.dmg
     - name: Archive ucblogo.dmg ${{ matrix.architecture }}
       uses: actions/upload-artifact@v4
