@@ -445,7 +445,16 @@ NODE *to_helper(NODE *args, BOOLEAN macro_flag) {
 		while (NOT_THROWING && to_pending && (!feof(loadstream))) {
 			tnode = cons(reader(loadstream, "> "), NIL);
 
-			if ((feof(loadstream))) {
+			/* Only synthesize a closing "end" when the read truly found
+			 * nothing (a genuinely truncated file) -- feof() can already
+			 * be true even though the read just successfully captured a
+			 * real "end"/"eind" line that happens to be the file's last
+			 * bytes with no trailing newline. Clobbering that real line
+			 * with a bare theName(Name_end) here used to silently drop
+			 * it from the procedure's cached body text (and therefore
+			 * from any later SAVE), because theName(Name_end) is an
+			 * internal name object, not printable body text. */
+			if ((feof(loadstream)) && car(tnode) == Null_Word) {
 				tnode = cons(theName(Name_end), NIL);
 			}
 
