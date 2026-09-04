@@ -80,7 +80,6 @@ typedef struct { int dummy; } pen_info;
 #define tone(p,d) nop()
 #define get_pen_pattern(p) nop()
 #define set_pen_pattern(p) nop()
-#define fmod(x,y) x
 #define set_list_pen_pattern(p) nop()
 
 #define prepare_to_draw_turtle nop();
