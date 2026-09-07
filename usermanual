@@ -1745,6 +1745,17 @@ HT
 	you're in the middle of a complicated drawing, because hiding
 	the turtle speeds up the drawing substantially.
 
+SETSHAPE shapenumber.or.name
+
+	sets the shape in which the turtle is drawn.  The input is either
+	a shape number or the name of a shape:
+
+	 0  triangle	 1  turtle
+
+	The shape affects only the appearance of the turtle cursor; the
+	turtle's position, heading, and pen are unchanged, as are the lines
+	it draws.  The triangle is the initial shape.  See SHAPE.
+
 CLEAN
 
 	erases all lines that the turtle has drawn on the graphics window.
@@ -1903,6 +1914,11 @@ TURTLEMODE
 
 	outputs the word WRAP, FENCE, or WINDOW depending on the current
 	turtle mode.
+
+SHAPE
+
+	outputs the word TRIANGLE or TURTLE depending on the shape in which
+	the turtle is currently drawn.  See SETSHAPE.
 
 LABELSIZE
 

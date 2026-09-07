@@ -49,10 +49,6 @@
 #define screen_x_coord ((screen_x_center) + turtle_x)
 #define screen_y_coord ((screen_y_center) - turtle_y)
 
-#define turtle_height (FIXNUM) 18
-#define turtle_half_bottom (FLONUM) 6.0
-#define turtle_side (FLONUM) 19.0
-
 #define clear_screen win32_erase_screen()
 
 #define line_to(x,y) {\

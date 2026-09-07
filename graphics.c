@@ -45,6 +45,7 @@
 #endif /* end this whole big huge tree */
 
 #include "globals.h"
+#include "turtleshape.h"
 
 #ifdef HAVE_WX
 int drawToPrinter=0;
@@ -186,7 +187,7 @@ void draw_turtle(void) {
     forward(-1);
     draw_turtle_helper();
     /* all that follows is for "turtle wrap" effect */
-    if ((turtle_y > turtle_top_max - turtle_height) &&
+    if ((turtle_y > turtle_top_max - turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_y -= (screen_height + 1);
 	draw_turtle_helper();
@@ -194,7 +195,7 @@ void draw_turtle(void) {
 	check_x_low();
 	turtle_y += (screen_height + 1);
     }
-    if ((turtle_y < turtle_bottom_max + turtle_height) &&
+    if ((turtle_y < turtle_bottom_max + turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_y += (screen_height + 1);
 	draw_turtle_helper();
@@ -213,7 +214,7 @@ void draw_turtle(void) {
 }
 
 void check_x_high(void) {
-    if ((turtle_x > turtle_right_max - turtle_height) &&
+    if ((turtle_x > turtle_right_max - turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_x -= (screen_width + 1);
 	draw_turtle_helper();
@@ -222,7 +223,7 @@ void check_x_high(void) {
 }
 
 void check_x_low(void) {
-    if ((turtle_x < turtle_left_max + turtle_height) &&
+    if ((turtle_x < turtle_left_max + turtle_shape_extent()) &&
 	    (current_mode == wrapmode)) {
 	turtle_x += (screen_width + 1);
 	draw_turtle_helper();
@@ -231,13 +232,9 @@ void check_x_low(void) {
 }
 void draw_turtle_helper(void) {
     pen_info saved_pen;
-    FLONUM real_heading;
-    int left_x, left_y, right_x, right_y, top_x, top_y;
-#if 1	/* Evan Marshall Manning <manning@alumni.caltech.edu> */
-    double cos_real_heading, sin_real_heading;
-    FLONUM delta_x, delta_y;
-#endif
-   
+    struct turtle_shape_point points[MAX_TURTLE_SHAPE_POINTS];
+    int count, i;
+
     prepare_to_draw;
     prepare_to_draw_turtle;
     save_pen(&saved_pen);
@@ -246,29 +243,16 @@ void draw_turtle_helper(void) {
     set_pen_width(1);
     set_pen_height(1);
 
-    real_heading = -turtle_heading + 90.0;
- 
-    cos_real_heading = cos((FLONUM)(real_heading*degrad));
-    sin_real_heading = sin((FLONUM)(real_heading*degrad));
- 
-    delta_x = x_scale*(FLONUM)(sin_real_heading*turtle_half_bottom);
-    delta_y = y_scale*(FLONUM)(cos_real_heading*turtle_half_bottom);
- 
-    left_x = g_round(turtle_x - delta_x);
-    left_y = g_round(turtle_y + delta_y);
- 
-    right_x = g_round(turtle_x + delta_x);
-    right_y = g_round(turtle_y - delta_y);
- 
-    top_x = g_round(turtle_x + x_scale*(FLONUM)(cos_real_heading*turtle_side));
-    top_y = g_round(turtle_y + y_scale*(FLONUM)(sin_real_heading*turtle_side));
- 
-    /* move to right, draw to left, draw to top, draw to right */
-    move_to(screen_x_center + right_x, screen_y_center - right_y);
-    line_to(screen_x_center + left_x, screen_y_center - left_y);
-    line_to(screen_x_center + top_x, screen_y_center - top_y);
-    line_to(screen_x_center + right_x, screen_y_center - right_y);
- 
+    count = turtle_shape(turtle_x, turtle_y, turtle_heading,
+			 x_scale, y_scale,
+			 screen_x_center, screen_y_center, points);
+
+    move_to(points[0].x, points[0].y);
+    for (i = 1; i < count; i++) {
+	line_to(points[i].x, points[i].y);
+    }
+    line_to(points[0].x, points[0].y);
+
     restore_pen(&saved_pen);
     done_drawing_turtle;
     done_drawing;
@@ -616,6 +600,43 @@ void fix_turtle_shownness() {
 
 NODE *lshownp(NODE *args) {
     return(user_turtle_shown ? TrueName() : FalseName());
+}
+
+static int shape_index_from_name(NODE *name) {
+    int i;
+
+    for (i = 0; i < turtle_shape_count(); i++) {
+	if (compare_node(name, make_static_strnode(turtle_shape_name(i)),
+			 TRUE) == 0)
+	    return i;
+    }
+    return -1;
+}
+
+NODE *lsetshape(NODE *args) {
+    NODE *arg = car(args);
+    int shape = -1;
+
+    if (is_word(arg)) shape = shape_index_from_name(arg);
+    if (shape < 0) {
+	arg = pos_int_arg(args);
+	if (NOT_THROWING) shape = (int)getint(arg);
+    }
+    if (NOT_THROWING) {
+	BOOLEAN changed;
+
+	prepare_to_draw;
+	draw_turtle();
+	changed = set_turtle_shape(shape);
+	draw_turtle();
+	done_drawing;
+	if (!changed) err_logo(BAD_DATA, car(args));
+    }
+    return(UNBOUND);
+}
+
+NODE *lshape(NODE *args) {
+    return(make_static_strnode(turtle_shape_name(current_turtle_shape())));
 }
 
 NODE *lsetheading(NODE *arg) {

@@ -18,7 +18,7 @@ ucblogo_CPPFLAGS = $(AM_CPPFLAGS)	\
 
 ucblogo_SOURCES = coms.c error.c eval.c files.c graphics.c init.c	\
  intern.c libloc.c lists.c logodata.c main.c math.c mem.c paren.c	\
- parse.c print.c wrksp.c
+ parse.c print.c turtleshape.c wrksp.c
 
 if OBJECTS
 ucblogo_SOURCES += obj.c
@@ -74,8 +74,9 @@ dist_pixmaps_DATA = ucblogo.xpm
 
 # #include files used in build
 EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
- nographics.h obj.h TextEditor.h wxGlobals.h wxGraphics.h wxMain.h	\
- wxTerminal.h wxCommandHistory.h wxTurtleGraphics.h xgraphics.h
+ nographics.h obj.h TextEditor.h turtleshape.h wxGlobals.h		\
+ wxGraphics.h wxMain.h wxTerminal.h wxCommandHistory.h			\
+ wxTurtleGraphics.h xgraphics.h
 
 # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # See below; needs to run in build environment.

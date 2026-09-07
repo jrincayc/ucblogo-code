@@ -1,0 +1,11 @@
+SETSHAPE shapenumber.or.name
+
+	sets the shape in which the turtle is drawn.  The input is either
+	a shape number or the name of a shape:
+
+	 0  triangle	 1  turtle
+
+	The shape affects only the appearance of the turtle cursor; the
+	turtle's position, heading, and pen are unchanged, as are the lines
+	it draws.  The triangle is the initial shape.  See SHAPE.
+

@@ -478,6 +478,8 @@ extern NODE *lback(NODE *);
 extern NODE *lshowturtle(NODE *);
 extern NODE *lhideturtle(NODE *);
 extern NODE *lshownp(NODE *);
+extern NODE *lsetshape(NODE *);
+extern NODE *lshape(NODE *);
 extern NODE *lsetheading(NODE *);
 extern NODE *lheading(NODE *);
 extern NODE *pos_int_vector_arg(NODE *);

@@ -35,9 +35,10 @@ dist_helpfiles_DATA = allopen allowgetset and apply arc arctan arity	\
  sentence setbackground setbg setcslsloc setcursor seteditor setfont	\
  seth setheading sethelploc setitem setlabelheight setlibloc		\
  setmargins setpalette setpc setpen setpencolor setpenpattern		\
- setpensize setpos setprefix setread setreadpos setscrunch settc	\
- settemploc settextcolor settextfont settextsize setwrite setwritepos	\
- setx setxy sety shell show shownp showturtle sin splitscreen sqrt ss	\
+ setpensize setpos setprefix setread setreadpos setscrunch setshape	\
+ settc settemploc settextcolor settextfont settextsize setwrite		\
+ setwritepos setx setxy sety shape shell show shownp showturtle sin	\
+ splitscreen sqrt ss							\
  st standout startup step stepped steppedp stop substringp sum tag	\
  test text textscreen textsize thing throw to towards trace traced	\
  tracedp transfer ts turtlemode type unbury unburyall unburyname	\
