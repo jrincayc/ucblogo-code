@@ -24,6 +24,16 @@ AS_IF([test x${enable_objects} = xyes],
  [AC_DEFINE([OBJECTS],[1],[enable object-oriented features])])
 AM_CONDITIONAL([OBJECTS], [test x${enable_objects} = xyes])
 
+AC_MSG_CHECKING([enable_nl])
+AC_ARG_ENABLE([nl],
+ [AS_HELP_STRING([--enable-nl],
+  [enable Dutch (Nederlands) primitive aliases (default is no)])],,
+ [enable_nl=no])
+AC_MSG_RESULT([$enable_nl])
+AS_IF([test x${enable_nl} = xyes],
+ [AC_DEFINE([ENABLE_NL],[1],[enable Dutch primitive aliases])])
+AM_CONDITIONAL([ENABLE_NL], [test x${enable_nl} = xyes])
+
 AC_MSG_CHECKING([enable_gitid])
 AC_ARG_ENABLE([gitid],
  [AS_HELP_STRING([--enable-gitid],
