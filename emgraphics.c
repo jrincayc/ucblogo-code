@@ -78,10 +78,26 @@ EM_JS(void, em_set_back_ground, (int c), {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 });
 
-/* No JS-side blocking edit dialog here (unlike the Android backend, see
- * androidjni.c) -- leaving the temp file untouched makes ledit()'s
- * unconditional reload afterwards a no-op, so EDIT behaves like an
- * immediate cancel rather than failing to link or crashing. */
-void em_edit_file(char *tmp_filename) {
-    (void)tmp_filename;
-}
+/* Shows a blocking (from C's perspective) edit dialog for the procedure
+ * text already staged in tmp_filename by ledit() (wrksp.c), mirroring the
+ * Android backend (androidjni.c's em_edit_file() + MainActivity's
+ * showEditDialogBlocking()). EM_ASYNC_JS lets this "return" only after the
+ * user closes the page's own HTML modal (window.__logoShowEditDialog, see
+ * wasm-poc/index.html), while C-side execution appears to block the whole
+ * time -- requires -sASYNCIFY=1 at link time. Leaving the temp file
+ * untouched on cancel makes ledit()'s unconditional reload afterwards a
+ * no-op, same cancel behaviour as the Android backend. */
+EM_ASYNC_JS(void, em_edit_file, (char *tmp_filename), {
+    var path = UTF8ToString(tmp_filename);
+    var initial = '';
+    try {
+        initial = FS.readFile(path, { encoding: 'utf8' });
+    } catch (e) {
+        initial = '';
+    }
+    if (typeof window.__logoShowEditDialog !== 'function') return;
+    var result = await window.__logoShowEditDialog(initial);
+    if (result !== null) {
+        FS.writeFile(path, result);
+    }
+});

@@ -13,10 +13,24 @@
 #define prepare_to_draw_turtle nop()
 #define done_drawing_turtle nop()
 
+/* Matches the actual <canvas id="turtleCanvas" width="440" height="440">
+ * element in the surrounding HTML page (see wasm-poc/index.html and its
+ * copies in the Kolibri/XBlock deployments) 1:1 -- em_move_to()/em_line_to()
+ * pass coordinates straight through to ctx.moveTo()/lineTo() with no
+ * JS-side scaling, so this constant IS the real on-screen pixel range, not
+ * an abstract logical-coordinate choice. Previously 200 (turtle range
+ * -100..100), which wasted more than half the canvas's actual resolution
+ * and made ordinary scripts (e.g. "herhaal 5 [vt 150 re 144]", a plain
+ * 5-pointed star) exceed the -100..100 range and wrap/reappear on the
+ * opposite edge well before finishing. Real desktop UCBLogo backends
+ * (win32trm.h, wxGraphics.h, xgraphics.h) don't hardcode a virtual size
+ * at all -- they query the actual window's pixel dimensions at runtime;
+ * 440 here is the WASM-equivalent fixed counterpart to that, since all
+ * three deployments currently share one fixed-size canvas element. */
 #define screen_left 0
-#define screen_right 500
+#define screen_right 440
 #define screen_top 0
-#define screen_bottom 500
+#define screen_bottom 440
 
 #define screen_height (1 + screen_bottom - screen_top)
 #define screen_width (1 + screen_right - screen_left)
@@ -104,8 +118,9 @@ extern void em_set_back_ground(int c);
  * definition) to the host app, which shows its own blocking edit UI and
  * rewrites the file with the result before returning. The Android backend
  * (androidjni.c) implements this with a real blocking dialog; the WASM/
- * browser backend (emgraphics.c) only provides a no-op stub -- EDIT
- * behaves like an immediate cancel there. */
+ * browser backend (emgraphics.c) uses EM_ASYNC_JS + Asyncify to show an
+ * HTML modal (see wasm-poc/index.html's window.__logoShowEditDialog) while
+ * appearing to block synchronously from C's point of view. */
 extern void em_edit_file(char *tmp_filename);
 
 #define logofill() nop()

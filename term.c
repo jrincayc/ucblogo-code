@@ -97,7 +97,7 @@ int termcap_putter(int ch) {
     return 0;
 }
 
-#ifdef unix
+#if defined(unix) && !defined(EM_GRAPHICS)
 void termcap_getter(char *cap, char *buf) {
     char temp[40];
     char *str;
@@ -113,8 +113,10 @@ void termcap_getter(char *cap, char *buf) {
 void term_init(void) {
 #ifdef unix
     char *emacs; /* emacs change */
+#if !defined(EM_GRAPHICS)
     int term_sg;
     int tgetent_result;
+#endif
 #endif
 
 #ifdef WIN32
@@ -149,6 +151,7 @@ void term_init(void) {
      * x_max, y_max, cm_arr, cl_arr, so_arr, se_arr
      * are preinitialized to 0 */
 
+#if !defined(EM_GRAPHICS)
     /* query terminal information from termcap database, if available */
     tgetent_result = tgetent(bp, getenv("TERM"));
     if (tgetent_result == 1) {
@@ -168,7 +171,13 @@ void term_init(void) {
 	so_arr[0] = se_arr[0] = '\0';
       }
     }
-    
+    /* EM_GRAPHICS (WASM/browser): no real termcap database to query, and
+     * no terminal to move a cursor on -- x_max/y_max fall through to the
+     * defaults set below, cm_arr/cl_arr/so_arr/se_arr stay empty (their
+     * only other use, in lcleartext()/lsetcursor(), is also skipped for
+     * EM_GRAPHICS -- see term.c further down). */
+#endif
+
     /* emacs detection */
     emacs = getenv("EMACS");
     if (emacs && *emacs == 't') { /* started from emacs */
@@ -225,7 +234,9 @@ void charmode_off() {
 
 NODE *lcleartext(NODE *args) {
     printf("%s", cl_arr);
+#if !defined(EM_GRAPHICS)
     printf("%s", tgoto(cm_arr, x_margin, y_margin));
+#endif
 
 #ifdef WIN32
 	win32_update_text();
@@ -269,7 +280,9 @@ NODE *lsetcursor(NODE *args) {
 	}
     }
     if (NOT_THROWING) {
+#if !defined(EM_GRAPHICS)
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
+#endif
 	fflush(stdout);
     }
     return(UNBOUND);
