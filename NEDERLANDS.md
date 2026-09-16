@@ -13,6 +13,19 @@ Voor volledig Nederlandse foutmeldingen en systeemteksten: gebruik de
 losse **UCBLogo-NL**-app (gebruikt `logolib/Messages.nl`) i.p.v. de gewone
 UCBLogo-app, en zet `usealternatenames` aan: `make "usealternatenames "true`.
 
+## Syntax (geen commando's, dus niet vertaald — zelfde teken in elke taal)
+
+| Teken | Betekenis |
+|---|---|
+| `;` | begint commentaar; Logo negeert alles vanaf de `;` tot het einde van de regel |
+| `~` (tilde) | laat de instructie doorlopen op de volgende regel (vervolgregel) |
+| `\` | ontsnapt het erop volgende teken (bv. `\;` of `\~` als letterlijk teken in een woord, i.p.v. als commentaar/vervolgregel) |
+
+Een regel loopt ook automatisch door naar de volgende (alsof er een `~` aan
+het eind stond) zolang er nog een haakje, accolade of verticale streep
+openstaat. `;`-commentaar loopt nooit automatisch door, ook niet met een
+`~` aan het eind van die regel.
+
 ## Procedures & besturing
 
 | Nederlands | Engels |
