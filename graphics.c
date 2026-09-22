@@ -38,6 +38,8 @@
 #include "win32trm.h"
 #elif defined(x_window)
 #include "xgraphics.h"
+#elif defined(EM_GRAPHICS)
+#include "emgraphics.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
@@ -151,6 +153,16 @@ void draw_turtle(void) {
     // See: http://trac.wxwidgets.org/ticket/18050
     //
     // So, drawing the turtle is handled manually at the wx level.
+    return;
+#endif
+
+#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window) && !defined(EM_GRAPHICS)
+    // No real graphics backend (headless/nographics build): there is no
+    // turtle icon to actually draw, and the recursive forward(-1)/
+    // forward(1) calls below (used elsewhere to erase/redraw the turtle
+    // shape) serve no purpose here -- they only risk unbounded recursion
+    // through forward() once turtle_shown becomes true. Mirror the
+    // HAVE_WX early-out above.
     return;
 #endif
 
@@ -729,6 +741,14 @@ NODE *ltowards(NODE *args) {
 NODE *lpos(NODE *args) {
     return(cons(make_floatnode(cut_error(turtle_x/x_scale)),
 	cons(make_floatnode(cut_error(turtle_y/y_scale)), NIL)));
+}
+
+NODE *lxcor(NODE *args) {
+    return(make_floatnode(cut_error(turtle_x/x_scale)));
+}
+
+NODE *lycor(NODE *args) {
+    return(make_floatnode(cut_error(turtle_y/y_scale)));
 }
 
 NODE *lscrunch(NODE *args) {
@@ -1670,6 +1690,19 @@ NODE *lprinttext(NODE *args) {
 
 BOOLEAN safe_to_save(void) {
     char *newbuf;
+
+#if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window) && !defined(EM_GRAPHICS)
+    // No real graphics backend (headless/nographics build): nographics.h
+    // defines GR_SIZE as 1, so record_buffer (declared as
+    // char record_buffer[GR_SIZE]) is a single byte -- yet the code below
+    // unconditionally writes a full pointer into it on the very first
+    // call, corrupting whatever global follows record_buffer in memory
+    // (observed: silently stomps AllowGetSet, causing an unrelated crash
+    // on a later, seemingly unrelated primitive lookup). There is no
+    // window to redraw in a headless build anyway, so there is nothing
+    // to gain from recording draw operations here.
+    return FALSE;
+#endif
 
     if (!refresh_p || drawing_turtle) return FALSE;
     if (record == 0) {	/* first time */

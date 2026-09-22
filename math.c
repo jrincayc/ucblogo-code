@@ -199,9 +199,11 @@ NODE *binary(NODE *args, char fcn) {
 	switch(fcn) {
 	  case '-': ival = -ival; break;
 	  case '~': ival = ~ival; break;
+	  case 'b': if (ival < 0) ival = -ival; break;
 	  case 's':
 	  case 'c':
 	  case 't':
+	  case 'y':
 	  case 'S':
 	  case 'C':
 	  case 'T':
@@ -250,6 +252,8 @@ NODE *binary(NODE *args, char fcn) {
 	    if (sign) fval = -fval;
 	    break;
 	  case 't': fval = atan(fval)/degrad; break;
+	  case 'y': fval = tan(fval*degrad); break;
+	  case 'b': fval = fabs(fval); break;
 	  case 'S': fval = sin(fval); break;
 	  case 'C': fval = cos(fval); break;
 	  case 'T': fval = atan(fval); break;
@@ -518,6 +522,14 @@ NODE *lcos(NODE *args) {
 
 NODE *latan(NODE *args) {
     return(binary(args, 't'));
+}
+
+NODE *ltan(NODE *args) {
+    return(binary(args, 'y'));
+}
+
+NODE *labsx(NODE *args) { /* There's a labs in <stdlib.h> */
+    return(binary(args, 'b'));
 }
 
 NODE *lradsin(NODE *args) {

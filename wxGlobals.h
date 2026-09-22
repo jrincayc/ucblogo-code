@@ -78,7 +78,8 @@ extern LogoEventManager *logoEventManager;
 extern wxMenuBar* menuBar;
 extern wxBoxSizer *topsizer;
 extern TextEditor *editWindow;
-extern TurtleCanvas * turtleGraphics; 
+extern wxFrame *editorFrame;
+extern TurtleCanvas * turtleGraphics;
 
 /* wxTurtleGraphics */
 // the size of the turtle graphics window

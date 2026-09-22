@@ -81,6 +81,7 @@ install_win: all
 	cp -f logolib/* $(LIBLOC)/logolib/.
 	mv -v $(LIBLOC)/logolib/RENAME-GRAVE-ACCENT '$(LIBLOC)/logolib/`'
 	mv -v $(LIBLOC)/logolib/RENAME-NUMBER-SIGN '$(LIBLOC)/logolib/#'
+	cp -f logolib/Messages.nl '$(LIBLOC)/logolib/Messages'
 	cp -f helpfiles/* $(LIBLOC)/helpfiles/.
 	cp -f csls/* $(LIBLOC)/csls/.
 	cp -f LICENSE $(LIBLOC)/

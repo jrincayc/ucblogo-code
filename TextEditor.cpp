@@ -241,12 +241,10 @@ void TextEditor::Close(){
 		findDlg->Destroy();
 		findDlg = 0; 
 	}
-	topsizer->Show(wxTerminal::terminal, 1);
-	topsizer->Show((wxWindow *)turtleGraphics, turtleGraphics->getInfo(IN_GRAPHICS_MODE));
-	topsizer->Show(editWindow, 0);
-	topsizer->Layout();
+	// The editor lives in its own window now (EditorFrame); just hide
+	// that window and return focus to the main frame's terminal.
+	editorFrame->Hide();
 	wxTerminal::terminal->SetFocus();
-	logoFrame->SetUpMenu();
 	editor_active = 0;
 }
 
