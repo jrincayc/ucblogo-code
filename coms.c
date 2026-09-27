@@ -396,7 +396,9 @@ NODE *lwait(NODE *args) {
 	//check_throwing;
 #else
 	if (getint(num) > 0) {
-#ifdef unix
+#ifdef __EMSCRIPTEN__
+	    wasm_sleep((unsigned int)getint(num) * 50 / 3);
+#elif defined(unix)
 #ifdef HAVE_USLEEP
 	    n = (unsigned int)getint(num);
 		

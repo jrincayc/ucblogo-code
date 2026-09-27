@@ -34,6 +34,8 @@
 
 #ifdef HAVE_WX
 #include "wxGraphics.h"
+#elif defined(__EMSCRIPTEN__)
+#include "wasmgraphics.h"
 #elif defined(WIN32)
 #include "win32trm.h"
 #elif defined(x_window)
@@ -151,6 +153,11 @@ void draw_turtle(void) {
     // See: http://trac.wxwidgets.org/ticket/18050
     //
     // So, drawing the turtle is handled manually at the wx level.
+    return;
+#endif
+#ifdef __EMSCRIPTEN__
+    // Likewise, the web page draws the turtle over the framebuffer.
+    wasm_turtle_moved();
     return;
 #endif
 

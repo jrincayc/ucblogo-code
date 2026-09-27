@@ -894,6 +894,9 @@ set_args_continue:
 
 eval_sequence:
     debprint("eval_sequence");
+#ifdef __EMSCRIPTEN__
+    wasm_poll();
+#endif
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
