@@ -8,8 +8,8 @@
 
 # export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
 # export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
-export CFLAGS="-O3 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
-export CXXFLAGS="-O3 -g -ferror-limit=0"
+export CFLAGS="-O2 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
+export CXXFLAGS="-O2 -g -ferror-limit=0"
 # --spill-pointers thanks to jburgy 
 # https://github.com/jrincayc/ucblogo-code/pull/255 
 export LDFLAGS="-ferror-limit=0 -sBINARYEN_EXTRA_PASSES=--spill-pointers"
