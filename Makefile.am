@@ -130,7 +130,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o \
 	--pre-js pre.js \
 	--embed-file dist/share/ucblogo@/share/ucblogo \
 	--embed-file tests \
