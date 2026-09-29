@@ -34,7 +34,7 @@ Makefile.in
 git.c
 logo_win.res
 *.dSYM/
-.vscode/browse.*
+.vscode
 *.swp
 *~
 *.wasm
