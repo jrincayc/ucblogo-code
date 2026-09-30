@@ -30,6 +30,9 @@ extern int main(int, char *[]);
 extern void unblock_input(void);
 extern void delayed_int(void);
 extern NODE *command_line;
+#ifdef SERIALIZE_OBJECTS
+extern unsigned long long int next_node_id;
+#endif
 
 #if defined(SIG_TAKES_ARG)
 void logo_stop(int);
