@@ -93,7 +93,14 @@ void rd_print_prompt(char *str) {
 #endif
 
 #ifdef __EMSCRIPTEN__
-	EM_ASM({outputElement.value += UTF8ToString($0)}, str);
+	EM_ASM({
+		if (typeof outputElement === 'undefined') {
+			console.log(UTF8ToString($0))
+		}
+		else {
+			outputElement.value += UTF8ToString($0)
+		}
+	}, str);
 #else
     ndprintf(stdout,"%t",str);
 #endif

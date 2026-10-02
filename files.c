@@ -67,7 +67,7 @@ EM_ASYNC_JS(char, em_getc, (), {
 		await new Promise((res, rej) => {
 			document.addEventListener('getcharready', res, { once: true });
 		});
-        char = Module.FS_runjs_getChar_buffer.shift();
+        char = Module.FS_runjs_getChar_buffer.shift().charCodeAt(0);
 	} else {
 		char = process.stdin.read(1);
 		while (char == null) {
@@ -76,7 +76,8 @@ EM_ASYNC_JS(char, em_getc, (), {
 		}
 	}
 	// Convert to int so it converts to C char and not a string
-	return char.charCodeAt(0);
+    console.log(`char ${char}`);
+	return char;
 });
 
 int sysGetC(FILE* stream) {

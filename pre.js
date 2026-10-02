@@ -1,6 +1,8 @@
 const SVG = 'http://www.w3.org/2000/svg';
 
 Module.onRuntimeInitialized = () => {
+    // do not mount if running on node
+    if (typeof document === 'undefined') return;
     // Mount IDBFS
     FS.mkdir('/d');
     FS.mount(IDBFS, {autoPersist: true}, '/d');
@@ -109,6 +111,7 @@ Module.logoGC = {
 if (typeof globalThis !== 'undefined') globalThis.logoGC = Module.logoGC;
 
 Module.preRun = () => {
+    if (typeof document === 'undefined') return;
     const PREFIX = "/share/ucblogo";
     ENV.LOGOLIB = PREFIX + "/logolib";
     ENV.LOGOHELP = PREFIX + "/helpfiles";
@@ -170,6 +173,7 @@ const BLON = {
     }
 };
 Module.FS_runjs_getChar_buffer_append_obj = (obj) => {
+    if (typeof document === 'undefined') return;
     // Module.FS_runjs_getChar_buffer
     //     .push(...intArrayFromString(BLON.stringify(obj), true));
     // Module.FS_runjs_getChar_buffer.push(10);
@@ -179,12 +183,14 @@ Module.FS_runjs_getChar_buffer_append_obj = (obj) => {
     document.dispatchEvent(new CustomEvent("getcharready"));
 }
 Module.FS_runjs_getChar_buffer_append_str = (str) => {
+    if (typeof document === 'undefined') return;
     let chars = str.split("");
     chars.push("\n");
     Module.FS_runjs_getChar_buffer.push(...chars);
     document.dispatchEvent(new CustomEvent("getcharready"));
 }
 Module.runjs = (expr) => {
+    if (typeof document === 'undefined') return;
     let r;
     try {
         r = eval(expr);
@@ -213,6 +219,7 @@ Module.graphics.pen_info = {
 Module.graphics.lastclick = { offsetX: 0, offsetY: 0, button: 0 };
 Module.graphics.lastmove = { offsetX: 0, offsetY: 0, button: 0 };
 Module.graphics.graphics_init = () => {
+    if (typeof document === 'undefined') return;
     const g = Module.graphics;
     // console.log("graphics_init");
     g.clear_screen();

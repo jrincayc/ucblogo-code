@@ -229,7 +229,9 @@ void doFilled(int fillcolor, int count, mypoint_t *points) {
 }
 
 EM_JS(void, web_graphics_init, (), {
-   Module.graphics.graphics_init();
+   if (typeof document !== 'undefined') {
+      Module.graphics.graphics_init();
+   }
 });
 
 void graphics_init()
