@@ -27,6 +27,11 @@
 #include "logo.h"
 #include "globals.h"
 
+#if defined(__EMSCRIPTEN__) && defined(__SANITIZE_ADDRESS__)
+#include <emscripten.h>
+#include <sanitizer/asan_interface.h>
+#endif
+
 /* evaluator registers that need saving around evals */
 struct registers regs;
 NODE *Regs_Node;
@@ -387,6 +392,16 @@ tail_eval_dispatch:
     tailcall = 1;
 eval_dispatch:
 	YIELD;
+	#if defined(__EMSCRIPTEN__) && defined(__SANITIZE_ADDRESS__)
+	if (expresn != NIL &&
+	    __asan_address_is_poisoned((void *)&expresn->nunion)) {
+	    EM_ASM({
+	        console.error("Poisoned NODE reached eval_dispatch", $0);
+	        console.error(Module.logoGC.inspect($0));
+	        debugger;
+	    }, (uintptr_t)expresn);
+	}
+	#endif
     debprint("eval_dispatch");
     switch (nodetype(expresn)) {
 	case QUOTE:			/* quoted literal */
