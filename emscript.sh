@@ -6,13 +6,23 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-# export CFLAGS="-O0 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=undefined -fsanitize=address"
-# export CXXFLAGS="-O0 -g -fsanitize=undefined -fsanitize=address"
-export CFLAGS="-O2 -g -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
-export CXXFLAGS="-O2 -g -ferror-limit=0"
-# --spill-pointers thanks to jburgy 
-# https://github.com/jrincayc/ucblogo-code/pull/255 
-export LDFLAGS="-ferror-limit=0 -sBINARYEN_EXTRA_PASSES=--spill-pointers"
+export CFLAGS="-O3 -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
+export CXXFLAGS="-O3"
+# export CFLAGS="-g -O3 -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize-address -fsanitize-undefined"
+# export CXXFLAGS="-g -O3 -fsanitize-address -fsanitize-undefined"
+export LDFLAGS="-O3 -ferror-limit=0"
+export LDFLAGS="$LDFLAGS -s JSPI=0"
+export LDFLAGS="$LDFLAGS -s ASYNCIFY=1"
+export LDFLAGS="$LDFLAGS -s ASYNCIFY_STACK_SIZE=10000000"
+# export LDFLAGS="$LDFLAGS -g"
+# export LDFLAGS="$LDFLAGS -gsource-map"
+# export LDFLAGS="$LDFLAGS -fsanitize=address -fsanitize=undefined"
+# export LDFLAGS="$LDFLAGS -s EXCEPTION_DEBUG=1"
+# export LDFLAGS="$LDFLAGS -s LIBRARY_DEBUG=1"
+# export LDFLAGS="$LDFLAGS -s SYSCALL_DEBUG=1"
+# export LDFLAGS="$LDFLAGS -s ASSERTIONS=1"
+# export LDFLAGS="$LDFLAGS -s STACK_OVERFLOW_CHECK=1"
+# export LDFLAGS="$LDFLAGS -s SAFE_HEAP=2"
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
@@ -20,25 +30,22 @@ emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
 --prefix=`pwd`/dist \
 --disable-objects --enable-wasm \
 && emmake make clean \
-&& emmake make ucblogo.html
+&& emmake make ucblogo-node.js \
+&& node ./ucblogo-node.js tests/test.lg
+# && wasm-opt ucblogo-node.wasm --spill-pointers -o ucblogo-node.wasm \
+# && emmake make ucblogo.html
 
 # -s ASYNCIFY_ADVISE \
 # --save-temps
 # -s EXIT_RUNTIME=1 \
 # -s EXPORT_NAME=ucblogo \
 # -s STANDALONE_WASM \
-# -s ASSERTIONS=1 \
-# -s STACK_OVERFLOW_CHECK=1 \
-# -s SAFE_HEAP=2 \
 
-#--embed-file ucblogo.wasm.map \
-#-s EXCEPTION_DEBUG=1  \
-#-s ASYNCIFY_ADVISE=1 \
-#-s ASYNCIFY_DEBUG=1 
+    # -s ASYNCIFY_ADVISE=1 \
+    # -s ASYNCIFY_DEBUG=1  \
 
 # Doesn't work with asyncify
 # Does it work with JSPI?
-# -fsanitize=address 
 
 # redundant with -gsource-maps
 # --profiling-funcs \
@@ -53,9 +60,6 @@ emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
 # 3. Click Cancel (executes lines in buffer)
 # 4. Watch output pane
 # python3 -m http.server 8080 & xdg-open http://0.0.0.0:8080/ucblogo.html
-
-# Or use node; it uses the same V8 engine as chrome
-node --experimental-wasm-stack-switching  ./ucblogo.js tests/test.lg
 
 # or use emrun
 # link with --emrun then run

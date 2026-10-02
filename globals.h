@@ -115,6 +115,7 @@ extern NODE *lsetsegsz(NODE *);
 extern void fill_reserve_tank(void);
 extern void use_reserve_tank(void);
 extern void check_reserve_tank(void);
+void set_bottom_stack( NODE** );
 
 /* parse.c */
 extern FILE *loadstream, *writestream, *readstream, *dribblestream;

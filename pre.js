@@ -52,6 +52,62 @@ Module.graphics.logoColors = [
     { r: 71.4854657816434, g: 71.4854657816434, b: 71.4854657816434 },
 ];
 Module.FS_runjs_getChar_buffer = [];
+
+// CoPilot port of gdb.rc
+Module.logoGC = {
+    nodeTypes: {
+        empty: 0o40000,
+        caseobj: 0o1,
+        list: 0o10000,
+        aggregate: 0o20000,
+        tree: 0o100000,
+    },
+    segmentList() {
+        return Module._logo_gc_debug_segment_list();
+    },
+    inspect(address) {
+        return {
+            address,
+            id: Module._logo_gc_debug_node_id(address),
+            type: Module._logo_gc_debug_node_type(address),
+            car: Module._logo_gc_debug_node_car(address),
+            cdr: Module._logo_gc_debug_node_cdr(address),
+            object: Module._logo_gc_debug_node_obj(address),
+            next: Module._logo_gc_debug_node_next(address),
+            generation: Module._logo_gc_debug_node_generation(address),
+            mark: Module._logo_gc_debug_node_mark(address),
+        };
+    },
+    dumpNodes() {
+        const nodes = [];
+        for (let segment = this.segmentList(); segment;
+             segment = Module._logo_gc_debug_segment_next(segment)) {
+            const size = Module._logo_gc_debug_segment_size(segment);
+            for (let index = 0; index < size; index++) {
+                nodes.push(this.inspect(
+                    Module._logo_gc_debug_segment_node(segment, index)
+                ));
+            }
+        }
+        console.table(nodes);
+        return nodes;
+    },
+    pcons(address, seen = new Set()) {
+        if (!address || seen.has(address)) return;
+        seen.add(address);
+        const node = this.inspect(address);
+        console.log(node);
+        if (node.type === -1 || (node.type & this.nodeTypes.empty)) return;
+        if (node.type & this.nodeTypes.tree) this.pcons(node.object, seen);
+        if (node.type & (this.nodeTypes.list | this.nodeTypes.aggregate)) {
+            this.pcons(node.car, seen);
+            this.pcons(node.cdr, seen);
+        }
+        if (node.type & this.nodeTypes.caseobj) this.pcons(node.car, seen);
+    },
+};
+if (typeof globalThis !== 'undefined') globalThis.logoGC = Module.logoGC;
+
 Module.preRun = () => {
     const PREFIX = "/share/ucblogo";
     ENV.LOGOLIB = PREFIX + "/logolib";

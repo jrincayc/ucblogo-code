@@ -23,6 +23,10 @@
 
 #include <stdarg.h>
 #include <setjmp.h>
+#ifdef __EMSCRIPTEN__
+#include <stdint.h>
+#include <emscripten.h>
+#endif
 
 #define WANT_EVAL_REGS 1
 #include "logo.h"
@@ -71,6 +75,82 @@ FIXNUM seg_size = SEG_SIZE;
 
 NODE *free_list = NIL;                /* global ptr to free node list */
 struct segment *segment_list = NULL;  /* global ptr to segment list */
+
+// AI slop port of gdb.rc to JS debugger
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE uintptr_t logo_gc_debug_segment_list(void) {
+	return (uintptr_t)segment_list;
+}
+
+EMSCRIPTEN_KEEPALIVE uintptr_t logo_gc_debug_segment_next(uintptr_t address) {
+	struct segment *segment = (struct segment *)address;
+	return segment ? (uintptr_t)segment->next : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE uintptr_t logo_gc_debug_segment_size(uintptr_t address) {
+	struct segment *segment = (struct segment *)address;
+	return segment ? (uintptr_t)segment->size : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE uintptr_t logo_gc_debug_segment_node(uintptr_t address,
+														  uintptr_t index) {
+	struct segment *segment = (struct segment *)address;
+	return segment && index < (uintptr_t)segment->size
+		? (uintptr_t)&segment->nodes[index] : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+int logo_gc_debug_node_type(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? (int)node->node_type : -1;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+uintptr_t logo_gc_debug_node_car(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? (uintptr_t)node->n_car : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+uintptr_t logo_gc_debug_node_cdr(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? (uintptr_t)node->n_cdr : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+uintptr_t logo_gc_debug_node_obj(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? (uintptr_t)node->n_obj : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+uintptr_t logo_gc_debug_node_next(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? (uintptr_t)node->next : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+int logo_gc_debug_node_generation(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? node->my_gen : -1;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+long logo_gc_debug_node_mark(uintptr_t address) {
+	NODE *node = (NODE *)address;
+	return node ? node->mark_gc : -1;
+}
+
+EMSCRIPTEN_KEEPALIVE __attribute__((no_sanitize_address))
+unsigned long long logo_gc_debug_node_id(uintptr_t address) {
+	NODE *node = (NODE *)address;
+#ifdef SERIALIZE_OBJECTS
+	return node ? node->id : 0;
+#else
+	return 0;
+#endif
+}
+#endif
 
 long int mem_allocated = 0, mem_freed = 0;
 
@@ -586,6 +666,20 @@ void __attribute__((no_sanitize_address)) mark_stack( NODE** top){
     }
 }
 
+
+#ifdef __EMSCRIPTEN__
+void _mark_wasm(void* start, void* end) {
+	set_bottom_stack((NODE**) end);
+	mark_stack((NODE**) start);
+}
+
+void mark_wasm_stack() {
+	emscripten_scan_stack(&_mark_wasm);
+	emscripten_scan_registers(&_mark_wasm); // wasm vm locals
+}
+#endif
+
+
 void gc (BOOLEAN no_error)  {
     NODE *top;
     NODE *nd, *tmpnd;
@@ -719,7 +813,11 @@ re_mark:
     num_examined = 0;
 #endif
 
-mark_stack(&top);
+#ifdef __EMSCRIPTEN__
+mark_wasm_stack();
+#else
+mark_stack(&top, NULL);
+#endif
 
 #ifdef GC_DEBUG
     fprintf(DEBUGSTREAM, "stack %ld + ", num_examined); fflush(DEBUGSTREAM);
@@ -978,4 +1076,29 @@ void use_reserve_tank(void) {
 
 void check_reserve_tank(void) {
     if (reserve_tank == NIL) fill_reserve_tank();
+}
+
+void set_bottom_stack( NODE** bottom) {
+#ifdef __SANITIZE_ADDRESS__
+	// ASAN does unholy things
+	 NODE** real_ptr;
+	// void* fake_stack = 
+	// Theoretically ASAN can be configured not do stack checks, so check
+	// if we're using a fake stack right now.
+	// if (fake_stack) {
+		// If the stack variable is in the fake stack, real_ptr will contain
+		// the real stack address of the fake stack frame pointer.
+		// That's the address of the bottom of the real stack.
+		real_ptr = (NODE**) __asan_addr_is_in_fake_stack(
+			__asan_get_current_fake_stack(),
+			bottom, 
+			NULL, NULL
+		);
+		// Otherwise the variable is on the real stack so treat it normally.
+	// }
+	// bottom_stack = fake_stack && real_ptr ? real_ptr : &bottom;
+	bottom_stack = real_ptr ? real_ptr : bottom;
+#else
+	bottom_stack = bottom;
+#endif
 }

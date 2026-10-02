@@ -242,31 +242,6 @@ void delayed_int() {
 #endif
 }
 
-void set_bottom_stack( NODE** bottom) {
-#ifdef __SANITIZE_ADDRESS__
-	// ASAN does unholy things
-	 NODE** real_ptr;
-	// void* fake_stack = 
-	// Theoretically ASAN can be configured not do stack checks, so check
-	// if we're using a fake stack right now.
-	// if (fake_stack) {
-		// If the stack variable is in the fake stack, real_ptr will contain
-		// the real stack address of the fake stack frame pointer.
-		// That's the address of the bottom of the real stack.
-		real_ptr = (NODE**) __asan_addr_is_in_fake_stack(
-			__asan_get_current_fake_stack(),
-			bottom, 
-			NULL, NULL
-		);
-		// Otherwise the variable is on the real stack so treat it normally.
-	// }
-	// bottom_stack = fake_stack && real_ptr ? real_ptr : &bottom;
-	bottom_stack = real_ptr ? real_ptr : bottom;
-#else
-	bottom_stack = bottom;
-#endif
-}
-
 #ifdef HAVE_WX
 extern char * wx_get_original_dir_name(void);
 extern char * wx_get_current_dir_name(void);

@@ -123,8 +123,30 @@ regenerate-help-index: makehelp usermanual
 
 all: 
 
+ucblogo-node.js: ucblogo pre.js
+	em++  \
+	-o ucblogo-node.js \
+	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
+	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
+	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
+	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o \
+	--pre-js pre.js \
+	-s JSPI \
+	-s ALLOW_MEMORY_GROWTH \
+	--emrun \
+	-s ENVIRONMENT=node \
+	-s STRICT_JS \
+	-s EMIT_PRODUCERS_SECTION \
+	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
+	-sEXPORTED_RUNTIME_METHODS=ccall \
+	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,_logo_gc_debug_node_id \
+	-s NODERAWFS=1 \
+	$(LDFLAGS)
+
+
 ucblogo.html: ucblogo shell.html pre.js
-	em++ $(CXXFLAGS) \
+	em++  \
 	-o ucblogo.html \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
@@ -138,17 +160,17 @@ ucblogo.html: ucblogo shell.html pre.js
 	--embed-file logologo.ico \
 	--embed-file webstartup.lg@/share/ucblogo/logolib/startup.lg \
 	-s JSPI \
-	-s ASYNCIFY_STACK_SIZE=100000 \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
-	-s ENVIRONMENT=web,node \
+	-s ENVIRONMENT=web \
 	-s STRICT_JS \
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
 	--shell-file shell.html \
 	-sEXPORTED_RUNTIME_METHODS=ccall \
-	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact \
-	 -lidbfs.js
+	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,_logo_gc_debug_node_id \
+	-lidbfs.js \
+	$(LDFLAGS)
 
 # ucblogo-obj.o 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
