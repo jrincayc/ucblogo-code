@@ -99,7 +99,11 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define HASH_LEN        1021	/* a prime number */
 
 /* SEG_SIZE should be a fairly big number for optimal GC Performance */
+// set to a very small value to stress-test. 
 #ifdef __EMSCRIPTEN__
+// #define SEG_SIZE        (/* die fast */ 5)
+// #define SEG_SIZE        (/* die slow */ 64)
+// #define SEG_SIZE        (/* smoke-test */ 1024)
 #define SEG_SIZE        (32/*MB*/ * 1024/*KB*/ * 1024/*B*/ / sizeof(NODE)) 
 #else
 #define SEG_SIZE        16000
