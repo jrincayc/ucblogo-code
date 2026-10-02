@@ -31,6 +31,7 @@ emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
 --disable-objects --enable-wasm \
 && emmake make clean \
 && emmake make ucblogo-node.js \
+&& emmake make ucblogo.html \
 && node ./ucblogo-node.js tests/test.lg
 # && wasm-opt ucblogo-node.wasm --spill-pointers -o ucblogo-node.wasm \
 # && emmake make ucblogo.html
