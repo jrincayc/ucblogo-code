@@ -16,6 +16,7 @@ ucblogo_CPPFLAGS = $(AM_CPPFLAGS)	\
  -DCSLSLOC='"$(cslsdir)"'		\
  -DTEMPLOC='"$(tempdir)"'
 
+# FIXME add header files
 ucblogo_SOURCES = coms.c error.c eval.c files.c graphics.c init.c	\
  intern.c libloc.c lists.c logodata.c main.c math.c mem.c paren.c	\
  parse.c print.c turtleshape.c wrksp.c

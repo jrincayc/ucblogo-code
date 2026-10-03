@@ -56,6 +56,8 @@
 #include <time.h>
 #include <sys/time.h>
 
+extern void yield_to_js(long);
+
 int yield_enabled = 1;
 
 // Yields execution to browser so it can handle events; IE cooperative
@@ -71,30 +73,32 @@ void yield() {
 	// Could do it in a separate thread maybe
 	// This may require additional tuning
 	// It's a tradeoff between throughput and latency
-	static int tlast;
-	static const int YIELD_EVERY = 10000;
+	static const int YIELD_EVERY = 5000; // calls to yield
 	static int yield_needed = YIELD_EVERY;
-	static const long long MAXBLOCKDS = 200 * 10 ^ 6;
+	static const long long MAXBLOCK = 5 * 1000 * 1000; //ms
 	static struct timespec ts;
-	static long long curtimeds; // Deciseconds (1/10th seconds)
 	static long long lasttimeds;
 
-	if (yield_enabled && --yield_needed == 0) {
-		// int tnow = EM_ASM_INT({ return Date.now() }); // ms
-		// if (tnow - tlast > 100) {
-			// emscripten_sleep(0);
-		// }
-		// tlast = tnow;
+	if (yield_enabled && --yield_needed <= 0) {
+		// EM_ASM({ console.log("MAYBEYIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
 		if (clock_gettime(CLOCK_MONOTONIC, &ts))
 		{
 			err_logo(STOP_ERROR, NIL);
 			exit(EXIT_FAILURE);
 		}
-		if (ts.tv_nsec - lasttimeds >= MAXBLOCKDS || lasttimeds > ts.tv_nsec)
+		if (ts.tv_nsec - lasttimeds >= MAXBLOCK || lasttimeds > ts.tv_nsec)
 		{
-			emscripten_sleep(0);
+			// EM_ASM({ console.log("YIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
+			// emscripten_sleep(0);
+			yield_to_js(0);
+			if (clock_gettime(CLOCK_MONOTONIC, &ts))
+			{
+				err_logo(STOP_ERROR, NIL);
+				exit(EXIT_FAILURE);
+			}
+			// EM_ASM({ console.log("RESUME", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
+			lasttimeds = ts.tv_nsec;
 		}
-		lasttimeds = curtimeds;
 		yield_needed = YIELD_EVERY;
 	}
 }
