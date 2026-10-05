@@ -27,8 +27,11 @@
 #include "logo.h"
 #include "globals.h"
 
-#if defined(__EMSCRIPTEN__) && defined(__SANITIZE_ADDRESS__)
+#if defined(__EMSCRIPTEN__) 
 #include <emscripten.h>
+#endif
+
+#if defined(__SANITIZE_ADDRESS__)
 #include <sanitizer/asan_interface.h>
 #endif
 
@@ -38,6 +41,7 @@ NODE *Regs_Node;
 int num_saved_nodes;
 int inside_evaluator = 0;
 NODE *eval_buttonact = NIL;
+NODE *eval_animationframe = NIL;
 
 /* node-value registers that don't need saving */
 
@@ -393,6 +397,7 @@ tail_eval_dispatch:
 eval_dispatch:
 	YIELD;
 	#if defined(__EMSCRIPTEN__) && defined(__SANITIZE_ADDRESS__)
+	// FIXME this should not depend on emscripten or JS
 	if (expresn != NIL &&
 	    __asan_address_is_poisoned((void *)&expresn->nunion)) {
 	    EM_ASM({
@@ -908,6 +913,17 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
+#ifdef __EMSCRIPTEN__
+	if (eval_animationframe != NIL) {
+	make_tree(eval_animationframe);
+	if (NOT_THROWING) {
+	    if (is_tree(eval_animationframe)) {
+		unev = append(tree__tree(eval_animationframe), unev);
+		eval_animationframe = NIL;
+	    }
+	}
+    }
+#endif
     if (eval_buttonact != NIL) {
 	make_tree(eval_buttonact);
 	if (NOT_THROWING) {

@@ -727,7 +727,7 @@ Module.handleKeyDown = evt => {
     }
 };
 Module.makeSprite = name => {
-    debugger;
+    // debugger;
     const drawing = document.getElementById('logoDrawing');
     const defs = Module.graphics.getSpriteDefs();
     const drawingContainer = document.getElementById('logoDrawingContainer');

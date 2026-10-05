@@ -1,0 +1,13 @@
+repeat 100 [fd # rt 25]
+makesprite "sprite1
+setturtle "sprite1
+pu
+home
+
+to animate :ms
+    setheading heading + modulo :ms / 200000 360  ; 600 RPM
+    setx (first pos) + modulo :ms / 200000 500
+    animationframe "animate
+end
+
+animate 0

@@ -18,10 +18,15 @@ ignore runjs (word "|document.getElementById('logoDrawing').style.setProperty('s
 end
 bury "setshaperendering
 
-to animate
-ignore runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
-end
-bury "animate
+;to animate
+;ignore runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
+;end
+;bury "animate
+
+; to animationframe :words
+; op runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res)).then(runLogo())|
+; end
+; bury "animationframe
 
 to makesprite :name
 ignore runjs apply "word `[Module.makeSprite(' ,:name ')]

@@ -3,6 +3,7 @@
 #endif
 
 #include <emscripten.h>
+#include <emscripten/html5.h>
 
 #include "logo.h"
 #include "globals.h"
@@ -245,3 +246,114 @@ EM_JS(int, web_keyp, (), {
    //FIXME
    return 0;
 });
+
+// EM_JS(int, definejs, ((const char* src))) {
+//    if (!Module.jswords) {
+//       Module.jswords = [];
+//    }
+//    const idx = Module.jswords.length;
+//    Module.jswords.push(eval(`UTF8ToString(src)`);
+//    return idx;
+// }
+
+extern int yield_enabled;
+extern int in_eval_save;
+
+bool _animationframe(double time, void *userdata)
+{
+   // EM_ASM({console.log('in _animationframe')});
+   NODE* expresn = (NODE*) userdata;
+   static NODE ndTime;
+   static NODE wordcons;
+   static NODE argcons;
+   static int initialized;
+   if (!initialized) {
+      ndTime.node_type = FLOATT;
+      wordcons.node_type = CONS | NT_TREE;
+      argcons.node_type = CONS;
+      setcdr(&wordcons, &argcons);
+      setcar(&argcons, &ndTime);
+      setcdr(&argcons, NIL);
+      setcdr(&ndTime, NIL);
+      initialized = 1;
+   }
+
+   if (inside_gc || in_eval_save) {
+      // EM_ASM({console.log('_animationframe inside_gc || in_eval_save')});
+      if (int_during_gc == 0)
+         int_during_gc = 3;
+      return true;
+   }
+   // put together the word and the argument into a... sentence?
+   if (expresn != UNBOUND && expresn != NIL)
+   {
+      setcar(&wordcons, expresn);
+      setfloat(&ndTime, time);
+      if (inside_evaluator)
+      {
+         // EM_ASM({console.log('_animationframe inside_eval')});
+         eval_animationframe = &wordcons;
+      }
+      else
+      {
+         if (NOT_THROWING) {
+            yield_enabled = 0;
+            // EM_ASM({
+               // console.log('_animationframe calling eval_driver')
+            // });
+            eval_driver(&wordcons);
+            // fix_turtle_shownness();
+            yield_enabled = 1;
+         }
+      }
+   }
+   else {
+      // EM_ASM({console.log('_animationframe line unbound or nil')});
+   }
+   return true;
+}
+
+extern NODE* find_instance(NODE*);
+extern NODE* proc_name_arg(NODE*);
+
+NODE *lanimationframe(NODE * word)
+{
+   EM_ASM({console.log('in lanimationframe')});
+   // calls requestAnimationFrame with a Logo callback proc
+   // does a minor GC first as a side effect
+   // word: name of callback procedure
+
+   // TODO check that word is a proc that takes 1 arg
+
+   // FIXME NODE* word falls off the stack and is invisible to the GC after lanimationframe returns.
+   // Lookup the symbol for the proc named word and pass that or the proc
+   // itself; these will not be freed unless the proc is erased before it
+   // is even called by requestAnimationFrame which would be an error anyway.
+   
+   NODE* name = proc_name_arg(word);
+   if (!NOT_THROWING) {
+      return UNBOUND;
+   }
+	name=intern(name);
+	check_library(name);
+	NODE* val = procnode__caseobj(name);
+	if (val == UNDEFINED) {
+	    err_logo(DK_HOW_UNREC,name);
+	    return UNBOUND;
+	} else if (is_prim(val)) {
+	    err_logo(IS_PRIM,name);
+	    return UNBOUND;
+	}
+   if (
+      getint(minargs__procnode(val)) != 1
+      || getint(dfltargs__procnode(val)) != 1
+      || getint(maxargs__procnode(val)) != 1
+   ) {
+      err_logo(TOO_MUCH, name);
+      return UNBOUND;
+   }
+
+   int r = emscripten_request_animation_frame(&_animationframe, name);
+   // EM_ASM({console.log('request_animation_frame', $0)}, r);
+   return UNBOUND;
+}

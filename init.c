@@ -96,6 +96,9 @@ PRIMTYPE prims[] = {
     {">=", 2, 2, 2, PREFIX_PRIORITY + 1, lgreaterequalp},
     {"?", 0, 0, 1, PREFIX_PRIORITY, lqm},
     {"allopen", 0, 0, 0, PREFIX_PRIORITY, lallopen},
+#ifdef __EMSCRIPTEN__
+    {"animationframe", 1, 1, 1, PREFIX_PRIORITY, lanimationframe},
+#endif
     {"and", 0, 2, -1, PREFIX_PRIORITY, land},
     {"apply", 2, 2, 2, MACRO_PRIORITY, lapply},
     {"arc", 2, 2, 2, PREFIX_PRIORITY, larc},

@@ -756,6 +756,7 @@ re_mark:
     mark(last_call);
     mark(Regs_Node);
     mark(eval_buttonact);       //
+    mark(eval_animationframe);
     mark(file_list);
     mark(reader_name);
     mark(writer_name);

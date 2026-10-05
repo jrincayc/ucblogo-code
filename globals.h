@@ -657,20 +657,22 @@ extern void dbUsual(const char*);
 
 #endif
 
-// web yield
 #ifdef __EMSCRIPTEN__
+
 extern void yield();
 #define YIELD (yield())
-#else
-#define YIELD ((void)0)
-#endif
 
-// web getc
-#ifdef __EMSCRIPTEN__
 int sysGetC(FILE* stream);
 #define sysUnGetC ungetc
 char em_getc();
 void em_fflush(int fh);
+
+extern NODE *eval_animationframe;
+NODE *lanimationframe(NODE * word);
+
 #else
+
+#define YIELD ((void)0)
 #define sysGetC getc
+
 #endif
