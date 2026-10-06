@@ -1,0 +1,20 @@
+animationstop
+showturtle
+pu
+cs
+
+to animate :td
+    make "oldx first pos
+    make "oldh heading
+    clean
+    pd
+    repeat 100 [fd # rt 25]
+    pu
+    setheading :oldh + :td / 20
+    setx       :oldx + :td / 10
+    sety       0
+end
+
+make "animationframeact [animate :animationdelta]
+
+;animationstart

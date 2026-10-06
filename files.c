@@ -76,12 +76,17 @@ EM_ASYNC_JS(char, em_getc, (), {
 		}
 	}
 	// Convert to int so it converts to C char and not a string
-    console.log(`char ${char}`);
 	return char;
 });
 
+extern int LOGO_GIL;
+
 int sysGetC(FILE* stream) {
-	return stream == stdin ? em_getc() : getc(stream);
+    char r;
+    LOGO_GIL = 0;
+	r = stream == stdin ? em_getc() : getc(stream);
+    LOGO_GIL = 1;
+    return r;
 }
 
 EM_JS(void, em_fflush, (int fh), {

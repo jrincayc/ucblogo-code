@@ -1,13 +1,16 @@
+animationstop
+cs
 repeat 100 [fd # rt 25]
 makesprite "sprite1
 setturtle "sprite1
 pu
 home
 
-to animate :ms
-    setheading heading + modulo :ms / 200000 360  ; 600 RPM
-    setx (first pos) + modulo :ms / 200000 500
-    animationframe "animate
+to animate :td
+    setheading heading + :td / 20
+    setx (first pos) + :td / 10
 end
 
-animate 0
+make "animationframeact [animate :animationdelta]
+
+animationstart

@@ -18,6 +18,24 @@ yield_to_js: () => {
         return -1;
     }) : 
     Asyncify.handleSleep((wakeUp) => safeSetTimeout(wakeUp, 0))
-}
+},
+
+safe_request_animation_frame: (cb, userData) => {
+    function _sraf() {
+        return requestAnimationFrame(
+            (timeStamp) => {
+                if (Asyncify.currState === 0) {
+                    {{{ makeDynCall('idp', 'cb') }}}(timeStamp, userData)
+                }
+                else {
+                    console.warn('dropped frame currState != 0');
+                    // FIXME update animationFrameID global
+                    Module.setValue(Module['_animationFrameID'], _sraf(), 'i32');
+                }
+            }
+        )
+    }
+    return _sraf();
+},
 
 });

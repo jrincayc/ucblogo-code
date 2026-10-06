@@ -33,15 +33,6 @@
 #include "globals.h"
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
-#ifdef __SANITIZE_ADDRESS__
-#include <sanitizer/asan_interface.h>
-#define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
-#define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
-#else
-#define POISON_NODE(nd) ((void)0)
-#define UNPOISON_NODE(nd) ((void)0)
-#endif
-
 #ifdef PUNY
 #define GCMAX 1000
 #else
@@ -756,7 +747,6 @@ re_mark:
     mark(last_call);
     mark(Regs_Node);
     mark(eval_buttonact);       //
-    mark(eval_animationframe);
     mark(file_list);
     mark(reader_name);
     mark(writer_name);

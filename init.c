@@ -70,6 +70,11 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
 #ifdef OBJECTS
      *askexist,
 #endif
+#ifdef __EMSCRIPTEN__
+    *Animationframeact,
+    *Animationtime,
+    *Animationdelta,
+#endif
      *Minus_Sign, *Minus_Tight, *Startup, *Startuplg,
      *Query, *UseAlternateNames;
 NODE *Null_Word = NIL;
@@ -97,7 +102,8 @@ PRIMTYPE prims[] = {
     {"?", 0, 0, 1, PREFIX_PRIORITY, lqm},
     {"allopen", 0, 0, 0, PREFIX_PRIORITY, lallopen},
 #ifdef __EMSCRIPTEN__
-    {"animationframe", 1, 1, 1, PREFIX_PRIORITY, lanimationframe},
+    {"animationstart", 0, 0, 0, PREFIX_PRIORITY, lanimationstart},
+    {"animationstop", 0, 0, 0, PREFIX_PRIORITY, lanimationstop},
 #endif
     {"and", 0, 2, -1, PREFIX_PRIORITY, land},
     {"apply", 2, 2, 2, MACRO_PRIORITY, lapply},
@@ -785,6 +791,11 @@ nosugar:
     Erract = intern_p(make_static_strnode("erract"));
     Buttonact = intern_p(make_static_strnode("buttonact"));
     Keyact = intern_p(make_static_strnode("Keyact"));
+    #ifdef __EMSCRIPTEN__
+    Animationframeact = intern_p(make_static_strnode("animationframeact"));
+    Animationdelta = intern_p(make_static_strnode("animationdelta"));
+    Animationtime = intern_p(make_static_strnode("animationtime"));
+    #endif
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
@@ -849,9 +860,15 @@ nosugar:
     setflag__caseobj(UnburyOnEdit, VAL_BURIED);
     setvalnode__caseobj(UseAlternateNames, False);
     setflag__caseobj(UseAlternateNames, VAL_BURIED);
-
     setvalnode__caseobj(LogoPlatform, make_static_strnode(LogoPlatformName));
     setflag__caseobj(LogoPlatform, VAL_BURIED);
+#ifdef __EMSCRIPTEN__
+    setvalnode__caseobj(Animationdelta, make_floatnode(0.0));
+    setflag__caseobj(Animationdelta, VAL_BURIED);
+    setvalnode__caseobj(Animationtime, make_floatnode(0.0));
+    setflag__caseobj(Animationtime, VAL_BURIED);
+#endif
+
 
     user_repcount = -1;
     ift_iff_flag = -1;

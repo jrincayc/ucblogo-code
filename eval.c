@@ -41,7 +41,6 @@ NODE *Regs_Node;
 int num_saved_nodes;
 int inside_evaluator = 0;
 NODE *eval_buttonact = NIL;
-NODE *eval_animationframe = NIL;
 
 /* node-value registers that don't need saving */
 
@@ -913,17 +912,6 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
-#ifdef __EMSCRIPTEN__
-	if (eval_animationframe != NIL) {
-	make_tree(eval_animationframe);
-	if (NOT_THROWING) {
-	    if (is_tree(eval_animationframe)) {
-		unev = append(tree__tree(eval_animationframe), unev);
-		eval_animationframe = NIL;
-	    }
-	}
-    }
-#endif
     if (eval_buttonact != NIL) {
 	make_tree(eval_buttonact);
 	if (NOT_THROWING) {

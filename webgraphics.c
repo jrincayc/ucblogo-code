@@ -258,102 +258,74 @@ EM_JS(int, web_keyp, (), {
 
 extern int yield_enabled;
 extern int in_eval_save;
+extern NODE* proc_name_arg(NODE*);
+
+bool animating = false;
+EMSCRIPTEN_KEEPALIVE int animationFrameID = 0;
+double animationFrameTime = 0;
+int LOGO_GIL = 1;
+
+extern int safe_request_animation_frame(void*, void*);
 
 bool _animationframe(double time, void *userdata)
 {
    // EM_ASM({console.log('in _animationframe')});
-   NODE* expresn = (NODE*) userdata;
-   static NODE ndTime;
-   static NODE wordcons;
-   static NODE argcons;
-   static int initialized;
-   if (!initialized) {
-      ndTime.node_type = FLOATT;
-      wordcons.node_type = CONS | NT_TREE;
-      argcons.node_type = CONS;
-      setcdr(&wordcons, &argcons);
-      setcar(&argcons, &ndTime);
-      setcdr(&argcons, NIL);
-      setcdr(&ndTime, NIL);
-      initialized = 1;
-   }
+   NODE *word = (NODE *)userdata;
 
-   if (inside_gc || in_eval_save) {
-      // EM_ASM({console.log('_animationframe inside_gc || in_eval_save')});
-      if (int_during_gc == 0)
-         int_during_gc = 3;
+   if (!animating)
+   {
+      return false;
+   }
+   // else if (inside_gc || in_eval_save || inside_evaluator || input_blocking) {
+   else if (LOGO_GIL || input_blocking > 1) {
+      //drop frame
+   }
+   else
+   {
+      double timedelta = time - animationFrameTime;
+      setvalnode__caseobj(Animationtime, make_floatnode(time));
+      setvalnode__caseobj(Animationdelta, make_floatnode(timedelta));
+      animationFrameTime = time;
+      NODE *line = valnode__caseobj(Animationframeact);
+      // EM_ASM({console.log('_animationframe calling eval_driver')});
+      yield_enabled = 0;
+      eval_driver(line);
+      yield_enabled = 1;
+   }
+   if (NOT_THROWING)
+   {
+      animationFrameID = safe_request_animation_frame(&_animationframe, word);
       return true;
    }
-   // put together the word and the argument into a... sentence?
-   if (expresn != UNBOUND && expresn != NIL)
-   {
-      setcar(&wordcons, expresn);
-      setfloat(&ndTime, time);
-      if (inside_evaluator)
-      {
-         // EM_ASM({console.log('_animationframe inside_eval')});
-         eval_animationframe = &wordcons;
-      }
-      else
-      {
-         if (NOT_THROWING) {
-            yield_enabled = 0;
-            // EM_ASM({
-               // console.log('_animationframe calling eval_driver')
-            // });
-            eval_driver(&wordcons);
-            // fix_turtle_shownness();
-            yield_enabled = 1;
-         }
-      }
-   }
-   else {
-      // EM_ASM({console.log('_animationframe line unbound or nil')});
-   }
-   return true;
+   // else if (isName(throw_node, Name_error))
+   // {
+   //    err_print(NULL);
+   // }
+   // else if (!isName(throw_node, Name_toplevel))
+   // {
+   //    err_logo(NO_CATCH_TAG, throw_node);
+   //    err_print(NULL);
+   // }
+   animating = false;
+   return false;
 }
 
-extern NODE* find_instance(NODE*);
-extern NODE* proc_name_arg(NODE*);
-
-NODE *lanimationframe(NODE * word)
+NODE *lanimationstart(NODE *word)
 {
-   EM_ASM({console.log('in lanimationframe')});
-   // calls requestAnimationFrame with a Logo callback proc
-   // does a minor GC first as a side effect
-   // word: name of callback procedure
-
-   // TODO check that word is a proc that takes 1 arg
-
-   // FIXME NODE* word falls off the stack and is invisible to the GC after lanimationframe returns.
-   // Lookup the symbol for the proc named word and pass that or the proc
-   // itself; these will not be freed unless the proc is erased before it
-   // is even called by requestAnimationFrame which would be an error anyway.
-   
-   NODE* name = proc_name_arg(word);
-   if (!NOT_THROWING) {
-      return UNBOUND;
+   if (!animating)
+   {
+      animating = true;
+      animationFrameID = safe_request_animation_frame(&_animationframe, NULL);
    }
-	name=intern(name);
-	check_library(name);
-	NODE* val = procnode__caseobj(name);
-	if (val == UNDEFINED) {
-	    err_logo(DK_HOW_UNREC,name);
-	    return UNBOUND;
-	} else if (is_prim(val)) {
-	    err_logo(IS_PRIM,name);
-	    return UNBOUND;
-	}
-   if (
-      getint(minargs__procnode(val)) != 1
-      || getint(dfltargs__procnode(val)) != 1
-      || getint(maxargs__procnode(val)) != 1
-   ) {
-      err_logo(TOO_MUCH, name);
-      return UNBOUND;
-   }
+   return UNBOUND;
+}
 
-   int r = emscripten_request_animation_frame(&_animationframe, name);
-   // EM_ASM({console.log('request_animation_frame', $0)}, r);
+NODE *lanimationstop(NODE *word)
+{
+   if (animating)
+   {
+      animating = false;
+      emscripten_cancel_animation_frame(animationFrameID);
+   }
    return UNBOUND;
 }

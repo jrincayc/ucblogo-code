@@ -208,6 +208,11 @@ extern NODE *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion;
 extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Startuplg, *Query;
 extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform, *Keyact;
 extern NODE *CommandLine, *Null_Word;
+#ifdef __EMSCRIPTEN__
+extern NODE *Animationframeact;
+extern NODE *Animationtime;
+extern NODE *Animationdelta;
+#endif
 extern void init(void);
 extern struct wdtrans translations[];
 extern char *LogoPlatformName;
@@ -659,6 +664,10 @@ extern void dbUsual(const char*);
 
 #ifdef __EMSCRIPTEN__
 
+// webgraphics.c
+NODE *lanimationstart(NODE * word);
+NODE *lanimationstop(NODE * word);
+
 extern void yield();
 #define YIELD (yield())
 
@@ -667,12 +676,18 @@ int sysGetC(FILE* stream);
 char em_getc();
 void em_fflush(int fh);
 
-extern NODE *eval_animationframe;
-NODE *lanimationframe(NODE * word);
-
 #else
 
 #define YIELD ((void)0)
 #define sysGetC getc
 
+#endif
+
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#else
+#define POISON_NODE(nd) ((void)0)
+#define UNPOISON_NODE(nd) ((void)0)
 #endif

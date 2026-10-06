@@ -356,6 +356,8 @@ NODE *lbye(NODE *args) {
 #endif
 }
 
+extern int LOGO_GIL;
+
 NODE *lwait(NODE *args) {
     NODE *num;
     unsigned int n;
@@ -367,7 +369,9 @@ NODE *lwait(NODE *args) {
     if (NOT_THROWING) {
 #ifdef __EMSCRIPTEN__
         n = (unsigned int)getint(num) * 100 / 6; // milliseconds
+        LOGO_GIL = 0;
         EMSLEEP(n);
+        LOGO_GIL = 1;
         return (UNBOUND);
 #endif
 
