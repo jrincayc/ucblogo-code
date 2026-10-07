@@ -5,16 +5,17 @@ cs
 
 to animate :td
     make "oldx first pos
+    make "oldy first bf pos
     make "oldh heading
     clean
     pd
-    repeat 100 [fd # rt 25]
+    repeat 16 [fd # * 20 rt 90]
     pu
     setheading :oldh + :td / 20
-    setx       :oldx + :td / 10
-    sety       0
+    setx :oldx + :td / 10
+    sety :oldy + :td / 10
 end
 
 make "animationframeact [animate :animationdelta]
 
-;animationstart
+animationstart

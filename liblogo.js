@@ -20,17 +20,21 @@ yield_to_js: () => {
     Asyncify.handleSleep((wakeUp) => safeSetTimeout(wakeUp, 0))
 },
 
+safe_request_animation_frame__async: false,
 safe_request_animation_frame: (cb, userData) => {
     function _sraf() {
         return requestAnimationFrame(
             (timeStamp) => {
-                if (Asyncify.currState === 0) {
+                if (Asyncify.state === 0) {
                     {{{ makeDynCall('idp', 'cb') }}}(timeStamp, userData)
                 }
                 else {
                     console.warn('dropped frame currState != 0');
                     // FIXME update animationFrameID global
-                    Module.setValue(Module['_animationFrameID'], _sraf(), 'i32');
+                    setTimeout(
+                        ()=>Module.setValue(Module['_animationFrameID'], _sraf(), 'i32'),
+                        0
+                    );
                 }
             }
         )

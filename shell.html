@@ -470,6 +470,7 @@
     }, false);
 
     var Module = {
+      noExitRuntime: true,
       print(...args) {
         // These replacements are necessary if you render to raw HTML
         //text = text.replace(/&/g, "&amp;");
@@ -547,6 +548,8 @@
         Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
         document.dispatchEvent(new CustomEvent("getcharready"));
+        // TODO don't run if already running
+        Module._run_evaluator();
         return false;
       });
       screen.orientation.addEventListener("change", (event) => {

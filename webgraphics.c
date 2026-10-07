@@ -260,6 +260,7 @@ extern int yield_enabled;
 extern int in_eval_save;
 extern NODE* proc_name_arg(NODE*);
 
+// TODO properly export these from the module
 bool animating = false;
 EMSCRIPTEN_KEEPALIVE int animationFrameID = 0;
 double animationFrameTime = 0;
@@ -269,6 +270,7 @@ extern int safe_request_animation_frame(void*, void*);
 
 bool _animationframe(double time, void *userdata)
 {
+   // FIXME properly handle t-zero frame
    // EM_ASM({console.log('in _animationframe')});
    NODE *word = (NODE *)userdata;
 
@@ -277,8 +279,8 @@ bool _animationframe(double time, void *userdata)
       return false;
    }
    // else if (inside_gc || in_eval_save || inside_evaluator || input_blocking) {
-   else if (LOGO_GIL || input_blocking > 1) {
-      //drop frame
+   else if (LOGO_GIL) {
+      EM_ASM({console.log("dropped frame due to LOGO_GIL")});
    }
    else
    {
@@ -328,4 +330,45 @@ NODE *lanimationstop(NODE *word)
       emscripten_cancel_animation_frame(animationFrameID);
    }
    return UNBOUND;
+}
+
+int EMSCRIPTEN_KEEPALIVE run_evaluator()
+{
+   NODE *exec_list = NIL;
+   LOGO_GIL = 1;
+   if (NOT_THROWING)
+   {
+      check_reserve_tank();
+      current_line = reader(stdin, NULL);
+      if (feof(stdin) && !isatty(0))
+         lbye(NIL);
+      if (NOT_THROWING)
+      {
+         exec_list = parser(current_line, TRUE);
+         if (exec_list != NIL)
+            eval_driver(exec_list);
+      }
+   }
+   if (stopping_flag == THROWING)
+   {
+      if (isName(throw_node, Name_error))
+      {
+         err_print(NULL);
+      }
+      else if (isName(throw_node, Name_system))
+         EM_ASM({throw new UserError('fatal logo error')});
+      else if (!isName(throw_node, Name_toplevel))
+      {
+         err_logo(NO_CATCH_TAG, throw_node);
+         err_print(NULL);
+      }
+      stopping_flag = RUN;
+   }
+   if (stopping_flag == STOP || stopping_flag == OUTPUT)
+   {
+      /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
+      stopping_flag = RUN;
+   }
+   LOGO_GIL = 0;
+   return 0;
 }

@@ -141,7 +141,11 @@ ucblogo-node.js: ucblogo pre.js
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
 	-sEXPORTED_RUNTIME_METHODS=ccall \
-	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,_logo_gc_debug_node_id \
+	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
+_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
+_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
+_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
+_logo_gc_debug_node_id \
 	-s NODERAWFS=1 \
 	$(LDFLAGS)
 

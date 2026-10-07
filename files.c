@@ -64,10 +64,10 @@ EM_ASYNC_JS(char, em_getc, (), {
     let char;   
 	if (typeof document != 'undefined') {
         if (!Module.FS_runjs_getChar_buffer.length)
-		await new Promise((res, rej) => {
-			document.addEventListener('getcharready', res, { once: true });
-		});
-        char = Module.FS_runjs_getChar_buffer.shift().charCodeAt(0);
+            await new Promise((res, rej) => {
+                document.addEventListener('getcharready', res, { once: true });
+            });
+        char = Module.FS_runjs_getChar_buffer.shift()?.charCodeAt(0);
 	} else {
 		char = process.stdin.read(1);
 		while (char == null) {
@@ -83,9 +83,7 @@ extern int LOGO_GIL;
 
 int sysGetC(FILE* stream) {
     char r;
-    LOGO_GIL = 0;
 	r = stream == stdin ? em_getc() : getc(stream);
-    LOGO_GIL = 1;
     return r;
 }
 

@@ -52,58 +52,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef __EMSCRIPTEN__
-#include <time.h>
-#include <sys/time.h>
-
-extern void yield_to_js(long);
-
-int yield_enabled = 1;
-
-// Yields execution to browser so it can handle events; IE cooperative
-// multitasking.
-// Web best-practice is not blocking for longer than 200ms
-// Longer and Chrome will log warnings about it
-// Long enough and Chrome will prompt the user to close the page
-// So call this periodically from inside any potentially long running loops
-// LOGO users can explicitly yield by calling `wait 0`
-void yield() {
-	// Hacky was to throttle yielding
-	// I tried polling the time but it's too slow
-	// Could do it in a separate thread maybe
-	// This may require additional tuning
-	// It's a tradeoff between throughput and latency
-	static const int YIELD_EVERY = 5000; // calls to yield
-	static int yield_needed = YIELD_EVERY;
-	static const long long MAXBLOCK = 5 * 1000 * 1000; //ms
-	static struct timespec ts;
-	static long long lasttimeds;
-
-	if (yield_enabled && --yield_needed <= 0) {
-		// EM_ASM({ console.log("MAYBEYIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
-		if (clock_gettime(CLOCK_MONOTONIC, &ts))
-		{
-			err_logo(STOP_ERROR, NIL);
-			exit(EXIT_FAILURE);
-		}
-		if (ts.tv_nsec - lasttimeds >= MAXBLOCK || lasttimeds > ts.tv_nsec)
-		{
-			// EM_ASM({ console.log("YIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
-			// emscripten_sleep(0);
-			yield_to_js(0);
-			if (clock_gettime(CLOCK_MONOTONIC, &ts))
-			{
-				err_logo(STOP_ERROR, NIL);
-				exit(EXIT_FAILURE);
-			}
-			// EM_ASM({ console.log("RESUME", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
-			lasttimeds = ts.tv_nsec;
-		}
-		yield_needed = YIELD_EVERY;
-	}
-}
-#endif
-
 NODE *current_line = NIL;
 NODE **bottom_stack; /*GC*/
 NODE *command_line = NIL;   /* 6.0 command line args after files */
@@ -335,6 +283,11 @@ int main(int argc, char *argv[]) {
     while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
         silent_load(NIL, *argv2++);
     }
+
+#ifdef __EMSCRIPTEN__
+	LOGO_GIL = 0;
+	return 0;
+#endif
 
 #ifdef HAVE_WX
     wx_chdir(current_wd);

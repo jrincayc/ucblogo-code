@@ -1,0 +1,344 @@
+/*
+ *      main.c          logo main procedure module              dvb
+ *
+ *	Copyright (C) 1993 by the Regents of the University of California
+ *
+ *      This program is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#include "logo.h"
+#include "globals.h"
+
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#endif
+
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#elif defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <time.h>
+#include <sys/time.h>
+
+extern void yield_to_js(long);
+
+int yield_enabled = 1;
+
+// Yields execution to browser so it can handle events; IE cooperative
+// multitasking.
+// Web best-practice is not blocking for longer than 50ms
+// But to render animationFrames we can't block longer than
+// 16ms at 60fps, even less at higher refresh rates. 
+// Longer than 200ms and Chrome will log warnings about it.
+// Long enough and Chrome will prompt the user to close the page
+// So call this periodically from inside any potentially long running loops
+// LOGO users can explicitly yield by calling `wait 0`
+// FIXME yield in `wait` currently blocks the animation loop due to asyncify
+// not supporting C reentry.
+void yield() {
+	// Hacky was to throttle yielding
+	// I tried polling the time but it's too slow
+	// Could do it in a separate thread maybe
+	// This may require additional tuning
+	// It's a tradeoff between throughput and latency
+	static const int YIELD_EVERY = 5000; // calls to yield
+	static int yield_needed = YIELD_EVERY;
+	static const long long MAXBLOCK = 5 * 1000 * 1000; //ms
+	static struct timespec ts;
+	static long long lasttimeds;
+
+	if (yield_enabled && --yield_needed <= 0) {
+		// EM_ASM({ console.log("MAYBEYIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
+		if (clock_gettime(CLOCK_MONOTONIC, &ts))
+		{
+			err_logo(STOP_ERROR, NIL);
+			exit(EXIT_FAILURE);
+		}
+		if (ts.tv_nsec - lasttimeds >= MAXBLOCK || lasttimeds > ts.tv_nsec)
+		{
+			// EM_ASM({ console.log("YIELD", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
+			// emscripten_sleep(0);
+			yield_to_js(0);
+			if (clock_gettime(CLOCK_MONOTONIC, &ts))
+			{
+				err_logo(STOP_ERROR, NIL);
+				exit(EXIT_FAILURE);
+			}
+			// EM_ASM({ console.log("RESUME", $0, $1, $2, $3, $4)}, yield_needed, ts.tv_nsec, lasttimeds, ts.tv_nsec - lasttimeds, MAXBLOCK);
+			lasttimeds = ts.tv_nsec;
+		}
+		yield_needed = YIELD_EVERY;
+	}
+}
+#endif
+
+NODE *current_line = NIL;
+NODE **bottom_stack; /*GC*/
+NODE *command_line = NIL;   /* 6.0 command line args after files */
+
+int stop_quietly_flag=0;
+
+void unblock_input(void) {
+    if (input_blocking) {
+	input_blocking = 0;
+#ifdef HAVE_IOCTRL_H
+	ioctl(0,TIOCSTI,"\n");
+#endif
+    }
+}
+
+extern int in_eval_save;
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void logo_stop(int sig)
+#else
+#define sig_arg 
+void logo_stop()
+#endif
+{
+    if (inside_gc || in_eval_save) {
+	int_during_gc = 1;
+    } else {
+	charmode_off();
+	to_pending = 0;
+        if (!stop_quietly_flag)
+            err_logo(STOP_ERROR,NIL);
+        stop_quietly_flag = 0;
+	  signal(SIGINT, logo_stop);
+	unblock_input();
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void logo_pause(int sig)
+#else
+#define sig_arg 
+void logo_pause()
+#endif
+{
+    if (inside_gc || in_eval_save) {
+	int_during_gc = 2;
+    } else {
+	charmode_off();
+	to_pending = 0;
+#ifdef HAVE_SIGSETMASK
+	sigsetmask(0);
+#else
+	signal(SIGQUIT, logo_pause);
+#endif
+	lpause(NIL);
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void mouse_down(int sig)
+#else
+#define sig_arg 
+void mouse_down()
+#endif
+{
+    NODE *line;
+
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 3;
+    } else {
+	line = valnode__caseobj(Buttonact);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		yield_enabled = 0;
+		eval_driver(line);
+		fix_turtle_shownness();
+		yield_enabled = 1;
+	    }
+	}
+    }
+}
+
+int keyact_set() {
+    NODE *line;
+
+    line = valnode__caseobj(Keyact);
+    return (line != UNBOUND && line != NIL);
+}
+
+void do_keyact(int);
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void delayed_keyact(int sig)
+#else
+#define sig_arg 
+void delayed_keyact()
+#endif
+{
+    do_keyact(readchar_lookahead_buf);
+}
+
+void do_keyact(int ch) {
+    NODE *line;
+
+    readchar_lookahead_buf = ch;
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 4;
+    } else {
+	line = valnode__caseobj(Keyact);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		eval_driver(line);
+		fix_turtle_shownness();
+	    }
+	}
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+void (*intfuns[])(int) = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
+#else
+void (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
+#endif
+
+void delayed_int() {
+#ifdef SIG_TAKES_ARG
+    (void)(*intfuns[int_during_gc])(0);
+#else
+    (void)(*intfuns[int_during_gc])();
+#endif
+}
+
+int main(int argc, char *argv[]) {
+    NODE *exec_list = NIL;
+	
+	set_bottom_stack(&exec_list); /* GC */
+
+    NODE *cl_tail = NIL;
+    int argc2;
+    char **argv2;
+
+    (void)addseg();
+    term_init();
+    init();
+
+    math_init();
+
+	signal(SIGINT, logo_stop);
+
+    if (argc < 2) {
+      if (1 || isatty(1))   // fix this.  for interactive from menu bar.
+      {
+	char version[64];
+	lcleartext(NIL);
+	strcpy(version, VERSION);
+#ifdef GITID
+	extern char *GIT;
+	strcat(version, GIT);
+#endif
+	ndprintf(stdout, message_texts[WELCOME_TO], version);
+	new_line(stdout);
+      }
+    }
+
+    setvalnode__caseobj(LogoVersion, make_floatnode(6.2));
+    setflag__caseobj(LogoVersion, VAL_BURIED);
+
+    argv2 = argv; argc2 = argc;
+
+    argv++;
+    while (--argc > 0 && strcmp(*argv, "-") && NOT_THROWING) {
+        argv++;
+    }
+
+    argv++;
+    while (--argc > 0) {
+	if (command_line == NIL) 
+	    cl_tail = command_line = cons(make_static_strnode(*argv++), NIL);
+	else {
+	    setcdr(cl_tail, cons(make_static_strnode(*argv++), NIL));
+	    cl_tail = cdr(cl_tail);
+	}
+    }
+
+    setvalnode__caseobj(CommandLine, command_line);
+
+    silent_load(Startuplg, logolib);
+    silent_load(Startuplg, getenv("HOME")); /* load startup.lg */
+
+    argv2++;
+    while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
+        silent_load(NIL, *argv2++);
+    }
+	rd_print_prompt("? ");
+	return 0;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int run_evaluator() {
+    NODE *exec_list = NIL;
+	set_bottom_stack(&exec_list); /* GC */
+	
+	if (NOT_THROWING) {
+	    check_reserve_tank();
+	    current_line = reader(stdin, NULL);
+	    if (feof(stdin) && !isatty(0)) lbye(NIL);
+	    if (NOT_THROWING) {
+		exec_list = parser(current_line, TRUE);
+		if (exec_list != NIL) eval_driver(exec_list);
+	    }
+	}
+	if (stopping_flag == THROWING) {
+	    if (isName(throw_node, Name_error)) {
+		err_print(NULL);
+	    } else if (isName(throw_node, Name_system))
+		EM_ASM({throw new UserError('fatal logo error')});
+	    else if (!isName(throw_node, Name_toplevel)) {
+		err_logo(NO_CATCH_TAG, throw_node);
+		err_print(NULL);
+	    }
+	    stopping_flag = RUN;
+	}
+	if (stopping_flag == STOP || stopping_flag == OUTPUT) {
+	/*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
+	    stopping_flag = RUN;
+	}
+	rd_print_prompt("? ");
+    return 0;
+}
