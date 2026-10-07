@@ -548,7 +548,7 @@
         Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
         document.dispatchEvent(new CustomEvent("getcharready"));
-        // TODO don't run if already running
+        // FIXME HIGHPRI don't run if already running
         Module._run_evaluator();
         return false;
       });

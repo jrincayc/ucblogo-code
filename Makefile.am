@@ -18,8 +18,14 @@ ucblogo_CPPFLAGS = $(AM_CPPFLAGS)	\
 
 # FIXME add header files
 ucblogo_SOURCES = coms.c error.c eval.c files.c graphics.c init.c	\
- intern.c libloc.c lists.c logodata.c main.c math.c mem.c paren.c	\
+ intern.c libloc.c lists.c logodata.c math.c mem.c paren.c	\
  parse.c print.c turtleshape.c wrksp.c
+
+if WASM
+ucblogo_SOURCES += webmain.c
+else
+ucblogo_SOURCES += main.c
+endif
 
 if OBJECTS
 ucblogo_SOURCES += obj.c
@@ -155,7 +161,7 @@ ucblogo.html: ucblogo shell.html pre.js
 	-o ucblogo.html \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
-	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
+	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
 	ucblogo-webgraphics.o ucblogo-turtleshape.o \
 	--pre-js pre.js \

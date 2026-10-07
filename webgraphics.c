@@ -256,6 +256,8 @@ EM_JS(int, web_keyp, (), {
 //    return idx;
 // }
 
+extern int LOGO_GIL;
+
 extern int yield_enabled;
 extern int in_eval_save;
 extern NODE* proc_name_arg(NODE*);
@@ -264,7 +266,6 @@ extern NODE* proc_name_arg(NODE*);
 bool animating = false;
 EMSCRIPTEN_KEEPALIVE int animationFrameID = 0;
 double animationFrameTime = 0;
-int LOGO_GIL = 1;
 
 extern int safe_request_animation_frame(void*, void*);
 
@@ -332,43 +333,3 @@ NODE *lanimationstop(NODE *word)
    return UNBOUND;
 }
 
-int EMSCRIPTEN_KEEPALIVE run_evaluator()
-{
-   NODE *exec_list = NIL;
-   LOGO_GIL = 1;
-   if (NOT_THROWING)
-   {
-      check_reserve_tank();
-      current_line = reader(stdin, NULL);
-      if (feof(stdin) && !isatty(0))
-         lbye(NIL);
-      if (NOT_THROWING)
-      {
-         exec_list = parser(current_line, TRUE);
-         if (exec_list != NIL)
-            eval_driver(exec_list);
-      }
-   }
-   if (stopping_flag == THROWING)
-   {
-      if (isName(throw_node, Name_error))
-      {
-         err_print(NULL);
-      }
-      else if (isName(throw_node, Name_system))
-         EM_ASM({throw new UserError('fatal logo error')});
-      else if (!isName(throw_node, Name_toplevel))
-      {
-         err_logo(NO_CATCH_TAG, throw_node);
-         err_print(NULL);
-      }
-      stopping_flag = RUN;
-   }
-   if (stopping_flag == STOP || stopping_flag == OUTPUT)
-   {
-      /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
-      stopping_flag = RUN;
-   }
-   LOGO_GIL = 0;
-   return 0;
-}

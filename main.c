@@ -284,11 +284,6 @@ int main(int argc, char *argv[]) {
         silent_load(NIL, *argv2++);
     }
 
-#ifdef __EMSCRIPTEN__
-	LOGO_GIL = 0;
-	return 0;
-#endif
-
 #ifdef HAVE_WX
     wx_chdir(current_wd);
 
