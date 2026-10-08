@@ -22,7 +22,9 @@ ucblogo_SOURCES = coms.c error.c eval.c files.c graphics.c init.c	\
  parse.c print.c turtleshape.c wrksp.c
 
 if WASM
+ucblogo_LDFLAGS = $(AM_LDFLAGS) --js-library liblogo.js 
 ucblogo_SOURCES += webmain.c
+ucblogo_SOURCES += weblib.c
 else
 ucblogo_SOURCES += main.c
 endif
@@ -130,14 +132,14 @@ regenerate-help-index: makehelp usermanual
 
 all: 
 
-ucblogo-node.js: ucblogo pre.js
+ucblogo-node.js: ucblogo pre.js liblogo.js
 	em++  \
 	-o ucblogo-node.js \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
-	ucblogo-logodata.o ucblogo-main.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
+	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o \
 	--pre-js pre.js \
 	-s JSPI \
 	-s ALLOW_MEMORY_GROWTH \
@@ -146,24 +148,25 @@ ucblogo-node.js: ucblogo pre.js
 	-s STRICT_JS \
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
-	-sEXPORTED_RUNTIME_METHODS=ccall \
-	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
+	-sEXPORTED_RUNTIME_METHODS=ccall,setValue,getValue \
+	-sEXPORTED_FUNCTIONS=_animationFrameID,_LOGO_GIL,_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
 _logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
 _logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
 _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
 _logo_gc_debug_node_id \
 	-s NODERAWFS=1 \
+	--js-library liblogo.js \
 	$(LDFLAGS)
 
 
-ucblogo.html: ucblogo shell.html pre.js
+ucblogo.html: ucblogo shell.html pre.js liblogo.js
 	em++  \
 	-o ucblogo.html \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o \
 	--pre-js pre.js \
 	--embed-file dist/share/ucblogo@/share/ucblogo \
 	--embed-file tests \
@@ -178,9 +181,14 @@ ucblogo.html: ucblogo shell.html pre.js
 	-s EMIT_PRODUCERS_SECTION \
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
 	--shell-file shell.html \
-	-sEXPORTED_RUNTIME_METHODS=ccall \
-	-sEXPORTED_FUNCTIONS=_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,_logo_gc_debug_node_id \
+	-sEXPORTED_RUNTIME_METHODS=ccall,setValue,getValue \
+	-sEXPORTED_FUNCTIONS=_animationFrameID,_LOGO_GIL,_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
+_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
+_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
+_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
+_logo_gc_debug_node_id \
 	-lidbfs.js \
+	--js-library liblogo.js \
 	$(LDFLAGS)
 
 # ucblogo-obj.o 

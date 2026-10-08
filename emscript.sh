@@ -14,7 +14,6 @@ export CXXFLAGS="-O3"
 # export CXXFLAGS="-g -O3"
 export LDFLAGS="-O3" 
 # export LDFLAGS="-g -O3"
-export LDFLAGS="--js-library liblogo.js"
 export LDFLAGS="$LDFLAGS -ferror-limit=0"
 export LDFLAGS="$LDFLAGS -s ASYNCIFY"
 export LDFLAGS="$LDFLAGS -s ASYNCIFY_STACK_SIZE=20000000"
@@ -34,12 +33,12 @@ export LDFLAGS="$LDFLAGS -s ABORT_ON_WASM_EXCEPTIONS"
 # export LDFLAGS="$LDFLAGS -s ASYNCIFY_ADVISE=1"
 # export LDFLAGS="$LDFLAGS -s ASYNCIFY_DEBUG=1"
 # export EMCC_DEBUG=1
-export LDFLAGS="$LDFLAGS -sEXPORTED_RUNTIME_METHODS=setValue,_animationFrameID"
 
 
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
-emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
+autoreconf -fi \
+&& emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
 --prefix=`pwd`/dist \
 --disable-objects --enable-wasm \
 && emmake make clean \
