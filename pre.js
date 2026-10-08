@@ -233,7 +233,16 @@ Module.graphics.graphics_init = () => {
     const handleMouseDown = (evt) => {
         g.lastclick = evt;
         Module.graphics.buttonp = true;
-        Module.ccall('mouse_down', 'void', [], []);
+        function dispatchMouseDown() {
+            if (Asyncify.state === 0 && Module.getValue(Module['_LOGO_GIL']) === 0) {
+                Module.ccall('mouse_down', 'void', [], []);
+            }
+            else {
+                console.warn('mousedown deferred');
+                setTimeout(dispatchMouseDown, 5);
+            }
+        }
+        dispatchMouseDown();
         evt.preventDefault();
         return false;
     };
