@@ -9,5 +9,4 @@ export WX_DIR=/home/User/wxWidgets-3.2.2.1
 
 mingw32-make -f makefile.msys clean
 mingw32-make -f makefile.msys git.c
-rm libloc.c
 mingw32-make -f makefile.msys MINGW_BIN_DIR=$MINGW_BIN_DIR WX_DIR=$WX_DIR install_win

@@ -38,16 +38,14 @@ int reading_char_now = 0;
 #define sysUnGetC ungetc
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -466,7 +464,6 @@ void silent_load(NODE *arg, const char *prefix) {
 	    for (cp = load_path; *cp != '\0'; cp++)
 		if (*cp == '?') *cp = 'Q';
 	}
-	/*  strcpy(load_path, eight_dot_three(load_path));  */
 /* #endif */
     }
     tmp_stream = loadstream;
@@ -577,9 +574,6 @@ NODE *lreadchar(NODE *args) {
     }
     charmode_on();
     input_blocking++;
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
     {
 #ifdef HAVE_WX
 	if (interactive && readstream==stdin) {
@@ -616,9 +610,6 @@ NODE *lreadchars(NODE *args) {
     if (stopping_flag == THROWING) return UNBOUND;
     charmode_on();
     input_blocking++;
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
     {
 	strhead = malloc((size_t)(c + sizeof(FIXNUM) + 1));
 	if (strhead == NULL) {
@@ -642,9 +633,6 @@ NODE *lreadchars(NODE *args) {
 	setstrrefcnt(strhead, 0);
     }
     input_blocking = 0;
-#ifndef TIOCSTI
-    if (stopping_flag == THROWING) return(UNBOUND);
-#endif
     if (c <= 0) {
 	free(strhead);
 	return(NIL);

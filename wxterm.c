@@ -31,10 +31,6 @@
 
 #ifdef HAVE_TERMIO_H
 #include <termios.h>
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
 #endif
 
 #undef TRUE
@@ -67,14 +63,6 @@ char cl_arr[40];
 char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
-
-#ifdef HAVE_TERMIO_H
-struct termios tty_cooked, tty_cbreak;
-#else
-#ifdef HAVE_SGTTY_H
-struct sgttyb tty_cooked, tty_cbreak;
-#endif
-#endif
 
 int interactive, tty_charmode;
 int getTermInfo(int type);
