@@ -1,0 +1,31 @@
+to eye
+pd
+arc 360 100
+pu
+setheading towards mousepos
+fd 10
+lt 90
+pd
+filled 0 [repeat 36 [fd 5 rt 10]]
+pu
+end
+
+to eyes
+cs
+lt 90
+fd 100
+rt 90
+eye
+home
+rt 90
+fd 100
+lt 90
+eye
+end
+
+animationstop
+cs
+pu
+hideturtle
+make "animationframeact [eyes]
+animationstart
