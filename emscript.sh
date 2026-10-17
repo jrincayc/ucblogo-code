@@ -6,22 +6,22 @@
 # wasm mdarray unit test crashes with OOB error with -O > 0
 # Future: use -mtail-call (is the interpreter even recursive?)
 
-export CFLAGS="-O3 -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
-export CXXFLAGS="-O3"
+# export CFLAGS="-O3 -Wno-comment -Wno-typedef-redefinition"
+# export CXXFLAGS="-O3"
 # export CFLAGS="-g -Og -std=gnu90 -Wno-comment -Wno-typedef-redefinition -fsanitize=address -fsanitize=undefined"
 # export CXXFLAGS="-g -Og -fsanitize=address -fsanitize=undefined"
-# export CFLAGS="-g -O3 -std=gnu90 -Wno-comment -Wno-typedef-redefinition"
-# export CXXFLAGS="-g -O3"
-export LDFLAGS="-O3" 
-# export LDFLAGS="-g -O3"
+export CFLAGS="-g -O3 -std=gnu23 -Wno-comment -Wno-typedef-redefinition"
+export CXXFLAGS="-g -O3"
+# export LDFLAGS="-O3" 
+export LDFLAGS="-g -O3"
 export LDFLAGS="$LDFLAGS -ferror-limit=0"
 export LDFLAGS="$LDFLAGS -s ASYNCIFY"
 export LDFLAGS="$LDFLAGS -s ASYNCIFY_STACK_SIZE=20000000"
 # this forces the animation loop to stop
 export LDFLAGS="$LDFLAGS -s ABORT_ON_WASM_EXCEPTIONS"
 # export LDFLAGS="$LDFLAGS -gsource-map"
-# export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
-    #  -s SEPARATE_DWARF_URL=ucblogo.debug.wasm"
+export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
+     -s SEPARATE_DWARF_URL=ucblogo.debug.wasm"
 # export LDFLAGS="$LDFLAGS -fsanitize=address -fsanitize=undefined" 
 # export LDFLAGS="$LDFLAGS -s EXCEPTION_DEBUG=1"
 # export LDFLAGS="$LDFLAGS -s LIBRARY_DEBUG=1"
@@ -33,8 +33,6 @@ export LDFLAGS="$LDFLAGS -s ABORT_ON_WASM_EXCEPTIONS"
 # export LDFLAGS="$LDFLAGS -s ASYNCIFY_ADVISE=1"
 # export LDFLAGS="$LDFLAGS -s ASYNCIFY_DEBUG=1"
 # export EMCC_DEBUG=1
-
-
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
 autoreconf -fi \

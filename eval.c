@@ -185,7 +185,9 @@ NODE *evaluator(NODE *list, enum labels where);
 
 /* Evaluate a line of input. */
 void eval_driver(NODE *line) {
-    evaluator(line, begin_line);
+	if (line != UNBOUND && line != NIL) {
+		evaluator(line, begin_line);
+	}
 }
 
 /* Evaluate a sequence of expressions until we get a value to return.
@@ -673,6 +675,9 @@ apply_dispatch:
 	    new_line(stdout);
 	}
 	YIELD;
+	// todo trap on wait and process all queued events
+	// if (getprimfun(proc) == &lwait) {
+	// }
 	val = (*getprimfun(proc))(argl);
         if (tracing && NOT_THROWING) {
 	    for (i = 0; i < trace_level; i++) {
@@ -912,6 +917,10 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
+	uievent evt;
+	if (get_uievent(&evt)) {
+		eval_buttonact = dispatch_uievent(&evt);
+	}
     if (eval_buttonact != NIL) {
 	make_tree(eval_buttonact);
 	if (NOT_THROWING) {

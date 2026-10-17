@@ -19,7 +19,7 @@
 
 extern void yield_to_js(long);
 
-int LOGO_GIL = 1;
+volatile int LOGO_GIL = 1;
 
 int yield_enabled = 1;
 

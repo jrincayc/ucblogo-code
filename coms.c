@@ -357,6 +357,7 @@ NODE *lbye(NODE *args) {
 }
 
 extern int LOGO_GIL;
+extern void webLogoSleep(int);
 
 NODE *lwait(NODE *args) {
     NODE *num;
@@ -373,7 +374,7 @@ NODE *lwait(NODE *args) {
         // IE no reentrancy with asyncify.
         // HOW? save entire evaluator state, teriminate, and pass continuation later?
         // Or switch to WASMGC/JSPI?
-        EMSLEEP(n);
+        webLogoSleep(n);
         return (UNBOUND);
 #endif
 

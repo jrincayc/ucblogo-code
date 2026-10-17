@@ -547,9 +547,20 @@
         chars.push("\n");
         Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
-        document.dispatchEvent(new CustomEvent("getcharready"));
         // FIXME HIGHPRI don't run if already running
-        Module._run_evaluator();
+        const retryRunEvaluator = ((n) => {
+          if (Asyncify.state === 0 && getValue(Module['_LOGO_GIL']) === 0) {
+            setTimeout(()=>document.dispatchEvent(new CustomEvent("getcharready")), 0);
+            Module._run_evaluator(true);
+          }
+          else if (n>0) {
+            setTimeout(()=>retryRunEvaluator(--n), 10);
+          }
+          else {
+            console.error('failed to run_evaluator')
+          }
+        });
+        retryRunEvaluator(10);
         return false;
       });
       screen.orientation.addEventListener("change", (event) => {

@@ -13,7 +13,14 @@ int bg;
 
 pen_info xgr_pen;
 
-char *LogoPlatformName = "Web Assembly/SVG";
+char *LogoPlatformName = "WebAssembly";
+
+int mouse_x;
+int mouse_y;
+int click_x;
+int click_y;
+int lastbutton;
+int button;
 
 void nop(int a, int b, int c, int d)
 {
@@ -146,29 +153,29 @@ EM_JS(void, erase_screen, (), {
    Module.graphics.erase_screen();
 });
 
-EM_JS(int, web_get_mouse_x, (), {
-   return Module.graphics.web_get_mouse_x();
-});
+// EM_JS(int, web_get_mouse_x, (), {
+//    return Module.graphics.web_get_mouse_x();
+// });
 
-EM_JS(int, web_get_mouse_y, (), {
-   return Module.graphics.web_get_mouse_y();
-});
+// EM_JS(int, web_get_mouse_y, (), {
+//    return Module.graphics.web_get_mouse_y();
+// });
 
-EM_JS(int, web_get_click_x, (), {
-   return Module.graphics.web_get_click_x();
-});
+// EM_JS(int, web_get_click_x, (), {
+//    return Module.graphics.web_get_click_x();
+// });
 
-EM_JS(int, web_get_click_y, (), {
-   return Module.graphics.web_get_click_y();
-});
+// EM_JS(int, web_get_click_y, (), {
+//    return Module.graphics.web_get_click_y();
+// });
 
-EM_JS(int, web_get_button, (), {
-   return Module.graphics.web_get_button();
-});
+// EM_JS(int, web_get_button, (), {
+//    return Module.graphics.web_get_button();
+// });
 
-EM_JS(int, web_get_buttonp, (), {
-   return Module.graphics.web_get_buttonp();
-});
+// EM_JS(int, web_get_buttonp, (), {
+//    return Module.graphics.web_get_buttonp();
+// });
 
 EM_JS(void, web_draw_turtle, (int heading), {
    Module.graphics.draw_turtle(heading);
@@ -333,3 +340,73 @@ NODE *lanimationstop(NODE *word)
    return UNBOUND;
 }
 
+
+// run_action(*NODE line) {
+//    if (inside_evaluator) {
+//       eval_buttonact = line;
+//    } else {
+//       yield_enabled = 0;
+//       eval_driver(line);
+//       fix_turtle_shownness();
+//       yield_enabled = 1;
+//    }
+// }
+
+NODE* get_action(NODE* action_node) {
+ 	NODE* line = valnode__caseobj(action_node);
+	if (line == UNBOUND || line == NIL) return NIL;
+   return line;
+}
+
+NODE* onmousedown(uievent* evt) {
+   click_x = mouse_x = evt->mouseevent.x;
+   click_y = mouse_y = evt->mouseevent.y;
+   lastbutton = evt->mouseevent.buttonnum;
+   button = 1;
+   return get_action(Buttonact);
+}
+
+NODE* onmouseup(uievent* evt) {
+   mouse_x = evt->mouseevent.x;
+   mouse_y = evt->mouseevent.y;
+   button = 0;
+   return NIL;
+}
+
+NODE* onmousemove(uievent* evt) {
+   mouse_x = evt->mouseevent.x;
+   mouse_y = evt->mouseevent.y;
+   return NIL;
+}
+
+NODE* onkeydown(uievent* evt) {
+   //  readchar_lookahead_buf = ch;
+         // do_keyact(evt->keyboardevent.key);
+   // return get_action(Keyact);
+   return NIL;
+}
+
+NODE* dispatch_uievent(uievent* evt) {
+   NODE* r = NIL;
+	if (!evt) {
+      return NIL;
+	}
+   switch (evt->type) {
+      case mousemove: 
+         r = onmousemove(evt);
+         break;
+      case mousedown: 
+         r = onmousedown(evt);
+         break;
+      case mouseup: 
+         r = onmouseup(evt);
+         break;
+      case keydown:
+         r = onkeydown(evt);
+         break;
+      default:
+         break;
+   }
+   fix_turtle_shownness();
+   return r;
+}

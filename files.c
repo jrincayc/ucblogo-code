@@ -696,6 +696,10 @@ NODE *leofp(NODE *args) {
     return(FalseName());
 }
 
+#ifdef __EMSCRIPTEN__
+extern int web_keyp();
+#endif
+
 NODE *lkeyp(NODE *args) {
 #ifdef __EMSCRIPTEN__
     if (web_keyp()) {

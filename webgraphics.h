@@ -1,5 +1,8 @@
 // UCB Logo Web Graphics
 
+#ifndef WEBGRAPHICS_H
+#define WEBGRAPHICS_H
+
 #define NUMCOLORS 512
 #define GR_SIZE 60000
 typedef struct mypoint
@@ -78,18 +81,12 @@ extern pen_info xgr_pen;
 #define pen_erase web_pen_erase()
 #define pen_down web_pen_down()
 
-#define mouse_x web_get_mouse_x()
-int web_get_mouse_x();
-#define mouse_y web_get_mouse_y()
-int web_get_mouse_y();
-#define click_x web_get_click_x()
-int web_get_click_x();
-#define click_y web_get_click_y()
-int web_get_click_y();
-#define lastbutton web_get_button()
-int web_get_button();
-#define button web_get_buttonp()
-int web_get_buttonp();
+extern int mouse_x;
+extern int mouse_y;
+extern int click_x;
+extern int click_y;
+extern int lastbutton;
+extern int button;
 
 #define full_screen web_full_screen()
 #define split_screen web_split_screen()
@@ -100,7 +97,7 @@ int web_get_buttonp();
 // #define fmod(x,y) x
 
 #define prepare_to_draw_turtle web_prepare_to_draw_turtle()
-#define done_drawing_turtle web_done_drawing(turtle_shown)
+#define done_drawing_turtle web_done_drawing()
 
 void set_palette(int slot, unsigned int R, unsigned int G, unsigned int B);
 void get_palette(int slot, unsigned int *R, unsigned int *G, unsigned int *B);
@@ -138,3 +135,4 @@ void set_pen_mode(int);
 
 extern int bg;
 
+#endif // WEBGRAPHICS_H

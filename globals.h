@@ -691,3 +691,37 @@ void em_fflush(int fh);
 #define POISON_NODE(nd) ((void)0)
 #define UNPOISON_NODE(nd) ((void)0)
 #endif
+
+typedef enum {
+    mousedown = 0,
+    mouseup = 1,
+    click = 2, 
+    mousemove = 3,
+    keydown = 4,
+    keyup = 5,
+    keypress = 6,
+} uievent_type_t;
+
+typedef struct {
+   uievent_type_t type;
+   union {
+      struct {
+         int buttonnum;
+         int x;
+         int y;
+      } mouseevent;
+      struct {
+         int key;
+      } keyboardevent;
+   };
+} uievent;
+
+typedef enum {
+   ArrowDown = 0xFF54,
+   ArrowLeft = 0xFF51,
+   ArrowRight = 0xFF53,
+   ArrowUp = 0xFF52,
+} gdk_keycodes;
+
+extern int get_uievent(uievent*);
+NODE* dispatch_uievent(uievent*);

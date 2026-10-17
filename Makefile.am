@@ -150,6 +150,12 @@ ucblogo-node.js: ucblogo pre.js liblogo.js
 	-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$addOnExit' \
 	-sEXPORTED_RUNTIME_METHODS=ccall,setValue,getValue \
 	-sEXPORTED_FUNCTIONS=_animationFrameID,_LOGO_GIL,_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
+_inside_gc,\
+_in_eval_save,\
+_int_during_gc,\
+_inside_evaluator,\
+_Buttonact,\
+_Unbound,\
 _logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
 _logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
 _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
@@ -183,6 +189,12 @@ ucblogo.html: ucblogo shell.html pre.js liblogo.js
 	--shell-file shell.html \
 	-sEXPORTED_RUNTIME_METHODS=ccall,setValue,getValue \
 	-sEXPORTED_FUNCTIONS=_animationFrameID,_LOGO_GIL,_main,_logo_stop,_logo_pause,_mouse_down,_delayed_keyact,_run_evaluator,\
+_inside_gc,\
+_in_eval_save,\
+_int_during_gc,\
+_inside_evaluator,\
+_Buttonact,\
+_Unbound,\
 _logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
 _logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
 _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
@@ -190,6 +202,8 @@ _logo_gc_debug_node_id \
 	-lidbfs.js \
 	--js-library liblogo.js \
 	$(LDFLAGS)
+
+
 
 # ucblogo-obj.o 
 mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES

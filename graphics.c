@@ -155,6 +155,10 @@ void draw_turtle(void) {
 #endif
 
 #ifdef __EMSCRIPTEN__
+extern void web_draw_turtle(double);
+#endif
+
+#ifdef __EMSCRIPTEN__
 	web_draw_turtle(turtle_heading);
 	return;
 #endif
@@ -554,6 +558,8 @@ NODE *lback(NODE *arg) {
     return(UNBOUND);
 }
 
+extern void	web_show_turtle();
+
 NODE *lshowturtle(NODE *args) {
 #ifdef __EMSCRIPTEN__
 	web_show_turtle();
@@ -580,6 +586,11 @@ void internal_hideturtle() {
     }
     done_drawing;
 }
+
+#ifdef __EMSCRIPTEN__
+extern void web_hide_turtle();
+extern void web_show_turtle();
+#endif
 
 NODE *lhideturtle(NODE *args) {
 #ifdef __EMSCRIPTEN__

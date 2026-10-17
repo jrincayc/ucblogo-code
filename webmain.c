@@ -49,6 +49,7 @@
 
 #ifdef __EMSCRIPTEN__
 extern void rd_print_prompt(char *);
+extern void yield_to_js(long);
 extern int LOGO_GIL;
 extern int yield_enabled;
 
@@ -260,19 +261,21 @@ int main(int argc, char *argv[]) {
         silent_load(NIL, *argv2++);
     }
 	rd_print_prompt("? ");
+    LOGO_GIL = 0;
 	return 0;
 }
 
-int EMSCRIPTEN_KEEPALIVE run_evaluator()
+int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
 {
    NODE *exec_list = NIL;
    LOGO_GIL = 1;
-   if (NOT_THROWING)
+   if (NOT_THROWING && readcurrline)
    {
       check_reserve_tank();
       current_line = reader(stdin, NULL);
-      if (feof(stdin) && !isatty(0))
-         lbye(NIL);
+    //   if (feof(stdin) && !isatty(0))
+    //     EM_ASM({debugger;});
+    //      lbye(NIL);
       if (NOT_THROWING)
       {
          exec_list = parser(current_line, TRUE);
@@ -287,7 +290,7 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator()
          err_print(NULL);
       }
       else if (isName(throw_node, Name_system))
-         EM_ASM({throw new UserError('fatal logo error')});
+        emscripten_log(EM_LOG_ERROR, "fatal logo error");
       else if (!isName(throw_node, Name_toplevel))
       {
          err_logo(NO_CATCH_TAG, throw_node);
@@ -300,7 +303,11 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator()
       /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
       stopping_flag = RUN;
    }
-   rd_print_prompt("? ");
+   uievent evt;
+   while (get_uievent(&evt)) {
+      eval_driver(dispatch_uievent(&evt));
+   }
+   if (readcurrline) rd_print_prompt("? ");
    LOGO_GIL = 0;
    return 0;
 }
