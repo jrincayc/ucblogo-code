@@ -380,9 +380,8 @@ NODE* onmousemove(uievent* evt) {
 }
 
 NODE* onkeydown(uievent* evt) {
-   //  readchar_lookahead_buf = ch;
-         // do_keyact(evt->keyboardevent.key);
-   // return get_action(Keyact);
+   readchar_lookahead_buf = evt->keyboardevent.key;
+   return get_action(Keyact);
    return NIL;
 }
 

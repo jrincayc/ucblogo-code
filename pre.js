@@ -686,7 +686,9 @@ Module.commandHistory = [];
 Module.commandHistoryIdx = -1;
 Module.currentCommand = null;
 Module.handleKeyDown = evt => {
-    // todo send chars to keyact when logo is running
+    // for keyact
+    Module.onkeydown(evt);
+
     const inputText = document.getElementById('logoInputText');
     if (evt.key == "ArrowDown") {
         evt.preventDefault();
@@ -977,7 +979,7 @@ Module.onmousemove = (evt) => {
 }
 
 Module.onkeydown = (evt) => {
-    evt.preventDefault();
+    // evt.preventDefault();
     Module.uievents.unshift({
         type: Module.uieventypes['keydown'],   
         key: Module.gdk_keycodes[evt.key] || evt.key.charCodeAt(0),
