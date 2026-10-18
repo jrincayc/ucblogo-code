@@ -577,28 +577,28 @@
         retryRunEvaluator(10);
         return false;
       });
-      screen.orientation.addEventListener("change", (event) => {
-        if (event.target.type.startsWith('landscape')) {
-          const logoDrawing = document.getElementById('logoDrawing');
-          if (!logoDrawing.requestFullscreen) {
-            return true;
-          }
-          if (logoDrawing.requestFullscreen) {
-            logoDrawing.requestFullscreen();
-          }
-          else {
-            logoDrawing.webkitRequestFullscreen();
-          }
-        }
-        else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          }
-          else {
-            document.webkitExitFullscreen();
-          }
-        }
-      });
+      // screen.orientation.addEventListener("change", (event) => {
+      //   if (event.target.type.startsWith('landscape')) {
+      //     const logoDrawing = document.getElementById('logoDrawing');
+      //     if (!logoDrawing.requestFullscreen) {
+      //       return true;
+      //     }
+      //     if (logoDrawing.requestFullscreen) {
+      //       logoDrawing.requestFullscreen();
+      //     }
+      //     else {
+      //       logoDrawing.webkitRequestFullscreen();
+      //     }
+      //   }
+      //   else {
+      //     if (document.exitFullscreen) {
+      //       document.exitFullscreen();
+      //     }
+      //     else {
+      //       document.webkitExitFullscreen();
+      //     }
+      //   }
+      // });
     });
 
     // Google workbox service worker
