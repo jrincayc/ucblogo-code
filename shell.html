@@ -166,19 +166,9 @@
     //     return false;
     //   }, { capture: true })
     // }
-    window.visualViewport.addEventListener('resize', () => {
-      console.log('window.visualViewport.height', window.visualViewport.height)
-      document.getElementById('appContainer')
-        .setAttribute('style', `width: 100%; height: ${window.visualViewport.height - 8 - 16}px;`)
-      outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
-      setTimeout(()=>window.scrollTo({
-        top: 0,
-        left: 0,
-        // behavior: 'smooth'
-      }), 100);
-    })
     window.addEventListener('load', () => {
-      window.dispatchEvent(new Event('resize'));
+      window.visualViewport.addEventListener('resize', Module.graphics.onresize);
+      Module.graphics.dispatchResize();
       document.getElementById('logoInputText').focus();
     })
   </script>
@@ -713,7 +703,7 @@
       document.addEventListener('focusout', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) handleBlur();
       });
-    }
+    } // end slop
 
   </script>
   {{{ SCRIPT }}}
