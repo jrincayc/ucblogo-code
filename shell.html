@@ -602,6 +602,8 @@
     class LogoSoftKeys extends HTMLElement {
       constructor() {
         super();
+        if (!(navigator.maxTouchPoints > 0 || window.matchMedia("(any-hover: none)").matches))
+          return;
         this.innerHTML = `
         <div class="flex">
           <style>
