@@ -385,12 +385,35 @@ NODE* onkeydown(uievent* evt) {
    return NIL;
 }
 
+extern int stop_quietly_flag;
+
+void onpauselogo() {
+   charmode_off();
+   to_pending = 0;
+   lpause(NIL);
+}
+
+void onstoplogo() {
+   charmode_off();
+   to_pending = 0;
+   if (!stop_quietly_flag)
+      err_logo(STOP_ERROR,NIL);
+   stop_quietly_flag = 0;
+   unblock_input();
+}
+
 NODE* dispatch_uievent(uievent* evt) {
    NODE* r = NIL;
 	if (!evt) {
       return NIL;
 	}
    switch (evt->type) {
+      case pauselogo:
+         onpauselogo();
+         break;
+      case stoplogo:
+         onstoplogo();   
+         break;
       case mousemove: 
          r = onmousemove(evt);
          break;

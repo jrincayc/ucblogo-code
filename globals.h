@@ -700,6 +700,8 @@ typedef enum {
     keydown = 4,
     keyup = 5,
     keypress = 6,
+    pauselogo = 7,
+    stoplogo = 8,
 } uievent_type_t;
 
 typedef struct {
@@ -723,5 +725,6 @@ typedef enum {
    ArrowUp = 0xFF52,
 } gdk_keycodes;
 
+extern int peek_uievent();
 extern int get_uievent(uievent*);
 NODE* dispatch_uievent(uievent*);

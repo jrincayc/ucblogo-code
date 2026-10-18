@@ -324,8 +324,12 @@
             <select id="commandHistorySelect" style="max-width: 18px;"
               oninput="Module.handleCommandHistorySelectChanged(event)">
             </select>
-            <input type="submit" value="Run"
+            <input type="submit" value="⏵"
               onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
+            <!-- <input type="submit" value="Pause"
+              onmousedown="Module.onpauselogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input> -->
+            <input type="submit" value="⏹"
+              onmousedown="Module.onstoplogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
           </form>
         </div>
 

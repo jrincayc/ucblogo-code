@@ -911,6 +911,8 @@ const EVT_T_MOUSEMOVE = 3;
 const EVT_T_KEYDOWN = 4;
 const EVT_T_KEYUP = 5;
 const EVT_T_KEYPRESS = 6;
+const EVT_T_PAUSELOGO = 7;
+const EVT_T_STOPLOGO = 8;
 
  Module.uieventypes = {
     'mousedown': EVT_T_MOUSEDOWN,
@@ -922,8 +924,8 @@ const EVT_T_KEYPRESS = 6;
     'keypress': EVT_T_KEYPRESS,
     // TODO these can be simple flags, and should be higher
     // priority than ui events
-    // 'pauselogo': 7,
-    // 'stoplogo': 8,
+    'pauselogo': 7,
+    'stoplogo': 8,
 }
 
 Module.gdk_keycodes = {
@@ -987,3 +989,20 @@ Module.onkeydown = (evt) => {
     Module.run_evaluator(false);
     return false;
 }
+
+Module.onpauselogo = (evt) => {
+    if (getValue(Module['_LOGO_GIL']) === 0) return;
+    Module.uievents.splice(0, Module.uievents.length, {
+        type: EVT_T_PAUSELOGO
+    });
+    Module.run_evaluator(false);
+}
+
+Module.onstoplogo = (evt) => {
+    if (getValue(Module['_LOGO_GIL']) === 0) return;
+    Module.uievents.splice(0, Module.uievents.length, {
+        type: EVT_T_STOPLOGO
+    });
+    Module.run_evaluator(false);
+}
+ 

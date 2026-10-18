@@ -59,6 +59,10 @@ return Asyncify.handleSleep((wakeUp) => {
 });
 },
 
+peek_uievent: () => {
+    return Module.uievents.length;
+},
+
 get_uievent: (evtptr) => {
     if (Module.uievents.length === 0) {
         return 0;

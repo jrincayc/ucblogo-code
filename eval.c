@@ -375,8 +375,11 @@ begin_seq:
     debprint("begin_seq");
     make_tree(list);
     if (!is_tree(list)) {
-	val = UNBOUND;
-	goto fetch_cont;
+		val = UNBOUND;
+		if (peek_uievent()) {
+			goto eval_sequence;
+		}
+		goto fetch_cont;
     }
     unev = tree__tree(list);
     goto eval_sequence;
