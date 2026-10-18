@@ -36,13 +36,14 @@ export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
 autoreconf -fi \
-&& emconfigure ./configure --disable-docs --disable-x11 --disable-wx \
+&& emconfigure ./configure --disable-docs --disable-x11 --disable-wx  --enable-gitid \
 --prefix=`pwd`/dist \
 --disable-objects --enable-wasm \
 && emmake make clean \
 && emmake make ucblogo-node.js \
 && emmake make ucblogo.html \
-&& node ./ucblogo-node.js tests/test.lg
+&& node ./ucblogo-node.js tests/test.lg \
+&& npx workbox-cli generateSW workbox-config.js
 # && wasm-opt ucblogo-node.wasm --spill-pointers -o ucblogo-node.wasm \
 # && emmake make ucblogo.html
 

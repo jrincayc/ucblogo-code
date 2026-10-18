@@ -233,6 +233,23 @@ like 8. The resultant GC thrashing has a fuzzing effect and will make existing
 bugs crash logo earlier and more often, which is good for debugging hard to
 reproduce bugs.
 
+## Deployment
+
+Regenerate Workbox service worker. For more see https://developer.chrome.com/docs/workbox
+
+```
+npx workbox-cli generateSW workbox-config.js
+```
+
+Copy files to deployment dir, e.g.
+
+```
+cp {*.js,*.wasm,*.html,*.map,*.ico,*.png,*.pdf,*.json} ~/ucblogo-code-gh-pages
+```
+
+Commit and push
+
+
 ## Future Directions
 
 WASM-GC looks interesting, but LLVM hasn't picked it up yet.

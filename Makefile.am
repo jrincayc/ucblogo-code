@@ -139,7 +139,7 @@ ucblogo-node.js: ucblogo pre.js liblogo.js
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o ucblogo-git.o \
 	--pre-js pre.js \
 	-s JSPI \
 	-s ALLOW_MEMORY_GROWTH \
@@ -172,7 +172,7 @@ ucblogo.html: ucblogo shell.html pre.js liblogo.js
 	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
 	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o \
+	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o ucblogo-git.o \
 	--pre-js pre.js \
 	--embed-file dist/share/ucblogo@/share/ucblogo \
 	--embed-file tests \
