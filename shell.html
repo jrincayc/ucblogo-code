@@ -154,18 +154,18 @@
     }
   </style>
   <script>
-    if (!WebAssembly.promising) {
-      document.addEventListener('DOMContentLoaded', (event) => {
-        event.preventDefault();
-        document.querySelector('body').innerHTML = `
-          <h3>You must enable JSPI in chrome://flags to use UCB Logo Web Edition</h3>
-          <img src="chromeflagsjspi.png"></img>
-        `;
-        window.alert("You must enable JSPI in chrome://flags to use Logo");
-        throw new Error("Fatal: JSPI not available");
-        return false;
-      }, { capture: true })
-    }
+    // if (!WebAssembly.promising) {
+    //   document.addEventListener('DOMContentLoaded', (event) => {
+    //     event.preventDefault();
+    //     document.querySelector('body').innerHTML = `
+    //       <h3>You must enable JSPI in chrome://flags to use UCB Logo Web Edition</h3>
+    //       <img src="chromeflagsjspi.png"></img>
+    //     `;
+    //     window.alert("You must enable JSPI in chrome://flags to use Logo");
+    //     throw new Error("Fatal: JSPI not available");
+    //     return false;
+    //   }, { capture: true })
+    // }
     window.addEventListener('resize', () => {
       document.getElementById('appContainer')
         .setAttribute('style', `width: 100%; height: ${document.documentElement.clientHeight - 8 - 16}px;`)
