@@ -411,7 +411,7 @@ Module.graphics.split_screen = () => {
     if (Module.graphics.mode == 'split_screen') return;
     Module.graphics.mode = 'split_screen';
     // console.log(`split_screen ${[]}`);
-    document.getElementById('logoDrawing')
+    document.getElementById('svgContainer')
         .style.setProperty('display', 'block');
     document.getElementById('logoInputContainer')
         .style.setProperty('display', 'flex');
@@ -421,7 +421,7 @@ Module.graphics.text_screen = () => {
     if (Module.graphics.mode == 'text_screen') return;
     Module.graphics.mode = 'text_screen';
     console.log(`text_screen ${[]}`);
-    document.getElementById('logoDrawing')
+    document.getElementById('svgContainer')
         .style.setProperty('display', 'none');
     document.getElementById('logoInputContainer')
         .style.setProperty('display', 'flex');
