@@ -175,7 +175,7 @@
         top: 0,
         left: 0,
         // behavior: 'smooth'
-      }), 1);
+      }), 100);
     })
     window.addEventListener('load', () => {
       window.dispatchEvent(new Event('resize'));
@@ -580,6 +580,9 @@
       screen.orientation.addEventListener("change", (event) => {
         if (event.target.type.startsWith('landscape')) {
           const logoDrawing = document.getElementById('logoDrawing');
+          if (!logoDrawing.requestFullscreen) {
+            return true;
+          }
           if (logoDrawing.requestFullscreen) {
             logoDrawing.requestFullscreen();
           }
