@@ -412,7 +412,7 @@ Module.graphics.split_screen = () => {
     Module.graphics.mode = 'split_screen';
     // console.log(`split_screen ${[]}`);
     document.getElementById('svgContainer')
-        .style.setProperty('display', 'block');
+        .style.setProperty('display', 'flex');
     document.getElementById('logoInputContainer')
         .style.setProperty('display', 'flex');
     window.dispatchEvent(new Event('resize'));
