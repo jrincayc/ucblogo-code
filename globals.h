@@ -725,6 +725,6 @@ typedef enum {
    ArrowUp = 0xFF52,
 } gdk_keycodes;
 
-extern int peek_uievent();
+extern int peek_uievent(uievent*);
 extern int get_uievent(uievent*);
 NODE* dispatch_uievent(uievent*);

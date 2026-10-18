@@ -59,8 +59,12 @@ return Asyncify.handleSleep((wakeUp) => {
 });
 },
 
-peek_uievent: () => {
-    return Module.uievents.length;
+peek_uievent: (evtptr) => {
+    const l = Module.uievents.length;
+    if (l === 0) return 0;
+    const evt = Module.uievents[l - 1];
+    setValue(evtptr, evt.type, 'i32');
+    return l;
 },
 
 get_uievent: (evtptr) => {

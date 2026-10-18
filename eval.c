@@ -349,6 +349,7 @@ NODE *evaluator(NODE *list, enum labels where) {
     FIXNUM  cont   = 0;	    /* where to go next */
     int i;
     BOOLEAN tracing = FALSE; /* are we tracing the current procedure? */
+	uievent evt;
 	
     inside_evaluator++;
     eval_save();
@@ -376,9 +377,9 @@ begin_seq:
     make_tree(list);
     if (!is_tree(list)) {
 		val = UNBOUND;
-		if (peek_uievent()) {
-			goto eval_sequence;
-		}
+		if (peek_uievent(&evt))
+			if (evt.type == pauselogo || evt.type == stoplogo)
+				goto eval_sequence;
 		goto fetch_cont;
     }
     unev = tree__tree(list);
@@ -920,7 +921,6 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
-	uievent evt;
 	if (get_uievent(&evt)) {
 		eval_buttonact = dispatch_uievent(&evt);
 	}
