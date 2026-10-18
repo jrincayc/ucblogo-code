@@ -1,6 +1,6 @@
 {
   "name": "ucblogo",
-  "version": "6.2.5",
+  "version": "6.2.5-WASM-preview-42",
   "description": "## Berkeley Logo interpreter",
   "main": "ucblogo.js",
   "directories": {
