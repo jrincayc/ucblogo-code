@@ -580,10 +580,20 @@
       screen.orientation.addEventListener("change", (event) => {
         if (event.target.type.startsWith('landscape')) {
           const logoDrawing = document.getElementById('logoDrawing');
-          logoDrawing.requestFullscreen();
+          if (logoDrawing.requestFullscreen) {
+            logoDrawing.requestFullscreen();
+          }
+          else {
+            logoDrawing.webkitRequestFullscreen();
+          }
         }
         else {
-          document.exitFullscreen();
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+          else {
+            document.webkitExitFullscreen();
+          }
         }
       });
     });
