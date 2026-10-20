@@ -50,10 +50,15 @@ EM_JS(void, em_turtle_js, (int op, double x, double y), {
     var paint = function () {
         lift();
         if (!T.vis || !T.poly || T.poly.length < 3) return;
-        var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i;
+        /* The page may scale the context (e.g. LOGICAL_SIZE 500 on a 440px canvas); getImageData/
+         * putImageData work in device pixels and ignore that transform, so map the outline through it. */
+        var m = ctx.getTransform ? ctx.getTransform() : { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+        var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i, px, py;
         for (i = 0; i < T.poly.length; i++) {
-            x0 = Math.min(x0, T.poly[i][0]); x1 = Math.max(x1, T.poly[i][0]);
-            y0 = Math.min(y0, T.poly[i][1]); y1 = Math.max(y1, T.poly[i][1]);
+            px = m.a * T.poly[i][0] + m.c * T.poly[i][1] + m.e;
+            py = m.b * T.poly[i][0] + m.d * T.poly[i][1] + m.f;
+            x0 = Math.min(x0, px); x1 = Math.max(x1, px);
+            y0 = Math.min(y0, py); y1 = Math.max(y1, py);
         }
         x0 = Math.max(0, Math.floor(x0) - 3); y0 = Math.max(0, Math.floor(y0) - 3);
         x1 = Math.min(ctx.canvas.width, Math.ceil(x1) + 3); y1 = Math.min(ctx.canvas.height, Math.ceil(y1) + 3);
