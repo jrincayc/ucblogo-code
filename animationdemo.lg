@@ -11,6 +11,6 @@ to animate :td
     setx (first pos) + :td / 10
 end
 
-make "animationframeact [animate :animationdelta]
+make "animationact [animate :animationdelta]
 
 animationstart

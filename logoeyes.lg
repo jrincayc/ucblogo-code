@@ -27,5 +27,5 @@ animationstop
 cs
 pu
 hideturtle
-make "animationframeact [eyes]
+make "animationact [eyes]
 animationstart

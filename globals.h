@@ -209,7 +209,7 @@ extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Startuplg, *Query;
 extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform, *Keyact;
 extern NODE *CommandLine, *Null_Word;
 #ifdef __EMSCRIPTEN__
-extern NODE *Animationframeact;
+extern NODE *Animationact;
 extern NODE *Animationtime;
 extern NODE *Animationdelta;
 #endif

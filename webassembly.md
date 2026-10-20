@@ -2,43 +2,44 @@
 
 In collaboration with Brian Harvey we are proud to present...
 
-_UCB Logo, lovingly packaged as a Progressive Web App_
+_UCB Logo, lovingly packaged as a Progressive Web App with SVG turtle graphics_
 
 Run Logo right now in your browser -> https://n1ywb-1.github.io/ucblogo-code/ucblogo.html
 
 Mobile users may select "Add to Home" from the browser menu to install UCB Logo
 as a progressive web app, which is recommended.
 
-Features
+## Features
 
 * OG C UCB Logo interpreter, cross-compiled to Web Assembly
 * 100% compatible with UCB Logo; minor exceptions noted
 * Responisive, accessible, mobile-friendly HTML UI
-* Animated SVG turtle graphics and sprites
-* Accessible UI
-* Mobile-first design; looks great on the desktop as well
-* Full offline capabilities
-* Persistant emulated filesystem
+* SVG turtle graphics with export/download
+* Logo source code upload/download
+* Web-exclusive animation and sprites
+* Interactive evaluator terminal with command line history
 * Built-in barebones text editor
-* Tail-call elimination for unlimited recursion depth
+* Soft-keys for entering common punctuation on mobiles
+* Persistant emulated filesystem
+* Full offline capabilities
 * JS/Logo interoperability
 
-Supported browsers and platforms (current versions):
+## Supported browsers and platforms (current versions)
+
 * Chrome
 * Firefox
 * Edge
 * Safari
 * Node.js
 
+## Links
 
-Links:
 * UCB Logo Web edition home: https://github.com/n1ywb-1/ucblogo-code
 * UCB Logo Home: https://github.com/jrincayc/ucblogo-code/
 * UCB Logo Docs: https://people.eecs.berkeley.edu/~bh/v2ch14/manual.html
 
 Test reports and contributions welcome.
 
-Great thanks to Brian Harvey and Joshua Cogliati.
 
 # Introduction
 
@@ -47,13 +48,8 @@ web browser. The web is the defacto standard computing platform of the 21st
 century.
 
 While Logo cousins Snap and Scratch have flourished on the web, Logo itself has
-languished somewhat. In my personal quest to hack on Logo programs on my phone I
-tried many broken "Logo" apps offering little more power than turtle graphics
-and basic loops, or didn't even use Logo syntax, or didn't have map/reduce, or
-macros, or tail call eliminaion, etc etc etc. Toy Logos, basically. I wound up
-using 1980's vintage LCSI Logos in PC and apple II emulators much to the
-detriment of my battery life. It was a fun trip down memory lane but I wanted
-much more.
+languished. In my personal quest to hack on Logo programs on my phone I
+tried many broken "Logo" apps offering little power if they were even Logo at all.
 
 Now thanks to Web Assembly you can run full UCB Logo right in your browser with
 beautful SVG turtle graphics, high quality animations, and JavaScript
@@ -61,11 +57,10 @@ integration.
 
 ## Genuine article
 
-This is not some retro-nostalgic vibe-coded slop version of Logo. This is Brian
-Harvey's very own C-Logo interpreter lovingly ported to Web Assembly with
-Emscripten by a 30-year veteran C programmer. Map, reduce, macros, they're all
-there. The terminal UI, barebones editor, and turtle graphics are a mix of C,
-JS, HTML, SVG, and CSS.
+This is not some retro-nostalgic vibe-coded-slop version of Logo. This is Brian
+Harvey's original C-Logo interpreter hand-ported to Web Assembly with Emscripten
+by real humans®. Map, reduce, macros, they're all there. The terminal UI,
+barebones editor, and turtle graphics are a mix of C, JS, HTML, SVG, and CSS.
 
 ## Mobile-first design
 
@@ -82,72 +77,127 @@ on-screen keyboard.
 SVG scales nicely accross the huge range of display resolutions present in
 mobile devices.
 
-## More accessible
+## Accessibility is a priority
 
 Further because the UI uses standard HTML and SVG elements it is accessible to
 people with visual impairments in a way that Logo has never been. The fonts and
 drawings can be blown up to epic proportions without pixelation artifacts and it
-should be screen reader compatible. The responsive UI smoothly scales.
+should be screen reader compatible. The responsive UI smoothly scales to any screen size.
 
 Accessiblity is a high priority with this port so feedback is appreciated.
 
 # New features
 
-Web Edition features an exclusive real-time animation facility.
-
-The turtle can be drawn with SVG.
-
 Scalable Vector Graphics provide stunning and responsive turtle art independent
 of the native display resolution. SVG turtle art can be easily printed, saved,
-shared, or opened in another program.
+shared, or opened in another program. The turtle shape can also be drawn with SVG with `makesprite`.
+
+Web Edition features an exclusive real-time animation facility (experimental).
 
 Use the JS interop to break the limits of logo and manipulate DOM directly or
 access cutting edge web APIs.
 
 # Differences and missing features
 
-Pausing is not supported.
+While we claim "100% compatibility", we are missing a few minor features
+available in other UCB Logo builds. They have no effect on the core Logo
+language.
 
-The terminal is dumb as a rock, no emulation related words work yet.
+## Missing or non-functioning words:
 
-The `shell` word doesn't work, but see `runjs`.
+Most of these are planned to be added.
 
-Web edition cannot access the host filesystem but includes an internally
-emulated filesystem. This allows file-related words to function otherwise
-normally.  The emulated filesystem should be persistent in PWA installs so you
-can use `edit "mylogoprog` etc to save and load your programs but I wouldn't
-100% trust it yet. Logo can also upload and download source code files. 
+### Terminal emulation related words
 
-## xor and erase pens
+* `standout`
+* `setcursor`
+* `cursor`
+* `setmargins`
+* `settextcolor`
+* `increasefont`
+* `decreasefont`
+* `settextsize`
+* `textsize`
+* `setfont`
+* `settextfont`
+* `font`
+
+The terminal is currently "dumb". Emulation features are planned.
+
+
+### Graphics words
+* `scrunch` (uneeded with SVG)
+* `setscrunch`
+* `fill` (flood-fill; we do support `filled`)
+* `refresh` (uneeded with SVG)
+* `norefresh`
+* `savepict` (but see SVG export)
+* `loadpict` (use JS to add whatever to the drawing)
+* `epspict` (again see SVG export)
+
+### Audio words
+* `tone` (missing from WX build as well)
+
+### Misc words
+* `shell` (works in node.js, but not in browser)
+
+There is no `shell` word in web browsers since there is no shell on the web. We
+provide `runjs` as an alternative. We do not plan to add a shell, but it might
+be possible to do so with WASI. `shell` works normally in node.js.
+
+## Other differences
+
+Web apps cannot access the host filesystem so UCB Logo includes an internal
+virtual filesystem. This allows file-related words to function otherwise
+normally.  The emulated filesystem should be persistent in PWA installs in the
+brwosers database, so you can use `edit "mylogoprog` etc to save and load your
+programs. However I wouldn't 100% trust it yet, I understand the browser may evict this data under certain rare circumstances. Logo can also upload and download
+source code files. 
+
+### `penerase``
 
 Historically Logo drew bitmaps. While SVG is vastly superior in nearly every
-respect, bitmaps offer some unique capabilities which logo has used to implement
-an xor pen and an erasing pen. We can't provide pixel-perfect implementations of
-those, but we can get close.
+respect, there is one thing bitmaps can do that SVG can't; erasing.
 
-The xor pen is implemented with an SVG xor filter. The result looks similar to
-the historical behavior but it's not pixel-perfect.
-
-Erasing is implemented by drawing on a mask layer to reveal the background. So
-nothing is really erased. Again it's close but not pixel-perfect.
+We emulate erasing by drawing on a mask layer to reveal the background. So
+nothing is really erased, but it looks like it is. It's close but not pixel-perfect.
 
 UCB Logo historically supports a proprietary vector art file format by the
 unfortunate name of PICT. It's basically a serialized list of turtle commands.
 PICT words might still work but I haven't tried it.
 
+### `wait`
+
+Waits are interrupted if an event arrives, so the wait time should be taken as a
+maximum wait time rather than a guaranteed wait time.
+
+This was necessitated by the fact that Asyncified C programs are non-reentrant
+and we have no signals or any other way of asynchronously responding to events in C.
+
+We have to wake Logo up so it can poll the events from the event queue, or they will not be handled until the (potentially very long) wait timeout. This is particularly important for `STOP` events but also relevant to mouse clicks etc.
+
+This is important to ensure adequate responsiveness in existing Logo programs,
+like `mines`, which idle in a wait loop assuming events will be handled
+asynchronously. 
+
 # Usage
 
 ## As a web page
 
-UCB Logo can run as a web page in most popular browsers.
+UCB Logo can run as a web page in recent versions of most popular browsers on
+mobile devices and on the desktop.
 
 ## As a progressive web app
 
-UCB Logo can also be installed as an app on most mobile devices by selecting "Add to Home" from your mobile browser menu.
+UCB Logo can also be installed as an app on most mobile devices by selecting
+"Add to Home" from your mobile browser menu.
 
-Installed as an app, UCB Logo features full-offline capabilities and persistant storage on a simulated local filesystem.
+Installed as an app, UCB Logo features full-offline capabilities and persistant
+storage on it's virtual filesystem.
 
-# Web-specific words
+## Web-edition exclusive words
+
+Experimental, subject to change, may crash Logo
 
 * `animationstart`
 * `animationstop`
@@ -160,7 +210,7 @@ Installed as an app, UCB Logo features full-offline capabilities and persistant 
 * `runjs`
 * `runLogo` (JS Function)
 
-## Animation words
+### Animation words
 
 Exclusive to Web Edition is an animation facility based on the HTMl5
 requestAnimationFrame API. This enables Logo to render smooth turtle-graphics
@@ -179,7 +229,7 @@ cost of somewhat increased CPU usage.
 
 To set an animation frame action
 ```
-make "animationframeact [words to draw frame]
+make "animationact [words to draw frame]
 ```
 
 To get the total time the loop has been running
@@ -206,17 +256,20 @@ Example:
 
 ```
 cs pu
-make "animationframeact [setheading towards mousepos fd :animationdelta * 0.2]
+make "animationact [setheading towards mousepos fd :animationdelta * 0.2]
 animationstart
 ```
 
 The turtle should start smoothly chasing your mouse pointer around the screen at
 a constant speed.
 
-## Sprite words
+### Sprite words
 
-Right now there is only one sprite, the turtle. So basically this is just an
-SVG-based alternative to `setturtleshape`.
+Sprites are another web-exclusive feature. Right now there is only one sprite:
+the turtle. So basically this is just an SVG-based alternative to
+`setturtleshape`. Support for multiple sprites is planned. It's... unclear what
+the actual difference between a sprite and a turtle even is, it's not like we're
+using real hardware NTSC sprites... This abstraction needs more thought.
 
 To create a new sprite, first `clearscreen` and draw it with the turtle, then
 
@@ -233,7 +286,7 @@ To set the turtle to a sprite shape
 setturtlesprite "spritename
 ```
 
-## SVG Rendering Control Words
+### SVG Rendering Control Words
 
 Sets the SVG shape rendering mode in CSS. In practice this just
 turns anti-aliasing on or off, don't get too excited.
@@ -250,12 +303,14 @@ Accepted words are
 3. `"optimizespeed` Typically identical to 1
 2. `"crispedges` Disables anti-aliasing
 
-## Experimental Logo/JS interoperation
+This can also be changed in the settings dialog.
+
+### Experimental Logo/JS interoperation
 
 Call JavaScript from Logo and Logo from JavaScript or both at once using UCB
 Logo's JavaScript Foreign Function Interface.
 
-### To call JavaScript from Logo
+#### To call JavaScript from Logo
 ```
 runjs "|console.log('Called JS from Logo')|
 ```
@@ -318,7 +373,7 @@ Pprop "pplist "foo [poo bar boo [bee 42]]
 Pprop "pplist "hello "world
 ```
 
-### To call Logo from Javascript
+#### To call Logo from Javascript
 
 ```javascript
 runLogo('pr [Called Logo from JS]')
@@ -349,7 +404,7 @@ No marshaling is provided as of now.
 
 Warning: Also uses eval, the logo version. Logo commands are sent via stdin to the main eval loop. Totally insecure.
 
-### Ouroboros
+#### Ouroboros
 
 I don't know why you would want to do this.
 
@@ -367,10 +422,7 @@ Or this.
 called JS from Logo from JS
 ```
 
-# Technical details
-
-This describes how ucblogo was ported to the Web Assembly platform
-using the Emscripten SDK.
+# Developer Instructions
 
 ## Background
 
@@ -450,16 +502,25 @@ UCB Logo uses a heuristic approach whereby we call YIELD frequently, but we make
 those calls practically free by not actually yelding most of the time. Most
 calls to YIELD just decrement a counter and return. YIELD only checks the wall
 clock when the counter reaches zero, and then only yields if the deadline has
-passed. The result is reliable yielding with practically zero runtime cost.
+passed, otherwise is just resets the counter. The result is reliable yielding
+with practically zero runtime cost.
 
-On supporting browsers Logo uses the new `scheduler.yield` rather than
+On supporting browsers Logo yields uses the new `scheduler.yield` rather than
 `setTimeout`; this results in a significant peformance improvement.
 
-Logo users can force a YIELD with the `wait` word.
+Logo users can force a YIELD with the `wait` word. The `wait` will be
+interrupted if an event arrives.
 
-## Developer Instructions
+Logo is fully asynchronous and does not use any polling loops, which results in excellent responsiveness, low CPU overhead, and extended battery life. The animation loop, when running, will impact battery life.
 
-### Prerequisites
+Logo executes as a "terminate and stay resident" or TSR program; the main() function returns,
+but the runtime stays alive so JavaScript can call into the Logo C API and run
+the evaluator. This permits a limited form of reentrency. True reentrency is
+prohibited by Asyncify as it will corrupt the shadow stack. JSPI solves this
+problem but it's unclear if it will work with our garbage collector, TBD.
+WASM-GC would eliminate this concern but is not currently supported by LLVM.
+
+## Prerequisites
 
 * Emscripten >= 4.5 https://emscripten.org/docs/getting_started/downloads.html
 * Python >= 3.6
@@ -467,16 +528,9 @@ Logo users can force a YIELD with the `wait` word.
 
 Emscripten will install it's own version of clang called emcc.
 
-Also emscrpten likes to compile C as C++ for some reason, but it doesn't seem to
-cause us issues. (Is this right?)
+Note: Our makehelp target doesn't work with emscripten and must be built with a native toolchain. 
 
-We are using autotools with Emscripten but it's a little hacky at the moment.
-
-Note: Our makehelp target doesn't work with emscripten. It's generally
-recommended to NOT use wasm for stuff like that anyway. TBD how to update
-autotools. 
-
-### Building
+## Building
 
 The short version
 
@@ -485,30 +539,19 @@ cd ucblogo-code
 . ~/emsdk/emsdk_env.sh
 npm install
 ./emscript.sh
-emrun ucblogo.html
 ```
 
-### Runnning
+## Runnning
 
 Once compiled to WASM, ucblogo can be run in any WASM VM including node.js and
-any modern web browser.
+any modern web browser using a local web server, e.g.
 
-#### Node
+### Running in browser
 
-
-    node ./ucblogo-node.js
-
-Logo terminal input is currently broken in node, but you can still use it to run
-unit tests from the console.
-
-To debug in node I recommend using the VSCode node debug plugin from MS official. You can also use Chrome dev tools to remotely debug Node but it leaves some things to be desired.
-
-To debug the web app install the Chrome DWARF plugin and be sure to build ucblogo.debug.wasm. Always split debug symbols into a separate file. The combined file is too bid and the touchy DWARF plugin will silently fail to load them.
-
-#### Browser
-
-Once the program is compiled to ucblogo.html one simply serves the output files
-on a web server and loads it in a browser.
+To debug the web app install the Chrome DWARF plugin and be sure to split debug
+symbols into ucblogo.debug.wasm. Always split debug symbols into a separate
+file. The combined file is too big and the touchy DWARF plugin will silently
+fail.
 
 Emscripten includes a utility called `emrun` which will automatically start a
 little web server, open the program in a browser window, and pipe the javascript
@@ -526,20 +569,50 @@ the local dir an includes CORS headers.
 node webserver.js
 ```
 
+
+```sh
+emrun ucblogo.html
+```
+
+or
+
+```sh
+python3 -m http.server 8080 & xdg-open http://localhost:8080/ucblogo.html
+```
+
+or 
+
+```sh
+node ./webserver.js & xdg-open http://localhost:8080/ucblogo.html
+```
+
+which inludes CORS headers for cross-site scripting.
+
+### Running in Node
+
+```sh
+node ./ucblogo-node.js
+```
+
+Logo terminal input is currently broken in node, but you can still use it to run
+unit tests from the console.
+
+To debug in node I recommend using the official VSCode node debug plugin from MS. 
+
+You can also use Chrome dev tools to remotely debug Node but it leaves some things to be desired. Again you need the DWARF plugin.
+
+## Debugging
+
 The debugging experience is a mixed bag. On the one hand Chrome Devtools is a
 pretty amazing debugger. OTOH there is a huge impedance mismatch between C and
 the web. And errors that occur in JS don't necessarily include a C
-backtrace, or maybe the trace doesn't have line numbers.
+backtrace, or maybe the trace refers to assembly code an not C.
 
-Also to get decent performance from C programs in WASM it's important to crank
-up the optmizations. This obviously causes bugs to bubble up to the surface 
-while simultaneously making them harder to fix.
+In the face of a difficult Logo bug, I recommend attempting to reproduce and fix
+it in a native WX Logo environment, then port the fix to the WASM build. gdb
+offers a much more powerful C debugging experience than chrome dev tools.
 
-In the face of a difficult bug on WASM, I highly recommend attempting to
-reproduce and fix it in the native host environment, then port the fix to the
-WASM build.
-
-Logo bugs can sometimes be forced to the surface by setting a tiny SEG_SIZE,
+GC bugs can sometimes be forced to the surface by setting a tiny SEG_SIZE,
 like 8. The resultant GC thrashing has a fuzzing effect and will make existing
 bugs crash logo earlier and more often, which is good for debugging hard to
 reproduce bugs.
@@ -548,7 +621,7 @@ See also `address-sanitizer.txt` for how to turn on LLVM sanitizers.
 
 See also `contrib/gdb.rc` for some useful GDB macros.
 
-### Deployment
+## Deployment
 
 Tag the release
 ```
@@ -571,7 +644,7 @@ Commit and push
 
 ## Future Directions
 
-WASM-GC looks interesting, but LLVM hasn't picked it up yet.
+WASM-GC looks great, but LLVM hasn't picked it up yet.
 
 Objective Logo would enable better JS object integration; they're both 
 prototypal!
@@ -583,3 +656,9 @@ A hosted web service to backup and share logo programs.
 Expose more JS APIs, like sensors.
 
 Unicode would be nice.
+
+Safari needs more testing.
+
+## Thanks
+
+Great thanks to Brian Harvey and Joshua Cogliati for collaborating with me on this port.

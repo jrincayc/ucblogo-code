@@ -296,7 +296,7 @@ bool _animationframe(double time, void *userdata)
       setvalnode__caseobj(Animationtime, make_floatnode(time));
       setvalnode__caseobj(Animationdelta, make_floatnode(timedelta));
       animationFrameTime = time;
-      NODE *line = valnode__caseobj(Animationframeact);
+      NODE *line = valnode__caseobj(Animationact);
       // EM_ASM({console.log('_animationframe calling eval_driver')});
       yield_enabled = 0;
       eval_driver(line);

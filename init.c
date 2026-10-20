@@ -71,7 +71,7 @@ NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimi
      *askexist,
 #endif
 #ifdef __EMSCRIPTEN__
-    *Animationframeact,
+    *Animationact,
     *Animationtime,
     *Animationdelta,
 #endif
@@ -792,7 +792,7 @@ nosugar:
     Buttonact = intern_p(make_static_strnode("buttonact"));
     Keyact = intern_p(make_static_strnode("Keyact"));
     #ifdef __EMSCRIPTEN__
-    Animationframeact = intern_p(make_static_strnode("animationframeact"));
+    Animationact = intern_p(make_static_strnode("animationact"));
     Animationdelta = intern_p(make_static_strnode("animationdelta"));
     Animationtime = intern_p(make_static_strnode("animationtime"));
     #endif
