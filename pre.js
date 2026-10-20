@@ -630,12 +630,13 @@ function logostop() {
     Module.FS_runjs_getChar_buffer_append_obj('logoStop');
 }
 
-function logoRun(runliststr, echo) {
+function runLogo(runliststr, echo) {
     if (echo) {
         Module.FS_runjs_getChar_buffer_append_str(`pr [${runliststr}] ${runliststr}`);
     } else {
         Module.FS_runjs_getChar_buffer_append_str(runliststr);
     }
+    Module.run_evaluator(true);
 }
 
 Module.uploadFile = async file => {
@@ -645,7 +646,7 @@ Module.uploadFileButtonClicked = async evt => {
     try {
         await Promise.all(Array.from(evt.target.files).map(async f => {
             await Module.uploadFile(f);
-            logoRun(`load "|${f.name.replace('|', '\\|')}|`, true);
+            runLogo(`load "|${f.name.replace('|', '\\|')}|`, true);
         }));
     }
     catch (error) {
@@ -654,7 +655,7 @@ Module.uploadFileButtonClicked = async evt => {
     }
 };
 Module.downloadSessionClicked = async (event) => {
-    logoRun(`save "/tmp/ucblogo_session.lgo`, true);
+    runLogo(`save "/tmp/ucblogo_session.lgo`, true);
     await new Promise(res => setTimeout(res, 0));
     const contents = FS.readFile('/tmp/ucblogo_session.lgo');
     var stringContents = new TextDecoder().decode(contents);
@@ -953,11 +954,12 @@ Module.gdk_keycodes = {
    'ArrowUp': 0xFF52,
 }
 
-Module.run_evaluator = () => {
+Module.run_evaluator = (readcurline) => {
+    if (readcurline === undefined) readcurline = false;
     if (Asyncify.state === 0 
         && getValue(Module['_LOGO_GIL']) === 0
     ) {
-        Module._run_evaluator(false);
+        Module._run_evaluator(readcurline);
     }
     else {
         const timeout = Module.WEB_WAIT_TIMEOUT_ID;
@@ -965,6 +967,9 @@ Module.run_evaluator = () => {
             Module.WEB_WAIT_TIMEOUT_ID = 0;
             clearTimeout(timeout);
             Module.WEB_WAIT_WAKEUP();
+        }
+        else {
+            console.error("failed to run evaluator")
         }
     }
 }

@@ -28,34 +28,24 @@ bury "setshaperendering
 ; end
 ; bury "animationframe
 
-to makesprite :name
-ignore runjs apply "word `[Module.makeSprite(' ,:name ')]
+to makesprite :spritename
+ignore runjs apply "word `[Module.makeSprite(' ,:spritename ')]
 end
 
-to setturtle :spritename
+to setturtlesprite :spritename
 ignore runjs apply "word `[Module.setTurtle(' ,:spritename ')]
 end
 
-pr [Web Edition]
+pr [Web Edition Preview]
 pr []
 pr [Home: https://github.com/jrincayc/ucblogo-code/]
+pr [Web edition home: https://github.com/n1ywb-1/ucblogo-code]
 pr [Docs: https://people.eecs.berkeley.edu/~bh/v2ch14/manual.html]
 pr []
-pr [Enter commands in box at bottom of screen and press enter or click submit]
-pr []
-pr [Help command prints info about other commands, e.g.]
-pr [help "cslsload]
+pr [To get help:]
+pr "|  help|
+pr "|  help "cslsload|
 pr []
 pr [To run demos:]
-pr [cslsload "mines mines]
-pr [cslsload "dotgame dotgame]
-pr [cslsload "basic basic]
-pr []
-pr [To turn off anti-aliasing]
-pr "|setshaperendering "crispedges ; or "geometricprecision or "optimizespeed|
-pr []
-pr [To call JavaScript from Logo]
-pr "|runjs "\|console.log('Called JS from Logo')\||
-pr []
-pr [To call Logo from Javascript]
-pr "|logoRun('pr [Called Logo from JS]')|
+pr "|  cslsload "mines mines|
+pr "|  cslsload "dotgame dotgame|
