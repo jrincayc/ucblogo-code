@@ -156,6 +156,29 @@ void draw_turtle(void) {
     return;
 #endif
 
+#ifdef EM_GRAPHICS
+    /* Backends without an XOR pen (browser, Android) cannot draw-and-erase the
+     * turtle inside the picture. Here draw_turtle_helper() only *computes* the
+     * outline: emgraphics.h routes prepare_to_draw_turtle/done_drawing_turtle
+     * to em_turtle_begin/end, the backend captures the polygon and paints it on
+     * top of the drawing (never into it). Every draw_turtle() call refreshes
+     * that polygon, so after FORWARD the turtle stands at its new position. */
+    {
+	int sv = pen_vis, sw = pen_width;
+	if (!user_turtle_shown) {
+	    turtle_shown = FALSE;
+	    em_turtle_hide();
+	    return;
+	}
+	graphics_setup = 1;
+	turtle_shown = TRUE;
+	draw_turtle_helper();
+	pen_vis = sv;
+	set_pen_width(sw);
+	return;
+    }
+#endif
+
 #if !defined(HAVE_WX) && !defined(WIN32) && !defined(x_window) && !defined(EM_GRAPHICS)
     // No real graphics backend (headless/nographics build): there is no
     // turtle icon to actually draw, and the recursive forward(-1)/
@@ -561,6 +584,13 @@ NODE *lback(NODE *arg) {
 
 NODE *lshowturtle(NODE *args) {
     if(!graphics_setup) graphics_setup++;
+#ifdef EM_GRAPHICS
+    user_turtle_shown = TRUE;
+    prepare_to_draw;
+    draw_turtle();
+    done_drawing;
+    return(UNBOUND);
+#endif
     prepare_to_draw;
     if (!turtle_shown) {
 	turtle_shown = TRUE;
@@ -584,6 +614,9 @@ void internal_hideturtle() {
 NODE *lhideturtle(NODE *args) {
     internal_hideturtle();
     user_turtle_shown = FALSE;
+#ifdef EM_GRAPHICS
+    draw_turtle();	/* repaint: turtle now hidden */
+#endif
     return(UNBOUND);
 }
 

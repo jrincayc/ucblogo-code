@@ -24,6 +24,7 @@ EM_JS(void, em_done_drawing, (void), {
 EM_JS(void, em_clear_screen, (void), {
     if (typeof window.logoCanvasCtx === 'undefined') return;
     var ctx = window.logoCanvasCtx;
+    if (window.__logoTurtle) window.__logoTurtle.saved = null;   /* whole canvas is repainted below */
     ctx.fillStyle = window.logoBackgroundColor || 'white';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.strokeStyle = 'black';
@@ -31,12 +32,69 @@ EM_JS(void, em_clear_screen, (void), {
     ctx.beginPath();
 });
 
-EM_JS(void, em_move_to, (double x, double y), {
+/* --- Turtle ---------------------------------------------------------------
+ * UCBLogo draws and erases the turtle with an XOR pen, which a <canvas> doesn't
+ * have. Instead graphics.c's draw_turtle_helper() brackets its outline between
+ * em_turtle_begin()/em_turtle_end(); we capture those points here (they never
+ * go into the drawing), and paint them on top after saving the pixels below.
+ * Any real drawing first "lifts" the turtle by restoring those pixels. */
+static int capturing = 0;
+
+EM_JS(void, em_turtle_js, (int op, double x, double y), {
+    var ctx = window.logoCanvasCtx;
+    if (typeof ctx === 'undefined') return;
+    var T = window.__logoTurtle || (window.__logoTurtle = { saved: null, pts: [], poly: null, vis: false });
+    var lift = function () {
+        if (T.saved) { ctx.putImageData(T.saved.d, T.saved.x, T.saved.y); T.saved = null; }
+    };
+    var paint = function () {
+        lift();
+        if (!T.vis || !T.poly || T.poly.length < 3) return;
+        var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i;
+        for (i = 0; i < T.poly.length; i++) {
+            x0 = Math.min(x0, T.poly[i][0]); x1 = Math.max(x1, T.poly[i][0]);
+            y0 = Math.min(y0, T.poly[i][1]); y1 = Math.max(y1, T.poly[i][1]);
+        }
+        x0 = Math.max(0, Math.floor(x0) - 3); y0 = Math.max(0, Math.floor(y0) - 3);
+        x1 = Math.min(ctx.canvas.width, Math.ceil(x1) + 3); y1 = Math.min(ctx.canvas.height, Math.ceil(y1) + 3);
+        if (x1 <= x0 || y1 <= y0) return;
+        T.saved = { x: x0, y: y0, d: ctx.getImageData(x0, y0, x1 - x0, y1 - y0) };
+        var path = new Path2D();
+        path.moveTo(T.poly[0][0], T.poly[0][1]);
+        for (i = 1; i < T.poly.length; i++) path.lineTo(T.poly[i][0], T.poly[i][1]);
+        path.closePath();
+        ctx.save();
+        var bg = (window.logoBackgroundColor || 'white').toString();
+        ctx.strokeStyle = (bg === 'rgb(0,0,0)' || bg === 'black') ? 'white' : 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke(path);
+        ctx.restore();
+    };
+    switch (op) {
+    case 0: lift(); break;                                   /* lift the turtle before drawing */
+    case 1: T.pts = []; break;                               /* begin capture */
+    case 2: T.pts.push([x, y]); break;                       /* outline point */
+    case 3: T.poly = T.pts; T.vis = true; paint(); break;    /* end capture: show */
+    case 4: T.vis = false; lift(); break;                    /* hide */
+    }
+});
+
+void em_turtle_begin(void) { capturing = 1; em_turtle_js(1, 0, 0); }
+void em_turtle_end(void)   { capturing = 0; em_turtle_js(3, 0, 0); }
+void em_turtle_hide(void)  { em_turtle_js(4, 0, 0); }
+
+EM_JS(void, em_move_to_js, (double x, double y), {
     if (typeof window.logoCanvasCtx === 'undefined') return;
     window.logoCanvasCtx.moveTo(x, y);
 });
 
-EM_JS(void, em_line_to, (double x, double y), {
+void em_move_to(double x, double y) {
+    if (capturing) { em_turtle_js(2, x, y); return; }
+    em_turtle_js(0, 0, 0);
+    em_move_to_js(x, y);
+}
+
+EM_JS(void, em_line_to_js, (double x, double y), {
     if (typeof window.logoCanvasCtx === 'undefined') return;
     var ctx = window.logoCanvasCtx;
     ctx.lineTo(x, y);
@@ -44,6 +102,12 @@ EM_JS(void, em_line_to, (double x, double y), {
     ctx.beginPath();
     ctx.moveTo(x, y);
 });
+
+void em_line_to(double x, double y) {
+    if (capturing) { em_turtle_js(2, x, y); return; }
+    em_turtle_js(0, 0, 0);
+    em_line_to_js(x, y);
+}
 
 EM_JS(void, em_set_pen_vis, (int v), {
 });
@@ -74,6 +138,7 @@ EM_JS(void, em_set_back_ground, (int c), {
     if (!palette[c] || typeof window.logoCanvasCtx === 'undefined') return;
     window.logoBackgroundColor = palette[c];
     var ctx = window.logoCanvasCtx;
+    if (window.__logoTurtle) window.__logoTurtle.saved = null;
     ctx.fillStyle = palette[c];
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 });

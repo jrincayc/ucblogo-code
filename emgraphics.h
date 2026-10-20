@@ -10,8 +10,10 @@
 #define prepare_to_draw em_prepare_to_draw()
 #define done_drawing em_done_drawing()
 
-#define prepare_to_draw_turtle nop()
-#define done_drawing_turtle nop()
+/* The turtle is not painted into the picture (no XOR pen here): the backend
+ * captures its outline between these two calls and draws it on top. */
+#define prepare_to_draw_turtle em_turtle_begin()
+#define done_drawing_turtle em_turtle_end()
 
 /* Matches the actual <canvas id="turtleCanvas" width="440" height="440">
  * element in the surrounding HTML page (see wasm-poc/index.html and its
@@ -103,6 +105,9 @@ typedef struct { int dummy; } pen_info;
 extern int pw, ph, pc, pm, pv, px, py, bg;
 extern void nop();
 
+extern void em_turtle_begin(void);
+extern void em_turtle_end(void);
+extern void em_turtle_hide(void);
 extern void em_prepare_to_draw(void);
 extern void em_done_drawing(void);
 extern void em_clear_screen(void);
