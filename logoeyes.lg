@@ -26,6 +26,8 @@ end
 animationstop
 cs
 pu
+setpc 0
+setbg 7
 hideturtle
 make "animationact [eyes]
 animationstart
