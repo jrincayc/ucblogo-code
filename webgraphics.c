@@ -399,7 +399,6 @@ NODE* dispatch_uievent(uievent* evt) {
 	if (!evt) {
       return NIL;
 	}
-   EM_ASM({debugger;});
    switch (evt->type) {
       case animate:
          r = onanimate(evt);

@@ -559,9 +559,9 @@
         Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
         // FIXME HIGHPRI don't run if already running
+        document.dispatchEvent(new CustomEvent("getcharready"));
         const retryRunEvaluator = ((n) => {
           if (Asyncify.state === 0 && getValue(Module['_LOGO_GIL']) === 0) {
-            setTimeout(()=>document.dispatchEvent(new CustomEvent("getcharready")), 0);
             Module._run_evaluator(true);
           }
           else if (n>0) {
