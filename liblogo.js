@@ -110,6 +110,7 @@ lanimationstart: (ignored) => {
         else {
             console.warn('dropped frame')
         }
+        if (!Module.graphics.animating) return;
         if (getValue(Module._stopping_flag, 'i32') != 3) {
             Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
         }
@@ -124,9 +125,9 @@ lanimationstart: (ignored) => {
 
 lanimationstop: (ignored) => {
     if (Module.graphics.animating) {
+        cancelAnimationFrame(Module.graphics.animationFrameID);
         Module.graphics.animating = false;
         Module.graphics.animationFrameID = 0;
-        cancelAnimationFrame(Module.graphics.animationFrameID);
     }
     return getValue(Module._Unbound, '*');
 }

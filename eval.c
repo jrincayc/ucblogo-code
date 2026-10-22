@@ -921,6 +921,11 @@ eval_sequence:
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
+	// TODO ignore animation events if we're already animating
+	// but how to know when we're done animating?
+	// push a cont to a new animationfinished block or something?
+	// in fact we should never start processing a new event until the current
+	// one is finished.
 	if (get_uievent(&evt)) {
 		eval_buttonact = dispatch_uievent(&evt);
 	}
