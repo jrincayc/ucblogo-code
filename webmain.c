@@ -303,11 +303,12 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
       /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
       stopping_flag = RUN;
    }
-   uievent evt;
+   static uievent evt;
    while (get_uievent(&evt)) {
       eval_driver(dispatch_uievent(&evt));
    }
    if (readcurrline) rd_print_prompt("? ");
    LOGO_GIL = 0;
+   yield_enabled = 1;
    return 0;
 }

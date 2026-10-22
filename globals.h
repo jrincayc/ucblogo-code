@@ -665,8 +665,8 @@ extern void dbUsual(const char*);
 #ifdef __EMSCRIPTEN__
 
 // webgraphics.c
-NODE *lanimationstart(NODE * word);
-NODE *lanimationstop(NODE * word);
+extern NODE *lanimationstart(NODE * word);
+extern NODE *lanimationstop(NODE * word);
 
 extern void yield();
 #define YIELD (yield())
@@ -702,6 +702,7 @@ typedef enum {
     keypress = 6,
     pauselogo = 7,
     stoplogo = 8,
+    animate = 9,
 } uievent_type_t;
 
 typedef struct {
@@ -715,6 +716,9 @@ typedef struct {
       struct {
          int key;
       } keyboardevent;
+      struct {
+         double time;
+      } animationevent;
    };
 } uievent;
 

@@ -39,7 +39,7 @@
 struct registers regs;
 NODE *Regs_Node;
 int num_saved_nodes;
-int inside_evaluator = 0;
+EMSCRIPTEN_KEEPALIVE int inside_evaluator = 0;
 NODE *eval_buttonact = NIL;
 
 /* node-value registers that don't need saving */

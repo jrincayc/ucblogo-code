@@ -932,19 +932,21 @@ const EVT_T_KEYUP = 5;
 const EVT_T_KEYPRESS = 6;
 const EVT_T_PAUSELOGO = 7;
 const EVT_T_STOPLOGO = 8;
+const EVT_T_ANIMATE = 9;
 
  Module.uieventypes = {
-    'mousedown': EVT_T_MOUSEDOWN,
-    'mouseup': EVT_T_MOUSEUP,
-    'click': EVT_T_CLICK, 
-    'mousemove': EVT_T_MOUSEMOVE,
-    'keydown': EVT_T_KEYDOWN,
-    'keyup': EVT_T_KEYUP,
-    'keypress': EVT_T_KEYPRESS,
+    mousedown: EVT_T_MOUSEDOWN,
+    mouseup: EVT_T_MOUSEUP,
+    click: EVT_T_CLICK, 
+    mousemove: EVT_T_MOUSEMOVE,
+    keydown: EVT_T_KEYDOWN,
+    keyup: EVT_T_KEYUP,
+    keypress: EVT_T_KEYPRESS,
     // TODO these can be simple flags, and should be higher
     // priority than ui events
-    'pauselogo': 7,
-    'stoplogo': 8,
+    pauselogo: EVT_T_PAUSELOGO,
+    stoplogo: EVT_T_STOPLOGO,
+    animate: EVT_T_ANIMATE
 }
 
 Module.gdk_keycodes = {
@@ -967,9 +969,6 @@ Module.run_evaluator = (readcurline) => {
             Module.WEB_WAIT_TIMEOUT_ID = 0;
             clearTimeout(timeout);
             Module.WEB_WAIT_WAKEUP();
-        }
-        else {
-            console.error("failed to run evaluator")
         }
     }
 }

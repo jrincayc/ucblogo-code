@@ -20,27 +20,31 @@ yield_to_js: () => {
     Asyncify.handleSleep((wakeUp) => safeSetTimeout(wakeUp, 0))
 },
 
-safe_request_animation_frame__async: false,
-safe_request_animation_frame: (cb, userData) => {
-    function _sraf() {
-        return requestAnimationFrame(
-            (timeStamp) => {
-                if (Asyncify.state === 0) {
-                    {{{ makeDynCall('idp', 'cb') }}}(timeStamp, userData)
-                }
-                else {
-                    console.warn('dropped frame currState != 0');
-                    // FIXME update animationFrameID global
-                    setTimeout(
-                        ()=>Module.setValue(Module['_animationFrameID'], _sraf(), 'i32'),
-                        0
-                    );
-                }
-            }
-        )
-    }
-    return _sraf();
-},
+// safe_request_animation_frame__async: false,
+// safe_request_animation_frame: (cb, userData) => {
+//     function _sraf() {
+//         return requestAnimationFrame(
+//             (timeStamp) => {
+//                 if (Asyncify.state === 0 && getValue(Module['_LOGO_GIL']) === 0) {
+//                     {{{ makeDynCall('idp', 'cb') }}}(timeStamp, userData)
+//                 }
+//                 else if (getValue(Module['_inside_evaluator'])) {
+//                     Module.uievents.unshift({type: EVT_T_ANIMATE})
+//                     Module.run_evaluator(false);
+//                 }
+//                 else {
+//                     console.warn('dropped frame currState != 0');
+//                     // FIXME update animationFrameID global
+//                     setTimeout(
+//                         ()=>Module.setValue(Module['_animationFrameID'], _sraf(), 'i32'),
+//                         0
+//                     );
+//                 }
+//             }
+//         )
+//     }
+//     return _sraf();
+// },
 
 webLogoSleep__deps: ['$safeSetTimeout'],
 webLogoSleep__async: true,
@@ -73,20 +77,58 @@ get_uievent: (evtptr) => {
     }
     const evt = Module.uievents.pop();
     setValue(evtptr, evt.type, 'i32');
+    // struct layout reverse engineered with chrome dev tools
     switch (evt.type) {
+        // 4 pad bytes for double alignment
+        case EVT_T_ANIMATE:
+            setValue(evtptr + 8, evt.time, 'double');
+            break;
         case EVT_T_MOUSEDOWN:
         case EVT_T_MOUSEUP:
         case EVT_T_MOUSEMOVE:
-            setValue(evtptr + 4, evt.button, 'i32');
-            setValue(evtptr + 4 + 4, evt.x, 'i32');
-            setValue(evtptr + 4 + 4 + 4, evt.y, 'i32');
+            setValue(evtptr + 8, evt.button, 'i32');
+            setValue(evtptr + 8 + 4, evt.x, 'i32');
+            setValue(evtptr + 8 + 4 + 4, evt.y, 'i32');
             break;
         case EVT_T_KEYDOWN:
         case EVT_T_KEYUP:
-            setValue(evtptr + 4, evt.key, 'i32');
+            setValue(evtptr + 8, evt.key, 'i32');
             break;
     }
    return 1;
 },
+
+lanimationstart: (ignored) => {
+    const animationLoop = (time) => {
+        if (!Module.graphics.animating) return;
+        if (Module.uievents[Module.uievents.length - 1]?.type !== EVT_T_ANIMATE) {
+            Module.uievents.push({type: EVT_T_ANIMATE, time})
+            setValue(Module._yield_enabled, 0, 'i32');
+            Module.run_evaluator(false);
+            setValue(Module._yield_enabled, 1, 'i32');
+        }
+        else {
+            console.warn('dropped frame')
+        }
+        if (getValue(Module._stopping_flag, 'i32') != 3) {
+            Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
+        }
+    };
+
+    if (!Module.graphics.animating) {
+        Module.graphics.animating = true;
+        Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
+    }
+    return getValue(Module._Unbound, '*');
+},
+
+lanimationstop: (ignored) => {
+    if (Module.graphics.animating) {
+        Module.graphics.animating = false;
+        Module.graphics.animationFrameID = 0;
+        cancelAnimationFrame(Module.graphics.animationFrameID);
+    }
+    return getValue(Module._Unbound, '*');
+}
 
 });
