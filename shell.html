@@ -240,7 +240,7 @@
       <div class="flex">
         <input multiple id="uploadFileInput" style="display: none" type="file" accept=".lg,.lgo,.logo">
         <button type="button" onclick="document.getElementById('uploadFileInput').click()">
-          <label>Upload Logo File</label>
+          <label>Upload File</label>
         </button>
         </input>
         <script>
@@ -250,7 +250,7 @@
 
       <div class="flex">
         <button type="button" onclick="Module.downloadSessionClicked(event)">
-          Download Logo session
+          Download session
         </button>
         <button type="button" onclick="Module.downloadDrawingClicked(event)">
           Download Drawing
@@ -327,7 +327,7 @@
     <div class="flex grow" id="logoInputContainer" style="width: 100%; flex: 1 1 0%">
       <div class="flex col grow">
         <div class="flex grow">
-          <textarea rows="4" readonly class="emscripten" id="output"></textarea>
+          <textarea readonly class="emscripten" id="output"></textarea>
         </div>
 
         <div class="flex">
