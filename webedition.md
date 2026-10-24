@@ -20,9 +20,10 @@ as a progressive web app, which is recommended.
 * Interactive evaluator terminal with command line history
 * Built-in barebones text editor
 * Soft-keys for entering common punctuation on mobiles
-* Persistant emulated filesystem
-* Full offline capabilities
+* Persistent virtual filesystem
+* Full offline capability
 * JS/Logo interoperability
+
 
 ## Supported browsers and platforms (current versions)
 
@@ -145,14 +146,22 @@ There is no `shell` word in web browsers since there is no shell on the web. We
 provide `runjs` as an alternative. We do not plan to add a shell, but it might
 be possible to do so with WASI. `shell` works normally in node.js.
 
-## Other differences
+## Virtual filesystem
 
-Web apps cannot access the host filesystem so UCB Logo includes an internal
-virtual filesystem. This allows file-related words to function otherwise
-normally.  The emulated filesystem should be persistent in PWA installs in the
-brwosers database, so you can use `edit "mylogoprog` etc to save and load your
-programs. However I wouldn't 100% trust it yet, I understand the browser may evict this data under certain rare circumstances. Logo can also upload and download
-source code files. 
+Web apps cannot access the host filesystem so UCB Logo includes a persistent
+internal virtual filesystem. This allows file-related words to function
+otherwise normally and allows users to save and load their programs.
+
+Warning: Logo must be installed as an app to ensure reliable long term data
+persistence.
+
+Warning: Browsers may evict saved Logo files. Chrome/Edge/FF use an LRU policy
+and only start to evict data when the user's storage volume fills up. Safari
+always evicts data after 7 days of non-usage.
+
+Always back up your data. Use the "Download Logo Session" button.
+
+Future releases may integrate with cloud storage, e.g. Google Drive.
 
 ### `penerase``
 
@@ -184,8 +193,7 @@ asynchronously.
 
 ## As a web page
 
-UCB Logo can run as a web page in recent versions of most popular browsers on
-mobile devices and on the desktop.
+UCB Logo can run in recent versions of most popular browsers including Chrome, Edge, Firefox, and Safari, and also on Androind and iOS mobile devices.
 
 ## As a progressive web app
 

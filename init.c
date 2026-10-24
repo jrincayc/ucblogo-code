@@ -43,7 +43,7 @@ void getExecutableDir(char * path, int maxlen);
 #endif
 
 #ifdef __EMSCRIPTEN__
-extern void graphics_init();
+#include <webgraphics.h>
 #endif
 
 #ifdef HAVE_SRANDOM
@@ -168,6 +168,7 @@ PRIMTYPE prims[] = {
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
     {"definedp", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
     {"defined?", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
+    {"deviceorientation", 0, 0, 0, PREFIX_PRIORITY, ldeviceorientation},
     {"difference", 2, 2, 2, PREFIX_PRIORITY, lsub},
     {"dribble", 1, 1, 1, PREFIX_PRIORITY, ldribble},
     {"ed", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, ledit},

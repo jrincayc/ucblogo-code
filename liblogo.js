@@ -130,6 +130,6 @@ lanimationstop: (ignored) => {
         Module.graphics.animationFrameID = 0;
     }
     return getValue(Module._Unbound, '*');
-}
+},
 
 });

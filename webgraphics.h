@@ -135,4 +135,7 @@ void set_pen_mode(int);
 
 extern int bg;
 
+NODE* ldeviceorientation(NODE*);
+void graphics_init();
+
 #endif // WEBGRAPHICS_H

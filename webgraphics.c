@@ -427,3 +427,66 @@ NODE* dispatch_uievent(uievent* evt) {
    // fix_turtle_shownness();
    return r;
 }
+
+EM_ASYNC_JS(bool, getDeviceOrientationPermission, (), {
+   //  if (window.DeviceOrientationEvent.requestPermission) {
+      const dlg = document.getElementById('orientationPermissionDialog');
+      const ok = dlg.querySelector('button.ok');
+      const cancel = dlg.querySelector('button.cancel');
+      dlg.showModal();
+      try
+      {
+         const canceled = new Promise((res, rej) => {
+            cancel.addEventListener('mousedown', () => {
+               dlg.close();
+               res(false);
+            });
+         });
+         const oked = new Promise((res,rej)=>ok.addEventListener('mousedown', async ()=>{
+            const r = await window.DeviceOrientationEvent.requestPermission();
+            if (r === 'granted') {
+               window.addEventListener("deviceorientation", Module.ondeviceorientation);
+               await new Promise((res, rej)=>
+                  window.addEventListener("deviceorientation", res, {once:true}));
+               res(true);
+            }
+            else {
+               console.error('DeviceOrientationEvent transient activation', r);
+               res(false);
+            }
+         }, {once: true}));
+         return await Promise.any(oked, canceled);
+      }
+      catch {
+         return false;
+      }
+      finally {
+         dlg.close();
+      }
+});
+
+NODE* ldeviceorientation(NODE* argl) {
+   double a, b, g;
+   static bool initialized;
+
+   if (!initialized) { 
+      initialized = getDeviceOrientationPermission();
+      if (!initialized) {
+         err_logo(CANT_OPEN_ERROR, make_static_strnode("window.DeviceOrientationEvent"));
+         return (UNBOUND);
+      }
+   }
+
+   EM_ASM({
+      const o = Module.graphics.deviceOrientation;
+      setValue($0, o.alpha, 'double');
+      setValue($1, o.beta, 'double');
+      setValue($2, o.gamma, 'double');
+   }, &a, &b, &g);
+
+   return(
+      cons(make_floatnode(a),
+		cons(make_floatnode(b), 
+		cons(make_floatnode(g), 
+   NIL))));
+}

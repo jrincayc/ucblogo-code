@@ -174,9 +174,7 @@
     //   }, { capture: true })
     // }
     window.addEventListener('load', () => {
-      window.visualViewport.addEventListener('resize', Module.graphics.onresize);
-      Module.graphics.dispatchResize();
-      document.getElementById('logoInputText').focus();
+
     })
   </script>
   <style id="logoColors">
@@ -204,6 +202,16 @@
 </head>
 
 <body>
+  <button onmousedown="window.DeviceOrientationEvent.requestPermission().then(r=>console.log(r))">Orient</button>
+  <dialog id="orientationPermissionDialog">
+    Please grant permission for Logo to use device orientation sensor
+    <button class="ok">
+      OK
+    </button>
+    <button class="cancel">
+      Cancel
+    </button>
+  </dialog>
   <span id="theLetterM" style="
                               position: absolute;
                               visibility: hidden;

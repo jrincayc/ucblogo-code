@@ -238,6 +238,9 @@ Module.graphics.graphics_init = () => {
         // suppress context menu
         evt.preventDefault();
     }, { capture: true });
+    window.visualViewport.addEventListener('resize', Module.graphics.onresize);
+    Module.graphics.dispatchResize();
+    document.getElementById('logoInputText').focus();
 };
 Module.graphics.prepare_to_draw = () => {
     // console.log("prepare_to_draw");
@@ -1028,3 +1031,6 @@ Module.onstoplogo = (evt) => {
     Module.run_evaluator(false);
 }
  
+Module.ondeviceorientation = (evt) => {
+    Module.graphics.deviceOrientation = evt;
+}
