@@ -455,7 +455,7 @@ EM_ASYNC_JS(bool, getDeviceOrientationPermission, (), {
                res(false);
             }
          }, {once: true}));
-         return await Promise.any(oked, canceled);
+         return await Promise.any([oked, canceled]);
       }
       catch (error) {
          console.error(error);
