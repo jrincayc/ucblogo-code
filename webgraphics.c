@@ -125,10 +125,6 @@ EM_JS(void, label, (char *s), {
    Module.graphics.label(s);
 });
 
-EM_JS(void, tone, (int pitch, int duration), {
-   Module.graphics.tone(pitch, duration);
-});
-
 EM_JS(void, web_prepare_to_draw_turtle, (), {
    Module.graphics.prepare_to_draw_turtle();
 });

@@ -121,7 +121,7 @@ void web_pen_down();
 void web_pen_erase();
 void set_back_ground(int);
 #define set_list_pen_pattern(arg) ((void)0)
-void tone(int, int);
+extern void tone(int, int);
 void doFilled(int color, int count, mypoint_t* points);
 #define wxlPrintPreviewPict() ((void)0)
 #define wxlPrintPict() ((void)0)
