@@ -429,6 +429,10 @@
             </li>
           </ul>
         </li>
+        <li>
+          <input type="checkbox" id="speakOutputSelect" name="speakOutput">
+          <label>Speak Logo output</label>
+        </li>
       </ul>
       <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
     </dialog>
@@ -501,6 +505,8 @@
           outputElement.value += text;
           outputElement.value += "\n";
           outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
+          if (Module.graphics.speakOutput)
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
       },
       canvas: canvasElement,

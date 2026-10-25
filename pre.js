@@ -241,6 +241,9 @@ Module.graphics.graphics_init = () => {
     window.visualViewport.addEventListener('resize', Module.graphics.onresize);
     Module.graphics.dispatchResize();
     document.getElementById('logoInputText').focus();
+    document.getElementById('speakOutputSelect').addEventListener('click', (e)=>{
+        Module.graphics.speakOutput = e.target.checked;
+    })
 };
 Module.graphics.prepare_to_draw = () => {
     // console.log("prepare_to_draw");
