@@ -1027,6 +1027,7 @@ Module.onpauselogo = (evt) => {
 }
 
 Module.onstoplogo = (evt) => {
+    _lanimationstop();
     if (getValue(Module['_LOGO_GIL']) === 0) return;
     Module.uievents.splice(0, Module.uievents.length, {
         type: EVT_T_STOPLOGO

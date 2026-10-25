@@ -311,6 +311,7 @@ void onpauselogo() {
 }
 
 void onstoplogo() {
+   // lanimationstop(NIL);
    charmode_off();
    to_pending = 0;
    if (!stop_quietly_flag)

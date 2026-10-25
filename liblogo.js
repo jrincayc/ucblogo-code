@@ -75,6 +75,7 @@ get_uievent: (evtptr) => {
 lanimationstart: (ignored) => {
     const animationLoop = (time) => {
         if (!Module.graphics.animating) return;
+        Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
         if (Module.uievents[Module.uievents.length - 1]?.type !== EVT_T_ANIMATE) {
             Module.uievents.push({type: EVT_T_ANIMATE, time})
             setValue(Module._yield_enabled, 0, 'i32');
@@ -84,9 +85,11 @@ lanimationstart: (ignored) => {
         else {
             console.warn('dropped frame')
         }
-        if (!Module.graphics.animating) return;
-        if (getValue(Module._stopping_flag, 'i32') != 3) {
-            Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
+        if (getValue(Module._stopping_flag, 'i32') == 3)
+            Module.graphics.animating = false;
+        if (!Module.graphics.animating) {
+            cancelAnimationFrame(Module.graphics.animationFrameID);
+            Module.graphics.animationFrameID = 0;
         }
     };
 
