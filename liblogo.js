@@ -20,32 +20,6 @@ yield_to_js: () => {
     Asyncify.handleSleep((wakeUp) => safeSetTimeout(wakeUp, 0))
 },
 
-// safe_request_animation_frame__async: false,
-// safe_request_animation_frame: (cb, userData) => {
-//     function _sraf() {
-//         return requestAnimationFrame(
-//             (timeStamp) => {
-//                 if (Asyncify.state === 0 && getValue(Module['_LOGO_GIL']) === 0) {
-//                     {{{ makeDynCall('idp', 'cb') }}}(timeStamp, userData)
-//                 }
-//                 else if (getValue(Module['_inside_evaluator'])) {
-//                     Module.uievents.unshift({type: EVT_T_ANIMATE})
-//                     Module.run_evaluator(false);
-//                 }
-//                 else {
-//                     console.warn('dropped frame currState != 0');
-//                     // FIXME update animationFrameID global
-//                     setTimeout(
-//                         ()=>Module.setValue(Module['_animationFrameID'], _sraf(), 'i32'),
-//                         0
-//                     );
-//                 }
-//             }
-//         )
-//     }
-//     return _sraf();
-// },
-
 webLogoSleep__deps: ['$safeSetTimeout'],
 webLogoSleep__async: true,
 webLogoSleep: (ms) => {

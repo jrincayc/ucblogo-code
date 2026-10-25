@@ -950,8 +950,6 @@ const EVT_T_ANIMATE = 9;
     keydown: EVT_T_KEYDOWN,
     keyup: EVT_T_KEYUP,
     keypress: EVT_T_KEYPRESS,
-    // TODO these can be simple flags, and should be higher
-    // priority than ui events
     pauselogo: EVT_T_PAUSELOGO,
     stoplogo: EVT_T_STOPLOGO,
     animate: EVT_T_ANIMATE

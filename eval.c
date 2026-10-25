@@ -679,9 +679,6 @@ apply_dispatch:
 	    new_line(stdout);
 	}
 	YIELD;
-	// todo trap on wait and process all queued events
-	// if (getprimfun(proc) == &lwait) {
-	// }
 	val = (*getprimfun(proc))(argl);
         if (tracing && NOT_THROWING) {
 	    for (i = 0; i < trace_level; i++) {

@@ -265,69 +265,9 @@ extern int yield_enabled;
 extern int in_eval_save;
 extern NODE* proc_name_arg(NODE*);
 
-// TODO properly export these from the module
 bool animating = false;
 EMSCRIPTEN_KEEPALIVE int animationFrameID = 0;
 double animationFrameTime = 0;
-
-// extern int safe_request_animation_frame(void*, void*);
-
-// bool _animationframe(double time, void *userdata)
-// {
-//    // FIXME properly handle t-zero frame
-//    // EM_ASM({console.log('in _animationframe')});
-//    NODE *word = (NODE *)userdata;
-
-//    if (!animating) return false;
-//    // NODE *line = onanimate(evt);
-
-//    // else if (inside_gc || in_eval_save || inside_evaluator || input_blocking) {
-//    double timedelta = time - animationFrameTime;
-//    setvalnode__caseobj(Animationtime, make_floatnode(time));
-//    setvalnode__caseobj(Animationdelta, make_floatnode(timedelta));
-//    animationFrameTime = time;
-//    NODE *line = valnode__caseobj(Animationact);
-//    // EM_ASM({console.log('_animationframe calling eval_driver')});
-//    if (inside_evaluator) {
-//       eval_buttonact = line;
-//    }
-//    else {
-//       yield_enabled = 0;
-//       eval_driver(line);
-//       yield_enabled = 1;
-//    }
-//    if (NOT_THROWING)
-//    {
-//       animationFrameID = safe_request_animation_frame(&_animationframe, word);
-//       return true;
-//    }
-//    // else if (isName(throw_node, Name_error))
-//    // {
-//    //    err_print(NULL);
-//    // }
-//    // else if (!isName(throw_node, Name_toplevel))
-//    // {
-//    //    err_logo(NO_CATCH_TAG, throw_node);
-//    //    err_print(NULL);
-//    // }
-//    animating = false;
-//    return false;
-// }
-
-// extern NODE *lanimationstart(NODE *word);
-
-// extern NODE *lanimationstop(NODE *word);
-
-// run_action(*NODE line) {
-//    if (inside_evaluator) {
-//       eval_buttonact = line;
-//    } else {
-//       yield_enabled = 0;
-//       eval_driver(line);
-//       fix_turtle_shownness();
-//       yield_enabled = 1;
-//    }
-// }
 
 NODE* get_action(NODE* action_node) {
  	NODE* line = valnode__caseobj(action_node);

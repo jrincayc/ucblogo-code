@@ -32,14 +32,13 @@ int yield_enabled = 1;
 // Long enough and Chrome will prompt the user to close the page
 // So call this periodically from inside any potentially long running loops
 // LOGO users can explicitly yield by calling `wait 0`
-// FIXME yield in `wait` currently blocks the animation loop due to asyncify
-// not supporting C reentry.
 void yield() {
 	// Hacky was to throttle yielding
 	// I tried polling the time but it's too slow
 	// Could do it in a separate thread maybe
 	// This may require additional tuning
 	// It's a tradeoff between throughput and latency
+	// TODO give Safari a longer timeslice to compensate for lack of scheduler.yield
 	static const int YIELD_EVERY = 5000; // calls to yield
 	static int yield_needed = YIELD_EVERY;
 	static const long long MAXBLOCK = 5 * 1000 * 1000; //ms
