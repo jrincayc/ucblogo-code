@@ -244,6 +244,8 @@ Module.graphics.graphics_init = () => {
     document.getElementById('speakOutputSelect').addEventListener('click', (e)=>{
         Module.graphics.speakOutput = e.target.checked;
     })
+    g.set_pen_color(7);
+    g.set_pen_vis(0);
 };
 Module.graphics.prepare_to_draw = () => {
     // console.log("prepare_to_draw");
