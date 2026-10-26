@@ -232,18 +232,18 @@ void doFilled(int fillcolor, int count, mypoint_t *points) {
    web_filled_end();
 }
 
-// EM_JS(void, web_graphics_init, (), {
-//    if (typeof document !== 'undefined') {
-//       Module.graphics.graphics_init();
-//    }
-// });
+EM_JS(void, web_graphics_init, (), {
+   if (typeof document !== 'undefined') {
+      Module.graphics.graphics_init();
+   }
+});
 
-// void graphics_init()
-// {
-//    web_graphics_init();
-//    set_pen_color(7);
-//    set_pen_vis(0);
-// }
+void graphics_init()
+{
+   web_graphics_init();
+   set_pen_color(7);
+   set_pen_vis(0);
+}
 
 EM_JS(int, web_keyp, (), {
    //FIXME

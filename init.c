@@ -884,6 +884,10 @@ nosugar:
     obj_init();
 #endif
 
+#ifdef __EMSCRIPTEN__
+graphics_init();
+#endif
+
 /*  Uncomment these to print debugging messages right away! */
 /*
     setvalnode__caseobj(Redefp, True);
