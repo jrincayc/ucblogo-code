@@ -269,9 +269,19 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
 {
    NODE *exec_list = NIL;
    LOGO_GIL = 1;
-   if (NOT_THROWING && readcurrline)
+   if (NOT_THROWING)
    {
       check_reserve_tank();
+      static uievent evt;
+      while (get_uievent(&evt)) {
+        eval_driver(dispatch_uievent(&evt));
+        if (stopping_flag == THROWING) {
+          if (evt.type == animate) lanimationstop(NIL);
+          goto stop;
+        }
+      }
+    }
+    if (NOT_THROWING && readcurrline) {
       current_line = reader(stdin, NULL);
     //   if (feof(stdin) && !isatty(0))
     //     EM_ASM({debugger;});
@@ -283,6 +293,7 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
             eval_driver(exec_list);
       }
    }
+stop:
    if (stopping_flag == THROWING)
    {
       if (isName(throw_node, Name_error))
@@ -297,15 +308,13 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
          err_print(NULL);
       }
       stopping_flag = RUN;
+      EM_ASM({Module.uievents = new UIEventQueue();});
+      if (!readcurrline) rd_print_prompt("? ");
    }
    if (stopping_flag == STOP || stopping_flag == OUTPUT)
    {
       /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
       stopping_flag = RUN;
-   }
-   static uievent evt;
-   while (get_uievent(&evt)) {
-      eval_driver(dispatch_uievent(&evt));
    }
    if (readcurrline) rd_print_prompt("? ");
    LOGO_GIL = 0;
