@@ -155,10 +155,12 @@
   </style>
   <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script>
   <script>
-    Sentry.onLoad(function () {
-      Sentry.init({
+    setTimeout(()=> {
+    if (typeof Sentry !== 'undefined')
+      Sentry.onLoad(function () {
+        Sentry.init({});
       });
-    });
+    }, 0);
   </script>
   <script>
     // if (!WebAssembly.promising) {
