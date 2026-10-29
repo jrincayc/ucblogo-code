@@ -169,7 +169,7 @@ const BLON = {
         };
         const outerHelper = helper(noAddBrackets);
         const innerHelper = helper(addBrackets);
-        return outerHelper(obj);
+        return outerHelper(obj).replace(/[^\x00-\x7F]/g, '*');
     }
 };
 Module.FS_runjs_getChar_buffer_append_obj = (obj) => {
@@ -189,6 +189,7 @@ Module.FS_runjs_getChar_buffer_append_str = (str) => {
     Module.FS_runjs_getChar_buffer.push(...chars);
     document.dispatchEvent(new CustomEvent("getcharready"));
 }
+
 Module.runjs = (expr) => {
     if (typeof document === 'undefined') return;
     let r;
@@ -196,7 +197,7 @@ Module.runjs = (expr) => {
         r = eval(expr);
     }
     catch (error) {
-        r = error.toString();
+        r = error.toString().replace(/[^\x00-\x7F]/g, '*');
         console.error(error);
         window.alert(r);
     }
@@ -207,6 +208,7 @@ Module.runjs = (expr) => {
         Module.FS_runjs_getChar_buffer_append_obj(r);
     }
 };
+
 Module.env = {};
 Module.graphics.pen_info = {
     x: 320,
