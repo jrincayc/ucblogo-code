@@ -18,16 +18,6 @@ ignore runjs (word "|document.getElementById('logoDrawing').style.setProperty('s
 end
 bury "setshaperendering
 
-;to animate
-;ignore runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res))|
-;end
-;bury "animate
-
-; to animationframe :words
-; op runjs "|new Promise((res,rej)=>window.requestAnimationFrame(res)).then(runLogo())|
-; end
-; bury "animationframe
-
 to makesprite :spritename
 ignore runjs apply "word `[Module.makeSprite(' ,:spritename ')]
 end
@@ -36,11 +26,58 @@ to setturtlesprite :spritename
 ignore runjs apply "word `[Module.setTurtle(' ,:spritename ')]
 end
 
+; warning: might return unicode stripped to 7 bit ascii (ie corrupted)
+; chinese voices are probably impossible to select this way, e.g.
+; until logo supports unicode
+to getvoices
+output runjs "|speechSynthesis.getVoices().map(({name, lang})=>[name, lang]);|
+end
+
+to setspeechlang :lang
+ignore runjs (se 
+"|Module.utterance.lang = "|
+:lang "\")
+end
+
+to setspeechpitch :pitch
+ignore runjs (se 
+"|Module.utterance.pitch = "|
+:pitch  "\")
+end
+
+to setspeechrate :rate
+ignore runjs `[Module.utterance.rate=" ,@:rate \"]
+end
+
+to setspeechvoice :voice
+ignore runjs (word
+"|const v = speechSynthesis.getVoices()|
+"|.filter((v)=>(v.name==="| :voice "|"))[0];|
+"|if (v) {Module.utterance.voice=v}|
+"|else {alert("failed to load voice")}|
+)
+end
+
+to speak :utterance
+ignore runjs `[Module.speak(" ,@:utterance \")]
+end
+
+to setspeakoutput [:enable "true]
+ifelse :enable [
+  ignore runjs "|Module.graphics.speakOutput = true|
+] [
+  ignore runjs "|Module.graphics.speakOutput = false|
+]
+end
+
+buryall
+
 pr [Web Edition Preview]
 pr []
 pr [Home: https://github.com/jrincayc/ucblogo-code/]
-pr [Web edition home: https://github.com/n1ywb-1/ucblogo-code]
 pr [Docs: https://people.eecs.berkeley.edu/~bh/v2ch14/manual.html]
+pr [Web edition home: https://github.com/n1ywb-1/ucblogo-code/tree/wasm]
+pr [Web edition docs: https://github.com/n1ywb-1/ucblogo-code/blob/wasm/webedition.md]
 pr []
 pr [To get help:]
 pr "|  help|

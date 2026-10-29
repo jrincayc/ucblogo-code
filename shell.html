@@ -508,7 +508,7 @@
           outputElement.value += "\n";
           outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
           if (Module.graphics.speakOutput)
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+            Module.speak(text);
         }
       },
       canvas: canvasElement,

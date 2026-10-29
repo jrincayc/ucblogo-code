@@ -11,19 +11,20 @@ as a progressive web app, which is recommended.
 
 ## Features
 
-* OG C UCB Logo interpreter, cross-compiled to Web Assembly
-* 100% compatible with UCB Logo; minor exceptions noted
+* 100% compatible with UCB Logo
+* Interactive evaluator with command line history
+* Built-in barebones text editor
+* Full offline capability
+
+## Exclusive Web Edition Features
 * Responisive, accessible, mobile-friendly HTML UI
+* Text-to-speech
 * SVG turtle graphics with export/download
 * Logo source code upload/download
-* Web-exclusive animation and sprites
-* Interactive evaluator terminal with command line history
-* Built-in barebones text editor
+* Animation and sprites
 * Soft-keys for entering common punctuation on mobiles
 * Persistent virtual filesystem
-* Full offline capability
 * JS/Logo interoperability
-
 
 ## Supported browsers and platforms (current versions)
 
@@ -136,9 +137,6 @@ The terminal is currently "dumb". Emulation features are planned.
 * `loadpict` (use JS to add whatever to the drawing)
 * `epspict` (again see SVG export)
 
-### Audio words
-* `tone` (missing from WX build as well)
-
 ### Misc words
 * `shell` (works in node.js, but not in browser)
 
@@ -217,6 +215,13 @@ Experimental, subject to change, may crash Logo
 * `setshaperendering`
 * `runjs`
 * `runLogo` (JS Function)
+* `tone`
+* `speak`
+* `setspeechvoice`
+* `setspeechlang`
+* `setspeechrate`
+* `setspeechpitch`
+* `speakoutput
 
 ### Animation words
 
@@ -312,6 +317,60 @@ Accepted words are
 2. `"crispedges` Disables anti-aliasing
 
 This can also be changed in the settings dialog.
+
+### Audio tone word
+
+`tone freq duration`
+
+Plays a damped sine wave tone at the specified frequency for the specified duration. Playback is asynchronous so to play a song insert `wait`s.
+
+`tone 440 60` 
+
+Plays a 440hz tone (A440 pitch) for 60 ticks or 1 second.
+
+`tone 440 60` 
+`wait 60`
+`tone 440 60` 
+
+Plays two notes sequentially.
+
+`tone 220 60` 
+`tone 440 60` 
+
+Plays A-440 and A-220 notes simultaneously, a simple chord.
+
+### Text-to-speech
+
+`getvoices`
+
+Returns a list of available [voice lang] pairs.
+
+`setspeechvoice`
+
+Sets the speech voice. Voice names are case-sensitive so use v-bars.
+
+`setspeechvoice "|Bubbles|`
+
+`setspeechlang "|en-US|`
+
+It is not necessary to set the speech language unless it differs from your
+browser's default.
+
+`setspeechpitch 1.0`
+
+Set speech pitch. 1.0 is the default. Recommend changing in 0.1 increments.
+
+`setspeechrate 1.0`
+
+Set speech rate. 1.0 is the default. Recommend changing in 0.1 increments.
+
+`setspeakoutput`
+
+Speak logo console output as printed.
+
+`(setspeakoutput "false)`
+
+Do not speak logo output.
 
 ### Experimental Logo/JS interoperation
 
