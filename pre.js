@@ -1045,9 +1045,11 @@ Module.ondeviceorientation = (evt) => {
     Module.graphics.deviceOrientation = evt;
 }
 
-Module.utterance = new SpeechSynthesisUtterance();
+if (typeof SpeechSynthesisUtterance !== 'undefined') {
+    Module.utterance = new SpeechSynthesisUtterance();
 
-Module.speak  = (text) => {
-    Module.utterance.text = text;
-    speechSynthesis.speak(Module.utterance);
+    Module.speak  = (text) => {
+        Module.utterance.text = text;
+        speechSynthesis.speak(Module.utterance);
+    }
 }
