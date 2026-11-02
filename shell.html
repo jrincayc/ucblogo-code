@@ -153,7 +153,7 @@
       will-change: transform;
     }
   </style>
-  <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script>
+  <!-- <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script> -->
   <script>
     setTimeout(()=> {
     if (typeof Sentry !== 'undefined')
@@ -340,11 +340,11 @@
             <select id="commandHistorySelect" style="max-width: 18px;"
               oninput="Module.handleCommandHistorySelectChanged(event)">
             </select>
-            <input type="submit" value="⏵"
+            <input id="logoRunButton" type="submit" value="Run"
               onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
             <!-- <input type="submit" value="Pause"
               onmousedown="Module.onpauselogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input> -->
-            <input type="submit" value="⏹"
+            <input id="logoStopButton" type="button" value="Stop" disabled
               onmousedown="Module.onstoplogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
           </form>
         </div>
@@ -552,9 +552,19 @@
     /* getc stdin emulation */
     document.addEventListener("DOMContentLoaded", (event) => {
       console.log("DOM fully loaded and parsed");
+      document.addEventListener('awaitgetcharready', ()=>{
+        document.getElementById('logoRunButton').removeAttribute("disabled");
+        document.getElementById('logoStopButton').removeAttribute("disabled");
+      });
+      document.addEventListener('run_evaluator_end', ()=>{
+        document.getElementById('logoRunButton').removeAttribute("disabled");
+        document.getElementById('logoStopButton').setAttribute("disabled", "");
+      });
       const inputForm = document.getElementById('logoInputForm');
       inputForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        document.getElementById('logoRunButton').setAttribute("disabled", "");
+        document.getElementById('logoStopButton').removeAttribute("disabled");
         document.getElementById('logoInputText').focus();
         let line = new FormData(event.target)
           .get('logoInputText')

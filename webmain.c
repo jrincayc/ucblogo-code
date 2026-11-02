@@ -269,6 +269,7 @@ int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
 {
    NODE *exec_list = NIL;
    LOGO_GIL = 1;
+//    EM_ASM({console.log(`run_evaluator(${$0})`)}, readcurrline);
    if (NOT_THROWING)
    {
       check_reserve_tank();
@@ -300,8 +301,11 @@ stop:
       {
          err_print(NULL);
       }
-      else if (isName(throw_node, Name_system))
-        emscripten_log(EM_LOG_ERROR, "fatal logo error");
+      else if (isName(throw_node, Name_system)) {
+        emscripten_log(EM_LOG_CONSOLE | EM_LOG_ERROR, "fatal logo error");
+        EM_ASM({window.alert("fatal logo error")});
+        return 1;
+      }
       else if (!isName(throw_node, Name_toplevel))
       {
          err_logo(NO_CATCH_TAG, throw_node);
@@ -319,5 +323,13 @@ stop:
    if (readcurrline) rd_print_prompt("? ");
    LOGO_GIL = 0;
    yield_enabled = 1;
+   EM_ASM({
+    if (document !== undefined) {
+        // console.info('run_evaluator_end');
+        document.dispatchEvent(
+            new CustomEvent('run_evaluator_end')
+        );
+    }
+   });
    return 0;
 }

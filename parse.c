@@ -98,7 +98,7 @@ void rd_print_prompt(char *str) {
 			console.log(UTF8ToString($0))
 		}
 		else {
-			outputElement.value += UTF8ToString($0)
+			outputElement.value += UTF8ToString($0);
 		}
 	}, str);
 #else

@@ -449,8 +449,16 @@ Module.graphics.split_screen = () => {
         .style.setProperty('display', 'flex');
     window.dispatchEvent(new Event('resize'));
 };
+Module.graphics.animationStop = () => {
+    if (Module.graphics.animating) {
+        cancelAnimationFrame(Module.graphics.animationFrameID);
+        Module.graphics.animating = false;
+        Module.graphics.animationFrameID = 0;
+    }
+};
 Module.graphics.text_screen = () => {
     if (Module.graphics.mode == 'text_screen') return;
+    Module.graphics.animationStop();
     Module.graphics.mode = 'text_screen';
     console.log(`text_screen ${[]}`);
     document.getElementById('svgContainer')
@@ -1039,7 +1047,7 @@ Module.onpauselogo = (evt) => {
 }
 
 Module.onstoplogo = (evt) => {
-    _lanimationstop();
+    Module.graphics.animationStop();
     if (getValue(Module['_LOGO_GIL']) === 0) return;
     Module.uievents.splice(0, Module.uievents.length, {
         type: EVT_T_STOPLOGO

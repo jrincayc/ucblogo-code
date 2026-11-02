@@ -72,18 +72,17 @@ get_uievent: (evtptr) => {
    return 1;
 },
 
-lanimationstart: (ignored) => {
+_lanimationstart: (ignored) => {
     const animationLoop = (time) => {
         if (!Module.graphics.animating) return;
-        Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
         if (Module.uievents[Module.uievents.length - 1]?.type !== EVT_T_ANIMATE) {
-            Module.uievents.push({type: EVT_T_ANIMATE, time})
+            Module.uievents.push({ type: EVT_T_ANIMATE, time });
             setValue(Module._yield_enabled, 0, 'i32');
             Module.run_evaluator(false);
             setValue(Module._yield_enabled, 1, 'i32');
         }
         else {
-            console.warn('dropped frame')
+            console.warn('dropped frame');
         }
         if (getValue(Module._stopping_flag, 'i32') == 3)
             Module.graphics.animating = false;
@@ -91,6 +90,8 @@ lanimationstart: (ignored) => {
             cancelAnimationFrame(Module.graphics.animationFrameID);
             Module.graphics.animationFrameID = 0;
         }
+        else
+            Module.graphics.animationFrameID = requestAnimationFrame(animationLoop);
     };
 
     if (!Module.graphics.animating) {
@@ -99,13 +100,15 @@ lanimationstart: (ignored) => {
     }
     return getValue(Module._Unbound, '*');
 },
+get lanimationstart() {
+    return this._lanimationstart;
+},
+set lanimationstart(value) {
+    this._lanimationstart = value;
+},
 
 lanimationstop: (ignored) => {
-    if (Module.graphics.animating) {
-        cancelAnimationFrame(Module.graphics.animationFrameID);
-        Module.graphics.animating = false;
-        Module.graphics.animationFrameID = 0;
-    }
+    Module.graphics.animationStop();
     return getValue(Module._Unbound, '*');
 },
 
@@ -150,5 +153,41 @@ tone: (pitchHz, durationTicks) => {
 wxKeyp: ()=>{
     return Module.FS_runjs_getChar_buffer.length > 0 ? 1 : 0;
 },
+
+$safeYield: () => {
+{{{ runtimeKeepalivePush() }}}
+return scheduler.yield().then(()=>{
+    {{{ runtimeKeepalivePop(); }}}
+})
+},
+
+emscripten_scan_registers__deps: ['$safeSetTimeout', '$safeYield'],
+emscripten_scan_registers__async: true,
+emscripten_scan_registers: (func) => {
+    return Asyncify.handleSleep((wakeUp) => {
+        // We must first unwind, so things are spilled to the stack. Then while
+        // we are pausing we do the actual scan. After that we can resume. Note
+        // how using a timeout here avoids unbounded call stack growth, which
+        // could happen if we tried to scan the stack immediately after unwinding.
+
+        if (globalThis.scheduler?.yield) {
+            safeYield().then(()=>{
+                var stackBegin = Asyncify.currData + {{{ C_STRUCTS.asyncify_data_s.__size__ }}};
+                var stackEnd = {{{ makeGetValue('Asyncify.currData', 0, '*') }}};
+                {{{ makeDynCall('vpp', 'func') }}}(stackBegin, stackEnd);
+                wakeUp();
+            });
+        }
+        else {
+            safeSetTimeout(() => {
+                var stackBegin = Asyncify.currData + {{{ C_STRUCTS.asyncify_data_s.__size__ }}};
+                var stackEnd = {{{ makeGetValue('Asyncify.currData', 0, '*') }}};
+                {{{ makeDynCall('vpp', 'func') }}}(stackBegin, stackEnd);
+                wakeUp();
+            }, 0);
+        }
+    });
+},
+
 
 });
