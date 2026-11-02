@@ -30,7 +30,7 @@ end
 ; chinese voices are probably impossible to select this way, e.g.
 ; until logo supports unicode
 to getvoices
-output runjs "|speechSynthesis.getVoices().map(({name, lang})=>[name, lang]);|
+output parse runjs "|speechSynthesis.getVoices().map(({name, lang})=>[name, lang]);|
 end
 
 to setspeechlang :lang
