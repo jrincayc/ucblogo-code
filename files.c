@@ -61,13 +61,27 @@ int reading_char_now = 0;
 // completely useless for blocking input. So we have to implement our own async
 // getc for reading stdin.
 EM_ASYNC_JS(char, em_getc, (), {
+    // TODO support streams other than stdin
     let char;   
 	if (typeof document != 'undefined') {
-        if (!Module.FS_runjs_getChar_buffer.length)
+        if (!Module.FS_runjs_getChar_buffer.length) {
+            Module.blockedOnGetc = true;
+            console.log("em_getc: awaiting stdin");
             await new Promise((res, rej) => {
                 document.addEventListener('getcharready', res, { once: true });
+                document.dispatchEvent(new CustomEvent('awaitgetcharready'));
             });
-        char = Module.FS_runjs_getChar_buffer.shift()?.charCodeAt(0);
+            Module.blockedOnGetc = false;
+        }
+        if (!Module.FS_runjs_getChar_buffer.length) {
+            console.log("em_getc: stdin returned eof");
+            return -1;
+        }
+        char = Module.FS_runjs_getChar_buffer.shift();
+        if (typeof char === 'string') {
+            char = char.charCodeAt(0);
+        }
+        console.log("em_getc: stdin returned", char);
 	} else {
 		char = process.stdin.read(1);
 		while (char == null) {
