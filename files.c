@@ -79,6 +79,16 @@ EM_ASYNC_JS(char, em_getc, (), {
 	return char;
 });
 
+EM_JS(int, em_ungetc, (int c), {
+	if (typeof document != 'undefined') {
+        Module.FS_runjs_getChar_buffer.unshift(String.fromCharCode(c));
+    }
+    else {
+        process.stdin.unshift(c);
+    }
+    return c;
+});
+
 extern int LOGO_GIL;
 
 int sysGetC(FILE* stream) {
