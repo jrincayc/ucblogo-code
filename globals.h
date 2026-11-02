@@ -349,7 +349,7 @@ extern NODE *l_setfirst(NODE *);
 extern NODE *l_setbf(NODE *);
 
 /* files.c */
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern int wxKeyp();
 #endif
 extern NODE *file_list;
@@ -672,7 +672,7 @@ extern void yield();
 #define YIELD (yield())
 
 int sysGetC(FILE* stream);
-#define sysUnGetC ungetc
+#define sysUnGetC(c, file) em_ungetc(c)
 char em_getc();
 void em_fflush(int fh);
 

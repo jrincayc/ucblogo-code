@@ -720,20 +720,7 @@ NODE *leofp(NODE *args) {
     return(FalseName());
 }
 
-#ifdef __EMSCRIPTEN__
-extern int web_keyp();
-#endif
-
 NODE *lkeyp(NODE *args) {
-#ifdef __EMSCRIPTEN__
-    if (web_keyp()) {
-        return TrueName();
-    }
-    else {
-        return FalseName();
-    }
-#endif
-
 #if defined(unix) | defined(__WXMSW__)
     int nc;
 #endif
@@ -748,7 +735,8 @@ NODE *lkeyp(NODE *args) {
 	charmode_on();
 	fflush(stdout);
 	fix_turtle_shownness();
-#ifdef HAVE_WX
+
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 	return(wxKeyp() ? TrueName() : FalseName());
 #else
 
@@ -766,7 +754,6 @@ NODE *lkeyp(NODE *args) {
 	    return(TrueName());
 	else
 	    return(FalseName());
-#endif /* wx */
     }
     c = sysGetC(readstream);
     if (feof(readstream))
@@ -774,6 +761,7 @@ NODE *lkeyp(NODE *args) {
     else {
 	sysUnGetC(c, readstream);
 	return(TrueName());
+#endif /* wx */
     }
 }
 

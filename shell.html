@@ -571,23 +571,35 @@
         Module.print(line);
         let chars = line.split("");
         chars.push("\n");
+        // chars.push(-1);
         Module.FS_runjs_getChar_buffer.push(...chars);
         document.getElementById('logoInputText').value = "";
         // FIXME HIGHPRI don't run if already running
-        document.dispatchEvent(new CustomEvent("getcharready"));
-        const retryRunEvaluator = ((n) => {
-          if (Asyncify.state === 0 && getValue(Module['_LOGO_GIL']) === 0) {
-            Module._run_evaluator(true);
-          }
-          else if (n>0) {
-            setTimeout(()=>retryRunEvaluator(--n), 10);
-          }
-          else {
-            console.error('failed to run_evaluator')
-          }
-        });
-        retryRunEvaluator(10);
+        // unless blocked on getc, then just unblock
+        if (Module.blockedOnGetc) {
+          document.dispatchEvent(new CustomEvent("getcharready"));
+          return false;
+        }
+        if (Asyncify.state !== 0 || getValue(Module['_LOGO_GIL']) !== 0) {
+          console.error('failed to run_evaluator')
+          window.alert('failed to run logo')
+        }
+        try {
+          console.info('run_evaluator call', line);
+          Module._run_evaluator(true);
+          console.info('run_evaluator return', line);
+        }
+        catch (err) {
+          console.log(err.stack);
+          window.alert(`Error running Logo, see JS console for details: ${err}`)
+        }
         return false;
+      });
+      document.addEventListener('keydown', (evt)=>{
+        if (evt.key.toLowerCase() === 's'
+          && evt.metaKey) {
+            Module.onstoplogo();
+        }
       });
       // screen.orientation.addEventListener("change", (event) => {
       //   if (event.target.type.startsWith('landscape')) {

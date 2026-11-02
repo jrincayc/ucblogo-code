@@ -720,6 +720,7 @@ Module.commandHistoryIdx = -1;
 Module.currentCommand = null;
 Module.handleKeyDown = evt => {
     // for keyact
+    // FIXME this should only fire in charmode after keyp is called
     Module.onkeydown(evt);
 
     const inputText = document.getElementById('logoInputText');
@@ -982,6 +983,9 @@ Module.run_evaluator = (readcurline) => {
             clearTimeout(timeout);
             Module.WEB_WAIT_WAKEUP();
         }
+        else if (Module.blockedOnGetc) {
+            document.dispatchEvent(new CustomEvent('getcharready'));
+        }
     }
 }
 
@@ -1016,11 +1020,13 @@ Module.onmousemove = (evt) => {
 
 Module.onkeydown = (evt) => {
     // evt.preventDefault();
-    Module.uievents.unshift({
-        type: Module.uieventypes['keydown'],   
-        key: Module.gdk_keycodes[evt.key] || evt.key.charCodeAt(0),
-    });
-    Module.run_evaluator(false);
+    if (getValue(Module._tty_charmode, 'i32')) {
+        Module.uievents.unshift({
+            type: Module.uieventypes['keydown'],   
+            key: Module.gdk_keycodes[evt.key] || evt.key.charCodeAt(0),
+        });
+        Module.run_evaluator(false);
+    }
     return false;
 }
 
@@ -1049,7 +1055,9 @@ if (typeof SpeechSynthesisUtterance !== 'undefined') {
     Module.utterance = new SpeechSynthesisUtterance();
 
     Module.speak  = (text) => {
-        Module.utterance.text = text;
-        speechSynthesis.speak(Module.utterance);
+        if (text.length) {
+            Module.utterance.text = text;
+            speechSynthesis.speak(Module.utterance);
+        }
     }
 }

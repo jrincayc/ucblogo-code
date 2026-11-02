@@ -18,6 +18,9 @@
  *
  */
 
+
+#include <emscripten.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -76,7 +79,7 @@ char se_arr[40];
 
 termio_t tty_cooked, tty_cbreak;
 
-int interactive, tty_charmode;
+EMSCRIPTEN_KEEPALIVE int interactive, tty_charmode;
 
 extern char **environ, *tgoto();
 

@@ -147,4 +147,8 @@ tone: (pitchHz, durationTicks) => {
     }, durationSec * 1000 + 1000);
 },
 
+wxKeyp: ()=>{
+    return Module.FS_runjs_getChar_buffer.length > 0 ? 1 : 0;
+},
+
 });

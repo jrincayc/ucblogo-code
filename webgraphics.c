@@ -245,11 +245,6 @@ void graphics_init()
    set_pen_vis(0);
 }
 
-EM_JS(int, web_keyp, (), {
-   //FIXME
-   return 0;
-});
-
 // EM_JS(int, definejs, ((const char* src))) {
 //    if (!Module.jswords) {
 //       Module.jswords = [];
@@ -297,9 +292,10 @@ NODE* onmousemove(uievent* evt) {
 }
 
 NODE* onkeydown(uievent* evt) {
-   readchar_lookahead_buf = evt->keyboardevent.key;
-   return get_action(Keyact);
-   return NIL;
+   NODE* act = get_action(Keyact);
+   if (act != NIL)
+      readchar_lookahead_buf = evt->keyboardevent.key;
+   return act;
 }
 
 extern int stop_quietly_flag;
