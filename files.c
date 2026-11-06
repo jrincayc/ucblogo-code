@@ -110,10 +110,6 @@ int sysGetC(FILE* stream) {
 	r = stream == stdin ? em_getc() : getc(stream);
     return r;
 }
-
-EM_JS(void, em_fflush, (int fh), {
-	_fflush(fh)
-});
 #endif
 
 

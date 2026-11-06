@@ -228,6 +228,7 @@ PRIMTYPE prims[] = {
     {"hideturtle", 0, 0, 0, PREFIX_PRIORITY, lhideturtle},
     {"home", 0, 0, 0, PREFIX_PRIORITY, lhome},
     {"ht", 0, 0, 0, PREFIX_PRIORITY, lhideturtle},
+    {"htmlstring", 1, 1, 1, PREFIX_PRIORITY, lhtmlstring},
     {"if", 2, 2, 3, MACRO_PRIORITY, lif},
     {"ifelse", 3, 3, 3, MACRO_PRIORITY, lifelse},
     {"iff", 1, 1, 1, MACRO_PRIORITY, liffalse},
@@ -238,6 +239,7 @@ PRIMTYPE prims[] = {
     {"increasefont", 0, 0, 0, PREFIX_PRIORITY, IncreaseFont},
 #endif
     {"int", 1, 1, 1, PREFIX_PRIORITY, linteg},
+    {"italic", 1, 1, 1, PREFIX_PRIORITY, litalic},
     {"item", 2, 2, 2, PREFIX_PRIORITY, litem},
     {"keyp", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
     {"key?", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
@@ -482,6 +484,7 @@ PRIMTYPE prims[] = {
     {"turtlemode", 0, 0, 0, PREFIX_PRIORITY, lturtlemode},
     {"type", 0, 1, -1, PREFIX_PRIORITY, ltype},
     {"unbury", 1, 1, 1, PREFIX_PRIORITY, lunbury},
+    {"underline", 1, 1, 1, PREFIX_PRIORITY, lunderline},
     {"unstep", 1, 1, 1, PREFIX_PRIORITY, lunstep},
     {"untrace", 1, 1, 1, PREFIX_PRIORITY, luntrace},
     {"uppercase", 1, 1, 1, PREFIX_PRIORITY, luppercase},

@@ -152,6 +152,18 @@
     svg {
       will-change: transform;
     }
+    
+    .logoOutput {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      margin: 0px;
+      padding: 0px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      text-wrap-mode: wrap;
+    }
   </style>
   <!-- <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script> -->
   <script>
@@ -328,8 +340,10 @@
 
     <div class="flex grow" id="logoInputContainer" style="width: 100%; flex: 1 1 0%">
       <div class="flex col grow">
-        <div class="flex grow">
-          <textarea readonly class="emscripten" id="output"></textarea>
+        <div class="flex grow" style="position: relative;">
+
+          <pre readonly class="emscripten logoOutput" id="output"></pre>
+
         </div>
 
         <div class="flex">
@@ -500,12 +514,12 @@
         //text = text.replace(/&/g, "&amp;");
         //text = text.replace(/</g, "&lt;");
         //text = text.replace(/>/g, "&gt;");
-        //text = text.replace('\n', '<br>', 'g');
+        // text = text.replace('\n', '<br>', 'g');
         console.log(...args);
         if (outputElement) {
           var text = args.join(' ');
-          outputElement.value += text;
-          outputElement.value += "\n";
+          outputElement.innerHTML += text;
+          // outputElement.innerHTML += "\n";
           outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
           if (Module.graphics.speakOutput)
             Module.speak(text);
@@ -578,7 +592,9 @@
         document.getElementById('commandHistorySelect').value = '';
         // .appendChild(newOption);
         Module.commandHistoryIdx = -1;
-        Module.print(line);
+        const div = document.createElement('div');
+        div.textContent = line + "\n";
+        Module.print(div.innerHTML);
         let chars = line.split("");
         chars.push("\n");
         // chars.push(-1);

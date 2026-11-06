@@ -117,6 +117,25 @@ Module.preRun = () => {
     ENV.LOGOHELP = PREFIX + "/helpfiles";
     ENV.CSLS = PREFIX + "/csls";
 
+    TTY.stream_ops.write = (()=>{
+        const _write = TTY.stream_ops.write;
+        return (stream, buffer, offset, length, pos) => {
+            const r = _write(stream, buffer, offset, length, pos);
+            stream.tty.ops.fsync(stream.tty);
+            return r;
+        };
+    })();
+
+    TTY.default_tty_ops.put_char = function(tty, val) {
+        if (val === null || val === 10) {
+          if (val === 10) tty.output.push(val); // val == 0 would cut text output off in the middle.
+          out(UTF8ArrayToString(tty.output));
+          tty.output = [];
+        } else {
+          if (val != 0) tty.output.push(val); // val == 0 would cut text output off in the middle.
+        }
+    };
+
     const runjs_ops = {
         put_char(tty, val) {
             if (val === 0 || val === 10) {

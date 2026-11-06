@@ -74,8 +74,8 @@ char *UP;
 char bp[1024];
 char cl_arr[40];
 char cm_arr[40];
-char so_arr[40];
-char se_arr[40];
+const char* so_arr = "<b>";
+const char* se_arr = "</b>";
 
 termio_t tty_cooked, tty_cbreak;
 
@@ -140,7 +140,7 @@ void term_init(void) {
         //   termcap_getter("so", so_arr);
         //   termcap_getter("se", se_arr);
       } else { /* no standout modes */
-	so_arr[0] = se_arr[0] = '\0';
+	// so_arr[0] = se_arr[0] = '\0';
       }
     }
     
@@ -237,18 +237,38 @@ NODE *lsetmargins(NODE *args) {
     return(UNBOUND);
 }
 
-NODE *lstandout(NODE *args) {
+NODE *htmltagwrap(NODE *args, const char* ts, const char* te) {
     char textbuf[300];
     char fmtbuf[100];
     char *old_stringptr = print_stringptr;
     int old_stringlen = print_stringlen;
 
-    sprintf(fmtbuf,"%s%%p%s",so_arr,se_arr);
+    sprintf(fmtbuf,"%s%%p%s",ts,te);
     print_stringptr = textbuf;
     print_stringlen = 300;
     ndprintf((FILE *)NULL,fmtbuf,car(args));
     *print_stringptr = '\0';
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
-    return(make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy));
+    return(make_strnode(textbuf,NULL,(int)strlen(textbuf),HTML_STRING,strnzcpy));
+}
+
+NODE *lstandout(NODE *args) {
+    return htmltagwrap(args, "<b>", "</b>");
+}
+
+NODE *lunderline(NODE *args) {
+    return htmltagwrap(args, "<u>", "</u>");
+}
+
+NODE *litalic(NODE *args) {
+    return htmltagwrap(args, "<i>", "</i>");
+}
+
+NODE *lhtmlstring(NODE *args) {
+    NODE* arg;
+    char *str;
+    arg = cnv_node_to_strnode(car(args));
+    str = getstrptr(arg);
+    return(make_strnode(str,NULL,(int)strlen(str)+1,HTML_STRING,noparity_strnzcpy));
 }

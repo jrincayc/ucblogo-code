@@ -438,6 +438,9 @@ extern NODE *lcursor(NODE *);
 extern NODE *lsetcursor(NODE *);
 extern NODE *lsetmargins(NODE *);
 extern NODE *lstandout(NODE *);
+extern NODE *lunderline(NODE *);
+extern NODE *litalic(NODE *);
+extern NODE *lhtmlstring(NODE *);
 
 /* libloc.c */
 extern char *libloc, *helploc, *cslsloc, *temploc, *separator;
@@ -674,7 +677,6 @@ extern void yield();
 int sysGetC(FILE* stream);
 #define sysUnGetC(c, file) em_ungetc(c)
 char em_getc();
-void em_fflush(int fh);
 
 #else
 

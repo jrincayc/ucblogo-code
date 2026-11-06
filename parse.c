@@ -92,18 +92,19 @@ void rd_print_prompt(char *str) {
 		lsplitscreen(NIL);
 #endif
 
-#ifdef __EMSCRIPTEN__
-	EM_ASM({
-		if (typeof outputElement === 'undefined') {
-			console.log(UTF8ToString($0))
-		}
-		else {
-			outputElement.value += UTF8ToString($0);
-		}
-	}, str);
-#else
+// #ifdef __EMSCRIPTEN__
+// 	EM_ASM({
+// 		if (typeof outputElement === 'undefined') {
+// 			console.log(UTF8ToString($0))
+// 		}
+// 		else {
+// 			Module.print(UTF8ToString($0));
+// 		}
+// 	}, str);
+// #else
     ndprintf(stdout,"%t",str);
-#endif
+	fflush(stdout);
+// #endif
 }
 
 #define zrd_print_prompt rd_print_prompt
