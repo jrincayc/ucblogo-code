@@ -177,12 +177,9 @@ void charmode_off() {
 }
 
 NODE *lcleartext(NODE *args) {
-    printf("%s", cl_arr);
-#ifdef HAVE_TGOTO
-    printf("%s", tgoto(cm_arr, x_margin, y_margin));
-#endif
-
-	fflush(stdout); /* do it now! */
+    EM_ASM({
+        document.getElementById('output').innerHTML = '';
+    });
 	fix_turtle_shownness();
 
     x_coord = x_margin;
@@ -230,9 +227,12 @@ NODE *lsetmargins(NODE *args) {
 
     arg = pos_int_vector_arg(args);
     if (NOT_THROWING) {
-	x_margin = getint(car(arg));
-	y_margin = getint(cadr(arg));
-	lcleartext(NIL);
+	int x_margin = getint(car(arg));
+	int y_margin = getint(cadr(arg));
+	// lcleartext(NIL);
+    EM_ASM({
+        document.getElementById('output').style.margin = `${$1}em ${$0}ch ${$1}em ${$0}ch`
+    }, x_margin, y_margin);
     }
     return(UNBOUND);
 }

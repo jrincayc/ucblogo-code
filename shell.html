@@ -152,17 +152,25 @@
     svg {
       will-change: transform;
     }
+
+    .logoOutputContainer {
+      position: relative;
+      overflow: auto;
+      scrollbar-width: thin;
+      justify-content: initial;
+    }
     
     .logoOutput {
-      height: 100%;
-      width: 100%;
+      /* height: 100%; */
+      /* width: 100%; */
       position: absolute;
       margin: 0px;
       padding: 0px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: thin;
+      /* overflow-y: auto; */
+      /* overflow-x: hidden; */
+      /* scrollbar-width: thin; */
       text-wrap-mode: wrap;
+      white-space-collapse: preserve;
     }
   </style>
   <!-- <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script> -->
@@ -340,7 +348,7 @@
 
     <div class="flex grow" id="logoInputContainer" style="width: 100%; flex: 1 1 0%">
       <div class="flex col grow">
-        <div class="flex grow" style="position: relative;">
+        <div class="flex grow logoOutputContainer" id="outputContainer">
 
           <pre readonly class="emscripten logoOutput" id="output"></pre>
 
@@ -497,6 +505,7 @@
     var spinnerElement = document.getElementById('spinner');
     var canvasElement = document.getElementById('canvas');
     var outputElement = document.getElementById('output');
+    var outputContainer = document.getElementById('outputContainer');
     if (outputElement) outputElement.value = ''; // clear browser cache
 
     // As a default initial behavior, pop up an alert when webgl context is lost. To make your
@@ -520,7 +529,7 @@
           var text = args.join(' ');
           outputElement.innerHTML += text;
           // outputElement.innerHTML += "\n";
-          outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
+          outputContainer.scrollTop = outputContainer.scrollHeight; // focus on bottom
           if (Module.graphics.speakOutput)
             Module.speak(text);
         }
