@@ -113,6 +113,54 @@ void print_char(FILE *strm, char ch) {
 	YIELD;
 }
 
+void html_print_char(FILE *strm, char ch) {
+	switch (ch) {
+		case '&':
+			print_char(strm, '&');
+			print_char(strm, 'a');
+			print_char(strm, 'm');
+			print_char(strm, 'p');
+			print_char(strm, ';');
+			break;
+		case '"':
+			print_char(strm, '&');
+			print_char(strm, 'q');
+			print_char(strm, 'u');
+			print_char(strm, 'o');
+			print_char(strm, 't');
+			print_char(strm, ';');
+			break;
+		case '\'':
+			print_char(strm, '&');
+			print_char(strm, 'a');
+			print_char(strm, 'p');
+			print_char(strm, 'o');
+			print_char(strm, 's');
+			print_char(strm, ';');
+			break;
+		case '<':
+			print_char(strm, '&');
+			print_char(strm, 'l');
+			print_char(strm, 't');
+			print_char(strm, ';');
+			break;
+		case '>':
+			print_char(strm, '&');
+			print_char(strm, 'g');
+			print_char(strm, 't');
+			print_char(strm, ';');
+			break;
+		case '\n':
+			print_char(strm, '<');
+			print_char(strm, 'b');
+			print_char(strm, 'r');
+			print_char(strm, '>');
+			break;
+		default:
+			print_char(strm, ch);
+	}
+}
+
 void print_space(FILE *strm) {
     print_char(strm,' ');
 }
@@ -290,13 +338,23 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	}
 	if (wid < getstrlen(nd)) dots++;
 
-	if (!backslashed(nd))
+	if (nd->node_type & NT_HTML) {
 	    for (i = 0; i < wid; i++) {
-		print_char(strm,*cp++);
+			if (*cp == '\n' || *cp == '\r') {
+				print_char(strm,' ');
+				cp++;
+			}
+			else
+				print_char(strm,*cp++);
+	    }
+	}
+	else if (!backslashed(nd))
+	    for (i = 0; i < wid; i++) {
+		html_print_char(strm,*cp++);
 	    }
 	else if (print_backslashes == FALSE) {
 	    for (i = 0; i < wid; i++) {
-		print_char(strm,clearparity(*cp++));
+		html_print_char(strm,clearparity(*cp++));
 	    }
 	} else {
 	    for (i = 0; i < wid; i++) {
@@ -304,7 +362,7 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	    }
 	    if (i < wid) {	/* word was in vbars */
 			if (strchr("\":", *cp)) {
-				print_char(strm, *cp++);
+				html_print_char(strm, *cp++);
 				wid--;
 			}
 		print_char(strm,'|');

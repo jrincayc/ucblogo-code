@@ -122,6 +122,9 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 //Original definition: typedef long int NODETYPES;
 
 typedef enum NodeTypes  {
+#ifdef __EMSCRIPTEN__
+  NT_HTML =       0200000000,
+#endif
 #ifdef OBJECTS
   NT_METHOD =     0100000000,
   NT_OBJ =         040000000,
@@ -165,6 +168,7 @@ typedef enum NodeTypes  {
   COLON	=   NT_WORD|NT_PUNCT|NT_COLON,
   BACKSLASH_STRING = NT_WORD|NT_STRING|NT_BACKSL,
   VBAR_STRING = NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR,
+  HTML_STRING = NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR|NT_HTML,
   ARRAY	=   NT_AGGR|NT_ARRAY,
   LINE =    NT_LINE|NT_LIST|NT_AGGR,
   CONT =    NT_CONT|NT_LIST,

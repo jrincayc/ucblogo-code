@@ -964,6 +964,7 @@ mark_stack(&top, NULL);
 		    case STRING:
 		    case BACKSLASH_STRING:
 		    case VBAR_STRING:
+		    case HTML_STRING:
 			if (getstrhead(nd) != NULL &&
 				    decstrrefcnt(getstrhead(nd)) == 0)
 			    free(getstrhead(nd));

@@ -396,6 +396,7 @@ NODE *cnv_node_to_strnode(NODE *nd) {
 	case STRING:
 	case BACKSLASH_STRING:
 	case VBAR_STRING:
+	case HTML_STRING:
 	    return(nd);
 	case CASEOBJ:
 	    return strnode__caseobj(nd);
