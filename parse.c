@@ -169,7 +169,7 @@ charmode_off();
     	p_end = &p_line[MAX_PHYS_LINE-1];
     }
     phys_line = p_line;
-    if (strm == stdin && *prompt) {
+    if (strm == stdin && prompt && *prompt) {
 	if (interactive) {
 	  rd_print_prompt(prompt);
 	}
