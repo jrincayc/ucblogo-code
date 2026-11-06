@@ -47,6 +47,7 @@ extern "C" int readingInstruction;
 #endif
 #ifdef __WXMAC__
     #include "CoreFoundation/CFBundle.h"
+    #include "wx/osx/core/private.h"
 #endif
 #include "wxTerminal.h"		/* must come after wxTurtleGraphics.h */
 #include <wx/fontdlg.h>
@@ -2613,14 +2614,22 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 extern "C" int check_wx_stop(int force_yield, int pause_return_value) {
   logoEventManager->ProcessEvents(force_yield); 
 
-  //give focus to terminal if text window shown
-  //and Frame has focus
-  wxWindow * focus_win = wxWindow::FindFocus();
-  if(wxTerminal::terminal &&
-     //screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
-     !(focus_win == (wxWindow *)wxTerminal::terminal) &&
-     (focus_win == (wxWindow *)logoFrame)) {
-    wxTerminal::terminal->SetFocus();
+  {
+#ifdef __WXMAC__
+    // on Mac, FindFocus() allocates NSMutableArray.  An autorelease pool ensures
+    // this gets cleaned up
+    wxMacAutoreleasePool autorelease_pool;
+#endif
+
+    //give focus to terminal if text window shown
+    //and Frame has focus
+    wxWindow * focus_win = wxWindow::FindFocus();
+    if(wxTerminal::terminal &&
+       //screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
+       !(focus_win == (wxWindow *)wxTerminal::terminal) &&
+       (focus_win == (wxWindow *)logoFrame)) {
+      wxTerminal::terminal->SetFocus();
+    }
   }
 
   if (logo_stop_flag) {
