@@ -171,6 +171,7 @@
       /* scrollbar-width: thin; */
       text-wrap-mode: wrap;
       white-space-collapse: preserve;
+      background-color: white;
     }
   </style>
   <!-- <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script> -->
@@ -524,6 +525,7 @@
         //text = text.replace(/</g, "&lt;");
         //text = text.replace(/>/g, "&gt;");
         // text = text.replace('\n', '<br>', 'g');
+        var outputElement = document.getElementById('output');
         console.log(...args);
         if (outputElement) {
           var text = args.join(' ');

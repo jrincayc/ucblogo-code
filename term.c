@@ -65,7 +65,7 @@ typedef struct termio termio_t;
 #define FALSE	0
 #define TRUE	1
 
-int x_coord, y_coord, x_max, y_max;
+EMSCRIPTEN_KEEPALIVE int x_coord, y_coord, x_max, y_max;
 
 char PC;
 char *BC;
@@ -74,14 +74,15 @@ char *UP;
 char bp[1024];
 char cl_arr[40];
 char cm_arr[40];
-const char* so_arr = "<b>";
-const char* se_arr = "</b>";
+// const char* so_arr = "<b>";
+// const char* se_arr = "</b>";
 
 termio_t tty_cooked, tty_cbreak;
 
 EMSCRIPTEN_KEEPALIVE int interactive, tty_charmode;
 
 extern char **environ, *tgoto();
+extern void new_output_context();
 
 char *termcap_ptr;
 
@@ -177,13 +178,14 @@ void charmode_off() {
 }
 
 NODE *lcleartext(NODE *args) {
-    EM_ASM({
-        document.getElementById('output').innerHTML = '';
-    });
-	fix_turtle_shownness();
+    fix_turtle_shownness();
 
     x_coord = x_margin;
     y_coord = y_margin;
+    EM_ASM({
+        document.getElementById('outputContainer').innerHTML = '';
+    });
+    new_output_context();
     return(UNBOUND);
 }
 
@@ -216,6 +218,8 @@ NODE *lsetcursor(NODE *args) {
     if (NOT_THROWING) {
 #ifdef HAVE_TGOTO
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
+#elif __EMSCRIPTEN__
+        new_output_context();
 #endif
 	fflush(stdout);
     }

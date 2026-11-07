@@ -161,33 +161,19 @@ return scheduler.yield().then(()=>{
 })
 },
 
-emscripten_scan_registers__deps: ['$safeSetTimeout', '$safeYield'],
-emscripten_scan_registers__async: true,
-emscripten_scan_registers: (func) => {
-    return Asyncify.handleSleep((wakeUp) => {
-        // We must first unwind, so things are spilled to the stack. Then while
-        // we are pausing we do the actual scan. After that we can resume. Note
-        // how using a timeout here avoids unbounded call stack growth, which
-        // could happen if we tried to scan the stack immediately after unwinding.
-
-        if (globalThis.scheduler?.yield) {
-            safeYield().then(()=>{
-                var stackBegin = Asyncify.currData + {{{ C_STRUCTS.asyncify_data_s.__size__ }}};
-                var stackEnd = {{{ makeGetValue('Asyncify.currData', 0, '*') }}};
-                {{{ makeDynCall('vpp', 'func') }}}(stackBegin, stackEnd);
-                wakeUp();
-            });
-        }
-        else {
-            safeSetTimeout(() => {
-                var stackBegin = Asyncify.currData + {{{ C_STRUCTS.asyncify_data_s.__size__ }}};
-                var stackEnd = {{{ makeGetValue('Asyncify.currData', 0, '*') }}};
-                {{{ makeDynCall('vpp', 'func') }}}(stackBegin, stackEnd);
-                wakeUp();
-            }, 0);
-        }
-    });
+new_output_context: ()=>{
+    const x_coord = getValue(Module._x_coord, 'i32');
+    const y_coord = getValue(Module._y_coord, 'i32');
+    const opc = document.getElementById('outputContainer');
+    const op = document.getElementById('output');
+    const newop = document.createElement('pre');
+    newop.style.position = 'absolute';
+    newop.style.top = `round(${y_coord}em, 1px)`;
+    newop.style.left = `round(${x_coord}ch, 1px)`;
+    newop.setAttribute('id', 'output');
+    newop.setAttribute('class', 'emscripten logoOutput');
+    if (op) op.removeAttribute('id');
+    opc.appendChild(newop);
 },
-
 
 });
