@@ -164,7 +164,7 @@ PRIMTYPE prims[] = {
     {"cslsload", 1, 1, 1, PREFIX_PRIORITY, lcslsload},
     {"ct", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
     {"cursor", 0, 0, 0, PREFIX_PRIORITY, lcursor},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"decreasefont", 0, 0, 0, PREFIX_PRIORITY, DecreaseFont},
 #endif
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
@@ -237,7 +237,7 @@ PRIMTYPE prims[] = {
     {"iffalse", 1, 1, 1, MACRO_PRIORITY, liffalse},
     {"ift", 1, 1, 1, MACRO_PRIORITY, liftrue},
     {"iftrue", 1, 1, 1, MACRO_PRIORITY, liftrue},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"increasefont", 0, 0, 0, PREFIX_PRIORITY, IncreaseFont},
 #endif
     {"int", 1, 1, 1, PREFIX_PRIORITY, linteg},

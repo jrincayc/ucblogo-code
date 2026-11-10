@@ -555,9 +555,8 @@ extern NODE *lsetfont(NODE *);
 extern NODE *lsettextsize(NODE *);
 extern NODE *ltextsize(NODE *);
 extern NODE *set_text_color(NODE *);
-#endif
-
-#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
+extern NODE *IncreaseFont(NODE *);
+extern NODE *DecreaseFont(NODE *);
 extern int wxBuffContainsLine();
 #endif
 
@@ -574,8 +573,6 @@ extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
-extern NODE*IncreaseFont(NODE *);
-extern NODE*DecreaseFont(NODE *);
 extern int turtlePosition_x;
 extern int turtlePosition_y;
 #define SCREEN_WIDTH		1

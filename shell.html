@@ -459,7 +459,7 @@
           <ul>
             <li>
               <input type="number" name="logoFontSize" value="16" max="48" min="5"
-                oninput="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = `${event.target.value}px`">
+                oninput="Module.setFontSize(event.target.value)">
               <label>Small</label>
               </input>
             </li>

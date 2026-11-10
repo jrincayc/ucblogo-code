@@ -36,6 +36,28 @@ Module.onRuntimeInitialized = () => {
 Module.graphics = {};
 Module.visualBell = false;
 Module.fontSize = 16;
+try {
+    const storedFontSize = localStorage.getItem('ucblogo.fontSize');
+    if (storedFontSize !== null && Number.isFinite(Number(storedFontSize)))
+        Module.fontSize = Number(storedFontSize);
+} catch (error) {}
+
+Module.setFontSize = (size) => {
+    if (typeof document === 'undefined') return;
+    const fontSizeInput = document.querySelector('[name="logoFontSize"]');
+    const parsedSize = Number(size);
+    if (!Number.isFinite(parsedSize)) return;
+    const minSize = Number(fontSizeInput.min);
+    const maxSize = Number(fontSizeInput.max);
+    Module.fontSize = Math.min(maxSize, Math.max(minSize, Math.round(parsedSize)));
+    document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = `${Module.fontSize}px`;
+    fontSizeInput.value = Module.fontSize;
+    try {
+        localStorage.setItem('ucblogo.fontSize', String(Module.fontSize));
+    } catch (error) {
+        console.trace(error);
+    }
+};
 
 Module.graphics.logoColors = [
     { r: 0, g: 0, b: 0 },
@@ -264,6 +286,7 @@ Module.graphics.graphics_init = () => {
         }, { capture: true });
         window.visualViewport.addEventListener('resize', Module.graphics.onresize);
         Module.graphics.dispatchResize();
+        Module.setFontSize(Module.fontSize);
         document.getElementById('logoInputText').focus();
         document.getElementById('speakOutputSelect').addEventListener('click', (e)=>{
             Module.graphics.speakOutput = e.target.checked;
