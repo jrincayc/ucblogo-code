@@ -748,7 +748,6 @@ Module.currentCommand = null;
 Module.handleKeyDown = evt => {
     // for keyact
     // FIXME this should only fire in charmode after keyp is called
-    Module.onkeydown(evt);
 
     const inputText = document.getElementById('logoInputText');
     if (evt.key == "ArrowDown") {
@@ -1046,13 +1045,19 @@ Module.onmousemove = (evt) => {
 }
 
 Module.onkeydown = (evt) => {
-    // evt.preventDefault();
     if (getValue(Module._tty_charmode, 'i32')) {
+        evt.preventDefault();
         Module.uievents.unshift({
-            type: Module.uieventypes['keydown'],   
+            type: Module.uieventypes['keydown'],
             key: Module.gdk_keycodes[evt.key] || evt.key.charCodeAt(0),
         });
-        Module.run_evaluator(false);
+        Module.FS_runjs_getChar_buffer.push(Module.gdk_keycodes[evt.key] || evt.key.charCodeAt(0));
+        if (Module.blockedOnGetc) {
+            document.dispatchEvent(new CustomEvent("getcharready"));
+            return false;
+        }
+        else if (getValue(Module._Keyact, '*'))
+            Module.run_evaluator(false);
     }
     return false;
 }
@@ -1087,4 +1092,16 @@ if (typeof SpeechSynthesisUtterance !== 'undefined') {
             speechSynthesis.speak(Module.utterance);
         }
     }
+}
+
+Module.charmode_on = ()=>{
+    document.getElementById('logoInputText').setAttribute('disabled', '');
+    document.getElementById('output').focus();
+    Module.linemode = false;
+}
+
+Module.charmode_off = ()=>{
+    document.getElementById('logoInputText').removeAttribute('disabled');
+    document.getElementById('logoInputText').focus();
+    Module.linemode = false;
 }

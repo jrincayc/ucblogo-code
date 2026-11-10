@@ -765,7 +765,7 @@ NODE *llinep(NODE *args) {
     int c;
 
     if (readstream == stdin && interactive) {
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
         linemode_on();
         fflush(stdout);
         fix_turtle_shownness();

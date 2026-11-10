@@ -320,7 +320,10 @@ stop:
       /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
       stopping_flag = RUN;
    }
-   if (readcurrline) rd_print_prompt("? ");
+   if (readcurrline) {
+    charmode_off();
+    rd_print_prompt("? ");
+   }
    LOGO_GIL = 0;
    yield_enabled = 1;
    EM_ASM({

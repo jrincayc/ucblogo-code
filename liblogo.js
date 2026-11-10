@@ -176,4 +176,18 @@ new_output_context: ()=>{
     opc.appendChild(newop);
 },
 
+wxBuffContainsLine: () => {
+    return Module.FS_runjs_getChar_buffer.length > 0;
+},
+
+linemode_on: () => {
+    document.getElementById('logoInputText').removeAttribute('disabled');
+    document.getElementById('logoRunButton').removeAttribute('disabled');
+    Module.linemode = true;
+},
+
+linemode_off: () => {
+    Module.linemode = false;
+},
+
 });

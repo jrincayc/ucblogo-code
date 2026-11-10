@@ -557,6 +557,9 @@ extern NODE *ltextsize(NODE *);
 extern NODE *set_text_color(NODE *);
 #endif
 
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
+extern int wxBuffContainsLine();
+#endif
 
 #ifdef HAVE_WX
 extern void init_wx(int, char**);
@@ -567,7 +570,6 @@ extern int getFromWX_2(FILE * f);
 extern void wxLogoExit(int code);
 extern void wxLogoSleep(unsigned int milli);
 extern int wxUnget_c(int c, FILE * f);
-extern int wxBuffContainsLine();
 extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);

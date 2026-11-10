@@ -165,15 +165,17 @@ void term_init(void) {
 
 void charmode_on() {
     if ((readstream == stdin) && interactive && !tty_charmode) {
-	ioctl(0,TCSETA,(char *)(&tty_cbreak));
+	// ioctl(0,TCSETA,(char *)(&tty_cbreak));
 	tty_charmode++;
+    EM_ASM({Module.charmode_on()});
     }
 }
 
 void charmode_off() {
     if (tty_charmode) {
-	ioctl(0,TCSETA,(char *)(&tty_cooked));
+	// ioctl(0,TCSETA,(char *)(&tty_cooked));
 	tty_charmode = 0;
+    EM_ASM({Module.charmode_off()});
     }
 }
 

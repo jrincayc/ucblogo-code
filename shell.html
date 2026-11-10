@@ -593,6 +593,7 @@
         document.getElementById('logoInputText').focus();
         let line = new FormData(event.target)
           .get('logoInputText')
+        if (line === null) return false;
         Module.commandHistory.unshift(line);
         const newOption = document.createElement('option');
         newOption.setAttribute('value', Module.commandHistory.length - 1);
@@ -617,6 +618,8 @@
           document.dispatchEvent(new CustomEvent("getcharready"));
           return false;
         }
+        if (Module.linemode) 
+          return false;
         if (Asyncify.state !== 0 || getValue(Module['_LOGO_GIL']) !== 0) {
           console.error('failed to run_evaluator')
           window.alert('failed to run logo')
@@ -636,6 +639,9 @@
         if (evt.key.toLowerCase() === 's'
           && evt.metaKey) {
             Module.onstoplogo();
+        }
+        else {
+          Module.onkeydown(evt);
         }
       });
       // screen.orientation.addEventListener("change", (event) => {

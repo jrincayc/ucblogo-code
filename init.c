@@ -22,6 +22,8 @@
 #include "config.h"
 #endif
 
+#include <emscripten.h>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -62,7 +64,7 @@ typedef struct priminfo {
     NODE *(*prim) (NODE *);
 } PRIMTYPE;
 
-NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
+EMSCRIPTEN_KEEPALIVE NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
      *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
      *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
      *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,
