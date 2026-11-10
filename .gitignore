@@ -47,3 +47,6 @@ dist/
 ucblogo-node.js
 git-c-temp
 sw.js
+confdefs.*
+conftest.*
+*.tmp
