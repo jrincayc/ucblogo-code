@@ -534,6 +534,10 @@
           outputContainer.scrollTop = outputContainer.scrollHeight; // focus on bottom
           if (Module.graphics.speakOutput)
             Module.speak(text);
+          if (text.includes('')) {
+            _tone(440, 30)
+            // todo visual bell indication
+          }
         }
       },
       canvas: canvasElement,
