@@ -159,6 +159,35 @@
       scrollbar-width: thin;
       justify-content: initial;
     }
+
+    #bellIndicator {
+      position: fixed;
+      top: 10vh;
+      right: 10vw;
+      margin: 0.25em 0;
+      padding: 0.35em 0.6em;
+      border-radius: 4px;
+      background-color:  #D01b00;
+      color: #fff1b8;
+      border: 2px solid #211900;
+      font-weight: bold;
+      text-align: left;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 300ms ease, visibility 300ms ease;
+      position: float;
+    }
+
+    #bellIndicator.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #bellIndicator {
+        transition: none;
+      }
+    }
     
     .logoOutput {
       /* height: 100%; */
@@ -458,6 +487,10 @@
           <input type="checkbox" id="speakOutputSelect" name="speakOutput">
           <label>Speak Logo output</label>
         </li>
+        <li>
+          <input type="checkbox" id="visualBellSelect" name="visualBell">
+          <label for="visualBellSelect">Show visual bell indicator</label>
+        </li>
       </ul>
       <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
     </dialog>
@@ -500,6 +533,8 @@
     </dialog>
   </div>
 
+  <div id="bellIndicator" role="status" aria-live="polite" aria-atomic="true" hidden>BELL</div>
+
   <script type='text/javascript'>
     var statusElement = document.getElementById('status');
     var progressElement = document.getElementById('progress');
@@ -507,6 +542,9 @@
     var canvasElement = document.getElementById('canvas');
     var outputElement = document.getElementById('output');
     var outputContainer = document.getElementById('outputContainer');
+    var bellIndicatorElement = document.getElementById('bellIndicator');
+    var bellIndicatorHideTimeout;
+    var bellIndicatorFadeTimeout;
     if (outputElement) outputElement.value = ''; // clear browser cache
 
     // As a default initial behavior, pop up an alert when webgl context is lost. To make your
@@ -534,9 +572,20 @@
           outputContainer.scrollTop = outputContainer.scrollHeight; // focus on bottom
           if (Module.graphics.speakOutput)
             Module.speak(text);
-          if (text.includes('')) {
+          if (text.includes(String.fromCharCode(7))) {
             _tone(440, 30)
-            // todo visual bell indication
+            if (Module.visualBell) {
+              bellIndicatorElement.hidden = false;
+              window.clearTimeout(bellIndicatorHideTimeout);
+              window.clearTimeout(bellIndicatorFadeTimeout);
+              requestAnimationFrame(() => bellIndicatorElement.classList.add('is-visible'));
+              bellIndicatorHideTimeout = window.setTimeout(() => {
+                bellIndicatorElement.classList.remove('is-visible');
+                bellIndicatorFadeTimeout = window.setTimeout(() => {
+                  bellIndicatorElement.hidden = true;
+                }, 300);
+              }, 2500);
+            }
           }
         }
       },

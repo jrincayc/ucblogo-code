@@ -34,6 +34,7 @@ Module.onRuntimeInitialized = () => {
 
 
 Module.graphics = {};
+Module.visualBell = false;
 
 Module.graphics.logoColors = [
     { r: 0, g: 0, b: 0 },
@@ -265,6 +266,9 @@ Module.graphics.graphics_init = () => {
         document.getElementById('logoInputText').focus();
         document.getElementById('speakOutputSelect').addEventListener('click', (e)=>{
             Module.graphics.speakOutput = e.target.checked;
+        })
+        document.getElementById('visualBellSelect').addEventListener('change', (e)=>{
+            Module.visualBell = e.target.checked;
         })
     }
     if (document.readyState === 'loading')
@@ -1105,3 +1109,47 @@ Module.charmode_off = ()=>{
     document.getElementById('logoInputText').focus();
     Module.linemode = false;
 }
+
+// Module.updateState = () => {
+//     const logoState = Object.fromEntries([
+//         ['tty_charmode', 'i32'],
+//         ['interactive', 'i32'],
+//         ['LOGO_GIL', 'i32'],
+//         ['readstream', '*i32'],
+//         ['inside_evaluator', 'i32'],
+//         ['stopping_flag', 'i32'],
+//         ['inside_gc', 'i32'],
+//         ['in_eval_save', 'i32'],
+//         ['ptr_Buttonact', '*'],
+//         ['ptr_Keyact', '*'],
+//         ['ptr_Animationact', '*'],
+//     ].map(([v,t])=>getValue(Module['_' + v, t])));
+
+//     const updateEnabled = (el, cond) => {
+//         if (!cond) el.setAttribute('disabled', '');
+//         else el.removeAttribute('disabled');
+//     }
+
+//     updateEnabled(
+//         document.getElementById('logoInputText'),
+//         logoState.tty_charmode === 0
+//     );
+
+//     updateEnabled(
+//         document.getElementById('logoRunButton'),
+//         ( 
+//             logoState.tty_charmode === 0
+//             && Asyncify.state === 0
+//             && logoState.LOGO_GIL === 0
+//         )
+//     );
+
+//     updateEnabled(
+//         document.getElementById('logoStopButton'),
+//         (
+//             Asyncify.state !== 0
+//             || logoState.LOGO_GIL !== 0
+//             || Module.animating
+//         )
+//     );
+// }
