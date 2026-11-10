@@ -12,7 +12,7 @@
   <title>UCB Logo Web Edition</title>
   <style id="logoFontSize">
     * {
-      font-size: medium;
+      font-size: 16px;
     }
   </style>
   <style>
@@ -458,27 +458,9 @@
           <label>Font Size</label>
           <ul>
             <li>
-              <input type="radio" name="logoFontSize" value="small"
-                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'small'">
+              <input type="number" name="logoFontSize" value="16" max="48" min="5"
+                oninput="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = `${event.target.value}px`">
               <label>Small</label>
-              </input>
-            </li>
-            <li>
-              <input type="radio" checked name="logoFontSize" value="medium"
-                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'medium'">
-              <label>Medium</label>
-              </input>
-            </li>
-            <li>
-              <input type="radio" name="logoFontSize" value="large"
-                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'large'">
-              <label>Large</label>
-              </input>
-            </li>
-            <li>
-              <input type="radio" name="logoFontSize" value="x-large"
-                onclick="document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = 'x-large'">
-              <label>Extra-Large</label>
               </input>
             </li>
           </ul>

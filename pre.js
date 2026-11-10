@@ -35,6 +35,7 @@ Module.onRuntimeInitialized = () => {
 
 Module.graphics = {};
 Module.visualBell = false;
+Module.fontSize = 16;
 
 Module.graphics.logoColors = [
     { r: 0, g: 0, b: 0 },
