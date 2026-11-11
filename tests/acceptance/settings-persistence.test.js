@@ -1,66 +1,19 @@
-const { spawn } = require('node:child_process');
 const fs = require('node:fs');
-const net = require('node:net');
 const path = require('node:path');
 const vm = require('node:vm');
 const { expect } = require('chai');
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
+const { createApplicationServer } = require('./application-server');
 
 const repositoryRoot = path.resolve(__dirname, '../..');
 const browserNames = (process.env.BROWSERS || 'chrome,firefox')
     .split(',').map((name) => name.trim()).filter(Boolean);
 const headless = process.env.HEADLESS !== '0';
 const testDelayMs = Math.max(0, Number(process.env.TEST_DELAY_MS) || 0);
-let emrunProcess;
+const applicationServer = createApplicationServer();
 let applicationUrl;
-
-function findOpenPort() {
-    return new Promise((resolve, reject) => {
-        const server = net.createServer();
-        server.once('error', reject);
-        server.listen(0, '127.0.0.1', () => {
-            const { port } = server.address();
-            server.close((error) => error ? reject(error) : resolve(port));
-        });
-    });
-}
-
-async function startApplicationServer() {
-    if (process.env.UCBOLOGO_TEST_URL) {
-        applicationUrl = process.env.UCBOLOGO_TEST_URL;
-        return;
-    }
-
-    const port = await findOpenPort();
-    applicationUrl = `http://127.0.0.1:${port}/ucblogo.html`;
-    let launchError;
-    emrunProcess = spawn(process.env.EMRUN || 'emrun', [
-        '--no-browser', '--port', String(port), 'ucblogo.html',
-    ], { cwd: repositoryRoot, stdio: 'inherit' });
-    emrunProcess.once('error', (error) => { launchError = error; });
-
-    const deadline = Date.now() + 30000;
-    while (Date.now() < deadline) {
-        if (launchError) throw launchError;
-        if (emrunProcess.exitCode !== null)
-            throw new Error(`emrun exited with code ${emrunProcess.exitCode}`);
-        try {
-            const response = await fetch(applicationUrl);
-            if (response.ok) return;
-        } catch (error) {}
-        await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-    throw new Error(`Timed out waiting for emrun at ${applicationUrl}`);
-}
-
-async function stopApplicationServer() {
-    if (!emrunProcess || emrunProcess.exitCode !== null) return;
-    const exited = new Promise((resolve) => emrunProcess.once('exit', resolve));
-    emrunProcess.kill('SIGTERM');
-    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 3000))]);
-}
 
 function createDriver(browserName) {
     const builder = new Builder().forBrowser(browserName);
@@ -215,8 +168,8 @@ describe('soft-key accessibility', function () {
 describe('settings persistence acceptance', function () {
     this.timeout(120000);
 
-    before(startApplicationServer);
-    after(stopApplicationServer);
+    before(async function () { applicationUrl = await applicationServer.start(); });
+    after(() => applicationServer.stop());
 
     for (const browserName of browserNames) {
         describe(browserName, function () {

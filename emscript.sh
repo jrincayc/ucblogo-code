@@ -69,8 +69,9 @@ autoreconf -fi \
 # 2. Click OK (adds line to buffer)
 # 3. Click Cancel (executes lines in buffer)
 # 4. Watch output pane
-# python3 -m http.server 8080 & xdg-open http://0.0.0.0:8080/ucblogo.html
-
-# or use emrun
+# use emrun
+# or if emrun doesn't work (cors?) python3 -m http.server 8080 & xdg-open http://0.0.0.0:8080/ucblogo.html
+# I forget why I switched from emrun to python, cors I think
+# emrun should be used in preference to other servers unless it breaks
 # link with --emrun then run
 # emrun

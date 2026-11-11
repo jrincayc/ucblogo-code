@@ -43,6 +43,7 @@ ucblogo.html
 ucblogo.js
 ucblogo.mjs
 node_modules
+/reports/lighthouse/
 dist/
 ucblogo-node.js
 git-c-temp
