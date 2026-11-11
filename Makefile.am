@@ -165,7 +165,7 @@ _logo_gc_debug_node_id \
 	$(LDFLAGS)
 
 
-ucblogo.html: ucblogo shell.html pre.js liblogo.js
+ucblogo.html: ucblogo shell.html pre.js liblogo.js webstartup.lg
 	em++  \
 	-o ucblogo.html \
 	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
