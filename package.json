@@ -8,11 +8,17 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:settings",
+    "test:settings": "./emscript.sh && mocha tests/acceptance/settings-persistence.test.js",
+    "test:settings:chrome": "BROWSERS=chrome npm run test:settings",
+    "test:settings:firefox": "BROWSERS=firefox npm run test:settings"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^6.3.0",
+    "mocha": "^12.0.3",
+    "selenium-webdriver": "^4.51.0",
     "workbox-cli": "^7.3.0"
   }
 }
