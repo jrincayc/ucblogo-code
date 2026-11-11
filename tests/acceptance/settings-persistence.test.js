@@ -309,6 +309,45 @@ describe('settings persistence acceptance', function () {
                     'runjs did not preserve newlines inside a v-barred code word');
             });
 
+            it('sets, reports, and steps the Logo text size', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                await driver.executeScript('localStorage.clear()');
+                await driver.navigate().refresh();
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'settextsize 24');
+                await driver.wait(async () => driver.executeScript(() =>
+                    Module.fontSize === 24 &&
+                    document.getElementById('logoTextSize').sheet.cssRules[0]
+                        .style.fontSize === '24px'
+                ), 10000, 'settextsize did not apply the pixel size');
+                await runLogo(driver, 'print (word "SIZE textsize)');
+                await waitForOutput(driver, 'SIZE24',
+                    'textsize did not report the configured pixel size');
+
+                await runLogo(driver, 'increasefont');
+                await driver.wait(async () => driver.executeScript(() =>
+                    Module.fontSize === 25
+                ), 10000, 'increasefont did not increase the text size');
+                await runLogo(driver, 'decreasefont');
+                await driver.wait(async () => driver.executeScript(() =>
+                    Module.fontSize === 24
+                ), 10000, 'decreasefont did not decrease the text size');
+
+                const persistedSize = await driver.executeScript(() => ({
+                    fontSize: Module.settings.fontSize,
+                    storedSize: JSON.parse(localStorage.getItem('ucblogo.settings'))
+                        .fontSize,
+                    inputSize: document.querySelector('[name="logoTextSize"]').value,
+                }));
+                expect(persistedSize).to.deep.equal({
+                    fontSize: 24,
+                    storedSize: 24,
+                    inputSize: '24',
+                });
+            });
+
             it('persists Logo and dialog settings and restores their effects after reload', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
@@ -358,7 +397,7 @@ describe('settings persistence acceptance', function () {
                 ), 10000, 'settings dialog did not restore persisted preferences');
 
                 const restoredEffects = await driver.executeScript(() => ({
-                    fontSize: document.querySelector('#logoFontSize').sheet
+                    fontSize: document.querySelector('#logoTextSize').sheet
                         .cssRules[0].style.fontSize,
                     shapeRendering: document.getElementById('logoDrawing').style
                         .getPropertyValue('shape-rendering'),

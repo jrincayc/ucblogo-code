@@ -181,6 +181,27 @@ EM_JS(void, adjust_label_height, (int label_height), {
    Module.graphics.adjust_label_height(label_height);
 });
 
+EM_JS(void, web_set_text_size, (int size), {
+   Module.setFontSize(size);
+});
+
+EM_JS(int, web_get_text_size, (), {
+   return Module.fontSize;
+});
+
+NODE *lsettextsize(NODE *arg)
+{
+   NODE *val = integer_arg(arg);
+   if (NOT_THROWING)
+      web_set_text_size(getint(val));
+   return (UNBOUND);
+}
+
+NODE *ltextsize(NODE *arg)
+{
+   return make_intnode(web_get_text_size());
+}
+
 NODE *lsetlabelheight(NODE *arg)
 {
    NODE *val = integer_arg(arg);

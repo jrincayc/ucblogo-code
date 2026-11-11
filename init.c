@@ -432,6 +432,8 @@ PRIMTYPE prims[] = {
 #if defined(WIN32)|defined(HAVE_WX)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
+#endif
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
 #endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
@@ -470,7 +472,7 @@ PRIMTYPE prims[] = {
     {"test", 1, 1, 1, PREFIX_PRIORITY, ltest},
     {"text", 1, 1, 1, PREFIX_PRIORITY, ltext},
     {"textscreen", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"textsize", 0, 0, 0, PREFIX_PRIORITY, ltextsize},
 #endif
     {"thing", 1, 1, 1, PREFIX_PRIORITY, lthing},

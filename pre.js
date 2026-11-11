@@ -91,16 +91,20 @@ Module.setSpeakOutput = (enabled) => {
 };
 
 Module.setFontSize = (size) => {
-    if (typeof document === 'undefined') return;
-    const fontSizeInput = document.querySelector('[name="logoFontSize"]');
     const parsedSize = Number(size);
     if (!Number.isFinite(parsedSize)) return;
-    const minSize = Number(fontSizeInput.min);
-    const maxSize = Number(fontSizeInput.max);
+    const fontSizeInput = typeof document === 'undefined'
+        ? null : document.querySelector('[name="logoTextSize"]');
+    const minSize = fontSizeInput ? Number(fontSizeInput.min) : 5;
+    const maxSize = fontSizeInput ? Number(fontSizeInput.max) : 48;
     Module.fontSize = Math.min(maxSize, Math.max(minSize, Math.round(parsedSize)));
-    document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = `${Module.fontSize}px`;
-    fontSizeInput.value = Module.fontSize;
     Module.settings.fontSize = Module.fontSize;
+    if (typeof document !== 'undefined') {
+        const textSizeStyle = document.getElementById('logoTextSize');
+        if (textSizeStyle)
+            textSizeStyle.sheet.cssRules[0].style.fontSize = `${Module.fontSize}px`;
+        if (fontSizeInput) fontSizeInput.value = Module.fontSize;
+    }
     Module.saveSettings();
 };
 
