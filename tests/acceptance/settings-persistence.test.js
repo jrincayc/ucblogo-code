@@ -348,6 +348,130 @@ describe('settings persistence acceptance', function () {
                 });
             });
 
+            it('sets text colors from palette indices and RGB lists', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                const defaultButton = await driver.executeScript(() => {
+                    const button = document.getElementById('logoRunButton');
+                    const disabledButton = document.getElementById('logoStopButton');
+                    return {
+                        colorsApplied: document.documentElement.classList
+                            .contains('logo-text-colors-set'),
+                        appearance: getComputedStyle(button).appearance,
+                        disabledAppearance: getComputedStyle(disabledButton).appearance,
+                    };
+                });
+                expect(defaultButton.colorsApplied).to.equal(false);
+                expect(defaultButton.appearance).not.to.equal('none');
+                expect(defaultButton.disabledAppearance).not.to.equal('none');
+
+                await runLogo(driver, 'settc [15 21 27] [96 84 80]');
+                let colors = await driver.executeScript(() => {
+                    const output = document.getElementById('output');
+                    const container = document.getElementById('outputContainer');
+                    const editor = document.getElementById('editorTextArea');
+                    const input = document.getElementById('logoInputText');
+                    const button = document.getElementById('logoRunButton');
+                    const disabledButton = document.getElementById('logoStopButton');
+                    const history = document.getElementById('commandHistorySelect');
+                    return {
+                        foreground: getComputedStyle(output).color,
+                        background: getComputedStyle(container).backgroundColor,
+                        editorForeground: getComputedStyle(editor).color,
+                        editorBackground: getComputedStyle(editor).backgroundColor,
+                        inputForeground: getComputedStyle(input).color,
+                        inputBackground: getComputedStyle(input).backgroundColor,
+                        buttonForeground: getComputedStyle(button).color,
+                        buttonBackground: getComputedStyle(button).backgroundColor,
+                        editorBorderStyle: getComputedStyle(editor).borderStyle,
+                        editorBorderColor: getComputedStyle(editor).borderColor,
+                        editorAppearance: getComputedStyle(editor).appearance,
+                        editorShadow: getComputedStyle(editor).boxShadow,
+                        inputBorderStyle: getComputedStyle(input).borderStyle,
+                        inputBorderColor: getComputedStyle(input).borderColor,
+                        inputBorderRadius: getComputedStyle(input).borderRadius,
+                        inputBorderWidthDevicePixels: Number.parseFloat(
+                            getComputedStyle(input).borderWidth,
+                        ) * window.devicePixelRatio,
+                        inputAppearance: getComputedStyle(input).appearance,
+                        inputShadow: getComputedStyle(input).boxShadow,
+                        inputBackgroundImage: getComputedStyle(input).backgroundImage,
+                        buttonBorderStyle: getComputedStyle(button).borderStyle,
+                        buttonBorderColor: getComputedStyle(button).borderColor,
+                        buttonAppearance: getComputedStyle(button).appearance,
+                        buttonShadow: getComputedStyle(button).boxShadow,
+                        disabledBorderStyle: getComputedStyle(disabledButton).borderStyle,
+                        disabledBorderWidthDevicePixels: Number.parseFloat(
+                            getComputedStyle(disabledButton).borderWidth,
+                        ) * window.devicePixelRatio,
+                        disabledOpacity: getComputedStyle(disabledButton).opacity,
+                        disabledCursor: getComputedStyle(disabledButton).cursor,
+                        historyBorderStyle: getComputedStyle(history).borderStyle,
+                        historyBorderColor: getComputedStyle(history).borderColor,
+                        historyAppearance: getComputedStyle(history).appearance,
+                        historyShadow: getComputedStyle(history).boxShadow,
+                    };
+                });
+                const {
+                    inputBorderWidthDevicePixels,
+                    disabledBorderWidthDevicePixels,
+                    ...colorStyles
+                } = colors;
+                expect(colorStyles).to.deep.equal({
+                    foreground: 'rgb(38, 54, 69)',
+                    background: 'rgb(245, 214, 204)',
+                    editorForeground: 'rgb(38, 54, 69)',
+                    editorBackground: 'rgb(245, 214, 204)',
+                    inputForeground: 'rgb(38, 54, 69)',
+                    inputBackground: 'rgb(245, 214, 204)',
+                    buttonForeground: 'rgb(38, 54, 69)',
+                    buttonBackground: 'rgb(245, 214, 204)',
+                    editorBorderStyle: 'solid',
+                    editorBorderColor: 'rgb(38, 54, 69)',
+                    editorAppearance: 'none',
+                    editorShadow: 'none',
+                    inputBorderStyle: 'solid',
+                    inputBorderColor: 'rgb(38, 54, 69)',
+                    inputBorderRadius: '0px',
+                    inputAppearance: 'none',
+                    inputShadow: 'none',
+                    inputBackgroundImage: 'none',
+                    buttonBorderStyle: 'solid',
+                    buttonBorderColor: 'rgb(38, 54, 69)',
+                    buttonAppearance: 'none',
+                    buttonShadow: 'none',
+                    disabledBorderStyle: 'dashed',
+                    disabledOpacity: '0.65',
+                    disabledCursor: 'not-allowed',
+                    historyBorderStyle: 'solid',
+                    historyBorderColor: 'rgb(38, 54, 69)',
+                    historyAppearance: 'auto',
+                    historyShadow: 'none',
+                });
+                expect(inputBorderWidthDevicePixels).to.be.closeTo(1, 0.01);
+                expect(disabledBorderWidthDevicePixels).to.be.closeTo(2, 0.01);
+
+                await runLogo(driver, 'settc [0 35 55] [86 94 98]');
+                colors = await driver.executeScript(() => {
+                    const output = document.getElementById('output');
+                    const container = document.getElementById('outputContainer');
+                    const input = document.getElementById('logoInputText');
+                    return {
+                        foreground: getComputedStyle(output).color,
+                        background: getComputedStyle(container).backgroundColor,
+                        inputForeground: getComputedStyle(input).color,
+                        inputBorderColor: getComputedStyle(input).borderColor,
+                    };
+                });
+                expect(colors).to.deep.equal({
+                    foreground: 'rgb(0, 89, 140)',
+                    background: 'rgb(219, 240, 250)',
+                    inputForeground: 'rgb(0, 89, 140)',
+                    inputBorderColor: 'rgb(0, 89, 140)',
+                });
+            });
+
             it('persists Logo and dialog settings and restores their effects after reload', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);

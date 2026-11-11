@@ -158,6 +158,7 @@
       overflow: auto;
       scrollbar-width: thin;
       justify-content: initial;
+      background-color: var(--logo-text-background, white);
     }
 
     #bellIndicator {
@@ -200,7 +201,50 @@
       /* scrollbar-width: thin; */
       text-wrap-mode: wrap;
       white-space-collapse: preserve;
-      background-color: white;
+      color: var(--logo-text-foreground, black);
+      background-color: transparent;
+    }
+
+    html.logo-text-colors-set body,
+    html.logo-text-colors-set body * {
+      color: var(--logo-text-foreground, black);
+      background-color: var(--logo-text-background, white);
+    }
+
+    html.logo-text-colors-set input:not([type="checkbox"]):not([type="radio"]),
+    html.logo-text-colors-set textarea,
+    html.logo-text-colors-set button {
+      -webkit-appearance: none;
+      appearance: none;
+      border: 1px solid var(--logo-text-foreground);
+      border-radius: 0;
+      box-shadow: none;
+      background-image: none;
+    }
+
+    html.logo-text-colors-set #logoInputText {
+      -webkit-appearance: none;
+      appearance: none;
+      color: var(--logo-text-foreground);
+      background-color: var(--logo-text-background);
+      border: 1px solid var(--logo-text-foreground);
+      border-radius: 0;
+      box-shadow: none;
+      background-image: none;
+    }
+
+    html.logo-text-colors-set button:disabled,
+    html.logo-text-colors-set input:disabled:not([type="checkbox"]):not([type="radio"]) {
+      border: 2px dashed var(--logo-text-foreground);
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    html.logo-text-colors-set select {
+      appearance: auto;
+      border: 1px solid var(--logo-text-foreground);
+      border-radius: 0;
+      box-shadow: none;
     }
   </style>
   <!-- <script src="https://js.sentry-cdn.com/69c35b1afb9269eff3fe9b4e01cb0eab.min.js" crossorigin="anonymous"></script> -->

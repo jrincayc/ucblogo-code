@@ -189,6 +189,18 @@ EM_JS(int, web_get_text_size, (), {
    return Module.fontSize;
 });
 
+EM_JS(void, web_set_text_color, (int foreground, int background), {
+   const colors = Module.graphics.logoColors;
+   const cssColor = (index) => {
+      const {r, g, b} = colors[index] || colors[0];
+      return `rgb(${r}%, ${g}%, ${b}%)`;
+   };
+   const rootStyle = document.documentElement.style;
+   rootStyle.setProperty('--logo-text-foreground', cssColor(foreground));
+   rootStyle.setProperty('--logo-text-background', cssColor(background));
+   document.documentElement.classList.add('logo-text-colors-set');
+});
+
 NODE *lsettextsize(NODE *arg)
 {
    NODE *val = integer_arg(arg);
@@ -200,6 +212,31 @@ NODE *lsettextsize(NODE *arg)
 NODE *ltextsize(NODE *arg)
 {
    return make_intnode(web_get_text_size());
+}
+
+NODE *set_text_color(NODE *args)
+{
+   NODE *foreground;
+   NODE *background;
+
+   if (is_list(car(args))) {
+      foreground = make_intnode(TEXT_FG_COLOR_OFFSET);
+      lsetpalette(cons(foreground, args));
+   } else {
+      foreground = pos_int_arg(args);
+   }
+
+   if (is_list(cadr(args))) {
+      background = make_intnode(TEXT_BG_COLOR_OFFSET);
+      lsetpalette(cons(background, cdr(args)));
+   } else {
+      background = pos_int_arg(cdr(args));
+   }
+
+   if (NOT_THROWING)
+      web_set_text_color(getint(foreground), getint(background));
+
+   return UNBOUND;
 }
 
 NODE *lsetlabelheight(NODE *arg)

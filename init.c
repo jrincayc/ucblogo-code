@@ -429,7 +429,7 @@ PRIMTYPE prims[] = {
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
     {"setshape", 1, 1, 1, PREFIX_PRIORITY, lsetshape},
-#if defined(WIN32)|defined(HAVE_WX)
+#if defined(WIN32) || defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
 #endif
