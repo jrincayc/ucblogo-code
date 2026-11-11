@@ -35,12 +35,60 @@ Module.onRuntimeInitialized = () => {
 
 Module.graphics = {};
 Module.visualBell = false;
-Module.fontSize = 16;
+const SETTINGS_STORAGE_KEY = 'ucblogo.settings';
+const SHAPE_RENDERING_MODES = ['geometricprecision', 'crispedges', 'optimizespeed'];
+let storedSettings = {};
+try {
+    const parsedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    if (parsedSettings && typeof parsedSettings === 'object' && !Array.isArray(parsedSettings))
+        storedSettings = parsedSettings;
+} catch (error) {}
+let legacyFontSize = 16;
 try {
     const storedFontSize = localStorage.getItem('ucblogo.fontSize');
     if (storedFontSize !== null && Number.isFinite(Number(storedFontSize)))
-        Module.fontSize = Number(storedFontSize);
+        legacyFontSize = Number(storedFontSize);
 } catch (error) {}
+const storedSize = Number(storedSettings.fontSize ?? legacyFontSize);
+Module.settings = {
+    fontSize: Number.isFinite(storedSize) ? Math.min(48, Math.max(5, Math.round(storedSize))) : 16,
+    shapeRenderingMode: SHAPE_RENDERING_MODES.includes(storedSettings.shapeRenderingMode)
+        ? storedSettings.shapeRenderingMode : 'geometricprecision',
+    speakOutput: typeof storedSettings.speakOutput === 'boolean' ? storedSettings.speakOutput : false,
+    visualBell: typeof storedSettings.visualBell === 'boolean' ? storedSettings.visualBell : false,
+};
+Module.fontSize = Module.settings.fontSize;
+Module.visualBell = Module.settings.visualBell;
+Module.graphics.speakOutput = Module.settings.speakOutput;
+Module.saveSettings = () => {
+    try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(Module.settings));
+    } catch (error) {
+        console.trace(error);
+    }
+};
+Module.setShapeRendering = (mode) => {
+    if (!SHAPE_RENDERING_MODES.includes(mode)) return;
+    Module.settings.shapeRenderingMode = mode;
+    if (typeof document !== 'undefined') {
+        const drawing = document.getElementById('logoDrawing');
+        if (drawing) drawing.style.setProperty('shape-rendering', mode);
+        document.querySelectorAll('[name="shapeRenderingMode"]').forEach((input) => {
+            input.checked = input.value === mode;
+        });
+    }
+    Module.saveSettings();
+};
+Module.setSpeakOutput = (enabled) => {
+    const shouldSpeak = enabled === true;
+    Module.graphics.speakOutput = shouldSpeak;
+    Module.settings.speakOutput = shouldSpeak;
+    if (typeof document !== 'undefined') {
+        const speakOutputSelect = document.getElementById('speakOutputSelect');
+        if (speakOutputSelect) speakOutputSelect.checked = shouldSpeak;
+    }
+    Module.saveSettings();
+};
 
 Module.setFontSize = (size) => {
     if (typeof document === 'undefined') return;
@@ -52,11 +100,8 @@ Module.setFontSize = (size) => {
     Module.fontSize = Math.min(maxSize, Math.max(minSize, Math.round(parsedSize)));
     document.getElementById('logoFontSize').sheet.cssRules[0].style.fontSize = `${Module.fontSize}px`;
     fontSizeInput.value = Module.fontSize;
-    try {
-        localStorage.setItem('ucblogo.fontSize', String(Module.fontSize));
-    } catch (error) {
-        console.trace(error);
-    }
+    Module.settings.fontSize = Module.fontSize;
+    Module.saveSettings();
 };
 
 Module.graphics.logoColors = [
@@ -287,13 +332,28 @@ Module.graphics.graphics_init = () => {
         window.visualViewport.addEventListener('resize', Module.graphics.onresize);
         Module.graphics.dispatchResize();
         Module.setFontSize(Module.fontSize);
+        const shapeRenderingMode = Module.settings.shapeRenderingMode;
+        document.querySelectorAll('[name="shapeRenderingMode"]').forEach((input) => {
+            input.checked = input.value === shapeRenderingMode;
+            input.addEventListener('change', (event) => {
+                if (!event.target.checked) return;
+                Module.setShapeRendering(event.target.value);
+            });
+        });
+        ld.style.setProperty('shape-rendering', shapeRenderingMode);
         document.getElementById('logoInputText').focus();
-        document.getElementById('speakOutputSelect').addEventListener('click', (e)=>{
-            Module.graphics.speakOutput = e.target.checked;
-        })
-        document.getElementById('visualBellSelect').addEventListener('change', (e)=>{
-            Module.visualBell = e.target.checked;
-        })
+        const speakOutputSelect = document.getElementById('speakOutputSelect');
+        speakOutputSelect.checked = Module.settings.speakOutput;
+        speakOutputSelect.addEventListener('change', (event) => {
+            Module.setSpeakOutput(event.target.checked);
+        });
+        const visualBellSelect = document.getElementById('visualBellSelect');
+        visualBellSelect.checked = Module.settings.visualBell;
+        visualBellSelect.addEventListener('change', (event) => {
+            Module.visualBell = event.target.checked;
+            Module.settings.visualBell = event.target.checked;
+            Module.saveSettings();
+        });
     }
     if (document.readyState === 'loading')
         window.addEventListener('DOMContentLoaded', inner_graphics_init, {once: true});

@@ -9,15 +9,6 @@ to runjs :js
 end
 bury "runjs
 
-to setshaperendering :mode
-if not member? :mode [geometricprecision crispedges optimizespeed] [
-    (pr :mode [must be one of geometricprecision crispedges or optimizespeed])
-    stop
-]
-ignore runjs (word "|document.getElementById('logoDrawing').style.setProperty('shape-rendering', '| :mode "|')|)
-end
-bury "setshaperendering
-
 to makesprite :spritename
 ignore runjs apply "word `[Module.makeSprite(' ,:spritename ')]
 end
@@ -60,14 +51,6 @@ end
 
 to speak :utterance
 ignore runjs `[Module.speak(" ,@:utterance \")]
-end
-
-to setspeakoutput [:enable "true]
-ifelse :enable [
-  ignore runjs "|Module.graphics.speakOutput = true|
-] [
-  ignore runjs "|Module.graphics.speakOutput = false|
-]
 end
 
 buryall

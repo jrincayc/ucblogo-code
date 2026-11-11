@@ -1,0 +1,240 @@
+const { spawn } = require('node:child_process');
+const net = require('node:net');
+const path = require('node:path');
+const { expect } = require('chai');
+const { Builder, By, Key, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox');
+
+const repositoryRoot = path.resolve(__dirname, '../..');
+const browserNames = (process.env.BROWSERS || 'chrome,firefox')
+    .split(',').map((name) => name.trim()).filter(Boolean);
+const headless = process.env.HEADLESS !== '0';
+const testDelayMs = Math.max(0, Number(process.env.TEST_DELAY_MS) || 0);
+let emrunProcess;
+let applicationUrl;
+
+function findOpenPort() {
+    return new Promise((resolve, reject) => {
+        const server = net.createServer();
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', () => {
+            const { port } = server.address();
+            server.close((error) => error ? reject(error) : resolve(port));
+        });
+    });
+}
+
+async function startApplicationServer() {
+    if (process.env.UCBOLOGO_TEST_URL) {
+        applicationUrl = process.env.UCBOLOGO_TEST_URL;
+        return;
+    }
+
+    const port = await findOpenPort();
+    applicationUrl = `http://127.0.0.1:${port}/ucblogo.html`;
+    let launchError;
+    emrunProcess = spawn(process.env.EMRUN || 'emrun', [
+        '--no-browser', '--port', String(port), 'ucblogo.html',
+    ], { cwd: repositoryRoot, stdio: 'inherit' });
+    emrunProcess.once('error', (error) => { launchError = error; });
+
+    const deadline = Date.now() + 30000;
+    while (Date.now() < deadline) {
+        if (launchError) throw launchError;
+        if (emrunProcess.exitCode !== null)
+            throw new Error(`emrun exited with code ${emrunProcess.exitCode}`);
+        try {
+            const response = await fetch(applicationUrl);
+            if (response.ok) return;
+        } catch (error) {}
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+    throw new Error(`Timed out waiting for emrun at ${applicationUrl}`);
+}
+
+async function stopApplicationServer() {
+    if (!emrunProcess || emrunProcess.exitCode !== null) return;
+    const exited = new Promise((resolve) => emrunProcess.once('exit', resolve));
+    emrunProcess.kill('SIGTERM');
+    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 3000))]);
+}
+
+function createDriver(browserName) {
+    const builder = new Builder().forBrowser(browserName);
+    if (browserName === 'chrome') {
+        const options = new chrome.Options().addArguments('--no-sandbox', '--disable-dev-shm-usage');
+        if (headless) options.addArguments('--headless=new');
+        if (process.env.CHROME_BINARY) options.setChromeBinaryPath(process.env.CHROME_BINARY);
+        builder.setChromeOptions(options);
+    } else if (browserName === 'firefox') {
+        const options = new firefox.Options();
+        if (headless) options.addArguments('-headless');
+        if (process.env.FIREFOX_BINARY) options.setBinary(process.env.FIREFOX_BINARY);
+        builder.setFirefoxOptions(options);
+    } else {
+        throw new Error(`Unsupported browser: ${browserName}`);
+    }
+    return builder.build();
+}
+
+async function pauseForViewer(driver) {
+    if (testDelayMs) await driver.sleep(testDelayMs);
+}
+
+async function clickVisible(driver, locator) {
+    await driver.findElement(locator).click();
+    await pauseForViewer(driver);
+}
+
+async function runLogo(driver, command) {
+    const input = await driver.findElement(By.id('logoInputText'));
+    await input.clear();
+    await input.sendKeys(command, Key.ENTER);
+    await pauseForViewer(driver);
+}
+
+async function waitForLogoReady(driver) {
+    await driver.wait(until.elementLocated(By.id('logoInputText')), 30000);
+    await driver.wait(async () => driver.executeScript(() => Boolean(
+        window.Module && Module.calledRun && Module.settings &&
+        document.getElementById('logoInputText') &&
+        !document.getElementById('logoInputText').disabled
+    )), 30000, 'Logo runtime did not become ready');
+}
+
+describe('settings persistence acceptance', function () {
+    this.timeout(120000);
+
+    before(startApplicationServer);
+    after(stopApplicationServer);
+
+    for (const browserName of browserNames) {
+        describe(browserName, function () {
+            this.timeout(90000);
+            let driver;
+
+            before(async function () {
+                driver = await createDriver(browserName);
+                await driver.manage().setTimeouts({ implicit: 0, pageLoad: 30000 });
+            });
+
+            after(async function () {
+                if (driver) await driver.quit();
+            });
+
+            it('binds variadic runjs parameters as values', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                const result = await driver.executeScript(
+                    () => Module.runjs('arg0 + ":" + arg1', 'bound value', 42),
+                );
+                expect(result).to.equal('bound value:42');
+            });
+
+            it('binds variadic runjs parameters from Logo', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver,
+                    `print runjs "|arg0 + ':' + arg1| "|bound value| 42`,
+                );
+                await driver.wait(async () => (await driver.findElement(By.id('output')))
+                    .getText().then((text) => text.includes('bound value:42')),
+                10000, 'Logo runjs did not bind its string and numeric rest inputs');
+            });
+
+            it('persists Logo and dialog settings and restores their effects after reload', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                await pauseForViewer(driver);
+
+                await driver.executeScript('localStorage.clear()');
+                await driver.navigate().refresh();
+                await waitForLogoReady(driver);
+                await pauseForViewer(driver);
+
+                const initialFontSize = await driver.executeScript(() => Module.fontSize);
+                expect(initialFontSize).to.be.lessThan(48);
+
+                await clickVisible(driver, By.css('button[onclick*="settings"]'));
+                await clickVisible(driver, By.css(
+                    'input[name="shapeRenderingMode"][value="optimizespeed"]',
+                ));
+                await clickVisible(driver, By.id('speakOutputSelect'));
+                await clickVisible(driver, By.id('visualBellSelect'));
+                await clickVisible(driver, By.css('#settings button'));
+
+                await runLogo(driver, 'increasefont');
+                await driver.wait(async () => driver.executeScript(
+                    (expected) => Module.fontSize === expected + 1,
+                    initialFontSize,
+                ), 10000, 'increasefont did not change the font size');
+
+                const settingsBeforeReload = await driver.executeScript(() =>
+                    JSON.parse(localStorage.getItem('ucblogo.settings')),
+                );
+                expect(settingsBeforeReload).to.include({
+                    fontSize: initialFontSize + 1,
+                    shapeRenderingMode: 'optimizespeed',
+                    speakOutput: true,
+                    visualBell: true,
+                });
+
+                await driver.navigate().refresh();
+                await waitForLogoReady(driver);
+                await pauseForViewer(driver);
+                await driver.wait(async () => driver.executeScript(() =>
+                    document.getElementById('speakOutputSelect').checked &&
+                    document.getElementById('visualBellSelect').checked &&
+                    document.querySelector(
+                        '[name="shapeRenderingMode"]:checked',
+                    ).value === 'optimizespeed'
+                ), 10000, 'settings dialog did not restore persisted preferences');
+
+                const restoredEffects = await driver.executeScript(() => ({
+                    fontSize: document.querySelector('#logoFontSize').sheet
+                        .cssRules[0].style.fontSize,
+                    shapeRendering: document.getElementById('logoDrawing').style
+                        .getPropertyValue('shape-rendering'),
+                    speakOutput: Module.graphics.speakOutput,
+                    visualBell: Module.visualBell,
+                }));
+                expect(restoredEffects).to.deep.equal({
+                    fontSize: `${initialFontSize + 1}px`,
+                    shapeRendering: 'optimizespeed',
+                    speakOutput: true,
+                    visualBell: true,
+                });
+
+                const speechSupported = await driver.executeScript(() => {
+                    if (typeof Module.speak !== 'function' || !window.speechSynthesis)
+                        return false;
+                    window.__logoSpeechCalls = [];
+                    const speak = Module.speak;
+                    Module.speak = (text) => {
+                        window.__logoSpeechCalls.push(text);
+                        speak(text);
+                    };
+                    window._tone = () => {};
+                    return true;
+                });
+                expect(speechSupported, 'browser speech synthesis support').to.equal(true);
+
+                await runLogo(driver, 'print "SETTINGS_SPEECH_ACCEPTANCE');
+                await driver.wait(async () => driver.executeScript(() =>
+                    window.__logoSpeechCalls.some((text) =>
+                        text.includes('SETTINGS_SPEECH_ACCEPTANCE'))
+                ), 10000, 'Logo output was not sent to speech synthesis');
+
+                await runLogo(driver, 'type char 7');
+                await driver.wait(async () => driver.executeScript(() => {
+                    const indicator = document.getElementById('bellIndicator');
+                    return !indicator.hidden && indicator.classList.contains('is-visible');
+                }), 5000, 'printing the bell character did not show the visual bell');
+                expect(await driver.findElement(By.id('bellIndicator')).getText()).to.equal('BELL');
+            });
+        });
+    }
+});
