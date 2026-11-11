@@ -348,6 +348,24 @@ describe('settings persistence acceptance', function () {
                 });
             });
 
+            it('keeps SVG label size independent of Logo text size', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'settextsize 24');
+                await runLogo(driver, 'label "SVG');
+
+                const labelSize = await driver.executeScript(() => {
+                    const labels = document.querySelectorAll('#logoDrawingElements text');
+                    const label = labels[labels.length - 1];
+                    return {
+                        rendered: getComputedStyle(label).fontSize,
+                        drawingSize: `${Module.graphics.pen_info.fntsz}px`,
+                    };
+                });
+                expect(labelSize.rendered).to.equal(labelSize.drawingSize);
+            });
+
             it('applies dark mode and follows the system preference', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);

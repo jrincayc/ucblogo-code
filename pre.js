@@ -479,7 +479,7 @@ Module.graphics.label = (s) => {
     const el = document.createElementNS(SVG, 'text');
     el.textContent = UTF8ToString(s);
     el.style.setProperty('fill', `var(--logo-color-${pen_info.c})`);
-    el.setAttribute('font-size', pen_info.fntsz);
+    el.style.setProperty('font-size', `${pen_info.fntsz}px`);
     el.setAttribute('x', pen_info.x);
     el.setAttribute('y', pen_info.y);
     ld.appendChild(el);
