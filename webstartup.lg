@@ -1,14 +1,3 @@
-to runjs :js
-    localmake "oldwriter writer
-    openwrite "/dev/runjs
-    setwrite "/dev/runjs
-    pr :js
-    close "/dev/runjs
-    setwrite :oldwriter
-    op readword
-end
-bury "runjs
-
 to makesprite :spritename
 ignore runjs apply "word `[Module.makeSprite(' ,:spritename ')]
 end

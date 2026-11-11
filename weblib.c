@@ -9,6 +9,7 @@
 #include <emscripten.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdlib.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -17,11 +18,101 @@
 #include "logo.h"
 #include "globals.h"
 
+#define RUNJS_STRING_CHUNK_SIZE 8192
+
 extern void yield_to_js(long);
 
 volatile int LOGO_GIL = 1;
 
 int yield_enabled = 1;
+
+static FILE *runjs_stream;
+
+static int runjs_word_is_ascii(NODE *word) {
+	for (int i = 0; i < getstrlen(word); i++) {
+		unsigned char character = clearparity((unsigned char)getstrptr(word)[i]);
+		if (character > 0x7f) return FALSE;
+	}
+	return TRUE;
+}
+
+static int runjs_write_word(FILE *stream, NODE *word) {
+	for (int i = 0; i < getstrlen(word); i++) {
+		unsigned char character = clearparity((unsigned char)getstrptr(word)[i]);
+		if (character == 0 || character > 0x7f || fputc(character, stream) == EOF)
+			return FALSE;
+	}
+	return TRUE;
+}
+
+NODE *lrunjs(NODE *args) {
+	NODE *code = car(args);
+	NODE *param;
+
+	if (!is_word(code) || is_number(code)) {
+		err_logo(BAD_DATA, code);
+		return UNBOUND;
+	}
+	code = cnv_node_to_strnode(code);
+	if (!runjs_word_is_ascii(code)) {
+		err_logo(BAD_DATA, code);
+		return UNBOUND;
+	}
+
+	for (param = cdr(args); param != NIL; param = cdr(param)) {
+		NODE *value = car(param);
+		if (is_number(value)) continue;
+		if (is_word(value)) {
+			value = cnv_node_to_strnode(value);
+			if (runjs_word_is_ascii(value)) continue;
+		}
+		err_logo(BAD_DATA, value);
+		return UNBOUND;
+	}
+
+	if (runjs_stream == NULL) runjs_stream = fopen("/dev/runjs", "w");
+	if (runjs_stream == NULL) {
+		err_logo(CANT_OPEN_ERROR, make_static_strnode("/dev/runjs"));
+		return UNBOUND;
+	}
+
+	EM_ASM({ Module.runjsResetArgs(); });
+	for (param = cdr(args); param != NIL; param = cdr(param)) {
+		NODE *value = car(param);
+		if (nodetype(value) == INTT) {
+			EM_ASM({ Module.runjsBindArg($0); }, (double)getint(value));
+		} else if (nodetype(value) == FLOATT) {
+			EM_ASM({ Module.runjsBindArg($0); }, getfloat(value));
+		} else {
+			value = cnv_node_to_strnode(value);
+			int length = getstrlen(value);
+			char *buffer = malloc((size_t)length + 1);
+			if (buffer == NULL) {
+				err_logo(OUT_OF_MEM, NIL);
+				return UNBOUND;
+			}
+			for (int i = 0; i < length; i++)
+				buffer[i] = clearparity((unsigned char)getstrptr(value)[i]);
+			buffer[length] = '\0';
+			EM_ASM({
+				let text = String();
+				for (let offset = 0; offset < $1; offset += $2) {
+					text += String.fromCharCode(...HEAPU8.subarray(
+						$0 + offset, Math.min($0 + offset + $2, $0 + $1)));
+				}
+				Module.runjsBindArg(text);
+			}, buffer, length, RUNJS_STRING_CHUNK_SIZE);
+			free(buffer);
+		}
+	}
+
+	if (!runjs_write_word(runjs_stream, code) || fputc('\0', runjs_stream) == EOF ||
+		fflush(runjs_stream) == EOF) {
+		err_logo(FILE_ERROR, make_static_strnode("/dev/runjs"));
+		return UNBOUND;
+	}
+	return lreadword(NIL);
+}
 
 // Yields execution to browser so it can handle events; IE cooperative
 // multitasking.

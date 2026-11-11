@@ -103,6 +103,21 @@ async function waitForLogoReady(driver) {
     )), 30000, 'Logo runtime did not become ready');
 }
 
+async function waitForOutput(driver, expected, message) {
+    try {
+        await driver.wait(async () => (await driver.findElement(By.id('output')))
+            .getText().then((text) => text.includes(expected)), 10000, message);
+    } catch (error) {
+        const state = await driver.executeScript(() => ({
+            output: document.getElementById('output').textContent,
+            input: document.getElementById('logoInputText').value,
+            stdin: Module.FS_runjs_getChar_buffer.slice(0, 120).map((value) =>
+                typeof value === 'string' ? value.charCodeAt(0) : value),
+        }));
+        throw new Error(`${error.message}\nRunjs browser state: ${JSON.stringify(state)}`);
+    }
+}
+
 describe('settings persistence acceptance', function () {
     this.timeout(120000);
 
@@ -136,13 +151,73 @@ describe('settings persistence acceptance', function () {
             it('binds variadic runjs parameters from Logo', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
-
+                await runLogo(driver, 'make "writerBeforeRunjs writer');
                 await runLogo(driver,
-                    `print runjs "|arg0 + ':' + arg1| "|bound value| 42`,
+                    `print (runjs "|arg0 + ':' + arg1 + ':' + arg2| "|bound value| 42 0.5)`,
                 );
+                await waitForOutput(driver, 'bound value:42:0.5',
+                    'Logo runjs did not bind its string and numeric rest inputs');
+                await runLogo(driver, 'print equal? :writerBeforeRunjs writer');
                 await driver.wait(async () => (await driver.findElement(By.id('output')))
-                    .getText().then((text) => text.includes('bound value:42')),
-                10000, 'Logo runjs did not bind its string and numeric rest inputs');
+                    .getText().then((text) => text.includes('true')),
+                10000, 'runjs changed Logo\'s current writer');
+            });
+
+            it('binds a large ordered parameter list from Logo', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                const parameterCount = 128;
+                const expression = Array.from({ length: parameterCount }, (_, index) =>
+                    `${index + 1} * arg${index}`,
+                ).join(' + ');
+                const parameters = Array.from({ length: parameterCount }, (_, index) => index + 1);
+                const expected = parameters.reduce((sum, value) => sum + value * value, 0);
+                const command = `print (runjs "|${expression}| ${parameters.join(' ')})`;
+
+                await runLogo(driver, command);
+                await waitForOutput(driver, String(expected),
+                    `runjs did not preserve all ${parameterCount} bound Logo parameters in order`);
+            });
+
+            it('keeps hostile bound strings as data across a fuzz corpus', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                const corpus = [
+                    `';window.__runjsInjected=true;//`,
+                    `line one\nRUNJS_END\nwindow.__runjsInjected=true`,
+                    `quotes " ' and slash \\`,
+                    `nul\0byte`,
+                    `tab\treturn\rline`,
+                ];
+                const expression = `arg0.length + ':' + arg0.includes('RUNJS_END') + ':' + arg0.includes(String.fromCharCode(10))`;
+                for (const payload of corpus) {
+                    await driver.executeScript('delete window.__runjsInjected');
+                    const logoValue = `(word ${Array.from(payload, (character) =>
+                        `char ${character.charCodeAt(0)}`,
+                    ).join(' ')})`;
+                    await runLogo(driver, `print (runjs "|${expression}| ${logoValue})`);
+                    const expected = `${payload.length}:${payload.includes('RUNJS_END')}:${payload.includes('\n')}`;
+                    await waitForOutput(driver, expected,
+                        `runjs changed fuzz input ${JSON.stringify(payload)}`);
+                    expect(await driver.executeScript('return window.__runjsInjected'))
+                        .to.equal(null);
+                }
+
+                await runLogo(driver, 'make "runjsLongWord "');
+                await runLogo(driver, 'repeat 9000 [make "runjsLongWord word :runjsLongWord "x]');
+                await runLogo(driver, 'print (runjs "|arg0.length| :runjsLongWord)');
+                await waitForOutput(driver, '9000', 'runjs corrupted a long bound Logo word');
+            });
+
+            it('runs multiline JavaScript from a v-barred Logo word', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'load "/tests/runjs-multiline.lg');
+                await waitForOutput(driver, '42',
+                    'runjs did not preserve newlines inside a v-barred code word');
             });
 
             it('persists Logo and dialog settings and restores their effects after reload', async function () {
@@ -233,7 +308,8 @@ describe('settings persistence acceptance', function () {
                     const indicator = document.getElementById('bellIndicator');
                     return !indicator.hidden && indicator.classList.contains('is-visible');
                 }), 5000, 'printing the bell character did not show the visual bell');
-                expect(await driver.findElement(By.id('bellIndicator')).getText()).to.equal('BELL');
+                expect(await driver.findElement(By.id('bellIndicator'))
+                    .getAttribute('textContent')).to.equal('BELL');
             });
         });
     }

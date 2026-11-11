@@ -106,6 +106,7 @@ PRIMTYPE prims[] = {
 #ifdef __EMSCRIPTEN__
     {"animationstart", 0, 0, 0, PREFIX_PRIORITY, lanimationstart},
     {"animationstop", 0, 0, 0, PREFIX_PRIORITY, lanimationstop},
+    {"runjs", 1, 1, -1, PREFIX_PRIORITY, lrunjs},
 #endif
     {"and", 0, 2, -1, PREFIX_PRIORITY, land},
     {"apply", 2, 2, 2, MACRO_PRIORITY, lapply},

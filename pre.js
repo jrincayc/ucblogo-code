@@ -207,18 +207,13 @@ Module.preRun = () => {
 
     const runjs_ops = {
         put_char(tty, val) {
-            if (val === 0 || val === 10) {
+            if (val === 0) {
                 Module.runjs(UTF8ArrayToString(tty.output)); tty.output = [];
             } else {
-                if (val != 0) tty.output.push(val);
+                tty.output.push(val);
             }
         },
-        fsync(tty) {
-            if (tty.output?.length > 0) {
-                Module.runjs(UTF8ArrayToString(tty.output));
-                tty.output = [];
-            }
-        },
+        fsync() {},
     };
     const RUNJS_MAJOR = 10;
     TTY.register(FS.makedev(RUNJS_MAJOR, 0), runjs_ops);
@@ -278,17 +273,37 @@ Module.FS_runjs_getChar_buffer_append_str = (str) => {
     document.dispatchEvent(new CustomEvent("getcharready"));
 }
 
-Module.runjs = (expr) => {
+let runjsBoundArgs = [];
+let runjsHasBoundArgs = false;
+Module.runjsResetArgs = () => {
+    runjsBoundArgs = [];
+    runjsHasBoundArgs = true;
+};
+Module.runjsBindArg = (value) => {
+    if (!runjsHasBoundArgs) return;
+    runjsBoundArgs.push(value);
+};
+Module.runjs = (expr, ...explicitParams) => {
     if (typeof document === 'undefined') return;
+    const useBoundArgs = runjsHasBoundArgs;
+    const params = useBoundArgs ? runjsBoundArgs : explicitParams;
+    runjsBoundArgs = [];
+    runjsHasBoundArgs = false;
     let r;
     try {
-        r = eval(expr);
+        if (params.length) {
+            const names = params.map((value, index) => `arg${index}`);
+            r = new Function(...names, `return (${expr});`)(...params);
+        } else {
+            r = eval(expr);
+        }
     }
     catch (error) {
         r = error.toString().replace(/[^\x00-\x7F]/g, '*');
         console.error(error);
         window.alert(r);
     }
+    if (explicitParams.length) return r;
     if (r instanceof Promise) {
         r.then(r2 => Module.FS_runjs_getChar_buffer_append_obj(r2)).catch(window.alert)
     }

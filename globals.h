@@ -665,6 +665,7 @@ extern void dbUsual(const char*);
 #endif
 
 #ifdef __EMSCRIPTEN__
+extern NODE *lrunjs(NODE *args);
 
 // webgraphics.c
 extern NODE *lanimationstart(NODE * word);
