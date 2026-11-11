@@ -348,6 +348,50 @@ describe('settings persistence acceptance', function () {
                 });
             });
 
+            it('applies dark mode and follows the system preference', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'setdarkmode "dark');
+                const darkTheme = await driver.executeScript(() => ({
+                    setting: Module.settings.darkMode,
+                    attribute: document.documentElement.getAttribute('data-theme'),
+                    foreground: getComputedStyle(document.body).color,
+                    background: getComputedStyle(document.body).backgroundColor,
+                    buttonBorderStyle: getComputedStyle(
+                        document.getElementById('logoRunButton'),
+                    ).borderStyle,
+                    buttonBorderColor: getComputedStyle(
+                        document.getElementById('logoRunButton'),
+                    ).borderColor,
+                }));
+                expect(darkTheme).to.deep.equal({
+                    setting: 'dark',
+                    attribute: 'dark',
+                    foreground: 'rgb(229, 231, 235)',
+                    background: 'rgb(23, 26, 31)',
+                    buttonBorderStyle: 'solid',
+                    buttonBorderColor: 'rgb(170, 179, 192)',
+                });
+
+                await runLogo(driver, 'setdarkmode "system');
+                const systemTheme = await driver.executeScript(() => ({
+                    setting: Module.settings.darkMode,
+                    attribute: document.documentElement.hasAttribute('data-theme'),
+                    selected: document.getElementById('darkModeSelect').value,
+                    background: getComputedStyle(document.body).backgroundColor,
+                    expectedBackground: matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'rgb(23, 26, 31)' : 'rgb(255, 255, 255)',
+                }));
+                expect(systemTheme).to.deep.equal({
+                    setting: 'system',
+                    attribute: false,
+                    selected: 'system',
+                    background: systemTheme.expectedBackground,
+                    expectedBackground: systemTheme.expectedBackground,
+                });
+            });
+
             it('sets text colors from palette indices and RGB lists', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
@@ -472,6 +516,46 @@ describe('settings persistence acceptance', function () {
                 });
             });
 
+            it('keeps settextcolor colors when dark mode changes', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'setdarkmode "dark');
+                await runLogo(driver, 'settextcolor [15 21 27] [96 84 80]');
+                const colorsInDarkMode = await driver.executeScript(() => ({
+                    foreground: getComputedStyle(document.getElementById('output')).color,
+                    background: getComputedStyle(
+                        document.getElementById('outputContainer'),
+                    ).backgroundColor,
+                    inputBorder: getComputedStyle(
+                        document.getElementById('logoInputText'),
+                    ).borderColor,
+                }));
+                expect(colorsInDarkMode).to.deep.equal({
+                    foreground: 'rgb(38, 54, 69)',
+                    background: 'rgb(245, 214, 204)',
+                    inputBorder: 'rgb(38, 54, 69)',
+                });
+
+                await runLogo(driver, 'setdarkmode "light');
+                const colorsAfterThemeChange = await driver.executeScript(() => ({
+                    foreground: getComputedStyle(document.getElementById('output')).color,
+                    background: getComputedStyle(
+                        document.getElementById('outputContainer'),
+                    ).backgroundColor,
+                    inputBorder: getComputedStyle(
+                        document.getElementById('logoInputText'),
+                    ).borderColor,
+                    theme: document.documentElement.getAttribute('data-theme'),
+                }));
+                expect(colorsAfterThemeChange).to.deep.equal({
+                    foreground: 'rgb(38, 54, 69)',
+                    background: 'rgb(245, 214, 204)',
+                    inputBorder: 'rgb(38, 54, 69)',
+                    theme: 'light',
+                });
+            });
+
             it('persists Logo and dialog settings and restores their effects after reload', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
@@ -486,6 +570,7 @@ describe('settings persistence acceptance', function () {
                 expect(initialFontSize).to.be.lessThan(48);
 
                 await clickVisible(driver, By.css('button[onclick*="settings"]'));
+                await clickVisible(driver, By.css('#darkModeSelect option[value="dark"]'));
                 await clickVisible(driver, By.css(
                     'input[name="shapeRenderingMode"][value="optimizespeed"]',
                 ));
@@ -504,6 +589,7 @@ describe('settings persistence acceptance', function () {
                 );
                 expect(settingsBeforeReload).to.include({
                     fontSize: initialFontSize + 1,
+                    darkMode: 'dark',
                     shapeRenderingMode: 'optimizespeed',
                     speakOutput: true,
                     visualBell: true,
@@ -515,6 +601,7 @@ describe('settings persistence acceptance', function () {
                 await driver.wait(async () => driver.executeScript(() =>
                     document.getElementById('speakOutputSelect').checked &&
                     document.getElementById('visualBellSelect').checked &&
+                    document.getElementById('darkModeSelect').value === 'dark' &&
                     document.querySelector(
                         '[name="shapeRenderingMode"]:checked',
                     ).value === 'optimizespeed'

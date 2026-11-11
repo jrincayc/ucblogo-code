@@ -52,6 +52,8 @@ try {
 const storedSize = Number(storedSettings.fontSize ?? legacyFontSize);
 Module.settings = {
     fontSize: Number.isFinite(storedSize) ? Math.min(48, Math.max(5, Math.round(storedSize))) : 16,
+    darkMode: ['system', 'light', 'dark'].includes(storedSettings.darkMode)
+        ? storedSettings.darkMode : 'system',
     shapeRenderingMode: SHAPE_RENDERING_MODES.includes(storedSettings.shapeRenderingMode)
         ? storedSettings.shapeRenderingMode : 'geometricprecision',
     speakOutput: typeof storedSettings.speakOutput === 'boolean' ? storedSettings.speakOutput : false,
@@ -60,6 +62,22 @@ Module.settings = {
 Module.fontSize = Module.settings.fontSize;
 Module.visualBell = Module.settings.visualBell;
 Module.graphics.speakOutput = Module.settings.speakOutput;
+Module.setDarkMode = (mode) => {
+    const darkMode = ['system', 'light', 'dark'].includes(String(mode).toLowerCase())
+        ? String(mode).toLowerCase() : 'system';
+    Module.settings.darkMode = darkMode;
+    if (typeof document !== 'undefined') {
+        if (darkMode === 'system')
+            document.documentElement.removeAttribute('data-theme');
+        else
+            document.documentElement.setAttribute('data-theme', darkMode);
+        const selector = document.getElementById('darkModeSelect');
+        if (selector) selector.value = darkMode;
+    }
+    Module.saveSettings();
+};
+if (typeof document !== 'undefined' && Module.settings.darkMode !== 'system')
+    document.documentElement.setAttribute('data-theme', Module.settings.darkMode);
 Module.saveSettings = () => {
     try {
         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(Module.settings));
@@ -351,6 +369,11 @@ Module.graphics.graphics_init = () => {
         window.visualViewport.addEventListener('resize', Module.graphics.onresize);
         Module.graphics.dispatchResize();
         Module.setFontSize(Module.fontSize);
+        const darkModeSelect = document.getElementById('darkModeSelect');
+        darkModeSelect.value = Module.settings.darkMode;
+        darkModeSelect.addEventListener('change', (event) => {
+            Module.setDarkMode(event.target.value);
+        });
         const shapeRenderingMode = Module.settings.shapeRenderingMode;
         document.querySelectorAll('[name="shapeRenderingMode"]').forEach((input) => {
             input.checked = input.value === shapeRenderingMode;

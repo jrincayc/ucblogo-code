@@ -10,6 +10,7 @@
   "scripts": {
     "test": "npm run test:settings",
     "test:settings": "./emscript.sh && mocha tests/acceptance/settings-persistence.test.js",
+    "test:settings:built": "mocha tests/acceptance/settings-persistence.test.js",
     "test:settings:chrome": "BROWSERS=chrome npm run test:settings",
     "test:settings:firefox": "BROWSERS=firefox npm run test:settings"
   },

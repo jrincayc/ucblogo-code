@@ -33,6 +33,10 @@ to speak :utterance
 ignore (runjs "|Module.speak(arg0)| :utterance)
 end
 
+to setdarkmode :mode
+ignore (runjs "|Module.setDarkMode(arg0)| :mode)
+end
+
 buryall
 
 pr [Web Edition Preview]

@@ -318,6 +318,13 @@ Accepted words are
 
 This can also be changed in the settings dialog.
 
+### Color theme
+
+The web edition follows the browser or operating system color preference by
+default. Choose System, Light, or Dark in the settings dialog, or use the Logo
+word `setdarkmode` with `"system`, `"light`, or `"dark`. This choice is saved
+between sessions. `settextcolor` overrides the theme colors.
+
 ### Audio tone word
 
 `tone freq duration`

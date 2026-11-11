@@ -16,6 +16,43 @@
     }
   </style>
   <style>
+    :root {
+      color-scheme: light;
+      --theme-foreground: #111111;
+      --theme-background: #ffffff;
+      --theme-control-border: #767676;
+      --logo-text-foreground: var(--theme-foreground);
+      --logo-text-background: var(--theme-background);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) {
+        color-scheme: dark;
+        --theme-foreground: #e5e7eb;
+        --theme-background: #171a1f;
+        --theme-control-border: #aab3c0;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --theme-foreground: #e5e7eb;
+      --theme-background: #171a1f;
+      --theme-control-border: #aab3c0;
+    }
+
+    button,
+    input[type="button"],
+    input[type="submit"],
+    select {
+      border: 1px solid var(--theme-control-border);
+    }
+
+    body {
+      color: var(--theme-foreground);
+      background-color: var(--theme-background);
+    }
+
     * {
       font-family: ui-monospace,
         Menlo, Monaco,
@@ -158,7 +195,7 @@
       overflow: auto;
       scrollbar-width: thin;
       justify-content: initial;
-      background-color: var(--logo-text-background, white);
+      background-color: var(--logo-text-background, var(--theme-background));
     }
 
     #bellIndicator {
@@ -201,14 +238,14 @@
       /* scrollbar-width: thin; */
       text-wrap-mode: wrap;
       white-space-collapse: preserve;
-      color: var(--logo-text-foreground, black);
+      color: var(--logo-text-foreground, var(--theme-foreground));
       background-color: transparent;
     }
 
     html.logo-text-colors-set body,
     html.logo-text-colors-set body * {
-      color: var(--logo-text-foreground, black);
-      background-color: var(--logo-text-background, white);
+      color: var(--logo-text-foreground, var(--theme-foreground));
+      background-color: var(--logo-text-background, var(--theme-background));
     }
 
     html.logo-text-colors-set input:not([type="checkbox"]):not([type="radio"]),
@@ -465,7 +502,7 @@
       File browser dialog
     </dialog>
     <dialog id="settings">
-      <div style="border-bottom: 1px solid black">Settings</div>
+      <div style="border-bottom: 1px solid currentColor">Settings</div>
       <ul>
         <!-- <li>
           <input type="checkbox">
@@ -497,6 +534,14 @@
                 (no anti-aliasing)</label></input>
             </li>
           </ul>
+        </li>
+        <li>
+          <label for="darkModeSelect">Color theme</label>
+          <select id="darkModeSelect" name="darkMode">
+            <option value="system">Use browser or OS setting</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
         </li>
         <li>
           <label>Font Size</label>
