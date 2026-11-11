@@ -186,6 +186,51 @@
       box-sizing: border-box;
     }
 
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    dialog.dialogWithTitle[open] {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 2rem);
+      max-height: calc(100dvh - 2rem);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    dialog .dialogTitle {
+      display: block;
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 0.3em 0.65em;
+      border-bottom: 2px solid var(--theme-control-border);
+      background-color: var(--theme-foreground);
+      color: var(--theme-background);
+      font-size: 1.05em;
+      font-weight: bold;
+    }
+
+    dialog .dialogBody {
+      min-height: 0;
+      overflow: auto;
+      padding: 0.75em;
+    }
+
+    html.logo-text-colors-set dialog .dialogTitle {
+      border-bottom-color: var(--logo-text-foreground);
+      background-color: var(--logo-text-foreground);
+      color: var(--logo-text-background);
+    }
+
     svg {
       will-change: transform;
     }
@@ -335,60 +380,61 @@
 </head>
 
 <body>
-  <dialog id="orientationPermissionDialog">
-    Please grant permission for Logo to use device orientation sensor
-    <button class="ok">
-      OK
-    </button>
-    <button class="cancel">
-      Cancel
-    </button>
+  <dialog id="orientationPermissionDialog" class="dialogWithTitle" aria-labelledby="orientationPermissionTitle">
+    <h2 id="orientationPermissionTitle" class="dialogTitle">Device orientation permission</h2>
+    <div class="dialogBody">
+      <p>Please grant permission for Logo to use the device orientation sensor.</p>
+      <button type="button" class="ok">
+        OK
+      </button>
+      <button type="button" class="cancel">
+        Cancel
+      </button>
+    </div>
   </dialog>
   <span id="theLetterM" style="
                               position: absolute;
                               visibility: hidden;
                           ">M</span>
-  <figure style="overflow:visible;" id="spinner">
+  <figure style="overflow:visible;" id="spinner" aria-hidden="true">
     <div class="spinner"></div>
-    <center style="margin-top:0.5em"><strong>emscripten</strong></center>
   </figure>
-  <div class="emscripten" id="status">Downloading...</div>
+  <div class="emscripten" id="status" role="status" aria-live="polite" aria-atomic="true">Downloading Logo...</div>
   <div class="emscripten">
-    <progress value="0" max="100" id="progress" hidden=1></progress>
+    <progress value="0" max="100" id="progress" aria-label="Logo download progress" aria-describedby="status" hidden></progress>
   </div>
   <div hidden class="emscripten_border">
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
   </div>
   <div hidden style="display:none" class="emscripten">
-    <input type="checkbox" id="resize">Resize canvas
-    <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+    <input type="checkbox" id="resize"><label for="resize">Resize canvas</label>
+    <input type="checkbox" id="pointerLock" checked><label for="pointerLock">Lock or hide mouse pointer</label>
     &nbsp;&nbsp;&nbsp;
-    <input type="button" value="Fullscreen"
+    <input type="button" value="Fullscreen" aria-label="Enter fullscreen"
       onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
                                                                                 document.getElementById('resize').checked)">
   </div>
 
-  <div id="appContainer" class="appContainer flex col">
+  <main id="appContainer" class="appContainer flex col">
     <div class="flex">
-      <div class="flex">
-        <input multiple id="uploadFileInput" style="display: none" type="file" accept=".lg,.lgo,.logo">
+      <div class="flex" role="group" aria-label="Logo file actions">
+        <input multiple id="uploadFileInput" style="display: none" type="file" accept=".lg,.lgo,.logo" aria-label="Logo files to upload">
         <button type="button" onclick="document.getElementById('uploadFileInput').click()">
-          <label>Upload File</label>
+          Upload Logo Files
         </button>
-        </input>
         <script>
           document.getElementById('uploadFileInput').addEventListener('change', evt => Module.uploadFileButtonClicked(evt));
         </script>
       </div>
 
-      <div class="flex">
-        <button type="button" onclick="Module.downloadSessionClicked(event)">
+      <div class="flex" role="group" aria-label="Session and display actions">
+        <button type="button" aria-label="Download Logo session" onclick="Module.downloadSessionClicked(event)">
           Download session
         </button>
-        <button type="button" onclick="Module.downloadDrawingClicked(event)">
+        <button type="button" aria-label="Download turtle drawing as SVG" onclick="Module.downloadDrawingClicked(event)">
           Download Drawing
         </button>
-        <button type="button" onclick="document.getElementById('settings').open = true">
+        <button type="button" aria-haspopup="dialog" aria-controls="settings" onclick="document.getElementById('settings').showModal()">
           Settings
         </button>
       </div>
@@ -398,7 +444,7 @@
     <div class="" style="position: relative; flex: 1; display: block; min-width: 0; min-height: 0;">
       <svg id="logoDrawing" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"
         style="transform: scale(1, 1); height: 100%; width: 100%; position: absolute;" aria-labelledby="uniqueTitleID"
-        role="group"
+        role="img"
         preserveAspectRatio="xMidYMid meet"
         >
         <title id="uniqueTitleID">Turtle Graphics Drawing</title>
@@ -461,24 +507,26 @@
       <div class="flex col grow">
         <div class="flex grow logoOutputContainer" id="outputContainer">
 
-          <pre readonly class="emscripten logoOutput" id="output"></pre>
+          <pre class="emscripten logoOutput" id="output" role="log" aria-label="Logo output" tabindex="0"></pre>
 
         </div>
 
         <div class="flex">
-          <form id="logoInputForm" class="flex" style="width: 100%">
+          <form id="logoInputForm" class="flex" style="width: 100%" aria-label="Logo command input">
+            <label class="visually-hidden" for="logoInputText">Logo command</label>
             <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" enterkeyhint="enter"
               placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="false"
-              autocomplete="off" autocapitalize="off" autocorrect="off"></input>
+              autocomplete="off" autocapitalize="off" autocorrect="off">
             <select id="commandHistorySelect" style="max-width: 18px;"
+              aria-label="Command history" title="Command history"
               oninput="Module.handleCommandHistorySelectChanged(event)">
             </select>
-            <input id="logoRunButton" type="submit" value="Run"
-              onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
+            <input id="logoRunButton" type="submit" value="Run" aria-label="Run Logo command"
+              onmousedown="event.preventDefault(); document.getElementById('logoInputText').focus()">
             <!-- <input type="submit" value="Pause"
               onmousedown="Module.onpauselogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input> -->
-            <input id="logoStopButton" type="button" value="Stop" disabled
-              onmousedown="Module.onstoplogo(); event.preventDefault(); document.getElementById('logoInputText').focus()"></input>
+            <input id="logoStopButton" type="button" value="Stop" aria-label="Stop Logo command" disabled
+              onmousedown="Module.onstoplogo(); event.preventDefault(); document.getElementById('logoInputText').focus()">
           </form>
         </div>
 
@@ -495,14 +543,15 @@
         </template>
       </file-list>
     </div> -->
-    <dialog id="splash">
-      Splash Dialog
+    <dialog id="splash" class="dialogWithTitle" aria-labelledby="splashTitle">
+      <h2 id="splashTitle" class="dialogTitle">Logo information</h2>
     </dialog>
-    <dialog id="files">
-      File browser dialog
+    <dialog id="files" class="dialogWithTitle" aria-labelledby="filesTitle">
+      <h2 id="filesTitle" class="dialogTitle">Logo files</h2>
     </dialog>
-    <dialog id="settings">
-      <div style="border-bottom: 1px solid currentColor">Settings</div>
+    <dialog id="settings" class="dialogWithTitle" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle" class="dialogTitle">Settings</h2>
+      <div class="dialogBody">
       <ul>
         <!-- <li>
           <input type="checkbox">
@@ -515,25 +564,26 @@
           </input>
         </li> -->
         <li>
-          <label>Shape rendering mode</label>
+          <fieldset>
+            <legend>Shape rendering mode</legend>
           <ul>
             <li>
-              <input type=radio name="shapeRenderingMode" checked value="geometricprecision"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')"><label>Geometric-precision
-                (anti-aliasing)</label>
-              </input>
+              <input id="shapeRenderingGeometric" type="radio" name="shapeRenderingMode" checked value="geometricprecision"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'geometricprecision')">
+              <label for="shapeRenderingGeometric">Geometric precision (anti-aliasing)</label>
             </li>
             <li>
-              <input type=radio name="shapeRenderingMode" value="crispedges"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')"><label>Crisp-edges
-                (no anti-aliasing)</label></input>
+              <input id="shapeRenderingCrisp" type="radio" name="shapeRenderingMode" value="crispedges"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'crispedges')">
+              <label for="shapeRenderingCrisp">Crisp edges (no anti-aliasing)</label>
             </li>
             <li>
-              <input type=radio name="shapeRenderingMode" value="optimizespeed"
-                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')"><label>Optimize-speed
-                (no anti-aliasing)</label></input>
+              <input id="shapeRenderingSpeed" type="radio" name="shapeRenderingMode" value="optimizespeed"
+                onclick="document.getElementById('logoDrawing').style.setProperty('shape-rendering', 'optimizespeed')">
+              <label for="shapeRenderingSpeed">Optimize speed (no anti-aliasing)</label>
             </li>
           </ul>
+          </fieldset>
         </li>
         <li>
           <label for="darkModeSelect">Color theme</label>
@@ -544,39 +594,40 @@
           </select>
         </li>
         <li>
-          <label>Font Size</label>
           <ul>
             <li>
-              <input type="number" name="logoTextSize" value="16" max="48" min="5"
+              <label for="logoTextSizeInput">Logo text size (5 to 48 px)</label>
+              <input id="logoTextSizeInput" type="number" name="logoTextSize" value="16" max="48" min="5"
                 oninput="Module.setFontSize(event.target.value)">
-              <label>Small</label>
-              </input>
             </li>
           </ul>
         </li>
         <li>
           <input type="checkbox" id="speakOutputSelect" name="speakOutput">
-          <label>Speak Logo output</label>
+          <label for="speakOutputSelect">Speak Logo output</label>
         </li>
         <li>
           <input type="checkbox" id="visualBellSelect" name="visualBell">
           <label for="visualBellSelect">Show visual bell indicator</label>
         </li>
       </ul>
-      <button type="button" onclick="document.getElementById('settings').open = false">Ok</button>
+      <button type="button" onclick="document.getElementById('settings').close()">Close settings</button>
+      </div>
     </dialog>
-    <dialog id="editorDialog">
-      <div class="flex col">
-        <div class="flex grow">
+    <dialog id="editorDialog" class="dialogWithTitle" aria-labelledby="editorTitle">
+      <h2 id="editorTitle" class="dialogTitle">Logo editor</h2>
+      <div class="dialogBody flex col">
+        <div class="flex grow editorTextContainer">
+          <label class="visually-hidden" for="editorTextArea">Logo source code</label>
           <textarea id="editorTextArea" spellcheck="false"
               autocomplete="off" autocapitalize="off" autocorrect="off"></textarea>
         </div>
         <div class="flex">
           <button type="button" id="editorApplyButton" onclick="Module.editor.applyClicked(event)">
-            <label>Apply</label>
+            Apply changes
           </button>
           <button type="button" id="editorDiscardButton" onclick="Module.editor.discardClicked(event)">
-            <label>Discard</label>
+            Discard changes
           </button>
         </div>
         <logo-soft-keys></logo-soft-keys>
@@ -585,15 +636,21 @@
         #editorDialog {
           height: 100%;
           width: 100vw;
-          padding: 0px;
-          padding: 8px;
           max-width: none;
           max-height: none;
+          padding: 0;
         }
 
-        #editorDialog>div {
-          height: 100%;
+        #editorDialog>.dialogBody {
+          display: flex;
+          flex: 1 1 auto;
           width: 100%;
+          overflow: hidden;
+        }
+
+        #editorDialog .editorTextContainer {
+          min-height: 0;
+          overflow: hidden;
         }
 
         #editorTextArea {
@@ -602,7 +659,7 @@
         }
       </style>
     </dialog>
-  </div>
+  </main>
 
   <div id="bellIndicator" role="status" aria-live="polite" aria-atomic="true" hidden>BELL</div>
 

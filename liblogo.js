@@ -182,6 +182,9 @@ new_output_context: ()=>{
     newop.style.left = `round(${x_coord}ch, 1px)`;
     newop.setAttribute('id', 'output');
     newop.setAttribute('class', 'emscripten logoOutput');
+    newop.setAttribute('role', 'log');
+    newop.setAttribute('aria-label', 'Logo output');
+    newop.setAttribute('tabindex', '0');
     if (op) op.removeAttribute('id');
     opc.appendChild(newop);
 },

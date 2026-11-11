@@ -232,6 +232,128 @@ describe('settings persistence acceptance', function () {
                 if (driver) await driver.quit();
             });
 
+            it('labels application controls and manages settings dialog focus', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                const semantics = await driver.executeScript(() => {
+                    const labelText = (element) => [...(element.labels || [])]
+                        .map((label) => label.textContent.trim()).join(' ');
+                    const labelledByText = (element) => {
+                        const heading = document.getElementById(
+                            element.getAttribute('aria-labelledby'),
+                        );
+                        return heading && heading.textContent.trim();
+                    };
+                    const settingsButton = document.querySelector(
+                        '#appContainer button[aria-controls="settings"]',
+                    );
+                    return {
+                        labels: {
+                            command: labelText(document.getElementById('logoInputText')),
+                            history: document.getElementById('commandHistorySelect').getAttribute('aria-label'),
+                            run: document.getElementById('logoRunButton').getAttribute('aria-label'),
+                            stop: document.getElementById('logoStopButton').getAttribute('aria-label'),
+                            editor: labelText(document.getElementById('editorTextArea')),
+                            theme: labelText(document.getElementById('darkModeSelect')),
+                            fontSize: labelText(document.getElementById('logoTextSizeInput')),
+                            speak: labelText(document.getElementById('speakOutputSelect')),
+                            visualBell: labelText(document.getElementById('visualBellSelect')),
+                            renderingModes: [...document.querySelectorAll('[name="shapeRenderingMode"]')]
+                                .map(labelText),
+                        },
+                        outputRole: document.getElementById('output').getAttribute('role'),
+                        outputName: document.getElementById('output').getAttribute('aria-label'),
+                        statusRole: document.getElementById('status').getAttribute('role'),
+                        settingsName: labelledByText(document.getElementById('settings')),
+                        editorName: labelledByText(document.getElementById('editorDialog')),
+                        settingsButton: settingsButton && settingsButton.textContent.trim(),
+                        dialogTitles: [...document.querySelectorAll('dialog .dialogTitle')]
+                            .map((title) => ({
+                                text: title.textContent.trim(),
+                                display: getComputedStyle(title).display,
+                                parentIsDialog: title.parentElement.tagName === 'DIALOG',
+                                margin: getComputedStyle(title).margin,
+                                borderBottomWidth: getComputedStyle(title).borderBottomWidth,
+                                fontWeight: getComputedStyle(title).fontWeight,
+                            })),
+                        settingsBodyOverflow: getComputedStyle(
+                            document.querySelector('#settings .dialogBody'),
+                        ).overflowY,
+                        editorBodyOverflow: getComputedStyle(
+                            document.querySelector('#editorDialog .dialogBody'),
+                        ).overflowY,
+                    };
+                });
+                expect(semantics).to.deep.equal({
+                    labels: {
+                        command: 'Logo command',
+                        history: 'Command history',
+                        run: 'Run Logo command',
+                        stop: 'Stop Logo command',
+                        editor: 'Logo source code',
+                        theme: 'Color theme',
+                        fontSize: 'Logo text size (5 to 48 px)',
+                        speak: 'Speak Logo output',
+                        visualBell: 'Show visual bell indicator',
+                        renderingModes: [
+                            'Geometric precision (anti-aliasing)',
+                            'Crisp edges (no anti-aliasing)',
+                            'Optimize speed (no anti-aliasing)',
+                        ],
+                    },
+                    outputRole: 'log',
+                    outputName: 'Logo output',
+                    statusRole: 'status',
+                    settingsName: 'Settings',
+                    editorName: 'Logo editor',
+                    settingsButton: 'Settings',
+                    dialogTitles: [
+                        'Device orientation permission',
+                        'Logo information',
+                        'Logo files',
+                        'Settings',
+                        'Logo editor',
+                    ].map((text) => ({
+                        text,
+                        display: 'block',
+                        parentIsDialog: true,
+                        margin: '0px',
+                        borderBottomWidth: '2px',
+                        fontWeight: '700',
+                    })),
+                    settingsBodyOverflow: 'auto',
+                    editorBodyOverflow: 'hidden',
+                });
+
+                await runLogo(driver, 'setcursor [0 0]');
+                const replacementOutput = await driver.executeScript(() => {
+                    const output = document.getElementById('output');
+                    return {
+                        role: output.getAttribute('role'),
+                        name: output.getAttribute('aria-label'),
+                        tabIndex: output.tabIndex,
+                    };
+                });
+                expect(replacementOutput).to.deep.equal({
+                    role: 'log',
+                    name: 'Logo output',
+                    tabIndex: 0,
+                });
+
+                await clickVisible(driver, By.css('#appContainer button[aria-controls="settings"]'));
+                const modalFocus = await driver.executeScript(() => ({
+                    isModal: document.getElementById('settings').matches(':modal'),
+                    focusIsInside: document.getElementById('settings')
+                        .contains(document.activeElement),
+                }));
+                expect(modalFocus).to.deep.equal({ isModal: true, focusIsInside: true });
+
+                await clickVisible(driver, By.css('#settings button'));
+                expect(await driver.executeScript(() => document.activeElement.textContent.trim()))
+                    .to.equal('Settings');
+            });
+
             it('binds variadic runjs parameters as values', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
