@@ -819,51 +819,51 @@
         if (!(navigator.maxTouchPoints > 0 || window.matchMedia("(any-hover: none)").matches))
           return;
         this.innerHTML = `
-        <div class="flex">
+        <div class="flex" role="group" aria-label="Logo punctuation keys">
           <style>
             .softkey {
               height: 1.75em;
               width: 1.75em;
             }
           </style>
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\\x22')">
-            <label>"</label>
+           <button type="button" class="softkey" aria-label="Insert double quote" onclick="Module.softKeyDown(event, '\\x22')">
+             "
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ':')">
-            <label>:</label>
+           <button type="button" class="softkey" aria-label="Insert colon" onclick="Module.softKeyDown(event, ':')">
+             :
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '[')">
-            <label>[</label>
+           <button type="button" class="softkey" aria-label="Insert left square bracket" onclick="Module.softKeyDown(event, '[')">
+             [
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, ']')">
-            <label>]<label>
+           <button type="button" class="softkey" aria-label="Insert right square bracket" onclick="Module.softKeyDown(event, ']')">
+             ]
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '{')">
-            <label>{<label>
+           <button type="button" class="softkey" aria-label="Insert left curly brace" onclick="Module.softKeyDown(event, '{')">
+             {
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '}')">
-            <label>}<label>
+           <button type="button" class="softkey" aria-label="Insert right curly brace" onclick="Module.softKeyDown(event, '}')">
+             }
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '<')">
-            <label>&lt;<label>
+           <button type="button" class="softkey" aria-label="Insert less-than sign" onclick="Module.softKeyDown(event, '<')">
+             &lt;
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '>')">
-            <label>&gt;<label>
+           <button type="button" class="softkey" aria-label="Insert greater-than sign" onclick="Module.softKeyDown(event, '>')">
+             &gt;
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '|')">
-            <label>|<label>
+           <button type="button" class="softkey" aria-label="Insert vertical bar" onclick="Module.softKeyDown(event, '|')">
+             |
           </button>
 
-          <button type="button" class="softkey" onmousedown="Module.softKeyDown(event, '\`')">
-            <label>\`<label>
+           <button type="button" class="softkey" aria-label="Insert backtick" onclick="Module.softKeyDown(event, '\\x60')">
+             \`
           </button>
         </div>
         `;

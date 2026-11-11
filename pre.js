@@ -980,16 +980,16 @@ Module.editor.edit = async (filepath) => {
     })
 }
 Module.softKeyDown = (event, key) => {
-    event.preventDefault(); // Stop button from taking focus
     const inputtext = document.getElementById('logoInputText');
     const editor = document.getElementById('editorDialog');
     const editortext = document.getElementById('editorTextArea');
     const targettext = editor.open ? editortext : inputtext;
-    const {selectionStart} = targettext;
+    const {selectionStart, selectionEnd} = targettext;
     targettext.value = targettext.value.slice(0, selectionStart)
-        + key + targettext.value.slice(selectionStart, targettext.value.length);
+        + key + targettext.value.slice(selectionEnd, targettext.value.length);
     targettext.focus();
-    targettext.setSelectionRange(selectionStart+1, selectionStart+1);
+    const caretPosition = selectionStart + key.length;
+    targettext.setSelectionRange(caretPosition, caretPosition);
     return false;
 }
 

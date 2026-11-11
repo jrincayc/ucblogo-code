@@ -1,6 +1,8 @@
 const { spawn } = require('node:child_process');
+const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
+const vm = require('node:vm');
 const { expect } = require('chai');
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
@@ -118,6 +120,98 @@ async function waitForOutput(driver, expected, message) {
     }
 }
 
+function makeTextControl(value, selectionStart, selectionEnd) {
+    return {
+        value,
+        selectionStart,
+        selectionEnd,
+        focus() { this.focused = true; },
+        setSelectionRange(start, end) {
+            this.selectionStart = start;
+            this.selectionEnd = end;
+        },
+    };
+}
+
+function loadSoftKeyHandler(controls) {
+    const source = fs.readFileSync(path.join(repositoryRoot, 'pre.js'), 'utf8');
+    const handler = source.match(/Module\.softKeyDown = \(event, key\) => \{[\s\S]*?\n\};/);
+    expect(handler, 'soft-key handler source').not.to.equal(null);
+    const Module = {};
+    const document = {
+        getElementById(id) {
+            return controls[id];
+        },
+    };
+    vm.runInNewContext(handler[0], { Module, document });
+    return Module.softKeyDown;
+}
+
+describe('soft-key accessibility', function () {
+    it('provides named click buttons in a named group without changing their size', function () {
+        const shell = fs.readFileSync(path.join(repositoryRoot, 'shell.html'), 'utf8');
+        const applicationScript = shell.match(/<script type='text\/javascript'>\s*([\s\S]*?)\s*<\/script>/);
+        const component = shell.match(/class LogoSoftKeys extends HTMLElement \{([\s\S]*?)customElements\.define\("logo-soft-keys", LogoSoftKeys\);/);
+        expect(applicationScript, 'application script source').not.to.equal(null);
+        expect(() => new vm.Script(applicationScript[1]), 'application script syntax')
+            .not.to.throw();
+        expect(component, 'soft-key component source').not.to.equal(null);
+        const source = component[1];
+        const buttons = [...source.matchAll(/<button\b[^>]*aria-label="([^"]+)"[^>]*onclick="Module\.softKeyDown\(event, /g)];
+
+        expect(source).to.include('role="group" aria-label="Logo punctuation keys"');
+        expect(buttons.map((button) => button[1])).to.deep.equal([
+            'Insert double quote',
+            'Insert colon',
+            'Insert left square bracket',
+            'Insert right square bracket',
+            'Insert left curly brace',
+            'Insert right curly brace',
+            'Insert less-than sign',
+            'Insert greater-than sign',
+            'Insert vertical bar',
+            'Insert backtick',
+        ]);
+        expect(source).not.to.include('onmousedown=');
+        expect(source).not.to.include('<label');
+        expect(source).to.include('height: 1.75em;');
+        expect(source).to.include('width: 1.75em;');
+    });
+
+    it('replaces selected command text and restores the caret', function () {
+        const input = makeTextControl('draw turtle', 5, 11);
+        const editor = { open: false };
+        const handler = loadSoftKeyHandler({
+            logoInputText: input,
+            editorDialog: editor,
+            editorTextArea: makeTextControl('', 0, 0),
+        });
+
+        handler({}, '[');
+
+        expect(input.value).to.equal('draw [');
+        expect(input.selectionStart).to.equal(6);
+        expect(input.selectionEnd).to.equal(6);
+        expect(input.focused).to.equal(true);
+    });
+
+    it('replaces selected editor text and restores the caret', function () {
+        const editorText = makeTextControl('abcXYZdef', 3, 6);
+        const handler = loadSoftKeyHandler({
+            logoInputText: makeTextControl('', 0, 0),
+            editorDialog: { open: true },
+            editorTextArea: editorText,
+        });
+
+        handler({}, '`');
+
+        expect(editorText.value).to.equal('abc`def');
+        expect(editorText.selectionStart).to.equal(4);
+        expect(editorText.selectionEnd).to.equal(4);
+        expect(editorText.focused).to.equal(true);
+    });
+});
+
 describe('settings persistence acceptance', function () {
     this.timeout(120000);
 
@@ -146,6 +240,40 @@ describe('settings persistence acceptance', function () {
                     () => Module.runjs('arg0 + ":" + arg1', 'bound value', 42),
                 );
                 expect(result).to.equal('bound value:42');
+            });
+
+            it('returns focus to the Logo command input after a soft-key click', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                await driver.executeScript(() => {
+                    const input = document.getElementById('logoInputText');
+                    input.value = 'draw turtle';
+                    input.setSelectionRange(5, 11);
+                    const button = document.createElement('button');
+                    button.id = 'softKeyFocusTestButton';
+                    button.type = 'button';
+                    button.setAttribute('aria-label', 'Insert left square bracket');
+                    button.style.position = 'fixed';
+                    button.style.top = '0';
+                    button.style.left = '0';
+                    button.addEventListener('click', (event) =>
+                        Module.softKeyDown(event, '['));
+                    document.body.appendChild(button);
+                });
+
+                await clickVisible(driver, By.id('softKeyFocusTestButton'));
+                const focusState = await driver.executeScript(() => ({
+                    activeElementId: document.activeElement.id,
+                    inputValue: document.getElementById('logoInputText').value,
+                    selectionStart: document.getElementById('logoInputText').selectionStart,
+                    selectionEnd: document.getElementById('logoInputText').selectionEnd,
+                }));
+                expect(focusState).to.deep.equal({
+                    activeElementId: 'logoInputText',
+                    inputValue: 'draw [',
+                    selectionStart: 6,
+                    selectionEnd: 6,
+                });
             });
 
             it('binds variadic runjs parameters from Logo', async function () {
