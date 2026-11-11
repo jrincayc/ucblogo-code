@@ -1,9 +1,9 @@
 to makesprite :spritename
-ignore runjs apply "word `[Module.makeSprite(' ,:spritename ')]
+ignore (runjs "|Module.makeSprite(arg0)| :spritename)
 end
 
 to setturtlesprite :spritename
-ignore runjs apply "word `[Module.setTurtle(' ,:spritename ')]
+ignore (runjs "|Module.setTurtle(arg0)| :spritename)
 end
 
 ; warning: might return unicode stripped to 7 bit ascii (ie corrupted)
@@ -14,32 +14,23 @@ output parse runjs "|speechSynthesis.getVoices().map(({name, lang})=>[name, lang
 end
 
 to setspeechlang :lang
-ignore runjs (se 
-"|Module.utterance.lang = "|
-:lang "\")
+ignore (runjs "|Module.utterance.lang = arg0| :lang)
 end
 
 to setspeechpitch :pitch
-ignore runjs (se 
-"|Module.utterance.pitch = "|
-:pitch  "\")
+ignore (runjs "|Module.utterance.pitch = arg0| :pitch)
 end
 
 to setspeechrate :rate
-ignore runjs `[Module.utterance.rate=" ,@:rate \"]
+ignore (runjs "|Module.utterance.rate = arg0| :rate)
 end
 
 to setspeechvoice :voice
-ignore runjs (word
-"|const v = speechSynthesis.getVoices()|
-"|.filter((v)=>(v.name==="| :voice "|"))[0];|
-"|if (v) {Module.utterance.voice=v}|
-"|else {alert("failed to load voice")}|
-)
+ignore (runjs "|Module.setSpeechVoice(arg0)| :voice)
 end
 
 to speak :utterance
-ignore runjs `[Module.speak(" ,@:utterance \")]
+ignore (runjs "|Module.speak(arg0)| :utterance)
 end
 
 buryall

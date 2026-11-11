@@ -1195,6 +1195,16 @@ if (typeof SpeechSynthesisUtterance !== 'undefined') {
             speechSynthesis.speak(Module.utterance);
         }
     }
+
+    Module.setSpeechVoice = (name) => {
+        const voice = speechSynthesis.getVoices().find((candidate) => candidate.name === name);
+        if (!voice) {
+            window.alert('failed to load voice');
+            return false;
+        }
+        Module.utterance.voice = voice;
+        return true;
+    };
 }
 
 Module.charmode_on = ()=>{

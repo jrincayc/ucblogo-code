@@ -180,6 +180,95 @@ describe('settings persistence acceptance', function () {
                     `runjs did not preserve all ${parameterCount} bound Logo parameters in order`);
             });
 
+            it('passes sprite names to make and set turtle commands as bound values', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+
+                await runLogo(driver, 'makesprite "runjsSpriteAcceptance');
+                await runLogo(driver, 'setturtlesprite "runjsSpriteAcceptance');
+                const spriteState = await driver.executeScript(() => ({
+                    exists: Boolean(document.getElementById('logoSpriterunjsSpriteAcceptance')),
+                    turtleHref: document.getElementById('logoTurtleUse').getAttribute('href'),
+                }));
+                expect(spriteState).to.deep.equal({
+                    exists: true,
+                    turtleHref: '#logoSpriterunjsSpriteAcceptance',
+                });
+            });
+
+            it('passes speech configuration and speak text as bound values', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                const speechSupported = await driver.executeScript(() => {
+                    if (!window.speechSynthesis || !Module.utterance || !Module.setSpeechVoice)
+                        return false;
+                    window.__selectedVoiceName = null;
+                    Module.setSpeechVoice = (name) => {
+                        window.__selectedVoiceName = name;
+                        return true;
+                    };
+                    window.__runjsSpoken = [];
+                    speechSynthesis.speak = (utterance) => {
+                        window.__runjsSpoken.push({
+                            text: utterance.text,
+                            lang: utterance.lang,
+                            pitch: utterance.pitch,
+                            rate: utterance.rate,
+                            voice: utterance.voice && utterance.voice.name,
+                        });
+                    };
+                    return true;
+                });
+                expect(speechSupported, 'browser speech synthesis support').to.equal(true);
+
+                await runLogo(driver, 'setspeechlang "en-US');
+                await runLogo(driver, 'setspeechpitch 1.25');
+                await runLogo(driver, 'setspeechrate 0.75');
+                await runLogo(driver, 'setspeechvoice "BoundVoiceAcceptance');
+                await runLogo(driver, 'speak "|bound speech phrase|');
+
+                await driver.wait(async () => driver.executeScript(() =>
+                    window.__runjsSpoken.some((call) => call.text === 'bound speech phrase')
+                ), 10000, 'Logo speak did not pass its utterance as a bound value');
+                const speechState = await driver.executeScript(() => ({
+                    lang: Module.utterance.lang,
+                    pitch: Module.utterance.pitch,
+                    rate: Module.utterance.rate,
+                    voice: window.__selectedVoiceName,
+                    spoken: window.__runjsSpoken.at(-1),
+                }));
+                expect(speechState).to.deep.equal({
+                    lang: 'en-US',
+                    pitch: 1.25,
+                    rate: 0.75,
+                    voice: 'BoundVoiceAcceptance',
+                    spoken: {
+                        text: 'bound speech phrase',
+                        lang: 'en-US',
+                        pitch: 1.25,
+                        rate: 0.75,
+                        voice: null,
+                    },
+                });
+            });
+
+            it('parses getvoices results through the Logo-to-JS bridge', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                const speechSupported = await driver.executeScript(() => {
+                    if (!window.speechSynthesis) return false;
+                    speechSynthesis.getVoices = () => [
+                        { name: 'GetVoicesAcceptance', lang: 'en-US' },
+                    ];
+                    return true;
+                });
+                expect(speechSupported, 'browser speech synthesis support').to.equal(true);
+
+                await runLogo(driver, 'print first first getvoices');
+                await waitForOutput(driver, 'GetVoicesAcceptance',
+                    'getvoices did not return and parse the BLON result');
+            });
+
             it('keeps hostile bound strings as data across a fuzz corpus', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);
