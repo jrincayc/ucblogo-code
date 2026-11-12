@@ -8,7 +8,12 @@ const firefox = require('selenium-webdriver/firefox');
 const { createApplicationServer } = require('./application-server');
 
 const repositoryRoot = path.resolve(__dirname, '../..');
-const browserNames = (process.env.BROWSERS || 'chrome,firefox')
+const browserArgumentIndex = process.argv.indexOf('--browsers');
+const browserOption = process.argv.find((argument) => argument.startsWith('--browsers='));
+const browserArgument = browserOption
+    ? browserOption.slice('--browsers='.length)
+    : browserArgumentIndex >= 0 ? process.argv[browserArgumentIndex + 1] : undefined;
+const browserNames = (browserArgument || process.env.BROWSERS || 'chrome')
     .split(',').map((name) => name.trim()).filter(Boolean);
 const headless = process.env.HEADLESS !== '0';
 const testDelayMs = Math.max(0, Number(process.env.TEST_DELAY_MS) || 0);
@@ -56,6 +61,67 @@ async function waitForLogoReady(driver) {
         document.getElementById('logoInputText') &&
         !document.getElementById('logoInputText').disabled
     )), 30000, 'Logo runtime did not become ready');
+}
+
+async function setViewport(driver, orientation, width, height) {
+    await driver.manage().window().setRect({ width, height });
+    await driver.wait(async () => driver.executeScript(() => {
+        const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        const configuredHeight = Number.parseFloat(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue('--app-viewport-height'),
+        );
+        const appHeight = document.getElementById('appContainer')
+            .getBoundingClientRect().height;
+        return {
+            isLandscape: window.innerWidth > window.innerHeight,
+            heightIsSynced: Math.abs(configuredHeight - viewportHeight) < 1 &&
+                Math.abs(appHeight - viewportHeight + 24) < 2,
+        };
+    }).then((state) => state.isLandscape === (orientation === 'landscape') &&
+        state.heightIsSynced), 5000,
+    `Viewport sizing did not settle in ${orientation}`);
+}
+
+async function prepareScrollableOutput(driver) {
+    return driver.executeScript(() => {
+        const output = document.getElementById('output');
+        const container = document.getElementById('outputContainer');
+        output.textContent = Array.from({ length: 500 }, (_, index) =>
+            `Logo output line ${index + 1}`,
+        ).join('\\n');
+        container.scrollTop = 120;
+        return {
+            scrollTop: container.scrollTop,
+            maxScrollTop: container.scrollHeight - container.clientHeight,
+        };
+    });
+}
+
+async function prepareSingleLineOutput(driver) {
+    return driver.executeScript(() => {
+        const output = document.getElementById('output');
+        const container = document.getElementById('outputContainer');
+        output.textContent = 'Single line Logo output';
+        container.scrollTop = 0;
+        return {
+            scrollTop: container.scrollTop,
+            lineCount: output.textContent.split('\n').length,
+        };
+    });
+}
+
+async function getOutputScrollTop(driver) {
+    return driver.executeScript(() =>
+        document.getElementById('outputContainer').scrollTop,
+    );
+}
+
+async function getViewportSizing(driver) {
+    return driver.executeScript(() => ({
+        viewportHeight: window.visualViewport?.height || window.innerHeight,
+        appHeight: document.getElementById('appContainer').getBoundingClientRect().height,
+    }));
 }
 
 async function waitForOutput(driver, expected, message) {
@@ -350,6 +416,209 @@ describe('settings persistence acceptance', function () {
                     selectionEnd: 6,
                 });
             });
+
+            it('aligns the app to a keyboard-offset visual viewport and resets it afterward', async function () {
+                await driver.get(applicationUrl);
+                await setViewport(driver, 'portrait', 500, 900);
+                await waitForLogoReady(driver);
+                const initialScroll = await prepareScrollableOutput(driver);
+                expect(initialScroll.scrollTop).to.equal(120);
+
+                const state = await driver.executeScript(() => {
+                    const viewport = window.visualViewport;
+                    const app = document.getElementById('appContainer');
+                    const output = document.getElementById('outputContainer');
+                    const initialTop = app.getBoundingClientRect().top;
+                    Object.defineProperty(viewport, 'height', {
+                        configurable: true, value: window.innerHeight - 320,
+                    });
+                    Object.defineProperty(viewport, 'offsetTop', {
+                        configurable: true, value: 21.5,
+                    });
+                    viewport.dispatchEvent(new Event('resize'));
+                    const keyboardTop = app.getBoundingClientRect().top;
+                    const keyboardOutputScroll = output.scrollTop;
+                    Object.defineProperty(viewport, 'offsetTop', {
+                        configurable: true, value: 30,
+                    });
+                    viewport.dispatchEvent(new Event('scroll'));
+                    const scrolledViewportTop = app.getBoundingClientRect().top;
+                    Object.defineProperty(viewport, 'scale', {
+                        configurable: true, value: 2,
+                    });
+                    viewport.dispatchEvent(new Event('resize'));
+                    const zoomedTop = app.getBoundingClientRect().top;
+                    delete viewport.height;
+                    delete viewport.offsetTop;
+                    delete viewport.scale;
+                    viewport.dispatchEvent(new Event('resize'));
+                    return {
+                        initialTop,
+                        keyboardTop,
+                        keyboardOutputScroll,
+                        scrolledViewportTop,
+                        zoomedTop,
+                        restoredTop: app.getBoundingClientRect().top,
+                        restoredOutputScroll: output.scrollTop,
+                    };
+                });
+                expect(state.keyboardTop).to.be.closeTo(state.initialTop + 21.5, 0.1);
+                expect(state.scrolledViewportTop).to.be.closeTo(state.initialTop + 30, 0.1);
+                expect(state.zoomedTop).to.be.closeTo(state.initialTop, 0.1);
+                expect(state.restoredTop).to.be.closeTo(state.initialTop, 0.1);
+                expect(state.keyboardOutputScroll).to.equal(initialScroll.scrollTop);
+                expect(state.restoredOutputScroll).to.equal(initialScroll.scrollTop);
+            });
+
+            it('shows viewport diagnostics only when requested and updates on viewport scroll', async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                expect(await driver.findElements(By.id('viewportDiagnostic'))).to.have.lengthOf(0);
+
+                await driver.get(`${applicationUrl.split('#')[0]}#viewport-debug`);
+                await driver.navigate().refresh();
+                await waitForLogoReady(driver);
+                const values = await driver.executeScript(() => {
+                    Object.defineProperty(window.visualViewport, 'offsetTop', {
+                        configurable: true,
+                        value: 42,
+                    });
+                    window.visualViewport.dispatchEvent(new Event('scroll'));
+                    const diagnostic = document.getElementById('viewportDiagnostic');
+                    return {
+                        text: diagnostic.textContent,
+                        pointerEvents: getComputedStyle(diagnostic).pointerEvents,
+                        transform: diagnostic.style.transform,
+                    };
+                });
+                expect(values.text).to.include('visualOffsetTop: 42');
+                expect(values.text).to.include('visualPageTop:');
+                expect(values.pointerEvents).to.equal('none');
+                expect(values.transform).to.include('42px');
+            });
+
+            for (const eventName of ['visual viewport resize', 'orientationchange']) {
+            it(`resets document scroll on ${eventName} without moving output`, async function () {
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                await driver.sleep(250);
+                const state = await driver.executeAsyncScript((eventName, done) => {
+                    const output = document.getElementById('output');
+                    const container = document.getElementById('outputContainer');
+                    output.textContent = Array.from({ length: 500 }, (_, index) =>
+                        `Logo output line ${index + 1}`,
+                    ).join('\n');
+                    container.scrollTop = 120;
+                    const initialOutputScroll = container.scrollTop;
+                    const spacer = document.createElement('div');
+                    spacer.style.height = '1000px';
+                    document.body.appendChild(spacer);
+                    window.scrollTo(0, 200);
+                    const initialDocumentScroll = window.scrollY;
+                    if (eventName === 'visual viewport resize') {
+                        window.visualViewport.dispatchEvent(new Event('resize'));
+                    } else {
+                        window.dispatchEvent(new Event('orientationchange'));
+                        setTimeout(() => window.scrollTo(0, 200), 250);
+                    }
+                    setTimeout(() => done({
+                        initialDocumentScroll,
+                        finalDocumentScroll: window.scrollY,
+                        initialOutputScroll,
+                        finalOutputScroll: container.scrollTop,
+                    }), eventName === 'orientationchange' ? 800 : 300);
+                }, eventName);
+                expect(state.initialDocumentScroll).to.be.greaterThan(0);
+                expect(state.finalDocumentScroll).to.equal(0);
+                expect(state.initialOutputScroll).to.equal(120);
+                expect(state.finalOutputScroll).to.equal(state.initialOutputScroll);
+            });
+            }
+
+            for (const orientation of ['portrait', 'landscape']) {
+                const initialViewport = orientation === 'portrait'
+                    ? { width: 500, height: 900 }
+                    : { width: 900, height: 500 };
+                const resizedViewport = orientation === 'portrait'
+                    ? { width: 520, height: 940 }
+                    : { width: 940, height: 520 };
+
+                it(`preserves Logo output scroll position when resizing in ${orientation}`, async function () {
+                    await driver.get(applicationUrl);
+                    await setViewport(driver, orientation,
+                        initialViewport.width, initialViewport.height);
+                    await waitForLogoReady(driver);
+
+                    const scrollState = await prepareScrollableOutput(driver);
+                    expect(scrollState.maxScrollTop).to.be.greaterThan(scrollState.scrollTop);
+
+                    await setViewport(driver, orientation,
+                        resizedViewport.width, resizedViewport.height);
+
+                    const viewportSizing = await getViewportSizing(driver);
+                    expect(viewportSizing.appHeight)
+                        .to.be.closeTo(viewportSizing.viewportHeight - 24, 2);
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+                });
+
+                it(`keeps one-line Logo output anchored when resizing in ${orientation}`, async function () {
+                    await driver.get(applicationUrl);
+                    await setViewport(driver, orientation,
+                        initialViewport.width, initialViewport.height);
+                    await waitForLogoReady(driver);
+
+                    const scrollState = await prepareSingleLineOutput(driver);
+                    expect(scrollState.lineCount).to.equal(1);
+
+                    await setViewport(driver, orientation,
+                        resizedViewport.width, resizedViewport.height);
+
+                    const viewportSizing = await getViewportSizing(driver);
+                    expect(viewportSizing.appHeight)
+                        .to.be.closeTo(viewportSizing.viewportHeight - 24, 2);
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+                });
+
+                it(`preserves Logo output scroll position when switching screen modes in ${orientation}`, async function () {
+                    await driver.get(applicationUrl);
+                    await setViewport(driver, orientation,
+                        initialViewport.width, initialViewport.height);
+                    await waitForLogoReady(driver);
+
+                    const scrollState = await prepareScrollableOutput(driver);
+                    expect(scrollState.maxScrollTop).to.be.greaterThan(scrollState.scrollTop);
+
+                    await driver.executeScript(() => Module.graphics.text_screen());
+                    expect(await driver.executeScript(() => Module.graphics.mode))
+                        .to.equal('text_screen');
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+
+                    await driver.executeScript(() => Module.graphics.split_screen());
+                    expect(await driver.executeScript(() => Module.graphics.mode))
+                        .to.equal('split_screen');
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+                });
+
+                it(`keeps one-line Logo output anchored when switching screen modes in ${orientation}`, async function () {
+                    await driver.get(applicationUrl);
+                    await setViewport(driver, orientation,
+                        initialViewport.width, initialViewport.height);
+                    await waitForLogoReady(driver);
+
+                    const scrollState = await prepareSingleLineOutput(driver);
+                    expect(scrollState.lineCount).to.equal(1);
+
+                    await driver.executeScript(() => Module.graphics.text_screen());
+                    expect(await driver.executeScript(() => Module.graphics.mode))
+                        .to.equal('text_screen');
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+
+                    await driver.executeScript(() => Module.graphics.split_screen());
+                    expect(await driver.executeScript(() => Module.graphics.mode))
+                        .to.equal('split_screen');
+                    expect(await getOutputScrollTop(driver)).to.equal(scrollState.scrollTop);
+                });
+            }
 
             it('binds variadic runjs parameters from Logo', async function () {
                 await driver.get(applicationUrl);

@@ -373,7 +373,8 @@ Module.graphics.graphics_init = () => {
             // suppress context menu
             evt.preventDefault();
         }, { capture: true });
-        window.visualViewport.addEventListener('resize', Module.graphics.onresize);
+        window.visualViewport?.addEventListener('resize', Module.graphics.onresize);
+        window.addEventListener('orientationchange', Module.graphics.onorientationchange);
         Module.graphics.dispatchResize();
         Module.setFontSize(Module.fontSize);
         const darkModeSelect = document.getElementById('darkModeSelect');
@@ -577,21 +578,25 @@ Module.graphics.pen_down = () => {
     }
 };
 
-Module.graphics.onresize = (evt) => {
-    console.log('window.visualViewport.height', window.visualViewport.height)
-    document.getElementById('appContainer')
-        .setAttribute('style', `width: 100%; height: ${window.visualViewport.height - 8 - 16}px;`)
-    outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
-    setTimeout(() => window.scrollTo({
-        top: 0,
-        left: 0,
-        // behavior: 'smooth'
-    }), 100);
+Module.graphics.resetPageScroll = () => {
+    setTimeout(() => window.scrollTo({ top: 0, left: 0 }), 100);
+};
+
+Module.graphics.onorientationchange = () => {
+    Module.graphics.resetPageScroll();
+    setTimeout(() => window.scrollTo({ top: 0, left: 0 }), 500);
+};
+
+Module.graphics.onresize = () => {
+    const appContainer = document.getElementById('appContainer');
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    appContainer.style.setProperty('height', `${viewportHeight - 24}px`);
+    Module.graphics.resetPageScroll();
 };
 
 Module.graphics.dispatchResize = () => {
-    setTimeout(()=>window.visualViewport.dispatchEvent(new Event('resize')), 0);
-}
+    setTimeout(() => window.visualViewport?.dispatchEvent(new Event('resize')), 0);
+};
 
 Module.graphics.full_screen = () => { console.log(`full_screen ${[]}`) };
 
