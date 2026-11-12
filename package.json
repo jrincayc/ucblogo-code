@@ -9,11 +9,12 @@
   },
   "scripts": {
     "test": "npm run test:settings && npm run test:lighthouse",
-    "test:settings": "./emscript.sh && mocha tests/acceptance/settings-persistence.test.js",
-    "test:settings:built": "mocha tests/acceptance/settings-persistence.test.js",
+    "test:settings": "./emscript.sh && mocha tests/acceptance/settings-persistence.test.js tests/acceptance/error-reporting.test.js",
+    "test:settings:built": "mocha tests/acceptance/settings-persistence.test.js tests/acceptance/error-reporting.test.js",
     "test:settings:chrome": "BROWSERS=chrome npm run test:settings",
     "test:settings:firefox": "BROWSERS=firefox npm run test:settings",
-    "test:lighthouse": "mocha tests/acceptance/lighthouse.test.js"
+    "test:lighthouse": "mocha tests/acceptance/lighthouse.test.js",
+    "test:ipad:remote": "testcafe remote tests/acceptance/ipad-keyboard.test.js --ports 38079,38080 --disable-native-automation"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "lighthouse": "^13.6.0",
     "mocha": "^12.0.3",
     "selenium-webdriver": "^4.51.0",
+    "testcafe": "^3.7.7",
     "workbox-cli": "^7.3.0"
   }
 }
