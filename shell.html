@@ -747,13 +747,35 @@
       }
     };
     Module.setStatus('Downloading...');
-    window.onerror = () => {
+    function showJavaScriptError(label, error, source, line, column, message) {
+      let panel = document.getElementById('javascriptError');
+      if (!panel) {
+        panel = document.createElement('pre');
+        panel.id = 'javascriptError';
+        panel.setAttribute('role', 'alert');
+        panel.style.cssText = 'position:fixed;inset:0;z-index:2147483647;overflow:auto;white-space:pre-wrap;background:#fff;color:#111;padding:1em;margin:0';
+        document.body.appendChild(panel);
+      }
+      const description = String(error);
+      const detail = [message && String(message), description, error?.stack]
+        .filter((part, index, parts) => part && parts.indexOf(part) === index)
+        .join('\n');
+      const location = source ? `\n${source}:${line || 0}:${column || 0}` : '';
+      panel.textContent += `${panel.textContent ? '\n\n' : ''}${label}: ${detail}${location}`;
+    }
+    window.onerror = (message, source, line, column, error) => {
+      console.trace('Uncaught JavaScript error', error ?? message, { source, line, column });
+      showJavaScriptError('Uncaught JavaScript error', error ?? message, source, line, column, message);
       Module.setStatus('Exception thrown, see JavaScript console');
       spinnerElement.style.display = 'none';
       Module.setStatus = (text) => {
         if (text) console.error('[post-exception status] ' + text);
       };
     };
+    window.addEventListener('unhandledrejection', (event) => {
+      console.trace('Unhandled promise rejection', event.reason);
+      showJavaScriptError('Unhandled promise rejection', event.reason);
+    });
 
     /* getc stdin emulation */
     document.addEventListener("DOMContentLoaded", (event) => {
@@ -811,7 +833,7 @@
           console.info('run_evaluator return', line);
         }
         catch (err) {
-          console.log(err.stack);
+          console.trace('Error running Logo', err);
           window.alert(`Error running Logo, see JS console for details: ${err}`)
         }
         return false;

@@ -42,13 +42,17 @@ try {
     const parsedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
     if (parsedSettings && typeof parsedSettings === 'object' && !Array.isArray(parsedSettings))
         storedSettings = parsedSettings;
-} catch (error) {}
+} catch (error) {
+    console.trace('Error reading Logo settings', error);
+}
 let legacyFontSize = 16;
 try {
     const storedFontSize = localStorage.getItem('ucblogo.fontSize');
     if (storedFontSize !== null && Number.isFinite(Number(storedFontSize)))
         legacyFontSize = Number(storedFontSize);
-} catch (error) {}
+} catch (error) {
+    console.trace('Error reading legacy font size', error);
+}
 const storedSize = Number(storedSettings.fontSize ?? legacyFontSize);
 Module.settings = {
     fontSize: Number.isFinite(storedSize) ? Math.min(48, Math.max(5, Math.round(storedSize))) : 16,
@@ -322,12 +326,15 @@ Module.runjs = (expr, ...explicitParams) => {
     }
     catch (error) {
         r = error.toString().replace(/[^\x00-\x7F]/g, '*');
-        console.error(error);
+        console.trace('Error evaluating runjs', error);
         window.alert(r);
     }
     if (explicitParams.length) return r;
     if (r instanceof Promise) {
-        r.then(r2 => Module.FS_runjs_getChar_buffer_append_obj(r2)).catch(window.alert)
+        r.then(r2 => Module.FS_runjs_getChar_buffer_append_obj(r2)).catch((error) => {
+            console.trace('Error in asynchronous runjs', error);
+            window.alert(error);
+        });
     }
     else {
         Module.FS_runjs_getChar_buffer_append_obj(r);
@@ -821,6 +828,7 @@ Module.uploadFileButtonClicked = async evt => {
         }));
     }
     catch (error) {
+        console.trace('Error uploading files', error);
         window.alert(`Error uploading files ${error.toString()}`);
         throw error;
     }
@@ -962,12 +970,14 @@ Module.editor.edit = async (filepath) => {
                 contents = UTF8ArrayToString(FS.readFile(filepath));
             }
             catch (error) {
+                console.trace('Error reading editor file', error);
                 if (error.errno == 44) {
                     // file not found
                     console.warn(`${filepath} does not exist, will attempt to create it`)
                 }
                 else {
-                    rej(err);
+                    rej(error);
+                    return;
                 }
             }
             document.getElementById('editorTextArea').value = contents;
@@ -975,6 +985,7 @@ Module.editor.edit = async (filepath) => {
             document.getElementById('editorDialog').addEventListener('close', res, { once: true });
         }
         catch (err) {
+            console.trace('Error opening editor', err);
             rej(err);
         }
     })
