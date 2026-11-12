@@ -35,7 +35,8 @@ export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
 # export EMCC_DEBUG=1
 
 # actually compiles slower with -j > 1... and I'm on a quad-core i7
-autoreconf -fi \
+rm -f ucblogo.debug.wasm \
+&& autoreconf -fi \
 && emconfigure ./configure --disable-docs --disable-x11 --disable-wx  --enable-gitid \
 --prefix=`pwd`/dist \
 --disable-objects --enable-wasm \
