@@ -1,0 +1,62 @@
+; Neon perspective grid with animated striped sun.
+
+to tron.demo
+animationstop
+cs window ht pu
+setbg 0
+tron.palette
+make "tron.elapsed 0
+make "tron.phase 0
+make "animationact [tron.tick]
+animationstart
+end
+
+to tron.palette
+for [i 0 11] [setpalette 16 + :i (list 0 100 * (:i + 1) / 12 85 * (:i + 1) / 12)]
+for [i 0 5] [setpalette 28 + :i (list 100 50 + :i * 7 0)]
+end
+
+to tron.tick
+make "tron.dt :animationdelta
+if :tron.dt > 100 [make "tron.dt 16.7]
+make "tron.elapsed :tron.elapsed + :tron.dt
+make "tron.phase modulo (:tron.phase - :tron.dt * 0.012) 1
+localmake "f :tron.phase
+localmake "horizon 112
+clean
+tron.sun
+tron.grid :f 16 5
+tron.grid :f 27 2
+end
+
+to tron.grid :f :color :width
+setpc :color
+setpensize :width
+for [i 0 11] [
+  localmake "d :i + :f + 1
+  localmake "y :horizon - 360 / :d
+  tron.seg (list -320 :y) (list 320 :y)
+]
+localmake "top :horizon - 360 / (12 + :f)
+for [i -4 4] [tron.seg (list 0 :top) (list (:i * 80) -240)]
+end
+
+to tron.sun
+localmake "rise 170 + 18 * sin :tron.elapsed / 90
+setpc 33
+for [i 0 17] [
+  localmake "a :i * 20 + :tron.elapsed / 45
+  localmake "b :a + 11
+  tron.seg (list 58 * sin :a :rise + 58 * cos :a) (list 58 * sin :b :rise + 58 * cos :b)
+]
+setpc 29
+for [i 0 4] [
+  localmake "y :rise - 20 + :i * 9
+  localmake "w 50 - :i * 9
+  tron.seg (list 0 - :w :y) (list :w :y)
+]
+end
+
+to tron.seg :a :b
+pu setpos :a pd setpos :b pu
+end

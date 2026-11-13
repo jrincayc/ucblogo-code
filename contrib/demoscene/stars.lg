@@ -1,0 +1,56 @@
+; Depth-projected warp stars, redrawn with turtle graphics every frame.
+
+to stars.demo
+animationstop
+cs window ht pu
+setbg 0
+make "stars.elapsed 0
+stars.setup
+make "animationact [stars.tick]
+animationstart
+end
+
+to stars.setup
+for [i 0 11] [setpalette 16 + :i (list 25 * (:i + 1) / 12 55 * (:i + 1) / 12 100 * (:i + 1) / 12)]
+setpalette 47 [100 100 100]
+make "stars.points map [stars.new 100 + random 900] iseq 1 80
+end
+
+to stars.tick
+make "stars.dt :animationdelta
+if :stars.dt > 100 [make "stars.dt 16.7]
+make "stars.elapsed :stars.elapsed + :stars.dt
+clean
+make "stars.points map [stars.step ?] :stars.points
+end
+
+to stars.new :z
+output (list (random 800) - 400 (random 600) - 300 :z)
+end
+
+to stars.step :s
+localmake "r :stars.elapsed / 9000
+if :r > 1 [make "r 1]
+localmake "speed 0.3 + 0.2 * :r
+localmake "z (last :s) - :stars.dt * :speed
+if :z < 20 [output stars.new 100 + random 900]
+localmake "oldz :z + :stars.dt * :speed
+localmake "k 260 / :z
+localmake "oldk 260 / :oldz
+localmake "x :k * (first :s)
+localmake "y :k * (item 2 :s)
+localmake "oldx :oldk * (first :s)
+localmake "oldy :oldk * (item 2 :s)
+setpc 16 + int 11 * (1 - :z / 1000)
+setpensize 2
+stars.seg (list :oldx :oldy) (list :x :y)
+setpc 47
+setpensize 4
+stars.seg (list :x :y) (list :x :y)
+setpensize 2
+output (list first :s item 2 :s :z)
+end
+
+to stars.seg :a :b
+pu setpos :a pd setpos :b pu
+end

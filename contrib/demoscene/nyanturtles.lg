@@ -1,0 +1,132 @@
+; UCB Logo mascot surfing a rainbow, redrawn with turtle graphics every frame.
+
+to nyanturtles.demo
+animationstop
+cs window ht pu
+setbg 0
+nyanturtles.setup
+make "nyanturtles.elapsed 0
+make "animationact [nyanturtles.tick]
+animationstart
+end
+
+to nyanturtles.setup
+setpalette 34 [100 0 0]
+setpalette 35 [100 45 0]
+setpalette 36 [100 100 0]
+setpalette 37 [0 100 15]
+setpalette 38 [0 35 100]
+setpalette 39 [55 0 100]
+setpalette 40 [8 12 14]
+setpalette 41 [58 30 12]
+setpalette 42 [82 55 27]
+setpalette 43 [18 70 30]
+setpalette 44 [38 92 48]
+setpalette 45 [0 62 68]
+setpalette 46 [100 100 100]
+end
+
+to nyanturtles.tick
+make "nyanturtles.dt :animationdelta
+if :nyanturtles.dt > 100 [make "nyanturtles.dt 16.7]
+make "nyanturtles.elapsed :nyanturtles.elapsed + :nyanturtles.dt
+clean
+nyanturtles.frame
+end
+
+to nyanturtles.frame
+localmake "s (modulo :nyanturtles.elapsed 36000) / 1000
+localmake "x 20 + 28 * sin :s * 48
+localmake "y 8 + 12 * sin :s * 110
+for [i 0 5] [nyanturtles.bar (:x - 300) (:y - 30 + :i * 12) 205 34 + :i 12]
+nyanturtles.turtle :x :y :s * 520
+setpc 46
+setpos [-90 174]
+label "NYANTURTLES
+end
+
+to nyanturtles.bar :x :y :w :color :thickness
+setpc :color
+setpensize :thickness
+nyanturtles.seg (list :x :y) (list (:x + :w) :y)
+end
+
+to nyanturtles.seg :a :b
+pu setpos :a pd setpos :b pu
+end
+
+to nyanturtles.polyline :pts
+pu setpos first :pts pd
+foreach butfirst :pts [setpos ?]
+pu
+end
+
+to nyanturtles.ringpoints :cx :cy :r :a :sides
+output map [list :cx + :r * sin :a + ? * 360 / :sides :cy + :r * cos :a + ? * 360 / :sides] iseq 0 :sides
+end
+
+to nyanturtles.turtle :x :y :phase
+localmake "legs 5 * sin :phase
+; Draw the legs both behind and in front of the shell for clear silhouette.
+setpc 40
+setpensize 17
+nyanturtles.leg (:x - 35) (:y - 20) (:x - 42) (:y - 39 + :legs)
+nyanturtles.leg (:x - 5) (:y - 27) (:x - 7) (:y - 43 - :legs)
+nyanturtles.leg (:x + 19) (:y - 25) (:x + 22) (:y - 42 + :legs)
+nyanturtles.leg (:x + 39) (:y - 10) (:x + 48) (:y - 27 - :legs)
+setpc 43
+setpensize 10
+nyanturtles.leg (:x - 35) (:y - 20) (:x - 42) (:y - 39 + :legs)
+nyanturtles.leg (:x - 5) (:y - 27) (:x - 7) (:y - 43 - :legs)
+nyanturtles.leg (:x + 19) (:y - 25) (:x + 22) (:y - 42 + :legs)
+nyanturtles.leg (:x + 39) (:y - 10) (:x + 48) (:y - 27 - :legs)
+; Shell outline and warm brown fill.
+setpc 40
+setpensize 48
+nyanturtles.polyline (list (list (:x - 47) (:y - 18)) (list (:x - 38) (:y + 14)) (list (:x - 17) (:y + 31)) (list (:x + 15) (:y + 30)) (list (:x + 39) (:y + 11)) (list (:x + 43) (:y - 18)) (list (:x + 20) (:y - 34)) (list (:x - 25) (:y - 34)) (list (:x - 47) (:y - 18)))
+setpc 41
+setpensize 39
+nyanturtles.polyline (list (list (:x - 47) (:y - 18)) (list (:x - 38) (:y + 14)) (list (:x - 17) (:y + 31)) (list (:x + 15) (:y + 30)) (list (:x + 39) (:y + 11)) (list (:x + 43) (:y - 18)) (list (:x + 20) (:y - 34)) (list (:x - 25) (:y - 34)) (list (:x - 47) (:y - 18)))
+setpc 42
+setpensize 3
+nyanturtles.seg (list (:x - 38) (:y + 14)) (list (:x + 15) (:y + 30))
+nyanturtles.seg (list (:x - 17) (:y + 31)) (list (:x - 6) (:y - 34))
+nyanturtles.seg (list (:x + 15) (:y + 30)) (list (:x + 20) (:y - 34))
+nyanturtles.seg (list (:x - 47) (:y - 18)) (list (:x + 43) (:y - 18))
+; Redraw green feet over the shell edge.
+setpc 40
+setpensize 17
+nyanturtles.leg :x - 35 :y - 20 :x - 42 :y - 39 + :legs
+nyanturtles.leg :x - 5 :y - 27 :x - 7 :y - 43 - :legs
+nyanturtles.leg :x + 19 :y - 25 :x + 22 :y - 42 + :legs
+nyanturtles.leg :x + 39 :y - 10 :x + 48 :y - 27 - :legs
+setpc 43
+setpensize 10
+nyanturtles.leg :x - 35 :y - 20 :x - 42 :y - 39 + :legs
+nyanturtles.leg :x - 5 :y - 27 :x - 7 :y - 43 - :legs
+nyanturtles.leg :x + 19 :y - 25 :x + 22 :y - 42 + :legs
+nyanturtles.leg :x + 39 :y - 10 :x + 48 :y - 27 - :legs
+; Turquoise neck and green head.
+setpc 40
+setpensize 26
+nyanturtles.seg (list (:x + 27) (:y + 10)) (list (:x + 53) (:y + 31))
+setpc 45
+setpensize 18
+nyanturtles.seg (list (:x + 27) (:y + 10)) (list (:x + 53) (:y + 31))
+setpc 40
+setpensize 42
+(nyanturtles.polyline (nyanturtles.ringpoints (:x + 66) (:y + 39) 22 0 12))
+setpc 43
+setpensize 34
+(nyanturtles.polyline (nyanturtles.ringpoints (:x + 66) (:y + 39) 22 0 12))
+setpc 44
+setpensize 3
+nyanturtles.seg (list (:x + 57) (:y + 50)) (list (:x + 62) (:y + 53))
+setpc 46
+setpensize 7
+nyanturtles.seg (list (:x + 73) (:y + 42)) (list (:x + 74) (:y + 43))
+end
+
+to nyanturtles.leg :x1 :y1 :x2 :y2
+nyanturtles.seg (list :x1 :y1) (list :x2 :y2)
+end
