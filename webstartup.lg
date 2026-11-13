@@ -37,6 +37,10 @@ to setdarkmode :mode
 ignore (runjs "|Module.setDarkMode(arg0)| :mode)
 end
 
+to abs :num
+output ifelse (:num < 0) [-:num] [:num]
+end
+
 buryall
 
 pr [Web Edition Preview]
