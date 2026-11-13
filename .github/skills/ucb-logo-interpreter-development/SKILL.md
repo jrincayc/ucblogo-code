@@ -40,6 +40,9 @@ New Logo words can be implemented in **C, Logo, JavaScript, or any mixture of th
 - Read repository `plm`, the Program Logic Manual, particularly its SICP metacircular/explicit-control evaluator discussion, continuations, tail calls, shallow binding, data structures, and collector. It is slightly out of date in places. Use it as architectural guidance, not an exact specification of current functions, layouts, roots, or platform behavior; reconcile discrepancies with source and tests.
 - Understand the user's "mini-Scheme" characterization as the Lisp-family substrate and explicit-control evaluator machinery underlying Logo. Do not assume a separate Scheme runtime or import Scheme's lexical scope and syntax into Logo.
 - Distinguish reader/tokenization, runparsing, treeification, and evaluation. Arity changes and procedure redefinition can affect cached procedure representations; test relevant invalidation behavior.
+- Unicode strings require more than accepting UTF-8 at input. The existing word model treats `getstrlen` as a character count and relies on fixed-width pointer slices for `FIRST`, `BUTFIRST`, `LAST`, and `BUTLAST`; UTF-8 migration must distinguish byte lengths/offsets from code-point lengths/offsets and centralize valid boundary iteration. Do not equate code points with grapheme clusters; choose and document Logo's indexing semantics explicitly.
+- Keep barred-character metadata out of UTF-8 bytes. Use a packed sidecar bitset indexed by code-point position (or an equivalent representation with the same slice/lifetime guarantees), and preserve it through substring views, concatenation, case conversion, parsing, and printing. Preserve the semantic difference between transient backslash quoting and persistent vbar/barred punctuation. Do not reuse high bits or control-character sentinels in the text stream.
+- Keep UTF-8 at file, wxWidgets, and JavaScript/WebAssembly boundaries. wx strings must be explicitly encoded/decoded instead of narrowed to `char`; terminal editing/rendering must account for multibyte input. Use Emscripten's UTF-8 conversions for JS interop, not `wchar_t` as a cross-platform ABI. Specify UTF-8 and any legacy-file compatibility policy rather than silently relying on locale. Test both wx and WebAssembly paths.
 - Follow evaluator labels, registers, saved state, continuations, and tail-call transitions before changing control flow. Preserve dynamic binding/unbinding, macro caller context, `output`/`stop`/`throw`/`catch`, command/operation status, and useful error attribution.
 - Logo evaluation frames, the native C stack, GC marking work stack, and Asyncify save area serve different purposes. Do not equate their limits or assume increasing one fixes overflow in another.
 - For primitives, verify registration, aliases, arity, dispatch type, prototypes, platform guards, errors, NODE ownership, tests, and docs. Follow established conventions rather than inventing a primitive framework.
@@ -55,6 +58,17 @@ New Logo words can be implemented in **C, Logo, JavaScript, or any mixture of th
 - Wasm memory growth can invalidate cached JS views. Reacquire heap views after growth/yielding and use current Emscripten access/conversion helpers; avoid hard-coded NODE layouts and pointer widths in JS.
 - Add forced/repeated GC tests for live values, inter-generation mutation, arrays/strings, and allocation-heavy/deep evaluation as relevant. Test optimized builds too when root visibility or undefined behavior is implicated.
 - Use `gdb.rc`, `address-sanitizer.txt`, and current `logoGC`/C debug exports as investigation aids, not stable application APIs. Inspect live structures only at safe runtime states; addresses and snapshots can become stale after collection or reuse.
+
+### Lessons Learned (GC + Wasm, 2026-11)
+
+- For Whippet integration planning, distinguish parallel collection from concurrent collection. Current Whippet guidance and implementation focus on stop-the-world tracing with optional parallel workers; do not assume mutator-concurrent marking is available.
+- If roots remain conservative (current Logo model), `pcc` is a poor first target because it requires precise roots. `mmc` with conservative roots is the viable first candidate if evaluating Whippet.
+- Whippet's parallel tracer currently uses pthread APIs directly. In browser Wasm, this typically means Emscripten pthread builds (which run on Web Workers and require shared-memory deployment constraints such as COOP/COEP).
+- There is no known drop-in OSS collector currently wired for Emscripten Wasm Workers as a direct replacement path for Logo. A Wasm-Workers-native parallel collector path likely implies backend-porting work rather than collector swapping.
+- For animation frame pacing, a deadline-aware incremental collector is plausible in the existing GC architecture because marking already uses an explicit work stack. Treat this as cooperative incremental GC, not hard real-time GC.
+- Incremental GC requires write-barrier correctness under mutator interleaving. Audit all pointer stores, not only `setcar`/`setcdr`/`setobject`, and preserve correctness for newly allocated nodes during an in-progress cycle.
+- Deadline budgeting is soft unless all expensive units are sliceable. Root scanning and large object/array scans can dominate a frame budget if not made resumable.
+- For frame-sensitive workloads, start GC before free-list exhaustion and run bounded GC slices at safe scheduler points (for web animation, this generally means frame/yield boundaries), with clear fallback behavior when allocation outruns collection.
 
 ## Web Runtime And Asyncify
 
@@ -78,15 +92,30 @@ New Logo words can be implemented in **C, Logo, JavaScript, or any mixture of th
 - `FS.syncfs(true, callback)` populates storage asynchronously; synchronous FS access does not prove persistent data is ready or saved. Check mount/readiness ordering, auto-persistence, concurrent writes, reload behavior, and storage failure paths. localStorage settings and IndexedDB files are separate persistence mechanisms.
 - Validate upload/download, browser editing, workspace load/save, and packaged resources as actual workflows. Browser filesystem edits do not update repository files automatically. Avoid loss or overwriting when transferring changes.
 - Inspect current `runjs` binding/serialization. Prefer trusted stable source with bound `arg0`, `arg1`, etc. rather than interpolated Logo data. Verify supported inputs, return conversion, promises, exceptions, stream restoration, escaping, and encoding constraints. `runjs` is not a sandbox.
+- Current hardened pattern for Web Edition: keep the JavaScript source and Logo data on separate channels. Use a native C primitive (`lrunjs`) that validates/converts the source word (`cnv_node_to_strnode` + `clearparity`), binds Logo scalar args through dedicated JS binder calls, writes source to `/dev/runjs`, then terminates with a NUL byte delimiter before flush.
+- Keep `/dev/runjs` stream framing NUL-delimited rather than newline-delimited. NUL framing avoids ambiguity with multiline JavaScript expressions and prevents accidental early evaluation caused by embedded newlines.
+- Do not revive writer-switching Logo wrappers for `runjs`. Preserve normal writer behavior and keep binding explicit/safe in the primitive path.
 - Guard browser APIs in code shared with Node. Maintain explicit platform differences rather than faking unsupported browser features on wx.
 
 ## Frontend And Graphics
 
 - Edit source `shell.html`, `pre.js`, and relevant graphics/interop code, not generated app/loader outputs as permanent fixes. Preserve existing UI/CSS conventions.
 - Keep shared turtle semantics in the shared graphics layer and rendering in platform backends. Verify affected coordinates/scaling, heading, pen modes/colors, wrapping/clipping, labels, fills, visibility, and redraw.
+- SVG label sizing lesson: CSS font-size rules can override SVG presentation attributes. A global rule such as `* { font-size: ... }` can force `LABEL` text size and break drawing-relative behavior. For turtle labels, prefer explicit inline style on SVG text nodes (for example `el.style.fontSize = "${pen_info.fntsz}px"`) so label size follows drawing units and SVG scaling rather than UI text controls.
 - Validate affected terminal, editor, dialogs, settings, focus/history, keyboard/touch/mobile input, resize/themes, accessibility, and error display. Check SVG/DOM graphics and assets in a real browser.
+- For terminal BEL (`\x07`) handling in Web Edition output, pair audible tone with a visual cue in `shell.html` `Module.print(...args)`: use a high-contrast `role="status"` / `aria-live="polite"` indicator, debounce repeated bells by extending one visibility timer, and avoid rapid flashes (prefer a gentle fade and honor `prefers-reduced-motion`).
 - Distinguish ordinary text from intentional HTML markup. Preserve escaping and safe text APIs for untrusted values; do not bypass HTML-string semantics to satisfy display tests.
 - Reuse a suitable server/shared browser. Confirm served artifacts match source and account for service-worker/cache staleness before diagnosing regressions. Do not erase user persistence just to obtain a clean test.
+
+### Recent Lessons
+
+- Treat [shell.html](shell.html) as the editable web shell source; [ucblogo.html](ucblogo.html) is a generated build artifact and should not be hand-edited as the durable fix.
+- Keep user-facing web settings in `Module` state (commonly in [pre.js](pre.js)) and route UI handlers through shared setter functions instead of direct inline CSS/DOM mutations.
+- For Emscripten JS-library implementations in [liblogo.js](liblogo.js) that satisfy C-called Logo words, ensure the corresponding C declarations are present as `extern` in shared headers (typically [globals.h](globals.h)).
+- When exposing words on both wx and web, prefer shared registration guards in C using `#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)` where behavior is intentionally available on both targets.
+- Match existing C symbol conventions already used by wx wrappers when sharing one primitive name across wx and Emscripten, even if that differs from the usual `lwordname` style.
+- For DOM-driven numeric settings, clamp values using the current input element's `min`/`max` attributes rather than duplicating hardcoded limits in JS.
+- If a setting only has meaning in browser DOM context, make its setter an immediate no-op when `document` is unavailable and avoid repeated scattered DOM guards.
 
 ## Build-System Ownership
 
@@ -119,6 +148,22 @@ The maintainer currently runs `emscript.sh` for clean builds and edits its flags
 - Remove obsolete flags/comments in the relevant recipe without silently changing Asyncify. Treat optimization, sanitizers, debug symbols, memory, and exception settings as deliberate validated configurations.
 - Check Workbox/PWA cache generation, registration, manifest/assets, deployment paths, and artifact consistency. Never mix old loaders and new Wasm in a cache.
 - For shared interpreter/build changes, compile/link wx when available and smoke-test startup, input, basic evaluation, and affected behavior. Node/headless success is not wx GUI validation. Report missing wx dependencies/display honestly.
+
+### Lessons Learned: O1 + Asyncify + GC Debugging
+
+- Do not treat `-O1` failures as evidence that optimization must be disabled. First assume a rooting/lifetime bug and prove it with instrumentation in an optimized build.
+- When a web/Node test command is the reproducer, keep test parameters fixed until a concrete root-cause direction is established. Moving test inputs too early can hide temporal GC bugs.
+- Guard scripted pipelines against stale binaries: run tests only when the build step succeeds (for example, by chaining build and test with `&&`).
+- For Emscripten Node stack-switching runs, prefer Wasm exceptions over legacy JS exception wrappers when debugging suspend-related failures; verify generated output no longer relies on `invoke_*` wrappers before concluding the suspend path is fixed.
+- For GC lifetime bugs, combine ASAN/UBSAN with stable serialized NODE IDs and targeted free/sweep probes. A deterministic ID lifecycle is usually more actionable than raw pointer logs.
+- In parser/workspace construction paths, avoid nested allocation patterns that allocate a wrapper and immediately evaluate another allocator inside the same expression. Preallocate wrapper cells, then fill with `setcar`/`setcdr` to keep temporary values visibly rooted across collections.
+- Treat tiny segment-size stress configurations as a diagnostic mode only. They are useful to force GC timing bugs but should not be mistaken for production behavior.
+
+### Lessons Learned: Web Demo Iteration Discipline
+
+- For browser-facing animation work, require visible evidence before calling a change successful: run the scene in-browser, verify animation state and SVG output shape/color signals, and capture a screenshot checkpoint.
+- Treat command submission as asynchronous/queued in the web terminal path. After sending load/run commands, allow settlement before reading state, otherwise diagnostic reads can reflect stale pre-command conditions.
+- Prefer stabilizing standalone scene files first, then compose them into a combined runner. Cross-scene regressions are commonly init/order/palette leakage issues, not proof that the standalone scene math is wrong.
 
 ## Development Cadence And Platform Coverage
 
@@ -154,8 +199,22 @@ This roadmap is context, not standing permission to rebase, commit, push, or cre
 ## Tests And Documentation
 
 - Use Logo regressions for language/primitives/files/GC, Node Wasm tests for non-DOM runtime, browser acceptance for interop/events/storage/UI, and wx checks for native compatibility.
+- For web runtime bridge and persistence changes, maintain an end-to-end acceptance suite run by Selenium with Mocha/Chai against artifacts built by `./emscript.sh`, served by `emrun`, and executed on both Chrome and Firefox.
+- Include adversarial and transport-shape cases in bridge acceptance tests: hostile/fuzz strings, multiline source, long strings, and large ordered variadic argument lists. Validate both direct JS calls and Logo-originated wrappers.
 - Start narrow and inspect the harness: the programming skill notes incomplete failure aggregation in existing Logo tests. Review individual `Ok`, `Failed`, and `Error` results, not only process exit or completion text. OOP is currently broken/omitted in web builds; skipped tests are not passing coverage.
+- Add targeted acceptance checks for settings-to-rendering isolation when modifying shared UI CSS or text controls. Keep a regression that verifies `settextsize` changes terminal/UI text size without changing rendered SVG `LABEL` size.
+- For Web Edition output cues such as BEL and speech controls, add cross-browser assertions for both behavior and state persistence after reload, and verify stubbing/fallback behavior where browser APIs differ.
 - Exercise async lifecycle failures and reload/persistence where relevant. Synchronize on real readiness/output, not arbitrary sleeps. Distinguish source regressions from stale artifacts/state.
 - Avoid broad npm scripts that rebuild unnecessarily when a built-artifact check suffices; conversely, rebuild C/packaged-source changes before testing. Check test/server/browser prerequisites.
 - Maintain `webedition.md`, help, `usermanual`, `docs/ucblogo.texi`, build docs, tests, and examples as appropriate. `makehelp` regenerates help from `usermanual`; check regeneration before editing help that it would overwrite. Resolve duplicate documentation deliberately.
 - Update materially misleading `plm` explanations when changing architectural contracts, preserving useful historical context. Document semantics, compatibility, prerequisites, and known limits rather than speculative promises.
+
+### Browser Test Lessons
+
+- **Rebuild before browser tests.** `ucblogo.html` is generated from `shell.html`, `pre.js`, and `liblogo.js`; compare timestamps and run `emmake make ucblogo.html` first. A failing test against a stale page proves nothing about the source change.
+- **Write the failing test first, then fix.** For UI behavior, assert observable results (value, focus, `aria-*`, computed style), not only internal state. ARIA state without CSS passes a naive test yet gives sighted users no feedback.
+- **When asked to bisect, bisect.** Comment out or isolate one action per run, run only the failing case, and report the exact line. Do not substitute speculation, extra instrumentation, or a broader run. Never claim a subagent or run happened if it did not.
+- **TestCafe specifics:** `--test` needs the exact test name, not a substring. `--test-execution-timeout` does not stop a blocked native action, so wrap runs in GNU `timeout`. `ClientFunction` array callbacks (`.find`, `.filter`) can receive wrapped values; use explicit `for...of` loops over DOM nodes. Native `t.click` with `touch=true` emulation can open Chrome's context menu and hang; dispatch a DOM `.click()` from a `ClientFunction` when the target is a Shadow DOM option, and avoid suppressing `contextmenu` as a workaround.
+- **Run the full suite** (all browsers the user names) before reporting complete, and distinguish emulation from real devices.
+- **Keyboard handling:** Tab, arrows, Enter, and Escape have browser default actions; handle them in a capture-phase listener that calls `preventDefault()` and `stopImmediatePropagation()` so existing page handlers (for example command-history arrows) do not also run. Test that focus stays in the input.
+- **Do not leave bisect or debug scaffolding** (`t.debug()`, comments, `console.log` probes) in committed tests.

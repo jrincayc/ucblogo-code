@@ -60,6 +60,8 @@ Run from the repository root unless a verified isolated build supports otherwise
 | Existing Node Logo suite | `node ./ucblogo-node.js tests/test.lg` | Review individual results; suite ends with `bye`. |
 | Existing browser acceptance, no rebuild | `npm run test:settings:built` | Currently Mocha/Selenium settings-persistence and error-reporting tests; inspect server/browser prerequisites. |
 | Focused browser case | `npx mocha tests/acceptance/settings-persistence.test.js --grep 'CASE'` | Select an actual test name; inspect test-managed server and `BROWSERS` settings. |
+| Browser Logo language suite | `BROWSERS=chrome,firefox npm run test:settings:built` | Includes `tests/test.lg` via `runjs "|FS.chdir('/')| load "tests/test.lg`; asserts `All tests completed.` and no `Failed`/`Error` lines. |
+| Autocomplete (TestCafe) | `npm run test:autocomplete`, or `npx testcafe chrome tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 2000` | Rebuild `ucblogo.html` first; add `--test 'exact name'`; phone profile `'chrome:emulation:width=390;height=500;mobile=true;touch=true'`; wrap in `timeout`. |
 | Rebuild plus acceptance | `npm run test:settings` | Runs `emscript.sh` first; Chrome/Firefox wrapper scripts exist. |
 | Lighthouse | `npm run test:lighthouse` | Separate browser performance/audit checks, not language correctness coverage. |
 | iPad keyboard | `npm run test:ipad:remote` | TestCafe remote browser workflow requires device/browser participation. |
