@@ -539,7 +539,8 @@
         </div>
 
         <div class="flex">
-          <form id="logoInputForm" class="flex" style="width: 100%" aria-label="Logo command input">
+          <form id="logoInputForm" class="flex" style="width: 100%; position: relative" aria-label="Logo command input">
+            <logo-autocomplete for="logoInputText"></logo-autocomplete>
             <label class="visually-hidden" for="logoInputText">Logo command</label>
             <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" enterkeyhint="enter"
               placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="false"
@@ -985,6 +986,149 @@
       // Element functionality written in here
     }
     customElements.define("logo-soft-keys", LogoSoftKeys);
+
+    class LogoAutocomplete extends HTMLElement {
+      static maxSuggestions = 50;
+      static wordPattern = /[^\s\[\](){}+\-*\/=<>;"':]*$/;
+      static wordTailPattern = /^[^\s\[\](){}+\-*\/=<>;"':]*/;
+
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' }).innerHTML = `
+          <style>
+            :host {
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: 100%;
+              z-index: 10;
+              font: inherit;
+              --fg: var(--logo-text-foreground, var(--theme-foreground));
+              --bg: var(--logo-text-background, var(--theme-background));
+            }
+            [role="listbox"] {
+              margin: 0;
+              padding: 0;
+              list-style: none;
+              max-height: min(40vh, 13.75em);
+              overflow-y: auto;
+              overscroll-behavior: contain;
+              color: var(--fg);
+              background-color: var(--bg);
+              border: 1px solid var(--theme-control-border, var(--fg));
+              box-shadow: 0 -2px 6px rgb(0 0 0 / 25%);
+            }
+            [role="listbox"][hidden] {
+              display: none;
+            }
+            [role="option"] {
+              display: flex;
+              align-items: center;
+              min-height: 2.75em;
+              padding: 0 0.75em;
+              cursor: pointer;
+              font: inherit;
+              touch-action: manipulation;
+              -webkit-user-select: none;
+              user-select: none;
+            }
+            [role="option"] + [role="option"] {
+              border-top: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+            }
+            .visually-hidden {
+              position: absolute;
+              width: 1px;
+              height: 1px;
+              margin: -1px;
+              overflow: hidden;
+              clip: rect(0, 0, 0, 0);
+              white-space: nowrap;
+            }
+          </style>
+          <ul role="listbox" aria-label="Logo word suggestions" hidden></ul>
+          <div role="status" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
+        `;
+        this.listbox = this.shadowRoot.querySelector('[role="listbox"]');
+        this.status = this.shadowRoot.querySelector('[role="status"]');
+        this.suggestions = [];
+        this.provider = (text) => {
+          const lower = text.toLowerCase();
+          return Module.completion.names().filter((entry) => entry.name.toLowerCase().startsWith(lower));
+        };
+        this.listbox.addEventListener('pointerdown', (event) => event.preventDefault());
+        this.listbox.addEventListener('click', (event) => {
+          const option = event.target.closest('[role="option"]');
+          if (option) this.accept(Number(option.dataset.index));
+        });
+      }
+
+      connectedCallback() {
+        this.input = document.getElementById(this.getAttribute('for'));
+        this.input.setAttribute('role', 'combobox');
+        this.input.setAttribute('aria-autocomplete', 'list');
+        this.input.setAttribute('aria-haspopup', 'listbox');
+        this.input.setAttribute('aria-expanded', 'false');
+        this.input.addEventListener('input', () => this.update());
+        this.input.addEventListener('blur', () => this.close());
+        this.input.form?.addEventListener('submit', () => this.close());
+      }
+
+      currentWord() {
+        const { value, selectionStart: caret } = this.input;
+        const before = value.slice(0, caret).match(LogoAutocomplete.wordPattern)[0];
+        const after = value.slice(caret).match(LogoAutocomplete.wordTailPattern)[0];
+        const start = caret - before.length;
+        return { start, end: caret + after.length, text: before, sigil: value[start - 1] ?? '' };
+      }
+
+      update() {
+        const word = this.currentWord();
+        this.word = word;
+        this.suggestions = word.text
+          ? this.provider(word.text, word.sigil)
+            .filter((entry) => entry.name !== word.text)
+            .slice(0, LogoAutocomplete.maxSuggestions)
+          : [];
+        if (!this.suggestions.length) {
+          this.close();
+          return;
+        }
+        this.listbox.replaceChildren(...this.suggestions.map((entry, index) => {
+          const option = document.createElement('li');
+          option.setAttribute('role', 'option');
+          option.setAttribute('aria-selected', 'false');
+          option.dataset.index = index;
+          option.textContent = entry.name;
+          return option;
+        }));
+        this.listbox.hidden = false;
+        this.input.setAttribute('aria-expanded', 'true');
+        const count = this.suggestions.length;
+        this.status.textContent = `${count} suggestion${count === 1 ? '' : 's'} available`;
+      }
+
+      accept(index) {
+        const entry = this.suggestions[index];
+        if (!entry) return;
+        const { value } = this.input;
+        const { start, end } = this.word;
+        const spacer = /^\s/.test(value.slice(end)) ? '' : ' ';
+        const completed = value.slice(0, start) + entry.name + spacer;
+        this.input.value = completed + value.slice(end);
+        this.input.focus();
+        this.input.setSelectionRange(completed.length, completed.length);
+        this.close();
+        this.status.textContent = `${entry.name} inserted`;
+      }
+
+      close() {
+        this.suggestions = [];
+        this.listbox.hidden = true;
+        this.listbox.replaceChildren();
+        this.input?.setAttribute('aria-expanded', 'false');
+      }
+    }
+    customElements.define("logo-autocomplete", LogoAutocomplete);
 
     const updateAppViewportHeight = () => {
       const viewport = window.visualViewport;

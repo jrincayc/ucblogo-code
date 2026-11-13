@@ -33,6 +33,52 @@ async function runLogo(driver, command) {
     await pauseForViewer(driver);
 }
 
+async function typeSlowly(driver, text) {
+    const input = await driver.findElement(By.id('logoInputText'));
+    for (const character of text) {
+        await input.sendKeys(character);
+        if (testDelayMs) await driver.sleep(testDelayMs / 4);
+    }
+    await pauseForViewer(driver);
+    return input;
+}
+
+async function resetInput(driver) {
+    await driver.executeScript(() => {
+        const input = document.getElementById('logoInputText');
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+    });
+}
+
+async function useStubNames(driver, names) {
+    await driver.executeScript((stub) => {
+        document.querySelector('logo-autocomplete').provider = (text) =>
+            stub.filter((name) => name.startsWith(text.toLowerCase()))
+                .map((name) => ({ name, kind: 'primitive' }));
+    }, names);
+}
+
+async function popupState(driver) {
+    return driver.executeScript(() => {
+        const input = document.getElementById('logoInputText');
+        const root = document.querySelector('logo-autocomplete').shadowRoot;
+        const listbox = root.querySelector('[role="listbox"]');
+        return {
+            open: !listbox.hidden,
+            expanded: input.getAttribute('aria-expanded'),
+            role: input.getAttribute('role'),
+            autocomplete: input.getAttribute('aria-autocomplete'),
+            options: [...listbox.querySelectorAll('[role="option"]')].map((option) => option.textContent.trim()),
+            status: root.querySelector('[role="status"]').textContent,
+            value: input.value,
+            caret: input.selectionStart,
+            focused: document.activeElement === input,
+        };
+    });
+}
+
 describe('Logo word autocompletion', function () {
     this.timeout(120000);
     let driver;
@@ -63,6 +109,58 @@ describe('Logo word autocompletion', function () {
             expect(names.squiggle).to.equal('procedure');
             expect(names.zebra).to.equal('variable');
             expect(names.foreach).to.equal('library');
+        });
+    });
+
+    describe('popup with stub names', function () {
+        beforeEach(async function () {
+            await useStubNames(driver, ['forward', 'foreach', 'format', 'back']);
+            await resetInput(driver);
+        });
+
+        it('is a closed combobox until a matching word is typed', async function () {
+            const state = await popupState(driver);
+            expect(state.role).to.equal('combobox');
+            expect(state.autocomplete).to.equal('list');
+            expect(state.expanded).to.equal('false');
+            expect(state.open).to.equal(false);
+        });
+
+        it('shows matching suggestions while typing', async function () {
+            await typeSlowly(driver, 'fo');
+            let state = await popupState(driver);
+            expect(state.open).to.equal(true);
+            expect(state.expanded).to.equal('true');
+            expect(state.options).to.have.members(['forward', 'foreach', 'format']);
+            expect(state.status).to.match(/3 suggestions/);
+            await typeSlowly(driver, 'rw');
+            state = await popupState(driver);
+            expect(state.options).to.deep.equal(['forward']);
+        });
+
+        it('closes when nothing matches', async function () {
+            await typeSlowly(driver, 'zz');
+            expect((await popupState(driver)).open).to.equal(false);
+        });
+
+        it('completes only the word at the caret when a suggestion is tapped', async function () {
+            await typeSlowly(driver, 'repeat 4 [fo');
+            const option = await driver.executeScript(() => [...document.querySelector('logo-autocomplete')
+                .shadowRoot.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === 'forward'));
+            await option.click();
+            await pauseForViewer(driver);
+            const state = await popupState(driver);
+            expect(state.value).to.equal('repeat 4 [forward ');
+            expect(state.caret).to.equal(state.value.length);
+            expect(state.focused).to.equal(true);
+            expect(state.open).to.equal(false);
+        });
+
+        it('closes after the command is submitted', async function () {
+            await typeSlowly(driver, 'fo');
+            await driver.findElement(By.id('logoInputText')).sendKeys(Key.ENTER);
+            await waitForLogoIdle(driver);
+            expect((await popupState(driver)).open).to.equal(false);
         });
     });
 });
