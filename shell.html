@@ -1023,14 +1023,27 @@
             }
             [role="option"] {
               display: flex;
-              align-items: center;
+              flex-direction: column;
+              justify-content: center;
               min-height: 2.75em;
-              padding: 0 0.75em;
+              padding: 0.25em 0.75em;
               cursor: pointer;
               font: inherit;
               touch-action: manipulation;
               -webkit-user-select: none;
               user-select: none;
+            }
+            .name {
+              font-weight: bold;
+            }
+            .summary {
+              font-size: 0.85em;
+              opacity: 0.8;
+              display: -webkit-box;
+              -webkit-box-orient: vertical;
+              -webkit-line-clamp: 2;
+              line-clamp: 2;
+              overflow: hidden;
             }
             [role="option"] + [role="option"] {
               border-top: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
@@ -1055,6 +1068,7 @@
           const lower = text.toLowerCase();
           return Module.completion.names().filter((entry) => entry.name.toLowerCase().startsWith(lower));
         };
+        this.describe = (entry) => Module.completion.summary(entry.name);
         this.listbox.addEventListener('pointerdown', (event) => event.preventDefault());
         this.listbox.addEventListener('click', (event) => {
           const option = event.target.closest('[role="option"]');
@@ -1098,7 +1112,17 @@
           option.setAttribute('role', 'option');
           option.setAttribute('aria-selected', 'false');
           option.dataset.index = index;
-          option.textContent = entry.name;
+          const name = document.createElement('span');
+          name.className = 'name';
+          name.textContent = entry.name;
+          option.append(name);
+          const summary = this.describe(entry);
+          if (summary) {
+            const description = document.createElement('span');
+            description.className = 'summary';
+            description.textContent = summary;
+            option.append(' ', description);
+          }
           return option;
         }));
         this.listbox.hidden = false;

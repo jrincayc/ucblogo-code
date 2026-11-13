@@ -70,7 +70,10 @@ async function popupState(driver) {
             expanded: input.getAttribute('aria-expanded'),
             role: input.getAttribute('role'),
             autocomplete: input.getAttribute('aria-autocomplete'),
-            options: [...listbox.querySelectorAll('[role="option"]')].map((option) => option.textContent.trim()),
+            options: [...listbox.querySelectorAll('[role="option"]')].map((option) =>
+                option.querySelector('.name').textContent),
+            summaries: Object.fromEntries([...listbox.querySelectorAll('[role="option"]')].map((option) =>
+                [option.querySelector('.name').textContent, option.querySelector('.summary')?.textContent ?? null])),
             status: root.querySelector('[role="status"]').textContent,
             value: input.value,
             caret: input.selectionStart,
@@ -145,8 +148,9 @@ describe('Logo word autocompletion', function () {
 
         it('completes only the word at the caret when a suggestion is tapped', async function () {
             await typeSlowly(driver, 'repeat 4 [fo');
+            expect((await popupState(driver)).options).to.include('forward');
             const option = await driver.executeScript(() => [...document.querySelector('logo-autocomplete')
-                .shadowRoot.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === 'forward'));
+                .shadowRoot.querySelectorAll('[role="option"]')].find((o) => o.querySelector('.name').textContent === 'forward'));
             await option.click();
             await pauseForViewer(driver);
             const state = await popupState(driver);
@@ -154,6 +158,23 @@ describe('Logo word autocompletion', function () {
             expect(state.caret).to.equal(state.value.length);
             expect(state.focused).to.equal(true);
             expect(state.open).to.equal(false);
+        });
+
+        it('shows a one-sentence help summary under each documented word', async function () {
+            await useStubNames(driver, ['forward', 'make', 'nohelpword']);
+            await typeSlowly(driver, 'f');
+            let state = await popupState(driver);
+            expect(state.summaries.forward).to.equal(
+                'Moves the turtle forward, in the direction that it\'s facing, by the specified distance (measured in turtle steps).');
+            await resetInput(driver);
+            await typeSlowly(driver, 'm');
+            state = await popupState(driver);
+            expect(state.summaries.make).to.equal(
+                'Assigns the value "value" to the variable named "varname", which must be a word.');
+            await resetInput(driver);
+            await typeSlowly(driver, 'n');
+            state = await popupState(driver);
+            expect(state.summaries.nohelpword).to.equal(null);
         });
 
         it('closes after the command is submitted', async function () {

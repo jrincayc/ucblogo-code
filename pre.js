@@ -1051,6 +1051,23 @@ Module.completion = {
         this.entries = [...byName.values()];
         return this.entries;
     },
+    summaries: new Map(),
+    summary(name) {
+        const key = name.toLowerCase();
+        if (this.summaries.has(key)) return this.summaries.get(key);
+        let sentence = null;
+        if (!key.includes('/') && key !== '.' && key !== '..') {
+            try {
+                const text = UTF8ArrayToString(FS.readFile(`/share/ucblogo/helpfiles/${key}`));
+                const body = text.slice(text.search(/\n\s*\n/) + 1).replace(/\s+/g, ' ').trim()
+                    .replace(/^(command|operation)\.\s*/i, '');
+                const match = body.match(/^.*?[.!?](?=\s|$)/);
+                if (match) sentence = match[0].charAt(0).toUpperCase() + match[0].slice(1);
+            } catch (error) {}
+        }
+        this.summaries.set(key, sentence);
+        return sentence;
+    },
 };
 
 // FIXME add options for objective logo and object serializer 
