@@ -1079,8 +1079,10 @@
           <div role="status" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
         `;
         this.listbox = this.shadowRoot.querySelector('[role="listbox"]');
+        this.listbox.id = 'logo-word-suggestions';
         this.status = this.shadowRoot.querySelector('[role="status"]');
         this.suggestions = [];
+        this.activeIndex = -1;
         this.provider = (text) => {
           const lower = text.toLowerCase();
           return Module.completion.names().filter((entry) => entry.name.toLowerCase().startsWith(lower));
@@ -1098,10 +1100,49 @@
         this.input.setAttribute('role', 'combobox');
         this.input.setAttribute('aria-autocomplete', 'list');
         this.input.setAttribute('aria-haspopup', 'listbox');
+        this.input.setAttribute('aria-controls', this.listbox.id);
         this.input.setAttribute('aria-expanded', 'false');
         this.input.addEventListener('input', () => this.update());
+        this.input.addEventListener('keydown', (event) => this.handleKeyDown(event), true);
         this.input.addEventListener('blur', () => this.close());
         this.input.form?.addEventListener('submit', () => this.close());
+      }
+
+      handleKeyDown(event) {
+        if (!this.suggestions.length) return;
+        const lastIndex = this.suggestions.length - 1;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          if (this.activeIndex === -1) {
+            this.activeIndex = event.key === 'ArrowDown' ? 0 : lastIndex;
+          } else {
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            this.activeIndex = Math.max(0, Math.min(lastIndex, this.activeIndex + direction));
+          }
+          this.updateActiveOption();
+        } else if (event.key === 'Enter' && this.activeIndex !== -1) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          this.accept(this.activeIndex);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          this.close();
+        }
+      }
+
+      updateActiveOption() {
+        const options = this.listbox.querySelectorAll('[role="option"]');
+        options.forEach((option, index) => {
+          const active = index === this.activeIndex;
+          option.id = `logo-word-option-${index}`;
+          option.setAttribute('aria-selected', String(active));
+          if (active) {
+            this.input.setAttribute('aria-activedescendant', option.id);
+            option.scrollIntoView({ block: 'nearest' });
+          }
+        });
       }
 
       currentWord() {
@@ -1112,10 +1153,19 @@
         return { start, end: caret + after.length, text: before, sigil: value[start - 1] ?? '' };
       }
 
+      // Only complete while the C stack is empty: not running, yielded, or blocked on input.
+      static logoIdle() {
+        return Boolean(Module.calledRun && Asyncify.state === 0 &&
+          getValue(Module._LOGO_GIL, 'i32') === 0 &&
+          !Module.blockedOnGetc && !Module.linemode &&
+          !(Module._tty_charmode && getValue(Module._tty_charmode, 'i32')));
+      }
+
       update() {
         const word = this.currentWord();
         this.word = word;
-        this.suggestions = word.text
+        this.activeIndex = -1;
+        this.suggestions = word.text && LogoAutocomplete.logoIdle()
           ? this.provider(word.text, word.sigil)
             .filter((entry) => entry.name !== word.text)
             .slice(0, LogoAutocomplete.maxSuggestions)
@@ -1128,6 +1178,7 @@
           const option = document.createElement('li');
           option.setAttribute('role', 'option');
           option.setAttribute('aria-selected', 'false');
+          option.id = `logo-word-option-${index}`;
           option.dataset.index = index;
           const heading = document.createElement('span');
           heading.className = 'heading';
@@ -1158,6 +1209,7 @@
         }));
         this.listbox.hidden = false;
         this.input.setAttribute('aria-expanded', 'true');
+        this.input.removeAttribute('aria-activedescendant');
         const count = this.suggestions.length;
         this.status.textContent = `${count} suggestion${count === 1 ? '' : 's'} available`;
       }
@@ -1178,9 +1230,11 @@
 
       close() {
         this.suggestions = [];
+        this.activeIndex = -1;
         this.listbox.hidden = true;
         this.listbox.replaceChildren();
         this.input?.setAttribute('aria-expanded', 'false');
+        this.input?.removeAttribute('aria-activedescendant');
       }
     }
     customElements.define("logo-autocomplete", LogoAutocomplete);

@@ -51,3 +51,5 @@ sw.js
 confdefs.*
 conftest.*
 *.tmp
+screenshots/
+reports/

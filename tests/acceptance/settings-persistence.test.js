@@ -251,6 +251,24 @@ describe('settings persistence acceptance', function () {
                 if (driver) await driver.quit();
             });
 
+            it('runs the bundled Logo language regression suite', async function () {
+                this.timeout(300000);
+                await driver.get(applicationUrl);
+                await waitForLogoReady(driver);
+                await runLogo(driver, `ignore runjs "|FS.chdir('/')| load "tests/test.lg`);
+                await driver.wait(async () => (await driver.findElement(By.id('output'))
+                    .getText()).includes('All tests completed.'), 240000,
+                'Logo language regression suite did not complete');
+
+                const output = await driver.executeScript(() =>
+                    document.getElementById('output').textContent,
+                );
+                const failedResults = output.split(/\r?\n/)
+                    .filter((line) => /^\s+(?:Failed|Error)\s*$/.test(line));
+                expect(failedResults, `${browserName} Logo unit test failures:\n${output}`)
+                    .to.deep.equal([]);
+            });
+
             it('labels application controls and manages settings dialog focus', async function () {
                 await driver.get(applicationUrl);
                 await waitForLogoReady(driver);

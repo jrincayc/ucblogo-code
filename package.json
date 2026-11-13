@@ -14,7 +14,10 @@
     "test:settings:chrome": "BROWSERS=chrome npm run test:settings",
     "test:settings:firefox": "BROWSERS=firefox npm run test:settings",
     "test:lighthouse": "mocha tests/acceptance/lighthouse.test.js",
-    "test:ipad:remote": "testcafe remote tests/acceptance/ipad-keyboard.test.js --ports 38079,38080 --disable-native-automation"
+    "test:ipad:remote": "testcafe remote tests/acceptance/ipad-keyboard.test.js --ports 38079,38080 --disable-native-automation",
+    "test:autocomplete": "npm run -s test:autocomplete:desktop && npm run -s test:autocomplete:phone",
+    "test:autocomplete:desktop": "testcafe ${TESTCAFE_BROWSER:-chrome} tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 3000 -s path=reports --assertion-timeout 2000 --selector-timeout 2000",
+    "test:autocomplete:phone": "testcafe 'chrome:emulation:width=390;height=500;mobile=true;touch=true' tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 3000 -s path=reports --assertion-timeout 2000 --selector-timeout 2000"
   },
   "author": "",
   "license": "ISC",
