@@ -52,6 +52,7 @@ extern void rd_print_prompt(char *);
 extern void yield_to_js(long);
 extern int LOGO_GIL;
 extern int yield_enabled;
+extern void push_completion_names(void);
 
 #endif
 
@@ -261,6 +262,7 @@ int main(int argc, char *argv[]) {
         silent_load(NIL, *argv2++);
     }
 	rd_print_prompt("? ");
+    push_completion_names();
     LOGO_GIL = 0;
 	return 0;
 }
@@ -324,6 +326,7 @@ stop:
     charmode_off();
     rd_print_prompt("? ");
    }
+   push_completion_names();
    LOGO_GIL = 0;
    yield_enabled = 1;
    EM_ASM({

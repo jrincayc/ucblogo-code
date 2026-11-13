@@ -1009,6 +1009,50 @@ Module.softKeyDown = (event, key) => {
     return false;
 }
 
+// Filled by C (push_completion_names); JS must never call into C for this.
+Module.completion = {
+    snapshot: '',
+    entries: null,
+    libraryNames: null,
+    update(text) {
+        this.snapshot = text;
+        this.entries = null;
+    },
+    library() {
+        if (this.libraryNames === null) {
+            try {
+                this.libraryNames = FS.readdir('/share/ucblogo/logolib')
+                    .filter((name) => !name.startsWith('.') && !name.includes('.'));
+            } catch (error) {
+                this.libraryNames = [];
+            }
+        }
+        return this.libraryNames;
+    },
+    names() {
+        if (this.entries !== null) return this.entries;
+        const byName = new Map();
+        for (const line of this.snapshot.split('\n')) {
+            if (!line) continue;
+            const flags = line.charCodeAt(0) - 48;
+            const name = line.slice(1);
+            byName.set(name.toLowerCase(), {
+                name,
+                kind: flags & 1 ? 'primitive' : flags & 2 ? 'procedure'
+                    : flags & 4 ? 'variable' : 'word',
+                variable: Boolean(flags & 4),
+            });
+        }
+        for (const name of this.library()) {
+            const existing = byName.get(name);
+            if (existing?.kind === 'primitive') continue;
+            byName.set(name, { name, kind: 'library', variable: Boolean(existing?.variable) });
+        }
+        this.entries = [...byName.values()];
+        return this.entries;
+    },
+};
+
 // FIXME add options for objective logo and object serializer 
 Module.LogoNodeProto = {
     baseaddr: null,

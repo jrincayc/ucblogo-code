@@ -45,6 +45,59 @@ static int runjs_write_word(FILE *stream, NODE *word) {
 	return TRUE;
 }
 
+#define COMPLETION_PRIMITIVE 1
+#define COMPLETION_PROCEDURE 2
+#define COMPLETION_VARIABLE  4
+
+/* Oblist as "<flags digit><name>\n" lines; allocates no NODEs. */
+static const char *completion_names(void) {
+	static char *buffer = NULL;
+	static size_t capacity = 0;
+	size_t used = 0;
+
+	for (int i = 0; i < HASH_LEN; i++) {
+		for (NODE *bucket = hash_table[i]; bucket != NIL; bucket = cdr(bucket)) {
+			NODE *obj = car(bucket);
+			NODE *name = strnode__caseobj(car(caselist__object(obj)));
+			NODE *proc = procnode__object(obj);
+			int flags = 0, len = getstrlen(name), skip = (len == 0);
+			char *str = getstrptr(name);
+
+			for (int j = 0; j < len && !skip; j++)
+				skip = ((unsigned char)str[j] < 0x20);
+			if (skip) continue;
+			if (proc != UNDEFINED)
+				flags |= is_prim(proc) ? COMPLETION_PRIMITIVE : COMPLETION_PROCEDURE;
+			if (valnode__object(obj) != UNBOUND)
+				flags |= COMPLETION_VARIABLE;
+			if (used + len + 3 > capacity) {
+				size_t newcap = (capacity ? capacity * 2 : 16384) + len;
+				char *grown = realloc(buffer, newcap);
+				if (grown == NULL) return NULL;
+				buffer = grown;
+				capacity = newcap;
+			}
+			buffer[used++] = '0' + flags;
+			memcpy(buffer + used, str, len);
+			used += len;
+			buffer[used++] = '\n';
+		}
+	}
+	if (buffer == NULL && (buffer = malloc(1)) == NULL) return NULL;
+	buffer[used] = '\0';
+	return buffer;
+}
+
+/* C pushes to JS so JS never reenters the non-reentrant interpreter. */
+void push_completion_names(void) {
+	const char *names = completion_names();
+	if (names == NULL) return;
+	EM_ASM({
+		if (typeof Module.completion !== 'undefined')
+			Module.completion.update(UTF8ToString($0));
+	}, names);
+}
+
 NODE *lrunjs(NODE *args) {
 	NODE *code = car(args);
 	NODE *param;
