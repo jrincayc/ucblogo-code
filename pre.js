@@ -1051,22 +1051,26 @@ Module.completion = {
         this.entries = [...byName.values()];
         return this.entries;
     },
-    summaries: new Map(),
-    summary(name) {
+    helpCache: new Map(),
+    help(name) {
         const key = name.toLowerCase();
-        if (this.summaries.has(key)) return this.summaries.get(key);
-        let sentence = null;
+        if (this.helpCache.has(key)) return this.helpCache.get(key);
+        const help = { usage: [], summary: null };
         if (!key.includes('/') && key !== '.' && key !== '..') {
             try {
                 const text = UTF8ArrayToString(FS.readFile(`/share/ucblogo/helpfiles/${key}`));
-                const body = text.slice(text.search(/\n\s*\n/) + 1).replace(/\s+/g, ' ').trim()
+                const split = text.search(/\n\s*\n/);
+                help.usage = text.slice(0, split).split('\n')
+                    .map((line) => line.replace(/\(library procedure\)/i, '').trim())
+                    .filter(Boolean);
+                const body = text.slice(split + 1).replace(/\s+/g, ' ').trim()
                     .replace(/^(command|operation)\.\s*/i, '');
                 const match = body.match(/^.*?[.!?](?=\s|$)/);
-                if (match) sentence = match[0].charAt(0).toUpperCase() + match[0].slice(1);
+                if (match) help.summary = match[0].charAt(0).toUpperCase() + match[0].slice(1);
             } catch (error) {}
         }
-        this.summaries.set(key, sentence);
-        return sentence;
+        this.helpCache.set(key, help);
+        return help;
     },
 };
 

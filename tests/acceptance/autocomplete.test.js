@@ -7,11 +7,23 @@ const headless = process.env.HEADLESS !== '0';
 const testDelayMs = Math.max(0, Number(process.env.TEST_DELAY_MS) || 0);
 const applicationServer = createApplicationServer();
 
-function createDriver() {
+const modes = {
+    desktop: { width: 1280, height: 800 },
+    phone: { width: 390, height: 844, mobile: true },
+};
+
+async function createDriver(mode) {
     const options = new chrome.Options().addArguments('--no-sandbox', '--disable-dev-shm-usage');
     if (headless) options.addArguments('--headless=new');
     if (process.env.CHROME_BINARY) options.setChromeBinaryPath(process.env.CHROME_BINARY);
-    return new Builder().forBrowser('chrome').setChromeOptions(options).build();
+    if (mode.mobile) {
+        options.setMobileEmulation({
+            deviceMetrics: { width: mode.width, height: mode.height, pixelRatio: 3, touch: true },
+        });
+    }
+    const driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+    if (!mode.mobile) await driver.manage().window().setRect({ width: mode.width, height: mode.height });
+    return driver;
 }
 
 async function pauseForViewer(driver) {
@@ -74,30 +86,67 @@ async function popupState(driver) {
                 option.querySelector('.name').textContent),
             summaries: Object.fromEntries([...listbox.querySelectorAll('[role="option"]')].map((option) =>
                 [option.querySelector('.name').textContent, option.querySelector('.summary')?.textContent ?? null])),
+            usages: Object.fromEntries([...listbox.querySelectorAll('[role="option"]')].map((option) =>
+                [option.querySelector('.name').textContent,
+                    [...option.querySelectorAll('.signature')].map((signature) => signature.textContent)])),
             status: root.querySelector('[role="status"]').textContent,
             value: input.value,
             caret: input.selectionStart,
             focused: document.activeElement === input,
+            activeElement: document.activeElement?.id || document.activeElement?.tagName,
         };
     });
 }
 
+async function optionLayout(driver, name) {
+    return driver.executeScript((wanted) => {
+        const root = document.querySelector('logo-autocomplete').shadowRoot;
+        const listbox = root.querySelector('[role="listbox"]');
+        const option = [...listbox.querySelectorAll('[role="option"]')]
+            .find((candidate) => candidate.querySelector('.name').textContent === wanted);
+        const box = (element) => element.getBoundingClientRect().toJSON();
+        return {
+            viewportWidth: document.documentElement.clientWidth,
+            listbox: box(listbox),
+            listboxOverflow: listbox.scrollWidth - listbox.clientWidth,
+            option: box(option),
+            optionOverflow: option.scrollWidth - option.clientWidth,
+            name: box(option.querySelector('.name')),
+            usage: box(option.querySelector('.usage')),
+            summary: box(option.querySelector('.summary')),
+        };
+    }, name);
+}
+
 describe('Logo word autocompletion', function () {
-    this.timeout(120000);
-    let driver;
+    this.timeout(180000);
     let url;
 
     before(async function () {
         url = await applicationServer.start();
-        driver = createDriver();
+    });
+
+    after(async function () {
+        await applicationServer.stop();
+    });
+
+    for (const [modeName, mode] of Object.entries(modes)) describe(`${modeName} (${mode.width}x${mode.height})`, function () {
+    let driver;
+
+    before(async function () {
+        driver = await createDriver(mode);
         await driver.get(url);
         await waitForLogoIdle(driver);
         await pauseForViewer(driver);
     });
 
+    afterEach(async function () {
+        if (this.currentTest.state === 'failed' && driver)
+            console.error('popup state at failure:', JSON.stringify(await popupState(driver)));
+    });
+
     after(async function () {
         if (driver) await driver.quit();
-        await applicationServer.stop();
     });
 
     describe('symbol source', function () {
@@ -177,11 +226,63 @@ describe('Logo word autocompletion', function () {
             expect(state.summaries.nohelpword).to.equal(null);
         });
 
+        it('shows the argument syntax for each documented word', async function () {
+            await useStubNames(driver, ['forward', 'foreach', 'nohelpword']);
+            await typeSlowly(driver, 'f');
+            const state = await popupState(driver);
+            expect(state.usages.forward).to.deep.equal(['FORWARD dist', 'FD dist']);
+            expect(state.usages.foreach).to.deep.equal(
+                ['FOREACH data template', '(FOREACH data1 data2 ... template)']);
+            await resetInput(driver);
+            await typeSlowly(driver, 'n');
+            expect((await popupState(driver)).usages.nohelpword).to.deep.equal([]);
+        });
+
         it('closes after the command is submitted', async function () {
             await typeSlowly(driver, 'fo');
             await driver.findElement(By.id('logoInputText')).sendKeys(Key.ENTER);
             await waitForLogoIdle(driver);
             expect((await popupState(driver)).open).to.equal(false);
         });
+    });
+
+    describe('layout', function () {
+        beforeEach(async function () {
+            await useStubNames(driver, ['forward', 'foreach']);
+            await resetInput(driver);
+            await typeSlowly(driver, 'f');
+        });
+
+        it('fits the popup within the viewport without horizontal scrolling', async function () {
+            for (const name of ['forward', 'foreach']) {
+                const layout = await optionLayout(driver, name);
+                expect(layout.listbox.left).to.be.at.least(0);
+                expect(layout.listbox.right).to.be.at.most(layout.viewportWidth + 0.5);
+                expect(layout.listboxOverflow).to.be.at.most(0);
+                expect(layout.optionOverflow).to.be.at.most(0);
+                expect(layout.summary.top).to.be.at.least(layout.name.bottom - 0.5);
+            }
+        });
+
+        it('keeps touch targets at least 44 CSS pixels tall', async function () {
+            const layout = await optionLayout(driver, 'forward');
+            expect(layout.option.height).to.be.at.least(44);
+        });
+
+        if (mode.mobile) {
+            it('wraps long argument syntax below the word in portrait', async function () {
+                const layout = await optionLayout(driver, 'foreach');
+                expect(layout.usage.top).to.be.at.least(layout.name.bottom - 0.5);
+            });
+        } else {
+            it('shows argument syntax on the same line as the word', async function () {
+                for (const name of ['forward', 'foreach']) {
+                    const layout = await optionLayout(driver, name);
+                    expect(layout.usage.top).to.be.below(layout.name.bottom);
+                    expect(layout.usage.left).to.be.at.least(layout.name.right);
+                }
+            });
+        }
+    });
     });
 });

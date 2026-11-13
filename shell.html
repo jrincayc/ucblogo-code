@@ -1033,8 +1033,25 @@
               -webkit-user-select: none;
               user-select: none;
             }
+            .heading {
+              display: flex;
+              flex-wrap: wrap;
+              align-items: baseline;
+              column-gap: 1.5ch;
+            }
             .name {
               font-weight: bold;
+            }
+            .usage {
+              display: flex;
+              flex-wrap: wrap;
+              column-gap: 1.5ch;
+              min-width: 0;
+              font-size: 0.85em;
+            }
+            .signature {
+              font: inherit;
+              overflow-wrap: anywhere;
             }
             .summary {
               font-size: 0.85em;
@@ -1068,7 +1085,7 @@
           const lower = text.toLowerCase();
           return Module.completion.names().filter((entry) => entry.name.toLowerCase().startsWith(lower));
         };
-        this.describe = (entry) => Module.completion.summary(entry.name);
+        this.describe = (entry) => Module.completion.help(entry.name);
         this.listbox.addEventListener('pointerdown', (event) => event.preventDefault());
         this.listbox.addEventListener('click', (event) => {
           const option = event.target.closest('[role="option"]');
@@ -1112,11 +1129,25 @@
           option.setAttribute('role', 'option');
           option.setAttribute('aria-selected', 'false');
           option.dataset.index = index;
+          const heading = document.createElement('span');
+          heading.className = 'heading';
           const name = document.createElement('span');
           name.className = 'name';
           name.textContent = entry.name;
-          option.append(name);
-          const summary = this.describe(entry);
+          heading.append(name);
+          option.append(heading);
+          const { usage, summary } = this.describe(entry);
+          if (usage.length) {
+            const syntax = document.createElement('span');
+            syntax.className = 'usage';
+            for (const line of usage) {
+              const signature = document.createElement('code');
+              signature.className = 'signature';
+              signature.textContent = line;
+              syntax.append(signature, ' ');
+            }
+            heading.append(' ', syntax);
+          }
           if (summary) {
             const description = document.createElement('span');
             description.className = 'summary';
