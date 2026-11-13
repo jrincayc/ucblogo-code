@@ -4,6 +4,34 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 
 describe('startup error reporting', function () {
+    it('skips local service workers and handles registration failures', async function () {
+        const shell = fs.readFileSync(path.resolve(__dirname, '../../shell.html'), 'utf8');
+        const registration = shell.match(/    if \('serviceWorker' in navigator &&[\s\S]*?\n    \}/);
+        assert.ok(registration, 'service worker registration');
+        for (const hostname of ['localhost', '127.0.0.1', '[::1]', 'example.com']) {
+            let load;
+            const registrations = [];
+            const warnings = [];
+            const context = {
+                window: { location: { hostname }, addEventListener: (event, handler) => { load = handler; } },
+                navigator: { serviceWorker: { register: (path) => {
+                    registrations.push(path);
+                    return Promise.reject(new Error('unavailable'));
+                } } },
+                console: { warn: (...args) => warnings.push(args) },
+            };
+            vm.runInNewContext(registration[0], context);
+            if (hostname !== 'example.com') {
+                assert.equal(load, undefined, hostname);
+                continue;
+            }
+            load();
+            await Promise.resolve();
+            assert.deepEqual(registrations, ['sw.js']);
+            assert.equal(warnings.length, 1);
+        }
+    });
+
     it('traces uncaught errors and unhandled rejections without suppressing them', function () {
         const shell = fs.readFileSync(path.resolve(__dirname, '../../shell.html'), 'utf8');
         const handlers = shell.match(/    function showJavaScriptError\([\s\S]*?    window\.addEventListener\('unhandledrejection',[\s\S]*?    \}\);/);
