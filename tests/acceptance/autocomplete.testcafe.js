@@ -37,9 +37,11 @@ const popupState = ClientFunction(() => {
     const names = [];
     const summaries = {};
     const usages = {};
+    const optionBackgrounds = {};
     for (const node of box.querySelectorAll('[role="option"]')) {
         const word = node.querySelector('.name').textContent;
         names.push(word);
+        optionBackgrounds[word] = getComputedStyle(node).backgroundColor;
         summaries[word] = node.querySelector('.summary') ? node.querySelector('.summary').textContent : null;
         usages[word] = Array.from(node.querySelectorAll('.signature')).map((signature) => signature.textContent);
     }
@@ -50,6 +52,7 @@ const popupState = ClientFunction(() => {
         role: input.getAttribute('role'),
         autocomplete: input.getAttribute('aria-autocomplete'),
         options: names,
+        optionBackgrounds,
         selected: Array.from(box.querySelectorAll('[role="option"]'))
             .filter((node) => node.getAttribute('aria-selected') === 'true')
             .map((node) => node.querySelector('.name').textContent),
@@ -72,6 +75,8 @@ const useLiveNames = ClientFunction(() => {
     const element = document.querySelector('logo-autocomplete');
     element.provider = element.liveProvider ?? element.provider;
 });
+const openSettingsDialog = ClientFunction(() => document.getElementById('settings').showModal());
+const settingsDialogOpen = ClientFunction(() => document.getElementById('settings').open);
 const resetInput = ClientFunction(() => {
     const input = document.getElementById('logoInputText');
     input.value = '';
@@ -209,7 +214,10 @@ test('stub: keyboard navigates, accepts, and dismisses suggestions', async (t) =
     await t.pressKey('down');
     let state = await popupState();
     await t.expect(state.selected).eql(['forward'])
-        .expect(state.activeDescendant).eql('logo-word-option-0');
+        .expect(state.activeDescendant).eql('logo-word-option-0')
+        .expect(state.value).eql('fo')
+        .expect(state.focused).ok()
+        .expect(state.optionBackgrounds.forward).notEql(state.optionBackgrounds.foreach);
     await t.pressKey('down');
     state = await popupState();
     await t.expect(state.selected).eql(['foreach']);
@@ -223,6 +231,55 @@ test('stub: keyboard navigates, accepts, and dismisses suggestions', async (t) =
     await t.pressKey('esc');
     state = await popupState();
     await t.expect(state.open).notOk().expect(state.value).eql('forward fo');
+});
+
+test('stub: Tab accepts the first suggestion without leaving the input', async (t) => {
+    await useStubNames(['forward', 'foreach', 'format']);
+    await resetInput();
+    await typeSlowly(t, 'fo');
+    await t.pressKey('tab');
+    const state = await popupState();
+    await t.expect(state.value).eql('forward ')
+        .expect(state.open).notOk()
+        .expect(state.focused).ok();
+});
+
+test('stub: Tab accepts the active suggestion without leaving the input', async (t) => {
+    await useStubNames(['forward', 'foreach', 'format']);
+    await resetInput();
+    await typeSlowly(t, 'fo');
+    await t.pressKey('down').pressKey('down').pressKey('tab');
+    const state = await popupState();
+    await t.expect(state.value).eql('foreach ')
+        .expect(state.open).notOk()
+        .expect(state.focused).ok();
+});
+
+test('stub: Ctrl+[ dismisses suggestions like Escape', async (t) => {
+    await useStubNames(['forward', 'foreach', 'format']);
+    await resetInput();
+    await typeSlowly(t, 'fo');
+    await t.pressKey('ctrl+[');
+    const state = await popupState();
+    await t.expect(state.open).notOk()
+        .expect(state.value).eql('fo')
+        .expect(state.focused).ok();
+});
+
+test('global: Ctrl+[ closes an open modal dialog like Escape', async (t) => {
+    await openSettingsDialog();
+    await t.expect(settingsDialogOpen()).ok();
+    await t.pressKey('ctrl+[');
+    await t.expect(settingsDialogOpen()).notOk();
+});
+
+test('global: Ctrl+[ with nothing to dismiss leaves the command line alone', async (t) => {
+    await useStubNames(['forward']);
+    await resetInput();
+    await typeSlowly(t, 'print');
+    await t.pressKey('ctrl+[');
+    const state = await popupState();
+    await t.expect(state.value).eql('print').expect(state.focused).ok();
 });
 
 test('stub: help summary and argument syntax, none for undocumented words', async (t) => {

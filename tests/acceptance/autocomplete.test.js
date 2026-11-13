@@ -245,6 +245,74 @@ describe('Logo word autocompletion', function () {
         });
     });
 
+    describe('built-in editor', function () {
+        it('completes words in the editor while Logo is suspended', async function () {
+            const command = await driver.findElement(By.id('logoInputText'));
+            await command.clear();
+            await command.sendKeys('edall', Key.ENTER);
+            try {
+                await driver.wait(() => driver.executeScript(() => document.getElementById('editorDialog').open),
+                    10000, 'Logo editor did not open');
+                await driver.executeScript(() => {
+                    const input = document.getElementById('editorTextArea');
+                    input.value = 'to demo\n  forw 10\nend';
+                    input.focus();
+                    input.setSelectionRange(14, 14);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                const state = await driver.executeScript(() => {
+                    const popup = document.querySelector('logo-autocomplete[for="editorTextArea"]');
+                    if (!popup) return null;
+                    const option = [...popup.shadowRoot.querySelectorAll('[role="option"]')]
+                        .find((candidate) => candidate.querySelector('.name').textContent === 'forward');
+                    if (!option) return { open: false };
+                    option.click();
+                    const input = document.getElementById('editorTextArea');
+                    return { open: document.getElementById('editorDialog').open, value: input.value,
+                        caret: input.selectionStart, focused: document.activeElement === input };
+                });
+                expect(state).to.deep.equal({ open: true, value: 'to demo\n  forward 10\nend',
+                    caret: 17, focused: true });
+            } finally {
+                await driver.executeScript(() => {
+                    if (document.getElementById('editorDialog').open) Module.editor.discardClicked();
+                });
+                await waitForLogoIdle(driver);
+            }
+        });
+
+        it('supports keyboard completion and preserves editor newline and Escape behavior', async function () {
+            const command = await driver.findElement(By.id('logoInputText'));
+            await command.clear();
+            await command.sendKeys('edall', Key.ENTER);
+            try {
+                await driver.wait(() => driver.executeScript(() => document.getElementById('editorDialog').open),
+                    10000, 'Logo editor did not open');
+                const editor = await driver.findElement(By.id('editorTextArea'));
+                await driver.executeScript(() => {
+                    const input = document.getElementById('editorTextArea');
+                    input.value = '';
+                    input.focus();
+                });
+                await editor.sendKeys('forw', Key.TAB);
+                expect(await editor.getAttribute('value')).to.equal('forward ');
+                await editor.sendKeys('forw', Key.ESCAPE);
+                expect(await driver.executeScript(() => ({
+                    dialogOpen: document.getElementById('editorDialog').open,
+                    popupOpen: !document.querySelector('logo-autocomplete[for="editorTextArea"]')
+                        .shadowRoot.querySelector('[role="listbox"]').hidden,
+                }))).to.deep.equal({ dialogOpen: true, popupOpen: false });
+                await editor.sendKeys(Key.ENTER);
+                expect(await editor.getAttribute('value')).to.equal('forward forw\n');
+            } finally {
+                await driver.executeScript(() => {
+                    if (document.getElementById('editorDialog').open) Module.editor.discardClicked();
+                });
+                await waitForLogoIdle(driver);
+            }
+        });
+    });
+
     describe('popup with stub names', function () {
         beforeEach(async function () {
             await useStubNames(driver, ['forward', 'foreach', 'format', 'back']);

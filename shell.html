@@ -646,6 +646,7 @@
       <h2 id="editorTitle" class="dialogTitle">Logo editor</h2>
       <div class="dialogBody flex col">
         <div class="flex grow editorTextContainer">
+          <logo-autocomplete for="editorTextArea"></logo-autocomplete>
           <label class="visually-hidden" for="editorTextArea">Logo source code</label>
           <textarea id="editorTextArea" spellcheck="false"
               autocomplete="off" autocapitalize="off" autocorrect="off"></textarea>
@@ -678,7 +679,12 @@
 
         #editorDialog .editorTextContainer {
           min-height: 0;
+          position: relative;
           overflow: hidden;
+        }
+
+        #editorDialog logo-autocomplete {
+          bottom: 0;
         }
 
         #editorTextArea {
@@ -1065,6 +1071,9 @@
             [role="option"] + [role="option"] {
               border-top: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
             }
+            [role="option"][aria-selected="true"] {
+              background: color-mix(in srgb, var(--fg) 20%, var(--bg));
+            }
             .visually-hidden {
               position: absolute;
               width: 1px;
@@ -1079,10 +1088,8 @@
           <div role="status" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
         `;
         this.listbox = this.shadowRoot.querySelector('[role="listbox"]');
-        this.listbox.id = 'logo-word-suggestions';
         this.status = this.shadowRoot.querySelector('[role="status"]');
         this.suggestions = [];
-        this.activeIndex = -1;
         this.provider = (text) => {
           const lower = text.toLowerCase();
           return Module.completion.names().filter((entry) => entry.name.toLowerCase().startsWith(lower));
@@ -1100,49 +1107,12 @@
         this.input.setAttribute('role', 'combobox');
         this.input.setAttribute('aria-autocomplete', 'list');
         this.input.setAttribute('aria-haspopup', 'listbox');
-        this.input.setAttribute('aria-controls', this.listbox.id);
         this.input.setAttribute('aria-expanded', 'false');
         this.input.addEventListener('input', () => this.update());
-        this.input.addEventListener('keydown', (event) => this.handleKeyDown(event), true);
         this.input.addEventListener('blur', () => this.close());
+        this.input.addEventListener('click', () => this.close());
+        this.input.addEventListener('keydown', (event) => this.handleKeyDown(event), true);
         this.input.form?.addEventListener('submit', () => this.close());
-      }
-
-      handleKeyDown(event) {
-        if (!this.suggestions.length) return;
-        const lastIndex = this.suggestions.length - 1;
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          if (this.activeIndex === -1) {
-            this.activeIndex = event.key === 'ArrowDown' ? 0 : lastIndex;
-          } else {
-            const direction = event.key === 'ArrowDown' ? 1 : -1;
-            this.activeIndex = Math.max(0, Math.min(lastIndex, this.activeIndex + direction));
-          }
-          this.updateActiveOption();
-        } else if (event.key === 'Enter' && this.activeIndex !== -1) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          this.accept(this.activeIndex);
-        } else if (event.key === 'Escape') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          this.close();
-        }
-      }
-
-      updateActiveOption() {
-        const options = this.listbox.querySelectorAll('[role="option"]');
-        options.forEach((option, index) => {
-          const active = index === this.activeIndex;
-          option.id = `logo-word-option-${index}`;
-          option.setAttribute('aria-selected', String(active));
-          if (active) {
-            this.input.setAttribute('aria-activedescendant', option.id);
-            option.scrollIntoView({ block: 'nearest' });
-          }
-        });
       }
 
       currentWord() {
@@ -1153,7 +1123,6 @@
         return { start, end: caret + after.length, text: before, sigil: value[start - 1] ?? '' };
       }
 
-      // Only complete while the C stack is empty: not running, yielded, or blocked on input.
       static logoIdle() {
         return Boolean(Module.calledRun && Asyncify.state === 0 &&
           getValue(Module._LOGO_GIL, 'i32') === 0 &&
@@ -1165,7 +1134,10 @@
         const word = this.currentWord();
         this.word = word;
         this.activeIndex = -1;
-        this.suggestions = word.text && LogoAutocomplete.logoIdle()
+        this.input.removeAttribute('aria-activedescendant');
+        const editorOpen = this.input.id === 'editorTextArea' &&
+          document.getElementById('editorDialog').open;
+        this.suggestions = word.text && (editorOpen || LogoAutocomplete.logoIdle())
           ? this.provider(word.text, word.sigil)
             .filter((entry) => entry.name !== word.text)
             .slice(0, LogoAutocomplete.maxSuggestions)
@@ -1178,7 +1150,7 @@
           const option = document.createElement('li');
           option.setAttribute('role', 'option');
           option.setAttribute('aria-selected', 'false');
-          option.id = `logo-word-option-${index}`;
+          option.id = `${this.input.id === 'logoInputText' ? 'logo-word' : this.input.id}-option-${index}`;
           option.dataset.index = index;
           const heading = document.createElement('span');
           heading.className = 'heading';
@@ -1209,9 +1181,35 @@
         }));
         this.listbox.hidden = false;
         this.input.setAttribute('aria-expanded', 'true');
-        this.input.removeAttribute('aria-activedescendant');
         const count = this.suggestions.length;
         this.status.textContent = `${count} suggestion${count === 1 ? '' : 's'} available`;
+      }
+
+      handleKeyDown(event) {
+        if (this.listbox.hidden || event.altKey || event.ctrlKey || event.metaKey) return;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          const direction = event.key === 'ArrowDown' ? 1 : -1;
+          this.activeIndex = this.activeIndex < 0
+            ? (direction > 0 ? 0 : this.suggestions.length - 1)
+            : (this.activeIndex + direction + this.suggestions.length) % this.suggestions.length;
+          for (const [index, option] of [...this.listbox.children].entries())
+            option.setAttribute('aria-selected', String(index === this.activeIndex));
+          const selected = this.listbox.children[this.activeIndex];
+          this.input.setAttribute('aria-activedescendant', selected.id);
+          selected.scrollIntoView({ block: 'nearest' });
+        } else if (event.key === 'Tab' && !event.shiftKey) {
+          this.accept(Math.max(0, this.activeIndex));
+        } else if (event.key === 'Enter' && this.activeIndex >= 0) {
+          this.accept(this.activeIndex);
+        } else if (event.key === 'Escape') {
+          this.close();
+        } else {
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End')
+            this.close();
+          return;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
       }
 
       accept(index) {
@@ -1230,7 +1228,6 @@
 
       close() {
         this.suggestions = [];
-        this.activeIndex = -1;
         this.listbox.hidden = true;
         this.listbox.replaceChildren();
         this.input?.setAttribute('aria-expanded', 'false');
@@ -1238,6 +1235,35 @@
       }
     }
     customElements.define("logo-autocomplete", LogoAutocomplete);
+
+    function isEscapeAlias(event) {
+      return event.key === '[' && event.ctrlKey && !event.altKey &&
+        !event.metaKey && !event.shiftKey;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (!isEscapeAlias(event)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const activeElement = document.activeElement;
+      const escapeEvent = new KeyboardEvent('keydown', {
+        key: 'Escape', code: 'Escape', bubbles: true, cancelable: true,
+      });
+      activeElement?.dispatchEvent(escapeEvent);
+      if (escapeEvent.defaultPrevented) return;
+
+      const dialogs = document.querySelectorAll('dialog[open]');
+      const dialog = dialogs[dialogs.length - 1];
+      if (dialog) {
+        if (dialog.dispatchEvent(new Event('cancel', { cancelable: true }))) dialog.close();
+        return;
+      }
+
+      const autocomplete = document.querySelector('logo-autocomplete');
+      if (autocomplete && !autocomplete.shadowRoot.querySelector('[role="listbox"]').hidden)
+        autocomplete.close();
+    }, true);
 
     const updateAppViewportHeight = () => {
       const viewport = window.visualViewport;

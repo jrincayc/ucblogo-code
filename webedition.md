@@ -26,6 +26,13 @@ as a progressive web app, which is recommended.
 * Persistent virtual filesystem
 * JS/Logo interoperability
 
+Word suggestions are available in the command line and built-in editor. Select
+a suggestion by clicking or tapping it, or use the arrow keys and Enter; Tab
+accepts the first suggestion or the selected one. Escape dismisses suggestions.
+In the editor, Enter inserts a newline when no suggestion is selected. Suggestions
+use the last interpreter snapshot, so names newly typed into the editor appear
+after the edited definitions have been applied.
+
 ## Supported browsers and platforms (current versions)
 
 * Chrome
