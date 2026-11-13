@@ -373,18 +373,6 @@
     }, 0);
   </script>
   <script>
-    // if (!WebAssembly.promising) {
-    //   document.addEventListener('DOMContentLoaded', (event) => {
-    //     event.preventDefault();
-    //     document.querySelector('body').innerHTML = `
-    //       <h3>You must enable JSPI in chrome://flags to use UCB Logo Web Edition</h3>
-    //       <img src="chromeflagsjspi.png"></img>
-    //     `;
-    //     window.alert("You must enable JSPI in chrome://flags to use Logo");
-    //     throw new Error("Fatal: JSPI not available");
-    //     return false;
-    //   }, { capture: true })
-    // }
     window.addEventListener('load', () => {
 
     })
@@ -917,10 +905,13 @@
 
     // Google workbox service worker
     // For offline support
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator &&
+        !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
       // Register a service worker after the load event
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js').catch(error => {
+          console.warn('Service worker registration failed:', error);
+        });
       });
     }
 
