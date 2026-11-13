@@ -141,7 +141,6 @@ ucblogo-node.js: ucblogo pre.js liblogo.js
 	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
 	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o ucblogo-git.o \
 	--pre-js pre.js \
-	-s JSPI \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
 	-s ENVIRONMENT=node \
@@ -179,7 +178,6 @@ ucblogo.html: ucblogo shell.html pre.js liblogo.js webstartup.lg
 	--embed-file web.lgo \
 	--embed-file logologo.ico \
 	--embed-file webstartup.lg@/share/ucblogo/logolib/startup.lg \
-	-s JSPI \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
 	-s ENVIRONMENT=web \
