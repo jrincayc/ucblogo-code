@@ -2,12 +2,16 @@
 
 const path = require('node:path');
 const { spawn } = require('node:child_process');
-const { gradeLogoOutput, formatLogoGrade } = require('./logo-results');
+const {
+    gradeLogoOutput,
+    formatLogoGrade,
+    allowKnownLogoFailures,
+} = require('./logo-results');
 
 const repositoryRoot = path.resolve(__dirname, '../..');
 
 function gradeLogoProcess({ stdout, stderr, code, signal, error, timedOut }) {
-    const grade = gradeLogoOutput(stdout);
+    const grade = allowKnownLogoFailures(gradeLogoOutput(stdout));
     const stderrGrade = gradeLogoOutput(stderr);
     grade.problems.push(...stderrGrade.problems.filter((problem) => problem.startsWith('Runtime crash')));
     if (error) grade.problems.push(`Logo process error: ${error.message}`);

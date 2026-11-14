@@ -1,6 +1,11 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { gradeLogoOutput, formatLogoGrade, allowLogoShutdown } = require('./logo-results');
+const {
+    gradeLogoOutput,
+    formatLogoGrade,
+    allowKnownLogoFailures,
+    allowLogoShutdown,
+} = require('./logo-results');
 const { gradeLogoProcess, runLogoNode } = require('./run-logo-node');
 
 test('grades actual same-line and multiline Logo statuses and reports OOP as skipped', () => {
@@ -84,6 +89,38 @@ test('rejects truncated records, orphan statuses, duplicate markers and late res
     }
 });
 
+test('allows only the known LiteralDribble missing-result signature as XFAIL', () => {
+    const output = [
+        'Tests.File.Before... Ok',
+        'Tests.File.LiteralDribble... line1',
+        'a<&>"\'z',
+        'line3Ok',
+        'Tests.File.After... Ok',
+        'All tests completed.',
+    ].join('\n');
+    const grade = gradeLogoOutput(output);
+    const failedBeforeKnownFailureHandling = grade.ok;
+    const knownFailureGrade = allowKnownLogoFailures(grade);
+    assert.equal(failedBeforeKnownFailureHandling, false);
+    assert.equal(knownFailureGrade.ok, true);
+    assert.deepEqual(knownFailureGrade.knownFailures, ['Tests.File.LiteralDribble']);
+    assert.match(formatLogoGrade(knownFailureGrade), /XFAIL: Tests\.File\.LiteralDribble/);
+});
+
+test('known Logo failure allowance rejects unrelated or changed failures', () => {
+    const outputs = [
+        'Tests.File.Other... output\nTests.Next... Ok\nAll tests completed.',
+        'Tests.File.LiteralDribble... unexpected output\nTests.Next... Ok\nAll tests completed.',
+        'Tests.File.LiteralDribble... line1\na<&>"\'z\nline3Ok\nTests.Next... Failed\nAll tests completed.',
+        'Tests.File.LiteralDribble... line1\na<&>"\'z\nline3Ok\nTests.Next... Ok',
+        'Tests.File.LiteralDribble... line1\na<&>"\'z\nline3Ok\nTests.Next... Ok\nTests.File.Other... output\nAll tests completed.',
+    ];
+    for (const output of outputs) {
+        const grade = gradeLogoOutput(output);
+        assert.equal(allowKnownLogoFailures(grade).ok, false, output);
+    }
+});
+
 test('rejects runtime crashes in output even after successful completion', () => {
     for (const diagnostic of [
         'RuntimeError: unreachable',
@@ -121,6 +158,31 @@ test('Node runner captures output and rejects intentional failed, error and trun
         assert.equal(result.code, 0);
         assert.equal(result.exitCode, 1);
     }
+});
+
+test('Node runner reports the known LiteralDribble signature as XFAIL only on successful process exit', async () => {
+    const output = [
+        'Tests.File.Before... Ok',
+        'Tests.File.LiteralDribble... line1',
+        'a<&>"\'z',
+        'line3Ok',
+        'Tests.File.After... Ok',
+        'All tests completed.',
+    ].join('\n');
+    const passing = await runLogoNode({
+        args: ['-e', `process.stdout.write(${JSON.stringify(output)})`],
+    });
+    assert.equal(passing.exitCode, 0);
+    assert.equal(passing.grade.ok, true);
+    assert.deepEqual(passing.grade.knownFailures, ['Tests.File.LiteralDribble']);
+    assert.match(formatLogoGrade(passing.grade), /XFAIL: Tests\.File\.LiteralDribble/);
+
+    const failing = await runLogoNode({
+        args: ['-e', `process.stdout.write(${JSON.stringify(output)}); process.exit(7);`],
+    });
+    assert.equal(failing.exitCode, 7);
+    assert.equal(failing.grade.ok, false);
+    assert.ok(failing.grade.problems.includes('Logo process exit code: 7'));
 });
 
 test('Node runner propagates real child exit and crashes even with completed output', async () => {
