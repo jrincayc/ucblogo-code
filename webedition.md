@@ -86,14 +86,125 @@ on-screen keyboard.
 SVG scales nicely accross the huge range of display resolutions present in
 mobile devices.
 
-## Accessibility is a priority
+## Accessibility status and roadmap
 
-Further because the UI uses standard HTML and SVG elements it is accessible to
-people with visual impairments in a way that Logo has never been. The fonts and
-drawings can be blown up to epic proportions without pixelation artifacts and it
-should be screen reader compatible. The responsive UI smoothly scales to any screen size.
+As a web app, Web Edition is expected to work with third-party screen readers.
+Terminal output can be read, but compatibility across the whole interface,
+including input, editing, controls, and turtle drawings, still needs testing.
+Standard HTML and SVG are useful foundations, but do not by themselves ensure
+that every workflow or the meaning of a drawing is accessible.
 
-Accessiblity is a high priority with this port so feedback is appreciated.
+Separately, Web Edition currently offers spoken output using text-to-speech.
+The longer-term goal is an optional built-in screen reader that can do much more
+than speak output. It should complement, not replace or interfere with,
+third-party screen readers.
+
+The roadmap below is planned work, not a claim that these capabilities already
+exist. Each stage should include keyboard-only checks and testing with people
+who use assistive technology.
+
+See the [accessibility project plan](docs/plans/web-accessibility.md) for
+priorities, dependencies, work packages, and acceptance criteria.
+
+### 1. Audit and define support
+
+* Inventory every workflow: startup, dialogs, command entry and output, command
+   history, autocomplete, soft keys, source editor, settings, file actions, and
+   turtle drawings.
+* Test current behavior with representative screen readers and browsers. Record
+   what works, where focus goes, and which announcements are missing; do not
+   infer support from markup alone.
+* Publish a support matrix and prioritize blockers with blind and low-vision
+   Logo users.
+
+### 2. Make command input and editing accessible
+
+* Preserve native, labeled text input and textarea behavior so screen readers
+   can announce focus, caret movement, selection, and user-entered text.
+* Make command submission, interpreter busy/stopped state, errors, and command
+   completion discoverable without stealing focus or repeatedly interrupting
+   speech.
+* Ensure command history can be browsed and selected by keyboard and assistive
+   technology, with the selected command returned to the input field predictably.
+* Make autocomplete announce suggestions, selection, and dismissal. Verify
+   keyboard and screen-reader operation for both the command line and editor.
+* Make soft-key insertion announce the inserted character when appropriate,
+   restore focus to the edited field, and preserve the caret and selection.
+* Provide a usable multiline editor workflow, including navigation, selection,
+   applying changes, and reporting errors. Avoid duplicating the screen reader's
+   configured character/word echo; any optional Logo speech or command readback
+   must be separately controllable and non-interfering.
+
+### 3. Verify and improve third-party screen-reader access
+
+* Give every control a correct accessible name, role, state, and keyboard
+   behavior; verify dialogs, focus entry/restoration, settings, uploads/downloads,
+   and status/error announcements.
+* Make terminal output reviewable and navigable, including new output, prompts,
+   partial lines, and long sessions. Keep announcements useful rather than
+   speaking the entire output stream repeatedly.
+* Define an accessible representation for turtle graphics: a concise drawing
+   summary and a navigable description of meaningful objects/actions, with a
+   way to inspect coordinates, labels, colors, and drawing order where
+   applicable. A single SVG image label is not sufficient for complex drawings.
+* Ensure animation can be paused or stopped and does not cause a constant stream
+   of disruptive announcements. Respect reduced-motion preferences.
+
+### 4. Develop a built-in screen reader
+
+* Design an optional reader for the Web Edition itself that goes beyond spoken
+   output: read and review input, output, controls, focus and state, editor
+   content, and available turtle-drawing descriptions.
+* Provide keyboard-accessible navigation and on-demand review, with adjustable
+   voice, rate, verbosity, typing echo, and a way to interrupt or silence speech.
+   Make the reader discoverable and operable without relying on visual cues.
+* Keep it independently controllable and avoid duplicate speech or conflicting
+   shortcuts when a third-party screen reader is in use. Continue exposing
+   standard browser accessibility semantics regardless of whether it is enabled.
+* Test realistic workflows with blind users, including startup, editing,
+   execution, errors, dialogs, and drawings. Document what the built-in reader
+   can and cannot access; it does not replace system-wide assistive technology.
+
+### 5. Add non-color visual modes
+
+* Add selectable drawing palettes for common color-vision deficiencies, using
+   distinguishable hues and luminance rather than hue alone.
+* Add a grayscale palette and verify that important lines, fills, and regions
+   remain distinguishable when printed or viewed without color.
+* Add a black-and-white SVG pattern mode that maps Logo color indices to
+   distinguishable vector patterns, line styles, and/or markers instead of
+   relying on color. Cover both strokes and fills, keep patterns legible at
+   different zoom levels, and preserve them in downloaded SVG files.
+* Make palette selection available by keyboard and screen reader, provide a
+   visible indication of the active mode, and do not silently change Logo's
+   underlying color semantics or existing drawings.
+* Validate palettes with color-vision simulations as an early check, then with
+   grayscale output and users; simulations alone are not acceptance evidence.
+
+### 6. Assess braille compatibility
+
+* Test the complete command-entry and output workflow through screen readers
+   paired with refreshable braille displays, including command editing, history,
+   autocomplete, errors, and changing output.
+* Determine whether the SVG drawing summary and detailed descriptions are
+   understandable and navigable on braille displays, and document browser and
+   screen-reader limitations.
+* Consult braille and tactile-graphics users about whether a structured text
+   description, downloadable SVG, or a separate tactile-graphics export would
+   best serve drawing inspection. Treat tactile output as a research question,
+   not an assumed capability of browser SVG or braille displays.
+
+### 7. Verify and maintain
+
+* Add automated checks for accessible names/roles, focus order, keyboard
+   operation, live-region behavior, and palette/export correctness.
+* Run manual acceptance with current supported screen reader/browser
+   combinations, including desktop and mobile, and record actual versions and
+   tested hardware. Include users of screen readers, magnification, color-vision
+   adaptations, and braille where available.
+* Keep accessibility behavior and known limitations in this document current
+   as features ship; do not describe a planned or automated check as verified
+   assistive-technology support.
 
 # New features
 
