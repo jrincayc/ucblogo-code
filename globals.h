@@ -676,7 +676,7 @@ extern void yield();
 
 int sysGetC(FILE* stream);
 #define sysUnGetC(c, file) em_ungetc(c)
-char em_getc();
+int em_getc();
 
 #else
 

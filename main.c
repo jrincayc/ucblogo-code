@@ -130,10 +130,14 @@ void mouse_down()
 	    if (inside_evaluator) {
 		eval_buttonact = line;
 	    } else {
+	#ifdef __EMSCRIPTEN__
 		yield_enabled = 0;
+	#endif
 		eval_driver(line);
 		fix_turtle_shownness();
+	#ifdef __EMSCRIPTEN__
 		yield_enabled = 1;
+	#endif
 	    }
 	}
     }
@@ -226,6 +230,20 @@ int main(int argc, char *argv[]) {
 
     signal(SIGINT, logo_stop);
 
+#ifndef HAVE_WX
+    if (argc == 2 && (!strcmp(argv[1], "-version") ||
+                      !strcmp(argv[1], "--version"))) {
+	char version[64];
+	strcpy(version, VERSION);
+#ifdef GITID
+	extern char *GIT;
+	strcat(version, GIT);
+#endif
+	printf("%s\n", version);
+	return 0;
+    }
+#endif
+
     if (argc < 2) {
 #ifndef WIN32
       if (1 || isatty(1))   // fix this.  for interactive from menu bar.
@@ -281,14 +299,26 @@ int main(int argc, char *argv[]) {
 
     argv2++;
     while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
-        silent_load(NIL, *argv2++);
+	if (!strcmp(*argv2, "-version") || !strcmp(*argv2, "--version")) {
+	    char version[64];
+	    strcpy(version, VERSION);
+#ifdef GITID
+	    extern char *GIT;
+	    strcat(version, GIT);
+#endif
+	    ndprintf(stdout, message_texts[WELCOME_TO], version);
+	    new_line(stdout);
+	} else {
+	    silent_load(NIL, *argv2);
+	}
+	argv2++;
     }
 
 #ifdef HAVE_WX
-    wx_chdir(current_wd);
+	wx_chdir(current_wd);
 
-    free(current_wd);
-    free(original_wd);
+	free(current_wd);
+	free(original_wd);
 #endif
 
     for (;;) {

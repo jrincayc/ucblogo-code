@@ -26,6 +26,10 @@
 #include "config.h"
 #endif
 
+#ifndef __EMSCRIPTEN__
+#define EMSCRIPTEN_KEEPALIVE
+#endif
+
 #ifdef __EMSCRIPTEN__
 #define EMSLEEP(ticks) (emscripten_sleep(ticks))
 #else
@@ -122,9 +126,7 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 //Original definition: typedef long int NODETYPES;
 
 typedef enum NodeTypes  {
-#ifdef __EMSCRIPTEN__
   NT_HTML =       0200000000,
-#endif
 #ifdef OBJECTS
   NT_METHOD =     0100000000,
   NT_OBJ =         040000000,

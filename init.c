@@ -22,7 +22,9 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 #ifdef WIN32
 #include <windows.h>
@@ -171,7 +173,9 @@ PRIMTYPE prims[] = {
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
     {"definedp", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
     {"defined?", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
+#ifdef __EMSCRIPTEN__
     {"deviceorientation", 0, 0, 0, PREFIX_PRIORITY, ldeviceorientation},
+#endif
     {"difference", 2, 2, 2, PREFIX_PRIORITY, lsub},
     {"dribble", 1, 1, 1, PREFIX_PRIORITY, ldribble},
     {"ed", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, ledit},
@@ -242,7 +246,9 @@ PRIMTYPE prims[] = {
     {"increasefont", 0, 0, 0, PREFIX_PRIORITY, IncreaseFont},
 #endif
     {"int", 1, 1, 1, PREFIX_PRIORITY, linteg},
+#ifdef __EMSCRIPTEN__
     {"italic", 1, 1, 1, PREFIX_PRIORITY, litalic},
+#endif
     {"item", 2, 2, 2, PREFIX_PRIORITY, litem},
     {"keyp", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
     {"key?", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
@@ -489,7 +495,9 @@ PRIMTYPE prims[] = {
     {"turtlemode", 0, 0, 0, PREFIX_PRIORITY, lturtlemode},
     {"type", 0, 1, -1, PREFIX_PRIORITY, ltype},
     {"unbury", 1, 1, 1, PREFIX_PRIORITY, lunbury},
+#ifdef __EMSCRIPTEN__
     {"underline", 1, 1, 1, PREFIX_PRIORITY, lunderline},
+#endif
     {"unstep", 1, 1, 1, PREFIX_PRIORITY, lunstep},
     {"untrace", 1, 1, 1, PREFIX_PRIORITY, luntrace},
     {"uppercase", 1, 1, 1, PREFIX_PRIORITY, luppercase},

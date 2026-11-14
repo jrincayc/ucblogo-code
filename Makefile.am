@@ -64,7 +64,11 @@ ucblogo_SOURCES += TextEditor.cpp
 ucblogo_SOURCES += wxterm.c
 else
 # do not need C++ linker, no good way to avoid it though
+if WASM
+ucblogo_SOURCES += webterm.c
+else
 ucblogo_SOURCES += term.c
+endif
 if X11
 ucblogo_SOURCES += xgraphics.c
 else
@@ -108,6 +112,7 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
  logologo.ico logologo.png logo_win.rc makefile.msys newtermnotes	\
  pbdevelopment.plist PkgInfo plm README.md ucblogo.bmp ucblogo.dsp	\
  ucblogo.dsw usermanual inno/ucblogo.iss
+EXTRA_DIST += tests/native/pty_terminal.py tests/native/wx_smoke.py
 
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg

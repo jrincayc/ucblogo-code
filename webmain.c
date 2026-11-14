@@ -330,7 +330,7 @@ stop:
    LOGO_GIL = 0;
    yield_enabled = 1;
    EM_ASM({
-    if (document !== undefined) {
+    if (typeof document !== 'undefined') {
         // console.info('run_evaluator_end');
         document.dispatchEvent(
             new CustomEvent('run_evaluator_end')

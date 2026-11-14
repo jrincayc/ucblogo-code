@@ -377,9 +377,11 @@ begin_seq:
     make_tree(list);
     if (!is_tree(list)) {
 		val = UNBOUND;
+#ifdef __EMSCRIPTEN__
 		if (peek_uievent(&evt))
 			if (evt.type == pauselogo || evt.type == stoplogo)
 				goto eval_sequence;
+#endif
 		goto fetch_cont;
     }
     unev = tree__tree(list);
@@ -923,9 +925,11 @@ eval_sequence:
 	// push a cont to a new animationfinished block or something?
 	// in fact we should never start processing a new event until the current
 	// one is finished.
+#ifdef __EMSCRIPTEN__
 	if (get_uievent(&evt)) {
 		eval_buttonact = dispatch_uievent(&evt);
 	}
+#endif
     if (eval_buttonact != NIL) {
 	make_tree(eval_buttonact);
 	if (NOT_THROWING) {

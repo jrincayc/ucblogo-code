@@ -807,7 +807,7 @@ re_mark:
 #ifdef __EMSCRIPTEN__
 mark_wasm_stack();
 #else
-mark_stack(&top, NULL);
+mark_stack(&top);
 #endif
 
 #ifdef GC_DEBUG

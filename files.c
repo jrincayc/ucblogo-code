@@ -60,7 +60,7 @@ int reading_char_now = 0;
 // Emscripten FS API is synchronous and blocking. That's fine for printing but
 // completely useless for blocking input. So we have to implement our own async
 // getc for reading stdin.
-EM_ASYNC_JS(char, em_getc, (), {
+EM_ASYNC_JS(int, em_getc, (), {
     // TODO support streams other than stdin
     let char;   
 	if (typeof document != 'undefined') {
@@ -81,15 +81,17 @@ EM_ASYNC_JS(char, em_getc, (), {
         if (typeof char === 'string') {
             char = char.charCodeAt(0);
         }
+        char &= 0xFF;
         console.log("em_getc: stdin returned", char);
 	} else {
 		char = process.stdin.read(1);
 		while (char == null) {
+			if (process.stdin.readableEnded) return -1;
 			await new Promise((res,rej)=>{setTimeout(res,20)});
 			char = process.stdin.read(1);
 		}
+		char = typeof char === 'string' ? char.charCodeAt(0) : char[0];
 	}
-	// Convert to int so it converts to C char and not a string
 	return char;
 });
 
@@ -98,7 +100,7 @@ EM_JS(int, em_ungetc, (int c), {
         Module.FS_runjs_getChar_buffer.unshift(String.fromCharCode(c));
     }
     else {
-        process.stdin.unshift(c);
+        process.stdin.unshift(Buffer.from([c]));
     }
     return c;
 });
@@ -106,9 +108,7 @@ EM_JS(int, em_ungetc, (int c), {
 extern int LOGO_GIL;
 
 int sysGetC(FILE* stream) {
-    char r;
-	r = stream == stdin ? em_getc() : getc(stream);
-    return r;
+	return stream == stdin ? em_getc() : getc(stream);
 }
 #endif
 

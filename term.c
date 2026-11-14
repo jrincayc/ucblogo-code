@@ -18,9 +18,6 @@
  *
  */
 
-
-#include <emscripten.h>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -32,12 +29,10 @@
 #include <unistd.h>
 #endif
 
-#if defined(HAVE_TERMIOS_H)
+#ifdef HAVE_TERMIOS_H
 #include <termios.h>
-typedef struct termios termio_t; 
 #elif defined(HAVE_TERMIO_H)
 #include <termio.h>
-typedef struct termio termio_t;
 #endif
 
 #ifdef HAVE_SYS_IOCTL_H
@@ -49,6 +44,9 @@ typedef struct termio termio_t;
 
 #ifdef HAVE_TERMCAP_H
 #include <termcap.h>
+#ifdef HAVE_SGTTY_H
+#include <sgtty.h>
+#endif
 #else
 #ifdef HAVE_TERMLIB_H
 #include <termlib.h>
@@ -65,7 +63,7 @@ typedef struct termio termio_t;
 #define FALSE	0
 #define TRUE	1
 
-EMSCRIPTEN_KEEPALIVE int x_coord, y_coord, x_max, y_max;
+int x_coord, y_coord, x_max, y_max;
 
 char PC;
 char *BC;
@@ -74,15 +72,22 @@ char *UP;
 char bp[1024];
 char cl_arr[40];
 char cm_arr[40];
-// const char* so_arr = "<b>";
-// const char* se_arr = "</b>";
+char so_arr[40];
+char se_arr[40];
 
-termio_t tty_cooked, tty_cbreak;
+#if defined(HAVE_TERMIOS_H)
+struct termios tty_cooked, tty_cbreak;
+#elif defined(HAVE_TERMIO_H)
+struct termio tty_cooked, tty_cbreak;
+#else
+#ifdef HAVE_SGTTY_H
+struct sgttyb tty_cooked, tty_cbreak;
+#endif
+#endif
 
-EMSCRIPTEN_KEEPALIVE int interactive, tty_charmode;
+int interactive, tty_charmode;
 
-extern char **environ, *tgoto();
-extern void new_output_context();
+extern char **environ;
 
 char *termcap_ptr;
 
@@ -92,31 +97,51 @@ int termcap_putter(int ch) {
     return 0;
 }
 
+#ifdef unix
 void termcap_getter(char *cap, char *buf) {
     char temp[40];
-    char *str = 0;
+    char *str;
     char *temp_ptr = temp;
 
     termcap_ptr = buf;
-    // FIXME
-    // str=tgetstr(cap,&temp_ptr);
+    str=tgetstr(cap,&temp_ptr);
     /* if (str == NULL) str = temp; */
-    // tputs(str,1,termcap_putter);
+    tputs(str,1,termcap_putter);
 }
+#endif
 
 void term_init(void) {
+#ifdef unix
     char *emacs; /* emacs change */
-    int term_sg = 0;
-    int tgetent_result = 0;
+    int term_sg;
+    int tgetent_result;
+#endif
 
+#ifdef WIN32
+    interactive = 1;
+#else
     interactive = isatty(0);
+#endif
 
     if (interactive) {
+#if defined(HAVE_TERMIOS_H)
+	tcgetattr(0, &tty_cooked);
+	tty_cbreak = tty_cooked;
+	tty_cbreak.c_cc[VMIN] = '\01';
+	tty_cbreak.c_cc[VTIME] = '\0';
+	tty_cbreak.c_lflag &= ~(ECHO|ICANON);
+#elif defined(HAVE_TERMIO_H)
 	ioctl(0,TCGETA,(char *)(&tty_cooked));
 	tty_cbreak = tty_cooked;
 	tty_cbreak.c_cc[VMIN] = '\01';
 	tty_cbreak.c_cc[VTIME] = '\0';
 	tty_cbreak.c_lflag &= ~(ECHO|ICANON);
+#else
+	ioctl(0,TIOCGETP,(char *)(&tty_cooked));
+	tty_cbreak = tty_cooked;
+	tty_cbreak.sg_flags |= CBREAK;
+	tty_cbreak.sg_flags &= ~ECHO;
+#endif
     }
     tty_charmode = 0;
 
@@ -125,26 +150,25 @@ void term_init(void) {
      * are preinitialized to 0 */
 
     /* query terminal information from termcap database, if available */
-    // FIXME
-    // tgetent_result = tgetent(bp, getenv("TERM"));
+    tgetent_result = tgetent(bp, getenv("TERM"));
     if (tgetent_result == 1) {
-    //   x_max = tgetnum("co");
-    //   y_max = tgetnum("li");
+      x_max = tgetnum("co");
+      y_max = tgetnum("li");
 
-    //   term_sg = tgetnum("sg");
+      term_sg = tgetnum("sg");
 
       x_coord = y_coord = 0;
-    //   termcap_getter("cm", cm_arr);
-    //   termcap_getter("cl", cl_arr);
+      termcap_getter("cm", cm_arr);
+      termcap_getter("cl", cl_arr);
 
       if (term_sg <= 0) {
-        //   termcap_getter("so", so_arr);
-        //   termcap_getter("se", se_arr);
+          termcap_getter("so", so_arr);
+          termcap_getter("se", se_arr);
       } else { /* no standout modes */
-	// so_arr[0] = se_arr[0] = '\0';
+	so_arr[0] = se_arr[0] = '\0';
       }
     }
-    
+
     /* emacs detection */
     emacs = getenv("EMACS");
     if (emacs && *emacs == 't') { /* started from emacs */
@@ -164,30 +188,54 @@ void term_init(void) {
 }
 
 void charmode_on() {
+#ifdef unix
     if ((readstream == stdin) && interactive && !tty_charmode) {
-	// ioctl(0,TCSETA,(char *)(&tty_cbreak));
+#if defined(HAVE_TERMIOS_H)
+	tcsetattr(0, TCSANOW, &tty_cbreak);
+#elif defined(HAVE_TERMIO_H)
+	ioctl(0,TCSETA,(char *)(&tty_cbreak));
+#else /* !HAVE_TERMIO_H */
+	ioctl(0,TIOCSETP,(char *)(&tty_cbreak));
+#endif /* HAVE_TERMIO_H */
 	tty_charmode++;
-    EM_ASM({Module.charmode_on()});
     }
+#endif /* unix */
+#ifdef WIN32
+    win32_charmode_on();
+#endif
 }
 
 void charmode_off() {
+#ifdef unix
     if (tty_charmode) {
-	// ioctl(0,TCSETA,(char *)(&tty_cooked));
+#if defined(HAVE_TERMIOS_H)
+	tcsetattr(0, TCSANOW, &tty_cooked);
+#elif defined(HAVE_TERMIO_H)
+	ioctl(0,TCSETA,(char *)(&tty_cooked));
+#else /* !HAVE_TERMIO_H */
+	ioctl(0,TIOCSETP,(char *)(&tty_cooked));
+#endif /* HAVE_TERMIO_H */
 	tty_charmode = 0;
-    EM_ASM({Module.charmode_off()});
     }
+#endif /* unix */
+#ifdef WIN32
+    win32_charmode_off();
+#endif
 }
 
 NODE *lcleartext(NODE *args) {
-    fix_turtle_shownness();
+    printf("%s", cl_arr);
+    printf("%s", tgoto(cm_arr, x_margin, y_margin));
+
+#ifdef WIN32
+	win32_update_text();
+#else
+	fflush(stdout); /* do it now! */
+#endif
+	fix_turtle_shownness();
 
     x_coord = x_margin;
     y_coord = y_margin;
-    EM_ASM({
-        document.getElementById('outputContainer').innerHTML = '';
-    });
-    new_output_context();
     return(UNBOUND);
 }
 
@@ -202,6 +250,9 @@ NODE *lcursor(NODE *args) {
 
 NODE *lsetcursor(NODE *args) {
 	fix_turtle_shownness();
+#ifdef WIN32
+    return (win32_lsetcursor(args));
+#else /* !win32 */
     NODE *arg;
 
     arg = pos_int_vector_arg(args);
@@ -218,14 +269,11 @@ NODE *lsetcursor(NODE *args) {
 	}
     }
     if (NOT_THROWING) {
-#ifdef HAVE_TGOTO
 	printf("%s", tgoto(cm_arr, x_coord, y_coord));
-#elif __EMSCRIPTEN__
-        new_output_context();
-#endif
 	fflush(stdout);
     }
     return(UNBOUND);
+#endif /* !win32 (for non-windows version of this code) */
 }
 
 NODE *lsetmargins(NODE *args) {
@@ -233,48 +281,25 @@ NODE *lsetmargins(NODE *args) {
 
     arg = pos_int_vector_arg(args);
     if (NOT_THROWING) {
-	int x_margin = getint(car(arg));
-	int y_margin = getint(cadr(arg));
-	// lcleartext(NIL);
-    EM_ASM({
-        document.getElementById('output').style.margin = `${$1}em ${$0}ch ${$1}em ${$0}ch`
-    }, x_margin, y_margin);
+	x_margin = getint(car(arg));
+	y_margin = getint(cadr(arg));
+	lcleartext(NIL);
     }
     return(UNBOUND);
 }
 
-NODE *htmltagwrap(NODE *args, const char* ts, const char* te) {
+NODE *lstandout(NODE *args) {
     char textbuf[300];
     char fmtbuf[100];
     char *old_stringptr = print_stringptr;
     int old_stringlen = print_stringlen;
 
-    sprintf(fmtbuf,"%s%%p%s",ts,te);
+    sprintf(fmtbuf,"%s%%p%s",so_arr,se_arr);
     print_stringptr = textbuf;
     print_stringlen = 300;
     ndprintf((FILE *)NULL,fmtbuf,car(args));
     *print_stringptr = '\0';
     print_stringptr = old_stringptr;
     print_stringlen = old_stringlen;
-    return(make_strnode(textbuf,NULL,(int)strlen(textbuf),HTML_STRING,strnzcpy));
-}
-
-NODE *lstandout(NODE *args) {
-    return htmltagwrap(args, "<b>", "</b>");
-}
-
-NODE *lunderline(NODE *args) {
-    return htmltagwrap(args, "<u>", "</u>");
-}
-
-NODE *litalic(NODE *args) {
-    return htmltagwrap(args, "<i>", "</i>");
-}
-
-NODE *lhtmlstring(NODE *args) {
-    NODE* arg;
-    char *str;
-    arg = cnv_node_to_strnode(car(args));
-    str = getstrptr(arg);
-    return(make_strnode(str,NULL,(int)strlen(str)+1,HTML_STRING,noparity_strnzcpy));
+    return(make_strnode(textbuf,NULL,(int)strlen(textbuf),STRING,strnzcpy));
 }

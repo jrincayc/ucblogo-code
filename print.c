@@ -114,51 +114,38 @@ void print_char(FILE *strm, char ch) {
 }
 
 void html_print_char(FILE *strm, char ch) {
+    const char *escaped = NULL;
+
+#ifdef __EMSCRIPTEN__
+	static int browser_output = -1;
+
+	if (strm == stdout && browser_output < 0)
+	browser_output = EM_ASM_INT({
+	    return typeof document !== 'undefined' &&
+	           document.getElementById('output') !== null;
+	});
+
+	if (strm == stdout && browser_output) {
 	switch (ch) {
-		case '&':
-			print_char(strm, '&');
-			print_char(strm, 'a');
-			print_char(strm, 'm');
-			print_char(strm, 'p');
-			print_char(strm, ';');
-			break;
-		case '"':
-			print_char(strm, '&');
-			print_char(strm, 'q');
-			print_char(strm, 'u');
-			print_char(strm, 'o');
-			print_char(strm, 't');
-			print_char(strm, ';');
-			break;
-		case '\'':
-			print_char(strm, '&');
-			print_char(strm, 'a');
-			print_char(strm, 'p');
-			print_char(strm, 'o');
-			print_char(strm, 's');
-			print_char(strm, ';');
-			break;
-		case '<':
-			print_char(strm, '&');
-			print_char(strm, 'l');
-			print_char(strm, 't');
-			print_char(strm, ';');
-			break;
-		case '>':
-			print_char(strm, '&');
-			print_char(strm, 'g');
-			print_char(strm, 't');
-			print_char(strm, ';');
-			break;
-		case '\n':
-			print_char(strm, '<');
-			print_char(strm, 'b');
-			print_char(strm, 'r');
-			print_char(strm, '>');
-			break;
-		default:
-			print_char(strm, ch);
+	    case '&': escaped = "&amp;"; break;
+	    case '"': escaped = "&quot;"; break;
+	    case '\'': escaped = "&apos;"; break;
+	    case '<': escaped = "&lt;"; break;
+	    case '>': escaped = "&gt;"; break;
+	    case '\n': escaped = "<br>"; break;
 	}
+    }
+#endif
+
+    if (escaped == NULL) {
+	print_char(strm, ch);
+	return;
+    }
+
+    while (*escaped != '\0') rd_putc(*escaped++, strm);
+    if (dribblestream != NULL) rd_putc(ch, dribblestream);
+    update_coords(ch);
+    YIELD;
 }
 
 void print_space(FILE *strm) {
@@ -367,14 +354,14 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 			}
 		print_char(strm,'|');
 		for (i = 0; i < wid; i++) {
-		    print_char(strm,clearparity(*cp++));
+		    html_print_char(strm,clearparity(*cp++));
 		}
 		print_char(strm,'|');
 	    } else for (i = 0; i < wid; i++) {
 		if (strchr(special_chars,(int)*cp)) {
 		    print_char(strm,'\\');
 		}
-		print_char(strm,*cp++);
+		html_print_char(strm,*cp++);
 	    }
 	};
 	if (dots) ndprintf(strm, "...");

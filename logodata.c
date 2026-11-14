@@ -422,6 +422,13 @@ NODE *cnv_node_to_strnode(NODE *nd) {
     return(UNBOUND);	/* Can't get here, but makes compiler happy */
 }
 
+NODE *lhtmlstring(NODE *args) {
+	NODE *arg = cnv_node_to_strnode(car(args));
+	char *str = getstrptr(arg);
+	return make_strnode(str, NULL, (int)strlen(str), HTML_STRING,
+						noparity_strnzcpy);
+}
+
 NODE *make_static_strnode(char *strptr) {
     NODE *strnode = newnode(STRING);
 
