@@ -30,7 +30,7 @@ Paths below are relative to the repository root. Verify symbols, recipes, prereq
 | Safe UI-event signaling | `pre.js`: `UIEventQueue`, `Module.uievents`, `Module.uieventypes`, event producers and guarded `Module.run_evaluator`; `liblogo.js`: `peek_uievent`/`get_uievent`; `eval.c`, `webmain.c`: consumption/dispatch and `buttonact`. Queue events while running; start the interpreter normally when idle, never reenter an active C invocation. |
 | File operations/persistence | `files.c`, `wrksp.c`, `pre.js`: streams/prefixes, load/save/edit/upload/download, IDBFS `/d`, `FS.syncfs(true, ...)`, `autoPersist` and localStorage settings. |
 | Browser/Node VFS split | `Makefile.am`, `pre.js`, `files.c`: embedded browser assets, MEMFS/IDBFS versus `ENVIRONMENT=node`/`NODERAWFS=1` host access. |
-| Output/terminal | `print.c`, `term.c`, `pre.js`, `shell.html`: streams, flush/partial lines, HTML strings, output contexts/cursor and DOM. |
+| Output/terminal | `print.c`, `term.c`, `webterm.c`, `pre.js`, `shell.html`: native terminal capability/input, web terminal and JS host operations, streams, flush/partial lines, HTML strings, output contexts/cursor and DOM. |
 | wx terminal/editor | `wxterm.c`, `wxTerminal.cpp`, `wxTerminal.h`, `wxCommandHistory.cpp`, `TextEditor.cpp`: C/C++ bridge, input/event yielding/history/editor. |
 | Shared graphics | `graphics.c`, `turtleshape.c`, `turtleshape.h`: turtle state/semantics and backend selection. |
 | Web graphics/UI | `webgraphics.c`, `webgraphics.h`, `pre.js`, `shell.html`: SVG/DOM/sprites/labels, CSS/themes, controls/dialogs/editor and mobile input. |
@@ -46,7 +46,7 @@ Paths below are relative to the repository root. Verify symbols, recipes, prereq
 - Browser links run `make install-data` first and embed `$(pkgdatadir)` as `/share/ucblogo`, plus tests, `web.lgo`, an icon, and `webstartup.lg` as `/share/ucblogo/logolib/startup.lg`. Library-file edits alone do not trigger a relink; delete `ucblogo.html`. `makehelp` uses `CC_FOR_BUILD`; a fresh tree needs `make regenerate-help-index` once.
 - Node uses shared Wasm objects but different environment/filesystem flags. Check both links for shared exports/dependencies.
 - `ucblogo.html`, loaders, Wasm/debug files, generated workers/Workbox assets are build outputs. Check artifact/configuration/cache consistency when observed behavior disagrees with source.
-- Native build instructions: `README.md`; wx checks: `configure.ac`. Inspect `wx-config`, Autotools macros, docs tools, compiler and active configuration. Verify custom recipe out-of-tree support before relying on it.
+- Native build instructions: `README.md`; wx checks: `configure.ac`; native CI: `.github/workflows/ci.yaml`; terminal PTY checks: `tests/native/pty_terminal.py`; wx GUI smoke: `tests/native/wx_smoke.py`. Inspect `wx-config`, Autotools macros, docs tools, compiler and active configuration. Verify custom recipe out-of-tree support before relying on it.
 - Read `.github/workflows/`, `winbuild.sh`, and platform packaging files when their pipeline/platform is affected.
 
 ## Validation Entry Points

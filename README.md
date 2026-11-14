@@ -46,15 +46,36 @@ Those libraries are also covered by the Gnu GPL.  We
 do not distribute their source code; you can download it from their
 respective web sites.
 
+## Native Builds
+
+Install a C/C++ toolchain and Autotools. The default build uses wxWidgets; on
+Debian or Ubuntu, install `libwxgtk3.2-dev`, `libgtk-3-dev`, and
+`libnotify-dev`. Then build:
+
+```sh
+autoreconf --install
+./configure --enable-wx
+make
+```
+
+For a terminal-only build, install `libncurses-dev` and select the native
+terminal backend explicitly:
+
+```sh
+autoreconf --install
+./configure --disable-wasm --disable-wx --disable-x11
+make
+```
+
+Use `--enable-objects` to include the optional object-oriented Logo features.
+For a wx build without TeX documentation tools, add `--disable-docs`.
+WebAssembly builds have separate Emscripten prerequisites and instructions in
+[webedition.md](webedition.md#building).
+
 ## Usage
 
-To build Logo under *nix, install wxWidgets and other dependencies
-and then do this:
-```
-	autoreconf --install
-	./configure
-	make
-```
+Run `./ucblogo` to start the interpreter. Pass a Logo source file to load it at
+startup.
 
 Note that if you don't have autoconf, the release .tar.gz have already built
 configure files.

@@ -746,6 +746,10 @@ embeds) and, for production builds, `sw.js`. `ucblogo.html` does not track
 library file changes; delete it to relink after editing `logolib`, `helpfiles`
 or `csls`.
 
+Native wx and terminal-only builds are independent of this Emscripten workflow.
+See [README.md](README.md#native-builds) for their dependencies and configure
+options.
+
 ### Build options
 
 | Option | Effect |
