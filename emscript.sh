@@ -20,8 +20,8 @@ export LDFLAGS="$LDFLAGS -s ASYNCIFY_STACK_SIZE=20000000"
 # this forces the animation loop to stop
 export LDFLAGS="$LDFLAGS -s ABORT_ON_WASM_EXCEPTIONS"
 # export LDFLAGS="$LDFLAGS -gsource-map"
-export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
-     -s SEPARATE_DWARF_URL=ucblogo.debug.wasm"
+# export LDFLAGS="$LDFLAGS -gseparate-dwarf=ucblogo.debug.wasm \
+     # -s SEPARATE_DWARF_URL=ucblogo.debug.wasm"
 # export LDFLAGS="$LDFLAGS -fsanitize=address -fsanitize=undefined" 
 # export LDFLAGS="$LDFLAGS -s EXCEPTION_DEBUG=1"
 # export LDFLAGS="$LDFLAGS -s LIBRARY_DEBUG=1"

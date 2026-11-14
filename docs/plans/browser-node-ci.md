@@ -24,9 +24,11 @@ jobs consume its shared TestCafe fixtures and runner contract.
   or Node.js jobs, and currently does not cover `wasm` pushes.
 - [cd.yaml](../../.github/workflows/cd.yaml) owns existing native distribution
   builds. Preserve these jobs; Web Edition validation is not a wx replacement.
-- [emscript.sh](../../emscript.sh) configures and cleans the root build, produces
-  browser and Node outputs, runs the Node Logo suite, and generates a Workbox
-  service worker. It is not yet a separated build/test/profile interface.
+- `emconfigure ./configure --enable-wasm` plus `emmake make` / `make check`
+  (wrapped by `npm run build:web`) configures and builds browser and Node
+  outputs, runs the Node Logo suite, and generates the Workbox service worker for
+  production builds. Debug info, sanitizers and Emscripten runtime checks are
+  configure options; see [webedition.md](../../webedition.md#build-options).
 - [package.json](../../package.json) currently mixes Selenium, TestCafe, and
   Lighthouse scripts. The companion plan consolidates functional browser tests.
 
@@ -114,11 +116,10 @@ not green skips or evidence-free compatibility claims.
   or build on the target if necessary; do not assume absolute paths transfer.
 - [ ] Build once per profile and fan out immutable artifacts to test jobs. Cache
   dependencies with lockfile/toolchain keys, not unverified generated runtimes.
-- [ ] Start with the existing optimized production configuration. Add distinct
-  `prod` (`-O3`, service worker), `dev` (`-g`, no worker), and compatible
-  `debug` (`-g`, ASAN/checks) interfaces incrementally; these are planned profiles,
-  not commands already available. Do not block the first browser probes on all
-  three profiles or silently disable failing sanitizers.
+- [ ] Start with the existing optimized production configuration. The
+  `prod`/`dev`/`debug` distinctions now map to configure options (default;
+  `--with-debug-info=...`; plus `--enable-asan` and runtime checks). Do not block
+  the first browser probes on all three or silently disable failing sanitizers.
 
 Exit criterion: a clean CI checkout builds successfully and a downstream job
 serves/runs only manifest-verified outputs from that revision and configuration.

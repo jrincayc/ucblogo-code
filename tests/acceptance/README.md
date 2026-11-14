@@ -6,9 +6,9 @@ The implemented inventory is **57 desktop functional cases**, or **49 mobile/rem
 
 ## Prerequisites And Freshness
 
-Run commands from the repository root. Development tooling requires **Node >=20**, npm dependencies (`npm install`), and the chosen installed browser. The dependency/toolchain release may impose a newer minimum. This development-tool requirement is separate from the compiled Logo application's Node runtime support; see [webedition.md](../../webedition.md). A fresh build also needs the existing Emscripten/Autotools environment for [emscript.sh](../../emscript.sh). Automatic local serving needs `emrun` on `PATH` (or `EMRUN` pointing to it).
+Run commands from the repository root. Development tooling requires **Node >=20**, npm dependencies (`npm install`), and the chosen installed browser. The dependency/toolchain release may impose a newer minimum. This development-tool requirement is separate from the compiled Logo application's Node runtime support; see [webedition.md](../../webedition.md). A fresh build also needs the existing Emscripten/Autotools environment for `npm run build:web` (see [webedition.md](../../webedition.md#building)). Automatic local serving needs `emrun` on `PATH` (or `EMRUN` pointing to it).
 
-Build commands below invoke `./emscript.sh` once and run tests only after success. Built-artifact commands never rebuild. Rebuild after changing embedded sources, including the shell, runtime JS, C, Logo startup files, or packaged Logo tests. Verify the served HTML, loader, Wasm, and packaged files belong to the same successful build and intended configuration. Rebuilding disk artifacts does not replace an already-running runtime.
+Build commands below invoke `npm run build:web` once and run tests only after success. Built-artifact commands never rebuild. Rebuild after changing embedded sources, including the shell, runtime JS, C, Logo startup files, or packaged Logo tests. Verify the served HTML, loader, Wasm, and packaged files belong to the same successful build and intended configuration. Rebuilding disk artifacts does not replace an already-running runtime.
 
 Use a dedicated test runtime, never a page containing unsaved Logo work. Fixtures navigate, replace output, reload, run terminating Logo tests, and temporarily change settings or mock browser APIs. Preserve unsaved definitions, editor contents, and files from any current page before starting, and leave that page out of automation. Helpers restore captured `ucblogo.settings` and `ucblogo.fontSize` strings exactly, including after reload normalization. This is not a general backup of in-memory work or browser storage. Never clear all site data to make a run pass.
 
@@ -18,14 +18,14 @@ These are the consolidated package-script contracts. All paths below are relativ
 
 | Command | Contract |
 | --- | --- |
-| `npm test` | `./emscript.sh && npm run test:built`: build once, then source/unit and functional browser checks. No Lighthouse. |
+| `npm test` | `npm run build:web && npm run test:built`: build once, then source/unit and functional browser checks. No Lighthouse. |
 | `npm run test:built` | `npm run test:source && npm run test:browser:built`: existing artifacts only. |
-| `npm run test:browser` | `./emscript.sh && npm run test:browser:built`: build once, then functional browser checks only. |
+| `npm run test:browser` | `npm run build:web && npm run test:browser:built`: build once, then functional browser checks only. |
 | `npm run test:browser:built` | `node tests/acceptance/run-testcafe.js`: all discovered functional fixtures. |
 | `npm run test:source` | `node --test tests/acceptance/source.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js`: five source cases, 15 grader cases, 27 runner cases (four real-Chrome cases opt-in). No Wasm build. |
 | `npm run test:runner:browser` | Portable Node wrapper enables `RUNNER_BROWSER_TESTS=1` and runs all 27 runner self-tests, including real-Chrome failure, hang, capability, and reporter-flush checks. |
 | `npm run test:logo:node` | `node tests/acceptance/run-logo-node.js`: grade the existing Node/Wasm Logo build. |
-| `npm run test:settings` | `./emscript.sh && npm run test:settings:built`: build once, then the settings fixture. |
+| `npm run test:settings` | `npm run build:web && npm run test:settings:built`: build once, then the settings fixture. |
 | `npm run test:settings:built` | `node tests/acceptance/run-testcafe.js --fixture 'Settings persistence'`: settings and UI against existing artifacts. |
 | `npm run test:autocomplete` | Shared autocomplete fixture in desktop Chrome, then phone emulation; existing artifacts only. |
 | `npm run test:autocomplete:desktop` | Desktop alias of the shared autocomplete fixture. |

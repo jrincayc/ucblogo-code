@@ -3,7 +3,12 @@ if DOCS
 SUBDIRS += docs
 endif
 
+if WASM
+# Linked by the ucblogo.html and ucblogo-node.js rules below instead.
+EXTRA_PROGRAMS = ucblogo
+else
 bin_PROGRAMS = ucblogo
+endif
 
 logolibdir=$(pkgdatadir)/logolib
 helpfilesdir=$(pkgdatadir)/helpfiles
@@ -107,7 +112,8 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
 
-makehelp_SOURCES = makehelp.c
+makehelp: $(srcdir)/makehelp.c
+	$(CC_FOR_BUILD) $(CPPFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $(srcdir)/makehelp.c
 
 # Make sure pdf built for distributions
 EXTRA_DIST += docs/ucblogo.pdf
@@ -132,14 +138,40 @@ regenerate-help-index: makehelp usermanual
 
 all: 
 
-ucblogo-node.js: ucblogo pre.js liblogo.js
+WEB_TARGETS =
+WEB_STALE =
+if WASM
+WEB_TARGETS += ucblogo-node.js ucblogo.html
+if SERVICE_WORKER
+WEB_TARGETS += sw.js
+else
+WEB_STALE += sw.js
+endif
+endif
+
+if SEPARATE_DWARF
+WEB_NODE_DEBUG = -gseparate-dwarf=ucblogo-node.debug.wasm -sSEPARATE_DWARF_URL=ucblogo-node.debug.wasm
+WEB_HTML_DEBUG = -gseparate-dwarf=ucblogo.debug.wasm -sSEPARATE_DWARF_URL=ucblogo.debug.wasm
+endif
+
+all-local: $(WEB_TARGETS)
+	rm -f $(WEB_STALE)
+
+web-config.js: Makefile
+	echo 'Module.serviceWorker = $(WEB_SERVICE_WORKER);' > $@
+
+sw.js: ucblogo.html workbox-config.js
+	npx --no -- workbox-cli generateSW workbox-config.js
+
+if WASM
+check-local: ucblogo-node.js
+	node ./ucblogo-node.js $(srcdir)/tests/test.lg
+endif
+
+ucblogo-node.js: $(ucblogo_OBJECTS) pre.js liblogo.js
 	em++  \
 	-o ucblogo-node.js \
-	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
-	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
-	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
-	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o ucblogo-git.o \
+	$(ucblogo_OBJECTS) \
 	--pre-js pre.js \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
@@ -161,19 +193,18 @@ _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,
 _logo_gc_debug_node_id \
 	-s NODERAWFS=1 \
 	--js-library liblogo.js \
-	$(LDFLAGS)
+	$(WEB_NODE_DEBUG) $(WEB_LDFLAGS) $(LDFLAGS) $(LIBS)
 
 
-ucblogo.html: ucblogo shell.html pre.js liblogo.js webstartup.lg
+# Embeds the installed data tree, so stage it with install-data first.
+ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js liblogo.js webstartup.lg web-config.js
+	$(MAKE) $(AM_MAKEFLAGS) install-data
 	em++  \
 	-o ucblogo.html \
-	ucblogo-coms.o ucblogo-error.o ucblogo-eval.o ucblogo-files.o ucblogo-graphics.o \
-	ucblogo-init.o ucblogo-intern.o ucblogo-libloc.o ucblogo-lists.o \
-	ucblogo-logodata.o ucblogo-webmain.o ucblogo-math.o ucblogo-mem.o ucblogo-paren.o \
-	ucblogo-parse.o ucblogo-print.o ucblogo-wrksp.o   ucblogo-term.o \
-	ucblogo-webgraphics.o ucblogo-turtleshape.o ucblogo-weblib.o ucblogo-git.o \
+	$(ucblogo_OBJECTS) \
+	--pre-js web-config.js \
 	--pre-js pre.js \
-	--embed-file dist/share/ucblogo@/share/ucblogo \
+	--embed-file $(DESTDIR)$(pkgdatadir)@/share/ucblogo \
 	--embed-file tests \
 	--embed-file web.lgo \
 	--embed-file logologo.ico \
@@ -199,7 +230,7 @@ _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,
 _logo_gc_debug_node_id \
 	-lidbfs.js \
 	--js-library liblogo.js \
-	$(LDFLAGS)
+	$(WEB_HTML_DEBUG) $(WEB_LDFLAGS) $(LDFLAGS) $(LIBS)
 
 
 
@@ -230,3 +261,5 @@ ucblogo.dmg : mac docs/ucblogo.pdf
 	hdiutil convert ucblogo_base.dmg -format UDZO -o ucblogo.dmg
 
 CLEANFILES += ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
+CLEANFILES += ucblogo-node.js ucblogo-node.wasm ucblogo-node.wasm.map
+CLEANFILES += ucblogo.debug.wasm ucblogo-node.debug.wasm web-config.js sw.js
