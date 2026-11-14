@@ -1,15 +1,18 @@
-const fs = require('node:fs');
-const path = require('node:path');
 const { ClientFunction, Selector } = require('testcafe');
+const {
+    applicationUrl, ready, isolateSettings, restoreSettings, runLogo,
+    commandInput, idle: logoIdle,
+} = require('./testcafe-helpers');
 
-const applicationUrl = process.env.TESTCAFE_APP_URL || 'http://127.0.0.1:8085/ucblogo.html';
-const screenshotDirectory = path.join(__dirname, '../../reports/autocomplete');
+const capabilities = new Set(process.env.TESTCAFE_CAPABILITIES !== undefined
+    ? process.env.TESTCAFE_CAPABILITIES.split(',').map((name) => name.trim()).filter(Boolean)
+    : JSON.parse(process.env.UCBOLOGO_RUNNER_CHILD_CAPABILITIES || '[]'));
+const screenshotRun = Date.now();
 const viewerDelay = Number(process.env.TEST_DELAY_MS) || 0;
 const interactionDelay = Number(process.env.TEST_INTERACTION_DELAY_MS) || 100;
 // Measured worst-case in-page latency (ms) from input event to rendered popup, plus 10%.
 const POPUP_LATENCY_BUDGET_MS = Number(process.env.POPUP_LATENCY_BUDGET_MS) || 0;
 
-const commandInput = Selector('#logoInputText');
 const autocomplete = Selector('logo-autocomplete');
 const listbox = autocomplete.shadowRoot().find('[role="listbox"]');
 const clickSuggestionInPage = ClientFunction((name) => {
@@ -24,11 +27,26 @@ const clickSuggestionInPage = ClientFunction((name) => {
     if (!suggestion) throw new Error(`Suggestion not found: ${name}`);
     suggestion.click();
 });
+const clickEditorSuggestionInPage = ClientFunction((name) => {
+    const root = document.querySelector('logo-autocomplete[for="editorTextArea"]').shadowRoot;
+    let suggestion;
+    for (const node of root.querySelectorAll('[role="option"]')) {
+        if (node.querySelector('.name').textContent === name) {
+            suggestion = node;
+            break;
+        }
+    }
+    if (!suggestion) throw new Error(`Editor suggestion not found: ${name}`);
+    suggestion.click();
+});
 
-const logoIdle = ClientFunction(() => Boolean(window.Module && Module.calledRun &&
-    Asyncify.state === 0 && getValue(Module._LOGO_GIL) === 0 && !Module.blockedOnGetc));
 const blockedOnInput = ClientFunction(() => Boolean(Module.blockedOnGetc));
-const isPhone = ClientFunction(() => navigator.maxTouchPoints > 0);
+const viewportWidth = ClientFunction(() => document.documentElement.clientWidth);
+const storedLegacyFontSize = ClientFunction(() => localStorage.getItem('ucblogo.fontSize'));
+const storeLegacyFontSize = ClientFunction((value) => {
+    if (value === null) localStorage.removeItem('ucblogo.fontSize');
+    else localStorage.setItem('ucblogo.fontSize', value);
+});
 
 const popupState = ClientFunction(() => {
     const input = document.getElementById('logoInputText');
@@ -77,6 +95,31 @@ const useLiveNames = ClientFunction(() => {
 });
 const openSettingsDialog = ClientFunction(() => document.getElementById('settings').showModal());
 const settingsDialogOpen = ClientFunction(() => document.getElementById('settings').open);
+const editorDialogOpen = ClientFunction(() => document.getElementById('editorDialog').open);
+const discardEditor = ClientFunction(() => {
+    if (document.getElementById('editorDialog').open) Module.editor.discardClicked();
+});
+const prepareEditorCompletion = ClientFunction(() => {
+    const input = document.getElementById('editorTextArea');
+    input.value = 'to demo\n  forw 10\nend';
+    input.focus();
+    input.setSelectionRange(14, 14);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+});
+const prepareEmptyEditor = ClientFunction(() => {
+    const input = document.getElementById('editorTextArea');
+    input.value = '';
+    input.focus();
+});
+const editorState = ClientFunction(() => {
+    const input = document.getElementById('editorTextArea');
+    return {
+        dialogOpen: document.getElementById('editorDialog').open,
+        value: input.value,
+        caret: input.selectionStart,
+        focused: document.activeElement === input,
+    };
+});
 const resetInput = ClientFunction(() => {
     const input = document.getElementById('logoInputText');
     input.value = '';
@@ -108,8 +151,22 @@ const optionLayout = ClientFunction((wanted) => {
     }
     if (!node) throw new Error(`Suggestion not found: ${wanted}`);
     const rect = (element) => element.getBoundingClientRect().toJSON();
+    const heading = node.querySelector('.heading');
+    const usage = node.querySelector('.usage');
+    const signatures = usage.querySelectorAll('.signature');
+    const measure = document.createElement('canvas').getContext('2d');
+    const usageGap = Number.parseFloat(getComputedStyle(usage).columnGap);
+    let usageWidth = Math.max(0, signatures.length - 1) * usageGap;
+    for (const signature of signatures) {
+        measure.font = getComputedStyle(signature).font;
+        usageWidth += measure.measureText(signature.textContent).width;
+    }
+    const inlineViewportWidth = document.documentElement.clientWidth - heading.clientWidth +
+        rect(node.querySelector('.name')).width +
+        Number.parseFloat(getComputedStyle(heading).columnGap) + usageWidth;
     return {
         viewportWidth: document.documentElement.clientWidth,
+        inlineViewportWidth,
         viewportHeight: window.visualViewport?.height ?? window.innerHeight,
         scrollY: window.scrollY,
         input: rect(document.getElementById('logoInputText')),
@@ -137,26 +194,33 @@ async function typeSlowly(t, text) {
     await pause(t);
 }
 
-async function runLogo(t, command) {
-    await t.selectText(commandInput).pressKey('delete')
-        .typeText(commandInput, command, { paste: true }).pressKey('enter')
-        .expect(logoIdle()).ok('Logo must return to idle');
-    await pause(t);
-}
-
 async function screenshot(t, name) {
-    fs.mkdirSync(screenshotDirectory, { recursive: true });
-    const mode = (await isPhone()) ? 'phone' : 'desktop';
-    const file = path.join(screenshotDirectory, `${mode}-${name}.png`);
-    await t.takeScreenshot({ path: path.relative(path.join(__dirname, '../../reports'), file), fullPage: false });
+    if (!capabilities.has('screenshots')) return;
+    const width = await viewportWidth();
+    await t.takeScreenshot({
+        path: `autocomplete/${screenshotRun}-${t.browser.alias.replace(/[^a-z0-9-]/gi, '_')}-${width}px-${name}.png`,
+        fullPage: false,
+    });
 }
 
 fixture('Logo word autocompletion')
+    .meta({ input: 'TestCafe key simulation and DOM suggestion clicks; not native mobile keyboard or touch' })
     .page(applicationUrl)
     .beforeEach(async (t) => {
-        if (!(await isPhone())) await t.resizeWindow(1280, 800);
-        await t.expect(Selector('#output').innerText).contains('Welcome to Berkeley Logo', { timeout: 30000 })
-            .expect(logoIdle()).ok('Logo must start idle', { timeout: 30000 });
+        if (capabilities.has('resize')) await t.resizeWindow(1280, 800);
+        await ready(t);
+        t.ctx.originalLegacyFontSize = await storedLegacyFontSize();
+        t.ctx.legacyFontSizeCaptured = true;
+        await storeLegacyFontSize(null);
+        await isolateSettings(t);
+    })
+    .afterEach(async (t) => {
+        try {
+            await useLiveNames();
+        } finally {
+            if (t.ctx.legacyFontSizeCaptured) await storeLegacyFontSize(t.ctx.originalLegacyFontSize);
+            await restoreSettings(t);
+        }
     });
 
 test('symbol source lists primitives, user procedures, variables, and library procedures', async (t) => {
@@ -167,6 +231,50 @@ test('symbol source lists primitives, user procedures, variables, and library pr
         .expect(kinds.squiggle).eql('procedure')
         .expect(kinds.zebra).eql('variable')
         .expect(kinds.foreach).eql('library');
+});
+
+test('editor: completes words while Logo is suspended', async (t) => {
+    await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+    await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+    try {
+        await prepareEditorCompletion();
+        await clickEditorSuggestionInPage('forward');
+        await t.expect(await editorState()).eql({
+            dialogOpen: true,
+            value: 'to demo\n  forward 10\nend',
+            caret: 17,
+            focused: true,
+        });
+    } finally {
+        await discardEditor();
+        await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+    }
+});
+
+test('editor: Tab completion preserves newline and Escape behavior', async (t) => {
+    await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+    await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+    try {
+        const editor = Selector('#editorTextArea');
+        await prepareEmptyEditor();
+        await t.typeText(editor, 'forw').pressKey('tab');
+        await t.expect(editor.value).eql('forward ');
+        await t.typeText(editor, 'forw').pressKey('esc');
+        await t.expect(editorDialogOpen()).ok()
+            .expect(Selector('logo-autocomplete[for="editorTextArea"]').shadowRoot()
+                .find('[role="listbox"]').visible).notOk();
+        await t.pressKey('enter');
+        await t.expect(editor.value).eql('forward forw\n');
+        await t.typeText(editor, 'forw').pressKey('ctrl+[');
+        await t.expect(editorDialogOpen()).ok()
+            .expect(Selector('logo-autocomplete[for="editorTextArea"]').shadowRoot()
+                .find('[role="listbox"]').visible).notOk()
+            .expect(editor.value).eql('forward forw\nforw')
+            .expect(editor.focused).ok();
+    } finally {
+        await discardEditor();
+        await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+    }
 });
 
 test('stub: closed combobox until a matching word is typed', async (t) => {
@@ -199,6 +307,7 @@ test('stub: tapping a suggestion completes only the word at the caret', async (t
     await useStubNames(['forward', 'foreach', 'format', 'back']);
     await resetInput();
     await typeSlowly(t, 'repeat 4 [fo');
+    await t.expect((await popupState()).options).contains('forward');
     await clickSuggestion(t, 'forward');
     const state = await popupState();
     await t.expect(state.value).eql('repeat 4 [forward ')
@@ -339,6 +448,7 @@ test('live: suggests procedures and variables defined in the session', async (t)
     await t.expect((await popupState()).options).contains('zigzag');
     await resetInput();
     await typeSlowly(t, 'print :zep');
+    await t.expect((await popupState()).options).contains('zeppelin');
     await clickSuggestion(t, 'zeppelin');
     await t.expect((await popupState()).value).eql('print :zeppelin ');
 });
@@ -346,15 +456,31 @@ test('live: suggests procedures and variables defined in the session', async (t)
 test('live: no completion while Logo is blocked reading continuation lines', async (t) => {
     await useLiveNames();
     await resetInput();
-    await t.typeText(commandInput, 'repeat 2 [', { paste: true }).pressKey('enter')
+    await t.typeText(commandInput, 'print [', { paste: true }).pressKey('enter')
         .expect(blockedOnInput()).ok('Logo should wait for the rest of the list');
-    await typeSlowly(t, 'forw');
+    await typeSlowly(t, 'fo');
     await t.expect((await popupState()).open).notOk('popup must stay closed while the C stack is suspended');
-    await t.selectText(commandInput).pressKey('delete').typeText(commandInput, ']', { paste: true }).pressKey('enter')
+    await t.typeText(commandInput, ']', { paste: true }).pressKey('enter')
         .expect(logoIdle()).ok();
     await resetInput();
     await typeSlowly(t, 'forw');
-    await t.expect((await popupState()).open).ok('popup works again once Logo is idle');
+    await t.expect((await popupState()).open).ok('popup works again once Logo is idle')
+        .expect((await popupState()).options).contains('forward');
+});
+
+test('live: no completion while a Logo program is running', async (t) => {
+    await useLiveNames();
+    await resetInput();
+    await t.typeText(commandInput, 'wait 180', { paste: true }).pressKey('enter')
+        .expect(ClientFunction(() => getValue(Module._LOGO_GIL, 'i32') !== 0)())
+        .ok('Logo should start running');
+    await typeSlowly(t, 'fo');
+    await t.expect((await popupState()).open).notOk('popup must stay closed while Logo is running');
+    await t.expect(logoIdle()).ok('Logo should return to idle');
+    await resetInput();
+    await typeSlowly(t, 'forw');
+    await t.expect((await popupState()).open).ok('popup works again once Logo is idle')
+        .expect((await popupState()).options).contains('forward');
 });
 
 test('performance: popup renders within the measured latency budget', async (t) => {
@@ -370,10 +496,15 @@ test('performance: popup renders within the measured latency budget', async (t) 
 test('layout: input and popup stay inside the window, fit, and are touch sized', async (t) => {
     await useStubNames(['forward', 'foreach']);
     await resetInput();
+    const idleLayout = await ClientFunction(() => ({
+        input: document.getElementById('logoInputText').getBoundingClientRect().toJSON(),
+        viewportHeight: window.visualViewport?.height ?? window.innerHeight,
+    }))();
+    await t.expect(idleLayout.input.top).gte(0)
+        .expect(idleLayout.input.bottom).lte(idleLayout.viewportHeight + 0.5);
     await screenshot(t, 'idle');
     await typeSlowly(t, 'f');
     await screenshot(t, 'popup');
-    const phone = await isPhone();
     for (const name of ['forward', 'foreach']) {
         const layout = await optionLayout(name);
         await t.expect(layout.scrollY).eql(0)
@@ -387,13 +518,11 @@ test('layout: input and popup stay inside the window, fit, and are touch sized',
             .expect(layout.optionOverflow).lte(0)
             .expect(layout.option.height).gte(44)
             .expect(layout.summary.top).gte(layout.name.bottom - 0.5);
-        if (!phone) {
+        if (layout.viewportWidth >= layout.inlineViewportWidth) {
             await t.expect(layout.usage.top).lt(layout.name.bottom, `${name} syntax on the same line`)
                 .expect(layout.usage.left).gte(layout.name.right);
+        } else if (name === 'foreach') {
+            await t.expect(layout.usage.top).gte(layout.name.bottom - 0.5, 'long syntax wraps below the word');
         }
-    }
-    if (phone) {
-        const layout = await optionLayout('foreach');
-        await t.expect(layout.usage.top).gte(layout.name.bottom - 0.5, 'long syntax wraps below the word');
     }
 });

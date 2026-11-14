@@ -57,16 +57,22 @@ Run from the repository root unless a verified isolated build supports otherwise
 | --- | --- | --- |
 | Full web build / Node suite | `./emscript.sh` | Requires Emscripten, Autotools, Node/npm dependencies and staged resources; cleans/reconfigures root build. |
 | Browser relink | `emmake make ucblogo.html` | Needs valid Wasm objects/configuration/staging and the intended Asyncify link flags; current script environment is not automatically preserved. |
-| Existing Node Logo suite | `node ./ucblogo-node.js tests/test.lg` | Review individual results; suite ends with `bye`. |
-| Existing browser acceptance, no rebuild | `npm run test:settings:built` | Currently Mocha/Selenium settings-persistence and error-reporting tests; inspect server/browser prerequisites. |
-| Focused browser case | `npx mocha tests/acceptance/settings-persistence.test.js --grep 'CASE'` | Select an actual test name; inspect test-managed server and `BROWSERS` settings. |
-| Browser Logo language suite | `BROWSERS=chrome,firefox npm run test:settings:built` | Includes `tests/test.lg` via `runjs "|FS.chdir('/')| load "tests/test.lg`; asserts `All tests completed.` and no `Failed`/`Error` lines. |
-| Autocomplete (TestCafe) | `npm run test:autocomplete`, or `npx testcafe chrome tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 2000` | Rebuild `ucblogo.html` first; add `--test 'exact name'`; phone profile `'chrome:emulation:width=390;height=500;mobile=true;touch=true'`; wrap in `timeout`. |
-| Rebuild plus acceptance | `npm run test:settings` | Runs `emscript.sh` first; Chrome/Firefox wrapper scripts exist. |
+| Node Logo suite, no rebuild | `npm run test:logo:node` | Runs `node tests/acceptance/run-logo-node.js` against the existing Node build; checks individual results, 65 tests with OOP skipped; suite ends with `bye`. |
+| Source and runner checks, no rebuild | `npm run test:source` | Runs `node --test tests/acceptance/source.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js`; no browser application rebuild. |
+| Build plus source and all functional browser tests | `npm test` | Runs `./emscript.sh` then `npm run test:built`; no Lighthouse/audits. |
+| Source and all functional browser tests, no rebuild | `npm run test:built` | Source checks plus shared TestCafe suite: all 57 functional browser cases, 49 mobile-capable; includes the Logo suite with explicit OOP skip. Requires current application artifacts. |
+| Build plus all functional browser tests | `npm run test:browser` | Runs `./emscript.sh` then `npm run test:browser:built`; no audits. |
+| All functional browser tests, no rebuild | `npm run test:browser:built` | Runs `node tests/acceptance/run-testcafe.js`; owns an available-port `emrun` server with HTTP readiness checks, or reuses `TESTCAFE_APP_URL`. Fixtures wait for runtime/input readiness. |
+| Focused browser case | `node tests/acceptance/run-testcafe.js --test 'exact test name'` | Exact name, not a substring; use `--test-grep 'regex'` for a regex. Shared runner provides a portable Node whole-run watchdog; GNU `timeout` is not required. |
+| Browser Logo language suite | `node tests/acceptance/run-testcafe.js --fixture 'Bundled Logo regression suite'` | Uses `tests/test.lg`; checks completion and individual failures/errors. 65 Logo tests with OOP explicitly skipped, not passing coverage. |
+| Settings fixture | `npm run test:settings`, `npm run test:settings:built` | Build/built-only wrappers select the settings fixture through the shared runner; Chrome/Firefox wrappers use `TESTCAFE_BROWSER`. |
+| Autocomplete (TestCafe) | `npm run test:autocomplete`, `npm run test:autocomplete:desktop`, `npm run test:autocomplete:phone` | Desktop/phone wrappers select the autocomplete fixture through the shared runner; use current application artifacts, not raw `--app`/fixed startup-delay commands. |
 | Lighthouse | `npm run test:lighthouse` | Separate browser performance/audit checks, not language correctness coverage. |
-| iPad keyboard | `npm run test:ipad:remote` | TestCafe remote browser workflow requires device/browser participation. |
+| Remote iPad browser suite | `npm run test:ipad:remote` | Runs `node tests/acceptance/run-testcafe.js --browser remote`; requires LAN-reachable `TESTCAFE_HOSTNAME` and `TESTCAFE_APP_URL`, proxy ports `38079,38080`, and human device connection. Separate connection and whole-run watchdogs. |
 | Native/wx build | `autoreconf --install`, `./configure --enable-wx`, `make` | Preserve isolated build state; optionally `--disable-docs` when intentionally skipping unavailable docs tools. Confirm wx was selected. |
 | Serve built browser app | `emrun --no-browser --port PORT ucblogo.html` | Reuse suitable server/browser; use available alternative if emrun fails. Wait for input readiness. |
+
+The shared runner uses `TESTCAFE_BROWSER` (default headless Chrome), `TESTCAFE_HEADLESS=0` for headed runs, and `TEST_DELAY_MS` for slow observation. `TESTCAFE_APP_URL` is preferred for reusing an existing server; legacy `UCBOLOGO_TEST_URL` warns, as do `BROWSERS` and `HEADLESS` (migrate to `TESTCAFE_BROWSER` and `TESTCAFE_HEADLESS`). `TESTCAFE_WATCHDOG_MS` bounds the whole run using portable Node supervision and cleanup of owned processes; `TESTCAFE_BROWSER_INIT_TIMEOUT` separately bounds remote-device connection waiting. Do not replace readiness checks with a fixed startup delay. Built-only commands do not rebuild: new browser fixtures alone need no application rebuild, but embedded Logo/application-source changes do. Keep Lighthouse separate and retain its existing audit options.
 
 For a single Logo regression, read `tests/_how-to.txt`, `tests/UnitTests.lg`, `tests/test.lg`, and the nearest `UnitTests-*.lg` for setup/invocation. Start collector tests at `tests/UnitTests-MemMgr.lg`; `tests/runjs-multiline.lg` is a bridge regression example.
 

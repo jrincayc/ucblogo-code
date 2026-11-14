@@ -8,16 +8,24 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "npm run test:settings && npm run test:lighthouse",
-    "test:settings": "./emscript.sh && mocha tests/acceptance/settings-persistence.test.js tests/acceptance/error-reporting.test.js",
-    "test:settings:built": "mocha tests/acceptance/settings-persistence.test.js tests/acceptance/error-reporting.test.js",
-    "test:settings:chrome": "BROWSERS=chrome npm run test:settings",
-    "test:settings:firefox": "BROWSERS=firefox npm run test:settings",
+    "test": "./emscript.sh && npm run test:built",
+    "test:built": "npm run test:source && npm run test:browser:built",
+    "test:browser": "./emscript.sh && npm run test:browser:built",
+    "test:browser:build": "npm run test:browser",
+    "test:browser:built": "node tests/acceptance/run-testcafe.js",
+    "test:browser:smoke": "node tests/acceptance/run-testcafe.js --test 'Logo starts and displays its welcome message'",
+    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js",
+    "test:runner:browser": "node -e \"const result = require('node:child_process').spawnSync(process.execPath, ['--test', 'tests/acceptance/runner.test.js'], { stdio: 'inherit', env: Object.assign({}, process.env, { RUNNER_BROWSER_TESTS: '1' }) }); process.exit(result.status ?? 1)\"",
+    "test:logo:node": "node tests/acceptance/run-logo-node.js",
+    "test:settings": "./emscript.sh && npm run test:settings:built",
+    "test:settings:built": "node tests/acceptance/run-testcafe.js --fixture 'Settings persistence'",
+    "test:settings:chrome": "./emscript.sh && node tests/acceptance/run-testcafe.js --browser chrome --fixture 'Settings persistence'",
+    "test:settings:firefox": "./emscript.sh && node tests/acceptance/run-testcafe.js --browser firefox --fixture 'Settings persistence'",
     "test:lighthouse": "mocha tests/acceptance/lighthouse.test.js",
-    "test:ipad:remote": "testcafe remote tests/acceptance/ipad-keyboard.test.js --ports 38079,38080 --disable-native-automation",
+    "test:ipad:remote": "node tests/acceptance/run-testcafe.js --browser remote",
     "test:autocomplete": "npm run -s test:autocomplete:desktop && npm run -s test:autocomplete:phone",
-    "test:autocomplete:desktop": "testcafe ${TESTCAFE_BROWSER:-chrome} tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 3000 -s path=reports --assertion-timeout 2000 --selector-timeout 2000",
-    "test:autocomplete:phone": "testcafe 'chrome:emulation:width=390;height=500;mobile=true;touch=true' tests/acceptance/autocomplete.testcafe.js --app 'emrun --no-browser --port 8085 ucblogo.html' --app-init-delay 3000 -s path=reports --assertion-timeout 2000 --selector-timeout 2000"
+    "test:autocomplete:desktop": "node tests/acceptance/run-testcafe.js --fixture 'Logo word autocompletion'",
+    "test:autocomplete:phone": "node tests/acceptance/run-testcafe.js --browser 'chrome:headless:emulation:width=390;height=844;mobile=true;touch=true' --fixture 'Logo word autocompletion'"
   },
   "author": "",
   "license": "ISC",
@@ -25,7 +33,6 @@
     "chai": "^6.3.0",
     "lighthouse": "^13.6.0",
     "mocha": "^12.0.3",
-    "selenium-webdriver": "^4.51.0",
     "testcafe": "^3.7.7",
     "workbox-cli": "^7.3.0"
   }

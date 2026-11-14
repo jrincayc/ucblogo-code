@@ -1,15 +1,15 @@
 const { ClientFunction, Selector } = require('testcafe');
+const {
+    applicationUrl, ready, isolateSettings, restoreSettings,
+    commandInput, output: logoOutput,
+} = require('./testcafe-helpers');
 
-const applicationUrl = process.env.TESTCAFE_APP_URL ||
-    'http://127.0.0.1:8083/ucblogo.html';
-const commandInput = Selector('#logoInputText');
-const logoOutput = Selector('#output');
 const status = Selector('#status');
-const startupState = ClientFunction(() => ({
-    error: document.getElementById('javascriptError')?.textContent || '',
-    status: document.getElementById('status')?.textContent || '',
-    output: document.getElementById('output')?.textContent || '',
-}));
+const storedLegacyFontSize = ClientFunction(() => localStorage.getItem('ucblogo.fontSize'));
+const storeLegacyFontSize = ClientFunction((value) => {
+    if (value === null) localStorage.removeItem('ucblogo.fontSize');
+    else localStorage.setItem('ucblogo.fontSize', value);
+});
 const readLayout = ClientFunction(() => {
     const app = document.getElementById('appContainer');
     const output = document.getElementById('outputContainer');
@@ -39,6 +39,9 @@ const prepareScrollableOutput = ClientFunction(() => {
 });
 const simulateKeyboard = ClientFunction(() => {
     const viewport = window.visualViewport;
+    if (!viewport) throw new Error('Keyboard simulation requires the Visual Viewport API');
+    const heightDescriptor = Object.getOwnPropertyDescriptor(viewport, 'height');
+    const before = readLayout();
     const baseHeight = viewport.height;
     const keyboardHeight = Math.min(320, Math.round(baseHeight * 0.4));
     const overlay = document.createElement('div');
@@ -59,51 +62,53 @@ const simulateKeyboard = ClientFunction(() => {
         borderTop: '1px solid #6b7280',
     });
     overlay.textContent = 'Simulated iOS keyboard';
-    document.body.appendChild(overlay);
-    Object.defineProperty(viewport, 'height', {
-        configurable: true,
-        value: baseHeight - keyboardHeight,
-    });
-    viewport.dispatchEvent(new Event('resize'));
-    return keyboardHeight;
-});
+    try {
+        document.body.appendChild(overlay);
+        Object.defineProperty(viewport, 'height', {
+            configurable: true,
+            value: baseHeight - keyboardHeight,
+        });
+        viewport.dispatchEvent(new Event('resize'));
+        return { before, after: readLayout(), keyboardHeight };
+    } finally {
+        if (heightDescriptor) Object.defineProperty(viewport, 'height', heightDescriptor);
+        else delete viewport.height;
+        overlay.remove();
+        viewport.dispatchEvent(new Event('resize'));
+    }
+}, { dependencies: { readLayout } });
 
-fixture('iPad virtual keyboard viewport POC').page(applicationUrl);
+fixture('iPad startup and keyboard viewport simulation')
+    .page(applicationUrl)
+    .beforeEach(async (t) => {
+        await ready(t);
+        t.ctx.originalLegacyFontSize = await storedLegacyFontSize();
+        t.ctx.legacyFontSizeCaptured = true;
+        await storeLegacyFontSize(null);
+        await isolateSettings(t);
+    })
+    .afterEach(async (t) => {
+        if (t.ctx.legacyFontSizeCaptured) await storeLegacyFontSize(t.ctx.originalLegacyFontSize);
+        await restoreSettings(t);
+    });
 
 test('Logo starts and displays its welcome message', async (t) => {
-    try {
-        await t.expect(logoOutput.innerText).contains('Welcome to Berkeley Logo',
-            'Logo must finish starting and print its welcome message', { timeout: 30000 });
-    } catch (error) {
-        console.error(`Logo startup state: ${JSON.stringify(await startupState())}`);
-        throw error;
-    }
+    await ready(t);
+    await t.expect(logoOutput.innerText).contains('Welcome to Berkeley Logo',
+        'Logo must finish starting and print its welcome message', { timeout: 30000 });
     await t.expect(commandInput.hasAttribute('disabled')).notOk('Logo command input must be enabled');
     await t.expect(status.textContent).notContains('Exception thrown', 'Startup must not report an exception');
 });
 
 test('simulated keyboard resizes the app without losing output position', async (t) => {
-    await t.expect(commandInput.exists).ok('Logo command input should be present');
-    await t.expect(ClientFunction(() => Boolean(
-        window.Module && Module.calledRun && Module.settings,
-    ))()).ok('Logo runtime should be ready');
-    await t.expect(logoOutput.innerText).contains('Welcome to Berkeley Logo',
-        'Logo must finish starting before the output is replaced', { timeout: 30000 });
-
+    await ready(t);
     const initialScrollTop = await prepareScrollableOutput();
-    const before = await readLayout();
-    console.log(`Before keyboard simulation: ${JSON.stringify(before)}`);
-
-    const simulatedKeyboardHeight = await simulateKeyboard();
-
-    const after = await readLayout();
-    console.log(`Simulated keyboard height: ${simulatedKeyboardHeight}px`);
-    console.log(`After keyboard simulation: ${JSON.stringify(after)}`);
+    const { before, after, keyboardHeight } = await simulateKeyboard();
 
     await t.expect(after.visualViewportHeight)
-        .eql(before.visualViewportHeight - simulatedKeyboardHeight,
+        .eql(before.visualViewportHeight - keyboardHeight,
             'The simulated visual viewport should shrink by the keyboard height');
-    await t.expect(Math.abs(after.appHeight - (before.appHeight - simulatedKeyboardHeight)))
+    await t.expect(Math.abs(after.appHeight - (before.appHeight - keyboardHeight)))
         .lt(2,
             'The app container should shrink by the simulated keyboard height');
     await t.expect(after.documentScrollY)
@@ -111,4 +116,9 @@ test('simulated keyboard resizes the app without losing output position', async 
             'The simulated keyboard should not push the whole document far upward');
     await t.expect(after.outputScrollTop).eql(initialScrollTop,
         'The simulated keyboard should preserve output scroll position');
+    const restored = await readLayout();
+    await t.expect(restored.visualViewportHeight).eql(before.visualViewportHeight)
+        .expect(Math.abs(restored.appHeight - before.appHeight)).lt(2)
+        .expect(restored.outputScrollTop).eql(initialScrollTop)
+        .expect(Selector('#keyboardSimulation').exists).notOk();
 });
