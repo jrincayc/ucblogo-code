@@ -703,11 +703,17 @@
       <h2 id="helpTitle" class="dialogTitle">Logo help</h2>
       <div class="helpSearchRow" role="search">
         <label class="visually-hidden" for="helpSearch">Search help</label>
-        <input id="helpSearch" type="search" placeholder="Search words" autocomplete="off"
+        <input id="helpSearch" type="search" placeholder="Search words and documents" autocomplete="off"
             autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="helpCount">
         <button type="button" id="helpClose">Close</button>
       </div>
       <div id="helpCount" class="helpCount" role="status"></div>
+      <div role="tablist" aria-label="Help sections" id="helpTabs" class="helpTabs">
+        <button type="button" role="tab" id="helpTab-words" aria-controls="helpPanel-words" aria-selected="true">Words</button>
+        <button type="button" role="tab" id="helpTab-manual" aria-controls="helpPanel-manual" aria-selected="false" tabindex="-1">User manual</button>
+        <button type="button" role="tab" id="helpTab-web" aria-controls="helpPanel-web" aria-selected="false" tabindex="-1">Web Edition</button>
+      </div>
+      <div role="tabpanel" id="helpPanel-words" class="helpPanel" aria-labelledby="helpTab-words">
       <div class="helpBrowser" id="helpBrowser" data-view="categories">
         <nav class="helpNav" aria-label="Logo words">
           <ul id="helpCatList" class="helpAccordion"></ul>
@@ -728,6 +734,9 @@
         </article>
         <div class="helpResults" id="helpResults" hidden></div>
       </div>
+      </div>
+      <div role="tabpanel" id="helpPanel-manual" class="helpPanel" aria-labelledby="helpTab-manual" hidden></div>
+      <div role="tabpanel" id="helpPanel-web" class="helpPanel" aria-labelledby="helpTab-web" hidden></div>
       <div id="helpLive" class="visually-hidden" role="status"></div>
       <style>
         #helpDialog {
@@ -759,6 +768,74 @@
           min-height: 1.4em;
           padding: 0 0.75em;
           font-size: 0.85em;
+        }
+
+        #helpDialog .helpTabs {
+          display: flex;
+          overflow-x: auto;
+          border-top: 1px solid var(--theme-control-border);
+        }
+
+        #helpDialog .helpTabs [role="tab"] {
+          flex: 0 0 auto;
+          border-color: transparent;
+          border-bottom: 3px solid transparent;
+        }
+
+        #helpDialog .helpTabs [role="tab"][aria-selected="true"] {
+          font-weight: bold;
+          border-bottom-color: var(--theme-foreground);
+        }
+
+        #helpDialog .helpPanel {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+        }
+
+        #helpDialog .helpDocStatus {
+          padding: 0.75em;
+        }
+
+        #helpDialog .helpDocText,
+        #helpDialog .helpDocCode {
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          font-family: monospace;
+          margin: 0.5em 0;
+        }
+
+        #helpDialog .helpDocCode {
+          padding: 0.5em;
+          border: 1px solid var(--theme-control-border);
+        }
+
+        #helpDialog .helpDocBody a {
+          color: inherit;
+        }
+
+        #helpDialog .helpDocBody {
+          line-height: 1.5;
+          overflow-wrap: anywhere;
+        }
+
+        #helpDialog .helpDocBody ul,
+        #helpDialog .helpDocBody ol {
+          padding-left: 1.5em;
+          margin: 0.75em 0;
+        }
+
+        #helpDialog .helpDocBody ul {
+          list-style: disc;
+        }
+
+        #helpDialog .helpDocBody li + li {
+          border: 0;
+        }
+
+        #helpDialog .helpResults h4 {
+          margin: 0.75em 0 0.25em;
         }
 
         #helpDialog .helpBrowser {
@@ -951,6 +1028,151 @@
           const sections = new Map();
           const wordButtons = new Map();
 
+          const makeSnippet = (text, terms, fallback) => {
+            const lower = text.toLowerCase();
+            const at = Math.min(...terms.map((t) => lower.indexOf(t)).filter((i) => i >= 0), Infinity);
+            if (!Number.isFinite(at)) return fallback;
+            let start = Math.max(0, at - 30);
+            if (start > 0) {
+              const space = text.indexOf(' ', start);
+              start = space >= 0 && space < at ? space + 1 : start;
+            }
+            let end = at + 90;
+            if (end < text.length) {
+              const space = text.lastIndexOf(' ', end);
+              end = space > at ? space : end;
+            }
+            return (start > 0 ? '\u2026' : '') + text.slice(start, end) + (end < text.length ? '\u2026' : '');
+          };
+
+          const tabs = [...dialog.querySelectorAll('[role="tab"]')];
+          const docViews = new Map();
+
+          const selectTab = (tab, focus) => {
+            for (const other of tabs) {
+              const on = other === tab;
+              other.setAttribute('aria-selected', String(on));
+              other.tabIndex = on ? 0 : -1;
+              $(other.getAttribute('aria-controls')).hidden = !on;
+            }
+            if (focus) tab.focus();
+            const id = tab.id.replace('helpTab-', '');
+            if (id !== 'words') ensureDocs(id);
+          };
+
+          const setDocExpanded = (view, group, open) => {
+            if (open) view.groups.forEach((other) => { if (other !== group) setDocExpanded(view, other, false); });
+            group.button.setAttribute('aria-expanded', String(open));
+            group.chevron.textContent = open ? '\u25BE' : '\u25B8';
+            group.list.hidden = !open;
+          };
+
+          const showDocSection = (section) => {
+            const view = docViews.get(section.doc.id);
+            if (!view) return;
+            selectTab($(`helpTab-${section.doc.id}`));
+            const group = view.groups.get(section.chapter);
+            if (group) setDocExpanded(view, group, true);
+            view.buttons.forEach((button, other) => {
+              if (other === section) button.setAttribute('aria-current', 'true');
+              else button.removeAttribute('aria-current');
+            });
+            view.selected = section;
+            view.title.textContent = section.title;
+            view.body.innerHTML = section.html;
+            view.placeholder.hidden = true;
+            view.entry.hidden = false;
+            view.browser.dataset.view = 'detail';
+            view.detail.scrollTop = 0;
+            view.detail.focus();
+          };
+
+          const buildDocPanel = (doc) => {
+            const panel = $(`helpPanel-${doc.id}`);
+            const view = { doc, buttons: new Map(), groups: new Map(), selected: null };
+            const sectionButton = (section) => {
+              const button = el('button', section.title, { type: 'button' });
+              button.addEventListener('click', () => showDocSection(section));
+              view.buttons.set(section, button);
+              const item = el('li');
+              item.append(button);
+              return item;
+            };
+            const byChapter = new Map();
+            for (const section of doc.sections) {
+              if (!byChapter.has(section.chapter)) byChapter.set(section.chapter, []);
+              byChapter.get(section.chapter).push(section);
+            }
+            const list = el('ul', undefined, { className: 'helpAccordion' });
+            let index = 0;
+            for (const [chapter, members] of byChapter) {
+              if (members.length === 1) {
+                list.append(sectionButton(members[0]));
+                continue;
+              }
+              const listId = `helpDoc-${doc.id}-${index++}`;
+              const chevron = el('span', '\u25B8', { className: 'helpChevron' });
+              chevron.setAttribute('aria-hidden', 'true');
+              const button = el('button', undefined, { type: 'button' });
+              button.setAttribute('aria-expanded', 'false');
+              button.setAttribute('aria-controls', listId);
+              button.append(chevron, el('span', chapter, { className: 'helpCatTitle' }), el('span', String(members.length)));
+              const sub = el('ul', undefined, { id: listId, hidden: true });
+              sub.append(...members.map(sectionButton));
+              const group = { button, chevron, list: sub };
+              view.groups.set(chapter, group);
+              button.addEventListener('click', () => setDocExpanded(view, group, sub.hidden));
+              const heading = el('h3');
+              heading.append(button);
+              const item = el('li');
+              item.append(heading, sub);
+              list.append(item);
+            }
+            const nav = el('nav', undefined, { className: 'helpNav' });
+            nav.setAttribute('aria-label', `${doc.title} sections`);
+            nav.append(list);
+            const back = el('button', '\u2190 Section list', { type: 'button', className: 'helpBack' });
+            const placeholder = el('p', `Select a section of the ${doc.title} to read it.`);
+            const title = el('h3');
+            const body = el('div', undefined, { className: 'helpDocBody' });
+            const entry = el('div', undefined, { hidden: true });
+            entry.append(title, body);
+            const detail = el('article', undefined, { className: 'helpDetail', tabIndex: -1 });
+            detail.setAttribute('aria-label', `${doc.title} section`);
+            detail.append(back, placeholder, entry);
+            const docBrowser = el('div', undefined, { className: 'helpBrowser' });
+            docBrowser.dataset.view = 'categories';
+            docBrowser.append(nav, detail);
+            back.addEventListener('click', () => {
+              docBrowser.dataset.view = 'categories';
+              const selectedButton = view.buttons.get(view.selected);
+              if (selectedButton) selectedButton.focus();
+            });
+            Object.assign(view, { browser: docBrowser, detail, placeholder, entry, title, body });
+            docViews.set(doc.id, view);
+            panel.replaceChildren(docBrowser);
+          };
+
+          const docStatus = (id, message, retry) => {
+            const panel = $(`helpPanel-${id}`);
+            const status = el('p', message, { className: 'helpDocStatus' });
+            status.setAttribute('role', 'status');
+            if (retry) {
+              const button = el('button', 'Retry', { type: 'button' });
+              button.addEventListener('click', () => ensureDocs(id));
+              status.append(' ', button);
+            }
+            panel.replaceChildren(status);
+          };
+
+          const ensureDocs = (id) => {
+            if (docViews.has(id)) return;
+            if (!Module.help.docs) docStatus(id, 'Loading\u2026');
+            Module.help.loadDocs().then((docs) => {
+              for (const doc of docs) if (!docViews.has(doc.id)) buildDocPanel(doc);
+            }, () => docStatus(id, 'Could not load this document.', true));
+          };
+
           // One category open at a time; its word buttons are created on first expansion.
           const setExpanded = (section, open) => {
             if (open) {
@@ -1002,47 +1224,58 @@
               $('helpCount').textContent = '';
               return;
             }
+            selectTab(tabs[0]);
             const terms = query.toLowerCase().split(/\s+/);
             const found = Module.help.search(query).slice(0, 50);
+            const docFound = Module.help.searchDocs(query).slice(0, 20);
             others.forEach((child) => { child.hidden = true; });
             results.hidden = false;
-            if (!found.length) {
+            if (!Module.help.docs) Module.help.loadDocs().then(search, () => {});
+            if (!found.length && !docFound.length && Module.help.docs) {
               results.replaceChildren(el('p', `No results for "${query}". Check the spelling or browse by category.`));
               $('helpCount').textContent = 'No results';
               return;
             }
-            const list = el('ul');
-            for (const { word } of found) {
-              const button = el('button', undefined, { type: 'button' });
-              const name = el('span');
-              highlight(name, [word.name, ...word.aliases.slice(0, 2)].join(', '), terms);
-              button.append(name);
-              const text = Module.help.body(word).replace(/\s+/g, ' ');
-              const at = Math.min(...terms.map((t) => text.toLowerCase().indexOf(t)).filter((i) => i >= 0), Infinity);
-              const small = el('small');
-              let snippet = word.usage[0] || '';
-              if (Number.isFinite(at)) {
-                let start = Math.max(0, at - 30);
-                if (start > 0) {
-                  const space = text.indexOf(' ', start);
-                  start = space >= 0 && space < at ? space + 1 : start;
-                }
-                let end = at + 90;
-                if (end < text.length) {
-                  const space = text.lastIndexOf(' ', end);
-                  end = space > at ? space : end;
-                }
-                snippet = (start > 0 ? '\u2026' : '') + text.slice(start, end) + (end < text.length ? '\u2026' : '');
+            const parts = [];
+            if (found.length) {
+              const list = el('ul');
+              for (const { word } of found) {
+                const button = el('button', undefined, { type: 'button' });
+                const name = el('span');
+                highlight(name, [word.name, ...word.aliases.slice(0, 2)].join(', '), terms);
+                button.append(name);
+                const small = el('small');
+                highlight(small, makeSnippet(Module.help.body(word).replace(/\s+/g, ' '), terms, word.usage[0] || ''), terms);
+                button.append(small);
+                button.addEventListener('click', () => showEntry(word));
+                const item = el('li');
+                item.append(button);
+                list.append(item);
               }
-              highlight(small, snippet, terms);
-              button.append(small);
-              button.addEventListener('click', () => showEntry(word));
-              const item = el('li');
-              item.append(button);
-              list.append(item);
+              parts.push(el('h4', `Words (${found.length}${found.length === 50 ? '+' : ''})`), list);
             }
-            results.replaceChildren(list);
-            $('helpCount').textContent = `${found.length}${found.length === 50 ? '+' : ''} result${found.length === 1 ? '' : 's'}`;
+            if (docFound.length) {
+              const list = el('ul');
+              for (const { section } of docFound) {
+                const button = el('button', undefined, { type: 'button' });
+                const name = el('span');
+                highlight(name, `${section.doc.title}: ${section.title}`, terms);
+                button.append(name);
+                const small = el('small');
+                highlight(small, makeSnippet(section.text, terms, ''), terms);
+                button.append(small);
+                button.addEventListener('click', () => showDocSection(section));
+                const item = el('li');
+                item.append(button);
+                list.append(item);
+              }
+              parts.push(el('h4', `Documents (${docFound.length})`), list);
+            } else if (!Module.help.docs) {
+              parts.push(el('p', 'Documents are still loading\u2026'));
+            }
+            results.replaceChildren(...parts);
+            const total = found.length + docFound.length;
+            $('helpCount').textContent = `${total}${found.length === 50 ? '+' : ''} result${total === 1 ? '' : 's'}`;
           };
 
           const build = () => {
@@ -1092,7 +1325,18 @@
             }
             dialog.showModal();
             $('helpSearch').focus();
+            ['manual', 'web'].forEach(ensureDocs);
           };
+
+          tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => selectTab(tab));
+            tab.addEventListener('keydown', (event) => {
+              const next = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: tabs.length - 1 }[event.key];
+              if (next === undefined) return;
+              event.preventDefault();
+              selectTab(tabs[(next + tabs.length) % tabs.length], true);
+            });
+          });
 
           $('helpClose').addEventListener('click', () => dialog.close());
           $('helpBackWords').addEventListener('click', () => {

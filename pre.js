@@ -1136,7 +1136,70 @@ Module.help = {
         }
         return results.sort((a, b) => b.score - a.score || a.word.name.localeCompare(b.word.name));
     },
+    // The manual and Web Edition documents are fetched after startup, never embedded in the Wasm filesystem.
+    docs: null,
+    docsPromise: null,
+    docsReady: Promise.resolve(),
+    loadDocs() {
+        if (this.docsPromise) return this.docsPromise;
+        const request = this.docsReady.then(() => fetch('help/docs.json', { priority: 'low' })).then((response) => {
+            if (!response.ok) throw new Error(`help/docs.json: HTTP ${response.status}`);
+            return response.json();
+        }).then(({ docs }) => {
+            for (const doc of docs) {
+                for (const section of doc.sections) {
+                    section.doc = doc;
+                    const parsed = new DOMParser().parseFromString(section.html, 'text/html');
+                    for (const block of parsed.querySelectorAll('p, pre, li, h4, h5, h6')) block.append(' ');
+                    section.text = parsed.body.textContent.replace(/\s+/g, ' ').trim();
+                }
+            }
+            this.docs = docs;
+            return docs;
+        });
+        this.docsPromise = request;
+        request.catch((error) => {
+            console.error('Help documents unavailable', error);
+            this.docsPromise = null;
+        });
+        return request;
+    },
+    searchDocs(query) {
+        const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        const results = [];
+        if (!terms.length || !this.docs) return results;
+        for (const doc of this.docs) {
+            for (const section of doc.sections) {
+                const title = section.title.toLowerCase();
+                const text = section.text.toLowerCase();
+                let score = 0;
+                let ok = true;
+                for (const term of terms) {
+                    if (title.includes(term)) score += 30;
+                    else if (text.includes(term)) score += 3;
+                    else { ok = false; break; }
+                }
+                if (ok) results.push({ section, score });
+            }
+        }
+        return results.sort((a, b) => b.score - a.score);
+    },
 };
+
+// Lowest priority: after the runtime is ready, the page has loaded, and the browser is idle.
+if (typeof document !== 'undefined') {
+    Module.help.docsReady = new Promise((resolve) => {
+        Module.postRun = [].concat(Module.postRun || [], () => {
+            const start = () => {
+                if (window.requestIdleCallback) window.requestIdleCallback(resolve);
+                else setTimeout(resolve, 0);
+            };
+            if (document.readyState === 'complete') start();
+            else window.addEventListener('load', start, { once: true });
+        });
+    });
+    Module.help.docsReady.then(() => Module.help.loadDocs()).catch(() => {});
+}
 
 // FIXME add options for objective logo and object serializer 
 Module.LogoNodeProto = {

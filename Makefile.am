@@ -201,11 +201,14 @@ _logo_gc_debug_node_id \
 	$(WEB_NODE_DEBUG) $(WEB_LDFLAGS) $(LDFLAGS) $(LIBS)
 
 
-help/index.json: scripts/build-help.js docs/ucblogo.texi helpfiles/HELPCONTENTS
+help/index.json: scripts/build-help.js scripts/build-help-docs.js docs/ucblogo.texi usermanual webedition.md helpfiles/HELPCONTENTS
 	node scripts/build-help.js help
 
+help/docs.json: help/index.json
+	@test -f $@ || node scripts/build-help.js help
+
 # Embeds the installed data tree, so stage it with install-data first.
-ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js liblogo.js webstartup.lg web-config.js help/index.json
+ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
 	$(MAKE) $(AM_MAKEFLAGS) install-data
 	em++  \
 	-o ucblogo.html \
@@ -271,7 +274,7 @@ ucblogo.dmg : mac docs/ucblogo.pdf
 
 CLEANFILES += ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
 CLEANFILES += ucblogo-node.js ucblogo-node.wasm ucblogo-node.wasm.map
-CLEANFILES += help/index.json
+CLEANFILES += help/index.json help/docs.json
 CLEANFILES += ucblogo.debug.wasm ucblogo-node.debug.wasm web-config.js sw.js sw.js.map
 # Hash-named Workbox runtime; the 8-hex pattern excludes the tracked workbox-config.js.
 CLEANFILES += workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js.map

@@ -5,6 +5,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { buildDocs } = require('./build-help-docs.js');
 
 const NON_WORD_FILES = /^(HELPCONTENTS|ALL_NAMES|Makefile(\.am|\.in)?)$/;
 const OTHER = { id: 'other', title: 'Other' };
@@ -100,6 +101,13 @@ function main(argv) {
     });
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ categories }));
+    const docs = buildDocs({
+        manual: fs.readFileSync(path.join(root, 'usermanual'), 'utf8'),
+        webedition: fs.readFileSync(path.join(root, 'webedition.md'), 'utf8'),
+    });
+    fs.writeFileSync(path.join(outDir, 'docs.json'), JSON.stringify(docs));
+    const sectionCount = docs.docs.reduce((n, d) => n + d.sections.length, 0);
+    console.log(`help/docs.json: ${docs.docs.length} documents, ${sectionCount} sections`);
     const words = categories.reduce((n, c) => n + c.words.length, 0);
     console.log(`help/index.json: ${categories.length} categories, ${words} words`);
     if (missing.length) console.warn(`No helpfile for: ${missing.join(', ')}`);

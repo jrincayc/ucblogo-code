@@ -97,15 +97,33 @@ Logo runtime.
 - [ ] Tests for the script against fixture inputs (category coverage: every
   file in `helpfiles/` appears in exactly one category or in "Other").
 
-### Step 2.2: Delivery (resolves Open Decision 1)
+### Step 2.2: Delivery (decided 2026-11-15: eager, lowest priority, not in the FS)
 
-- [ ] Word entries: read from the embedded `/share/ucblogo/helpfiles`
-  (already present); category index is a small JSON.
-- [ ] Manual, `webedition.md`, tutorial, and search index: fetched lazily on
-  first open of the dialog (loading state), not embedded, to keep Wasm and
-  startup size unchanged.
-- [ ] Add the `help/` files to the Workbox precache so Help works offline;
-  coordinate with [pwa-installability.md](pwa-installability.md).
+Considered and rejected: a separate Emscripten data package (`file_packager`
+`--preload`, mounted under `/share/ucblogo/help`). It works (the tool ships with
+the SDK) but adds a build step, a second loader script and a `.data` file to
+stage, verify and keep in step with the Wasm build, and the only gain is reading
+the documents with `FS.readFile`. Plain `fetch` of static files needs none of
+that, and the stage, cache and failure handling are the same in both options.
+Revisit only if a Logo-side `help` command must read these documents.
+
+- [x] Word entries: read from the embedded `/share/ucblogo/helpfiles` and the
+  small category index `help-index.json` (about 27 KB, already embedded), since
+  the Words tab needs them at once.
+- [ ] Manual, `webedition.md`, tutorial, and search index (about 190 KB raw,
+  about 60 KB gzipped, as separate files under `help/`): fetched eagerly but
+  last, after Logo is ready and the page has loaded, during idle time
+  (`requestIdleCallback`, `fetch` with low priority). Never embedded in the Wasm
+  filesystem. Tabs show a loading state if opened before the fetch completes.
+- [ ] Offline: rely on the existing `NetworkFirst` runtime caching, which stores
+  the idle fetches. Do not add them to the Workbox precache: precaching runs at
+  service-worker install and competes with startup. Consequence: Help documents
+  work offline only after one complete online session.
+- [ ] Deploy: `scripts/stage-web-deploy.js` copies only an explicit file list, so
+  it must include the `help/` files (and `verify` must check them) or the live
+  site will return 404 for them. Add a test in `stage-web-deploy.test.js`.
+- [ ] CI must generate the `help/` files before staging (the Makefile rule that
+  already builds `help/index.json` should produce them too).
 
 ### Step 2.3: Dialog markup and behavior
 
@@ -145,9 +163,8 @@ Logo runtime.
 
 ## Open Decisions
 
-1. How to ship the manual and `webedition.md`: embed in the Wasm filesystem, or
-   fetch and cache through the service worker. Proposed in Step 2.2: lazy
-   fetch, precached by the service worker; confirm before Step 2.1 finishes.
+1. Decided (2026-11-15): the manual and `webedition.md` are fetched eagerly at
+   lowest priority, not embedded in the Wasm filesystem; see Step 2.2.
 2. Search implementation: prebuilt index versus a runtime scan; index size
    against load time on mobile.
 3. Whether insertion closes the dialog by default.

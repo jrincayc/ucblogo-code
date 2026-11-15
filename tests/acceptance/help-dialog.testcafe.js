@@ -1,4 +1,4 @@
-const { ClientFunction, Selector } = require('testcafe');
+const { ClientFunction, RequestMock, Selector } = require('testcafe');
 const { applicationUrl, ready, commandInput } = require('./testcafe-helpers');
 
 const helpButton = Selector('button[aria-controls="helpDialog"]').filterVisible().nth(0);
@@ -166,4 +166,58 @@ test.meta({ requires: 'resize' })('HELP-012 search results stack name over snipp
         .typeText(search, 'turtle')
         .expect(Selector('#helpResults li').count).gte(5)
         .expect(resultProblems()).eql([]);
+});
+
+const docsLoaded = ClientFunction(() => Boolean(Module.help.docs));
+const tabSelected = (name) => Selector(`#helpTab-${name}`).getAttribute('aria-selected');
+
+test('HELP-013 documents load in the background without opening Help', async (t) => {
+    await t.expect(docsLoaded()).ok('help/docs.json was not fetched at idle time', { timeout: 20000 });
+});
+
+test('HELP-014 User manual tab browses chapters and sections', async (t) => {
+    await t.click(helpButton)
+        .click('#helpTab-manual')
+        .expect(tabSelected('manual')).eql('true')
+        .expect(Selector('#helpPanel-words').visible).notOk()
+        .click(Selector('#helpPanel-manual h3 button').withText('DATA STRUCTURE PRIMITIVES'))
+        .click(Selector('#helpPanel-manual ul ul button').withText('CONSTRUCTORS'))
+        .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('outputs a word formed by concatenating its inputs')
+        .expect(Selector('#helpPanel-manual button[aria-current="true"]').innerText).eql('CONSTRUCTORS');
+});
+
+test('HELP-015 tabs follow the WAI-ARIA keyboard pattern', async (t) => {
+    await t.click(helpButton)
+        .click('#helpTab-words')
+        .pressKey('right')
+        .expect(tabSelected('manual')).eql('true')
+        .expect(activeId()).eql('helpTab-manual')
+        .pressKey('right')
+        .expect(tabSelected('web')).eql('true')
+        .pressKey('right')
+        .expect(tabSelected('words')).eql('true')
+        .pressKey('end')
+        .expect(tabSelected('web')).eql('true')
+        .pressKey('home')
+        .expect(tabSelected('words')).eql('true')
+        .expect(Selector('#helpTab-manual').getAttribute('tabindex')).eql('-1');
+});
+
+test('HELP-016 search also finds documents and opens the section in its tab', async (t) => {
+    await t.click(helpButton)
+        .click('#helpTab-web')
+        .click(search)
+        .typeText(search, 'asyncify')
+        .expect(Selector('#helpResults h4').withText('Documents').exists).ok()
+        .expect(tabSelected('words')).eql('true')
+        .click(Selector('#helpResults li button').withText('Web Edition: Asyncify'))
+        .expect(tabSelected('web')).eql('true')
+        .expect(Selector('#helpPanel-web .helpDocBody').innerText).contains('Asyncify');
+});
+
+test.requestHooks(RequestMock().onRequestTo(/help\/docs\.json/).respond('', 500))('HELP-017 a failed document fetch shows an error with Retry', async (t) => {
+    await t.click(helpButton)
+        .click('#helpTab-manual')
+        .expect(Selector('#helpPanel-manual .helpDocStatus').innerText).contains('Could not load this document')
+        .expect(Selector('#helpPanel-manual .helpDocStatus button').withText('Retry').exists).ok();
 });

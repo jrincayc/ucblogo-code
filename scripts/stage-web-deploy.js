@@ -7,7 +7,8 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const REQUIRED = ['ucblogo.html', 'ucblogo.js', 'ucblogo.wasm', 'sw.js', 'manifest.json'];
+// help/docs.json is fetched at runtime (not precached), so the deploy must carry it.
+const REQUIRED = ['ucblogo.html', 'ucblogo.js', 'ucblogo.wasm', 'sw.js', 'manifest.json', 'help/docs.json'];
 const OPTIONAL = ['ucblogo.js.map', 'ucblogo.wasm.map', 'sw.js.map'];
 const WORKBOX_RUNTIME = /^workbox-[0-9a-f]{8}\.js(\.map)?$/;
 
@@ -95,7 +96,10 @@ function stage(source, target, options = {}) {
     for (const name of fs.readdirSync(target)) {
         if (WORKBOX_RUNTIME.test(name)) fs.rmSync(path.join(target, name));
     }
-    for (const name of names) fs.copyFileSync(path.join(source, name), path.join(target, name));
+    for (const name of names) {
+        fs.mkdirSync(path.dirname(path.join(target, name)), { recursive: true });
+        fs.copyFileSync(path.join(source, name), path.join(target, name));
+    }
 
     verify(target, options);
     return names;

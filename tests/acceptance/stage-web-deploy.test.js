@@ -37,6 +37,8 @@ describe('web deploy staging', () => {
             'chromeflagsjspi.png': 'png',
         });
         for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(source, name), content);
+        fs.mkdirSync(path.join(source, 'help'), { recursive: true });
+        fs.writeFileSync(path.join(source, 'help', 'docs.json'), '{"docs":[]}');
     }
 
     beforeEach(() => {
@@ -57,9 +59,15 @@ describe('web deploy staging', () => {
         stage(source, target, { expectVersion: 'p99' });
 
         assert.deepEqual(fs.readdirSync(target).sort(), [
-            'gpl.html', 'logologo.ico', 'manifest.json', 'sw.js', 'ucblogo-192.png',
+            'gpl.html', 'help', 'logologo.ico', 'manifest.json', 'sw.js', 'ucblogo-192.png',
             'ucblogo.html', 'ucblogo.js', 'ucblogo.wasm', 'workbox-aaaaaaaa.js', 'workbox-aaaaaaaa.js.map',
         ]);
+        assert.deepEqual(fs.readdirSync(path.join(target, 'help')), ['docs.json']);
+    });
+
+    it('fails when the Help documents were not generated', () => {
+        fs.rmSync(path.join(source, 'help'), { recursive: true });
+        assert.throws(() => stage(source, target), /help\/docs\.json/);
     });
 
     it('fails when a referenced file is missing', () => {

@@ -103,7 +103,7 @@ function makeTextControl(value, selectionStart, selectionEnd) {
 
 function loadSoftKeyHandler(controls) {
     const source = fs.readFileSync(path.join(repositoryRoot, 'pre.js'), 'utf8');
-    const handler = source.match(/Module\.softKeyDown = \(event, key\) => \{[\s\S]*?\n\};/);
+    const handler = source.match(/Module\.insertAtCaret = [\s\S]*?Module\.softKeyDown = \(event, key\) => \{[\s\S]*?\n\};/);
     assert.ok(handler, 'soft-key handler source');
     const Module = {};
     const document = { getElementById: (id) => controls[id] };
