@@ -1,7 +1,7 @@
 # Project Plan: Web Edition PWA Installability And Offline Hardening
 
-Status: Proposed; implementation has not started.
-Date: 2026-11-14
+Status: Proposed. Issue 9 is implemented; Issues 1-8 and 10-11 have not started.
+Date: 2026-11-14 (revised 2026-11-15 after review)
 
 ## Objective
 
@@ -28,6 +28,9 @@ conventions).
 - Do not weaken the stale-artifact rules in
   [copilot-instructions.md](../../.github/copilot-instructions.md#artifact-freshness):
   local test runs stay SW-free unless a test explicitly opts in.
+- Offline use must be consistent: everything the app fetches at runtime from
+  its own origin (currently `help/docs.json`) is precached, not left to a
+  first online visit.
 - Generated outputs (`ucblogo.html`, `sw.js`, `web-config.js`) are fixed in
   their sources ([shell.html](../../shell.html), [Makefile.am](../../Makefile.am),
   [workbox-config.js](../../workbox-config.js)), not by hand.
@@ -56,32 +59,51 @@ Plan:
    `createHandlerBoundToURL` URLs against the SW location; confirm that in the
    generated `sw.js` and in the browser.
 4. Regenerate `sw.js` and verify entries are relative.
+5. Update [scripts/stage-web-deploy.js](../../scripts/stage-web-deploy.js):
+   `precacheName()` strips the deployment prefix and takes the `basename`, which
+   breaks once precache entries are relative and include nested paths such as
+   `help/docs.json` (Issue 6). Treat each entry as a path relative to the deploy
+   directory and fail on absolute entries. Update the comment and the staging
+   tests accordingly.
 
 Validation: the PWA test (Issue 11) serves the build under two prefixes (root
 and a nested path) and checks that the manifest resolves, the SW installs, and
 the app loads offline in both. A source test asserts no absolute
-`/ucblogo-code/` remains in the manifest or Workbox config.
+`/ucblogo-code/` remains in the manifest or Workbox config. An upgrade check
+installs the currently deployed build's SW first, then the new one, and asserts
+the precache keys resolve to the same absolute URLs (no re-download of
+unchanged revisions) and the installed app keeps its id and scope.
 
 Risk: low. If Workbox cannot resolve the relative fallback key, use a
 build-time `navigateFallback` derived from the precache manifest instead.
 
 ## Issue 2: Service worker never registers on localhost
 
-Problem: [shell.html](../../shell.html#L915-L927) skips registration on
+Problem: the `serviceWorker` registration block in [shell.html](../../shell.html)
+(search for `navigator.serviceWorker.register`) skips registration on
 `localhost`, `127.0.0.1`, and `[::1]`, so the install and offline flows cannot
 be tested locally. The skip protects local diagnosis from stale caches.
 
 Plan:
 1. Keep the default skip on loopback hosts.
 2. Add an explicit opt-in: registration on loopback when the URL has
-   `?serviceworker=1`. Without it, behavior is unchanged, so existing
-   TestCafe runs stay SW-free.
+   `?serviceworker=1`. The opt-in only has effect on builds where
+   `Module.serviceWorker` is true (`--enable-service-worker`, the production
+   profile); dev builds still unregister. The PWA test therefore needs a
+   production build.
 3. Keep the `Module.serviceWorker === false` path that unregisters existing
    workers.
-4. Update the registration test in
+4. On loopback without the opt-in, unregister any existing worker instead of
+   ignoring it, so a worker left by a PWA test cannot control a reused port and
+   violate the stale-artifact rules. This is a small behavior change from
+   today; existing TestCafe runs stay SW-free either way.
+5. Update the registration test in
    [tests/acceptance/source.test.js](../../tests/acceptance/source.test.js)
-   with loopback opt-in and opt-out cases.
-5. Document the flag in [webedition.md](../../webedition.md) next to the
+   with loopback opt-in, opt-out, and unregister cases, and update
+   [tests/acceptance/COVERAGE.md](../../tests/acceptance/COVERAGE.md) (ACC-ERR-001)
+   and the service-worker note in
+   [tests/acceptance/README.md](../../tests/acceptance/README.md).
+6. Document the flag in [webedition.md](../../webedition.md) next to the
    stale-artifact guidance.
 
 Validation: source test plus the PWA test, which uses the opt-in.
@@ -94,9 +116,11 @@ circular masks crop it. Icons declare no `type` or `purpose`.
 Plan:
 1. Add `"type": "image/png"` and `"purpose": "any"` to the existing 192, 256,
    and 512 icons. Do not mark them maskable.
-2. Create `ucblogo-maskable-512.png`: the artwork scaled into the central 80%
-   safe zone on an opaque background taken from the logo. Commit the PNG; no
-   generator infrastructure.
+2. Create `ucblogo-maskable-512.png`: the artwork scaled so its whole bounding
+   box fits inside the maskable safe zone, a circle of radius 40% of the icon
+   (not a central 80% square, whose corners fall outside it), on an opaque
+   background taken from the logo. Commit the PNG; no generator
+   infrastructure.
 3. Add it with `"purpose": "maskable"`, as a separate entry (do not combine
    `any maskable`).
 4. Add `manifest.json`, `ucblogo-192.png`, `ucblogo-512.png`, and the new icons
@@ -113,8 +137,10 @@ Plan:
 1. Add `background_color` and `theme_color` matching `--theme-background` in
    [shell.html](../../shell.html). A manifest holds one value, so use the light
    value there and add a pair of `<meta name="theme-color" media="(prefers-color-scheme: ...)">`
-   tags for light and dark title bars. Accept a possible light splash in dark
-   mode; document it as a platform limit.
+   tags for light and dark browser title bars. Verify in Chrome whether the
+   installed-window title bar follows the manifest or the meta tags before
+   documenting it. Accept a possible light splash in dark mode; document it as
+   a platform limit.
 2. `id`: omit by default (see Constraints). If an explicit `id` is later
    wanted, it must equal the current absolute id; add a source or PWA-test
    assertion that the computed id for the Pages URL is unchanged. Record this
@@ -142,7 +168,10 @@ covered.
 ## Issue 6: Incomplete precache; overly broad runtime caching
 
 Problem: the precache covers only `ucblogo.html`, `.js`, `.wasm`. The manifest
-and icons are cached only if fetched through the SW. The catch-all
+and icons are cached only if fetched through the SW. `help/docs.json` (about
+220 KB, fetched by [pre.js](../../pre.js) when help is first opened) is cached
+only if help was opened while online, so offline help is inconsistent. The
+catch-all
 `NetworkFirst` for `/.*/` also caches every GET, including cross-origin
 requests made by user programs via `runjs`/`fetch`, with no size bound and no
 timeout.
@@ -150,20 +179,28 @@ timeout.
 Plan:
 1. Use an explicit file list (no wildcards) in
    [workbox-config.js](../../workbox-config.js): the three build files,
-   `manifest.json`, the icons used by the manifest and iOS, and `logologo.ico`.
-   Do not use `*.png` (it would include `chromeflagsjspi.png`).
+   `help/docs.json`, `manifest.json`, the icons used by the manifest and iOS,
+   and `logologo.ico`. Do not use `*.png` (it would include
+   `chromeflagsjspi.png`). `help/index.json` is embedded in the Wasm image and
+   needs no entry. Any future same-origin runtime fetch must be added to this
+   list.
 2. Make `sw.js` depend on the same files in [Makefile.am](../../Makefile.am)
-   so changes regenerate it.
-3. Restrict the runtime route to same-origin GET and add `networkTimeoutSeconds`
-   (about 3) so poor networks fall back to cache. Add an expiration plugin
-   (`maxEntries`) if the generator supports it without extra build steps;
-   otherwise bound by the same-origin restriction alone.
+   (including `help/docs.json`) so changes regenerate it.
+3. Restrict the runtime route to same-origin GET with a function `urlPattern`,
+   and add `networkTimeoutSeconds` (about 3) so poor networks fall back to
+   cache. Bound the runtime cache with `expiration: { maxEntries }`; `generateSW`
+   supports it directly. Lower `maximumFileSizeToCacheInBytes` from its current
+   effectively unlimited value to a bound above the Wasm size.
 4. Enable `cleanupOutdatedCaches: true` so older precaches from previous
    Workbox runtimes are removed.
+5. Verify help still degrades gracefully if the precached file is somehow
+   absent (the existing `help/docs.json: HTTP` error path in pre.js).
 
-Validation: PWA test inspects the cache storage list, goes offline, reloads the
-installed start URL, and checks the manifest and icons are served. It also
-checks a cross-origin fetch from the page is not stored.
+Validation: PWA test inspects the cache storage list, stops the local server
+(CDP offline emulation may not cover SW-initiated fetches), reloads the
+installed start URL, opens help and asserts a topic renders, and checks the
+manifest and icons are served. It also checks a cross-origin fetch from the
+page is not stored.
 
 ## Issue 7: No service-worker update path
 
@@ -181,18 +218,25 @@ Plan:
    [web-accessibility.md](web-accessibility.md) (`role="status"`, native button,
    focus not stolen).
 3. On user action post `{type: 'SKIP_WAITING'}` and reload after
-   `controllerchange`. The existing `beforeunload` prompt still guards unsaved
-   work; no automatic activation.
+   `controllerchange`, but only in the tab where the user chose Update (set a
+   flag on click). Otherwise every open tab reloads when one updates. The
+   notice warns that the current session is lost; the existing `beforeunload`
+   prompt still guards unsaved work; no automatic activation.
 4. Keep `clientsClaim` off to avoid a mid-session controller swap.
+5. Installs from the current deployed build have no notice code, so their first
+   update follows the browser's default flow; the notice applies from the
+   build after this change.
 
 Validation: source test with a fake registration for the state machine; PWA
-test serves build A, then build B, and asserts the notice appears, the old
-page is not reloaded without action, and the new version loads after the
-action. Wait for real readiness before asserting.
+test serves the currently deployed build as A, then the new build as B, and
+asserts the notice appears, the old page is not reloaded without action, other
+tabs do not reload, and the new version loads after the action. Wait for real
+readiness before asserting.
 
 ## Issue 8: Persistence claim is unverified
 
-Problem: [webedition.md](../../webedition.md#L271) says installing "ensures"
+Problem: [webedition.md](../../webedition.md) (the data-persistence warning
+near the top of the Web Edition usage section) says installing "ensures"
 persistence, but nothing calls `navigator.storage.persist()`.
 
 Plan:
@@ -215,10 +259,11 @@ status text. Real eviction behavior is not testable here; say so.
 
 Status: implemented (`scripts/stage-web-deploy.js`, `npm run stage:web`,
 `.gitignore` and Makefile clean rules, stale runtimes untracked, and the Deploy
-Web workflow that uses it). The text below is the original plan.
+Web workflow that uses it). The text below is the original plan; `help/docs.json`
+is now also staged, and Issues 1 and 6 require follow-up changes to the script.
 
 Problem: the `cp {*.js,*.wasm,...}` step in
-[webedition.md](../../webedition.md#L831) also publishes `webserver.js`,
+[webedition.md](../../webedition.md) (Deployment section) also publishes `webserver.js`,
 `pre.js`, `liblogo.js`, `package.json`, `chromeflagsjspi.png`, and every
 `workbox-*.js` including stale ones. Old Workbox runtimes (`workbox-84839ebf.js`,
 `workbox-915e8d08.js`, `workbox-c89c8001.js`) are tracked in git, while the
@@ -262,10 +307,12 @@ Plan:
 3. `beforeunload`: keep the protection (in-memory definitions are lost on
    close), but remove the duplicate registration (`window.onbeforeunload` and
    `addEventListener` both exist) and document the behavior in the PWA section.
-4. Docs: rewrite the PWA section in [webedition.md](../../webedition.md#L314-L320)
-   to cover desktop Chrome/Edge install, iOS Share > Add to Home Screen,
-   Android, offline scope, the update notice, persistence caveats, and the
-   `?serviceworker=1` localhost flag.
+4. Docs: rewrite the PWA section in [webedition.md](../../webedition.md)
+   (the "install as an app" paragraph) to cover desktop Chrome/Edge install,
+   iOS Share > Add to Home Screen, Android, offline scope (including help),
+   the update notice, persistence caveats, and the `?serviceworker=1`
+   localhost flag. Update the staging description in the build-deploy skill's
+   `ci-and-deploy.md`, which still says the published tree is flat.
 
 Validation: TestCafe cases with `beforeinstallprompt` dispatched synthetically
 (labeled as simulated, not a real install); display-mode emulation through the
@@ -278,20 +325,24 @@ Plan:
    URLs, icon existence and dimensions, precache config includes the manifest and
    icons, and no hard-coded prefix.
 2. `tests/acceptance/pwa.test.js` (Mocha/Chai like the Lighthouse test; uses
-   a locally served built tree and the Chrome that Lighthouse already
+   a locally served production build and the Chrome that Lighthouse already
    depends on): with `?serviceworker=1`, read CDP `Page.getInstallabilityErrors` and
-   `Page.getAppManifest`, wait for the SW to activate and control the page, go
-   offline and reload, and repeat under a nested prefix. Lighthouse 13 has no PWA
-   category, so it is not used for this.
+   `Page.getAppManifest`, wait for the SW to activate and control the page, stop
+   the server and reload, open help offline, and repeat under a nested prefix
+   (confirm [webserver.js](../../webserver.js) can serve under a path prefix, or
+   add a small static server for the test). Lighthouse 13 has no PWA category,
+   so it is not used for this.
 3. Add `npm run test:pwa:built` against current artifacts. Initially manual;
    promote to a scheduled job in the browser CI plan once stable.
 
 ## Sequencing
 
 1. Phase A (portability and test harness): Issues 1, 2, 6, 11. This is the
-   foundation; the PWA test must exist before later changes.
+   foundation; the PWA test must exist before later changes. Issue 6 depends
+   on Issue 1's relative URLs, and both change the staging script.
 2. Phase B (identity and icons): Issues 3, 4, 5.
-3. Phase C (lifecycle): Issues 7, 8, 10.
+3. Phase C (lifecycle): Issues 10, 7, 8 (Issue 10's standalone detection is
+   used by Issue 8).
 4. Phase D (deployment and docs): Issue 9 and the remaining doc updates.
 
 Each phase: rebuild with `npm run build:web`, run `npm run test:source`,
