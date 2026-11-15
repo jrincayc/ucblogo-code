@@ -53,15 +53,14 @@ and B8 after Dropbox ships.
   read pre.js top-level variables but not Worker state.
 - Output: an auth-flow matrix per browser and mode.
 
-### B3: Local and no-account paths (cheapest, widest reach; consider promoting before Dropbox)
+### B3: No-account paths (cheapest, widest reach; consider promoting before Dropbox)
 
 - Zip export and import: a stored-zip writer (no dependency) with test vectors;
   import through `<input webkitdirectory>` and zip.
 - Share sheet: `navigator.canShare({files})` on iPad, Android, and desktop, to
   save to Files, iCloud Drive, or another provider's app.
-- File System Access sync provider for Chromium: handle storage in IndexedDB,
-  permission re-prompt behavior (including Chrome's persistent permissions),
-  Chrome Android, name and mtime fidelity.
+- The Chromium File System Access sync provider has its own plan:
+  [local-folder-backup.md](local-folder-backup.md).
 - Export reminders based on last export versus last change, using standalone
   detection (PWA Issue 10).
 - Output: ship or no-ship per path.
