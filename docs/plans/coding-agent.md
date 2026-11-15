@@ -325,53 +325,68 @@ safety/denylist in [webedition.md](../../webedition.md) and a help topic.
 State clearly that suggestions can be wrong and that nothing runs without a
 user command.
 
-## TODO: Verify and document UCB Logo semantics
+## TODO: Finish verifying UCB Logo semantics
 
 The assistant drafting this plan has made mistakes with infix precedence,
 dynamic scope, and quoting/escaping. The model will make the same mistakes
 unless training data and eval tasks are verified against the interpreter, not
-written from memory. Do this before building the dataset (Issue 7) and the
-task set (Issue 6).
+written from memory. An initial probe pass is recorded below; finish the
+browser-target and remaining language checks before building the dataset
+(Issue 7) and task set (Issue 6).
 
 Investigate by running each case in the Node build and the browser build, and
 record actual output:
 
-1. Precedence and arity: `*` `/` before `+` `-`, comparisons, left
-   associativity (`10 - 2 - 3`), prefix procedures taking infix expressions as
-   inputs (`sum 2 3 * 4`, `first [1 2 3] + 10`, `list 1 + 2 3`), unary minus
-   rules (`3 -4`, `3 - -4`, `2 * -3`, `- 3 + 4` vs `minus 3 + 4`; the manual
-   says `-` is unary after an infix operator or open parenthesis, or when
-   preceded by a space and followed by a nonspace,
-   [docs/ucblogo.texi](../../docs/ucblogo.texi#L2886)), and parenthesized
-   vararg calls.
+1. Precedence and arity: verify infix precedence and associativity, comparisons,
+   prefix calls with infix expressions (`sum 2 3 * 4`,
+   `first [1 2 3] + 10`, `list 1 + 2 3`), unary minus spacing, and
+   parenthesized vararg calls. The initial Node probe found that prefix-call
+   boundaries matter: `sum 2 3 * 4` outputs `14`, while
+   `first [1 2 3] + 10` errors because `+` is applied to the list; wrapping the
+   selector, `(first [1 2 3]) + 10`, outputs `11`. `2 + 3 * 4` outputs `14`
+   and `10 - 2 - 3` outputs `5`.
 2. Dynamic scope: a callee sees and modifies the caller's `local`/input
    variables ([LOCAL](../../docs/ucblogo.texi#L4840) states this); `make` on a
    name with no local binding creates a global; `localmake`; input shadowing;
    `?` template slots and `:input` references inside `foreach`/`map`/`run`
    bodies; `thing`/`:"x`.
-3. Quoting and escaping: `"word` ends at space, bracket, parenthesis, or infix
-   operator characters (so `"a+b`, `"a;b`, `"[x]` behave unexpectedly);
-   backslash and `|...|` forms; `;` comments and `~` continuation; quoted
-   vs. list-literal contents (`[a "b :c]`); `"3` is a word, not a number;
-   `parse`, `runparse`, `word`, and `count` on escaped text; and how `runjs`
-   strings must be quoted from Logo (`"|...|`) per the existing
-   [runjs notes](../../webedition.md).
-4. Node runner behavior: while probing, a script run as
-   `node ./ucblogo-node.js file.lg < /dev/null` printed results for the first
-   few lines and then stopped silently at `pr first [1 2 3] + 10`, even with a
-   trailing `bye`; the cause is not yet known (interpreter bug, error text lost,
-   or stdin handling; see [node-stdin-io.md](node-stdin-io.md)). The eval
-   harness in Issue 6 depends on this runner, so resolve it first, then capture
-   errors explicitly (`catch "error` with the `error` output).
+3. Quoting and escaping: after an initial quote, word delimiters are spaces,
+   brackets, and parentheses; infix characters are not delimiters. Verify
+   backslash and `|...|` forms, `;` comments and `~` continuation, quoted vs.
+   list-literal contents (`[a "b :c]`), `parse`, `runparse`, `word`, and
+   `count` on escaped text, and how `runjs` strings are quoted from Logo
+   (`"|...|`) per the existing [runjs notes](../../webedition.md).
+4. Continue checking Node and browser behavior with small probe files and
+   capture errors explicitly (`catch "Error` followed by `error`). The earlier
+   apparent cutoff was the Logo error `+ doesn't like [1 2 3] as input`, not
+   stdin failure. The repo's `node tests/acceptance/run-logo-node.js` suite
+   passed 75 tests with 0 failures (one known `LiteralDribble` XFAIL).
 
 Outputs of this TODO:
 
+- Initial WebAssembly/Node findings (2026-11-15): `10 - 2 - 3` outputs `5`;
+   `minus 3 + 4` outputs `-7`; `-3 + 4` and `- 3 + 4` output `1`;
+   `runresult [ - 3 + 4]` returns `1`; `print (- 3 + 4)` prints `1`;
+   `3 - 4` outputs `-1`; `3 - -4` outputs `7`; and `2 * -3` outputs `-6`.
+   Avoid `3 -4`, which prints `3` then errors on `-4`. Unparenthesized
+   `print - 3 + 4` errors because of the prefix parsing context.
+- Dynamic-scope probe: a callee reads a caller's local `x=5`, its `make "x 20`
+   changes that binding, and the caller sees `20`; a global `x=99` remains
+   unchanged. A callee also reads an input local to its caller.
+- Quoting probe: `print "a+b` outputs `a+b`, `count "a+b` is `3`,
+   `count parse "|a b|` is `1`, and `vbarredp` distinguishes the `+` in
+   `|a+b|` from the plus quoted with a backslash. Backslash quoting does not
+   retain the vertical-bar metadata through `parse`.
+- The [UCB Logo programming skill style notes](../../.github/skills/ucb-logo-programming/references/logo-style.md)
+   now include these verified WebAssembly/Node findings.
+
+- Still to verify in the browser build: comparisons, `list`/vararg boundaries,
+   `foreach`/`map` templates, `run`/`runparse` behavior, more complex quoted
+   strings, and the Web Edition `runjs` quoting examples. The Node observations
+   should not be presented as cross-target validation until these checks pass.
+
 - A verified set of fixtures (expression, expected output, notes) under
   `tests/agent-eval/` that doubles as Logo unit tests and training seeds.
-- Updates to the [UCB Logo programming skill](../../.github/skills/ucb-logo-programming/SKILL.md)
-  and its [Logo style notes](../../.github/skills/ucb-logo-programming/references/logo-style.md)
-  with the confirmed rules and pitfalls. Do not edit the skill until the
-  findings are verified.
 - Dedicated eval categories and training-data coverage for precedence,
   dynamic scope, and quoting, with adversarial examples that look like other
   dialects.
