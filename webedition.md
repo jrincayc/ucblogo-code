@@ -720,8 +720,7 @@ WASM-GC would eliminate this concern but is not currently supported by LLVM.
 
 Emscripten will install it's own version of clang called emcc.
 
-`makehelp` is built with the native compiler (`CC_FOR_BUILD`), so the help
-index can be generated in the same Emscripten configuration.
+Note: Our makehelp target doesn't work with emscripten and must be built with a native toolchain.
 
 ## Building
 
@@ -734,51 +733,6 @@ npm install
 npm run build:web
 ```
 
-`npm run build:web` runs `autoreconf -fi`, `emconfigure ./configure --enable-wasm`,
-`emmake make clean`, `emmake make` and `emmake make check` (the Node Logo suite).
-On a fresh checkout run `make regenerate-help-index` once after configuring.
-
-The default configure target is still the native wxWidgets build;
-`--enable-wasm` selects the Web Edition and disables wx, X11 and docs, enables
-the git id, and installs staged data under `./dist`. `make` builds
-`ucblogo-node.js`, `ucblogo.html` (after `make install-data` stages the files it
-embeds) and, for production builds, `sw.js`. `ucblogo.html` does not track
-library file changes; delete it to relink after editing `logolib`, `helpfiles`
-or `csls`.
-
-Native wx and terminal-only builds are independent of this Emscripten workflow.
-See [README.md](README.md#native-builds) for their dependencies and configure
-options.
-
-### Build options
-
-| Option | Effect |
-| --- | --- |
-| (none) | Production: `-O3`, Asyncify, service worker. |
-| `--with-debug-info=dwarf` | `-g` in compile and link. |
-| `--with-debug-info=separate-dwarf` | DWARF split into `ucblogo.debug.wasm` / `ucblogo-node.debug.wasm` (recommended for the Chrome DWARF extension). |
-| `--with-debug-info=source-map` | `-gsource-map`. |
-| `--with-debug-info=profiling` | `--profiling-funcs`; keeps `-O3`. |
-| `--enable-asan`, `--enable-ubsan` | Address / undefined-behavior sanitizers (also usable in native builds). |
-| `--enable-safe-heap` | Emscripten `SAFE_HEAP=1`. Cannot be combined with `--enable-asan`. |
-| `--enable-assertions[=1\|2]` | Emscripten `ASSERTIONS`. |
-| `--enable-stack-overflow-check[=1\|2]` | Emscripten `STACK_OVERFLOW_CHECK`. |
-| `--enable-service-worker` / `--disable-service-worker` | Only allowed in production builds; on by default there. |
-
-Any debug-info (except `profiling`), sanitizer or runtime-check option makes a
-non-production build: the default optimization becomes `-Og` (set `CFLAGS` to
-override), no service worker is generated, and the page unregisters any
-service worker left by an earlier production build. Configure rejects
-incompatible combinations. Other Emscripten link settings (e.g.
-`-sEXCEPTION_DEBUG`) can be passed through `LDFLAGS`.
-
-Example debug build:
-
-```sh
-emconfigure ./configure --enable-wasm --with-debug-info=separate-dwarf --enable-asan --enable-assertions
-emmake make clean && emmake make
-```
-
 ## Runnning
 
 Once compiled to WASM, ucblogo can be run in any WASM VM including node.js and
@@ -786,9 +740,8 @@ any modern web browser using a local web server, e.g.
 
 ### Running in browser
 
-To debug the web app install the Chrome DWARF plugin and configure with
-`--with-debug-info=separate-dwarf` to split debug symbols into
-ucblogo.debug.wasm. Always split debug symbols into a separate
+To debug the web app install the Chrome DWARF plugin and be sure to split debug
+symbols into ucblogo.debug.wasm. Always split debug symbols into a separate
 file. The combined file is too big and the touchy DWARF plugin will silently
 fail.
 
@@ -856,8 +809,7 @@ like 8. The resultant GC thrashing has a fuzzing effect and will make existing
 bugs crash logo earlier and more often, which is good for debugging hard to
 reproduce bugs.
 
-See also `address-sanitizer.txt` for sanitizer notes; configure with
-`--enable-asan` and/or `--enable-ubsan` to turn them on.
+See also `address-sanitizer.txt` for how to turn on LLVM sanitizers.
 
 See also `contrib/gdb.rc` for some useful GDB macros.
 
@@ -868,7 +820,7 @@ Tag the release
 git tag -m pXX pXX
 ```
 
-Rebuild to include tag in version (production configuration, with service worker)
+Rebuild to include tag in version
 ```
 npm run build:web
 ```

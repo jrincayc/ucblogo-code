@@ -27,17 +27,20 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-    - name: Set Up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: npm
-    - name: Install Node Dependencies
-      run: npm ci
     - name: Set Up Emscripten
       uses: mymindstorm/setup-emsdk@v14
       with:
         version: latest
+    - name: Set Up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+        cache: npm
+    - name: Install Node Dependencies
+      run: |
+        node --version
+        npm --version
+        npm ci
     - name: Install Build Dependencies
       run: |
         sudo apt-get update
@@ -146,8 +149,10 @@ jobs:
         test -s logo-unit-test-results-terminal.txt
         awk '/\.\.\./ && ! /Ok$/{print "::error::"$0; failed=1} /\.\.\./ {count++} END {if (count == 0 || failed) exit 1}' logo-unit-test-results-terminal.txt
     - name: Check Literal Terminal Output
+      env:
+        LOGOLIB: ${{ github.workspace }}/logolib
       run: |
-        printf 'print "<&>"\nbye\n' | ./ucblogo > terminal-output.txt
+        printf 'print "|<&>|\nbye\n' | ./ucblogo - > terminal-output.txt
         cat -A terminal-output.txt
         grep -Fx '<&>' terminal-output.txt
         ! grep -Eq '&lt;|&gt;|&amp;|&quot;|&apos;' terminal-output.txt

@@ -112,7 +112,6 @@ EXTRA_DIST += changes.txt config.h.msys diffscript.pl .gitignore	\
  logologo.ico logologo.png logo_win.rc makefile.msys newtermnotes	\
  pbdevelopment.plist PkgInfo plm README.md ucblogo.bmp ucblogo.dsp	\
  ucblogo.dsw usermanual inno/ucblogo.iss
-EXTRA_DIST += tests/native/pty_terminal.py tests/native/wx_smoke.py
 
 # Diagram of evaluator, in three formats because hey why not
 EXTRA_DIST += evaluator.ps evaluator.pdf evaluator.svg
