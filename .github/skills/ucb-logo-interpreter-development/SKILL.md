@@ -147,7 +147,7 @@ Improving the build system is an explicit responsibility of this skill. Make bui
 
 ### Web Build Profiles
 
-Profiles are configure options (`emconfigure ./configure --enable-wasm ...`); `emscript.sh` is legacy. See `webedition.md` for the option table.
+Profiles are configure options (`emconfigure ./configure --enable-wasm ...`). See `webedition.md` for the option table.
 
 | Profile | Configuration |
 | --- | --- |
