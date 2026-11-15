@@ -27,21 +27,21 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-    - name: Set Up Emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: latest
     - name: Set Up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 22
         cache: npm
+    - name: Install Node Dependencies
+      run: npm ci
+    - name: Set Up Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: latest
     - name: Install Build Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y autoconf automake autoconf-archive libtool
-    - name: Install Node Dependencies
-      run: npm ci
     - name: Run Full Web Test Suite
       run: npm test
     - name: Grade Node WebAssembly Tests
@@ -148,6 +148,7 @@ jobs:
     - name: Check Literal Terminal Output
       run: |
         printf 'print "<&>"\nbye\n' | ./ucblogo > terminal-output.txt
+        cat -A terminal-output.txt
         grep -Fx '<&>' terminal-output.txt
         ! grep -Eq '&lt;|&gt;|&amp;|&quot;|&apos;' terminal-output.txt
     - name: Archive Test Results
