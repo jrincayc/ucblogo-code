@@ -349,11 +349,14 @@ record actual output:
    variables ([LOCAL](../../docs/ucblogo.texi#L4840) states this); `make` on a
    name with no local binding creates a global; `localmake`; input shadowing;
    `?` template slots and `:input` references inside `foreach`/`map`/`run`
-   bodies; `thing`/`:"x`.
+   bodies; `thing`/`:"x`. Check the tested contrast: `foreach` and `map`
+   templates resolve caller inputs dynamically, while a saved `[print :n]`
+   action does not close over its creator's local; use backquote substitution
+   when values must survive (`[print ,[:n]]`).
 3. Quoting and escaping: after an initial quote, word delimiters are spaces,
    brackets, and parentheses; infix characters are not delimiters. Verify
    backslash and `|...|` forms, `;` comments and `~` continuation, quoted vs.
-   list-literal contents (`[a "b :c]`), `parse`, `runparse`, `word`, and
+   list-literal contents (`[a "b :c]`), `parse` vs. `runparse`, `word`, and
    `count` on escaped text, and how `runjs` strings are quoted from Logo
    (`"|...|`) per the existing [runjs notes](../../webedition.md).
 4. Continue checking Node and browser behavior with small probe files and
@@ -372,17 +375,21 @@ Outputs of this TODO:
    `print - 3 + 4` errors because of the prefix parsing context.
 - Dynamic-scope probe: a callee reads a caller's local `x=5`, its `make "x 20`
    changes that binding, and the caller sees `20`; a global `x=99` remains
-   unchanged. A callee also reads an input local to its caller.
+   unchanged. A callee also reads an input local to its caller. `foreach` and
+   `map` templates can read caller inputs, but a saved `[print :n]` does not
+   retain its creator's local and fails later; backquote substitution yields
+   `[print 17]`, which still works after the creator returns.
 - Quoting probe: `print "a+b` outputs `a+b`, `count "a+b` is `3`,
-   `count parse "|a b|` is `1`, and `vbarredp` distinguishes the `+` in
-   `|a+b|` from the plus quoted with a backslash. Backslash quoting does not
-   retain the vertical-bar metadata through `parse`.
+   `parse "a+b` is `[a+b]`, and `runparse "a+b` is `[a + b]`. `runparse
+   "|a+b|` keeps the plus in one word, while `runparse "a\+b` is `[a + b]`;
+   `vbarredp` on the plus distinguishes the bar-quoted character. Both
+   `count parse "|a b|` and `count runparse "|a b|` are `1`.
 - The [UCB Logo programming skill style notes](../../.github/skills/ucb-logo-programming/references/logo-style.md)
    now include these verified WebAssembly/Node findings.
 
 - Still to verify in the browser build: comparisons, `list`/vararg boundaries,
-   `foreach`/`map` templates, `run`/`runparse` behavior, more complex quoted
-   strings, and the Web Edition `runjs` quoting examples. The Node observations
+  broader `foreach`/`map` template cases, complex quoted strings, and the Web
+  Edition `runjs` quoting examples. The Node observations
    should not be presented as cross-target validation until these checks pass.
 
 - A verified set of fixtures (expression, expected output, notes) under
