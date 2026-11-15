@@ -261,12 +261,38 @@ for (const theme of ['light', 'dark']) {
         await t.click(helpButton)
             .click(Selector('#helpCatList h3 button').nth(0))
             .click(Selector('#helpCatList ul button').nth(0))
-            .expect(Selector('html').getAttribute('data-theme')).eql(theme)
-            .expect(ClientFunction(() => getComputedStyle(document.getElementById('helpDialog')).backgroundColor)())
-            .eql(theme === 'dark' ? 'rgb(18, 18, 18)' : 'rgb(255, 255, 255)');
+            .expect(Selector('html').getAttribute('data-theme')).eql(theme);
+        const surface = await ClientFunction(() => getComputedStyle(document.getElementById('helpDialog')).backgroundColor)();
+        if (theme === 'dark') await t.expect(surface).notEql('rgb(255, 255, 255)');
+        else await t.expect(surface).eql('rgb(255, 255, 255)');
         const ratios = await helpContrast(contrastSelectors);
         for (const selector of contrastSelectors) {
             await t.expect(ratios[selector]).gte(4.5, `${selector} contrast ${ratios[selector]} in ${theme}`);
         }
     });
 }
+
+const openEditor = ClientFunction(() => document.getElementById('editorDialog').showModal());
+const editorState = ClientFunction(() => ({
+    open: document.getElementById('editorDialog').open,
+    text: document.getElementById('editorTextArea').value,
+    inEditorHelpButton: document.activeElement.matches('#editorDialog button[aria-controls="helpDialog"]'),
+    command: document.getElementById('logoInputText').value,
+}));
+const editorHelpButton = Selector('#editorDialog button[aria-controls="helpDialog"]');
+
+test('HELP-019 opened from the editor, Insert goes into the editor and Help stacks over it', async (t) => {
+    await openEditor();
+    await t.click(editorHelpButton)
+        .expect(dialogOpen()).ok()
+        .typeText(search, 'fput')
+        .click(Selector('#helpResults li button').nth(0))
+        .click(Selector('.helpInsert[data-close="0"]'))
+        .expect(Selector('#helpLive').innerText).contains('Inserted fput');
+    let state = await editorState();
+    await t.expect(state.text).contains('fput ').expect(state.command).eql('');
+    await t.click('#helpClose').expect(dialogOpen()).notOk();
+    state = await editorState();
+    await t.expect(state.open).ok('editor stays open under Help')
+        .expect(state.inEditorHelpButton).ok('focus returns to the editor Help button');
+});

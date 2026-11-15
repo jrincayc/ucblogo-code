@@ -23,6 +23,7 @@ as a progressive web app, which is recommended.
 * Logo source code upload/download
 * Animation and sprites
 * Soft-keys for entering common punctuation on mobiles
+* Built-in Help with a word browser, the user manual, and search
 * Persistent virtual filesystem
 * JS/Logo interoperability
 
@@ -318,6 +319,18 @@ UCB Logo can also be installed as an app on most mobile devices by selecting
 
 Installed as an app, UCB Logo features full-offline capabilities and persistant
 storage on it's virtual filesystem.
+
+## Help dialog
+
+Open Help with the toolbar Help button, the Help button in the editor dialog,
+or F1. The Words tab lists Logo words by category; select a word to read its
+usage and description. The User manual and Web Edition tabs hold the full
+documents. Search covers words and documents. Insert adds the selected word and
+a space at the caret in the command input, or in the editor when the editor
+dialog is open; Insert and close also closes Help.
+
+The manual and Web Edition documents load in the background after startup, so
+they are available offline only after one online session.
 
 ## Web-edition exclusive words
 

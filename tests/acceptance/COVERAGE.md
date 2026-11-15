@@ -1,7 +1,7 @@
 # Portable Acceptance Coverage Ledger
 
 Status: functional TestCafe consolidation implemented; human iPad Safari signoff pending.
-Inventory date: 2026-11-13.
+Inventory date: 2026-11-15.
 
 All former browser assertions have destinations in the shared TestCafe suite; five source/unit assertions moved to Node's test runner. Stable IDs identify behaviors, not executable case counts. Multiple IDs can intentionally share a combined case, and one ID can cover multiple parameter variants. Every original ID is retained below; new rendered soft-key and device-viewport checks have additional IDs. Exact destination titles are in code spans, with the owning file linked at each section. Historical retired filenames below are not links.
 
@@ -14,21 +14,23 @@ All former browser assertions have destinations in the shared TestCafe suite; fi
 | `JavaScript error reporting` | 2 | 2 | [error-reporting.testcafe.js](error-reporting.testcafe.js) |
 | `iPad startup and keyboard viewport simulation` | 2 | 2 | [ipad-keyboard.test.js](ipad-keyboard.test.js) |
 | `Bundled Logo regression suite` | 1 | 1 | [logo-suite.testcafe.js](logo-suite.testcafe.js) |
-| `Settings persistence` (includes UI) | 10 | 10 | [settings-persistence.testcafe.js](settings-persistence.testcafe.js) |
+| `Help dialog` | 20 | 17 | [help-dialog.testcafe.js](help-dialog.testcafe.js) |
+| `Help dialog follows the Logo text size` | 3 | 3 | [help-font-size.testcafe.js](help-font-size.testcafe.js) |
+| `Settings persistence` (includes UI) | 12 | 12 | [settings-persistence.testcafe.js](settings-persistence.testcafe.js) |
 | `Viewport and output scrolling` | 14 | 6 | [viewport.testcafe.js](viewport.testcafe.js) |
-| **Functional total** | **57** | **49** | Shared discovery and capability filtering in [run-testcafe.js](run-testcafe.js) |
+| **Functional total** | **82** | **71** | Shared discovery and capability filtering in [run-testcafe.js](run-testcafe.js) |
 
-The eight excluded cases require `resize`: ACC-VIEW-004A through ACC-VIEW-004D and ACC-VIEW-005A through ACC-VIEW-005D. Desktop defaults to `resize,screenshots`; mobile/emulation/remote defaults to no capabilities. Those eight cases are filtered out, not passed. Synthetic viewport cases and two screen-mode cases at the current device viewport remain eligible. Responsive autocomplete layout assertions adapt to available width; they do not add separate mobile cases.
+The eleven excluded cases require `resize`: HELP-010 through HELP-012 and ACC-VIEW-004A through ACC-VIEW-004D and ACC-VIEW-005A through ACC-VIEW-005D. Desktop defaults to `resize,screenshots`; mobile/emulation/remote defaults to no capabilities. Those eleven cases are filtered out, not passed. Synthetic viewport cases and two screen-mode cases at the current device viewport remain eligible. Responsive autocomplete layout assertions adapt to available width; they do not add separate mobile cases.
 
-Other recorded layers are **five source cases**, **15 Logo grader unit cases**, **27 runner cases**, and the direct Node Logo baseline of **65 passing checks with OOP skipped**. Four runner cases are real-Chrome opt-ins (`RUNNER_BROWSER_TESTS=1`); the default run has 23 eligible runner cases and four skips, subject to environment/platform skips. These are not added to the 57 functional browser cases. The bundled browser Logo suite is one TestCafe case containing the language checks, not 65 more browser cases.
+Other recorded layers are **73 Node source/unit tests** across seven test files, and the direct Node Logo baseline of **65 passing checks with OOP skipped**. The runner contributes 27 of those tests; four real-Chrome checks are opt-in (`RUNNER_BROWSER_TESTS=1`). The bundled browser Logo suite is one TestCafe case containing the language checks, not 75 more browser cases.
 
-Verified on 2026-11-13, Linux Mint 22.3, Node 25.7.0: Chrome 152 desktop **57/57**, Chrome 390x844 touch emulation **49/49**, Firefox 155 desktop **57/57**, runner self-tests **27/27**, and direct Node Logo **65 passing / OOP skipped**. Tests reused the matching 2026-11-13 17:55 HTML/JS/Wasm build, newer than the application inputs. No application/interpreter sources changed or were rebuilt. npm reported 23 vulnerabilities in the remaining development dependency tree; unrelated upgrades were not applied.
+Verified on 2026-11-15, Linux Mint 22.3, Node 25.7.0: Chrome 152 desktop **82/82**, Chrome 390x844 touch emulation **71/71**, Firefox 155 desktop **82/82**, and source/unit tests **69 passed / 4 optional browser checks skipped / 0 failed**. Browser tests used the fresh build produced by `emmake make ucblogo.html`; the pre-existing server on port 8080 served those artifacts. The bundled Logo browser suite reported 75 passed, 0 failed, 0 errors, with OOP skipped and its known `Tests.File.LiteralDribble` XFAIL.
 
-Counts describe implemented coverage, not a fresh execution report or proof of every browser. This documentation update does not rerun application builds or the browser/device matrix. **Actual iPad Safari and its native keyboard/rotation/touch/lifecycle/PWA checkpoints remain pending. Desktop Safari is not tested locally because no Mac is available.** Phone emulation is not an actual phone; iPad Safari does not establish desktop Safari, iPhone, or installed-PWA coverage. Use the [README.md](README.md) human record template to attach versions, build identity, commands, results, and exclusions. No paid hosted service is required.
+Counts describe the current suite and the execution above, not proof of every browser. **A real phone and actual iPad Safari, including native keyboard/rotation/touch/lifecycle/PWA checkpoints, remain pending maintainer testing. Desktop Safari is not tested locally because no Mac is available.** Phone emulation is not an actual phone; iPad Safari does not establish desktop Safari, iPhone, or installed-PWA coverage. Use the [README.md](README.md) human record template to attach versions, build identity, commands, results, and exclusions. No paid hosted service is required.
 
 ## Source And Error Reporting
 
-The five source cases now run with `node --test tests/acceptance/source.test.js` in [source.test.js](source.test.js), replacing the source-only portions of historical `settings-persistence.test.js` and `error-reporting.test.js`. Browser error cases are in [error-reporting.testcafe.js](error-reporting.testcafe.js), fixture `JavaScript error reporting`.
+The source and unit layer runs with `npm run test:source` across seven files, including [source.test.js](source.test.js), help index/docs/loading, deployment, grader, and runner checks. Browser error cases are in [error-reporting.testcafe.js](error-reporting.testcafe.js), fixture `JavaScript error reporting`.
 
 | ID | Exact Destination Title(s) | Assertions / Variants |
 | --- | --- | --- |
@@ -53,6 +55,7 @@ Destination: [settings-persistence.testcafe.js](settings-persistence.testcafe.js
 | ID | Exact Destination Title | Assertions / Variants |
 | --- | --- | --- |
 | ACC-SET-001 | `ACC-SET-001 sets, reports, and steps the Logo text size` | Setter, reporter, increase/decrease, UI CSS/control values, runtime setting, and stored value. |
+| ACC-SET-001c | `ACC-SET-001c typing a size in the text size box does not apply partial values` | Blank and out-of-range partial values do not change the setting while typing; valid values apply and clamp on commit. |
 | ACC-SET-002 | `ACC-SET-002 keeps SVG label size independent of Logo text size` | Computed SVG LABEL size matches drawing font rather than UI text size. |
 | ACC-SET-003 | `ACC-SET-003 applies dark mode and follows the system preference` | Dark colors/borders; system selection and computed system background. |
 | ACC-SET-004 | `ACC-SET-004 applies text colors and full flat-control styling` | Native appearance before `settc`; two RGB pairs after it, editor/input/button/history styling, disabled treatment, device-pixel border tolerances. |
@@ -62,6 +65,15 @@ Destination: [settings-persistence.testcafe.js](settings-persistence.testcafe.js
 | ACC-UI-002 | `ACC-UI-002 clicking a soft key replaces selected text and restores focus` | Command selection/caret/focus. Rendered key uses in-page click; desktop fallback uses a temporary click button. Not native touch evidence. |
 | ACC-UI-003 | `ACC-UI-003 names light-DOM soft keys and preserves their size` | Named group and ten buttons, click handlers, no label/mousedown abuse, computed 1.75em sizing. Desktop creates/removes a temporary touch-capable component when needed. |
 | ACC-UI-004 | `ACC-UI-004 clicking a soft key replaces selected editor text and restores focus` | Editor selection/caret/focus; rendered-key or temporary-button path as above. |
+
+## Help Dialog
+
+Destination: [help-dialog.testcafe.js](help-dialog.testcafe.js), fixture `Help dialog`.
+The 20 desktop cases include word browsing/search, document loading/search/retry,
+tabs, insertion into both command input and editor, stacked-dialog focus,
+responsive layout, and 4.5:1 text contrast in light and dark themes. Three
+resize-dependent cases are filtered from phone emulation; the remaining 17 pass
+there. The three text-size cases are in [help-font-size.testcafe.js](help-font-size.testcafe.js).
 
 ## JavaScript Bridge
 

@@ -1,7 +1,8 @@
 # Project Plan: Web Edition Help Dialog
 
-Status: Phase 1 wireframe approved by the maintainer on 2026-11-15 and frozen
-as the implementation specification; Phase 2 is not started.
+Status: Phase 1 wireframe approved and frozen. Phase 2 steps 2.1 to 2.4 are
+implemented (2026-11-15); step 2.6 is implemented except pending accessibility
+review; step 2.5 (tutorial) needs the maintainer's authorship.
 Date: 2026-11-14
 
 ## Objective
@@ -89,12 +90,12 @@ Logo runtime.
 
 ### Step 2.1: Content generation (build time, Node script in `scripts/`)
 
-- [ ] `scripts/build-help.js` writes `help/index.json`: categories from the
+- [x] `scripts/build-help.js` writes `help/index.json`: categories from the
   `@section` structure of [ucblogo.texi](../ucblogo.texi), word to category
   map, and usage lines; per-word body text comes from `helpfiles/<name>`.
-- [ ] Same script renders the user manual and `webedition.md` to sanitized
+- [x] Same script renders the user manual and `webedition.md` to sanitized
   static HTML (chapter files) plus a compact search index (`help/search.json`).
-- [ ] Tests for the script against fixture inputs (category coverage: every
+- [x] Tests for the script against fixture inputs (category coverage: every
   file in `helpfiles/` appears in exactly one category or in "Other").
 
 ### Step 2.2: Delivery (decided 2026-11-15: eager, lowest priority, not in the FS)
@@ -110,40 +111,41 @@ Revisit only if a Logo-side `help` command must read these documents.
 - [x] Word entries: read from the embedded `/share/ucblogo/helpfiles` and the
   small category index `help-index.json` (about 27 KB, already embedded), since
   the Words tab needs them at once.
-- [ ] Manual, `webedition.md`, tutorial, and search index (about 190 KB raw,
-  about 60 KB gzipped, as separate files under `help/`): fetched eagerly but
-  last, after Logo is ready and the page has loaded, during idle time
-  (`requestIdleCallback`, `fetch` with low priority). Never embedded in the Wasm
-  filesystem. Tabs show a loading state if opened before the fetch completes.
-- [ ] Offline: rely on the existing `NetworkFirst` runtime caching, which stores
+- [x] Manual and `webedition.md` (combined in `help/docs.json`, about 214 KB raw
+  and 60 KB gzipped): fetched eagerly but last, after Logo is ready and the page
+  has loaded, during idle time (`requestIdleCallback`, low-priority `fetch`).
+  Never embedded in the Wasm filesystem. Tabs show a loading state if opened
+  before the fetch completes. The tutorial is not included until authored.
+- [x] Offline: rely on the existing `NetworkFirst` runtime caching, which stores
   the idle fetches. Do not add them to the Workbox precache: precaching runs at
   service-worker install and competes with startup. Consequence: Help documents
   work offline only after one complete online session.
-- [ ] Deploy: `scripts/stage-web-deploy.js` copies only an explicit file list, so
+- [x] Deploy: `scripts/stage-web-deploy.js` copies only an explicit file list, so
   it must include the `help/` files (and `verify` must check them) or the live
   site will return 404 for them. Add a test in `stage-web-deploy.test.js`.
-- [ ] CI must generate the `help/` files before staging (the Makefile rule that
+- [x] CI must generate the `help/` files before staging (the Makefile rule that
   already builds `help/index.json` should produce them too).
 
 ### Step 2.3: Dialog markup and behavior
 
-- [ ] Copy markup and CSS from the frozen wireframe into `shell.html`; reuse
+- [x] Copy markup and CSS from the frozen wireframe into `shell.html`; reuse
   `--theme-*` variables and the `dialogWithTitle` structure.
-- [ ] Add the toolbar Help button beside Settings, a Help button in the editor
+- [x] Add the toolbar Help button beside Settings, a Help button in the editor
   dialog header, and F1.
-- [ ] `Module.help` service in `pre.js`: open/close with focus return, tab
+- [x] `Module.help` service in `pre.js`: open/close with focus return, tab
   state, drill-down state, search, and insertion.
-- [ ] Refactor insertion out of `Module.softKeyDown` into a shared helper so
+- [x] Refactor insertion out of `Module.softKeyDown` into a shared helper so
   both use the same target selection; add trailing space and caret
   placement.
-- [ ] Close the open decision on "Insert" vs "Insert and close" (default
+- [x] Close the open decision on "Insert" vs "Insert and close" (default
   recommendation: keep both).
 
 ### Step 2.4: Search
 
-- [ ] Prebuilt index (word names and usage weighted above body text), loaded
-  lazily; grouped results with highlighted snippets and a `role=status`
-  count (resolves Open Decision 2 once index size is measured on mobile).
+- [x] Search uses the embedded category/word index and lazily read helpfiles;
+  word names and usage rank above bodies. Document search scans the fetched
+  sections at runtime; results are grouped with highlighted snippets and a
+  `role=status` count (resolves Open Decision 2).
 
 ### Step 2.5: Tutorial
 
@@ -152,21 +154,26 @@ Revisit only if a Logo-side `help` command must read these documents.
 
 ### Step 2.6: Tests and docs
 
-- [ ] TestCafe acceptance tests in [tests/acceptance](../../tests/acceptance),
+- [x] TestCafe acceptance tests in [tests/acceptance](../../tests/acceptance),
   coordinated with the [TestCafe consolidation plan](testcafe-consolidation.md):
   open/close and focus return, tab keyboard behavior, search states, insertion
-  into the command input and into the editor, stacked modal, offline.
-- [ ] Unit tests for the build script and search ranking.
+  into the command input and editor, stacked modal, document-load failure/retry,
+  and light/dark contrast. Offline delivery is additionally covered by the
+  existing `NetworkFirst` policy and source checks.
+- [x] Unit tests for the build script and search ranking.
 - [ ] Accessibility checks per [web-accessibility.md](web-accessibility.md);
-  mobile Chrome emulation, Firefox, then iPad Safari with the maintainer.
-- [ ] Update `webedition.md` and usermanual references.
+  desktop Chrome, phone Chrome emulation, Firefox, and light/dark contrast
+  checks are automated and pass. Pending: a real phone and iPad Safari with the
+  maintainer, and a screen-reader pass.
+- [x] Update `webedition.md` (Help dialog section). The user manual is unchanged.
 
 ## Open Decisions
 
 1. Decided (2026-11-15): the manual and `webedition.md` are fetched eagerly at
    lowest priority, not embedded in the Wasm filesystem; see Step 2.2.
-2. Search implementation: prebuilt index versus a runtime scan; index size
-   against load time on mobile.
-3. Whether insertion closes the dialog by default.
-4. Tutorial authorship and scope (beginner programmers, plus advice on going
-   further).
+2. Resolved (2026-11-15): word search uses the embedded index and document
+  search scans the fetched sections at runtime; no separate full-text index.
+3. Resolved (2026-11-15): keep both Insert actions; plain Insert leaves Help
+  open, while Insert and close closes it.
+4. Open: tutorial authorship and scope (beginner programmers, plus advice on
+  going further); maintainer authorship and review are needed.

@@ -2,7 +2,7 @@
 
 Functional browser coverage is consolidated in TestCafe. The shared runner discovers all `*.testcafe.js` fixtures plus [ipad-keyboard.test.js](ipad-keyboard.test.js); there is no second Selenium assertion pass. Source checks and runner/grader unit tests use Node's test runner. Lighthouse remains a separate Mocha audit, not part of functional acceptance.
 
-The implemented inventory is **57 desktop functional cases**, or **49 mobile/remote cases** after capability filtering excludes eight desktop resize tests. These are case counts, not a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, baseline history, and exclusions.
+The implemented inventory is **82 desktop functional cases**, or **71 mobile/remote cases** after capability filtering excludes eleven resize tests. These are case counts, not a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, baseline history, and exclusions.
 
 ## Prerequisites And Freshness
 
@@ -22,7 +22,7 @@ These are the consolidated package-script contracts. All paths below are relativ
 | `npm run test:built` | `npm run test:source && npm run test:browser:built`: existing artifacts only. |
 | `npm run test:browser` | `npm run build:web && npm run test:browser:built`: build once, then functional browser checks only. |
 | `npm run test:browser:built` | `node tests/acceptance/run-testcafe.js`: all discovered functional fixtures. |
-| `npm run test:source` | `node --test tests/acceptance/source.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js`: five source cases, 15 grader cases, 27 runner cases (four real-Chrome cases opt-in). No Wasm build. |
+| `npm run test:source` | Runs the source, grader, runner, deploy, help-index, help-doc, and help-loading Node tests (73 tests; four optional browser-runner checks skip by default). No Wasm build. |
 | `npm run test:runner:browser` | Portable Node wrapper enables `RUNNER_BROWSER_TESTS=1` and runs all 27 runner self-tests, including real-Chrome failure, hang, capability, and reporter-flush checks. |
 | `npm run test:logo:node` | `node tests/acceptance/run-logo-node.js`: grade the existing Node/Wasm Logo build. |
 | `npm run test:settings` | `npm run build:web && npm run test:settings:built`: build once, then the settings fixture. |
@@ -99,7 +99,7 @@ TESTCAFE_WATCHDOG_MS=900000 \
 npm run test:ipad:remote
 ```
 
-TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the eight resize-dependent cases: **49 functional cases remain**, including the Logo suite, settings, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept.
+TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the eleven resize-dependent cases: **71 functional cases remain**, including Help, the Logo suite, settings, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept.
 
 Automated key simulation and in-page suggestion `.click()` calls are not native iOS keyboard or touch evidence. Synthetic Visual Viewport property changes and dispatched orientation events are not physical rotation. After automation, use another dedicated, fresh app session for these **human checkpoints**, in Safari and (where installed) the standalone PWA:
 
