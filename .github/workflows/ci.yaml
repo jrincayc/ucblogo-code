@@ -27,15 +27,15 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+    - name: Set Up Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: latest
     - name: Set Up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 22
         cache: npm
-    - name: Set Up Emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: latest
     - name: Install Build Dependencies
       run: |
         sudo apt-get update
@@ -89,6 +89,7 @@ jobs:
         autoreconf --install
         ./configure --disable-wasm --enable-wx --enable-objects --enable-gitid --disable-docs
         grep -Eq '^#define HAVE_WX 1$' config.h
+        make regenerate-help-index
         make
     - name: Run Tests
       timeout-minutes: 2
@@ -131,6 +132,7 @@ jobs:
       run: |
         autoreconf --install
         ./configure --disable-wasm --disable-wx --disable-x11 --enable-objects --enable-gitid --disable-docs
+        make regenerate-help-index
         make
     - name: Run Tests
       timeout-minutes: 2
@@ -186,6 +188,7 @@ jobs:
         autoreconf --install
         ./configure --disable-wasm --disable-wx --disable-x11 --disable-objects --disable-gitid --disable-docs
         grep -Eq '^#define WASM_MISSING 1$' config.h
+        make regenerate-help-index
         make
     - name: Run and Grade Tests
       timeout-minutes: 2
