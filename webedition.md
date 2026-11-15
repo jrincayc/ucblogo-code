@@ -815,23 +815,62 @@ See also `contrib/gdb.rc` for some useful GDB macros.
 
 ## Deployment
 
-Tag the release
+Releases are published automatically. Tag the commit that passed CI and push
+the tag:
+
 ```
 git tag -m pXX pXX
+git push origin pXX
 ```
 
-Rebuild to include tag in version
+The [Deploy Web workflow](.github/workflows/deploy-web.yaml) then:
+
+1. Checks that `git describe --tags --always --dirty` equals the pushed tag.
+2. Builds and runs the full test suite with `npm test` (Emscripten pinned in
+   the workflow to the same version as `ci.yaml`).
+3. Stages the site with `npm run stage:web`, which copies only the files the
+   app needs, drops stale Workbox runtimes, and verifies that the `sw.js`
+   precache revisions match the staged bytes and that the build embeds the
+   tag in its version string.
+4. Commits the result to the `gh_pages` branch as `pXX` and pushes it.
+   GitHub Pages serves that branch.
+
+No amend or second build is needed: build outputs are not tracked, and
+`sw.js` is rebuilt after `ucblogo.html` by the normal `make` dependencies.
+Never re-tag a published release; the version string comes from the tag.
+
+To publish by hand, build after tagging and stage into a `gh_pages` checkout:
+
 ```
 npm run build:web
+npm run stage:web -- ~/ucblogo-code-gh-pages --expect-version pXX
 ```
 
-Copy files to deployment dir, e.g.
+then commit and push in that checkout. The workflow's manual run (Actions >
+Deploy Web > Run workflow) does everything except publish and uploads the
+staged site as an artifact; GitHub only offers manual runs for workflows on
+the default branch.
 
-```
-cp {*.js,*.wasm,*.html,*.map,*.ico,*.png,*.pdf,*.json} ~/ucblogo-code-gh-pages
-```
+### Impact on the wx release process
 
-Commit and push
+The wx build is largely unaffected:
+
+- `git.c` (the git id in the version string) is only generated with
+  `--enable-gitid`, which defaults to yes for `--enable-wasm` and no
+  otherwise. It now uses `git describe --tags --always --dirty`, so a
+  `--enable-gitid` wx build also shows lightweight tags and a `-dirty` suffix
+  when tracked files are modified. Exact-tag builds still read `(pXX)`.
+- `makefile.msys` (the Windows/MinGW build) has its own `git describe` rule
+  and was not changed, so it does not add `--tags` or `-dirty`.
+- `make clean` also removes `sw.js.map` and the hash-named `workbox-*.js` and
+  map files. `.gitignore` now ignores `web-config.js`, `workbox-????????.js`,
+  `/config.guess`, and `/config.sub`; none of these were tracked or
+  distributed.
+- The stale tracked `workbox-*.js` runtimes were removed from git.
+- The Deploy Web workflow runs for tags matching `p[0-9]*`, but only on
+  commits that contain the workflow file. Once it is on `master`, any `pNN`
+  tag, including a wx-only release, will also build and publish the web site.
+  Use a different tag prefix or add a gate if that is not wanted.
 
 
 ## Future Directions

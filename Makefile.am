@@ -54,7 +54,7 @@ MOSTLYCLEANFILES = git.c
 .PHONY: FORCE
 FORCE:
 git.c: FORCE
-	echo 'char* GIT = "('`git describe --always||echo -n NA`')";' > git-c-temp
+	echo 'char* GIT = "('`git describe --tags --always --dirty||echo -n NA`')";' > git-c-temp
 	if cmp --quiet git-c-temp $@; then echo "$@ already up to date"; else echo "Refreshing $@"; mv git-c-temp $@; fi
 
 if WX
@@ -165,6 +165,7 @@ web-config.js: Makefile
 	echo 'Module.serviceWorker = $(WEB_SERVICE_WORKER);' > $@
 
 sw.js: ucblogo.html workbox-config.js
+	rm -f workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js.map
 	npx --no -- workbox-cli generateSW workbox-config.js
 
 if WASM
@@ -266,4 +267,6 @@ ucblogo.dmg : mac docs/ucblogo.pdf
 
 CLEANFILES += ucblogo.html ucblogo.js ucblogo.mjs.map ucblogo.mjs ucblogo.js.map ucblogo.wasm.map ucblogo.wasm
 CLEANFILES += ucblogo-node.js ucblogo-node.wasm ucblogo-node.wasm.map
-CLEANFILES += ucblogo.debug.wasm ucblogo-node.debug.wasm web-config.js sw.js
+CLEANFILES += ucblogo.debug.wasm ucblogo-node.debug.wasm web-config.js sw.js sw.js.map
+# Hash-named Workbox runtime; the 8-hex pattern excludes the tracked workbox-config.js.
+CLEANFILES += workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js.map

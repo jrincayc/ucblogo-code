@@ -31,8 +31,9 @@ conventions).
 - Generated outputs (`ucblogo.html`, `sw.js`, `web-config.js`) are fixed in
   their sources ([shell.html](../../shell.html), [Makefile.am](../../Makefile.am),
   [workbox-config.js](../../workbox-config.js)), not by hand.
-- Publishing remains a manual maintainer action; this plan adds staging and
-  verification only.
+- Publishing is automated by the tag-triggered Deploy Web workflow
+  ([deploy-web.yaml](../../.github/workflows/deploy-web.yaml)); this plan keeps
+  its staging and verification, and the plan itself never pushes.
 - Desktop Safari and real iOS are not verifiable locally. Report that gap;
   iPad checks are a human checkpoint per
   [tests/acceptance/README.md](../../tests/acceptance/README.md).
@@ -212,6 +213,10 @@ status text. Real eviction behavior is not testable here; say so.
 
 ## Issue 9: Deploy copy step over-publishes and includes stale files
 
+Status: implemented (`scripts/stage-web-deploy.js`, `npm run stage:web`,
+`.gitignore` and Makefile clean rules, stale runtimes untracked, and the Deploy
+Web workflow that uses it). The text below is the original plan.
+
 Problem: the `cp {*.js,*.wasm,...}` step in
 [webedition.md](../../webedition.md#L831) also publishes `webserver.js`,
 `pre.js`, `liblogo.js`, `package.json`, `chromeflagsjspi.png`, and every
@@ -295,7 +300,7 @@ files are the just-built ones, with no stale SW).
 
 ## Out Of Scope
 
-- Changing the deployment host, adding a publish workflow, or any push.
+- Changing the deployment host or migrating to the Pages artifact deployment.
 - Migrating Asyncify or caching strategy for the Wasm beyond the precache above.
 - Web Push, background sync, file handlers, and share targets.
 - Physical-device coverage beyond the iPad human checkpoint.

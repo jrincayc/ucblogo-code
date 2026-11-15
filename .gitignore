@@ -48,6 +48,10 @@ dist/
 ucblogo-node.js
 git-c-temp
 sw.js
+web-config.js
+workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js
+/config.guess
+/config.sub
 confdefs.*
 conftest.*
 *.tmp
