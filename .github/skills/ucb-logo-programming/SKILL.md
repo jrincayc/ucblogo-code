@@ -40,7 +40,7 @@ Support both traditional live-system development and source-file development. Lo
 - After rebuilding, distinguish stale service-worker/browser content from source failures with the [web-testing skill's stale-artifacts checklist](../ucb-logo-web-testing/references/stale-artifacts.md). Do not edit generated `ucblogo.html` or `sw.js` directly to fix source behavior.
 - Wait until Logo is initialized and the `logoInputText` terminal input is enabled. Send commands to Logo's stdin via that input or the existing `runLogo` JavaScript entry point, then run the relevant procedures and inspect Logo output, rendered HTML or graphics, and browser errors. For multiline source, the app's upload control copies a selected Logo file into the virtual filesystem and issues `load`; verify the current build's behavior before relying on another loading mechanism.
 - Iterate interactively: debug at the Logo prompt and, when useful, edit definitions in Logo. The web editor saves to the browser's virtual filesystem, which does not automatically mirror workspace files. Assume generated Logo and JavaScript code, including live experiments, is potentially worth keeping; preserve it in suitable Git-ready workspace files by default, creating source files when needed. Reconcile live changes without overwriting unrelated edits, then reload or rerun the synchronized source to verify it. Trivial diagnostic probes or code the user explicitly does not want retained need not become repository files.
-- Add focused tests for the behavior and report what was actually checked. Do not commit unless explicitly requested.
+- Add focused tests for the behavior and report what was actually checked. Commit checkpoints per the repo commit policy.
 
 ## Repository Pointers
 

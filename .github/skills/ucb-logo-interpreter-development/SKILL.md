@@ -22,7 +22,7 @@ Load the [project reference](./references/project-map.md) for source ownership a
 4. State relevant invariants: Logo semantics, NODE lifetime, evaluator state, platform guards, suspend/resume boundaries, IO ordering, or persistence readiness. Preserve backward compatibility unless a breaking change is explicitly approved.
 5. Implement a focused change and immediately run its narrow regression test or executable validation. Repair that slice before broadening scope. Scale coverage with risk, especially for GC, evaluator, IO, and cross-platform contracts.
 6. Rebuild affected artifacts and validate in the actual target runtime. Browser-only behavior needs browser checks; Node success does not establish DOM, IndexedDB, rendering, or event-loop correctness. Use the [web-testing skill](../ucb-logo-web-testing/SKILL.md) to choose and run checks; if behavior contradicts source, load its [stale-artifacts checklist](../ucb-logo-web-testing/references/stale-artifacts.md) before editing again.
-7. Update affected docs and report exactly what passed, failed, or could not be checked. Preserve unrelated work; do not commit, regenerate unrelated outputs, or overwrite build configurations casually.
+7. Update affected docs and report exactly what passed, failed, or could not be checked. Preserve unrelated work; do not regenerate unrelated outputs or overwrite build configurations casually. Commit checkpoints per the repo commit policy.
 
 ## Reference Index
 

@@ -16,7 +16,7 @@ Global rules live in [project instructions](../../copilot-instructions.md): brow
 2. **Write the failing test first.** Assert observable results (value, focus, `aria-*`, computed style), not only internal state. Choose the test layer with [test strategy](./references/test-strategy.md).
 3. **Run the narrowest case.** Use the shared runner with `--test 'exact name'` or `--test-grep`, readiness waits, and its Node watchdog; see [commands](./references/commands.md). Keep the reproducer stable while diagnosing.
 4. **Read individual results.** Review each `Ok`, `Failed`, and `Error`; a completion message or exit status alone is not evidence. Skipped tests (including OOP) are not passes.
-5. **Broaden deliberately.** Expand to other browsers and devices in the [platform matrix](./references/platform-matrix.md) order only when ready to commit, when asked, or when the failure is browser-specific. Do not run the full matrix after every edit.
+5. **Broaden deliberately.** Expand to other browsers and devices in the [platform matrix](./references/platform-matrix.md) order only before pushing, opening a PR, or reporting final results, when asked, or when the failure is browser-specific. Do not run the full matrix after every edit.
 6. **Report precisely.** State the browser/engine and version, emulation versus real device, artifact build, and what was skipped, unavailable, or pending a human pass (mobile Safari).
 
 ## Reference Index

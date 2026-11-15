@@ -8,6 +8,13 @@
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
 - When the user says stop, stop work immediately. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
 
+# Commit Policy
+
+- Commit locally early and often, after each semantic block of changes (one logical edit, fix, refactor, test, or doc update), even if the build or tests fail. Intermediate commits need not be in a working state; several commits may be needed to get there. Commits are cheap checkpoints that make it easy to revert or bisect when a later change breaks an earlier one.
+- Use short, descriptive messages. Stage only the files touched by the block and inspect the staged diff first so unrelated user changes are not included.
+- A trivial follow-up (typo, formatting, small correction to the previous block) may amend the latest commit, and trivial or noisy commits may be squashed, but only while the affected commits are unpushed and local history has not diverged from origin. If a commit is already on origin, make a new commit instead.
+- Pushing, force-pushing, and rewriting pushed history still need explicit permission. Explicit user limits such as "do not commit" override this policy.
+
 # Process Ownership
 
 - Reuse suitable existing servers and browsers. Track terminal IDs or PIDs, ports, and ownership for servers, browser runners, and other processes started during the task.

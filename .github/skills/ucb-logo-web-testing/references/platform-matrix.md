@@ -2,7 +2,7 @@
 
 The default iteration order, broader browser-test priority, and Safari policy live in [project instructions](../../../copilot-instructions.md#browser-test-priority); this file holds the rest of the matrix.
 
-- **Expand validation when ready to commit.** Run the relevant broader web tests in that priority order and the relevant Linux wx checks; debug platform differences as necessary. Do not commit unless explicitly requested. Earlier targeted platform or sanitizer checks are appropriate when a specific failure or shared C/GC/build change makes them discriminating, not as a blanket per-edit requirement.
+- **Expand validation before pushing, opening a PR, or reporting final results.** Run the relevant broader web tests in that priority order and the relevant Linux wx checks; debug platform differences as necessary. Checkpoint commits do not require this validation. Earlier targeted platform or sanitizer checks are appropriate when a specific failure or shared C/GC/build change makes them discriminating, not as a blanket per-edit requirement.
 - The maintainer has Linux wx and an iPad for real mobile Safari testing, but no Mac or local Windows. Use the iPad for affected Safari, touch, keyboard, storage, and layout workflows. Desktop Safari remains supported but cannot be tested locally without a Mac; record this coverage gap rather than blocking ordinary iteration or claiming compatibility from another browser.
 
 | Target | Broader Validation Goal |
