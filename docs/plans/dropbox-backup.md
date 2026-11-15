@@ -17,10 +17,24 @@ it has the simplest static-site auth story. Other providers are investigated in
   credentials (FERPA/COPPA exposure). Data flows only between the user's browser
   and Dropbox. Legal wording is a maintainer and counsel decision.
 - Least privilege: Dropbox "App Folder" access only (`Apps/<app name>/`).
-- `Module.runjs` uses a direct `eval` in [pre.js](../../pre.js), so any
-  top-level `let`/`const` in pre.js (or a `--pre-js` file) is readable by a loaded
-  Logo program. Tokens must live in a dedicated Worker, never in that scope or
-  in web storage.
+- Trust boundary (maintainer decision, 2026-11-15): loaded Logo programs are
+  trusted, and avoiding malicious ones is the user's responsibility. Logo and the
+  sync code must still resist malicious third-party data (file names, file
+  contents, Dropbox responses) so it cannot cause Logo or JavaScript injection;
+  that is why `runjs` takes bound parameters instead of interpolated source.
+  Rules for this feature:
+  - never build Logo or JavaScript source from remote or file-derived strings;
+    pass them as bound `runjs` arguments, or do not generate commands at all;
+  - render names and messages with `textContent` or text nodes, never `innerHTML`;
+  - validate remote JSON shapes and types; reject paths with `.`/`..` segments,
+    absolute or backslash segments, NUL, control or bidirectional-override
+    characters, and excessive length or depth; cap file size and count;
+  - pulled files are inert: nothing is loaded or run automatically.
+- Tokens stay out of web storage and out of pre.js scope (the direct `eval` in
+  `Module.runjs` can see pre.js top-level variables). Since hostile Logo programs
+  are out of scope, the token Worker is defense in depth against injection or
+  XSS regressions, not a boundary against Logo programs; keep it unless its cost
+  proves disproportionate during Phase 1.
 - The Asyncify Logo runtime is non-reentrant. Sync code reads and writes the
   Emscripten `FS` from JS only and never calls C exports.
 - Never navigate away from a live session silently; unsaved Logo definitions
@@ -123,9 +137,9 @@ gap. Spike pages are throwaway and not shipped.
    receives the code over a `BroadcastChannel`, exchanges it, and keeps the
    access token in memory only. No refresh token (Dropbox guidance); on expiry
    the UI shows a "Reconnect" button because popups need a user gesture. Narrow
-   RPC: connect, disconnect, list, get, put (with `rev`), delete. Even a hostile
-   Logo program driving the RPC reaches only the App Folder and cannot read the
-   token. Stage and precache the worker file.
+   RPC: connect, disconnect, list, get, put (with `rev`), delete. An injection bug
+   elsewhere in the page still cannot read the token, and the token reaches only
+   the App Folder. Stage and precache the worker file.
 4. **`dropbox-callback.html`.** A flat, dependency-free page that forwards
    `location.search` over the channel and closes itself. Add it to the staging
    script's required list and its test, `EXTRA_DIST`, and a
@@ -155,13 +169,19 @@ gap. Spike pages are throwaway and not shipped.
   local, new remote, both changed, deleted either side), empty-local guard, mass
   delete guard, eviction recovery, case collisions, backoff, expired token; the
   RFC 7636 PKCE vector; static checks for no CDN script, no hard-coded token or
-  secret, callback staged and denylisted.
+  secret, callback staged and denylisted. Hostile-data cases: remote and local
+  names containing `..`, `/`, backslash, NUL, newlines, `]`, `|`, quotes,
+  `<img onerror=...>`, bidirectional overrides, and overlong or deeply nested
+  paths; malformed or wrongly typed Dropbox JSON. Assert nothing reaches
+  `runjs`, `eval`, or `innerHTML`, and add static checks that the backup code
+  builds no Logo or JavaScript source from such strings.
 - **TestCafe fixture `backup-sync.testcafe.js`:** replace `window.Worker` with an
   in-page fake Dropbox (pattern of `installMocks` in `bridge.testcafe.js`).
   Assert accessible names and focus behavior, the connect flow with a stubbed
   popup, one `persist()` call, no token in any storage, a file saved by Logo
   reaching the fake remote, and a remote file appearing locally and loading.
-  Update `tests/acceptance/COVERAGE.md`.
+  Add a remote file with a hostile name and assert it appears as inert text and
+  nothing executes. Update `tests/acceptance/COVERAGE.md`.
 - **Manual against real Dropbox**, in platform-matrix order: desktop Chrome,
   mobile Chrome emulation, Firefox, then the iPad in a tab and as a Home Screen
   app. Use a throwaway profile; never clear the maintainer's real site data.
@@ -175,8 +195,20 @@ gap. Spike pages are throwaway and not shipped.
 - App icon, branding-compliant naming, and the production application prepared
   before the 50-linked-user clock starts.
 
-## Assumptions to confirm
+## Related hardening (existing code)
 
+`Module.uploadFileButtonClicked` in [pre.js](../../pre.js) builds
+``load "|<file name>|`` by string interpolation: `replace('|', '\\|')` replaces
+only the first pipe, and `runLogo`'s echo wraps the text in `pr [...]`, so a `]`
+or extra `|` in a file name appears able to break out and inject Logo. File names
+are untrusted data, so fix this as a separate small change before the sync code
+reuses the pattern (escape fully or use bound arguments), with a regression test
+using hostile names. Verify the exploit with a test first.
+
+## Decisions and assumptions
+
+- Decided: one active provider at a time; switching requires disconnect, and
+  manifests are keyed by provider id.
 - Bidirectional sync with deletions propagated but guarded (alternative:
   add/update only).
 - Hand-written Dropbox client instead of the SDK (no CDN, small footprint).

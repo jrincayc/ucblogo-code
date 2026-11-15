@@ -62,30 +62,41 @@ and Android folder restrictions.
 - This plan never pushes or releases. iPad and desktop Safari cannot use this
   feature; report that as an unsupported path, not as coverage.
 
-## Threat model: a persisted directory handle is a capability
+## Trust boundary
 
-`Module.runjs` uses a direct `eval` in [pre.js](../../pre.js), and IndexedDB is
-origin-wide, so a Logo program loaded by the user can obtain a stored,
-readwrite directory handle and use it. Unlike a Dropbox token, the handle
-cannot be hidden in a Worker because it must be persisted in IndexedDB to
-survive reloads. The exposure is bounded to the chosen folder, but within it a
-hostile program could read everything or plant files. Mitigations:
+Decided 2026-11-15: loaded Logo programs are trusted, and the user is
+responsible for not running malicious ones. A persisted, readwrite directory
+handle (stored in IndexedDB and reachable from Logo programs through `runjs`) is
+therefore an accepted capability, bounded to the chosen folder. Persisting the
+handle is decided; memory-only handles would force a folder pick every session.
 
-1. Guide users to choose a dedicated, new folder; warn not to choose a folder
-   with other data. Tell them the folder is readable by programs they run.
+Data is different. File names and contents read from the folder, including files
+that other tools or people put there, are untrusted and must not cause Logo or
+JavaScript injection (the reason `runjs` takes bound parameters). Rules:
+
+- never build Logo or JavaScript source from file-derived strings; use bound
+  `runjs` arguments or do not generate commands at all;
+- render names and messages with `textContent` or text nodes, never `innerHTML`;
+- validate every name read from the folder before creating a `/d` path: reject
+  `.`/`..` segments, NUL, control and bidirectional-override characters, and
+  excessive length or depth; cap file size and count;
+- pulled files are inert: nothing is loaded or run automatically.
+
+Safeguards that protect against mistakes rather than attackers stay:
+
+1. Guide users to choose a dedicated, new folder, and note that programs they run
+   can read and write it.
 2. On connect: an empty folder starts fresh; a folder with the sync marker
    resumes; a non-empty folder without the marker requires an explicit "merge"
    confirmation that lists what is there.
-3. Never write dot-files from Logo, and on push skip executable and script
-   extensions (initial list: `exe bat cmd com scr msi ps1 vbs vbe wsf jar lnk
-   app command desktop appimage`), reporting each skipped file. This is a policy
-   to confirm; Chrome may already block some writes (unverified).
-4. Never recursively delete directories; remove only files, and empty
+3. Never recursively delete directories; remove only files, and empty
    directories that the sync created.
-5. Allow explicit "Disconnect" that deletes the stored handle and manifest.
-
-Keeping the handle in memory only would remove the exposure but force a folder
-pick every session; this plan chooses persistence with the mitigations above.
+4. "Disconnect" deletes the stored handle and manifest.
+5. On push, skip dot-files and executable or script extensions (initial list:
+   `exe bat cmd com scr msi ps1 vbs vbe wsf jar lnk app command desktop
+   appimage`) and report each skipped file. This is cheap data hygiene, not a
+   security boundary, and can be dropped or made overridable if it causes
+   friction.
 
 ## Provider design
 
@@ -145,8 +156,8 @@ built here and the Dropbox plan consumes them. Extend the shared pieces with:
 - per-provider manifests in the same IndexedDB, keyed by provider id;
 - a provider capability record (`caseSensitive`, `revisions`, `rename`,
   `observe`);
-- one active provider at a time in v1 (switching requires disconnect), to avoid
-  conflict copies multiplying between two mirrors of `/d`.
+- one active provider at a time (decided; switching requires disconnect), to
+  avoid conflict copies multiplying between two mirrors of `/d`.
 
 ## Phase 2: Folder provider (`backup-folder.js`)
 
@@ -157,9 +168,10 @@ Node can test it with a fake directory handle.
    above.
 2. First-connect cases (empty, marker, non-empty without marker with merge
    confirmation).
-3. Name policy: dot-prefix and known-file skips, Windows rules, case collisions,
-   NFC, path length, dangerous-extension skip on push, per-file size cap and
-   file-count warning. Each skip is recorded for the UI report.
+3. Name policy: treat every name read from the folder as untrusted input
+   (trust-boundary rules above), dot-prefix and known-file skips, Windows rules,
+   case collisions, NFC, path length, dangerous-extension skip on push, per-file
+   size cap and file-count warning. Each skip is recorded for the UI report.
 4. Read: `getFile()` then read bytes immediately; one retry if the file changed.
 5. Write: stat, compare with the expected state, `createWritable()`, write,
    `close()`; create nested directories as needed.
@@ -183,7 +195,8 @@ borders, touch-target sizes):
 - Choose folder, Reconnect, Sync now, Disconnect, last-sync time, and the folder
   name.
 - The tip to use a new empty folder, optionally inside a cloud-drive or git
-  folder, with the capability warning from the threat model.
+  folder, noting that programs the user runs can read and write that folder.
+  File names are rendered with `textContent`.
 - A skipped-files report (illegal names, dangerous extensions, too large,
   collisions) and the conflicts list.
 - After first successful connect call `storage.persist()` (PWA plan Issue 8).
@@ -198,7 +211,11 @@ says how many files changed and the user runs `load` as usual.
   collisions, NFC), extension denylist, first-connect cases, the permission state
   machine (granted, prompt, denied, stale), expected-state write conflicts,
   external-edit detection, dot-file and swap-file skipping, bounded scan
-  concurrency, error mapping.
+  concurrency, error mapping. Hostile-name cases (`..`, `/`, backslash, NUL,
+  newlines, `]`, `|`, quotes, `<img onerror=...>`, bidirectional overrides,
+  overlong or deep paths) assert nothing reaches `runjs`, `eval`, or `innerHTML`,
+  plus static checks that the folder code builds no Logo or JavaScript source
+  from file-derived strings.
 - **Browser (TestCafe, Chrome only; other browsers assert the unsupported path):**
   stub `window.showDirectoryPicker` to return a subdirectory of the origin
   private file system (`navigator.storage.getDirectory()`), which is a real
@@ -208,6 +225,7 @@ says how many files changed and the user runs `load` as usual.
   `/d` after a `focus` scan and can be `load`ed; a reload restores the handle
   and resumes; a wrapped handle reporting `prompt` shows Reconnect; a removed
   folder reports stale; Firefox shows the control disabled with the explanation;
+  a file with a hostile name appears as inert text and nothing executes;
   accessible names and focus handling; only metadata in `localStorage`;
   `persist()` called once. Update `tests/acceptance/COVERAGE.md`. The OPFS stand-in
   cannot reproduce OS behavior (case-insensitivity, Windows names, swap files,
@@ -228,7 +246,8 @@ says how many files changed and the user runs `load` as usual.
 
 ## Risks
 
-- Capability exposure to loaded Logo programs (mitigated, not eliminated).
+- Capability exposure to loaded Logo programs: accepted as the user's
+  responsibility. Injection through untrusted names and contents is in scope.
 - Reconnect friction if Chrome does not persist permission (Phase 0 decides the
   UX).
 - External editor and Logo conflicts: handled by conflict copies and the shared
@@ -239,12 +258,13 @@ says how many files changed and the user runs `load` as usual.
 - Engine bugs causing data loss: the shared guards (populate-before-sync,
   mass-delete confirmation, eviction-recovery rule) apply here too.
 
-## Assumptions to confirm
+## Decisions and assumptions
 
-- One active provider at a time in v1.
-- Persist the handle in IndexedDB with the mitigations above, rather than
-  memory-only handles.
-- The dangerous-extension skip list and its inability to be overridden in v1.
+- Decided: one active provider at a time.
+- Decided: persist the handle in IndexedDB, with loaded Logo programs trusted by
+  policy.
+- The dangerous-extension skip list is a default with a report, not a security
+  boundary, and may be dropped or made overridable.
 - Chrome and Edge desktop are the supported targets for v1; Android Chrome is
   best-effort pending a device check.
 

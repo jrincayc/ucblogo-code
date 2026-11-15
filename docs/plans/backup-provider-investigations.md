@@ -16,8 +16,9 @@ Every option is scored against the same list:
 
 1. No backend and no secret; works from a static origin.
 2. Token scope confined to the app (folder or repo), so a leaked token has a
-   small blast radius. `Module.runjs` is not a sandbox and tokens must live in a
-   Worker (see the Dropbox plan).
+   small blast radius. Loaded Logo programs are trusted by policy, but injection
+   bugs from untrusted data stay in scope, so tokens stay out of web storage and
+   preferably in a Worker (see the Dropbox plan).
 3. CORS works from the github.io origin and localhost.
 4. Works in iOS Home Screen (standalone) mode and plain Safari tabs.
 5. Provider terms, age limits, and school-admin approval flows are acceptable
@@ -47,10 +48,12 @@ and B8 after Dropbox ships.
 
 ### B0: Shared spikes (shared with Dropbox Phase 0)
 
-- Question: does popup auth survive iPad standalone mode and COOP, and is a
-  Worker-held token unreadable by a direct-eval `runjs`?
-- Method: reuse the Dropbox spike pages; add a one-page proof that `runjs` can
-  read pre.js top-level variables but not Worker state.
+- Question: does popup auth survive iPad standalone mode and COOP, and does a
+  review of the shared sync code against the Dropbox plan's trust-boundary rules
+  (untrusted names and JSON, bound `runjs` parameters, `textContent`) find any
+  injection path?
+- Method: reuse the Dropbox spike pages; review the helper code against those
+  rules. The existing upload `load` helper is a known gap.
 - Output: an auth-flow matrix per browser and mode.
 
 ### B3: No-account paths (cheapest, widest reach; consider promoting before Dropbox)
@@ -90,8 +93,9 @@ and B8 after Dropbox ships.
 - GitHub: fine-grained token limited to one repository; CORS, rate limits,
   contents API versus git-data API for atomic commits; token kept in the Worker
   with a re-paste UX.
-- GitLab: probe `/api/v4` CORS from a github.io origin; viable only with the
-  Worker isolation because the token needs `api`.
+- GitLab: probe `/api/v4` CORS from a github.io origin; the token needs `api`
+  (full account), the largest blast radius if any injection bug exists, so treat
+  it as a last resort even with Worker isolation.
 - Codeberg: ask the Codeberg team whether automated private repositories are
   acceptable and probe CORS; default is to drop it.
 - Optional: user-supplied Forgejo/Gitea/GitLab URL with a pasted token.
