@@ -1,0 +1,10 @@
+# Test Strategy
+
+- Use Logo regressions for language/primitives/files/GC, Node Wasm tests for non-DOM runtime, browser acceptance for interop/events/storage/UI, and wx checks for native compatibility.
+- For web runtime bridge and persistence changes, use the shared TestCafe runner against artifacts built by `emmake make` (or `npm run build:web`); see [commands](./commands.md). The runner owns an available-port `emrun` server and waits for HTTP readiness, or reuses `TESTCAFE_APP_URL` without owning that server; fixtures also wait for runtime/input readiness. Follow the [platform matrix](./platform-matrix.md) for broader browser and device coverage; capability-filtered skips are not passes.
+- Include adversarial and transport-shape cases in bridge acceptance tests: hostile/fuzz strings, multiline source, long strings, and large ordered variadic argument lists. Validate both direct JS calls and Logo-originated wrappers.
+- Start narrow and inspect the harness: use the Node Logo runner and browser Logo fixture's result checks rather than relying only on the underlying Logo harness's exit status or completion text. Review individual `Ok`, `Failed`, and `Error` results. OOP is currently broken/omitted in web builds; skipped tests are not passing coverage.
+- Add targeted acceptance checks for settings-to-rendering isolation when modifying shared UI CSS or text controls. Keep a regression that verifies `settextsize` changes terminal/UI text size without changing rendered SVG `LABEL` size.
+- For Web Edition output cues such as BEL and speech controls, add cross-browser assertions for both behavior and state persistence after reload, and verify stubbing/fallback behavior where browser APIs differ.
+- Exercise async lifecycle failures and reload/persistence where relevant. Synchronize on real readiness/output, not arbitrary sleeps. Distinguish source regressions from stale artifacts/state.
+- Avoid broad npm scripts that rebuild unnecessarily when a built-artifact check suffices; conversely, rebuild C/packaged-source changes before testing. Check test/server/browser prerequisites.

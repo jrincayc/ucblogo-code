@@ -1,0 +1,12 @@
+# IO, Filesystems, And JavaScript
+
+- Trace browser input through controls/`runLogo`, character buffering, readiness events, `em_getc`/`sysGetC`, reader, and evaluator. Test command input separately from character/line reads, EOF, unget, multiline definitions, and file streams.
+- Trace output through Logo printing, streams/flushing, terminal adaptation, and DOM rendering. Preserve ordering, partial lines, stream redirection, prompt/cursor state, errors, and explicit HTML-string handling.
+- Distinguish browser MEMFS/embedded assets, persistent IDBFS at `/d`, temporary files, and Node `NODERAWFS` host access. Respect working directory, Logo prefixes/library paths, escaping, and platform path semantics.
+- `FS.syncfs(true, callback)` populates storage asynchronously; synchronous FS access does not prove persistent data is ready or saved. Check mount/readiness ordering, auto-persistence, concurrent writes, reload behavior, and storage failure paths. localStorage settings and IndexedDB files are separate persistence mechanisms.
+- Validate upload/download, browser editing, workspace load/save, and packaged resources as actual workflows. Browser filesystem edits do not update repository files automatically. Avoid loss or overwriting when transferring changes.
+- Inspect current `runjs` binding/serialization. Prefer trusted stable source with bound `arg0`, `arg1`, etc. rather than interpolated Logo data. Verify supported inputs, return conversion, promises, exceptions, stream restoration, escaping, and encoding constraints. `runjs` is not a sandbox.
+- Current hardened pattern for Web Edition: keep the JavaScript source and Logo data on separate channels. Use a native C primitive (`lrunjs`) that validates/converts the source word (`cnv_node_to_strnode` + `clearparity`), binds Logo scalar args through dedicated JS binder calls, writes source to `/dev/runjs`, then terminates with a NUL byte delimiter before flush.
+- Keep `/dev/runjs` stream framing NUL-delimited rather than newline-delimited. NUL framing avoids ambiguity with multiline JavaScript expressions and prevents accidental early evaluation caused by embedded newlines.
+- Do not revive writer-switching Logo wrappers for `runjs`. Preserve normal writer behavior and keep binding explicit/safe in the primitive path.
+- Guard browser APIs in code shared with Node. Maintain explicit platform differences rather than faking unsupported browser features on wx.

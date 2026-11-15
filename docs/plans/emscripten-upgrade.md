@@ -257,5 +257,5 @@ Wasm GC roots, browser callbacks, or release artifacts remain correct.
 - [Emscripten 7.0.0 release notes](https://github.com/emscripten-core/emscripten/releases/tag/7.0.0)
 - [Emscripten releases](https://github.com/emscripten-core/emscripten/releases)
 - [setup-emsdk action](https://github.com/emscripten-core/setup-emsdk)
-- [Web build ownership and validation guidance](../../.github/skills/ucb-logo-interpreter-development/SKILL.md#build-system-ownership)
+- [Web build ownership and validation guidance](../../.github/skills/ucb-logo-build-deploy/references/build-system.md)
 - [Web Edition build instructions](../../webedition.md#building)
