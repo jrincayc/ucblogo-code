@@ -110,20 +110,47 @@ function parseManualSections(source) {
     return sections;
 }
 
+const indentOf = (line) => line.match(/^ */)[0].length;
+const preformatted = (lines) => {
+    const min = Math.min(...lines.map(indentOf));
+    return `<pre class="helpDocText">${escapeHtml(lines.map((line) => line.slice(Math.min(min, 8))).join('\n'))}</pre>`;
+};
+
+// Wrapped sentences: one indent level, no column gaps, long lines (the last line may be short).
+function looksLikeProse(lines) {
+    const indents = lines.map(indentOf);
+    const min = Math.min(...indents);
+    const flat = Math.max(...indents) - min <= 1;
+    const body = lines.slice(0, lines.length > 1 ? -1 : 1);
+    const mean = body.reduce((sum, line) => sum + line.trim().length, 0) / body.length;
+    return flat && !lines.some((line) => /\S(?: {4,}|\t+)\S/.test(line))
+        && (lines.length > 1 ? mean >= 45 : min >= 4 || mean >= 50);
+}
+
+// Splits a block into runs at the base indent and deeper (example) lines.
+function splitRuns(lines) {
+    const base = Math.min(...lines.map(indentOf));
+    const runs = [];
+    for (const line of lines) {
+        const deep = indentOf(line) > base + 2;
+        const last = runs[runs.length - 1];
+        if (last && last.deep === deep) last.lines.push(line);
+        else runs.push({ deep, lines: [line] });
+    }
+    return runs;
+}
+
 // Hard-wrapped description paragraphs become real paragraphs; usage lines and short-line blocks (code) stay preformatted.
 function renderManualText(text) {
     const blocks = text.split(/\n[ \t]*\n/).map((block) => block.replace(/^\n+|\s+$/g, '')).filter(Boolean);
     return blocks.map((block) => {
         const lines = block.split('\n');
-        const indents = lines.map((line) => line.match(/^ */)[0].length);
-        const min = Math.min(...indents);
-        const flat = Math.max(...indents) - min <= 1;
-        const body = lines.slice(0, lines.length > 1 ? -1 : 1);
-        const mean = body.reduce((sum, line) => sum + line.trim().length, 0) / body.length;
-        const prose = flat && !lines.some((line) => /\S(?: {4,}|\t+)\S/.test(line))
-            && (lines.length > 1 ? mean >= 45 : min >= 4 || mean >= 50);
-        if (prose) return `<p>${escapeHtml(lines.map((line) => line.trim()).join(' '))}</p>`;
-        return `<pre class="helpDocText">${escapeHtml(lines.map((line) => line.slice(Math.min(min, 8))).join('\n'))}</pre>`;
+        const paragraph = (run) => `<p>${escapeHtml(run.map((line) => line.trim()).join(' '))}</p>`;
+        if (looksLikeProse(lines)) return paragraph(lines);
+        const runs = splitRuns(lines);
+        const proseRun = (run) => !run.deep && run.lines.length > 1 && looksLikeProse(run.lines);
+        if (runs.length < 2 || !runs.some(proseRun)) return preformatted(lines);
+        return runs.map((run) => (proseRun(run) ? paragraph(run.lines) : preformatted(run.lines))).join('');
     }).join('');
 }
 

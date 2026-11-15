@@ -68,6 +68,23 @@ describe('help documents', () => {
         }
     });
 
+    it('splits a block that mixes wrapped prose and indented examples', () => {
+        const block = [
+            'What about assigning a value to a variable?  Could we do without',
+            'the quotation mark on MAKE\'s first input?  Alas, no.  Although the',
+            'first input to MAKE is usually a constant, as in this example:',
+            '        TO INCREMENT :VAR',
+            '        MAKE :VAR (THING :VAR)+1',
+            '        END',
+            'The procedure INCREMENT takes a variable name as its input and',
+            'changes the value of that variable in the calling procedure.',
+        ].join('\n');
+        const html = manualDoc(`DATA\n====\n\n${block}\n`).sections[0].html;
+        assert.match(html, /^<p>What about assigning .* in this example:<\/p>/);
+        assert.match(html, /<pre class="helpDocText">TO INCREMENT :VAR\nMAKE :VAR \(THING :VAR\)\+1\nEND<\/pre>/);
+        assert.match(html, /<p>The procedure INCREMENT takes .* calling procedure\.<\/p>$/);
+    });
+
     it('keeps tab-aligned macro usage lines preformatted', () => {
         const usage = '.MACRO procname :input1 :input2 ...\t\t\t\t(special form)\n.DEFMACRO procname text';
         const doc = manualDoc(`MACROS\n======\n\n${usage}\n`);
