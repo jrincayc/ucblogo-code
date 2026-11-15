@@ -344,6 +344,21 @@ test('ACC-SET-001 sets, reports, and steps the Logo text size', async (t) => {
     });
 });
 
+test('ACC-SET-001b clamps the Logo text size to a minimum of 8px, also from stored settings', async (t) => {
+    await runLogo(t, 'settextsize 3');
+    await t.expect(readTextSize()).eql({
+        fontSize: 8,
+        cssSize: '8px',
+        setting: 8,
+        storedSize: 8,
+        inputSize: '8',
+    });
+    await ClientFunction(() => localStorage.setItem('ucblogo.settings', JSON.stringify({ fontSize: 5 })))();
+    await resetPage();
+    await ready(t);
+    await t.expect(ClientFunction(() => Module.fontSize)()).eql(8);
+});
+
 test('ACC-SET-002 keeps SVG label size independent of Logo text size', async (t) => {
     await runLogo(t, 'settextsize 24');
     await runLogo(t, 'label "SVG');
@@ -509,7 +524,7 @@ test('ACC-UI-001 labels controls and manages settings dialog focus', async (t) =
             stop: 'Stop Logo command',
             editor: 'Logo source code',
             theme: 'Color theme',
-            fontSize: 'Logo text size (5 to 48 px)',
+            fontSize: 'Logo text size (8 to 48 px)',
             speak: 'Speak Logo output',
             visualBell: 'Show visual bell indicator',
             renderingModes: [
@@ -530,6 +545,7 @@ test('ACC-UI-001 labels controls and manages settings dialog focus', async (t) =
             'Logo files',
             'Settings',
             'Logo editor',
+            'Logo help',
         ].map((text) => ({
             text,
             display: 'block',

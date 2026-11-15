@@ -464,6 +464,9 @@
         <button type="button" aria-haspopup="dialog" aria-controls="settings" onclick="document.getElementById('settings').showModal()">
           Settings
         </button>
+        <button type="button" aria-haspopup="dialog" aria-controls="helpDialog" onclick="helpUI.open(this)">
+          Help
+        </button>
       </div>
     </div>
 
@@ -624,8 +627,8 @@
         <li>
           <ul>
             <li>
-              <label for="logoTextSizeInput">Logo text size (5 to 48 px)</label>
-              <input id="logoTextSizeInput" type="number" name="logoTextSize" value="16" max="48" min="5"
+              <label for="logoTextSizeInput">Logo text size (8 to 48 px)</label>
+              <input id="logoTextSizeInput" type="number" name="logoTextSize" value="16" max="48" min="8"
                 oninput="Module.setFontSize(event.target.value)">
             </li>
           </ul>
@@ -657,6 +660,9 @@
           </button>
           <button type="button" id="editorDiscardButton" onclick="Module.editor.discardClicked(event)">
             Discard changes
+          </button>
+          <button type="button" aria-haspopup="dialog" aria-controls="helpDialog" onclick="helpUI.open(this)">
+            Help
           </button>
         </div>
         <logo-soft-keys></logo-soft-keys>
@@ -692,6 +698,426 @@
           width: 100%;
         }
       </style>
+    </dialog>
+    <dialog id="helpDialog" class="dialogWithTitle" aria-labelledby="helpTitle">
+      <h2 id="helpTitle" class="dialogTitle">Logo help</h2>
+      <div class="helpSearchRow" role="search">
+        <label class="visually-hidden" for="helpSearch">Search help</label>
+        <input id="helpSearch" type="search" placeholder="Search words" autocomplete="off"
+            autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="helpCount">
+        <button type="button" id="helpClose">Close</button>
+      </div>
+      <div id="helpCount" class="helpCount" role="status"></div>
+      <div class="helpBrowser" id="helpBrowser" data-view="categories">
+        <nav class="helpNav" aria-label="Logo words">
+          <ul id="helpCatList" class="helpAccordion"></ul>
+        </nav>
+        <article class="helpDetail" id="helpDetail" tabindex="-1" aria-labelledby="helpDetailTitle">
+          <button type="button" class="helpBack" id="helpBackWords">&larr; Word list</button>
+          <p id="helpPlaceholder">Select a word to read its documentation.</p>
+          <div id="helpEntry" hidden>
+            <h3 id="helpDetailTitle"></h3>
+            <pre id="helpUsage" class="helpUsage"></pre>
+            <div id="helpBody" class="helpBodyText"></div>
+            <p id="helpAliases"></p>
+            <div class="helpActions">
+              <button type="button" class="helpInsert" data-close="0">Insert</button>
+              <button type="button" class="helpInsert" data-close="1">Insert and close</button>
+            </div>
+          </div>
+        </article>
+        <div class="helpResults" id="helpResults" hidden></div>
+      </div>
+      <div id="helpLive" class="visually-hidden" role="status"></div>
+      <style>
+        #helpDialog {
+          width: 100vw;
+          height: 100%;
+          max-width: none;
+          max-height: none;
+          margin: 0;
+        }
+
+        #helpDialog button,
+        #helpDialog input {
+          min-height: 44px;
+          min-width: 44px;
+        }
+
+        #helpDialog .helpSearchRow {
+          display: flex;
+          gap: 0.5em;
+          padding: 0.5em;
+        }
+
+        #helpDialog #helpSearch {
+          flex: 1;
+          min-width: 0;
+        }
+
+        #helpDialog .helpCount {
+          min-height: 1.4em;
+          padding: 0 0.75em;
+          font-size: 0.85em;
+        }
+
+        #helpDialog .helpBrowser {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          border-top: 1px solid var(--theme-control-border);
+        }
+
+        #helpDialog .helpNav,
+        #helpDialog .helpDetail,
+        #helpDialog .helpResults {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          padding: 0.5em;
+        }
+
+        #helpDialog .helpBrowser[data-view="detail"] .helpNav,
+        #helpDialog .helpBrowser:not([data-view="detail"]) .helpDetail {
+          display: none;
+        }
+
+        #helpDialog h3 {
+          margin: 0.25em 0;
+        }
+
+        #helpDialog [hidden] {
+          display: none !important;
+        }
+
+        #helpDialog ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        #helpDialog li button {
+          width: 100%;
+          text-align: left;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-color: transparent;
+        }
+
+        #helpDialog .helpResults li button {
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+        }
+
+        #helpDialog li button[aria-current="true"] {
+          border-color: var(--theme-control-border);
+          font-weight: bold;
+        }
+
+        #helpDialog li + li {
+          border-top: 1px solid var(--theme-control-border);
+        }
+
+        #helpDialog .helpAccordion h3 {
+          margin: 0;
+        }
+
+        #helpDialog .helpAccordion h3 button {
+          font-weight: bold;
+          border-color: transparent;
+          gap: 0.5em;
+        }
+
+        #helpDialog .helpAccordion h3 button[aria-expanded="true"] {
+          background: var(--theme-foreground);
+          color: var(--theme-background);
+        }
+
+        #helpDialog .helpAccordion h3 button .helpChevron {
+          flex: 0 0 auto;
+        }
+
+        #helpDialog .helpAccordion h3 button .helpCatTitle {
+          flex: 1;
+        }
+
+        #helpDialog .helpAccordion ul {
+          border-top: 1px solid var(--theme-control-border);
+          border-left: 4px solid var(--theme-control-border);
+          margin-left: 0.5em;
+        }
+
+        #helpDialog .helpResults li small {
+          display: block;
+          opacity: 0.8;
+        }
+
+        #helpDialog mark {
+          background: Mark;
+          color: MarkText;
+        }
+
+        #helpDialog .helpUsage,
+        #helpDialog .helpBodyText {
+          font-family: monospace;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          margin: 0.5em 0;
+        }
+
+        #helpDialog .helpUsage {
+          padding: 0.5em;
+          border: 1px solid var(--theme-control-border);
+        }
+
+        #helpDialog .helpActions {
+          position: sticky;
+          bottom: 0;
+          display: flex;
+          gap: 0.5em;
+          padding: 0.5em 0;
+          background: var(--theme-background);
+        }
+
+        #helpDialog .helpActions button {
+          flex: 1;
+        }
+
+        #helpDialog .helpInsert[data-close="0"] {
+          font-weight: bold;
+        }
+
+        @media (min-width: 40em), (orientation: landscape) and (max-height: 32em) {
+          #helpDialog {
+            width: min(64em, 96vw);
+            height: min(46em, 94dvh);
+            margin: auto;
+          }
+
+          #helpDialog .helpBrowser {
+            flex-direction: row;
+          }
+
+          #helpDialog .helpNav {
+            flex: 0 0 14em;
+            border-right: 1px solid var(--theme-control-border);
+          }
+
+          #helpDialog .helpBrowser[data-view] .helpNav,
+          #helpDialog .helpBrowser[data-view] .helpDetail {
+            display: block;
+          }
+
+          #helpDialog .helpBack {
+            display: none;
+          }
+        }
+      </style>
+      <script>
+        window.helpUI = (() => {
+          const $ = (id) => document.getElementById(id);
+          const dialog = $('helpDialog');
+          const browser = $('helpBrowser');
+          let selected = null;
+          let focusTarget = null;
+          let built = false;
+
+          const el = (tag, text, attrs) => {
+            const node = document.createElement(tag);
+            if (text !== undefined) node.textContent = text;
+            Object.assign(node, attrs);
+            return node;
+          };
+
+          const highlight = (parent, text, terms) => {
+            const lower = text.toLowerCase();
+            let pos = 0;
+            while (pos < text.length) {
+              let best = null;
+              for (const term of terms) {
+                const at = lower.indexOf(term, pos);
+                if (at >= 0 && (!best || at < best.at)) best = { at, len: term.length };
+              }
+              if (!best) break;
+              parent.append(text.slice(pos, best.at), el('mark', text.slice(best.at, best.at + best.len)));
+              pos = best.at + best.len;
+            }
+            parent.append(text.slice(pos));
+          };
+
+          const sections = new Map();
+          const wordButtons = new Map();
+
+          // One category open at a time; its word buttons are created on first expansion.
+          const setExpanded = (section, open) => {
+            if (open) {
+              sections.forEach((other) => { if (other !== section) setExpanded(other, false); });
+              if (!section.list.childElementCount) {
+                section.list.replaceChildren(...section.category.words.map((word) => {
+                  const button = el('button', word.name, { type: 'button' });
+                  button.addEventListener('click', () => showEntry(word));
+                  wordButtons.set(word, button);
+                  const item = el('li');
+                  item.append(button);
+                  return item;
+                }));
+              }
+            }
+            section.button.setAttribute('aria-expanded', String(open));
+            section.chevron.textContent = open ? '\u25BE' : '\u25B8';
+            section.list.hidden = !open;
+          };
+
+          const showEntry = (word) => {
+            selected = word;
+            const section = sections.get(word.category);
+            if (section) setExpanded(section, true);
+            wordButtons.forEach((button, other) => {
+              if (other === word) button.setAttribute('aria-current', 'true');
+              else button.removeAttribute('aria-current');
+            });
+            $('helpPlaceholder').hidden = true;
+            $('helpEntry').hidden = false;
+            $('helpDetailTitle').textContent = word.name;
+            $('helpUsage').textContent = word.usage.join('\n');
+            $('helpBody').textContent = Module.help.body(word);
+            $('helpAliases').textContent = word.aliases.length ? `Also: ${word.aliases.join(', ')}` : '';
+            $('helpResults').hidden = true;
+            [...browser.children].forEach((child) => { if (child !== $('helpResults')) child.hidden = false; });
+            browser.dataset.view = 'detail';
+            $('helpDetail').scrollTop = 0;
+            $('helpDetail').focus();
+          };
+
+          const search = () => {
+            const query = $('helpSearch').value.trim();
+            const results = $('helpResults');
+            const others = [...browser.children].filter((child) => child !== results);
+            if (!query) {
+              results.hidden = true;
+              others.forEach((child) => { child.hidden = false; });
+              $('helpCount').textContent = '';
+              return;
+            }
+            const terms = query.toLowerCase().split(/\s+/);
+            const found = Module.help.search(query).slice(0, 50);
+            others.forEach((child) => { child.hidden = true; });
+            results.hidden = false;
+            if (!found.length) {
+              results.replaceChildren(el('p', `No results for "${query}". Check the spelling or browse by category.`));
+              $('helpCount').textContent = 'No results';
+              return;
+            }
+            const list = el('ul');
+            for (const { word } of found) {
+              const button = el('button', undefined, { type: 'button' });
+              const name = el('span');
+              highlight(name, [word.name, ...word.aliases.slice(0, 2)].join(', '), terms);
+              button.append(name);
+              const text = Module.help.body(word).replace(/\s+/g, ' ');
+              const at = Math.min(...terms.map((t) => text.toLowerCase().indexOf(t)).filter((i) => i >= 0), Infinity);
+              const small = el('small');
+              let snippet = word.usage[0] || '';
+              if (Number.isFinite(at)) {
+                let start = Math.max(0, at - 30);
+                if (start > 0) {
+                  const space = text.indexOf(' ', start);
+                  start = space >= 0 && space < at ? space + 1 : start;
+                }
+                let end = at + 90;
+                if (end < text.length) {
+                  const space = text.lastIndexOf(' ', end);
+                  end = space > at ? space : end;
+                }
+                snippet = (start > 0 ? '\u2026' : '') + text.slice(start, end) + (end < text.length ? '\u2026' : '');
+              }
+              highlight(small, snippet, terms);
+              button.append(small);
+              button.addEventListener('click', () => showEntry(word));
+              const item = el('li');
+              item.append(button);
+              list.append(item);
+            }
+            results.replaceChildren(list);
+            $('helpCount').textContent = `${found.length}${found.length === 50 ? '+' : ''} result${found.length === 1 ? '' : 's'}`;
+          };
+
+          const build = () => {
+            if (built) return;
+            const { categories } = Module.help.load();
+            $('helpCatList').replaceChildren(...categories.map((category, index) => {
+              const listId = `helpCategory${index}`;
+              const chevron = el('span', '\u25B8', { className: 'helpChevron' });
+              chevron.setAttribute('aria-hidden', 'true');
+              const button = el('button', undefined, { type: 'button' });
+              button.setAttribute('aria-expanded', 'false');
+              button.setAttribute('aria-controls', listId);
+              button.append(chevron, el('span', category.title, { className: 'helpCatTitle' }),
+                el('span', String(category.words.length)));
+              const list = el('ul', undefined, { id: listId, hidden: true });
+              const section = { category, button, chevron, list };
+              sections.set(category.title, section);
+              button.addEventListener('click', () => setExpanded(section, list.hidden));
+              const heading = el('h3');
+              heading.append(button);
+              const item = el('li');
+              item.append(heading, list);
+              return item;
+            }));
+            built = true;
+          };
+
+          const insert = (closeAfter) => {
+            if (!selected) return;
+            const target = Module.insertAtCaret(`${selected.name} `);
+            $('helpLive').textContent = '';
+            setTimeout(() => { $('helpLive').textContent = `Inserted ${selected.name}`; }, 50);
+            if (closeAfter) {
+              focusTarget = target;
+              dialog.close();
+            }
+          };
+
+          const open = () => {
+            if (dialog.open) return;
+            try {
+              build();
+            } catch (error) {
+              console.error('Help data unavailable', error);
+              window.alert('Help is not available in this build.');
+              return;
+            }
+            dialog.showModal();
+            $('helpSearch').focus();
+          };
+
+          $('helpClose').addEventListener('click', () => dialog.close());
+          $('helpBackWords').addEventListener('click', () => {
+            browser.dataset.view = 'categories';
+            const button = wordButtons.get(selected);
+            if (button) button.focus();
+          });
+          $('helpSearch').addEventListener('input', search);
+          dialog.querySelectorAll('.helpInsert').forEach((button) => {
+            button.addEventListener('click', () => insert(button.dataset.close === '1'));
+          });
+          dialog.addEventListener('close', () => {
+            if (focusTarget) {
+              focusTarget.focus();
+              focusTarget = null;
+            }
+          });
+          document.addEventListener('keydown', (event) => {
+            if (event.key !== 'F1') return;
+            event.preventDefault();
+            open();
+          });
+          return { open };
+        })();
+      </script>
     </dialog>
   </main>
 

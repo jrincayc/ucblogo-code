@@ -55,7 +55,7 @@ try {
 }
 const storedSize = Number(storedSettings.fontSize ?? legacyFontSize);
 Module.settings = {
-    fontSize: Number.isFinite(storedSize) ? Math.min(48, Math.max(5, Math.round(storedSize))) : 16,
+    fontSize: Number.isFinite(storedSize) ? Math.min(48, Math.max(8, Math.round(storedSize))) : 16,
     darkMode: ['system', 'light', 'dark'].includes(storedSettings.darkMode)
         ? storedSettings.darkMode : 'system',
     shapeRenderingMode: SHAPE_RENDERING_MODES.includes(storedSettings.shapeRenderingMode)
@@ -117,7 +117,7 @@ Module.setFontSize = (size) => {
     if (!Number.isFinite(parsedSize)) return;
     const fontSizeInput = typeof document === 'undefined'
         ? null : document.querySelector('[name="logoTextSize"]');
-    const minSize = fontSizeInput ? Number(fontSizeInput.min) : 5;
+    const minSize = fontSizeInput ? Number(fontSizeInput.min) : 8;
     const maxSize = fontSizeInput ? Number(fontSizeInput.max) : 48;
     Module.fontSize = Math.min(maxSize, Math.max(minSize, Math.round(parsedSize)));
     Module.settings.fontSize = Module.fontSize;
@@ -995,17 +995,21 @@ Module.editor.edit = async (filepath) => {
         }
     })
 }
-Module.softKeyDown = (event, key) => {
+Module.insertAtCaret = (text) => {
     const inputtext = document.getElementById('logoInputText');
     const editor = document.getElementById('editorDialog');
     const editortext = document.getElementById('editorTextArea');
     const targettext = editor.open ? editortext : inputtext;
     const {selectionStart, selectionEnd} = targettext;
     targettext.value = targettext.value.slice(0, selectionStart)
-        + key + targettext.value.slice(selectionEnd, targettext.value.length);
+        + text + targettext.value.slice(selectionEnd, targettext.value.length);
     targettext.focus();
-    const caretPosition = selectionStart + key.length;
+    const caretPosition = selectionStart + text.length;
     targettext.setSelectionRange(caretPosition, caretPosition);
+    return targettext;
+}
+Module.softKeyDown = (event, key) => {
+    Module.insertAtCaret(key);
     return false;
 }
 
@@ -1071,6 +1075,66 @@ Module.completion = {
         }
         this.helpCache.set(key, help);
         return help;
+    },
+};
+
+// Help dialog data; reads only the embedded helpfiles and index, never the Logo runtime.
+Module.help = {
+    data: null,
+    bodies: new Map(),
+    load() {
+        if (this.data) return this.data;
+        const categories = JSON.parse(UTF8ArrayToString(FS.readFile('/share/ucblogo/help-index.json'))).categories;
+        const byName = new Map();
+        for (const category of categories) {
+            for (const word of category.words) {
+                word.category = category.title;
+                for (const name of [word.name, ...word.aliases]) byName.set(name, word);
+            }
+        }
+        this.data = { categories, byName };
+        return this.data;
+    },
+    fileName(name) {
+        return name === '`' ? 'RENAME-GRAVE-ACCENT' : name.replace(/\./g, 'd');
+    },
+    body(word) {
+        if (this.bodies.has(word.name)) return this.bodies.get(word.name);
+        let body = '';
+        try {
+            const text = UTF8ArrayToString(FS.readFile(`/share/ucblogo/helpfiles/${this.fileName(word.name)}`));
+            const split = text.search(/\n\s*\n/);
+            const lines = (split < 0 ? '' : text.slice(split)).replace(/^\s*\n/, '').trimEnd().split('\n');
+            const indent = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^\s*/)[0].length));
+            body = lines.map((l) => l.slice(Number.isFinite(indent) ? indent : 0)).join('\n');
+        } catch (error) {}
+        this.bodies.set(word.name, body);
+        return body;
+    },
+    // Every term must match; names and usage lines outrank body text.
+    search(query) {
+        const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        const results = [];
+        if (!terms.length) return results;
+        for (const category of this.load().categories) {
+            for (const word of category.words) {
+                const names = [word.name, ...word.aliases];
+                const usage = word.usage.join(' ').toLowerCase();
+                const body = this.body(word).toLowerCase();
+                let score = 0;
+                let ok = true;
+                for (const term of terms) {
+                    if (names.includes(term)) score += 100;
+                    else if (names.some((n) => n.startsWith(term))) score += 60;
+                    else if (names.some((n) => n.includes(term))) score += 40;
+                    else if (usage.includes(term)) score += 20;
+                    else if (body.includes(term)) score += 5;
+                    else { ok = false; break; }
+                }
+                if (ok) results.push({ word, score });
+            }
+        }
+        return results.sort((a, b) => b.score - a.score || a.word.name.localeCompare(b.word.name));
     },
 };
 

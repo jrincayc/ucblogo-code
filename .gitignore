@@ -57,3 +57,4 @@ conftest.*
 *.tmp
 screenshots/
 reports/
+/help/

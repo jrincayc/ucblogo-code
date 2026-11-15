@@ -1,6 +1,7 @@
 # Project Plan: Web Edition Help Dialog
 
-Status: Proposed; wireframe and implementation are not started.
+Status: Phase 1 wireframe approved by the maintainer on 2026-11-15 and frozen
+as the implementation specification; Phase 2 is not started.
 Date: 2026-11-14
 
 ## Objective
@@ -34,7 +35,7 @@ Add a modal Help dialog to the Web Edition. It is mobile-first and accessible
 - Only `helpfiles` and `logolib` are embedded in the Wasm filesystem.
   `usermanual` and `webedition.md` are not available at runtime.
 
-## Phase 1: Wireframe (current step)
+## Phase 1: Wireframe (approved)
 
 Format: static HTML/CSS mockup at `docs/plans/help-dialog-wireframe/index.html`,
 not wired to Logo and not part of the build. Viewports: phone portrait, phone
@@ -71,24 +72,82 @@ landscape, tablet/desktop.
   iPad Safari coverage happens during implementation with the maintainer.
 
 Exit: reviewed wireframe frozen as the specification for implementation.
+Approved mockup: [help-dialog-wireframe/index.html](help-dialog-wireframe/index.html).
+The checklist items above were not individually ticked; the maintainer approved
+the mockup as is. The tutorial, manual, and Web Edition panels are placeholders
+and the word set is sample data, to be specified in Phase 2.
 
-## Phase 2: Implementation (not yet planned in detail)
+## Phase 2: Implementation
 
-Proposed after wireframe approval; to be split into its own plan.
+Constraints from the codebase: the Wasm build embeds `$(pkgdatadir)` (helpfiles
+and logolib), `tests`, and `web.lgo` ([Makefile.am](../../Makefile.am)
+`--embed-file`); [workbox-config.js](../../workbox-config.js) precaches only
+`ucblogo.html`, `ucblogo.js`, and `ucblogo.wasm`, with `NetworkFirst` runtime
+caching for everything else; the Settings button lives in the toolbar group in
+[shell.html](../../shell.html). Help runs in JS only and does not call into the
+Logo runtime.
 
-- Build-time conversion of `usermanual`, `webedition.md`, and the tutorial to
-  HTML or JSON, plus a prebuilt search index.
-- Dialog markup and CSS in `shell.html`; behavior as a `Module.help` service
-  in `pre.js` (JS-only, no new C-to-JS reentry into the Logo runtime).
-- Tests in [tests/acceptance](../../tests/acceptance), coordinated with the
-  [TestCafe consolidation plan](testcafe-consolidation.md).
-- Update `webedition.md` and the usermanual references.
+### Step 2.1: Content generation (build time, Node script in `scripts/`)
+
+- [ ] `scripts/build-help.js` writes `help/index.json`: categories from the
+  `@section` structure of [ucblogo.texi](../ucblogo.texi), word to category
+  map, and usage lines; per-word body text comes from `helpfiles/<name>`.
+- [ ] Same script renders the user manual and `webedition.md` to sanitized
+  static HTML (chapter files) plus a compact search index (`help/search.json`).
+- [ ] Tests for the script against fixture inputs (category coverage: every
+  file in `helpfiles/` appears in exactly one category or in "Other").
+
+### Step 2.2: Delivery (resolves Open Decision 1)
+
+- [ ] Word entries: read from the embedded `/share/ucblogo/helpfiles`
+  (already present); category index is a small JSON.
+- [ ] Manual, `webedition.md`, tutorial, and search index: fetched lazily on
+  first open of the dialog (loading state), not embedded, to keep Wasm and
+  startup size unchanged.
+- [ ] Add the `help/` files to the Workbox precache so Help works offline;
+  coordinate with [pwa-installability.md](pwa-installability.md).
+
+### Step 2.3: Dialog markup and behavior
+
+- [ ] Copy markup and CSS from the frozen wireframe into `shell.html`; reuse
+  `--theme-*` variables and the `dialogWithTitle` structure.
+- [ ] Add the toolbar Help button beside Settings, a Help button in the editor
+  dialog header, and F1.
+- [ ] `Module.help` service in `pre.js`: open/close with focus return, tab
+  state, drill-down state, search, and insertion.
+- [ ] Refactor insertion out of `Module.softKeyDown` into a shared helper so
+  both use the same target selection; add trailing space and caret
+  placement.
+- [ ] Close the open decision on "Insert" vs "Insert and close" (default
+  recommendation: keep both).
+
+### Step 2.4: Search
+
+- [ ] Prebuilt index (word names and usage weighted above body text), loaded
+  lazily; grouped results with highlighted snippets and a `role=status`
+  count (resolves Open Decision 2 once index size is measured on mobile).
+
+### Step 2.5: Tutorial
+
+- [ ] Author the beginner tutorial (Markdown source in the repo, built by
+  Step 2.1) with a "where next" ending. Content review by the maintainer.
+
+### Step 2.6: Tests and docs
+
+- [ ] TestCafe acceptance tests in [tests/acceptance](../../tests/acceptance),
+  coordinated with the [TestCafe consolidation plan](testcafe-consolidation.md):
+  open/close and focus return, tab keyboard behavior, search states, insertion
+  into the command input and into the editor, stacked modal, offline.
+- [ ] Unit tests for the build script and search ranking.
+- [ ] Accessibility checks per [web-accessibility.md](web-accessibility.md);
+  mobile Chrome emulation, Firefox, then iPad Safari with the maintainer.
+- [ ] Update `webedition.md` and usermanual references.
 
 ## Open Decisions
 
 1. How to ship the manual and `webedition.md`: embed in the Wasm filesystem, or
-   fetch and cache through the service worker. Recommendation: generate at
-   build time and decide the delivery path before Phase 2.
+   fetch and cache through the service worker. Proposed in Step 2.2: lazy
+   fetch, precached by the service worker; confirm before Step 2.1 finishes.
 2. Search implementation: prebuilt index versus a runtime scan; index size
    against load time on mobile.
 3. Whether insertion closes the dialog by default.
