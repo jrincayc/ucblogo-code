@@ -221,3 +221,52 @@ test.requestHooks(RequestMock().onRequestTo(/help\/docs\.json/).respond('', 500)
         .expect(Selector('#helpPanel-manual .helpDocStatus').innerText).contains('Could not load this document')
         .expect(Selector('#helpPanel-manual .helpDocStatus button').withText('Retry').exists).ok();
 });
+
+const helpContrast = ClientFunction((selectors) => {
+    const channels = (color) => color.match(/[\d.]+/g).map(Number);
+    const backdrop = (element) => {
+        for (let node = element; node; node = node.parentElement) {
+            const [r, g, b, a = 1] = channels(getComputedStyle(node).backgroundColor);
+            if (a > 0) return [r, g, b];
+        }
+        return [255, 255, 255];
+    };
+    const luminance = ([r, g, b]) => {
+        const [lr, lg, lb] = [r, g, b].map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+    };
+    const result = {};
+    for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (!element) { result[selector] = null; continue; }
+        const [r, g, b] = channels(getComputedStyle(element).color);
+        const hi = Math.max(luminance([r, g, b]), luminance(backdrop(element)));
+        const lo = Math.min(luminance([r, g, b]), luminance(backdrop(element)));
+        result[selector] = Math.round((hi + 0.05) / (lo + 0.05) * 100) / 100;
+    }
+    return result;
+});
+const contrastSelectors = [
+    '#helpTitle', '#helpSearch', '#helpTab-words', '#helpTab-manual',
+    '#helpCatList h3 button', '#helpDetailTitle', '#helpUsage', '#helpBody',
+    '.helpInsert', '#helpClose',
+];
+
+for (const theme of ['light', 'dark']) {
+    test(`HELP-018 text meets 4.5:1 contrast in ${theme} mode`, async (t) => {
+        await ClientFunction((name) => Module.setDarkMode(name))(theme);
+        await t.click(helpButton)
+            .click(Selector('#helpCatList h3 button').nth(0))
+            .click(Selector('#helpCatList ul button').nth(0))
+            .expect(Selector('html').getAttribute('data-theme')).eql(theme)
+            .expect(ClientFunction(() => getComputedStyle(document.getElementById('helpDialog')).backgroundColor)())
+            .eql(theme === 'dark' ? 'rgb(18, 18, 18)' : 'rgb(255, 255, 255)');
+        const ratios = await helpContrast(contrastSelectors);
+        for (const selector of contrastSelectors) {
+            await t.expect(ratios[selector]).gte(4.5, `${selector} contrast ${ratios[selector]} in ${theme}`);
+        }
+    });
+}
