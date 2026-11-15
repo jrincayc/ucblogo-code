@@ -35,7 +35,7 @@ The five source cases now run with `node --test tests/acceptance/source.test.js`
 | ACC-SRC-001 | `provides named click buttons in a named group without changing their size` | Source suite `soft-key accessibility`: shell application script parses; named click buttons/group and fixed 1.75em dimensions. Rendered counterpart ACC-UI-003. |
 | ACC-SRC-002 | `replaces selected command text and restores the caret` | Source suite `soft-key accessibility`: selection replacement, caret, command focus; rendered counterpart ACC-UI-002. |
 | ACC-SRC-003 | `replaces selected editor text and restores the caret` | Source suite `soft-key accessibility`: selection replacement, caret, editor focus; rendered counterpart ACC-UI-004. |
-| ACC-ERR-001 | `skips local service workers and handles registration failures` | Source suite `startup error reporting`: localhost, IPv4/IPv6 loopback; nonlocal rejected registration warns; non-production builds (`Module.serviceWorker = false`) unregister instead of registering. |
+| ACC-ERR-001 | `skips local service workers and handles registration failures` | Source suite `startup error reporting`: localhost, IPv4/IPv6 loopback; nonlocal rejected registration warns. |
 | ACC-ERR-002 | `traces uncaught errors and unhandled rejections without suppressing them`; `uncaught browser errors appear in the visible diagnostic panel`; `unhandled rejections appear in the diagnostic panel without being suppressed` | First title is in source suite `startup error reporting`; other two are browser cases. Error/stack/source/line metadata, panel/status, and nonsuppression. Browser handlers are deliberately triggered; expected rejection handling is narrow, not global JS-error suppression. |
 
 ## Logo Suite

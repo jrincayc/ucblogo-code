@@ -9,44 +9,29 @@ const repositoryRoot = path.resolve(__dirname, '../..');
 describe('startup error reporting', () => {
     it('skips local service workers and handles registration failures', async () => {
         const shell = fs.readFileSync(path.join(repositoryRoot, 'shell.html'), 'utf8');
-        const registration = shell.match(/    if \('serviceWorker' in navigator\) \{[\s\S]*?\n    \}/);
+        const registration = shell.match(/    if \('serviceWorker' in navigator &&[\s\S]*?\n    \}/);
         assert.ok(registration, 'service worker registration');
-        for (const serviceWorker of [true, false]) {
-            for (const hostname of ['localhost', '127.0.0.1', '[::1]', 'example.com']) {
-                let load;
-                const registrations = [];
-                const unregistered = [];
-                const warnings = [];
-                const context = {
-                    Module: { serviceWorker },
-                    window: { location: { hostname }, addEventListener: (event, handler) => { load = handler; } },
-                    navigator: { serviceWorker: {
-                        register: (script) => {
-                            registrations.push(script);
-                            return Promise.reject(new Error('unavailable'));
-                        },
-                        getRegistrations: () => Promise.resolve([
-                            { unregister: () => unregistered.push(hostname) },
-                        ]),
-                    } },
-                    console: { warn: (...args) => warnings.push(args) },
-                };
-                vm.runInNewContext(registration[0], context);
-                load();
-                await Promise.resolve();
-                await Promise.resolve();
-                const label = `${hostname} serviceWorker=${serviceWorker}`;
-                if (!serviceWorker) {
-                    assert.deepEqual(registrations, [], label);
-                    assert.deepEqual(unregistered, [hostname], label);
-                } else if (hostname !== 'example.com') {
-                    assert.deepEqual(registrations, [], label);
-                    assert.deepEqual(unregistered, [], label);
-                } else {
-                    assert.deepEqual(registrations, ['sw.js'], label);
-                    assert.equal(warnings.length, 1, label);
-                }
+        for (const hostname of ['localhost', '127.0.0.1', '[::1]', 'example.com']) {
+            let load;
+            const registrations = [];
+            const warnings = [];
+            const context = {
+                window: { location: { hostname }, addEventListener: (event, handler) => { load = handler; } },
+                navigator: { serviceWorker: { register: (script) => {
+                    registrations.push(script);
+                    return Promise.reject(new Error('unavailable'));
+                } } },
+                console: { warn: (...args) => warnings.push(args) },
+            };
+            vm.runInNewContext(registration[0], context);
+            if (hostname !== 'example.com') {
+                assert.equal(load, undefined, hostname);
+                continue;
             }
+            load();
+            await Promise.resolve();
+            assert.deepEqual(registrations, ['sw.js']);
+            assert.equal(warnings.length, 1);
         }
     });
 

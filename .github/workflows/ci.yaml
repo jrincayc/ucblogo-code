@@ -15,6 +15,50 @@ env:
   WX_WIDGETS_VERSION: 3.2.9
 
 jobs:
+  wasm_build_and_test:
+    if: github.ref == 'refs/heads/wasm' || github.base_ref == 'wasm' || github.head_ref == 'wasm'
+    name: Build and Test WebAssembly
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TESTCAFE_BROWSER: chrome
+      TESTCAFE_HEADLESS: '1'
+      TESTCAFE_WATCHDOG_MS: 900000
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Set Up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+    - name: Set Up Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: latest
+    - name: Install Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autoconf automake autoconf-archive libtool
+    - name: Install Node Dependencies
+      run: npm ci
+    - name: Run Full Web Test Suite
+      run: npm test
+    - name: Grade Node WebAssembly Tests
+      run: npm run test:logo:node
+    - name: Run Chrome Runner Tests
+      run: npm run test:runner:browser
+    - name: Run Lighthouse Audits
+      run: npm run test:lighthouse
+    - name: Archive Web Test Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: WebAssembly Test Reports
+        path: |
+          reports/testcafe.json
+          reports/lighthouse/
+
   build_and_test:
     strategy:
       matrix:
