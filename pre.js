@@ -112,20 +112,22 @@ Module.setSpeakOutput = (enabled) => {
     Module.saveSettings();
 };
 
-Module.setFontSize = (size) => {
-    const parsedSize = Number(size);
+Module.setFontSize = (size, typing) => {
+    const parsedSize = size === '' ? NaN : Number(size);
     if (!Number.isFinite(parsedSize)) return;
     const fontSizeInput = typeof document === 'undefined'
         ? null : document.querySelector('[name="logoTextSize"]');
     const minSize = fontSizeInput ? Number(fontSizeInput.min) : 8;
     const maxSize = fontSizeInput ? Number(fontSizeInput.max) : 48;
+    // While typing, ignore partial values such as the "2" of "24" and keep the box as typed.
+    if (typing && (parsedSize < minSize || parsedSize > maxSize)) return;
     Module.fontSize = Math.min(maxSize, Math.max(minSize, Math.round(parsedSize)));
     Module.settings.fontSize = Module.fontSize;
     if (typeof document !== 'undefined') {
         const textSizeStyle = document.getElementById('logoTextSize');
         if (textSizeStyle)
             textSizeStyle.sheet.cssRules[0].style.fontSize = `${Module.fontSize}px`;
-        if (fontSizeInput) fontSizeInput.value = Module.fontSize;
+        if (fontSizeInput && !typing) fontSizeInput.value = Module.fontSize;
     }
     Module.saveSettings();
 };

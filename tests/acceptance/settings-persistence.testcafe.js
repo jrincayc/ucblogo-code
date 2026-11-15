@@ -359,6 +359,30 @@ test('ACC-SET-001b clamps the Logo text size to a minimum of 8px, also from stor
     await t.expect(ClientFunction(() => Module.fontSize)()).eql(8);
 });
 
+test('ACC-SET-001c typing a size in the text size box does not apply partial values', async (t) => {
+    await t.click(Selector('#appContainer button[aria-controls="settings"]'));
+    const input = Selector('#logoTextSizeInput');
+    await t.selectText(input).pressKey('delete');
+    await t.expect(input.value).eql('');
+    await t.expect(ClientFunction(() => Module.fontSize)()).notEql(8, 'empty box must not apply');
+    await t.typeText(input, '24', { replace: true });
+    await t.expect(readTextSize()).eql({
+        fontSize: 24,
+        cssSize: '24px',
+        setting: 24,
+        storedSize: 24,
+        inputSize: '24',
+    });
+    await t.typeText(input, '3', { replace: true }).pressKey('tab');
+    await t.expect(readTextSize()).eql({
+        fontSize: 8,
+        cssSize: '8px',
+        setting: 8,
+        storedSize: 8,
+        inputSize: '8',
+    });
+});
+
 test('ACC-SET-002 keeps SVG label size independent of Logo text size', async (t) => {
     await runLogo(t, 'settextsize 24');
     await runLogo(t, 'label "SVG');

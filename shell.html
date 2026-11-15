@@ -629,7 +629,8 @@
             <li>
               <label for="logoTextSizeInput">Logo text size (8 to 48 px)</label>
               <input id="logoTextSizeInput" type="number" name="logoTextSize" value="16" max="48" min="8"
-                oninput="Module.setFontSize(event.target.value)">
+                oninput="Module.setFontSize(event.target.value, true)"
+                onchange="Module.setFontSize(event.target.value)">
             </li>
           </ul>
         </li>
