@@ -16,7 +16,8 @@ fragility and polish the install, offline, update, and storage behavior.
 Companion plans: [Supported browser and Node.js CI](browser-node-ci.md) (PWA
 checks can become a scheduled job there) and
 [Web accessibility](web-accessibility.md) (new UI below must meet its
-conventions).
+conventions). Persistence and eviction work lives in
+[Storage persistence](storage-persistence.md).
 
 ## Constraints
 
@@ -235,25 +236,10 @@ readiness before asserting.
 
 ## Issue 8: Persistence claim is unverified
 
-Problem: [webedition.md](../../webedition.md) (the data-persistence warning
-near the top of the Web Edition usage section) says installing "ensures"
-persistence, but nothing calls `navigator.storage.persist()`.
-
-Plan:
-1. Find the existing IDBFS ready hook in [pre.js](../../pre.js) and, after it,
-   record `navigator.storage.persisted()` and `estimate()` for display.
-2. Call `persist()` only when the app runs standalone (Issue 10) or after a
-   user-initiated save. Firefox prompts for it; never prompt at first load.
-3. Surface the result (persistent or best-effort, usage versus quota) in the
-   existing help or settings UI. Do not add a new dialog if one fits.
-4. Reword the docs: Chrome and Edge grant persistence by heuristic, including
-   for installed apps; Firefox asks; Safari evicts tab data after 7 days
-   without use but exempts Home Screen web apps. State that backups through
-   "Download Logo Session" remain recommended.
-
-Validation: browser test with `navigator.storage` stubbed asserts no `persist()`
-call before standalone or a save, exactly one call afterward, and correct
-status text. Real eviction behavior is not testable here; say so.
+Moved to [storage-persistence.md](storage-persistence.md), which covers
+the `persist()` policy, status UI, write-failure handling, backup guidance, and
+docs. That plan depends on Issue 10's standalone detection and `appinstalled`
+handling.
 
 ## Issue 9: Deploy copy step over-publishes and includes stale files
 
@@ -298,7 +284,8 @@ for the maintainer to confirm in review.
 Plan:
 1. Standalone detection: set `data-display-mode` on `<html>` from
    `matchMedia('(display-mode: standalone)')` and `navigator.standalone`,
-   updated on change. Used by Issue 8 and by tests; no visual change.
+   updated on change. Used by [storage-persistence.md](storage-persistence.md)
+   and by tests; no visual change.
 2. Install affordance: capture `beforeinstallprompt`, expose an "Install app"
    button in the existing help or menu surface only when the event fired and
    the app is not standalone; hide on `appinstalled`. Keyboard and touch
@@ -341,8 +328,9 @@ Plan:
    foundation; the PWA test must exist before later changes. Issue 6 depends
    on Issue 1's relative URLs, and both change the staging script.
 2. Phase B (identity and icons): Issues 3, 4, 5.
-3. Phase C (lifecycle): Issues 10, 7, 8 (Issue 10's standalone detection is
-   used by Issue 8).
+3. Phase C (lifecycle): Issues 10, 7, then the
+   [storage-persistence.md](storage-persistence.md) plan (it uses Issue 10's
+   standalone detection).
 4. Phase D (deployment and docs): Issue 9 and the remaining doc updates.
 
 Each phase: rebuild with `npm run build:web`, run `npm run test:source`,

@@ -199,7 +199,8 @@ borders, touch-target sizes):
   File names are rendered with `textContent`.
 - A skipped-files report (illegal names, dangerous extensions, too large,
   collisions) and the conflicts list.
-- After first successful connect call `storage.persist()` (PWA plan Issue 8).
+- After first successful connect call `storage.persist()` (see
+  [storage-persistence.md](storage-persistence.md)).
 
 Externally edited files pulled into `/d` are not auto-loaded; the status line
 says how many files changed and the user runs `load` as usual.
@@ -242,7 +243,7 @@ says how many files changed and the user runs `load` as usual.
 - Add a "Local folder backup (Chrome and Edge)" section to
   [webedition.md](../../webedition.md): how to choose a folder, using a cloud-drive
   or git folder, the threat model and limitations, and that nothing leaves the
-  device. Reword the persistence claims per PWA plan Issue 8.
+  device. Reword the persistence claims per [storage-persistence.md](storage-persistence.md).
 
 ## Risks
 

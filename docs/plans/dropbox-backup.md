@@ -91,7 +91,9 @@ and CORS preflight behavior from the live origin.
 
 Reuse [pwa-installability.md](pwa-installability.md): Issue 1 (relative paths,
 so the redirect URI works under any prefix), Issue 6 (same-origin runtime
-caching), Issue 8 (`storage.persist()` after a user-initiated save), Issue 10
+caching), the [storage persistence plan](storage-persistence.md) (IDBFS ready
+and saved signals, `storage.persist()` after a user-initiated save, status
+text), Issue 10
 (standalone detection and `beforeunload` cleanup), Issue 11 (PWA test harness).
 Issue 6 is a prerequisite or co-change: Dropbox traffic must never be cached.
 
@@ -147,7 +149,7 @@ gap. Spike pages are throwaway and not shipped.
 5. **UI in [shell.html](../../shell.html).** A `Backup` button next to
    Settings and a `dialogWithTitle` dialog with connect/disconnect, "Sync now",
    status in a `role="status"` live region, last-sync time, a conflicts list, the
-   persistence status line (PWA Issue 8), the 13+/16+ note, and a privacy link.
+   persistence status line ([storage-persistence.md](storage-persistence.md)), the 13+/16+ note, and a privacy link.
    Follow the frontend skill: native labels, focus entry and restore, touch
    targets, theme-aware borders.
 6. **Auth flow.** Call `window.open` synchronously in the click handler and set
@@ -190,7 +192,7 @@ gap. Spike pages are throwaway and not shipped.
 ## Phase 3: Docs and production approval
 
 - Backup section in [webedition.md](../../webedition.md); reword the persistence
-  claims per PWA Issue 8.
+  claims per [storage-persistence.md](storage-persistence.md).
 - Privacy policy stating nothing is sent to the project, hosted at a stable URL.
 - App icon, branding-compliant naming, and the production application prepared
   before the 50-linked-user clock starts.
@@ -212,8 +214,9 @@ using hostile names. Verify the exploit with a test first.
 - Bidirectional sync with deletions propagated but guarded (alternative:
   add/update only).
 - Hand-written Dropbox client instead of the SDK (no CDN, small footprint).
-- A new Backup dialog rather than a Settings section; if chosen, amend the PWA
-  plan's "no new dialog" note in Issue 8.
+- A new Backup dialog rather than a Settings section; if chosen, amend the
+  "no new dialog" note in [storage-persistence.md](storage-persistence.md)
+  (Issue 4).
 
 ## Out of scope
 
