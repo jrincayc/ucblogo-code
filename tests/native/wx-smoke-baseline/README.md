@@ -2,22 +2,27 @@
 
 Baselines must come from the GitHub Actions wx smoke job, not a developer
 workstation. Native wx window geometry and rendering can differ across host
-themes and environments. The first verified CI capture is from
-[run 43959056904](https://github.com/jrincayc/ucblogo-code/actions/runs/43959056904),
+themes and environments. All six baselines are from
+[run 43966352257](https://github.com/n1ywb-1/ucblogo-code/actions/runs/43966352257),
 using `ubuntu-latest`, `libwxgtk3.2-dev`, and Xvfb at 1024x768.
 
-These four baselines are byte-for-byte copies of that run's screenshots:
+The saved PNGs are byte-for-byte copies of that run's screenshots:
 
 - `text-before-clear.png`
+- `text-after-clear.png`
 - `graphics-shapes.png`
+- `graphics-background.png`
 - `fileio-roundtrip.png`
 - `htmlstring-markup.png`
 
-That run stopped each scene at its first visual mismatch against workstation
-baselines, so it did not capture `text-after-clear.png` or
-`graphics-background.png`. The driver now retains visual failures while
-continuing to capture later stages. Those two files remain provisional
-workstation captures until a CI rerun provides their replacements.
+The four earlier references were also captured by
+[run 43959056904](https://github.com/jrincayc/ucblogo-code/actions/runs/43959056904),
+which stopped each scene at its first visual mismatch against workstation
+baselines. The driver now retains visual failures while continuing to capture
+later stages, so the subsequent run supplied the two remaining references.
+No workstation captures remain in the baseline set. To refresh references,
+review a CI artifact's screenshots and copy only the intended baseline PNGs;
+normal test runs never update references automatically.
 
 `wx_smoke.py` compares all six stages against the saved PNGs. A pixel is
 counted as changed when any RGB channel differs by more than 16; the test fails

@@ -58,3 +58,4 @@ conftest.*
 screenshots/
 reports/
 /help/
+*.pyc
