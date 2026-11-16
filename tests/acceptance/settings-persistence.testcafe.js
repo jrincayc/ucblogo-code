@@ -18,6 +18,9 @@ const setPersistedControls = ClientFunction(() => {
         toggle.checked = true;
         toggle.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    const autocomplete = document.getElementById('autocompleteSelect');
+    autocomplete.checked = false;
+    autocomplete.dispatchEvent(new Event('change', { bubbles: true }));
 });
 const readTextSize = ClientFunction(() => ({
     fontSize: Module.fontSize,
@@ -273,6 +276,7 @@ const readPersistedState = ClientFunction(() => ({
         fontSize: document.getElementById('logoTextSizeInput').value,
         speakOutput: document.getElementById('speakOutputSelect').checked,
         visualBell: document.getElementById('visualBellSelect').checked,
+        autocomplete: document.getElementById('autocompleteSelect').checked,
         shapeRenderingMode: document.querySelector('[name="shapeRenderingMode"]:checked').value,
     },
 }));
@@ -506,6 +510,7 @@ test('ACC-SET-006 persists Logo and dialog settings across reload', async (t) =>
         shapeRenderingMode: 'optimizespeed',
         speakOutput: true,
         visualBell: true,
+        autocomplete: false,
     };
     await t.expect(readStoredSettings()).eql(expectedSettings);
     await resetPage();
@@ -522,6 +527,7 @@ test('ACC-SET-006 persists Logo and dialog settings across reload', async (t) =>
             fontSize: String(initialFontSize + 1),
             speakOutput: true,
             visualBell: true,
+            autocomplete: false,
             shapeRenderingMode: 'optimizespeed',
         },
     });
@@ -549,6 +555,7 @@ test('ACC-UI-001 labels controls and manages settings dialog focus', async (t) =
             editor: 'Logo source code',
             theme: 'Color theme',
             fontSize: 'Logo text size (8 to 48 px)',
+            autocomplete: 'Autocomplete Logo words',
             speak: 'Speak Logo output',
             visualBell: 'Show visual bell indicator',
             renderingModes: [

@@ -303,6 +303,38 @@ test('stub: shows matching suggestions while typing and closes when nothing matc
     await t.expect((await popupState()).open).notOk();
 });
 
+test('setting: disables suggestions in command input and editor', async (t) => {
+    await t.expect(Selector('#autocompleteSelect').checked).ok('autocomplete is enabled by default');
+    await useStubNames(['forward']);
+    await resetInput();
+    await typeSlowly(t, 'fo');
+    await t.expect((await popupState()).open).ok();
+
+    await openSettingsDialog();
+    await t.click(Selector('#autocompleteSelect'));
+    await t.expect(ClientFunction(() => Module.settings.autocomplete)()).eql(false);
+    await t.click(Selector('#settings button').withText('Close settings'));
+    await resetInput();
+    await typeSlowly(t, 'fo');
+    const state = await popupState();
+    await t.expect(state.open).notOk()
+        .expect(state.expanded).eql('false')
+        .expect(state.autocomplete).eql('none')
+        .expect(state.value).eql('fo');
+
+    await t.selectText(commandInput).pressKey('delete')
+        .typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+    await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+    try {
+        await prepareEditorCompletion();
+        await t.expect(Selector('logo-autocomplete[for="editorTextArea"]')
+            .shadowRoot().find('[role="listbox"]').visible).notOk();
+    } finally {
+        await discardEditor();
+        await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+    }
+});
+
 test('stub: tapping a suggestion completes only the word at the caret', async (t) => {
     await useStubNames(['forward', 'foreach', 'format', 'back']);
     await resetInput();

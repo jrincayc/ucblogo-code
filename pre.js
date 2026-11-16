@@ -209,6 +209,7 @@ Module.settings = {
         ? storedSettings.shapeRenderingMode : 'geometricprecision',
     speakOutput: typeof storedSettings.speakOutput === 'boolean' ? storedSettings.speakOutput : false,
     visualBell: typeof storedSettings.visualBell === 'boolean' ? storedSettings.visualBell : false,
+    autocomplete: typeof storedSettings.autocomplete === 'boolean' ? storedSettings.autocomplete : true,
 };
 Module.fontSize = Module.settings.fontSize;
 Module.visualBell = Module.settings.visualBell;
@@ -255,6 +256,20 @@ Module.setSpeakOutput = (enabled) => {
     if (typeof document !== 'undefined') {
         const speakOutputSelect = document.getElementById('speakOutputSelect');
         if (speakOutputSelect) speakOutputSelect.checked = shouldSpeak;
+    }
+    Module.saveSettings();
+};
+Module.setAutocomplete = (enabled) => {
+    const shouldAutocomplete = enabled === true;
+    Module.settings.autocomplete = shouldAutocomplete;
+    if (typeof document !== 'undefined') {
+        const selector = document.getElementById('autocompleteSelect');
+        if (selector) selector.checked = shouldAutocomplete;
+        document.querySelectorAll('logo-autocomplete').forEach((element) => {
+            if (element.input)
+                element.input.setAttribute('aria-autocomplete', shouldAutocomplete ? 'list' : 'none');
+            if (!shouldAutocomplete) element.close();
+        });
     }
     Module.saveSettings();
 };
@@ -545,6 +560,11 @@ Module.graphics.graphics_init = () => {
         speakOutputSelect.checked = Module.settings.speakOutput;
         speakOutputSelect.addEventListener('change', (event) => {
             Module.setSpeakOutput(event.target.checked);
+        });
+        const autocompleteSelect = document.getElementById('autocompleteSelect');
+        autocompleteSelect.checked = Module.settings.autocomplete;
+        autocompleteSelect.addEventListener('change', (event) => {
+            Module.setAutocomplete(event.target.checked);
         });
         const visualBellSelect = document.getElementById('visualBellSelect');
         visualBellSelect.checked = Module.settings.visualBell;

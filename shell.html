@@ -648,6 +648,10 @@
           </ul>
         </li>
         <li>
+          <input type="checkbox" id="autocompleteSelect" name="autocomplete">
+          <label for="autocompleteSelect">Autocomplete Logo words</label>
+        </li>
+        <li>
           <input type="checkbox" id="speakOutputSelect" name="speakOutput">
           <label for="speakOutputSelect">Speak Logo output</label>
         </li>
@@ -1846,7 +1850,7 @@
       connectedCallback() {
         this.input = document.getElementById(this.getAttribute('for'));
         this.input.setAttribute('role', 'combobox');
-        this.input.setAttribute('aria-autocomplete', 'list');
+        this.input.setAttribute('aria-autocomplete', Module.settings?.autocomplete !== false ? 'list' : 'none');
         this.input.setAttribute('aria-haspopup', 'listbox');
         this.input.setAttribute('aria-expanded', 'false');
         this.input.addEventListener('input', () => this.update());
@@ -1872,6 +1876,10 @@
       }
 
       update() {
+        if (Module.settings?.autocomplete === false) {
+          this.close();
+          return;
+        }
         const word = this.currentWord();
         this.word = word;
         this.activeIndex = -1;
