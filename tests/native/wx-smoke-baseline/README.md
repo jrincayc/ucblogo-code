@@ -24,6 +24,11 @@ No workstation captures remain in the baseline set. To refresh references,
 review a CI artifact's screenshots and copy only the intended baseline PNGs;
 normal test runs never update references automatically.
 
+Independent verification on commit `85aa4cf` in
+[run 43967048973](https://github.com/n1ywb-1/ucblogo-code/actions/runs/43967048973)
+passed all four scenes: every screenshot differed from its baseline by `0.000%`.
+The same wx job passed all 105 Logo unit tests.
+
 `wx_smoke.py` compares all six stages against the saved PNGs. A pixel is
 counted as changed when any RGB channel differs by more than 16; the test fails
 when more than 0.25% of pixels in the nonblack app bounds differ. An amplified

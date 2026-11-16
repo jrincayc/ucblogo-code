@@ -3,10 +3,15 @@
 Status: driver fix and six-stage visual-diff coverage completed on 2026-11-16
 in commit `5f59d17` (`Complete wx smoke visual baseline coverage`). CI integration
 is enabled, and all six workstation baselines have been replaced with CI
-captures. A follow-up CI run will verify the replacement baseline set.
+captures. Independent CI verification passes all six baseline comparisons and
+all 105 native wx unit tests.
 
 ## Current Evidence
 
+- Independent CI verification of commit `85aa4cf` in
+  [run 43967048973](https://github.com/n1ywb-1/ucblogo-code/actions/runs/43967048973)
+  passed all four smoke scenes, with `0.000%` changed pixels for all six stages,
+  and all 105 native wx Logo unit tests. Both terminal jobs also passed.
 - Native wx CI run
   [43966352257](https://github.com/n1ywb-1/ucblogo-code/actions/runs/43966352257)
   passed all 105 Logo unit tests and captured all six smoke stages. Four earlier
@@ -73,7 +78,7 @@ captures. A follow-up CI run will verify the replacement baseline set.
 
 4. **Partially complete: validate CI coverage.** All four scenes pass locally;
   CI captures all six stages and its 105 native wx unit tests pass. All six
-  baselines now match CI captures; an independent run must verify them. Still
+  baselines pass independent CI verification in run `43967048973`. Still
   pending: exercise withheld-acknowledgement and early-process-exit failures to
   verify nonzero results and cleanup, and recheck the corrected handshake
   against upstream master. Verify script completion separately from
@@ -85,18 +90,18 @@ captures. A follow-up CI run will verify the replacement baseline set.
   `LOGOLIB` set; and archives screenshots, scripts, logs, and results using
   `if: always()`. The driver owns Xvfb and is not wrapped in another `xvfb-run`.
 
-6. **Partially complete: document and checkpoint.** The verified driver fix and
+6. **Completed: document and checkpoint the CI baselines.** The verified driver fix and
   CI integration were committed separately. The maintainer requested the CI
   capture rerun and replacement of the remaining workstation baselines. Their
-  provenance is recorded in the baseline README; verify the replacement set
-  with a follow-up CI run. Broader diagnostic hardening remains separate work.
+  provenance and independent passing verification are recorded in the baseline
+  README. Broader diagnostic hardening remains separate work.
 
 ## Completion Criteria
 
 - [x] All four smoke scenes pass locally with the normal timeouts.
 - [x] CI captures all six stages, including after a visual mismatch.
 - [x] All six baseline PNGs come from CI; no workstation references remain.
-- [ ] An independent CI run passes all six baseline comparisons.
+- [x] An independent CI run passes all six baseline comparisons (`43967048973`).
 - [x] Driver fix and approved baselines are committed as `5f59d17`.
 - [x] The interpreter and active WASM build configuration remain unchanged.
 - [ ] Script completion and post-`bye` cleanup are explicitly distinguished.
@@ -104,5 +109,5 @@ captures. A follow-up CI run will verify the replacement baseline set.
 - [ ] The corrected handshake is verified against upstream master.
 - [x] All 105 native wx Logo unit tests pass in CI run `43966352257`.
 - [x] CI runs the smoke driver and retains diagnostics even on failure.
-- [ ] Final process-ownership check confirms no temporary test processes remain,
+- [x] Final process-ownership check confirms no temporary test processes remain,
     except preview sessions the maintainer still wants open.
