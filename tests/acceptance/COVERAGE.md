@@ -1,7 +1,7 @@
 # Portable Acceptance Coverage Ledger
 
 Status: functional TestCafe consolidation implemented; human iPad Safari signoff pending.
-Inventory date: 2026-11-15.
+Inventory date: 2026-11-16.
 
 All former browser assertions have destinations in the shared TestCafe suite; five source/unit assertions moved to Node's test runner. Stable IDs identify behaviors, not executable case counts. Multiple IDs can intentionally share a combined case, and one ID can cover multiple parameter variants. Every original ID is retained below; new rendered soft-key and device-viewport checks have additional IDs. Exact destination titles are in code spans, with the owning file linked at each section. Historical retired filenames below are not links.
 
@@ -9,24 +9,29 @@ All former browser assertions have destinations in the shared TestCafe suite; fi
 
 | Layer / Fixture | Desktop Cases | Mobile / Remote Cases | Implementation |
 | --- | --- | --- | --- |
-| `Logo word autocompletion` | 20 | 20 | [autocomplete.testcafe.js](autocomplete.testcafe.js) |
+| `Logo word autocompletion` | 21 | 21 | [autocomplete.testcafe.js](autocomplete.testcafe.js) |
 | `Logo JavaScript bridge` | 8 | 8 | [bridge.testcafe.js](bridge.testcafe.js) |
 | `JavaScript error reporting` | 2 | 2 | [error-reporting.testcafe.js](error-reporting.testcafe.js) |
 | `iPad startup and keyboard viewport simulation` | 2 | 2 | [ipad-keyboard.test.js](ipad-keyboard.test.js) |
 | `Bundled Logo regression suite` | 1 | 1 | [logo-suite.testcafe.js](logo-suite.testcafe.js) |
-| `Help dialog` | 20 | 17 | [help-dialog.testcafe.js](help-dialog.testcafe.js) |
+| `Help dialog` | 22 | 18 | [help-dialog.testcafe.js](help-dialog.testcafe.js) |
 | `Help dialog follows the Logo text size` | 3 | 3 | [help-font-size.testcafe.js](help-font-size.testcafe.js) |
 | `Settings persistence` (includes UI) | 12 | 12 | [settings-persistence.testcafe.js](settings-persistence.testcafe.js) |
+| `Storage persistence` | 1 | 1 | [storage-persistence.testcafe.js](storage-persistence.testcafe.js) |
 | `Viewport and output scrolling` | 14 | 6 | [viewport.testcafe.js](viewport.testcafe.js) |
-| **Functional total** | **82** | **71** | Shared discovery and capability filtering in [run-testcafe.js](run-testcafe.js) |
+| **Functional total** | **86** | **74** | Shared discovery and capability filtering in [run-testcafe.js](run-testcafe.js) |
 
-The eleven excluded cases require `resize`: HELP-010 through HELP-012 and ACC-VIEW-004A through ACC-VIEW-004D and ACC-VIEW-005A through ACC-VIEW-005D. Desktop defaults to `resize,screenshots`; mobile/emulation/remote defaults to no capabilities. Those eleven cases are filtered out, not passed. Synthetic viewport cases and two screen-mode cases at the current device viewport remain eligible. Responsive autocomplete layout assertions adapt to available width; they do not add separate mobile cases.
+These are registered, capability-eligible case counts, verified on 2026-11-16 using TestCafe's compiler and the shared runner's discovery and capability filter without executing browser tests. Parameterized registrations are counted individually. This inventory is not a new passing-result record.
+
+The twelve excluded cases require `resize`: HELP-010 through HELP-012, HELP-020, ACC-VIEW-004A through ACC-VIEW-004D, and ACC-VIEW-005A through ACC-VIEW-005D. Desktop defaults to `resize,screenshots`; mobile/emulation/remote defaults to no capabilities. Those twelve cases are filtered out, not passed. Synthetic viewport cases and two screen-mode cases at the current device viewport remain eligible. Responsive autocomplete layout assertions adapt to available width; they do not add separate mobile cases.
 
 Other recorded layers are **73 Node source/unit tests** across seven test files, and the direct Node Logo baseline of **65 passing checks with OOP skipped**. The runner contributes 27 of those tests; four real-Chrome checks are opt-in (`RUNNER_BROWSER_TESTS=1`). The bundled browser Logo suite is one TestCafe case containing the language checks, not 75 more browser cases.
 
+### Historical Execution (2026-11-15)
+
 Verified on 2026-11-15, Linux Mint 22.3, Node 25.7.0: Chrome 152 desktop **82/82**, Chrome 390x844 touch emulation **71/71**, Firefox 155 desktop **82/82**, and source/unit tests **69 passed / 4 optional browser checks skipped / 0 failed**. Browser tests used the fresh build produced by `emmake make ucblogo.html`; the pre-existing server on port 8080 served those artifacts. The bundled Logo browser suite reported 75 passed, 0 failed, 0 errors, with OOP skipped and its known `Tests.File.LiteralDribble` XFAIL.
 
-Counts describe the current suite and the execution above, not proof of every browser. **A real phone and actual iPad Safari, including native keyboard/rotation/touch/lifecycle/PWA checkpoints, remain pending maintainer testing. Desktop Safari is not tested locally because no Mac is available.** Phone emulation is not an actual phone; iPad Safari does not establish desktop Safari, iPhone, or installed-PWA coverage. Use the [README.md](README.md) human record template to attach versions, build identity, commands, results, and exclusions. No paid hosted service is required.
+These historical results are unchanged and do not establish passes for the current 86/74 inventory or every browser. **A real phone and actual iPad Safari, including native keyboard/rotation/touch/lifecycle/PWA checkpoints, remain pending maintainer testing. Desktop Safari is not tested locally because no Mac is available.** Phone emulation is not an actual phone; iPad Safari does not establish desktop Safari, iPhone, or installed-PWA coverage. Use the [README.md](README.md) human record template to attach versions, build identity, commands, results, and exclusions. No paid hosted service is required.
 
 ## Source And Error Reporting
 
@@ -55,6 +60,7 @@ Destination: [settings-persistence.testcafe.js](settings-persistence.testcafe.js
 | ID | Exact Destination Title | Assertions / Variants |
 | --- | --- | --- |
 | ACC-SET-001 | `ACC-SET-001 sets, reports, and steps the Logo text size` | Setter, reporter, increase/decrease, UI CSS/control values, runtime setting, and stored value. |
+| ACC-SET-001b | `ACC-SET-001b clamps the Logo text size to a minimum of 8px, also from stored settings` | Minimum text size enforced for runtime changes and stored settings. |
 | ACC-SET-001c | `ACC-SET-001c typing a size in the text size box does not apply partial values` | Blank and out-of-range partial values do not change the setting while typing; valid values apply and clamp on commit. |
 | ACC-SET-002 | `ACC-SET-002 keeps SVG label size independent of Logo text size` | Computed SVG LABEL size matches drawing font rather than UI text size. |
 | ACC-SET-003 | `ACC-SET-003 applies dark mode and follows the system preference` | Dark colors/borders; system selection and computed system background. |
@@ -66,14 +72,25 @@ Destination: [settings-persistence.testcafe.js](settings-persistence.testcafe.js
 | ACC-UI-003 | `ACC-UI-003 names light-DOM soft keys and preserves their size` | Named group and ten buttons, click handlers, no label/mousedown abuse, computed 1.75em sizing. Desktop creates/removes a temporary touch-capable component when needed. |
 | ACC-UI-004 | `ACC-UI-004 clicking a soft key replaces selected editor text and restores focus` | Editor selection/caret/focus; rendered-key or temporary-button path as above. |
 
+## Storage Persistence
+
+Destination: [storage-persistence.testcafe.js](storage-persistence.testcafe.js), fixture `Storage persistence`. Its single case has no capability requirement and is eligible on desktop and mobile/remote alike.
+
+| ID | Exact Destination Title | Assertions / Limits |
+| --- | --- | --- |
+| STORAGE-001 | `STORAGE-001 Logo save is observed and Settings reports browser storage` | Saves a temporary Logo file, observes `saved` and `persisted` IDBFS events, and checks the Settings storage status, approximate usage, population state, API availability, quota, and last-save timestamp. Does not reload to verify file recovery, exercise offline behavior, or require browser eviction protection to be granted. |
+
 ## Help Dialog
 
 Destination: [help-dialog.testcafe.js](help-dialog.testcafe.js), fixture `Help dialog`.
-The 20 desktop cases include word browsing/search, document loading/search/retry,
+The 22 desktop cases include word browsing/search, document loading/search/retry,
 tabs, insertion into both command input and editor, stacked-dialog focus,
-responsive layout, and 4.5:1 text contrast in light and dark themes. Three
-resize-dependent cases are filtered from phone emulation; the remaining 17 pass
-there. The three text-size cases are in [help-font-size.testcafe.js](help-font-size.testcafe.js).
+responsive layout, and 4.5:1 text contrast in light and dark themes. Four
+resize-dependent cases (HELP-010 through HELP-012 and HELP-020) are filtered from
+phone emulation; the remaining 18 are eligible, not newly verified passes.
+HELP-020 checks full document text immediately after tab selection on narrow
+screens; HELP-021 checks previous/next word navigation and endpoint button states.
+The three text-size cases are in [help-font-size.testcafe.js](help-font-size.testcafe.js).
 
 ## JavaScript Bridge
 
@@ -92,7 +109,7 @@ Destination: [bridge.testcafe.js](bridge.testcafe.js), fixture `Logo JavaScript 
 
 ## Viewport And Output
 
-Destination: [viewport.testcafe.js](viewport.testcafe.js), fixture `Viewport and output scrolling`. Portrait resize variants use 500x900 -> 520x940; landscape uses 900x500 -> 940x520. Text/split-mode variants use the initial orientation dimensions. The eight rows marked `resize` are the **only default mobile/remote functional exclusions**. Simulation rows do not exercise a native keyboard or physical rotation.
+Destination: [viewport.testcafe.js](viewport.testcafe.js), fixture `Viewport and output scrolling`. Portrait resize variants use 500x900 -> 520x940; landscape uses 900x500 -> 940x520. Text/split-mode variants use the initial orientation dimensions. The eight rows marked `resize` are this fixture's default mobile/remote exclusions; Help adds four more, for twelve overall. Simulation rows do not exercise a native keyboard or physical rotation.
 
 | ID | Exact Destination Title | Variants / Capability |
 | --- | --- | --- |
@@ -113,7 +130,7 @@ Destination: [viewport.testcafe.js](viewport.testcafe.js), fixture `Viewport and
 
 ## Autocomplete
 
-Destination: [autocomplete.testcafe.js](autocomplete.testcafe.js), fixture `Logo word autocompletion`. All historical Selenium autocomplete assertions and the pre-existing TestCafe assertions share these 20 cases; there is no duplicate Selenium execution. ACC-AUTO-005/006 share a case, ACC-AUTO-008/009 share a case, and ACC-AUTO-015 through ACC-AUTO-019 share one width-adaptive layout case. ACC-AUTO-022 still has two explicit cases. All stable IDs remain traceable rather than being dropped to make case counts match.
+Destination: [autocomplete.testcafe.js](autocomplete.testcafe.js), fixture `Logo word autocompletion`. The 21 cases cover all historical Selenium autocomplete assertions, the pre-existing TestCafe assertions, and the setting toggle for command input and editor; there is no duplicate Selenium execution. ACC-AUTO-005/006 share a case, ACC-AUTO-008/009 share a case, and ACC-AUTO-015 through ACC-AUTO-019 share one width-adaptive layout case. ACC-AUTO-022 still has two explicit cases. All stable IDs remain traceable rather than being dropped to make case counts match.
 
 Suggestions use in-page DOM `.click()` (including editor suggestions), not native pointer/touch actions; keyboard tests use TestCafe key simulation. Providers, owned settings, and captured legacy font-size values are restored. Desktop can resize to 1280x800; phone alias is 390x844 Chrome emulation. Layout assertions use actual available width rather than equating a device name with a layout guarantee.
 
@@ -144,6 +161,7 @@ Suggestions use in-page DOM `.click()` (including editor suggestions), not nativ
 | ACC-AUTO-023 | `stub: Ctrl+[ dismisses suggestions like Escape` | Same dismissal semantics without losing input/focus. |
 | ACC-AUTO-024 | `global: Ctrl+[ closes an open modal dialog like Escape` | Settings modal closes. |
 | ACC-AUTO-025 | `global: Ctrl+[ with nothing to dismiss leaves the command line alone` | Value/focus unchanged. |
+| ACC-AUTO-026 | `setting: disables suggestions in command input and editor` | Default enabled state, Settings toggle, command popup closure and ARIA state, typed text preserved, and editor suggestions suppressed. |
 
 ## Startup And Keyboard Simulation
 
@@ -158,7 +176,7 @@ Real native keyboard transitions, portrait -> landscape -> portrait with keyboar
 
 ## Separate Lighthouse Audits
 
-Destination: [lighthouse.test.js](lighthouse.test.js), Mocha suite `Lighthouse acceptance`. These two audits are not discovered as TestCafe fixtures, not included in 57/49, and not part of `npm test` or `test:built`. Run `npm run test:lighthouse` explicitly against known-fresh artifacts.
+Destination: [lighthouse.test.js](lighthouse.test.js), Mocha suite `Lighthouse acceptance`. These two audits are not discovered as TestCafe fixtures, not included in the functional inventory, and not part of `npm test` or `test:built`. Run `npm run test:lighthouse` explicitly against known-fresh artifacts.
 
 | ID | Exact Destination Title | Thresholds / Artifacts |
 | --- | --- | --- |

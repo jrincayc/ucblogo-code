@@ -2,7 +2,7 @@
 
 Functional browser coverage is consolidated in TestCafe. The shared runner discovers all `*.testcafe.js` fixtures plus [ipad-keyboard.test.js](ipad-keyboard.test.js); there is no second Selenium assertion pass. Source checks and runner/grader unit tests use Node's test runner. Lighthouse remains a separate Mocha audit, not part of functional acceptance.
 
-The implemented inventory is **83 desktop functional cases**, or **72 mobile/remote cases** after capability filtering excludes eleven resize tests. These are case counts, not a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, baseline history, and exclusions.
+The implemented inventory is **86 desktop functional cases**, or **74 mobile/remote-eligible cases** after capability filtering excludes twelve resize tests. Registration and capability counts were verified on 2026-11-16 without running browser tests; these are not new passing results or a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, historical execution results, and exclusions.
 
 ## Prerequisites And Freshness
 
@@ -99,7 +99,7 @@ TESTCAFE_WATCHDOG_MS=900000 \
 npm run test:ipad:remote
 ```
 
- TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the eleven resize-dependent cases: **72 functional cases remain**, including Help, the Logo suite, settings, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept.
+ TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the twelve resize-dependent cases: **74 functional cases remain eligible**, including Help, the Logo suite, settings, storage persistence, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept or a real-device pass record.
 
 Automated key simulation and in-page suggestion `.click()` calls are not native iOS keyboard or touch evidence. Synthetic Visual Viewport property changes and dispatched orientation events are not physical rotation. After automation, use another dedicated, fresh app session for these **human checkpoints**, in Safari and (where installed) the standalone PWA:
 
@@ -120,7 +120,7 @@ Commit + dirty state / build configuration + artifact hashes or timestamps:
 App URL + server root / TestCafe connection host + ports:
 Runner alias / capabilities / exact command + filters:
 Automated result: passed / failed / filtered (attach JSON, logs, screenshots):
-Resize exclusions: eight cases (ACC-VIEW-004A-D and ACC-VIEW-005A-D)
+Resize exclusions: twelve cases (HELP-010 through HELP-012, HELP-020, ACC-VIEW-004A-D, ACC-VIEW-005A-D)
 Native keyboard / rotation shown + hidden / touch:
 Background-resume / reload + storage / PWA relaunch + offline-reconnect:
 Other exclusions + reasons / failures + reproduction steps:
