@@ -210,11 +210,15 @@ test('HELP-013 documents load in the background without opening Help', async (t)
 });
 
 test('HELP-014 User manual tab browses chapters and sections', async (t) => {
+    const sectionListBack = Selector('#helpPanel-manual .helpBack');
     await t.click(helpButton)
         .click('#helpTab-manual')
         .expect(tabSelected('manual')).eql('true')
-        .expect(Selector('#helpPanel-words').visible).notOk()
-        .click(Selector('#helpPanel-manual h3 button').withText('DATA STRUCTURE PRIMITIVES'))
+        .expect(Selector('#helpPanel-words').visible).notOk();
+    if (await sectionListBack.visible) {
+        await t.click(sectionListBack);
+    }
+    await t.click(Selector('#helpPanel-manual h3 button').withText('DATA STRUCTURE PRIMITIVES'))
         .click(Selector('#helpPanel-manual ul ul button').withText('CONSTRUCTORS'))
         .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('outputs a word formed by concatenating its inputs')
         .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('This is a program that is still being written')
