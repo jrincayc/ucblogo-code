@@ -29,37 +29,51 @@ describe('Lighthouse acceptance', function () {
 
     for (const profile of profiles) {
         it(`${profile.name} meets baseline scores and writes HTML and JSON reports`, async function () {
-            const chrome = await chromeLauncher.launch({
-                chromeFlags: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'],
-                chromePath: process.env.CHROME_BINARY,
-            });
+            const maximumAttempts = 3;
+            const reportDirectory = path.join(reportRoot, profile.name);
             let results;
 
-            try {
-                results = await lighthouse(applicationUrl, {
-                    logLevel: 'error',
-                    output: ['html', 'json'],
-                    port: chrome.port,
-                }, profile.config);
-            } finally {
-                await chrome.kill();
+            for (let attempt = 1; attempt <= maximumAttempts; attempt++) {
+                const chrome = await chromeLauncher.launch({
+                    chromeFlags: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'],
+                    chromePath: process.env.CHROME_BINARY,
+                });
+
+                try {
+                    results = await lighthouse(applicationUrl, {
+                        logLevel: 'error',
+                        output: ['html', 'json'],
+                        port: chrome.port,
+                    }, profile.config);
+                } finally {
+                    await chrome.kill();
+                }
+
+                const { lhr, report } = results;
+                const attemptDirectory = lhr.runtimeError && attempt < maximumAttempts
+                    ? path.join(reportDirectory, `attempt-${attempt}`) : reportDirectory;
+
+                await fs.mkdir(attemptDirectory, { recursive: true });
+                await Promise.all([
+                    fs.writeFile(path.join(attemptDirectory, 'report.html'), report[0]),
+                    fs.writeFile(path.join(attemptDirectory, 'report.json'), report[1]),
+                ]);
+
+                if (!lhr.runtimeError) break;
+                console.warn(`Lighthouse ${profile.name} attempt ${attempt}/${maximumAttempts}: ` +
+                    `${lhr.runtimeError.code}: ${lhr.runtimeError.message}`);
             }
 
-            const { lhr, report } = results;
+            const { lhr } = results;
+            console.log(`Lighthouse ${profile.name} reports: ${reportDirectory}`);
+            expect(lhr.runtimeError, `Lighthouse ${profile.name} runtime error after ${maximumAttempts} attempts: ` +
+                `${lhr.runtimeError?.code}: ${lhr.runtimeError?.message}`).to.be.undefined;
             const scores = Object.fromEntries(
                 Object.entries(lhr.categories).map(([name, category]) => [name, category.score]),
             );
-            const reportDirectory = path.join(reportRoot, profile.name);
-
-            await fs.mkdir(reportDirectory, { recursive: true });
-            await Promise.all([
-                fs.writeFile(path.join(reportDirectory, 'report.html'), report[0]),
-                fs.writeFile(path.join(reportDirectory, 'report.json'), report[1]),
-            ]);
 
             console.log(`Lighthouse ${profile.name} scores: ${JSON.stringify(scores)}`);
             console.log(`Lighthouse ${profile.name} LCP: ${lhr.audits['largest-contentful-paint'].displayValue}`);
-            console.log(`Lighthouse ${profile.name} reports: ${reportDirectory}`);
             expect(lhr.audits['cumulative-layout-shift'].numericValue,
                 'cumulative layout shift').to.be.below(0.1);
             expect(scores.performance, 'performance score')
