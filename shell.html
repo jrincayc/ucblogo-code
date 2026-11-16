@@ -742,7 +742,11 @@
           <ul id="helpCatList" class="helpAccordion"></ul>
         </nav>
         <article class="helpDetail" id="helpDetail" tabindex="-1" aria-labelledby="helpDetailTitle">
-          <button type="button" class="helpBack" id="helpBackWords">&larr; Word list</button>
+          <div class="helpDetailNavigation" role="group" aria-label="Help word navigation">
+            <button type="button" class="helpBack" id="helpBackWords">&larr; Word list</button>
+            <button type="button" id="helpPrevious" hidden>Previous</button>
+            <button type="button" id="helpNext" hidden>Next</button>
+          </div>
           <p id="helpPlaceholder">Select a word to read its documentation.</p>
           <div id="helpEntry" hidden>
             <h3 id="helpDetailTitle"></h3>
@@ -979,6 +983,14 @@
           border: 1px solid var(--theme-control-border);
         }
 
+        #helpDialog .helpDetailNavigation {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5em;
+          margin-bottom: 0.5em;
+        }
+
         #helpDialog .helpActions {
           position: sticky;
           bottom: 0;
@@ -1030,6 +1042,7 @@
           let selected = null;
           let focusTarget = null;
           let built = false;
+          let wordOrder = [];
 
           const el = (tag, text, attrs) => {
             const node = document.createElement(tag);
@@ -1235,6 +1248,11 @@
 
           const showEntry = (word) => {
             selected = word;
+            const wordIndex = wordOrder.indexOf(word);
+            $('helpPrevious').disabled = wordIndex <= 0;
+            $('helpNext').disabled = wordIndex < 0 || wordIndex >= wordOrder.length - 1;
+            $('helpPrevious').hidden = false;
+            $('helpNext').hidden = false;
             const section = sections.get(word.category);
             if (section) setExpanded(section, true);
             wordButtons.forEach((button, other) => {
@@ -1321,6 +1339,7 @@
           const build = () => {
             if (built) return;
             const { categories } = Module.help.load();
+            wordOrder = categories.flatMap((category) => category.words);
             $('helpCatList').replaceChildren(...categories.map((category, index) => {
               const listId = `helpCategory${index}`;
               const chevron = el('span', '\u25B8', { className: 'helpChevron' });
@@ -1384,6 +1403,13 @@
             const button = wordButtons.get(selected);
             if (button) button.focus();
           });
+          const navigateWord = (offset) => {
+            const index = wordOrder.indexOf(selected);
+            const word = index < 0 ? null : wordOrder[index + offset];
+            if (word) showEntry(word);
+          };
+          $('helpPrevious').addEventListener('click', () => navigateWord(-1));
+          $('helpNext').addEventListener('click', () => navigateWord(1));
           $('helpSearch').addEventListener('input', search);
           dialog.querySelectorAll('.helpInsert').forEach((button) => {
             button.addEventListener('click', () => insert(button.dataset.close === '1'));

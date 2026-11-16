@@ -108,6 +108,24 @@ test('HELP-009 selecting a search result opens its category and marks the word',
         .expect(Selector('#helpCatList button[aria-current="true"]').innerText).eql('fput');
 });
 
+const helpNavigationState = ClientFunction(() => ({
+    previousDisabled: document.getElementById('helpPrevious').disabled,
+    nextDisabled: document.getElementById('helpNext').disabled,
+}));
+
+test('HELP-021 previous and next browse adjacent words', async (t) => {
+    await t.click(helpButton)
+        .click(Selector('#helpCatList h3 button').nth(0))
+        .click(Selector('#helpCatList ul button').nth(0))
+        .expect(Selector('#helpDetailTitle').innerText).eql('word')
+        .expect(helpNavigationState()).eql({ previousDisabled: true, nextDisabled: false })
+        .click('#helpNext')
+        .expect(Selector('#helpDetailTitle').innerText).eql('list')
+        .expect(helpNavigationState()).eql({ previousDisabled: false, nextDisabled: false })
+        .click('#helpPrevious')
+        .expect(Selector('#helpDetailTitle').innerText).eql('word');
+});
+
 const paneVisibility = ClientFunction(() => {
     const visible = (id) => {
         const node = document.getElementById(id) || document.querySelector(id);
@@ -115,6 +133,13 @@ const paneVisibility = ClientFunction(() => {
         return getComputedStyle(node).display !== 'none' && box.width > 0 && box.height > 0;
     };
     return { list: visible('.helpNav'), detail: visible('helpDetail') };
+});
+
+const helpNavigationSharesRow = ClientFunction(() => {
+    const backTop = document.getElementById('helpBackWords').getBoundingClientRect().top;
+    const previousTop = document.getElementById('helpPrevious').getBoundingClientRect().top;
+    const nextTop = document.getElementById('helpNext').getBoundingClientRect().top;
+    return Math.abs(backTop - previousTop) <= 1 && Math.abs(backTop - nextTop) <= 1;
 });
 
 test.meta({ requires: 'resize' })('HELP-010 wide window keeps the word list beside the entry', async (t) => {
@@ -135,6 +160,7 @@ test.meta({ requires: 'resize' })('HELP-011 narrow window shows the entry full w
         .click(Selector('#helpCatList h3 button').withText('Constructors'))
         .click(Selector('#helpCatList ul button').withText(/^fput$/))
         .expect(paneVisibility()).eql({ list: false, detail: true })
+        .expect(helpNavigationSharesRow()).ok()
         .click('#helpBackWords')
         .expect(paneVisibility()).eql({ list: true, detail: false })
         .expect(ClientFunction(() => document.activeElement.textContent)()).eql('fput');
