@@ -843,6 +843,12 @@
           overflow-wrap: anywhere;
         }
 
+        #helpDialog .helpDocSection + .helpDocSection {
+          border-top: 1px solid var(--theme-control-border);
+          margin-top: 1em;
+          padding-top: 0.75em;
+        }
+
         #helpDialog .helpDocBody ul,
         #helpDialog .helpDocBody ol {
           padding-left: 1.5em;
@@ -1100,19 +1106,22 @@
               if (other === section) button.setAttribute('aria-current', 'true');
               else button.removeAttribute('aria-current');
             });
+            view.sectionElements.forEach((elements, other) => {
+              if (other === section) elements.section.setAttribute('aria-current', 'location');
+              else elements.section.removeAttribute('aria-current');
+            });
             view.selected = section;
-            view.title.textContent = section.title;
-            view.body.innerHTML = section.html;
             view.placeholder.hidden = true;
             view.entry.hidden = false;
             view.browser.dataset.view = 'detail';
-            view.detail.scrollTop = 0;
+            const heading = view.sectionElements.get(section).heading;
+            heading.scrollIntoView({ block: 'start' });
             view.detail.focus();
           };
 
           const buildDocPanel = (doc) => {
             const panel = $(`helpPanel-${doc.id}`);
-            const view = { doc, buttons: new Map(), groups: new Map(), selected: null };
+            const view = { doc, buttons: new Map(), groups: new Map(), sectionElements: new Map(), selected: null };
             const sectionButton = (section) => {
               const button = el('button', section.title, { type: 'button' });
               button.addEventListener('click', () => showDocSection(section));
@@ -1156,9 +1165,20 @@
             nav.append(list);
             const back = el('button', '\u2190 Section list', { type: 'button', className: 'helpBack' });
             const placeholder = el('p', `Select a section of the ${doc.title} to read it.`);
-            const title = el('h3');
+            const title = el('h3', doc.title);
             const body = el('div', undefined, { className: 'helpDocBody' });
             const entry = el('div', undefined, { hidden: true });
+            let sectionIndex = 0;
+            for (const section of doc.sections) {
+              const sectionNode = el('section', undefined, { className: 'helpDocSection' });
+              const heading = el('h4', section.title, { id: `helpDoc-${doc.id}-section-${sectionIndex++}` });
+              const content = el('div');
+              content.innerHTML = section.html;
+              sectionNode.setAttribute('aria-labelledby', heading.id);
+              sectionNode.append(heading, content);
+              body.append(sectionNode);
+              view.sectionElements.set(section, { section: sectionNode, heading });
+            }
             entry.append(title, body);
             const detail = el('article', undefined, { className: 'helpDetail', tabIndex: -1 });
             detail.setAttribute('aria-label', `${doc.title} section`);

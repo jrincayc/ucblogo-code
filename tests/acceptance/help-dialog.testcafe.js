@@ -170,6 +170,14 @@ test.meta({ requires: 'resize' })('HELP-012 search results stack name over snipp
 
 const docsLoaded = ClientFunction(() => Boolean(Module.help.docs));
 const tabSelected = (name) => Selector(`#helpTab-${name}`).getAttribute('aria-selected');
+const docPaneScrollTop = ClientFunction((name) => document.querySelector(`#helpPanel-${name} .helpDetail`).scrollTop);
+const selectedDocHeadingAtTop = ClientFunction((name) => {
+    const panel = document.getElementById(`helpPanel-${name}`);
+    const detail = panel.querySelector('.helpDetail');
+    const detailRect = detail.getBoundingClientRect();
+    const headingRect = panel.querySelector('.helpDocSection[aria-current="location"] h4').getBoundingClientRect();
+    return Math.abs(headingRect.top - detailRect.top) <= 2;
+});
 
 test('HELP-013 documents load in the background without opening Help', async (t) => {
     await t.expect(docsLoaded()).ok('help/docs.json was not fetched at idle time', { timeout: 20000 });
@@ -183,6 +191,9 @@ test('HELP-014 User manual tab browses chapters and sections', async (t) => {
         .click(Selector('#helpPanel-manual h3 button').withText('DATA STRUCTURE PRIMITIVES'))
         .click(Selector('#helpPanel-manual ul ul button').withText('CONSTRUCTORS'))
         .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('outputs a word formed by concatenating its inputs')
+        .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('This is a program that is still being written')
+        .expect(docPaneScrollTop('manual')).gt(0)
+        .expect(selectedDocHeadingAtTop('manual')).ok()
         .expect(Selector('#helpPanel-manual button[aria-current="true"]').innerText).eql('CONSTRUCTORS');
 });
 
@@ -212,7 +223,10 @@ test('HELP-016 search also finds documents and opens the section in its tab', as
         .expect(tabSelected('words')).eql('true')
         .click(Selector('#helpResults li button').withText('Web Edition: Asyncify'))
         .expect(tabSelected('web')).eql('true')
-        .expect(Selector('#helpPanel-web .helpDocBody').innerText).contains('Asyncify');
+        .expect(Selector('#helpPanel-web .helpDocBody').innerText).contains('Asyncify')
+        .expect(Selector('#helpPanel-web .helpDocBody').innerText).contains('UCB Logo, lovingly packaged as a Progressive Web App with SVG turtle graphics')
+        .expect(docPaneScrollTop('web')).gt(0)
+        .expect(selectedDocHeadingAtTop('web')).ok();
 });
 
 test.requestHooks(RequestMock().onRequestTo(/help\/docs\.json/).respond('', 500))('HELP-017 a failed document fetch shows an error with Retry', async (t) => {
