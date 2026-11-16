@@ -131,6 +131,7 @@ const inspectAccessibility = ClientFunction(() => {
             editor: labelText(document.getElementById('editorTextArea')),
             theme: labelText(document.getElementById('darkModeSelect')),
             fontSize: labelText(document.getElementById('logoTextSizeInput')),
+            autocomplete: labelText(document.getElementById('autocompleteSelect')),
             speak: labelText(document.getElementById('speakOutputSelect')),
             visualBell: labelText(document.getElementById('visualBellSelect')),
             renderingModes,
