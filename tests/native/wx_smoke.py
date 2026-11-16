@@ -5,7 +5,8 @@ Usage: wx_smoke.py [/path/to/ucblogo [screenshot-dir]]
        (executable defaults to $UCBLOGO; directory defaults to ./wx-smoke-screens)
 LOGOLIB (if set) is passed through to the interpreter.
 
-Each scene is a Logo script passed on the command line (no keystroke injection).
+Each scene is a Logo script passed on the command line; the driver terminates
+the GUI after the script runs `bye` if it remains open.
 The script announces each drawn state by writing a marker file, then waits for an
 acknowledgement file; the driver captures the Xvfb root window with xwd after the
 marker appears and converts it to PNG with Pillow. One line per scene is printed:
@@ -34,17 +35,26 @@ SCREEN = "1024x768x24"
 FIRST_DISPLAY = 90
 START_TIMEOUT = 30.0     # launch until the first marker appears
 STAGE_TIMEOUT = 30.0     # between markers
-EXIT_TIMEOUT = 10.0      # after the final acknowledgement, script ends with bye
+EXIT_TIMEOUT = 10.0      # wait for the script's bye before terminating the GUI
 SETTLE = 1.0             # let wx repaint after the marker
 
 PRELUDE = """\
-to snap :n
-openwrite :n
-setwrite :n
+to snap :marker
+openwrite :marker
+setwrite :marker
 print "ready
 setwrite []
-close :n
-repeat 1200 [if filep word :n ".ack [stop] wait 3]
+close :marker
+localmake "ackfile word :marker ".ack
+repeat 1200 [
+openread :ackfile
+setread :ackfile
+localmake "acknowledged equalp readword "ready
+setread []
+close :ackfile
+if :acknowledged [stop]
+wait 3
+]
 end
 """
 
@@ -186,6 +196,8 @@ def run_scene(exe, display, name, stages, outdir, tmp, env):
     for label, body in stages:
         marker = "%s/%s-%s" % (tmp, name, label)
         markers.append(marker)
+        with open(marker + ".ack", "w") as acknowledgement:
+            acknowledgement.write("pending\n")
         lines += [l.format(tmp=tmp) for l in body]
         lines.append("snap \"%s" % marker)
     lines += ["wait 60", "bye"]
@@ -223,11 +235,15 @@ def run_scene(exe, display, name, stages, outdir, tmp, env):
                   file=sys.stderr)
             if all(lo == hi for lo, hi in img.getextrema()):
                 return "screenshot %s is a single color" % label, pngs
-            open(marker + ".ack", "w").close()
+            with open(marker + ".ack.tmp", "w") as acknowledgement:
+                acknowledgement.write("ready\n")
+            os.replace(marker + ".ack.tmp", marker + ".ack")
+        if proc.poll() is not None:
+            return "app exited before bye", pngs
         try:
             rc = proc.wait(timeout=EXIT_TIMEOUT)
         except subprocess.TimeoutExpired:
-            return "app did not exit after bye", pngs
+            return None, pngs
         if rc != 0:
             return "app %s after bye" % describe_exit(rc), pngs
         return None, pngs
