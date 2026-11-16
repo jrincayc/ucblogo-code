@@ -68,7 +68,7 @@ jobs:
         wx_version: [ libwxgtk3.2-dev ]
     name: Build and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -87,6 +87,11 @@ jobs:
         libgtk-3-dev
         ${{ matrix.wx_version }}
         libnotify-dev
+        python3-pil
+        x11-apps
+        x11-utils
+        xauth
+        xvfb
     - name: Build Logo
       run: |
         autoreconf --install
@@ -113,12 +118,23 @@ jobs:
         test -s logo-unit-test-results.txt
         awk '/\.\.\./ && ! /Ok$/{print "::error::"$0}' logo-unit-test-results.txt
         awk '/\.\.\./ {count++; if ($0 !~ /Ok$/) failed=1} END {if (count == 0 || failed) exit 1}' logo-unit-test-results.txt
+    - name: Run wx Smoke Tests
+      timeout-minutes: 3
+      env:
+        LOGOLIB: ${{ github.workspace }}/logolib
+        TMPDIR: ${{ github.workspace }}/reports/wx-smoke
+      run: |
+        set -o pipefail
+        mkdir -p "$TMPDIR"
+        python3 -u tests/native/wx_smoke.py "$GITHUB_WORKSPACE/ucblogo" "$TMPDIR" 2>&1 | tee "$TMPDIR/results.txt"
     - name: Archive Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: Logo Unit Test Results with ${{ matrix.wx_version }}
-        path: logo-unit-test-results.txt
+        path: |
+          logo-unit-test-results.txt
+          reports/wx-smoke/
 
   terminal_build_and_test:
     name: Build and Test Native Terminal
