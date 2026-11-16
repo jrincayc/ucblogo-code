@@ -1,7 +1,9 @@
 # "X didn't output to Y" Error Attribution Plan
 
-Status: Phase 0 working specification recorded and matched by four probes;
-edge-case corpus and Brian Harvey confirmation remain before implementation.
+Status: Phase 0 working specification recorded and backed by the PLM; Phase 1
+corpus (32 cases) captured on this tree and upstream. Remaining before
+implementation: open sub-questions, `pause`/`erract` rows, and Brian Harvey's
+confirmation.
 Date: 2026-11-15
 
 ## Objective
@@ -100,22 +102,25 @@ the stack. (`begin_apply` is the `apply` entry point, not procedure entry.)
 
 H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
 
-- H1: Attribution along value-forwarding chains is inconsistent. Not yet
-  shown: the `OUTPUT`-tail probe blames the innermost callee (cleared at the
-  transition), and the `commandtaila` probe correctly blames `commandtaila`,
-  because falling off the end with `OUTPUT_OK` pushes `fall_off_want_output`
-  and calls `commandtailb` as a command, not as a value-forwarding tail call.
-  Still to test: a callee reached through `output` that falls off its end, and
-  `last_call` primitive fallbacks.
+- H1: Attribution along value-forwarding chains through `output` is
+  inconsistent. Refuted for user procedures: the `OUTPUT`-tail chain blames the
+  innermost callee, `output`-then-fall-off (case 05) blames the procedure that
+  fell off, and `commandtaila` correctly blames `commandtaila`, because
+  falling off the end with `OUTPUT_OK` pushes `fall_off_want_output` and calls
+  `commandtailb` as a command. The inconsistency is in value-forwarding
+  primitives instead (H4).
 - H3: `lstop` and `loutput` use `fun` as `X`. That is the `stop`/`output`
   primitive only when they are reached as primitives; from
   `after_maybeoutput` it is whatever the evaluated expression left in `fun`.
   Untested: the `directstop` probe's `stop` was handled by the
   `STOP_PRIORITY` branch of `eval_sequence`, not by `lstop`.
-- H4: Error text differs between interpreted contexts that should behave alike:
-  `catch`, `run`/`runresult`, `apply`/`foreach`/`map` templates, macros and
-  `.macro` expansion, default-value expressions, `withobject` (`OBJECTS` builds
-  only).
+- H4: Error text differs between interpreted contexts that should behave alike.
+  Confirmed by the corpus: `run` is transparent as an operand (case 19 blames
+  the callee) but not under `output` (case 28 blames `run`); `apply`, `catch`,
+  and `map` blame themselves or library internals (cases 16, 18, 21, 29);
+  `.maybeoutput` reports a callee as failing to output to `.maybeoutput`,
+  which accepts no value (case 24); an anonymous `apply` template reports
+  error 29 (case 17). `withobject` remains untested (`OBJECTS` builds only).
 - H5: `err_logo` overwrites the live `ufun`/`this_line` registers from
   `didnt_get_output`; because `DIDNT_OUTPUT` is recoverable, execution can
   continue with them clobbered after `erract` or `pause`/`co` supplies a value.
@@ -126,9 +131,12 @@ H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
   name an unrelated procedure. Also check whether `catch "error` or
   `errorfunc` leaves `didnt_output_name` set for the next error.
 - H7: The flag-mismatch path in `accumulate_arg`/`set_args_continue` reports
-  "F didn't output to F" (same `fun` for `X` and `Y`).
+  "F didn't output to F" (same `fun` for `X` and `Y`). Not reproduced by any
+  corpus case; reachability still needs source analysis.
 - H8: The `STOP_PRIORITY` `OUTPUT_OK` sub-case with `didnt_get_output` `NIL` or
   `UNBOUND` reports nothing at the failing site and relies on an outer check.
+  Not reproduced: `print foreach [1 2] [stop]` (case 08b), the shape named in
+  the source comment, reports error 29 "Macro returned [] instead of a list".
 
 ## Phase 0: Specification and Oracle
 
@@ -140,11 +148,13 @@ H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
      as an operation blames `f`; `a: output b`, `b: output c`, `c: stop`
      blames `c`; `a: b` (falls off the end after calling `b` as a command)
      blames `a`; and `a: output b`, `b: c`, `c: stop` blames `b`.
-   - Open, to settle from corpus results: `X` for a primitive command used as
-     an operand (`print fd 10`; proposed: the primitive name), an anonymous
-     template (`apply [[x] [stop]] [1]`; proposed: the template text, as the
-     `%p` format prints it), and macros (which today report `ERR_MACRO`
-     rather than `DIDNT_OUTPUT` in some paths).
+   - `X` may be a primitive: a primitive command used as an operand blames the
+     primitive (`print ignore 3` -> `ignore`), as the PLM oracle below
+     requires. Still open: an anonymous template (`apply [[x] [stop]] [1]`;
+     proposed: the template text, as the `%p` format prints it), whether
+     value-forwarding primitives (`apply`, `run`, `catch`, `map`, `foreach`)
+     are transparent so that `X` is the callee inside them, and macros (which
+     report `ERR_MACRO`, error 29, rather than `DIDNT_OUTPUT`).
    - `Y` is the immediate operation requiring the missing value. At a tail
      `OUTPUT`, it is `output`; for `1 + f`, it is `+`, not an operand position.
    - `Z` is the user procedure and source expression containing that immediate
@@ -163,37 +173,9 @@ skipped and `Tests.File.LiteralDribble` was reported as its known XFAIL. The
 runner also emitted Node-only `localStorage.getItem` diagnostics after the
 Logo suite completed; it did not grade them as a runtime crash.
 
-Four direct-run probes captured the current `ERROR` values. Source (run as
-`node ./ucblogo-node.js FILE.lg`; see the harness constraints in Phase 1):
-
-```logo
-to directstop
-  stop
-end
-to outputtaila
-  output outputtailb
-end
-to outputtailb
-  output outputtailc
-end
-to outputtailc
-  stop
-end
-to commandtaila
-  commandtailb
-end
-to commandtailb
-  stop
-end
-catch "error [print directstop]
-show error
-catch "error [print outputtaila]
-show error
-catch "error [print commandtaila]
-show error
-catch "error [print 1 + directstop]
-show error
-```
+Four direct-run probes captured the current `ERROR` values; they are cases
+01-04 of [tests/didnt-output-probes.lg](../../tests/didnt-output-probes.lg),
+whose full results are in the Phase 1 corpus table.
 
 | Snippet shape | Current `ERROR` output | Observation |
 | --- | --- | --- |
@@ -202,9 +184,20 @@ show error
 | `commandtaila -> commandtailb`, final procedure stops; called by `print` | `[5 commandtaila didn't output to print [] []]` | `commandtaila` falls off its end after calling `commandtailb` as a command; blaming `commandtaila` matches the working specification. |
 | `print 1 + directstop` | `[5 directstop didn't output to + [] []]` | Infix `Y` is the operation `+`, not an operand-position description. |
 
-All four probes match the working specification. Stock/upstream comparison,
-the `output`-then-fall-off chain, and default-argument, macro, template, and
-wrapper cases remain untested.
+Upstream baseline (2026-11-15): upstream `jrincayc/ucblogo-code` at
+`f0ca245` (2026-10-16), built natively with
+`./configure --disable-wx --disable-docs` in a separate clone and run with
+`LOGOLIB` pointing at its `logolib`, produced output identical to this tree's
+Node build for all 32 corpus cases. Attribution is unchanged since the 2007
+initial import (`b539a1c`): every commit touching `didnt_output_name`,
+`didnt_get_output`, `last_call`, or `DIDNT_OUTPUT` is that import, and
+`changes.txt` has no related entries.
+
+Oracle from the Program Logic Manual ([plm](../../plm#L340-L420), section
+3.2a): `to foo output print 3 end` called by `show foo` should report
+"print didn't output to output in foo", and `to foo print 3 end` called by
+`show foo` should report "foo didn't output to show in baz". This agrees
+with the working specification and settles that `X` may be a primitive.
 
 ## Phase 1: Failing-Case Corpus
 
@@ -218,9 +211,55 @@ Build a table-driven set of Logo snippets crossing:
 | Depth | direct; one tail call; chain of 3 tail calls; tail call through `if`/`ifelse`/`run`/`catch` |
 | Context | toplevel, inside procedure, inside `pause`, with `erract`/`catch "error` active, `erract` that runs code and returns no value (H6) |
 
-Include named rows for H7 ("F didn't output to F"), H8 (no error at the
-failing site), and an `output`-then-fall-off chain (`a: output b`, `b: c`,
-`c: stop`; expected `X` = `b`). Mark `withobject` rows as `OBJECTS`-only.
+Corpus results: [tests/didnt-output-probes.lg](../../tests/didnt-output-probes.lg),
+run with `node ./ucblogo-node.js tests/didnt-output-probes.lg`. The file is a
+direct-run script, not a suite file. Turtle primitives crash under Node, so
+case 09 uses `ignore` instead of `fd`. "Spec" compares against the Phase 0
+working specification; `?` marks rows that depend on an open sub-question.
+
+| Case | Call | Current `ERROR` output | Spec |
+| --- | --- | --- | --- |
+| 05 | `a: output b`, `b: c`, `c: stop`; `print a` | `[5 fallchainb didn't output to output fallchaina [output fallchainb]]` | yes |
+| 06 | falls off after `if "true [print 1]` | `[5 falloffif didn't output to print [] []]` | yes |
+| 07 | falls off after `repeat 2 [print 1]` | `[5 falloffrepeat didn't output to print [] []]` | yes |
+| 08 | body `foreach [1 2] [stop]` | `[5 falloffforeach didn't output to print [] []]` | yes |
+| 08b | `print foreach [1 2] [stop]` | `[29 Macro returned [] instead of a list [] []]` | ? (macro) |
+| 09 | `print ignore 3` | `[5 ignore didn't output to print [] []]` | yes |
+| 10 | `show1 directstop` (user consumer) | `[5 directstop didn't output to show1 [] []]` | yes |
+| 11 | `make "v directstop` | `[5 directstop didn't output to make [] []]` | yes |
+| 12 | `if directstop [print 1]` | `[5 directstop didn't output to if [] []]` | yes |
+| 13 | `print first directstop` | `[5 directstop didn't output to first [] []]` | yes |
+| 14 | `print (sum 1 2 directstop)` | `[5 directstop didn't output to sum [] []]` | yes |
+| 15 | `(defaultuser)` with default `[:x directstop]` | `[5 directstop didn't output to defaultuser [] []]` | yes |
+| 16 | `print apply "directstop []` | `[5 apply didn't output to print [] []]` | ? (transparency) |
+| 17 | `print apply [[x] [stop]] [1]` | `[29 Macro returned nothing instead of a list apply [stop]]` | no |
+| 18 | `print map [directstop] [1 2]` | `[5 apply didn't output to combine map1 [output combine (apply :map.template firsts :template.lists) (map1 bfs :template.lists :template.number+1)]]` | no |
+| 19 | `print run [directstop]` | `[5 directstop didn't output to print [] []]` | yes |
+| 20 | `print runresult [directstop]` | no error (`[]`) | yes |
+| 21 | `print catch "foo [directstop]` | `[5 catch didn't output to print [] []]` | ? (transparency) |
+| 22 | `.macro macstop stop end`; `print macstop` | `[29 Macro returned nothing instead of a list macstop [stop]]` | ? (macro) |
+| 23 | `.macro macword output "abc end`; `print macword` | `[29 Macro returned abc instead of a list macword [output "abc]]` | yes (not message 5) |
+| 24 | `.maybeoutput directstop` in a procedure used by `print` | `[5 directstop didn't output to .maybeoutput maybeempty [.maybeoutput directstop]]` | no |
+| 25 | `print output 3` in a procedure | `[5 output didn't output to print opinarg [print output 3]]` | yes |
+| 26 | `print stop` in a procedure | `[5 stop didn't output to print stopinarg [print stop]]` | yes |
+| 27 | `ifelse "true [output directstop] [output 1]` | `[5 directstop didn't output to output viaifelse [ifelse "true [output directstop] [output 1]]]` | yes |
+| 28 | `output run [directstop]` | `[5 run didn't output to output viarun [output run [directstop]]]` | no (inconsistent with 19) |
+| 29 | `output catch "x [directstop]` | `[5 catch didn't output to output viacatch [output catch "x [directstop]]]` | ? (transparency) |
+| 30 | `print directstop` inside a procedure | `[5 directstop didn't output to print wrapper [print directstop]]` | yes |
+| 31 | same, non-tail in a sequence | `[5 directstop didn't output to print seqcase [print directstop]]` | yes |
+
+Context rows under Node (file-argument runs):
+
+- A top-level error while loading the file argument is silent: the load
+  stops and no message is printed, so printed-message rows cannot be checked
+  under Node. `catch "error` rows work, and a later unrelated error reports
+  its own `ERROR` list (no stale `didnt_output_name` observed).
+- `erract [output 99]` printed neither `99` nor a message; `erract [noisy]`
+  printed `noisy` once with no repeated message.
+- `erract [pause]` prints "directstop didn't output to print" and
+  "Pausing...", then loops on prompts with stdin at EOF; piping `co 5`
+  re-enters the same error and pause. `pause`/`co`/`erract` rows (H5, H6)
+  need the native build or the browser.
 
 For each row record `ERROR` output (`[5 |X didn't output to Y| ufun line]`;
 parse `X`/`Y` from item 2) and the printed message.
@@ -232,8 +271,7 @@ Harness constraints:
   contexts. Toplevel and printed-message rows need a separate direct run.
 - Direct runs must pass a `.lg` file argument to `ucblogo-node.js`; piping
   commands to its stdin fails with `ReferenceError: document is not defined`.
-  Whether `pause`/`co` and `erract` rows can run under Node at all is
-  unknown; otherwise they need the browser or a native build.
+  Do not use hyphens in procedure names; `-` parses as minus.
 - The harness reports only Ok, Failed, or Error, and the acceptance grader
   allows exactly one hard-coded XFAIL (`Tests.File.LiteralDribble`). There is
   no expected-failure mechanism. Write characterization tests that assert
@@ -329,6 +367,22 @@ for simplification.
   and after (after `gc`) shows no growth proportional to iteration count,
   comparing old and new builds. Also a failing-output error raised after deep
   tail recursion to confirm attribution without stack growth.
+
+  Baseline on the current Node build (2026-11-15), peak (`max`) from `NODES`
+  after `gc`; current nodes returned to about 4,800 in every run:
+
+  | Loop | N = 1M peak | N = 3M peak | Constant? |
+  | --- | --- | --- | --- |
+  | `output` self-tail countdown | 2,516,530 | 2,516,530 | yes |
+  | command self-tail with `stop` | 2,516,530 | 2,516,530 | yes |
+  | `output` through `ifelse` | 11,743,990 | 33,554,350 | no |
+  | `output run [...]` | 2,516,530 | 2,516,530 | yes |
+  | `output catch "x [...]` | 8,388,550 | 24,326,890 | no |
+  | 3-procedure mutual `output` recursion | 2,516,530 | 2,516,530 | yes |
+  | deep `output` chain ending in `stop` | 2,516,530 | 2,516,530 | yes; error `[5 deepfail didn't output to output deepfail [output deepfail :n - 1]]` |
+
+  `ifelse` and `catch` paths already grow with depth, so the regression check
+  is "no worse than baseline", not "constant", for those two rows.
 - GC: run the corpus under the ASAN profile ([address-sanitizer.txt](../../address-sanitizer.txt))
   and at `-O1` per the interpreter skill's GC guidance.
 - Native: build wx/native target (or confirm shared-source compile) since
@@ -342,7 +396,13 @@ for simplification.
   `val_status` and therefore which forms are tail calls.
 - User programs and libraries may rely on current (wrong) messages via
   `ERROR` item 2; keep the template and list structure, and list each changed
-  item 2 text in the corpus so the change is deliberate.
+  item 2 text in the corpus so the change is deliberate. Known consumers only
+  forward or print item 2 ([logolib/cond](../../logolib/cond#L17),
+  [logolib/popl](../../logolib/popl#L8), [logolib/pon](../../logolib/pon#L8),
+  [csls/pascal](../../csls/pascal#L10)); none parse the names. The
+  `logolib/Messages*` templates and the code tables in
+  [docs/ucblogo.texi](../../docs/ucblogo.texi#L7574) and
+  [usermanual](../../usermanual#L3912) need no change.
 - The `STOP_PRIORITY` branch contains cases documented as "actually can
   happen", including one that raises no error at the failing site (H8); they
   reflect real unsolved attribution and must be enumerated, not deleted.
