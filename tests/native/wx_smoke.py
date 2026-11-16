@@ -252,20 +252,23 @@ def run_scene(exe, display, name, stages, outdir, tmp, env):
                             stdin=subprocess.DEVNULL, stdout=log, stderr=log,
                             start_new_session=True)
     pngs = []
+    errors = []
     try:
         for i, ((label, _), marker) in enumerate(zip(stages, markers)):
             deadline = time.time() + (START_TIMEOUT if i == 0 else STAGE_TIMEOUT)
             while not marker_ready(marker):
                 if proc.poll() is not None:
-                    return "app %s before stage %s" % (
-                        describe_exit(proc.returncode), label), pngs
+                    errors.append("app %s before stage %s" % (
+                        describe_exit(proc.returncode), label))
+                    return "; ".join(errors), pngs
                 if time.time() > deadline:
                     shot = os.path.join(outdir, "%s-%s-timeout.png"
                                         % (name, label))
                     capture(display).save(shot)
                     pngs.append(shot)
-                    return ("stage %s not reached in time (see %s and %s)"
-                            % (label, shot, log.name)), pngs
+                    errors.append("stage %s not reached in time (see %s and %s)"
+                                  % (label, shot, log.name))
+                    return "; ".join(errors), pngs
                 time.sleep(0.1)
             time.sleep(SETTLE)
             img = capture(display)
@@ -281,27 +284,30 @@ def run_scene(exe, display, name, stages, outdir, tmp, env):
             if image_name in BASELINE_IMAGES:
                 baseline = os.path.join(BASELINE_DIR, image_name)
                 if not os.path.isfile(baseline):
-                    return "missing visual baseline: %s" % baseline, pngs
-                diff_path = os.path.join(
-                    outdir, os.path.splitext(image_name)[0] + "-diff.png")
-                diff_error, changed_ratio = compare_screenshots(
-                    path, baseline, diff_path)
-                if diff_error:
-                    return diff_error, pngs
-                print("  %s: %.3f%% changed from baseline" % (
-                    image_name, changed_ratio * 100), file=sys.stderr)
+                    errors.append("missing visual baseline: %s" % baseline)
+                else:
+                    diff_path = os.path.join(
+                        outdir, os.path.splitext(image_name)[0] + "-diff.png")
+                    diff_error, changed_ratio = compare_screenshots(
+                        path, baseline, diff_path)
+                    if diff_error:
+                        errors.append(diff_error)
+                    else:
+                        print("  %s: %.3f%% changed from baseline" % (
+                            image_name, changed_ratio * 100), file=sys.stderr)
             with open(marker + ".ack.tmp", "w") as acknowledgement:
                 acknowledgement.write("ready\n")
             os.replace(marker + ".ack.tmp", marker + ".ack")
         if proc.poll() is not None:
-            return "app exited before bye", pngs
+            errors.append("app exited before bye")
+            return "; ".join(errors), pngs
         try:
             rc = proc.wait(timeout=EXIT_TIMEOUT)
         except subprocess.TimeoutExpired:
-            return None, pngs
+            return "; ".join(errors) if errors else None, pngs
         if rc != 0:
-            return "app %s after bye" % describe_exit(rc), pngs
-        return None, pngs
+            errors.append("app %s after bye" % describe_exit(rc))
+        return "; ".join(errors) if errors else None, pngs
     finally:
         stop(proc)
         log.close()

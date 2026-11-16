@@ -1,16 +1,23 @@
 # wx Smoke Screenshot Baseline
 
-Captured from the Linux native wx build under Xvfb at 1024x768 on 2026-11-16
-(GCC 13.3, wxWidgets 3.2.4).
+Baselines must come from the GitHub Actions wx smoke job, not a developer
+workstation. Native wx window geometry and rendering can differ across host
+themes and environments. The first verified CI capture is from
+[run 43959056904](https://github.com/jrincayc/ucblogo-code/actions/runs/43959056904),
+using `ubuntu-latest`, `libwxgtk3.2-dev`, and Xvfb at 1024x768.
 
-The root PNGs are the six approved visual baselines:
+These four baselines are byte-for-byte copies of that run's screenshots:
 
 - `text-before-clear.png`
-- `text-after-clear.png`
 - `graphics-shapes.png`
-- `graphics-background.png`
 - `fileio-roundtrip.png`
 - `htmlstring-markup.png`
+
+That run stopped each scene at its first visual mismatch against workstation
+baselines, so it did not capture `text-after-clear.png` or
+`graphics-background.png`. The driver now retains visual failures while
+continuing to capture later stages. Those two files remain provisional
+workstation captures until a CI rerun provides their replacements.
 
 `wx_smoke.py` compares all six stages against the saved PNGs. A pixel is
 counted as changed when any RGB channel differs by more than 16; the test fails
@@ -21,7 +28,3 @@ The screenshots in `diagnostics/` are historical captures from when the later
 text and graphics stages timed out. They show the previous application state,
 not the expected `text-after-clear` or `graphics-background` output, so they are
 retained only as diagnostics and are not baseline images.
-
-With `stop` removed from the acknowledgement helper, current smoke runs reach
-all six stages. The `text-after-clear` and `graphics-background` captures were
-visually approved on 2026-11-16 and added to the baseline set.
