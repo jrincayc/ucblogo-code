@@ -229,6 +229,19 @@ test('HELP-016 search also finds documents and opens the section in its tab', as
         .expect(selectedDocHeadingAtTop('web')).ok();
 });
 
+test.meta({ requires: 'resize' })('HELP-020 document tabs show their full text immediately on narrow screens', async (t) => {
+    await t.resizeWindow(390, 844)
+        .click(helpButton)
+        .click('#helpTab-manual')
+        .expect(Selector('#helpPanel-manual .helpDocBody').visible).ok()
+        .expect(Selector('#helpPanel-manual .helpDocBody').innerText).contains('This is a program that is still being written')
+        .expect(docPaneScrollTop('manual')).eql(0)
+        .click('#helpTab-web')
+        .expect(Selector('#helpPanel-web .helpDocBody').visible).ok()
+        .expect(Selector('#helpPanel-web .helpDocBody').innerText).contains('UCB Logo, lovingly packaged as a Progressive Web App with SVG turtle graphics')
+        .expect(docPaneScrollTop('web')).eql(0);
+});
+
 test.requestHooks(RequestMock().onRequestTo(/help\/docs\.json/).respond('', 500))('HELP-017 a failed document fetch shows an error with Retry', async (t) => {
     await t.click(helpButton)
         .click('#helpTab-manual')

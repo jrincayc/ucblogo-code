@@ -1111,8 +1111,6 @@
               else elements.section.removeAttribute('aria-current');
             });
             view.selected = section;
-            view.placeholder.hidden = true;
-            view.entry.hidden = false;
             view.browser.dataset.view = 'detail';
             const heading = view.sectionElements.get(section).heading;
             heading.scrollIntoView({ block: 'start' });
@@ -1164,10 +1162,9 @@
             nav.setAttribute('aria-label', `${doc.title} sections`);
             nav.append(list);
             const back = el('button', '\u2190 Section list', { type: 'button', className: 'helpBack' });
-            const placeholder = el('p', `Select a section of the ${doc.title} to read it.`);
             const title = el('h3', doc.title);
             const body = el('div', undefined, { className: 'helpDocBody' });
-            const entry = el('div', undefined, { hidden: true });
+            const entry = el('div');
             let sectionIndex = 0;
             for (const section of doc.sections) {
               const sectionNode = el('section', undefined, { className: 'helpDocSection' });
@@ -1181,17 +1178,17 @@
             }
             entry.append(title, body);
             const detail = el('article', undefined, { className: 'helpDetail', tabIndex: -1 });
-            detail.setAttribute('aria-label', `${doc.title} section`);
-            detail.append(back, placeholder, entry);
+            detail.setAttribute('aria-label', `${doc.title} document`);
+            detail.append(back, entry);
             const docBrowser = el('div', undefined, { className: 'helpBrowser' });
-            docBrowser.dataset.view = 'categories';
+            docBrowser.dataset.view = 'detail';
             docBrowser.append(nav, detail);
             back.addEventListener('click', () => {
               docBrowser.dataset.view = 'categories';
               const selectedButton = view.buttons.get(view.selected);
               if (selectedButton) selectedButton.focus();
             });
-            Object.assign(view, { browser: docBrowser, detail, placeholder, entry, title, body });
+            Object.assign(view, { browser: docBrowser, detail });
             docViews.set(doc.id, view);
             panel.replaceChildren(docBrowser);
           };
