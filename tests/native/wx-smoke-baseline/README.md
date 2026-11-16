@@ -10,10 +10,13 @@ The root PNGs are the four stages reached during the smoke run:
 - `fileio-roundtrip.png`
 - `htmlstring-markup.png`
 
+`wx_smoke.py` compares these four stages against the saved PNGs. A pixel is
+counted as changed when any RGB channel differs by more than 16; the test fails
+when more than 0.25% of pixels in the nonblack app bounds differ. An amplified
+`*-diff.png` is saved beside the actual screenshot on failure.
+
 The screenshots in `diagnostics/` were captured after the later text and graphics
 stages timed out. They show the previous application state, not the expected
 `text-after-clear` or `graphics-background` output, so they are retained only as
-diagnostics and are not baseline images.
-
-This is a manual visual reference from a partial run, not a fully validated
-six-stage baseline or an automated pixel-diff test.
+diagnostics and are not baseline images. The visual test therefore covers four
+stages, not the full six-stage smoke suite.

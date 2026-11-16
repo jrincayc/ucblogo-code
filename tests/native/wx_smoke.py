@@ -17,8 +17,8 @@ so results can be graded like the unit tests:
 
     awk '/\\.\\.\\./ && ! /Ok$/{print "FAIL: "$0}' output.txt
 
-Exit status is nonzero if any scene failed. Screenshots still need a human look:
-the driver only rejects missing windows, crashes, and single-color images.
+Exit status is nonzero if any scene failed. Baseline comparisons catch large
+visual changes, but screenshots still need a human look.
 """
 
 import os
@@ -29,7 +29,7 @@ import sys
 import tempfile
 import time
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 SCREEN = "1024x768x24"
 FIRST_DISPLAY = 90
@@ -37,6 +37,15 @@ START_TIMEOUT = 30.0     # launch until the first marker appears
 STAGE_TIMEOUT = 30.0     # between markers
 EXIT_TIMEOUT = 10.0      # wait for the script's bye before terminating the GUI
 SETTLE = 1.0             # let wx repaint after the marker
+BASELINE_DIR = os.path.join(os.path.dirname(__file__), "wx-smoke-baseline")
+BASELINE_IMAGES = {
+    "text-before-clear.png",
+    "graphics-shapes.png",
+    "fileio-roundtrip.png",
+    "htmlstring-markup.png",
+}
+PIXEL_CHANNEL_TOLERANCE = 16
+MAX_CHANGED_PIXEL_RATIO = 0.0025
 
 PRELUDE = """\
 to snap :marker
@@ -131,6 +140,35 @@ def capture(display):
     if r.returncode != 0:
         raise RuntimeError("xwd failed: " + r.stderr.decode(errors="replace"))
     return xwd_to_image(r.stdout)
+
+
+def compare_screenshots(actual_path, baseline_path, diff_path):
+    with Image.open(actual_path) as image:
+        actual = image.convert("RGB")
+    with Image.open(baseline_path) as image:
+        baseline = image.convert("RGB")
+    if actual.size != baseline.size:
+        return "visual diff size mismatch: %s vs %s" % (
+            actual.size, baseline.size), None
+
+    diff = ImageChops.difference(actual, baseline)
+    red, green, blue = diff.split()
+    max_channel_diff = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+    changed = max_channel_diff.point(
+        lambda value: 255 if value > PIXEL_CHANNEL_TOLERANCE else 0)
+    bounds = baseline.getbbox()
+    if bounds is None:
+        return "visual diff baseline is empty", None
+    changed_pixels = changed.crop(bounds).histogram()[255]
+    width = bounds[2] - bounds[0]
+    height = bounds[3] - bounds[1]
+    changed_ratio = changed_pixels / (width * height)
+    if changed_ratio > MAX_CHANGED_PIXEL_RATIO:
+        diff.point(lambda value: min(255, value * 4)).save(diff_path)
+        return ("visual diff changed %.3f%% of pixels (limit %.3f%%; see %s)"
+                % (changed_ratio * 100, MAX_CHANGED_PIXEL_RATIO * 100,
+                   diff_path)), changed_ratio
+    return None, changed_ratio
 
 
 def start_xvfb():
@@ -235,6 +273,19 @@ def run_scene(exe, display, name, stages, outdir, tmp, env):
                   file=sys.stderr)
             if all(lo == hi for lo, hi in img.getextrema()):
                 return "screenshot %s is a single color" % label, pngs
+            image_name = os.path.basename(path)
+            if image_name in BASELINE_IMAGES:
+                baseline = os.path.join(BASELINE_DIR, image_name)
+                if not os.path.isfile(baseline):
+                    return "missing visual baseline: %s" % baseline, pngs
+                diff_path = os.path.join(
+                    outdir, os.path.splitext(image_name)[0] + "-diff.png")
+                diff_error, changed_ratio = compare_screenshots(
+                    path, baseline, diff_path)
+                if diff_error:
+                    return diff_error, pngs
+                print("  %s: %.3f%% changed from baseline" % (
+                    image_name, changed_ratio * 100), file=sys.stderr)
             with open(marker + ".ack.tmp", "w") as acknowledgement:
                 acknowledgement.write("ready\n")
             os.replace(marker + ".ack.tmp", marker + ".ack")
