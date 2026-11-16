@@ -1,7 +1,7 @@
 # "X didn't output to Y" Error Attribution Plan
 
-Status: Planned; investigation has not started. Source claims reviewed against
-the tree on 2026-11-15.
+Status: Phase 0 working specification recorded; edge-case corpus and Brian
+Harvey confirmation remain before implementation.
 Date: 2026-11-15
 
 ## Objective
@@ -98,18 +98,17 @@ the stack. (`begin_apply` is the `apply` entry point, not procedure entry.)
 
 ## Hypotheses To Test
 
-Each is falsifiable with one Logo snippet; none is assumed true.
+H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
 
-- H1: Tail-call attribution is inconsistent by path. A chain reached by
-  falling off the end or by `stop` blames the outermost procedure (set only if
-  `NIL` at entry); a chain through tail `OUTPUT` blames the innermost callee
-  (cleared at the transition); the `last_call` fallback can name a primitive.
-- H2 (moved to Phase 0 as a spec question): at a tail `OUTPUT`, `Y` becomes
-  `output` rather than the original consumer. This is what keeps tail calls
-  constant-space, and "g didn't output to output in f" is defensible.
-- H3: `lstop` and `loutput` use `fun` as `X`. That is the `stop`/`output`
-  primitive only when they are reached as primitives; from
-  `after_maybeoutput` it is whatever the evaluated expression left in `fun`.
+- H1: Tail-call attribution is inconsistent by path. The probed ordinary
+  command-tail chain ending in `stop` blames the outermost procedure; the
+  probed chain through tail `OUTPUT` blames the innermost callee (cleared at
+  the transition). Fall-off chains and `last_call` primitive fallbacks remain
+  to be tested.
+- H3: `lstop` and `loutput` use `fun` as `X`; the direct probe shows that
+  `fun` is the containing user procedure for `stop` in a procedure body
+  (`directstop`), not necessarily the primitive name. The
+  `after_maybeoutput` path still needs its own probe.
 - H4: Error text differs between interpreted contexts that should behave alike:
   `catch`, `run`/`runresult`, `apply`/`foreach`/`map` templates, macros and
   `.macro` expansion, default-value expressions, `withobject` (`OBJECTS` builds
@@ -130,21 +129,42 @@ Each is falsifiable with one Logo snippet; none is assumed true.
 
 ## Phase 0: Specification and Oracle
 
-1. Write the intended meaning of `X`, `Y`, `Z` in one paragraph per case class,
-   and get Brian Harvey's (or the maintainer's) confirmation before coding.
-   Open questions to settle first:
-   - For `to f stop end  print f`: is `X` `f` or `stop`?
-   - For a tail-call chain `a -> b -> c` where `c` fails: is `X` `c` (innermost
-     procedure) or `a` (what the user called)? Tail-call elimination makes the
-     answer a design choice, not a given. Today the answer depends on whether
-     the chain goes through tail `OUTPUT` (H1).
-   - At a tail `OUTPUT`, is `Y` `output` or the original consumer (H2)?
-   - Is `Y` the primitive/procedure name or the operand position text? What
-     should `Y` show for an infix operand such as `1 + f`?
+1. Use this working specification for corpus expectations; confirm it with
+   Brian Harvey before coding:
+   - `X` is the innermost user procedure whose invocation fails to return a
+     value, independent of how tail calls propagate. Thus `to f stop end` used
+     as an operation blames `f`, and a failing `a -> b -> c` chain blames `c`.
+   - `Y` is the immediate operation requiring the missing value. At a tail
+     `OUTPUT`, it is `output`; for `1 + f`, it is `+`, not an operand position.
+   - `Z` is the user procedure and source expression containing that immediate
+     consumer, where one exists. A top-level consumer has no user procedure or
+     source line.
+   Confirmation is still required before implementation; in particular,
+   confirm innermost-procedure attribution rather than the outermost call.
 2. Record current behavior on this tree and, if available, on stock UCBLogo
    6.x and the upstream tree, as a baseline. Do not treat any of them as
    correct. Record the current `tests/test.lg` pass count at the same time
    rather than relying on a remembered number.
+
+Initial local evidence (2026-11-15): on Node v25.7.0,
+`npm run test:logo:node` reported 75 passed, 0 failed, 0 errors; OOP was
+skipped and `Tests.File.LiteralDribble` was reported as its known XFAIL. The
+runner also emitted Node-only `localStorage.getItem` diagnostics after the
+Logo suite completed; it did not grade them as a runtime crash.
+
+Four temporary direct-run probes captured the current `ERROR` values:
+
+| Snippet shape | Current `ERROR` output | Observation |
+| --- | --- | --- |
+| `to directstop` with `stop`; `print directstop` | `[5 directstop didn't output to print [] []]` | `X` is the user procedure, not `stop`; `Y` is `print`; no user-procedure `Z` at top level. |
+| `outputtaila -> outputtailb -> outputtailc`, each forwarding with `output`; final procedure stops; called by `print` | `[5 outputtailc didn't output to output outputtailb [output outputtailc]]` | `X` is innermost `outputtailc`; `Y` is `output`; `Z` is the forwarding procedure and its `output` expression. |
+| `commandtaila -> commandtailb`, final procedure stops; called by `print` | `[5 commandtaila didn't output to print [] []]` | Ordinary command-tail propagation blames outermost `commandtaila`, unlike the `OUTPUT`-tail chain. |
+| `print 1 + directstop` | `[5 directstop didn't output to + [] []]` | Infix `Y` is the operation `+`, not an operand-position description. |
+
+The probes establish the current behavior, including the tail-path
+inconsistency; the working specification above deliberately chooses consistent
+innermost-procedure attribution. Stock/upstream comparison and default-
+argument, macro, and wrapper cases remain untested.
 
 ## Phase 1: Failing-Case Corpus
 
