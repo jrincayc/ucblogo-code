@@ -40,7 +40,9 @@ SETTLE = 1.0             # let wx repaint after the marker
 BASELINE_DIR = os.path.join(os.path.dirname(__file__), "wx-smoke-baseline")
 BASELINE_IMAGES = {
     "text-before-clear.png",
+    "text-after-clear.png",
     "graphics-shapes.png",
+    "graphics-background.png",
     "fileio-roundtrip.png",
     "htmlstring-markup.png",
 }
@@ -55,14 +57,16 @@ print "ready
 setwrite []
 close :marker
 localmake "ackfile word :marker ".ack
+localmake "acknowledged "false
 repeat 1200 [
+if not :acknowledged [
 openread :ackfile
 setread :ackfile
 localmake "acknowledged equalp readword "ready
 setread []
 close :ackfile
-if :acknowledged [stop]
-wait 3
+if not :acknowledged [wait 3]
+]
 ]
 end
 """
