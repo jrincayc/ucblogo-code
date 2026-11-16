@@ -48,6 +48,17 @@
       border: 1px solid var(--theme-control-border);
     }
 
+    .storageSettings {
+      margin: 1em 0;
+      padding-top: 0.75em;
+      border-top: 1px solid var(--theme-control-border);
+    }
+
+    #storageNotice:not(:empty) {
+      padding: 0.5em;
+      border: 1px solid var(--theme-control-border);
+    }
+
     body {
       color: var(--theme-foreground);
       background-color: var(--theme-background);
@@ -461,7 +472,7 @@
         <button type="button" aria-label="Download turtle drawing as SVG" onclick="Module.downloadDrawingClicked(event)">
           Download Drawing
         </button>
-        <button type="button" aria-haspopup="dialog" aria-controls="settings" onclick="document.getElementById('settings').showModal()">
+        <button type="button" aria-haspopup="dialog" aria-controls="settings" onclick="document.getElementById('settings').showModal(); Module.storage.refresh()">
           Settings
         </button>
         <button type="button" aria-haspopup="dialog" aria-controls="helpDialog" onclick="helpUI.open(this)">
@@ -531,6 +542,8 @@
         </g>
       </svg>
     </div>
+
+    <div id="storageNotice" role="status" aria-live="polite" aria-atomic="true"></div>
     </div>
 
     <div class="flex grow" id="logoInputContainer" style="width: 100%; flex: 1 1 0%">
@@ -643,6 +656,15 @@
           <label for="visualBellSelect">Show visual bell indicator</label>
         </li>
       </ul>
+        <section class="storageSettings" aria-labelledby="storageTitle">
+          <h3 id="storageTitle">Browser storage</h3>
+          <p id="storageState" role="status" aria-live="polite" aria-atomic="true">Checking storage status...</p>
+          <p id="storageUsage">Approximate storage usage is unavailable.</p>
+          <p id="storageLastSaved">No completed file save recorded this session.</p>
+          <p id="storageLastError"></p>
+          <button id="requestPersistentStorage" type="button" hidden
+            onclick="Module.storage.requestPersistence()">Request persistent storage</button>
+        </section>
       <button type="button" onclick="document.getElementById('settings').close()">Close settings</button>
       </div>
     </dialog>

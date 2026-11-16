@@ -497,7 +497,7 @@ test('ACC-SET-006 persists Logo and dialog settings across reload', async (t) =>
     await t.expect(initialFontSize).lt(48);
     await t.click(Selector('#appContainer button[aria-controls="settings"]'));
     await setPersistedControls();
-    await t.click(Selector('#settings button'));
+    await t.click(Selector('#settings button').withText('Close settings'));
     await runLogo(t, 'increasefont');
     await t.expect(ClientFunction(() => Module.fontSize)()).eql(initialFontSize + 1);
     const expectedSettings = {
@@ -591,7 +591,7 @@ test('ACC-UI-001 labels controls and manages settings dialog focus', async (t) =
             .contains(document.activeElement),
     }))();
     await t.expect(modalState).eql({ modal: true, focusInside: true });
-    await t.click(Selector('#settings button'));
+    await t.click(Selector('#settings button').withText('Close settings'));
     await t.expect(ClientFunction(() => document.activeElement.textContent.trim())())
         .eql('Settings');
 });

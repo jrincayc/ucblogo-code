@@ -99,7 +99,7 @@ dist_pixmaps_DATA = ucblogo.xpm
 EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  nographics.h obj.h TextEditor.h turtleshape.h wxGlobals.h		\
  wxGraphics.h wxMain.h wxTerminal.h wxCommandHistory.h			\
- wxTurtleGraphics.h xgraphics.h webgraphics.h
+ wxTurtleGraphics.h xgraphics.h webgraphics.h storage-status.js
  
 # # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # # See below; needs to run in build environment.
@@ -208,12 +208,13 @@ help/docs.json: help/index.json
 	@test -f $@ || node scripts/build-help.js help
 
 # Embeds the installed data tree, so stage it with install-data first.
-ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
+ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js storage-status.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
 	$(MAKE) $(AM_MAKEFLAGS) install-data
 	em++  \
 	-o ucblogo.html \
 	$(ucblogo_OBJECTS) \
 	--pre-js web-config.js \
+	--pre-js storage-status.js \
 	--pre-js pre.js \
 	--embed-file $(DESTDIR)$(pkgdatadir)@/share/ucblogo \
 	--embed-file tests \

@@ -1,6 +1,6 @@
 # Project Plan: Web Edition Storage Persistence And Eviction Awareness
 
-Status: Proposed; implementation has not started.
+Status: Implemented; browser and device verification remains pending.
 Date: 2026-11-15
 
 ## Objective
@@ -11,10 +11,29 @@ real storage state, surface write failures instead of logging them, and make
 backup guidance say exactly what each backup path covers.
 
 This plan was split out of Issue 8 of
-[pwa-installability.md](pwa-installability.md). Today nothing in the app calls
-`navigator.storage.persist()`, `persisted()`, or `estimate()`, yet
-[webedition.md](../../webedition.md) (Virtual filesystem) says Logo "must be
-installed as an app to ensure reliable long term data persistence".
+[pwa-installability.md](pwa-installability.md). The implementation now calls
+the Storage API after a successful IDBFS save or an explicit user request, and
+shows its reported state in Settings. Browser-specific behavior still requires
+the manual checks listed in Phase 0.
+
+## Implementation Status
+
+- IDBFS readiness, save, completion, failure, and unavailable-signal states
+   are implemented in `pre.js`.
+- The injected, browser-global-free status and request policy is implemented in
+   `storage-status.js` and covered by Node source tests.
+- Settings UI, failure notices, request cooldown, standalone/install retries,
+   and corrected backup guidance are implemented.
+- The active Emscripten 4.0.5 source confirms `IDBFS.queuePersist` calls
+   `IDBFS.syncfs(mount, false, callback)`, while its completion callback ignores
+   the error argument. Wrapping `IDBFS.syncfs` is therefore required to expose
+   write failures.
+- Desktop Chrome 152 passed the focused Logo `save` and Settings test against
+   fresh artifacts. The runner serves `http://127.0.0.1`, which reported
+   `isSecureContext === false` and no `navigator.storage`; this verified the
+   unknown-API UI path, not browser persistence grants or estimates.
+- Real Chrome profile variations, Firefox prompt behavior, Safari behavior,
+   real eviction, and the throwaway-profile download check remain unverified.
 
 Related plans: [Dropbox backup](dropbox-backup.md) and
 [Local folder backup](local-folder-backup.md) reuse the IDBFS signals and the
@@ -40,13 +59,11 @@ apply to the new UI.
 ## Code facts this plan depends on
 
 - [pre.js](../../pre.js) (`Module.onRuntimeInitialized`) mounts IDBFS at `/d`
-  with `autoPersist: true` and calls `FS.syncfs(true, ...)` whose callback only
-  logs. Nothing signals that the populate finished or failed, and nothing
-  records write failures.
-- Emscripten's `IDBFS.queuePersist` runs on close of a modified file, `mkdir`,
-  `rmdir`, `unlink`, `rename`, and `symlink`; wrapping it gives a precise
-  "saved" signal. Whether errors from the background persist reach any callback
-  must be read from the pinned emsdk's IDBFS source (Phase 0).
+   with `autoPersist: true` and now exposes populate readiness and write status.
+- The active SDK's `IDBFS.queuePersist` runs on close of modified files and
+   filesystem mutations. It calls `IDBFS.syncfs` with a completion callback,
+   but that callback discards errors; `pre.js` wraps the lower-level completion
+   callback to capture them.
 - `Module.downloadSessionClicked` in pre.js runs Logo `save` to
   `/tmp/ucblogo_session.lgo` and downloads that file. That serializes the
   in-memory workspace; it does not export the files stored under `/d`.
@@ -91,6 +108,11 @@ Problem: the populate callback only logs, so nothing can tell when `/d` is
 loaded, that loading failed (for example IndexedDB blocked in a private window),
 or that a background write failed (for example `QuotaExceededError`).
 
+Status: Implemented. Node source tests cover populate success/failure, queued
+saves, sync success/failure, and missing hooks. Desktop Chrome verifies Logo
+`save` and sync completion on fresh Web artifacts. Injected quota failures are
+source-tested; real quota exhaustion is not reproduced.
+
 Plan:
 1. In pre.js, resolve a `Module.storage.ready` promise when the populate
    completes and reject or flag it with the error otherwise. Keep the existing
@@ -112,6 +134,12 @@ tested with an injected failure; real quota exhaustion is not reproduced.
 
 ## Issue 2: Storage status model
 
+Status: Implemented in `storage-status.js`, with a DOM adapter in `pre.js`.
+Node tests cover absent/rejecting APIs, granted state, zero estimates, and
+request events. The TestCafe proxy's HTTP origin does not expose
+`navigator.storage`, so real browser estimates remain pending on a suitable
+secure origin.
+
 Plan:
 1. Add `Module.storage.status()` returning
    `{ api, persisted, usage, quota, populated, lastSaved, lastError }` from
@@ -130,6 +158,10 @@ Validation: source tests with stubbed storage: persisted true or false,
 refresh.
 
 ## Issue 3: When to request persistence
+Status: Implemented and source-tested for no request before save, one ordinary
+automatic request per session, a 30-day denial cooldown, install/standalone
+retries, and explicit requests. Firefox prompt/gesture behavior remains a
+Phase 0 browser check; no automatic request is made at load.
 
 Plan:
 1. Request `persist()` at most once per session, after the first `persisted`
@@ -156,6 +188,11 @@ call after a denial within the cool-down, one more after a simulated
 simulated.
 
 ## Issue 4: Status UI
+Status: Implemented in the existing Settings dialog with a polite status line,
+approximate usage, last completed save, last write error, and an explicit
+request button. Desktop Chrome verifies accessible Settings and IDBFS status;
+alternate API states are covered by injected source tests. A full real-browser
+matrix remains pending.
 
 Plan:
 1. Add a Storage section to the existing Settings dialog in
@@ -181,6 +218,9 @@ text for each state through the stub, and that no live region updates on a
 usage-only refresh.
 
 ## Issue 5: Startup and write failure handling
+Status: Implemented. Populate failures and distinct write errors appear in a
+non-modal live region and in Settings. Source tests inject failures; real
+IndexedDB denial and quota exhaustion remain unverified.
 
 Problem: if IndexedDB is unavailable or blocked, the app runs on an in-memory
 `/d` and the user finds out only when files vanish.
@@ -197,6 +237,9 @@ Validation: browser test with an IDB open failure and a quota failure injected
 through the Issue 1 fakes.
 
 ## Issue 6: Backup guidance matches what exists
+Status: Documentation now describes that Download session serializes Logo's
+workspace and does not export `/d` files. Source checks confirm the code path;
+the planned throwaway-profile download-content browser check is still pending.
 
 Problem: webedition.md tells users "Always back up your data. Use the
 'Download Logo Session' button." That button exports the in-memory workspace as
@@ -219,6 +262,10 @@ in step 1, and a test that a session download includes the Logo workspace
 definitions it claims to.
 
 ## Issue 7: Documentation
+Status: Implemented for the available evidence. Durability claims and backup
+coverage are corrected, Settings states and retry behavior are documented, and
+Safari-specific eviction/install behavior is explicitly left unverified rather
+than repeated as fact.
 
 Plan:
 1. Rewrite the persistence warnings in [webedition.md](../../webedition.md)
@@ -235,8 +282,9 @@ Plan:
 
 ## Phase 0: Spikes
 
-1. Read the pinned emsdk's `IDBFS` source: autoPersist error handling, and
-   whether `queuePersist` can be wrapped from `pre.js`.
+1. **Complete locally:** Read the active emsdk's `IDBFS` source. The active
+   4.0.5 implementation exposes `queuePersist`, but its callback ignores
+   background sync errors, so the app wraps `IDBFS.syncfs` completion instead.
 2. Chrome desktop: `persisted()` in a normal tab, a bookmarked tab, and an
    installed app, before and after calling `persist()`. Record results.
 3. Firefox: prompt behavior with and without a gesture; denied and granted
@@ -244,10 +292,133 @@ Plan:
 4. iPad Safari: tab versus Home Screen app; `persist()` result; `estimate()`
    values. Maintainer-coordinated human checkpoint. Desktop Safari is a stated
    coverage gap.
-5. Session download contents (Issue 6).
+5. Session download contents (Issue 6). Source inspection confirms the handler
+   runs Logo `save` to `/tmp/ucblogo_session.lgo` and downloads that file; the
+   planned throwaway-profile confirmation remains pending.
 
 Exit criteria: documented behavior per browser with sources or recorded
 observations; unknowns carried into the docs as unknowns.
+
+## Production Verification After Deployment
+
+Run this checklist only after the tagged Web Edition deploy workflow succeeds.
+The production site is currently unused and has no user data, so these checks
+may create and clear test data in disposable browser profiles. Reconfirm that
+the site is still unused immediately before testing. Do not use a personal or
+shared browser profile. These checks do not attempt to cause storage eviction
+or fill the browser's storage quota.
+
+### 1. Confirm the deployed release
+
+- Record the release tag, deploy workflow run, published `gh_pages` commit,
+   production URL (including any path prefix), UTC test time, and browser
+   versions.
+- Download the live `ucblogo.html`, `ucblogo.js`, `ucblogo.wasm`, `sw.js`,
+   manifest, linked assets, and the Workbox runtime named by `sw.js`, using
+   cache-busting query strings. Run the staging verifier against the temporary
+   download with the expected release tag. Confirm the bundled JavaScript
+   contains the storage controller and the HTML contains the Storage UI.
+- Record the asset hashes and confirm superseded Workbox runtime filenames
+   return 404. Remove only the temporary downloaded files after verification.
+- Use disposable browser profiles and navigate directly to the production
+   HTTPS URL, not through TestCafe's HTTP proxy; the proxy can change secure-
+   context behavior and hide `navigator.storage`. Clear the production origin's
+   site data in these disposable profiles when a clean first-run state is
+   needed. Do not clear data from any personal or shared profile. Confirm the
+   loaded page and service worker belong to the recorded release before
+   interpreting any result.
+
+### 2. Desktop Chrome production smoke
+
+- In a clean disposable profile, open the production URL directly over HTTPS.
+   Confirm `isSecureContext`, `navigator.storage`, and the app's startup. In
+   **Settings > Browser storage**, check that status, approximate usage/quota,
+   populated state, and last-save state are coherent. Compare with
+   `await Module.storage.status()` and the browser's
+   `await navigator.storage.persisted()` / `await navigator.storage.estimate()`
+   in DevTools. Estimates are approximate; do not require exact values.
+- Before saving, confirm there is no persistence request and no
+   `ucblogo.persist` record in this new profile. Attach listeners to
+   `Module.storage` for `saved`, `persisted`, and `savefailed`, then define a
+   uniquely named temporary Logo procedure and save the workspace to a unique
+   file under `/d`. Confirm the save signals, last-saved time, absence of an
+   error, the `ucblogo.persist` result record, and the current value returned by
+   `navigator.storage.persisted()`.
+- Reload the app, load the unique file, and verify the procedure is present.
+   Close and reopen the disposable profile once and repeat the load check. This
+   verifies ordinary persistence across reload/relaunch, not eviction
+   protection. Remove the temporary file and procedure after the checks.
+- Test both request outcomes where the browser permits it. In Firefox, deny
+   the first request in a disposable profile; verify the denial is recorded,
+   the message is neutral, a later save within cooldown makes no automatic
+   second request, and the explicit Settings button can request again. In
+   Chromium, record the actual silent grant/denial; its decision is heuristic
+   and may not be forceable. A profile that already has persistent storage
+   cannot be made best-effort through the API, so use a separate disposable
+   profile rather than trying to revoke the grant.
+- Test the startup failure presentation in another disposable profile by
+   blocking IndexedDB for the production origin with a supported, reversible
+   browser control, then reloading. Confirm the app remains usable, `/d` is
+   reported unavailable, and the non-modal notice appears. Restore storage
+   access and reload. If the browser has no origin-level control, leave this
+   production check pending; do not modify deployed code to simulate it. Do not
+   simulate quota exhaustion or leave the profile with storage blocked.
+- Repeat the start/save/reload checks in a standalone installation if
+   available. Record whether standalone display mode and `appinstalled` are
+   observed; do not assume every browser emits the install event. Clear only
+   this disposable profile's origin data after recording results.
+
+### 3. Other browsers and devices
+
+- After desktop Chrome passes, repeat the start, status, unique save, and
+   reload/load check in desktop Firefox. Record the permission prompt, its
+   timing and granted/denied result, and complete the denial/cooldown check
+   above if Firefox permits it.
+- Run mobile Chrome emulation as a layout and control-visibility check only;
+   label it as emulation, not real-device persistence coverage.
+- Last, coordinate the maintainer's human iPad Safari checkpoint. Use a fresh
+   disposable test profile/session; clear only the production origin's test data
+   there. Check Safari tab and installed Home Screen app separately where
+   available. Record `persisted()` and `estimate()` results, plus
+   background/resume and relaunch behavior. Do not claim desktop Safari coverage
+   from this check.
+
+### 4. Limits and failure handling
+
+- The site is currently test-only, but still never fill production storage or
+   attempt to trigger real eviction. Block IndexedDB only in a disposable test
+   profile, restore it immediately afterward, and never inject quota errors into
+   a shared profile. Quota/write failures remain covered by local injected tests.
+- A successful reload proves only that the test file survived that reload; it
+   does not prove long-term durability or resistance to eviction. Report browser
+   protection state separately from observed file survival.
+- If live asset validation fails, stop behavioral testing and resolve the
+   deployment/cache mismatch first. If a browser result contradicts the
+   release, verify service-worker control and loaded response hashes before
+   changing code or clearing data outside the disposable profile.
+- Capture the browser/version, release tag, status object, console error,
+   service-worker state, and exact reproduction steps. Do not include private
+   file contents in reports.
+
+### 5. Production test record
+
+```text
+UTC date / tester:
+Production site still unused / no user data confirmed:
+Release tag / deploy run / gh_pages commit:
+Production URL / response asset hashes / staging verifier result:
+Browser + version / OS / profile type (dedicated fresh profile):
+Service-worker controller + release identity:
+Storage API / persisted result / approximate usage and quota:
+First-load prompt absent / save signal / completed save / write error:
+Unique save file survived reload and loaded correctly:
+Explicit request shown / clicked / browser result (or hidden because granted):
+Firefox prompt behavior / mobile emulation result:
+iPad Safari tab / installed app human checkpoint:
+Failures, exclusions, or pending checks:
+Eviction and real quota exhaustion: not tested:
+Cleanup of temporary Logo file/procedure and downloaded assets:
+```
 
 ## Sequencing
 

@@ -3,6 +3,45 @@ const SVG = 'http://www.w3.org/2000/svg';
 Module.onRuntimeInitialized = () => {
     // do not mount if running on node
     if (typeof document === 'undefined') return;
+    Module.storage = Module.storage || new EventTarget();
+    Module.storage.populated = null;
+    Module.storage.lastSaved = null;
+    Module.storage.lastError = null;
+    Module.storage.signalsUnavailable = false;
+    Module.storage.ready = new Promise((resolve) => {
+        Module.storage.resolveReady = resolve;
+    });
+    const emitStorageEvent = (type, detail = {}) => {
+        Module.storage.dispatchEvent(new CustomEvent(type, { detail }));
+    };
+
+    if (typeof IDBFS.queuePersist === 'function' && typeof IDBFS.syncfs === 'function') {
+        const queuePersist = IDBFS.queuePersist;
+        IDBFS.queuePersist = function (...args) {
+            emitStorageEvent('saved', { timestamp: Date.now() });
+            return queuePersist.apply(this, args);
+        };
+
+        const syncfs = IDBFS.syncfs;
+        IDBFS.syncfs = function (mount, populate, callback) {
+            return syncfs.call(this, mount, populate, (error) => {
+                if (!populate) {
+                    if (error) {
+                        Module.storage.lastError = error;
+                        emitStorageEvent('savefailed', { error });
+                    } else {
+                        Module.storage.lastSaved = Date.now();
+                        emitStorageEvent('persisted', { timestamp: Date.now() });
+                    }
+                }
+                callback(error);
+            });
+        };
+    } else {
+        Module.storage.signalsUnavailable = true;
+        emitStorageEvent('signals-unavailable');
+    }
+
     // Mount IDBFS
     FS.mkdir('/d');
     FS.mount(IDBFS, {autoPersist: true}, '/d');
@@ -11,11 +50,119 @@ Module.onRuntimeInitialized = () => {
     // Load existing data from IDBFS (if any)
     FS.syncfs(true, function (err) {
         if (err) {
+            Module.storage.lastError = err;
+            Module.storage.populated = false;
+            Module.storage.resolveReady({ populated: false, error: err });
             console.error("Error syncing from IDBFS:", err);
         } else {
+            Module.storage.populated = true;
+            Module.storage.resolveReady({ populated: true });
             console.log("IDBFS synced (read).");
         }
     });
+
+    const storageApi = typeof navigator === 'undefined' ? null : navigator.storage;
+    const persistenceKey = 'ucblogo.persist';
+    let lastNotifiedError = '';
+    const readPersistenceRecord = () => {
+        try {
+            const record = JSON.parse(localStorage.getItem(persistenceKey) || '{}');
+            return record && typeof record === 'object' && !Array.isArray(record) ? record : {};
+        } catch (error) {
+            return {};
+        }
+    };
+    const displayMode = matchMedia('(display-mode: standalone)');
+    const storageController = createStorageStatusController({
+        storageApi,
+        events: Module.storage,
+        getState: () => ({
+            populated: Module.storage.populated,
+            lastSaved: Module.storage.lastSaved,
+            lastError: Module.storage.lastError,
+        }),
+        getPersistenceRecord: readPersistenceRecord,
+        setPersistenceRecord: (record) => {
+            try {
+                localStorage.setItem(persistenceKey, JSON.stringify(record));
+            } catch (error) {}
+        },
+        onRequestComplete: () => Module.storage.refresh?.(),
+        isStandalone: () => displayMode.matches,
+    });
+    Module.storage.status = storageController.status;
+    const renderStorageStatus = async () => {
+        const status = await Module.storage.status();
+        const state = document.getElementById('storageState');
+        const usage = document.getElementById('storageUsage');
+        const lastSaved = document.getElementById('storageLastSaved');
+        const lastError = document.getElementById('storageLastError');
+        const requestButton = document.getElementById('requestPersistentStorage');
+        if (!state) return status;
+        let message = status.populated === false
+            ? 'Browser storage is unavailable; files are lost when this tab closes.'
+            : status.persisted === true
+                ? 'Saved files are protected by the browser.'
+                : status.persisted === false
+                    ? 'The browser may delete saved files if the device runs low on space.'
+                    : 'Browser storage protection status is unknown.';
+        const persistenceRecord = readPersistenceRecord();
+        if (status.persisted === false && persistenceRecord.result === false)
+            message += ' The browser declined persistent storage; backups are the safeguard.';
+        if (state.textContent !== message) state.textContent = message;
+        usage.textContent = status.usage !== null && status.quota !== null
+            ? `Approximate browser storage: ${formatStorageBytes(status.usage)} of ${formatStorageBytes(status.quota)}.`
+            : 'Approximate storage usage is unavailable.';
+        lastSaved.textContent = status.lastSaved
+            ? `Last saved: ${new Date(status.lastSaved).toLocaleString()}.`
+            : 'No completed file save recorded this session.';
+        lastError.textContent = status.lastError
+            ? `Last write error: ${String(status.lastError.message || status.lastError)}` : '';
+        requestButton.hidden = status.persisted !== false || !storageApi ||
+            typeof storageApi.persist !== 'function';
+        return status;
+    };
+    const formatStorageBytes = (bytes) => {
+        if (bytes < 1024) return `${bytes} bytes`;
+        const units = ['KB', 'MB', 'GB', 'TB'];
+        let value = bytes / 1024;
+        let unit = 0;
+        while (value >= 1024 && unit < units.length - 1) {
+            value /= 1024;
+            unit++;
+        }
+        return `${value.toFixed(1)} ${units[unit]}`;
+    };
+    Module.storage.refresh = renderStorageStatus;
+    Module.storage.requestPersistence = () =>
+        storageController.requestPersistence('button', true).then(renderStorageStatus);
+    Module.storage.addEventListener('persisted', renderStorageStatus);
+    Module.storage.addEventListener('savefailed', (event) => {
+        const message = String(event.detail.error.message || event.detail.error);
+        if (message !== lastNotifiedError) {
+            lastNotifiedError = message;
+            const notice = document.getElementById('storageNotice');
+            if (notice) notice.textContent = 'A saved file could not be written. Review Storage in Settings and keep independent backups.';
+        }
+        renderStorageStatus();
+    });
+    Module.storage.ready.then(renderStorageStatus);
+    Module.storage.ready.then((result) => {
+        if (!result.populated) {
+            const notice = document.getElementById('storageNotice');
+            if (notice) notice.textContent = 'Browser storage could not be opened. Files saved in this tab may be lost when it closes.';
+        }
+    });
+    if (Module.storage.signalsUnavailable) {
+        const notice = document.getElementById('storageNotice');
+        if (notice) notice.textContent = 'Saved-file write status is unavailable. Check Storage in Settings and keep independent backups.';
+    }
+    window.addEventListener('appinstalled', () => {
+        Module.storage.dispatchEvent(new CustomEvent('appinstalled'));
+        renderStorageStatus();
+    });
+    if (displayMode.addEventListener) displayMode.addEventListener('change', renderStorageStatus);
+    renderStorageStatus();
 }
 
 // staticInit() {

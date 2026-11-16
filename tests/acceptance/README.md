@@ -2,7 +2,7 @@
 
 Functional browser coverage is consolidated in TestCafe. The shared runner discovers all `*.testcafe.js` fixtures plus [ipad-keyboard.test.js](ipad-keyboard.test.js); there is no second Selenium assertion pass. Source checks and runner/grader unit tests use Node's test runner. Lighthouse remains a separate Mocha audit, not part of functional acceptance.
 
-The implemented inventory is **82 desktop functional cases**, or **71 mobile/remote cases** after capability filtering excludes eleven resize tests. These are case counts, not a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, baseline history, and exclusions.
+The implemented inventory is **83 desktop functional cases**, or **72 mobile/remote cases** after capability filtering excludes eleven resize tests. These are case counts, not a claim that every supported device has passed. Real Safari on the maintainer's iPad is **pending human signoff**; desktop Safari is **not tested locally**. See [COVERAGE.md](COVERAGE.md) for exact destinations, baseline history, and exclusions.
 
 ## Prerequisites And Freshness
 
@@ -99,7 +99,7 @@ TESTCAFE_WATCHDOG_MS=900000 \
 npm run test:ipad:remote
 ```
 
-TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the eleven resize-dependent cases: **71 functional cases remain**, including Help, the Logo suite, settings, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept.
+ TestCafe's proxy fetches the app URL **from the host** and serves it to the device through the two proxy ports. The examples intentionally use a LAN app URL so direct manual access and proxy access refer to the same build. The device must reach the proxy hostname and both ports. Default remote capabilities exclude only the eleven resize-dependent cases: **72 functional cases remain**, including Help, the Logo suite, settings, bridge, autocomplete, errors, startup, simulated viewport checks, and screen-mode checks at the device's actual viewport. This is the complete eligible suite, not a two-test iPad proof of concept.
 
 Automated key simulation and in-page suggestion `.click()` calls are not native iOS keyboard or touch evidence. Synthetic Visual Viewport property changes and dispatched orientation events are not physical rotation. After automation, use another dedicated, fresh app session for these **human checkpoints**, in Safari and (where installed) the standalone PWA:
 

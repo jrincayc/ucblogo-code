@@ -265,18 +265,31 @@ be possible to do so with WASI. `shell` works normally in node.js.
 
 ## Virtual filesystem
 
-Web apps cannot access the host filesystem so UCB Logo includes a persistent
-internal virtual filesystem. This allows file-related words to function
-otherwise normally and allows users to save and load their programs.
+Web apps cannot access the host filesystem, so UCB Logo stores files in an
+internal virtual filesystem backed by browser storage when it is available.
+Use **Settings > Browser storage** to see whether the browser granted
+persistent storage, an approximate usage estimate, the last completed save,
+and any write error. Estimates may be rounded by the browser. You can request
+persistent storage there, or after saving a file the app may request it
+automatically. A granted status means the browser has agreed to protect the
+site's data from automatic eviction under storage pressure; it is not a backup
+and does not prevent the user or browser from clearing site data.
 
-Warning: Logo must be installed as an app to ensure reliable long term data
-persistence.
+The status is **persistent** when the browser grants the request, **best-effort**
+when it does not, and **unknown** when the browser's status API is absent or
+fails. **Unavailable** means the virtual filesystem could not open browser
+storage. Best-effort saved files may be removed by the browser. If storage is
+unavailable or a write fails, files saved in the current tab may be lost when
+it closes. After a denied request, automatic requests wait 30 days; the explicit
+Settings button can request again immediately. Installation can affect a
+browser's decision, but does not guarantee persistence. Safari's eviction and
+installation behavior has not been verified for this application.
 
-Warning: Browsers may evict saved Logo files. Chrome/Edge/FF use an LRU policy
-and only start to evict data when the user's storage volume fills up. Safari
-always evicts data after 7 days of non-usage.
-
-Always back up your data. Use the "Download Logo Session" button.
+The **Download session** button downloads the current Logo workspace through
+Logo's `save` command. It does not export files stored in the virtual
+filesystem, such as separately uploaded programs or data files. The Upload
+Logo Files button imports individual files; there is not yet a whole-folder
+export. Keep separate backups of those files.
 
 Future releases may integrate with cloud storage, e.g. Google Drive.
 
@@ -314,11 +327,13 @@ UCB Logo can run in recent versions of most popular browsers including Chrome, E
 
 ## As a progressive web app
 
-UCB Logo can also be installed as an app on most mobile devices by selecting
-"Add to Home" from your mobile browser menu.
-
-Installed as an app, UCB Logo features full-offline capabilities and persistant
-storage on it's virtual filesystem.
+UCB Logo can also be installed as an app on supported devices by selecting
+"Add to Home" from the browser menu. The app includes offline support. On
+Chromium browsers, installation may improve the chance that persistent storage
+is granted, but it is not a guarantee. Firefox may ask for permission. Safari's
+behavior for tabs and installed apps is not verified here. Check **Settings >
+Browser storage** for the current browser's reported state; best-effort
+storage can still be evicted, so keep independent backups.
 
 ## Help dialog
 

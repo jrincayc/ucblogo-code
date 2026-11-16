@@ -3,6 +3,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const { describe, it } = require('node:test');
+const { createStorageStatusController } = require('../../storage-status.js');
 
 const repositoryRoot = path.resolve(__dirname, '../..');
 
@@ -85,6 +86,153 @@ describe('startup error reporting', () => {
         assert.match(panel.textContent, /async startup failed/);
         context.window.onerror('Script error.', '', 0, 0, null);
         assert.equal(traces[2][1], 'Script error.');
+    });
+});
+
+describe('IDBFS persistence signals', () => {
+    function initializeStorage({
+        queuePersist = true, populateError = null, persistError = null,
+        storageApi = {}, persistenceRecord = null,
+    } = {}) {
+        const source = fs.readFileSync(path.join(repositoryRoot, 'pre.js'), 'utf8');
+        const initialization = source.match(/Module\.onRuntimeInitialized = \(\) => \{[\s\S]*?\n\}/);
+        assert.ok(initialization, 'runtime initialization source');
+        const listeners = new Map();
+        const events = [];
+        const storage = {
+            addEventListener(name, listener) {
+                listeners.set(name, [...(listeners.get(name) || []), listener]);
+            },
+            dispatchEvent(event) {
+                events.push(event);
+                for (const listener of listeners.get(event.type) || []) listener(event);
+            },
+        };
+        const mount = {};
+        const IDBFS = {};
+        IDBFS.syncfs = (_mount, populate, callback) => callback(populate ? populateError : persistError);
+        if (queuePersist)
+            IDBFS.queuePersist = (persistMount) => IDBFS.syncfs(persistMount, false, () => {});
+        const FS = {
+            mkdir() {},
+            mount() {},
+            chdir() {},
+            syncfs(populate, callback) { IDBFS.syncfs(mount, populate, callback); },
+        };
+        class CustomEvent {
+            constructor(type, options = {}) { this.type = type; this.detail = options.detail; }
+        }
+        const Module = { storage };
+        vm.runInNewContext(initialization[0], {
+            Module, document: { getElementById: () => null }, FS, IDBFS, CustomEvent,
+            navigator: { storage: storageApi },
+            createStorageStatusController,
+            localStorage: {
+                getItem: () => persistenceRecord ? JSON.stringify(persistenceRecord) : null,
+                setItem() {},
+            },
+            window: { addEventListener() {} },
+            matchMedia: () => ({ matches: false, addEventListener() {} }),
+            console: { error() {}, log() {} },
+        });
+        Module.onRuntimeInitialized();
+        return { Module, IDBFS, events };
+    }
+
+    it('resolves ready after populate and reports population failures', async () => {
+        const ready = initializeStorage();
+        await ready.Module.storage.ready;
+        assert.equal(ready.Module.storage.populated, true);
+
+        const failed = initializeStorage({ populateError: new Error('blocked') });
+        await failed.Module.storage.ready;
+        assert.equal(failed.Module.storage.populated, false);
+        assert.equal(failed.Module.storage.lastError.message, 'blocked');
+    });
+
+    it('reports background persist success and failure', () => {
+        const success = initializeStorage();
+        success.IDBFS.queuePersist({});
+        assert.ok(success.events.some((event) => event.type === 'saved'));
+        assert.ok(success.events.some((event) => event.type === 'persisted'));
+
+        const failure = initializeStorage({ persistError: new Error('quota') });
+        failure.IDBFS.queuePersist({});
+        const event = failure.events.find((item) => item.type === 'savefailed');
+        assert.equal(event.detail.error.message, 'quota');
+        assert.equal(failure.Module.storage.lastError.message, 'quota');
+    });
+
+    it('reports unavailable persistence signals when queuePersist is missing', async () => {
+        const result = initializeStorage({ queuePersist: false });
+        await result.Module.storage.ready;
+        assert.ok(result.events.some((event) => event.type === 'signals-unavailable'));
+    });
+
+    it('reports approximate estimates and tolerates missing or rejecting APIs', async () => {
+        const available = initializeStorage({ storageApi: {
+            persisted: async () => false,
+            estimate: async () => ({ usage: 2048, quota: 8192 }),
+        } });
+        const status = await available.Module.storage.status();
+        assert.deepEqual(
+            { api: status.api, persisted: status.persisted, usage: status.usage, quota: status.quota },
+            { api: true, persisted: false, usage: 2048, quota: 8192 },
+        );
+
+        const unavailable = initializeStorage({ storageApi: {
+            persisted: async () => { throw new Error('unsupported'); },
+            estimate: async () => { throw new Error('unsupported'); },
+        } });
+        const unknown = await unavailable.Module.storage.status();
+        assert.equal(unknown.persisted, null);
+        assert.equal(unknown.usage, null);
+        assert.equal(unknown.quota, null);
+    });
+
+    it('requests persistence after a successful save, observes cooldown, and allows an explicit request', async () => {
+        let calls = 0;
+        const storageApi = {
+            persisted: async () => false,
+            estimate: async () => ({}),
+            persist: async () => { calls++; return false; },
+        };
+        const saved = initializeStorage({ storageApi });
+        assert.equal(calls, 0);
+        saved.IDBFS.queuePersist({});
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        assert.equal(calls, 1);
+        saved.IDBFS.queuePersist({});
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        assert.equal(calls, 1);
+
+        const cooledDown = initializeStorage({
+            storageApi,
+            persistenceRecord: { result: false, time: Date.now() },
+        });
+        cooledDown.IDBFS.queuePersist({});
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        assert.equal(calls, 1);
+        await cooledDown.Module.storage.requestPersistence();
+        assert.equal(calls, 2);
+    });
+});
+
+describe('storage durability guidance', () => {
+    it('describes the Storage status and the actual session-download coverage', () => {
+        const shell = fs.readFileSync(path.join(repositoryRoot, 'shell.html'), 'utf8');
+        const runtime = fs.readFileSync(path.join(repositoryRoot, 'pre.js'), 'utf8');
+        const docs = fs.readFileSync(path.join(repositoryRoot, 'webedition.md'), 'utf8');
+        const download = runtime.match(/Module\.downloadSessionClicked = async \(event\) => \{[\s\S]*?\n\};/);
+        assert.ok(download, 'session download handler');
+        assert.match(download[0], /runLogo\(`save/);
+        assert.match(download[0], /FS\.readFile\('\/tmp\/ucblogo_session\.lgo'\)/);
+        assert.doesNotMatch(download[0], /\/d/);
+        assert.match(shell, /id="storageState" role="status" aria-live="polite"/);
+        assert.match(shell, /id="requestPersistentStorage"/);
+        assert.match(docs, /does not export files stored in the virtual/);
+        assert.match(docs, /Safari's eviction and/);
+        assert.doesNotMatch(docs, /ensure reliable long term data persistence/);
     });
 });
 
