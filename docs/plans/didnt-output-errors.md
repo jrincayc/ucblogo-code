@@ -1,7 +1,7 @@
 # "X didn't output to Y" Error Attribution Plan
 
-Status: Phase 0 working specification recorded; edge-case corpus and Brian
-Harvey confirmation remain before implementation.
+Status: Phase 0 working specification recorded and matched by four probes;
+edge-case corpus and Brian Harvey confirmation remain before implementation.
 Date: 2026-11-15
 
 ## Objective
@@ -100,15 +100,18 @@ the stack. (`begin_apply` is the `apply` entry point, not procedure entry.)
 
 H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
 
-- H1: Tail-call attribution is inconsistent by path. The probed ordinary
-  command-tail chain ending in `stop` blames the outermost procedure; the
-  probed chain through tail `OUTPUT` blames the innermost callee (cleared at
-  the transition). Fall-off chains and `last_call` primitive fallbacks remain
-  to be tested.
-- H3: `lstop` and `loutput` use `fun` as `X`; the direct probe shows that
-  `fun` is the containing user procedure for `stop` in a procedure body
-  (`directstop`), not necessarily the primitive name. The
-  `after_maybeoutput` path still needs its own probe.
+- H1: Attribution along value-forwarding chains is inconsistent. Not yet
+  shown: the `OUTPUT`-tail probe blames the innermost callee (cleared at the
+  transition), and the `commandtaila` probe correctly blames `commandtaila`,
+  because falling off the end with `OUTPUT_OK` pushes `fall_off_want_output`
+  and calls `commandtailb` as a command, not as a value-forwarding tail call.
+  Still to test: a callee reached through `output` that falls off its end, and
+  `last_call` primitive fallbacks.
+- H3: `lstop` and `loutput` use `fun` as `X`. That is the `stop`/`output`
+  primitive only when they are reached as primitives; from
+  `after_maybeoutput` it is whatever the evaluated expression left in `fun`.
+  Untested: the `directstop` probe's `stop` was handled by the
+  `STOP_PRIORITY` branch of `eval_sequence`, not by `lstop`.
 - H4: Error text differs between interpreted contexts that should behave alike:
   `catch`, `run`/`runresult`, `apply`/`foreach`/`map` templates, macros and
   `.macro` expansion, default-value expressions, `withobject` (`OBJECTS` builds
@@ -131,16 +134,24 @@ H1 and H3-H8 remain falsifiable hypotheses; H2 is resolved in Phase 0 below.
 
 1. Use this working specification for corpus expectations; confirm it with
    Brian Harvey before coding:
-   - `X` is the innermost user procedure whose invocation fails to return a
-     value, independent of how tail calls propagate. Thus `to f stop end` used
-     as an operation blames `f`, and a failing `a -> b -> c` chain blames `c`.
+   - `X` is the innermost procedure in the value-forwarding chain (callees
+     whose value becomes their caller's value through `output` or
+     `.maybeoutput`) that fails to return a value. Thus `to f stop end` used
+     as an operation blames `f`; `a: output b`, `b: output c`, `c: stop`
+     blames `c`; `a: b` (falls off the end after calling `b` as a command)
+     blames `a`; and `a: output b`, `b: c`, `c: stop` blames `b`.
+   - Open, to settle from corpus results: `X` for a primitive command used as
+     an operand (`print fd 10`; proposed: the primitive name), an anonymous
+     template (`apply [[x] [stop]] [1]`; proposed: the template text, as the
+     `%p` format prints it), and macros (which today report `ERR_MACRO`
+     rather than `DIDNT_OUTPUT` in some paths).
    - `Y` is the immediate operation requiring the missing value. At a tail
      `OUTPUT`, it is `output`; for `1 + f`, it is `+`, not an operand position.
    - `Z` is the user procedure and source expression containing that immediate
      consumer, where one exists. A top-level consumer has no user procedure or
      source line.
    Confirmation is still required before implementation; in particular,
-   confirm innermost-procedure attribution rather than the outermost call.
+   confirm innermost attribution within the value-forwarding chain.
 2. Record current behavior on this tree and, if available, on stock UCBLogo
    6.x and the upstream tree, as a baseline. Do not treat any of them as
    correct. Record the current `tests/test.lg` pass count at the same time
@@ -152,19 +163,48 @@ skipped and `Tests.File.LiteralDribble` was reported as its known XFAIL. The
 runner also emitted Node-only `localStorage.getItem` diagnostics after the
 Logo suite completed; it did not grade them as a runtime crash.
 
-Four temporary direct-run probes captured the current `ERROR` values:
+Four direct-run probes captured the current `ERROR` values. Source (run as
+`node ./ucblogo-node.js FILE.lg`; see the harness constraints in Phase 1):
+
+```logo
+to directstop
+  stop
+end
+to outputtaila
+  output outputtailb
+end
+to outputtailb
+  output outputtailc
+end
+to outputtailc
+  stop
+end
+to commandtaila
+  commandtailb
+end
+to commandtailb
+  stop
+end
+catch "error [print directstop]
+show error
+catch "error [print outputtaila]
+show error
+catch "error [print commandtaila]
+show error
+catch "error [print 1 + directstop]
+show error
+```
 
 | Snippet shape | Current `ERROR` output | Observation |
 | --- | --- | --- |
 | `to directstop` with `stop`; `print directstop` | `[5 directstop didn't output to print [] []]` | `X` is the user procedure, not `stop`; `Y` is `print`; no user-procedure `Z` at top level. |
 | `outputtaila -> outputtailb -> outputtailc`, each forwarding with `output`; final procedure stops; called by `print` | `[5 outputtailc didn't output to output outputtailb [output outputtailc]]` | `X` is innermost `outputtailc`; `Y` is `output`; `Z` is the forwarding procedure and its `output` expression. |
-| `commandtaila -> commandtailb`, final procedure stops; called by `print` | `[5 commandtaila didn't output to print [] []]` | Ordinary command-tail propagation blames outermost `commandtaila`, unlike the `OUTPUT`-tail chain. |
+| `commandtaila -> commandtailb`, final procedure stops; called by `print` | `[5 commandtaila didn't output to print [] []]` | `commandtaila` falls off its end after calling `commandtailb` as a command; blaming `commandtaila` matches the working specification. |
 | `print 1 + directstop` | `[5 directstop didn't output to + [] []]` | Infix `Y` is the operation `+`, not an operand-position description. |
 
-The probes establish the current behavior, including the tail-path
-inconsistency; the working specification above deliberately chooses consistent
-innermost-procedure attribution. Stock/upstream comparison and default-
-argument, macro, and wrapper cases remain untested.
+All four probes match the working specification. Stock/upstream comparison,
+the `output`-then-fall-off chain, and default-argument, macro, template, and
+wrapper cases remain untested.
 
 ## Phase 1: Failing-Case Corpus
 
@@ -178,8 +218,9 @@ Build a table-driven set of Logo snippets crossing:
 | Depth | direct; one tail call; chain of 3 tail calls; tail call through `if`/`ifelse`/`run`/`catch` |
 | Context | toplevel, inside procedure, inside `pause`, with `erract`/`catch "error` active, `erract` that runs code and returns no value (H6) |
 
-Include named rows for H7 ("F didn't output to F") and H8 (no error at the
-failing site). Mark `withobject` rows as `OBJECTS`-only.
+Include named rows for H7 ("F didn't output to F"), H8 (no error at the
+failing site), and an `output`-then-fall-off chain (`a: output b`, `b: c`,
+`c: stop`; expected `X` = `b`). Mark `withobject` rows as `OBJECTS`-only.
 
 For each row record `ERROR` output (`[5 |X didn't output to Y| ufun line]`;
 parse `X`/`Y` from item 2) and the printed message.
@@ -188,8 +229,11 @@ Harness constraints:
 
 - `RunTests` in [tests/UnitTests.lg](../../tests/UnitTests.lg) runs every test
   inside `RUN`, `CATCH "Error`, and `FOREACH`, which are themselves H4
-  contexts. Toplevel, `pause`, and printed-message rows need a separate
-  stdin-driven run of `ucblogo-node.js` that compares transcript text.
+  contexts. Toplevel and printed-message rows need a separate direct run.
+- Direct runs must pass a `.lg` file argument to `ucblogo-node.js`; piping
+  commands to its stdin fails with `ReferenceError: document is not defined`.
+  Whether `pause`/`co` and `erract` rows can run under Node at all is
+  unknown; otherwise they need the browser or a native build.
 - The harness reports only Ok, Failed, or Error, and the acceptance grader
   allows exactly one hard-coded XFAIL (`Tests.File.LiteralDribble`). There is
   no expected-failure mechanism. Write characterization tests that assert
@@ -260,11 +304,12 @@ Candidates:
 
 1. Minimal: a single `expect` record `(consumer, consumer-ufun, consumer-line)`
    (today's `didnt_get_output` list) plus a single `blame` register holding the
-   procedure name chosen by the Phase 0 decision (innermost: overwritten at
-   compound procedure entry unconditionally; outermost: set at argument start
-   and never touched by tail transitions), and at primitive entry for
-   `stop`/`output`. Remove `didnt_output_name` and the `last_call` use in
-   `DIDNT_OUTPUT`. This is constant size under tail calls.
+   innermost procedure in the value-forwarding chain: set at compound
+   procedure entry when the procedure's value is wanted (the `OUTPUT_OK`
+   cases) and left alone when a callee is invoked as a command, so `stop` or
+   `output` in a body blames the containing procedure. Remove
+   `didnt_output_name` and the `last_call` use in `DIDNT_OUTPUT`. This is
+   constant size under tail calls.
 2. Separate the two roles of `didnt_get_output`: a small integer or flag for
    `val_status` computation, and the `expect` record used only for messages.
 3. Defer message construction: record only the failing site and register
@@ -308,7 +353,8 @@ for simplification.
 
 ## Deliverables
 
-1. Specification paragraphs and decisions on the Phase 0 questions.
+1. The Phase 0 working specification, its open sub-questions resolved, and
+   Brian Harvey's confirmation.
 2. Corpus and baseline table (current output vs. expected).
 3. Root-cause classification from Phase 3.
 4. Chosen design with the tail-call and GC invariants checked.
