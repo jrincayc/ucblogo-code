@@ -16,6 +16,15 @@
 
 <!-- Co-authored by GitHub Copilot. Scope: attribution-policy updates. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. Elapsed time was not recorded for the original update. -->
 
+# Releases and GitHub
+
+- "Last release" means the highest `pNN` tag (the deploy trigger in `.github/workflows/deploy-web.yaml`), not `preview-*` or `version_*` tags. List tags and confirm the tag or PR number before summarizing; say when a tag is not an ancestor of HEAD.
+- Run `gh` in a terminal for CI logs, runs, PRs, and issues instead of scraping web pages or APIs.
+
+# Lessons Learned
+
+- After non-trivial debugging or test work, add concise lessons to the relevant skill reference, not to this file, and commit locally per the Commit Policy.
+
 # Task Scope
 
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
@@ -44,6 +53,7 @@
 
 # Browser Test Priority
 
+- Never use the VS Code embedded/integrated browser. Use external Chrome or headless runs, and show screenshots when the user asks to see UI.
 - Default iteration uses focused desktop Chrome checks. For mobile-first design features or mobile-specific issues, use mobile Chrome, Chrome device emulation, or the affected mobile browser as the primary iteration target, according to what best exercises the feature or reproduces the issue.
 - For broader validation, the default browser-test order is desktop Chrome, mobile Chrome (or Chrome device emulation), Firefox, then mobile Safari on the maintainer's iPad. Follow explicit user scope and prioritize the affected browser when diagnosing a browser-specific failure; do not run the whole matrix after every edit. Report emulation as emulation, not real-device coverage.
 - Mobile Safari testing requires a human-in-the-loop session on the maintainer's iPad with the current no-Mac setup. Because device connection and interaction require coordination, do it last in broader validation, after the automated checks pass. Coordinate with the maintainer rather than assuming an unattended run; test earlier when specifically diagnosing a mobile Safari issue or explicitly requested.
@@ -58,6 +68,7 @@
 
 # Multi-Target Test Runs
 
+- wx tests exist only to detect regressions caused by Web Edition changes. Pre-existing wx failures and a janky harness are out of scope; take screenshot baselines from the CI environment, not a local machine.
 - When asked to run all tests across the main targets, delegate wxWidgets, Unix terminal, WebAssembly browser, and Node/WebAssembly validation to separate subagents and run them in parallel.
 - Give each target its own detached worktree or isolated build directory. Native and Emscripten configurations rewrite shared generated build files and object outputs; do not reconfigure a shared checkout concurrently or reuse objects across targets.
 - Use `.github/workflows/ci.yaml` as the test inventory and command source of truth. Include each relevant job and grading step, report skipped or unavailable coverage, and do not install missing dependencies without user approval.
