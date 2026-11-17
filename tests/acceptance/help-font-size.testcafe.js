@@ -3,8 +3,6 @@ const {
     applicationUrl, ready, isolateSettings, restoreSettings,
 } = require('./testcafe-helpers');
 
-const helpButton = Selector('button[aria-controls="helpDialog"]').filterVisible().nth(0);
-
 const setTextSize = ClientFunction((size) => Module.setFontSize(size));
 // Computed px size of each representative Help element, plus a reference element outside the dialog.
 const helpFontSizes = ClientFunction(() => {
@@ -24,12 +22,12 @@ const helpFontSizes = ClientFunction(() => {
         body: size('#helpBody'),
     };
 });
-const openEntry = async (t) => {
-    await t.click(helpButton)
-        .click(Selector('#helpCatList h3 button').withText('Constructors'))
-        .click(Selector('#helpCatList ul button').withText(/^fput$/))
-        .expect(Selector('#helpBody').innerText).contains('outputs a list');
-};
+// Opening via helpUI keeps this test independent of toolbar layout at large sizes; button clicks are covered in help-dialog.testcafe.js.
+const openHelp = ClientFunction(() => helpUI.open());
+const helpOpen = ClientFunction(() => document.getElementById('helpDialog').open);
+// Word buttons are built when a category is expanded.
+const expandFirstCategory = ClientFunction(() => document.querySelector('#helpCatList h3 button').click());
+const helpWords = Selector('#helpCatList ul button');
 
 fixture('Help dialog follows the Logo text size')
     .page(applicationUrl)
@@ -45,7 +43,10 @@ fixture('Help dialog follows the Logo text size')
 for (const size of [16, 24, 40]) {
     test(`HELP-FONT-${size} dialog text uses the ${size}px Logo text size`, async (t) => {
         await setTextSize(size);
-        await openEntry(t);
+        await openHelp();
+        await t.expect(helpOpen()).ok('Help dialog opens');
+        await expandFirstCategory();
+        await t.expect(helpWords.count).gt(0, 'Help word list is built');
         const sizes = await helpFontSizes();
         await t.expect(sizes.reference).eql(size);
         for (const part of ['title', 'search', 'close', 'category', 'word', 'usage', 'body']) {

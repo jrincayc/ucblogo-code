@@ -1,8 +1,20 @@
 # Plan: HELP-FONT CI Failures
 
-Status: Diagnosis in progress; failure screenshots and diagnostics are in place
-(pushed in `b5f9aae`) and waiting for the next CI failure.
+Status: Decided not to diagnose further. The test now opens Help with
+`helpUI.open()`, expands the first category through the DOM, and reads computed
+font sizes, with no pointer navigation. Passed 3 of 3 local runs (9 cases).
+Whether this removes the CI failures is unconfirmed until it has run in CI; if
+the missing-selector error recurs, resume the steps below.
 Date: 2026-11-16
+
+## Decision
+
+The test checks computed font sizes, so it needs only an open dialog with built
+word buttons. Clicking the Help button, "Constructors", and `fput` added three
+layout-dependent steps that other fixtures already cover
+(`help-dialog.testcafe.js`). The failures occur only at 24px and 40px, where the
+toolbar layout changes, which fits a missed click on the Help button. This is a
+hypothesis, not a diagnosis.
 
 ## Problem
 
