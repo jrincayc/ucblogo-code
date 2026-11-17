@@ -3,10 +3,24 @@
 - At the beginning of each task, identify and load applicable skills automatically.
 - In the initial update, name the skills you are using. If none apply, say so. Only claim to use skills you actually load.
 
+# Copilot Attribution
+
+- Attribute GitHub Copilot as a co-author on every text artifact or response generated or materially revised for the user, including code, comments, documentation, configuration, and prose. Use a format appropriate to the medium, such as file metadata or a comment, an attribution footer, or a co-author trailer; do not change executable behavior just to add attribution.
+- Include the active model name and reasoning-effort setting when available to the agent. Never guess either value; omit details that are unavailable.
+
 # Task Scope
 
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
 - When the user says stop, stop work immediately. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
+
+# Subagent Defaults
+
+- Unless the user specifies otherwise, select GPT-6 Luna for subagent work. Pass the model explicitly when the tool supports model selection. If that model is unavailable, report the limitation instead of silently substituting another model.
+- Always include this language in every subagent prompt: "Use the maximum reasoning effort available. Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting." This is a prompt-level request, not a guarantee of an underlying reasoning-effort setting.
+- Instruct every subagent to prefix every shell command with `date;`, inspect the returned timestamp, and track elapsed time from those timestamps.
+- Instruct every subagent to give the parent agent (superagent) a brief status report approximately every five minutes, or at the earliest opportunity after a blocking operation. Include elapsed time, progress, blockers, and the next step. If the tool cannot deliver interim messages, include timestamped progress notes in the final return and disclose that live reporting was unavailable; do not claim the parent received updates while the call was running.
+- Instruct every subagent to stop trying to fix an issue after three unsuccessful fix-and-check attempts. Return the attempted fixes, validation results, remaining blocker, and any useful next-step recommendation to the parent agent instead of starting a fourth attempt on the same issue.
+- Repeat these requirements in delegated prompts so they do not depend on subagents inheriting the parent conversation or repository instructions.
 
 # Commit Policy
 

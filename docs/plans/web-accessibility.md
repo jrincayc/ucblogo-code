@@ -261,3 +261,24 @@ coverage pass, and user testing and remaining gaps are documented.
    agree on the first input/output regression and human acceptance scenario.
 4. Prototype one simple drawing description and one color/pattern mapping in
    parallel; document tradeoffs before expanding either implementation.
+
+
+# Logo special speech features
+1. Speek characters as entered. Optional. Disabled by default.
+2. Speek text in logo input after user stops typing for a short period and after autocomplete suggestions have been spoken. Optional, disabled by default.
+3. Spoken output should include punctuation (semantic interpretation?)
+4. Spoken output should use semantic prompts, not "question mark"
+5. Spoken output should include autocomplete suggestions, after a short delay. Just speak the word name.
+
+# help dialog
+help dialog should have screen reader features
+
+# settings dialog
+settings dialog should have screen reader features
+
+# turtle graphics
+it's unclear how turtle graphics can be spoken
+
+# terminal help command
+terminal help command shoudl work well
+with screen reader
