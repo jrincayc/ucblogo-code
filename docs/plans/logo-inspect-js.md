@@ -139,48 +139,125 @@ and the Asyncify stack, not `regs`, so `registers()` and `frames()` can show
 transient state. `status().safe` reports the conditions and every result
 includes the `status` flags it was read under.
 
+## Test-Driven Development
+
+No implementation work begins until the full suite below is written, run, and
+committed in a failing state, and you have reviewed it. Tests define the API
+contract; implementation phases only turn named groups of them green.
+
+### Rules
+
+- Red first: before implementation, run every new test and record that each
+  fails for the intended reason (missing `logo-inspect.js`, no
+  `Module.logoInspect`, `logo_gc_debug` still present), not from a typo or
+  harness error. Save the red run output path in the commit message.
+- Tests are not weakened to pass. A change to an expected value needs a stated
+  reason in the commit message. A bug found later gets a failing regression
+  test before its fix.
+- No silent skips. Real-runtime tests fail when the build artifact is missing;
+  they are only excluded from `test:source`, not skipped inside a run.
+- Commit the red suite as its own commit (intermediate commits need not pass).
+
+### Test layers
+
+1. **Contract tests** (Node, no Wasm; `tests/acceptance/logo-inspect.test.js`,
+   added to `npm run test:source`). Written against `createLogoInspector` with
+   injected memory and symbols:
+   - every method exists, is synchronous, and returns the `{ok, schema}` or
+     `{ok:false, error}` shape;
+   - every result round-trips through `JSON.parse(JSON.stringify(x))` with
+     deep equality and contains no `BigInt`, `undefined`, `NaN`, `Infinity`,
+     `Map`, or function;
+   - bad input (unknown name, `null`, non-number address, negative, huge) never
+     throws and returns a coded error;
+   - the value-model table above, limits (`depth`, `count`, `bytes`) with the
+     `truncated` forms, cycle and sharing as `ref`, and `text` rendering;
+   - address safety: out-of-segment, misaligned, and `NTFREE` addresses;
+   - layout self-check failure returns `layout-mismatch` from every method;
+   - the heap view is re-read on every call (swap the backing buffer between
+     calls to simulate memory growth);
+   - read-only: the synthetic memory is frozen or hashed before and after
+     every call.
+2. **Synthetic heap builder** (`tests/acceptance/helpers/logo-heap.js`, test
+   code only): builds segments, nodes, words, lists, arrays, `CASEOBJ` object
+   cells, and `hash_table` buckets in a `Uint8Array`. To avoid testing the
+   layout against itself, it takes offsets from an independently written
+   `tests/fixtures/logo-layout.json`; a source test asserts that fixture, the
+   `LAYOUT` table in `logo-inspect.js`, and the `_Static_assert` values in
+   `mem.c` all agree.
+3. **Golden fixtures** (`tests/fixtures/logo-inspect/*.json`): expected JSON
+   for each value kind, a procedure, a variable, a property list, and a
+   registers sample, reviewed by hand once and then frozen.
+4. **Source guard tests** (same file): `logo-inspect.js` contains no
+   `Module._` calls, `ccall`, `cwrap`, `run_evaluator`, or heap writes; allowed
+   `Module._*` references are an explicit data-symbol whitelist; no
+   `logo_gc_debug` remains in `mem.c`, `Makefile.am`, `pre.js`, or `eval.c`;
+   `Module.logoGC`, if kept, is only an alias; `pre.js` does not define the
+   inspector.
+5. **Real-runtime oracle tests** (Node/Wasm; new
+   `tests/acceptance/logo-inspect-node.test.js` in `npm run test:built`,
+   which fails if `ucblogo-node.js` is missing or older than its sources). A
+   fixed Logo program defines procedures, variables, lists, arrays, words with
+   special characters and non-ASCII text, a property list, buried and traced
+   items, then calls the inspector through `runjs` and prints the JSON between
+   marker lines. The test parses it and compares against Logo's own answers:
+   `contents`/`buried`, `arity`, `text`, `thing`, `plist`, `procedurep`,
+   `primitivep`. The Logo output is the oracle, so a mistake in the synthetic
+   builder cannot hide a real layout error. Includes a forced-GC case that
+   checks results stay valid and `NTFREE` addresses are reported, and a case
+   where the Wasm memory has grown.
+6. **Browser tests** (TestCafe, existing web suite): define a procedure,
+   variable, list, and array; call `Module.logoInspect` while idle and while
+   blocked in `readword`; assert JSON content, `status().safe`, and no
+   console or page errors; one case from `runjs` mid-evaluation. Verify that no
+   Wasm export is invoked by wrapping the exports object in the test page and
+   counting calls during the inspector call (expected: zero).
+7. **Build checks:** both targets link with the new export lists and
+   `HEAPU8`; the `_Static_assert` block compiles; the ASAN build's `eval.c`
+   hook returns JSON for a poisoned node.
+
+### Test ownership by phase
+
+| Phase | Turns green |
+| --- | --- |
+| 1 Layout and memory | layer 2 agreement test, layer 1 layout, address-safety, read-only, heap-refresh, `status`/`node` cases, build checks |
+| 2 Value model | layer 1 value-model and limit cases, layer 3 value fixtures, layer 5 value, `workspace`, `procedure`, `variable`, `plist`, GC and memory-growth cases |
+| 3 Registers and frames | `registers`/`frames` fixtures and layer 5/6 mid-evaluation cases, written after the study step defines the schema (see below) |
+| 4 Removal | layer 4 source guards, ASAN build check |
+| 5 Logo access | cases added only if the phase is approved |
+
+Phase 3 schema is unknown until `eval.c` is studied, so its tests are written
+and committed red at the start of phase 3, before its implementation.
+
 ## Phases
 
+0. **Test suite (red).** Write layers 1 to 6 for phases 1, 2, and 4 plus the
+   build checks; commit red with the failure evidence. Review with the
+   maintainer before continuing.
 1. **Layout and memory access.** Add the `LAYOUT` table and static asserts,
    heap-view helper, data-symbol exports, and `status()`/`node()`. Confirm
-   offsets on a real wasm32 build, including `sizeof(NODE)`.
+   offsets on a real wasm32 build, including `sizeof(NODE)`. Make the phase 1
+   tests green.
 2. **Logo value model.** Read words (confirm parity-bit/`clearparity` and
    UTF-8 decoding against `intern.c`, `parse.c`, and `print.c`), numbers,
    lists, arrays, `text`, `graph`, `nodes`. Walk `hash_table` for
-   `workspace()`, `procedure()`, `variable()`, `plist()`.
+   `workspace()`, `procedure()`, `variable()`, `plist()`. Make the phase 2
+   tests green.
 3. **Registers and frames.** Study the `eval.c` save/restore stack discipline
-   and `var_stack` layout before defining the `registers()` and `frames()`
-   schema; document what is exact and what is transient.
+   and `var_stack` layout, document what is exact and what is transient, write
+   the red tests for the resulting schema, then implement.
 4. **Removal.** Delete the C debug exports and `Module.logoGC` body, switch the
    `eval.c` ASAN hook, update docs. Build both targets with all export lists.
+   Make the layer 4 guards green.
 5. **Optional Logo access.** A `runjs` wrapper can call the inspector and
    queue the JSON string with `Module.FS_runjs_getChar_buffer_append_str`. It
-   is read-only, so reentrancy is not an issue. Decide after phase 2.
+   is read-only, so reentrancy is not an issue. Decide after phase 2; tests
+   first if approved.
 
-Commit after each phase per the commit policy.
-
-## Validation
-
-- Node unit tests (added to `npm run test:source`, new
-  `tests/acceptance/logo-inspect.test.js`): synthetic heap builder covering
-  words, ints, floats, nested lists, arrays, shared and cyclic structures,
-  limits, freed nodes, misaligned and out-of-range addresses, layout mismatch,
-  and `JSON.parse(JSON.stringify(x))` round-trip equality for every method.
-- Source guard test: `logo-inspect.js` contains no `Module._` calls, `ccall`,
-  `cwrap`, `run_evaluator`, or heap writes; allowed `Module._*` references are
-  an explicit data-symbol whitelist. Also assert no `logo_gc_debug` remains in
-  `mem.c` or `Makefile.am`.
-- Node/Wasm: build `ucblogo-node.js`, run `tests/test.lg` (65 Ok baseline), and
-  a small script that defines procedures and variables via Logo and compares
-  `workspace()`/`procedure()`/`variable()` to `po`/`pots` output.
-- Browser: one TestCafe case in the existing web suite that defines a
-  procedure, variable, list, and array, then calls `Module.logoInspect` while
-  idle and while blocked in `readword`, asserting JSON content and no browser
-  errors. Mid-evaluation via `runjs` in a separate case.
-- ASAN build: confirm the `eval.c` hook now returns JSON for a poisoned node
-  instead of calling C.
-- Stale-artifact check before trusting results: rebuild both targets, restart
-  the runtime, bypass the service worker.
+Commit after each phase per the commit policy. Run the full affected suite
+(`test:source`, Node/Wasm, focused TestCafe) after each phase, and the
+stale-artifact check (rebuild both targets, restart the runtime, bypass the
+service worker) before trusting any real-runtime result.
 
 ## Risks and Open Decisions
 
