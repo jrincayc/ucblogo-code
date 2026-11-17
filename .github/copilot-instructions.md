@@ -55,3 +55,12 @@
 - Stale-artifact checks apply to all development activities, especially interpreter development. Before trusting a result, verify that the executable, loaded Logo definitions, generated assets, server root/URL, and running browser or process correspond to the intended source and build configuration, as applicable. A build on disk does not update an already-running runtime.
 - When behavior contradicts the source, rule out stale state: disable HTTP caching and bypass or disable the service worker for local diagnosis, then reload the page or restart the affected runtime. If uncertainty remains, restart task-owned Chrome or use a fresh test profile and perform a full rebuild before rerunning the same check. Get permission before restarting the user's browser; preserve unsaved Logo work and persistent files/settings rather than clearing all site data.
 - See the web-testing skill's [stale-artifact checklist](skills/ucb-logo-web-testing/references/stale-artifacts.md) for browser-cache, service-worker, and build details. These diagnostic steps are not permission to change production caching or run builds during instruction-only tasks.
+
+# Multi-Target Test Runs
+
+- When asked to run all tests across the main targets, delegate wxWidgets, Unix terminal, WebAssembly browser, and Node/WebAssembly validation to separate subagents and run them in parallel.
+- Give each target its own detached worktree or isolated build directory. Native and Emscripten configurations rewrite shared generated build files and object outputs; do not reconfigure a shared checkout concurrently or reuse objects across targets.
+- Use `.github/workflows/ci.yaml` as the test inventory and command source of truth. Include each relevant job and grading step, report skipped or unavailable coverage, and do not install missing dependencies without user approval.
+- Treat wx unit and smoke tests, both Unix terminal configurations and PTY/literal-output checks, Web build and browser/source/audit checks, and a separately built Node/Wasm suite as distinct coverage. Avoid duplicating target work unless a build dependency requires it.
+
+<!-- Co-authored by GitHub Copilot. Scope: multi-target test workflow guidance. -->
