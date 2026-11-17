@@ -196,7 +196,7 @@ test('ACC-LOGO-INSPECT-005 returns nested and empty lists', async (t) => {
         items: [
             { t: 'word', s: 'a' },
             { t: 'list', items: [{ t: 'word', s: 'b' }, { t: 'word', s: 'c' }] },
-            { t: 'int', v: 3 },
+            { t: 'word', s: '3' },
         ],
     });
     await t.expect(list.text).eql('[a [b c] 3]');
@@ -212,7 +212,7 @@ test('ACC-LOGO-INSPECT-006 returns a zero-origin array', async (t) => {
     await t.expect(valueShape(value)).eql({
         t: 'array',
         origin: 0,
-        items: [{ t: 'int', v: 1 }, { t: 'int', v: 2 }, { t: 'int', v: 3 }],
+        items: [{ t: 'word', s: '1' }, { t: 'word', s: '2' }, { t: 'word', s: '3' }],
     });
 });
 
@@ -389,14 +389,14 @@ test('ACC-LOGO-INSPECT-017 preserves values after garbage collection', async (t)
             items: [
                 { t: 'word', s: 'a' },
                 { t: 'list', items: [{ t: 'word', s: 'b' }, { t: 'word', s: 'c' }] },
-                { t: 'int', v: 3 },
+                { t: 'word', s: '3' },
             ],
         },
         e: { t: 'list', items: [] },
         a: {
             t: 'array',
             origin: 0,
-            items: [{ t: 'int', v: 1 }, { t: 'int', v: 2 }, { t: 'int', v: 3 }],
+            items: [{ t: 'word', s: '1' }, { t: 'word', s: '2' }, { t: 'word', s: '3' }],
         },
         listText: '[a [b c] 3]',
     });
@@ -473,10 +473,8 @@ test('ACC-LOGO-INSPECT-021 expands object and nested-list NODE roles', async (t)
     await t.expect(root.node_type.name).eql('CONS');
 
     const canonical = findRole(root, 'canonical') || root.canonical;
-    const canonicalString = canonical.union.ncar;
-    await t.expect(canonical.node_type.name).eql('CASEOBJ');
-    await t.expect(canonicalString.node_type.name).eql('STRING');
-    await t.expect(canonicalString.union.text).eql('l');
+    await t.expect(canonical.node_type.name).eql('STRING');
+    await t.expect(canonical.union.text).eql('l');
 
     const first = findRole(root, 'valnode') || root.valnode;
     const ncar = (node) => node.union.ncar;
@@ -501,8 +499,8 @@ test('ACC-LOGO-INSPECT-021 expands object and nested-list NODE roles', async (t)
     await t.expect(a.union.text).eql('a');
     await t.expect(b.union.text).eql('b');
     await t.expect(c.union.text).eql('c');
-    await t.expect(three.node_type.name).eql('INTT');
-    await t.expect(three.union.nint).eql(3);
+    await t.expect(three.node_type.name).eql('STRING');
+    await t.expect(three.union.text).eql('3');
 });
 
 test('ACC-LOGO-INSPECT-022 terminates cyclic NODE trees with a ref', async (t) => {
@@ -557,7 +555,9 @@ test('ACC-LOGO-INSPECT-025 decodes escaped spaces from NODE bytes', async (t) =>
     await expectSuccess(t, result);
 
     const valueNode = findRole(root, 'valnode') || root.valnode;
-    await t.expect(valueNode.node_type.name).eql('STRING');
-    await t.expect(valueNode.union.text).eql('a b');
-    await t.expect(valueNode.union.strbytes).eql('610362');
+    const stringNode = valueNode.union.ncar;
+    await t.expect(valueNode.node_type.name).eql('CASEOBJ');
+    await t.expect(stringNode.node_type.name).eql('BACKSLASH_STRING');
+    await t.expect(stringNode.union.text).eql('a b');
+    await t.expect(stringNode.union.strbytes).eql('612062');
 });

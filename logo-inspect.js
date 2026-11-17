@@ -2,6 +2,10 @@
 // Model: GPT-6 Luna; reasoning setting unavailable (maximum effort requested).
 // Task wall-clock through 2026-11-17T18:32:52Z: 21m 02s.
 // Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available.
+// Co-authored by GitHub Copilot. Scope: Phase 2 Logo inspector implementation.
+// Model: GPT-6 Luna (delegated); maximum reasoning effort requested, actual setting unavailable.
+// Task wall-clock through 2026-11-17T19:51:29Z: 24m 29s.
+// Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available.
 'use strict';
 
 const LAYOUT = Object.freeze({
@@ -130,6 +134,19 @@ const LAYOUT = Object.freeze({
             caselist: 5,
         },
     },
+});
+
+const OBJECT_FLAGS = Object.freeze({
+    PROC_BURIED: 0o1,
+    VAL_BURIED: 0o2,
+    PLIST_BURIED: 0o4,
+    PROC_TRACED: 0o10,
+    VAL_TRACED: 0o20,
+    PLIST_TRACED: 0o40,
+    PROC_STEPPED: 0o100,
+    VAL_STEPPED: 0o200,
+    PLIST_STEPPED: 0o400,
+    PROC_MACRO: 0o1000,
 });
 
 function createLogoInspector({ memory, symbols, layout } = {}) {
@@ -366,11 +383,11 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         return cachedSpecialChars;
     }
 
-    function decodeLogoBytes(pointer, length) {
+    function decodeLogoBytes(pointer, length, maximumBytes = 65536) {
         if (!isWasmAddress(pointer) || !Number.isSafeInteger(length) || length < 0 ||
             pointer + length > heapByteLength())
             fail('memory-error', 'A Logo string has invalid bounds.');
-        const renderedLength = Math.min(length, 65536);
+        const renderedLength = Math.min(length, Math.max(0, maximumBytes));
         const bytes = currentView('HEAPU8').subarray(pointer, pointer + renderedLength);
         const decoded = decodeUtf8(bytes);
         const specialChars = readSpecialChars();
@@ -388,14 +405,14 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         return { text, strbytes: hex, truncated: renderedLength < length };
     }
 
-    function readStringNode(address, segments, code = 'memory-error') {
+    function readStringNode(address, segments, code = 'memory-error', maximumBytes = 65536) {
         const nodeType = nodeTypeAt(address, segments, code);
         if ((nodeType & layout.node.flags.NT_STRING) === 0)
             fail(code, 'A CASEOBJ canonical name is not a string NODE.');
         const unionAddress = address + layout.node.fields.union;
         const pointer = readU32(unionAddress + layout.node.union.nstring.nstringPtr);
         const length = readI32(unionAddress + layout.node.union.nstring.nstringLen);
-        const decoded = decodeLogoBytes(pointer, length);
+        const decoded = decodeLogoBytes(pointer, length, maximumBytes);
         return { nodeType, pointer, length, ...decoded };
     }
 
@@ -479,16 +496,28 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         }
     }
 
-    function publicNode(address) {
+    function readArrayFields(address) {
+        const unionAddress = address + layout.node.fields.union;
+        const dim = readI32(unionAddress + layout.node.union.narray.dim);
+        const origin = readI32(unionAddress + layout.node.union.narray.origin);
+        const data = readU32(unionAddress + layout.node.union.narray.data);
+        const byteLength = dim * layout.pointerSize;
+        if (!Number.isSafeInteger(dim) || dim < 0 || !Number.isSafeInteger(byteLength))
+            fail('memory-error', 'An ARRAY has an invalid dimension.');
+        if (dim > 0 && data === 0)
+            fail('memory-error', 'An ARRAY with elements has no backing data pointer.');
+        checkRange(data, byteLength, layout.pointerSize);
+        const elements = [];
+        for (let index = 0; index < dim; index += 1)
+            elements.push(readU32(data + index * layout.pointerSize));
+        return { dim, origin, data, elements };
+    }
+
+    function readNodeData(address, segments, maximumStringBytes = 65536) {
         if (!isWasmAddress(address) || address === 0)
             fail('bad-address', 'NODE address must be a nonzero wasm32 address.');
-        if (address % LAYOUT.node.alignment !== 0)
+        if (address % layout.node.alignment !== 0)
             fail('misaligned', 'NODE address must be 8-byte aligned.');
-
-        const layoutCheck = ensureLayout();
-        if (!layoutCheck.ok) return errorResult('layout-mismatch', layoutCheck.message);
-
-        const segments = getSegments();
         const location = findNodeLocation(address, segments);
         if (!location) fail('bad-address', 'Address is outside all NODE segments.');
         if (location.misaligned)
@@ -528,14 +557,9 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
                 nprocname: readU32(unionAddress + unionLayout.nmethod.procname),
             };
         } else if (nodeType === layout.node.types.ARRAY) {
-            union = {
-                view: 'narray',
-                dim: readI32(unionAddress + unionLayout.narray.dim),
-                origin: readI32(unionAddress + unionLayout.narray.origin),
-                data: readU32(unionAddress + unionLayout.narray.data),
-            };
+            union = { view: 'narray', ...readArrayFields(address) };
         } else if ((nodeType & layout.node.flags.NT_STRING) !== 0) {
-            const string = readStringNode(address, segments);
+            const string = readStringNode(address, segments, 'memory-error', maximumStringBytes);
             const stringHead = readU32(unionAddress + unionLayout.nstring.nstringHead);
             let refcnt = null;
             if (stringHead !== 0) {
@@ -585,9 +609,7 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         let bytes = '';
         for (const byte of nodeBytes) bytes += byte.toString(16).padStart(2, '0');
 
-        return {
-            ok: true,
-            schema: 1,
+        const result = {
             addr: address,
             segment: { addr: location.segment.addr, index: location.index },
             node_type: {
@@ -606,6 +628,19 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
             words,
             bytes,
         };
+        if (nodeType === layout.node.types.NTFREE) result.freed = true;
+        return result;
+    }
+
+    function publicNode(address) {
+        if (!isWasmAddress(address) || address === 0)
+            fail('bad-address', 'NODE address must be a nonzero wasm32 address.');
+        if (address % layout.node.alignment !== 0)
+            fail('misaligned', 'NODE address must be 8-byte aligned.');
+
+        const layoutCheck = ensureLayout();
+        if (!layoutCheck.ok) return errorResult('layout-mismatch', layoutCheck.message);
+        return { ok: true, schema: 1, ...readNodeData(address, getSegments()) };
     }
 
     function readCanonicalName(object, segments) {
@@ -617,14 +652,45 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         return readStringNode(canonical, segments).text;
     }
 
-    function findObjectValue(name, segments) {
+    function consCar(address, segments, message = 'A Logo list cell is not a CONS NODE.') {
+        if (nodeTypeAt(address, segments) !== layout.node.types.CONS)
+            fail('memory-error', message);
+        return readU32(address + layout.node.fields.union + layout.node.union.ncons.ncar);
+    }
+
+    function consCdr(address, segments, message = 'A Logo list cell is not a CONS NODE.') {
+        if (nodeTypeAt(address, segments) !== layout.node.types.CONS)
+            fail('memory-error', message);
+        return readU32(address + layout.node.fields.union + layout.node.union.ncons.ncdr);
+    }
+
+    function readObjectCells(object, segments) {
+        const values = [];
+        let cell = object;
+        for (let index = 0; index < 5; index += 1) {
+            values.push(consCar(cell, segments, 'The object-cell list is incomplete.'));
+            cell = consCdr(cell, segments, 'The object-cell list is incomplete.');
+        }
+        if (cell !== 0 && nodeTypeAt(cell, segments) !== layout.node.types.CONS)
+            fail('memory-error', 'The object case-list pointer is not a CONS NODE.');
+        return {
+            object,
+            canonical: values[layout.object.cells.canonical],
+            procnode: values[layout.object.cells.procnode],
+            valnode: values[layout.object.cells.valnode],
+            plist: values[layout.object.cells.plist],
+            obflags: values[layout.object.cells.obflags],
+            caselist: cell,
+        };
+    }
+
+    function walkObjects(segments, callback) {
         const hashAddress = symbolAddress('hash_table');
         const byteLength = heapByteLength();
         if (hashAddress % 4 !== 0 ||
             hashAddress + layout.hashLength * layout.pointerSize > byteLength)
             fail('memory-error', 'The hash_table is outside the current Wasm heap.');
 
-        const requestedName = name.toLowerCase();
         const visitedEntries = new Set();
         const maximumSteps = segments.reduce((total, segment) => total + segment.size, 0);
         let steps = 0;
@@ -641,27 +707,553 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
                 );
                 if (nodeTypeAt(object, segments) !== layout.node.types.CONS)
                     fail('memory-error', 'A hash bucket does not contain an object cell.');
-                if (readCanonicalName(object, segments).toLowerCase() === requestedName) {
-                    let valueCell = object;
-                    for (let index = 0; index < layout.object.cells.valnode; index += 1) {
-                        if (nodeTypeAt(valueCell, segments) !== layout.node.types.CONS)
-                            fail('memory-error', 'The object-cell list ended before its value cell.');
-                        valueCell = readU32(
-                            valueCell + layout.node.fields.union + layout.node.union.ncons.ncdr,
-                        );
-                    }
-                    if (nodeTypeAt(valueCell, segments) !== layout.node.types.CONS)
-                        fail('memory-error', 'The object value cell is not a CONS NODE.');
-                    return readU32(
-                        valueCell + layout.node.fields.union + layout.node.union.ncons.ncar,
-                    );
-                }
+                const record = {
+                    ...readObjectCells(object, segments),
+                    name: readCanonicalName(object, segments),
+                };
+                if (callback(record)) return record;
                 entry = readU32(
                     entry + layout.node.fields.union + layout.node.union.ncons.ncdr,
                 );
             }
         }
         return null;
+    }
+
+    function findObject(name, segments) {
+        const requestedName = name.toLowerCase();
+        return walkObjects(segments, (object) => object.name.toLowerCase() === requestedName);
+    }
+
+    function findObjectByAddress(address, segments) {
+        return walkObjects(segments, (object) => object.object === address);
+    }
+
+    function findObjectValue(name, segments) {
+        const object = findObject(name, segments);
+        return object === null ? null : object.valnode;
+    }
+
+    function traversalLimits(options) {
+        if (options === undefined || options === null) options = {};
+        if (typeof options !== 'object' || Array.isArray(options))
+            fail('bad-options', 'Inspection options must be an object.');
+
+        const limits = { depth: 8, count: 1000, bytes: 65536 };
+        const maximums = { depth: 256, count: 100000, bytes: 16 * 1024 * 1024 };
+        for (const key of Object.keys(limits)) {
+            if (options[key] === undefined) continue;
+            if (!Number.isSafeInteger(options[key]) || options[key] < 0 ||
+                options[key] > maximums[key])
+                fail('bad-options', `${key} must be a nonnegative bounded integer.`);
+            limits[key] = options[key];
+        }
+        limits.roles = options.roles !== false;
+        return limits;
+    }
+
+    function readListItems(address, segments, maximum = 100000) {
+        const items = [];
+        const visited = new Set();
+        let cell = address;
+        while (cell !== 0) {
+            const type = nodeTypeAt(cell, segments);
+            if (type === layout.node.types.PNIL) break;
+            if (type !== layout.node.types.CONS)
+                fail('memory-error', 'A Logo list has a non-list tail.');
+            if (visited.has(cell)) fail('memory-error', 'A Logo list is cyclic.');
+            if (items.length >= maximum)
+                fail('limit', 'A Logo list exceeds the inspection limit.');
+            visited.add(cell);
+            items.push(consCar(cell, segments));
+            cell = consCdr(cell, segments);
+        }
+        return items;
+    }
+
+    function printableWord(text, nodeType) {
+        if ((nodeType & layout.node.flags.NT_VBAR) !== 0 || text.length === 0 ||
+            /[\s\[\]{}|]/u.test(text) || text.charAt(0) === '"' ||
+            text.charAt(0) === ':')
+            return `|${text.replace(/\|/g, '\\|')}|`;
+        return text;
+    }
+
+    function decodedValueText(value) {
+        if (value.t === 'word') return value.text;
+        if (value.t === 'int') return String(value.v);
+        if (value.t === 'float')
+            return value.v === null ? value.repr : String(value.v);
+        if (value.t === 'list') return value.text;
+        return null;
+    }
+
+    function decodeValue(address, depth, state, segments) {
+        if (depth >= state.limits.depth)
+            return { t: 'truncated', reason: 'depth' };
+        if (address === 0)
+            return { t: 'list', items: [], addr: 0, text: '[]' };
+        if (!isWasmAddress(address))
+            fail('bad-address', 'Logo value address must be a wasm32 address.');
+
+        const location = findNodeLocation(address, segments);
+        if (!location) fail('bad-address', 'Logo value address is outside all NODE segments.');
+        if (location.misaligned)
+            fail('misaligned', 'Logo value address is not aligned to the NODE stride.');
+        const nodeType = nodeTypeAt(address, segments);
+        if (nodeType === layout.node.types.NTFREE)
+            fail('freed-node', 'Logo value points to a freed NODE.');
+        if (state.visited.has(address)) return { t: 'ref', addr: address };
+        if (state.count >= state.limits.count)
+            return { t: 'truncated', reason: 'count' };
+        state.visited.add(address);
+        state.count += 1;
+
+        const unionAddress = address + layout.node.fields.union;
+        if (nodeType === layout.node.types.INTT) {
+            return {
+                t: 'int',
+                v: readI32(unionAddress + layout.node.union.nint.value),
+                addr: address,
+            };
+        }
+        if (nodeType === layout.node.types.FLOATT) {
+            const value = readF64(unionAddress + layout.node.union.nfloat.value);
+            return Number.isFinite(value)
+                ? { t: 'float', v: value, addr: address }
+                : {
+                    t: 'float',
+                    v: null,
+                    repr: Number.isNaN(value) ? 'nan' : value < 0 ? '-inf' : 'inf',
+                    addr: address,
+                };
+        }
+        if ((nodeType & layout.node.flags.NT_STRING) !== 0) {
+            const string = readStringNode(address, segments, 'memory-error', state.bytesRemaining);
+            state.bytesRemaining -= string.strbytes.length / 2;
+            const value = { t: 'word', s: string.text, addr: address };
+            if (!string.truncated)
+                value.text = printableWord(string.text, nodeType);
+            else
+                value.truncated = true;
+            return value;
+        }
+        if (nodeType === layout.node.types.CASEOBJ) {
+            const stringAddress = readU32(unionAddress + layout.node.union.ncons.ncar);
+            const string = readStringNode(
+                stringAddress, segments, 'memory-error', state.bytesRemaining,
+            );
+            state.bytesRemaining -= string.strbytes.length / 2;
+            const value = { t: 'word', s: string.text, addr: address };
+            if (!string.truncated)
+                value.text = printableWord(string.text, string.nodeType);
+            else
+                value.truncated = true;
+            return value;
+        }
+        if (nodeType === layout.node.types.PUNBOUND)
+            return { t: 'unbound', addr: address };
+        if (nodeType === layout.node.types.PNIL)
+            return { t: 'list', items: [], addr: address, text: '[]' };
+        if (nodeType === layout.node.types.CONS) {
+            const result = { t: 'list', items: [], addr: address };
+            let cell = address;
+            let complete = true;
+            while (cell !== 0) {
+                const cellType = nodeTypeAt(cell, segments);
+                if (cellType === layout.node.types.PNIL) break;
+                if (cellType !== layout.node.types.CONS)
+                    fail('memory-error', 'A Logo list has a non-list tail.');
+                if (cell !== address) {
+                    if (state.visited.has(cell)) {
+                        result.items.push({ t: 'ref', addr: cell });
+                        complete = false;
+                        break;
+                    }
+                    if (state.count >= state.limits.count) {
+                        result.items.push({ t: 'truncated', reason: 'count' });
+                        complete = false;
+                        break;
+                    }
+                    state.visited.add(cell);
+                    state.count += 1;
+                }
+
+                const item = decodeValue(consCar(cell, segments), depth + 1, state, segments);
+                result.items.push(item);
+                if (item.t === 'truncated') {
+                    complete = false;
+                    break;
+                }
+                const next = consCdr(cell, segments);
+                if (next === 0) break;
+                const nextType = nodeTypeAt(next, segments);
+                if (nextType === layout.node.types.PNIL) break;
+                if (nextType !== layout.node.types.CONS)
+                    fail('memory-error', 'A Logo list has a non-list tail.');
+                if (state.visited.has(next)) {
+                    result.items.push({ t: 'ref', addr: next });
+                    complete = false;
+                    break;
+                }
+                if (state.count >= state.limits.count) {
+                    result.items.push({ t: 'truncated', reason: 'count' });
+                    complete = false;
+                    break;
+                }
+                cell = next;
+            }
+            const itemTexts = result.items.map(decodedValueText);
+            if (complete && itemTexts.every((text) => typeof text === 'string'))
+                result.text = `[${itemTexts.join(' ')}]`;
+            return result;
+        }
+        if (nodeType === layout.node.types.ARRAY) {
+            const array = readArrayFields(address);
+            const result = { t: 'array', origin: array.origin, items: [], addr: address };
+            for (const element of array.elements) {
+                const item = decodeValue(element, depth + 1, state, segments);
+                result.items.push(item);
+                if (item.t === 'truncated') break;
+            }
+            return result;
+        }
+        fail('unsupported-type', `Logo NODE type ${typeName(nodeType) || 'unknown'} is not a value.`);
+    }
+
+    function valueFromAddress(address, options, segments) {
+        const limits = traversalLimits(options);
+        return decodeValue(address, 0, {
+            limits,
+            visited: new Set(),
+            count: 0,
+            bytesRemaining: limits.bytes,
+        }, segments);
+    }
+
+    function readCaseObjectName(address, segments) {
+        if (nodeTypeAt(address, segments) !== layout.node.types.CASEOBJ)
+            fail('memory-error', 'A procedure formal is not a CASEOBJ NODE.');
+        const stringAddress = readU32(address + layout.node.fields.union +
+            layout.node.union.ncons.ncar);
+        return readStringNode(stringAddress, segments).text;
+    }
+
+    function formatNodeText(address, segments, path = new Set(), depth = 0) {
+        if (address === 0) return '[]';
+        if (depth > 64) return '...';
+        const type = nodeTypeAt(address, segments);
+        if (type === layout.node.types.NTFREE)
+            fail('freed-node', 'Procedure text points to a freed NODE.');
+        if (path.has(address)) return '...';
+        path.add(address);
+        let text;
+        if ((type & layout.node.flags.NT_STRING) !== 0) {
+            const string = readStringNode(address, segments);
+            text = string.text.startsWith(':') &&
+                (type & layout.node.flags.NT_VBAR) === 0
+                ? string.text : printableWord(string.text, type);
+        } else if (type === layout.node.types.INTT) {
+            text = String(readI32(address + layout.node.fields.union +
+                layout.node.union.nint.value));
+        } else if (type === layout.node.types.FLOATT) {
+            const value = readF64(address + layout.node.fields.union +
+                layout.node.union.nfloat.value);
+            text = Number.isFinite(value)
+                ? String(value) : Number.isNaN(value) ? 'nan' : value < 0 ? '-inf' : 'inf';
+        } else if (type === layout.node.types.CASEOBJ) {
+            text = readCaseObjectName(address, segments);
+        } else if (type === layout.node.types.QUOTE) {
+            const child = readU32(address + layout.node.fields.union +
+                layout.node.union.ncons.ncar);
+            text = `"${formatNodeText(child, segments, path, depth + 1)}`;
+        } else if (type === layout.node.types.COLON) {
+            const child = readU32(address + layout.node.fields.union +
+                layout.node.union.ncons.ncar);
+            text = `:${formatNodeText(child, segments, path, depth + 1)}`;
+        } else if (type === layout.node.types.PNIL) {
+            text = '[]';
+        } else if (type === layout.node.types.CONS) {
+            const items = readListItems(address, segments, 10000);
+            text = `[${items.map((item) =>
+                formatNodeText(item, segments, path, depth + 1)).join(' ')}]`;
+        } else {
+            text = `<${typeName(type) || 'NODE'}>`;
+        }
+        path.delete(address);
+        return text;
+    }
+
+    function formatNodeLine(address, segments) {
+        if (address === 0) return '';
+        if (nodeTypeAt(address, segments) !== layout.node.types.CONS)
+            return formatNodeText(address, segments);
+        return readListItems(address, segments, 10000)
+            .map((item) => formatNodeText(item, segments)).join(' ');
+    }
+
+    function formalInfo(address, segments) {
+        const type = nodeTypeAt(address, segments);
+        if (type === layout.node.types.INTT)
+            return { name: null, source: formatNodeText(address, segments) };
+        if (type === layout.node.types.CASEOBJ) {
+            const name = readCaseObjectName(address, segments);
+            return { name, source: `:${name}` };
+        }
+        if (type === layout.node.types.CONS) {
+            const parts = readListItems(address, segments, 1000);
+            if (parts.length === 0) return { name: null, source: '[]' };
+            const firstType = nodeTypeAt(parts[0], segments);
+            const name = firstType === layout.node.types.CASEOBJ
+                ? readCaseObjectName(parts[0], segments)
+                : ((firstType & layout.node.flags.NT_STRING) !== 0
+                    ? readStringNode(parts[0], segments).text : null);
+            const defaults = parts.slice(1).map((part) => formatNodeText(part, segments));
+            const sourceParts = [name === null ? '' : `:${name}`, ...defaults].filter(Boolean);
+            return { name, source: `[${sourceParts.join(' ')}]` };
+        }
+        fail('memory-error', 'A procedure formal has an invalid NODE type.');
+    }
+
+    function readProcedureLayout(address, segments) {
+        if (nodeTypeAt(address, segments) !== layout.node.types.CONS)
+            fail('memory-error', 'A user procedure node is not a CONS NODE.');
+        const text = consCar(address, segments, 'A user procedure has no text cell.');
+        const bodyWordsCell = consCdr(address, segments, 'A user procedure has no body-words cell.');
+        const minArgsCell = consCdr(bodyWordsCell, segments, 'A user procedure has no minargs cell.');
+        const defaultArgsCell = consCdr(minArgsCell, segments,
+            'A user procedure has no default-args cell.');
+        const maxArgsCell = consCdr(defaultArgsCell, segments,
+            'A user procedure has no maxargs cell.');
+        return {
+            text,
+            formals: consCar(text, segments, 'A user procedure text cell is invalid.'),
+            body: consCdr(text, segments, 'A user procedure text cell is invalid.'),
+            bodyWords: consCar(bodyWordsCell, segments),
+            minArgs: consCar(minArgsCell, segments),
+            defaultArgs: consCar(defaultArgsCell, segments),
+            maxArgs: consCar(maxArgsCell, segments),
+        };
+    }
+
+    function readIntegerNode(address, description, segments) {
+        if (nodeTypeAt(address, segments) !== layout.node.types.INTT)
+            fail('memory-error', `${description} is not an INTT NODE.`);
+        return readI32(address + layout.node.fields.union + layout.node.union.nint.value);
+    }
+
+    function readProcedureArity(address, type, segments) {
+        if (type === layout.node.types.PRIM || type === layout.node.types.MACRO ||
+            type === layout.node.types.TAILFORM || type === layout.node.types.INFIX) {
+            const unionAddress = address + layout.node.fields.union;
+            const fields = layout.node.union.nprim;
+            return {
+                min: readI16(unionAddress + fields.min),
+                default: readI16(unionAddress + fields.dflt),
+                max: readI16(unionAddress + fields.max),
+            };
+        }
+        if (type !== layout.node.types.CONS)
+            fail('not-procedure', 'The Logo object does not contain a procedure.');
+        const procedure = readProcedureLayout(address, segments);
+        return {
+            min: readIntegerNode(procedure.minArgs, 'Procedure minargs', segments),
+            default: readIntegerNode(procedure.defaultArgs, 'Procedure default args', segments),
+            max: readIntegerNode(procedure.maxArgs, 'Procedure maxargs', segments),
+        };
+    }
+
+    function readObjectFlags(address, segments) {
+        return readIntegerNode(address, 'Object flags', segments);
+    }
+
+    function flagsFor(flagValue, category, procedureType) {
+        const masks = category === 'proc'
+            ? [OBJECT_FLAGS.PROC_BURIED, OBJECT_FLAGS.PROC_TRACED, OBJECT_FLAGS.PROC_STEPPED]
+            : category === 'val'
+                ? [OBJECT_FLAGS.VAL_BURIED, OBJECT_FLAGS.VAL_TRACED, OBJECT_FLAGS.VAL_STEPPED]
+                : [OBJECT_FLAGS.PLIST_BURIED, OBJECT_FLAGS.PLIST_TRACED,
+                    OBJECT_FLAGS.PLIST_STEPPED];
+        return {
+            buried: (flagValue & masks[0]) !== 0,
+            traced: (flagValue & masks[1]) !== 0,
+            stepped: (flagValue & masks[2]) !== 0,
+            ...(category === 'proc'
+                ? { macro: (flagValue & OBJECT_FLAGS.PROC_MACRO) !== 0 ||
+                    procedureType === layout.node.types.MACRO }
+                : {}),
+        };
+    }
+
+    function procedureSummary(record, segments) {
+        if (record.procnode === 0 ||
+            record.procnode === readGlobalPointer('Unbound')) return null;
+        const type = nodeTypeAt(record.procnode, segments);
+        if (type === layout.node.types.PUNBOUND) return null;
+        const flagValue = readObjectFlags(record.obflags, segments);
+        const primitive = type === layout.node.types.PRIM || type === layout.node.types.MACRO ||
+            type === layout.node.types.TAILFORM || type === layout.node.types.INFIX;
+        const flags = flagsFor(flagValue, 'proc', type);
+        return {
+            name: record.name,
+            kind: flags.macro ? 'macro' : primitive ? 'primitive' : 'user',
+            arity: readProcedureArity(record.procnode, type, segments),
+            flags,
+        };
+    }
+
+    function procedureDetails(record, summary, segments) {
+        if (summary.kind === 'primitive') return summary;
+        const procedure = readProcedureLayout(record.procnode, segments);
+        const formalAddresses = readListItems(procedure.formals, segments, 1000);
+        const formalValues = formalAddresses.map((address) => formalInfo(address, segments));
+        const formals = formalValues.map((formal) => formal.name).filter(Boolean);
+
+        let body = [];
+        let bodyWordLines = [];
+        if (procedure.bodyWords !== 0) {
+            bodyWordLines = readListItems(procedure.bodyWords, segments, 10000)
+                .map((line) => formatNodeLine(line, segments));
+        }
+        if (procedure.body !== 0) {
+            const bodyAddresses = readListItems(procedure.body, segments, 10000);
+            const sourceLines = bodyAddresses.every((line) =>
+                nodeTypeAt(line, segments) === layout.node.types.CONS ||
+                nodeTypeAt(line, segments) === layout.node.types.PNIL);
+            if (sourceLines)
+                body = bodyAddresses.map((line) => formatNodeLine(line, segments));
+        }
+        if (body.length === 0 && bodyWordLines.length > 0) {
+            let first = 0;
+            let last = bodyWordLines.length;
+            if (/^(to|macro)\s/i.test(bodyWordLines[0])) first += 1;
+            if (last > first && bodyWordLines[last - 1].trim().toLowerCase() === 'end') last -= 1;
+            body = bodyWordLines.slice(first, last);
+        }
+
+        const header = `to ${record.name}${formalValues.length
+            ? ` ${formalValues.map((formal) => formal.source).join(' ')}` : ''}`;
+        const text = bodyWordLines.length > 0
+            ? bodyWordLines.join('\n')
+            : [header, ...body, 'end'].join('\n');
+        return { ...summary, formals, body, text };
+    }
+
+    function treeChildInfo(parentType, context, edge, childType) {
+        if (parentType === layout.node.types.CASEOBJ) {
+            if (edge === 'ncar') return { role: 'strnode' };
+            if (edge === 'ncdr')
+                return childType === layout.node.types.CONS
+                    ? { role: 'object', context: { kind: 'object', index: 0 } }
+                    : { role: 'object' };
+        }
+        if (context && context.kind === 'object') {
+            const fields = ['canonical', 'procnode', 'valnode', 'plist', 'obflags'];
+            if (edge === 'ncar' && context.index < fields.length) {
+                const role = fields[context.index];
+                return role === 'procnode' && childType === layout.node.types.CONS
+                    ? { role, context: { kind: 'proc', position: 'root' } }
+                    : { role };
+            }
+            if (edge === 'ncdr') {
+                if (context.index < 4)
+                    return { context: { kind: 'object', index: context.index + 1 } };
+                if (context.index === 4) return { role: 'caselist' };
+            }
+        }
+        if (context && context.kind === 'proc') {
+            if (context.position === 'root') {
+                if (edge === 'ncar')
+                    return childType === layout.node.types.CONS
+                        ? { role: 'text', context: { kind: 'proc', position: 'text' } }
+                        : { role: 'text' };
+                if (edge === 'ncdr')
+                    return childType === layout.node.types.CONS
+                        ? { context: { kind: 'proc', position: 'args', index: 1 } } : {};
+            }
+            if (context.position === 'text') {
+                if (edge === 'ncar') return { role: 'formals' };
+                if (edge === 'ncdr') return { role: 'bodylist' };
+            }
+            if (context.position === 'args') {
+                const roles = { 1: 'bodywords', 2: 'minargs', 3: 'dfltargs', 4: 'maxargs' };
+                if (edge === 'ncar' && roles[context.index])
+                    return { role: roles[context.index] };
+                if (edge === 'ncdr' && context.index < 4)
+                    return { context: {
+                        kind: 'proc', position: 'args', index: context.index + 1,
+                    } };
+            }
+        }
+        return {};
+    }
+
+    function treeNode(address, depth, state, segments, role, context) {
+        if (depth >= state.limits.depth)
+            return { truncated: 'depth', ...(role ? { role } : {}) };
+        if (!isWasmAddress(address) || address === 0)
+            fail('bad-address', 'NODE tree pointer must be a nonzero wasm32 address.');
+        const location = findNodeLocation(address, segments);
+        if (!location) fail('bad-address', 'NODE tree pointer is outside all NODE segments.');
+        if (location.misaligned)
+            fail('misaligned', 'NODE tree pointer is not aligned to the NODE stride.');
+        const nodeType = nodeTypeAt(address, segments);
+        if (state.visited.has(address))
+            return { ref: address, ...(role ? { role } : {}) };
+        if (state.count >= state.limits.count)
+            return { truncated: 'count', ...(role ? { role } : {}) };
+        state.visited.add(address);
+        state.count += 1;
+
+        const node = readNodeData(address, segments, state.bytesRemaining);
+        if (node.union.view === 'nstring')
+            state.bytesRemaining -= node.union.strbytes.length / 2;
+        if (role) node.role = role;
+        if (node.freed) return node;
+
+        if (node.union.view === 'ncons') {
+            for (const edge of ['ncar', 'ncdr', 'nobj']) {
+                const childAddress = node.union[edge];
+                if (childAddress === 0) continue;
+                const childType = nodeTypeAt(childAddress, segments);
+                const info = state.limits.roles
+                    ? treeChildInfo(nodeType, context, edge, childType) : {};
+                node.union[edge] = treeNode(
+                    childAddress, depth + 1, state, segments, info.role, info.context,
+                );
+            }
+        } else if (node.union.view === 'narray') {
+            node.union.elements = node.union.elements.map((element) => {
+                if (element === 0) return 0;
+                return treeNode(element, depth + 1, state, segments, null, null);
+            });
+        } else if (node.union.view === 'nobject') {
+            for (const edge of ['nvars', 'nprocs', 'nparents']) {
+                const childAddress = node.union[edge];
+                if (childAddress !== 0)
+                    node.union[edge] = treeNode(
+                        childAddress, depth + 1, state, segments, null, null,
+                    );
+            }
+        } else if (node.union.view === 'nmethod') {
+            for (const edge of ['nparent', 'nprocname']) {
+                const childAddress = node.union[edge];
+                if (childAddress !== 0)
+                    node.union[edge] = treeNode(
+                        childAddress, depth + 1, state, segments, null, null,
+                    );
+            }
+        } else if (node.union.view === 'nstring' && node.union.nstring_head !== 0) {
+            const head = node.union.nstring_head;
+            node.union.nstring_head = {
+                addr: head,
+                refcnt: node.union.refcnt,
+                bytes: node.union.strbytes,
+                ...(node.union.truncated ? { truncated: true } : {}),
+                role: 'nstring_head',
+            };
+        }
+        return node;
     }
 
     function status() {
@@ -728,7 +1320,34 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
         return publicCall(() => publicNode(address));
     }
 
-    function variable(name) {
+    function value(addressOrName, options) {
+        return publicCall(() => {
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            let valueAddress;
+            if (typeof addressOrName === 'string') {
+                if (addressOrName.length === 0)
+                    fail('bad-name', 'Logo object name must be a nonempty string.');
+                const object = findObject(addressOrName, segments);
+                if (object === null)
+                    fail('not-found', `No Logo object named ${addressOrName} was found.`);
+                valueAddress = object.valnode;
+            } else if (typeof addressOrName === 'number') {
+                valueAddress = addressOrName;
+            } else {
+                fail('bad-address', 'Logo value must be selected by a name or NODE address.');
+            }
+            return {
+                ok: true,
+                schema: 1,
+                value: valueFromAddress(valueAddress, options, segments),
+            };
+        });
+    }
+
+    function variable(name, options) {
         return publicCall(() => {
             if (typeof name !== 'string' || name.length === 0)
                 fail('bad-name', 'Variable name must be a nonempty string.');
@@ -739,28 +1358,259 @@ function createLogoInspector({ memory, symbols, layout } = {}) {
             const valueAddress = findObjectValue(name, segments);
             if (valueAddress === null)
                 fail('not-found', `No Logo object named ${name} was found.`);
-            if (valueAddress === 0)
-                fail('unsupported', 'The variable value is not an integer NODE.');
-            const valueLocation = findNodeLocation(valueAddress, segments);
-            if (!valueLocation || valueLocation.misaligned)
-                fail('memory-error', 'The variable value does not point to a valid NODE.');
-            const valueType = readI32(valueAddress + layout.node.fields.nodeType);
-            if (valueType !== layout.node.types.INTT)
-                fail('unsupported', 'Only integer-valued globals are supported in Phase 1.');
+            return {
+                ok: true,
+                schema: 1,
+                value: valueFromAddress(valueAddress, options, segments),
+            };
+        });
+    }
+
+    function plist(name, options) {
+        return publicCall(() => {
+            if (typeof name !== 'string' || name.length === 0)
+                fail('bad-name', 'Property-list name must be a nonempty string.');
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            const object = findObject(name, segments);
+            if (object === null)
+                fail('not-found', `No Logo object named ${name} was found.`);
+
+            const limits = traversalLimits(options);
+            const state = {
+                limits,
+                visited: new Set(),
+                count: 0,
+                bytesRemaining: limits.bytes,
+            };
+            const entries = [];
+            const visitedPairs = new Set();
+            const maximumSteps = segments.reduce((total, segment) => total + segment.size, 0);
+            let pair = object.plist;
+            while (pair !== 0) {
+                if (visitedPairs.has(pair))
+                    fail('memory-error', 'A property list contains a cycle.');
+                if (entries.length >= limits.count) {
+                    entries.push({ prop: null, value: { t: 'truncated', reason: 'count' } });
+                    break;
+                }
+                if (visitedPairs.size >= maximumSteps)
+                    fail('memory-error', 'A property list exceeds the NODE segment bounds.');
+                if (nodeTypeAt(pair, segments) !== layout.node.types.CONS)
+                    fail('memory-error', 'A property list entry is not a CONS NODE.');
+                visitedPairs.add(pair);
+                const propertyAddress = consCar(pair, segments);
+                const property = readStringNode(
+                    propertyAddress, segments, 'memory-error', state.bytesRemaining,
+                );
+                state.bytesRemaining -= property.strbytes.length / 2;
+                const valueCell = consCdr(pair, segments);
+                if (nodeTypeAt(valueCell, segments) !== layout.node.types.CONS)
+                    fail('memory-error', 'A property list entry has no value cell.');
+                const valueAddress = consCar(valueCell, segments);
+                entries.push({
+                    prop: property.text,
+                    value: decodeValue(valueAddress, 0, state, segments),
+                    ...(property.truncated ? { propTruncated: true } : {}),
+                });
+                pair = consCdr(valueCell, segments);
+            }
+            return { ok: true, schema: 1, value: entries };
+        });
+    }
+
+    function procedure(name) {
+        return publicCall(() => {
+            if (typeof name !== 'string' || name.length === 0)
+                fail('bad-name', 'Procedure name must be a nonempty string.');
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            const object = findObject(name, segments);
+            if (object === null)
+                fail('not-found', `No Logo object named ${name} was found.`);
+            const summary = procedureSummary(object, segments);
+            if (summary === null)
+                fail('not-procedure', `Logo object ${name} has no procedure definition.`);
+            return { ok: true, schema: 1, value: procedureDetails(object, summary, segments) };
+        });
+    }
+
+    function workspace() {
+        return publicCall(() => {
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            const unboundAddress = readGlobalPointer('Unbound');
+            const procedures = [];
+            const variables = [];
+            const propertyLists = [];
+
+            walkObjects(segments, (object) => {
+                const flagValue = readObjectFlags(object.obflags, segments);
+                const procedureInfo = procedureSummary(object, segments);
+                if (procedureInfo !== null) procedures.push(procedureInfo);
+
+                if (object.valnode === 0 || (object.valnode !== unboundAddress &&
+                    nodeTypeAt(object.valnode, segments) !== layout.node.types.PUNBOUND))
+                    variables.push({
+                        name: object.name,
+                        flags: flagsFor(flagValue, 'val'),
+                    });
+                if (object.plist !== 0) {
+                    if (nodeTypeAt(object.plist, segments) !== layout.node.types.CONS)
+                        fail('memory-error', 'An object property list is not a CONS NODE.');
+                    propertyLists.push({
+                        name: object.name,
+                        flags: flagsFor(flagValue, 'plist'),
+                    });
+                }
+                return false;
+            });
+
+            const byName = (left, right) => {
+                const a = left.name.toLowerCase();
+                const b = right.name.toLowerCase();
+                return a < b ? -1 : a > b ? 1 : 0;
+            };
+            procedures.sort(byName);
+            variables.sort(byName);
+            propertyLists.sort(byName);
+            return {
+                ok: true,
+                schema: 1,
+                value: { procedures, variables, propertyLists },
+            };
+        });
+    }
+
+    function tree(root, options) {
+        return publicCall(() => {
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            const limits = traversalLimits(options);
+            let address;
+            let context = null;
+            if (typeof root === 'string') {
+                if (root.length === 0) fail('bad-name', 'Logo object name must be nonempty.');
+                const object = findObject(root, segments);
+                if (object === null) fail('not-found', `No Logo object named ${root} was found.`);
+                address = object.object;
+                if (limits.roles) context = { kind: 'object', index: 0 };
+            } else if (typeof root === 'number') {
+                address = root;
+                if (!isWasmAddress(address) || address === 0)
+                    fail('bad-address', 'NODE tree root must be a nonzero wasm32 address.');
+                if (address % layout.node.alignment !== 0)
+                    fail('misaligned', 'NODE tree root must be 8-byte aligned.');
+                requireNodeLocation(address, segments, 'bad-address');
+                if (limits.roles) {
+                    if (findObjectByAddress(address, segments) !== null) {
+                        context = { kind: 'object', index: 0 };
+                    } else {
+                        const procObject = walkObjects(
+                            segments, (object) => object.procnode === address,
+                        );
+                        if (procObject !== null &&
+                            nodeTypeAt(address, segments) === layout.node.types.CONS)
+                            context = { kind: 'proc', position: 'root' };
+                    }
+                }
+            } else {
+                fail('bad-address', 'NODE tree root must be a name or NODE address.');
+            }
+            const value = treeNode(address, 0, {
+                limits,
+                visited: new Set(),
+                count: 0,
+                bytesRemaining: limits.bytes,
+            }, segments, null, context);
+            return { ok: true, schema: 1, value };
+        });
+    }
+
+    function nodes(options) {
+        return publicCall(() => {
+            if (options === undefined || options === null) options = {};
+            if (typeof options !== 'object' || Array.isArray(options))
+                fail('bad-options', 'nodes options must be an object.');
+            const offset = options.offset === undefined ? 0 : options.offset;
+            const requestedLimit = options.limit === undefined ? 100 : options.limit;
+            if (!Number.isSafeInteger(offset) || offset < 0)
+                fail('bad-options', 'nodes offset must be a nonnegative integer.');
+            if (!Number.isSafeInteger(requestedLimit) || requestedLimit < 1)
+                fail('bad-options', 'nodes limit must be a positive integer.');
+            const limit = Math.min(requestedLimit, 1000);
+            const layoutCheck = ensureLayout();
+            if (!layoutCheck.ok)
+                return errorResult('layout-mismatch', layoutCheck.message);
+            const segments = getSegments();
+            const total = segments.reduce((count, segment) => count + segment.size, 0);
+            if (offset > total) fail('bad-offset', 'nodes offset exceeds the NODE segment count.');
+
+            const result = [];
+            let skipped = 0;
+            for (const segment of segments) {
+                for (let index = 0; index < segment.size; index += 1) {
+                    if (skipped < offset) {
+                        skipped += 1;
+                        continue;
+                    }
+                    if (result.length >= limit) break;
+                    result.push(readNodeData(
+                        segment.nodesAddr + index * layout.node.size, segments,
+                    ));
+                }
+                if (result.length >= limit) break;
+            }
+            const nextOffset = offset + result.length;
             return {
                 ok: true,
                 schema: 1,
                 value: {
-                    t: 'int',
-                    v: readI32(valueAddress + layout.node.fields.union +
-                        layout.node.union.nint.value),
-                    addr: valueAddress,
+                    nodes: result,
+                    pagination: {
+                        offset,
+                        limit,
+                        total,
+                        nextOffset: nextOffset < total ? nextOffset : null,
+                        done: nextOffset >= total,
+                    },
                 },
             };
         });
     }
 
-    return { status, node, variable };
+    function json(method) {
+        let args = Array.prototype.slice.call(arguments, 1);
+        let indent = 0;
+        if (args.length > 0 && Array.isArray(args[0])) {
+            const methodArgs = args[0];
+            indent = arguments.length > 2 ? arguments[2] : 0;
+            args = methodArgs.slice();
+        }
+        if (!Number.isInteger(indent) || indent < 0 || indent > 10)
+            return JSON.stringify(errorResult('bad-options', 'JSON indentation must be from 0 to 10.'));
+        const methodFunction = typeof method === 'string' && method !== 'json' &&
+            Object.prototype.hasOwnProperty.call(api, method) ? api[method] : null;
+        const result = typeof methodFunction === 'function'
+            ? methodFunction.apply(api, args)
+            : errorResult('bad-method', 'Unknown Logo inspector method.');
+        try {
+            return JSON.stringify(result, null, indent);
+        } catch (error) {
+            return JSON.stringify(errorResult('json-error', 'Inspection result is not JSON-safe.'));
+        }
+    }
+
+    const api = { status, node, value, variable, plist, procedure, workspace, tree, nodes, json };
+    return api;
 }
 
 if (typeof module !== 'undefined' && module.exports)

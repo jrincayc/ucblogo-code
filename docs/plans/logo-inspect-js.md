@@ -277,7 +277,7 @@ no `/dev/runjs`, so there is no point at which JS can inspect a live program.
 | 22 | (case 7) | `tree("c")` | terminates; contains `{ref: <first cell addr>}` |
 | 23 | (case 9) | `tree("sq")` | has a `procnode` child with `formals` and `minargs` roles; `minargs` is `nint` 1 |
 | 24 | (case 21) | `node(a)` for each `a` in the tree | equals that node in the tree, ignoring nested children |
-| 25 | `make "s "a\ b` | `tree("s")` value word | `nstring.text` `a b`; `strbytes` `610362` (`ecma` code 3 for the space) |
+| 25 | `make "s "a\ b` | `tree("s")` value word | `nstring.text` `a b`; `strbytes` `612062` (the quoted-word path clears parity before storing the space) |
 
 Cases 9 and 10 cover the arity decoding that is easy to get wrong. Cases 15
 and 16 are the reason the inspector exists: they show it is safe at the two

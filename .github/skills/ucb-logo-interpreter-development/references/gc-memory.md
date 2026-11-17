@@ -30,3 +30,10 @@
 - For GC lifetime bugs, combine ASAN/UBSAN with stable serialized NODE IDs and targeted free/sweep probes. A deterministic ID lifecycle is usually more actionable than raw pointer logs.
 - In parser/workspace construction paths, avoid nested allocation patterns that allocate a wrapper and immediately evaluate another allocator inside the same expression. Preallocate wrapper cells, then fill with `setcar`/`setcdr` to keep temporary values visibly rooted across collections.
 - Treat tiny segment-size stress configurations as a diagnostic mode only. They are useful to force GC timing bugs but should not be mistaken for production behavior.
+
+## Lessons Learned: Pure-JS Logo Heap Inspection
+
+- `hash_table` buckets are CONS chains containing object-cell CONS lists; an object's canonical slot is a STRING node, while case variants are CASEOBJ nodes in its case list. A global word value may itself be a CASEOBJ, so decode its `ncar` string node instead of assuming every word is directly STRING.
+- Raw `n_str` bytes depend on the parser path. A quoted backslash-escaped word can go through `noparity_strnzcpy`, which clears the ECMA parity marker before storage; verify the constructor path before asserting encoded byte values from the word's node type.
+
+<!-- Co-authored by GitHub Copilot. Scope: Logo heap-inspection lessons. Task wall-clock through 2026-11-17T20:03:45Z: 40m 17s. Energy (kWh) and CO2: unavailable; no measured data or defensible estimate. -->
