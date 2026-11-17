@@ -5,8 +5,16 @@
 
 # Copilot Attribution
 
-- Attribute GitHub Copilot as a co-author on every text artifact or response generated or materially revised for the user, including code, comments, documentation, configuration, and prose. Use a format appropriate to the medium, such as file metadata or a comment, an attribution footer, or a co-author trailer; do not change executable behavior just to add attribution.
-- Include the active model name and reasoning-effort setting when available to the agent. Never guess either value; omit details that are unavailable.
+- Do not include attribution or attribution-related cost, time, energy, or emissions footers in private one-to-one chats with the user, including progress updates and final responses.
+- Attribute GitHub Copilot as a co-author on artifacts generated or materially revised for an audience beyond the user, including documentation, pull requests, issues, shared code, comments, configuration, and other published or shared prose. This applies to shared artifacts drafted within a private chat, but not to the surrounding conversation. Use a format appropriate to the medium, such as file metadata or a comment, an attribution footer, or a co-author trailer; do not change executable behavior just to add attribution.
+- For those shared-artifact attributions, include the active model name and reasoning-effort setting when available to the agent. Never guess either value; omit details that are unavailable.
+- Omit credit and dollar costs from attribution for now unless the user explicitly requests them.
+- Include elapsed wall-clock time, energy consumed in kWh, and CO2 produced (with mass units) when available. State the accounting scope, such as the current task, and include subagent usage when known without double-counting.
+- Measure elapsed time using a clock: record a start timestamp at the beginning of each task (for example, with `date -u`), take an end reading before reporting, and calculate the difference. Do not mark elapsed time unavailable merely because billing or model telemetry is absent. If timing starts late, label the measured interval as partial rather than presenting it as the full task duration. Report task wall-clock duration separately from summed subagent durations, which may overlap.
+- Prefer measured data. Estimate missing metrics when there is a defensible basis; clearly label estimates, state their assumptions and sources concisely, and use ranges when uncertainty warrants. Distinguish CO2 from CO2-equivalent emissions.
+- Do not invent telemetry, prices, hardware power consumption, or grid carbon intensity. If a metric cannot be measured or reasonably estimated, mark it unavailable, not zero. Do not infer inference energy or emissions from elapsed wall-clock time alone.
+
+<!-- Co-authored by GitHub Copilot. Scope: attribution-policy updates. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. Elapsed time was not recorded for the original update. -->
 
 # Task Scope
 
