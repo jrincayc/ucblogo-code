@@ -2,6 +2,7 @@ SUBDIRS = logolib csls helpfiles tests
 if DOCS
 SUBDIRS += docs
 endif
+AM_MAKEFLAGS = --no-print-directory
 
 if WASM
 # Linked by the ucblogo.html and ucblogo-node.js rules below instead.
@@ -133,11 +134,11 @@ helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 .PHONY: regenerate-help-index
 
 regenerate-help-index: makehelp usermanual
-	./makehelp
+	$(AM_V_GEN)./makehelp
 	@# Grave accent as filename is impossible with automake so work around it.
-	mv helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
-	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
-	-rm helptemp
+	@mv helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
+	@LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
+	@-rm helptemp
 
 all: 
 
@@ -161,11 +162,11 @@ all-local: $(WEB_TARGETS)
 	rm -f $(WEB_STALE)
 
 web-config.js: Makefile
-	echo 'Module.serviceWorker = $(WEB_SERVICE_WORKER);' > $@
+	$(AM_V_GEN)echo 'Module.serviceWorker = $(WEB_SERVICE_WORKER);' > $@
 
 sw.js: ucblogo.html workbox-config.js
-	rm -f workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js.map
-	npx --no -- workbox-cli generateSW workbox-config.js
+	@rm -f workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js workbox-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js.map
+	$(AM_V_GEN)npx --no -- workbox-cli generateSW workbox-config.js >/dev/null
 
 if WASM
 check-local: ucblogo-node.js
@@ -173,7 +174,7 @@ check-local: ucblogo-node.js
 endif
 
 ucblogo-node.js: $(ucblogo_OBJECTS) pre.js liblogo.js
-	em++  \
+	$(AM_V_CCLD)em++  \
 	-o ucblogo-node.js \
 	$(ucblogo_OBJECTS) \
 	--pre-js pre.js \
@@ -201,15 +202,15 @@ _logo_gc_debug_node_id \
 
 
 help/index.json: scripts/build-help.js scripts/build-help-docs.js docs/ucblogo.texi usermanual webedition.md helpfiles/HELPCONTENTS
-	node scripts/build-help.js help
+	$(AM_V_GEN)node scripts/build-help.js help >/dev/null
 
 help/docs.json: help/index.json
-	@test -f $@ || node scripts/build-help.js help
+	@test -f $@ || node scripts/build-help.js help >/dev/null
 
 # Embeds the installed data tree, so stage it with install-data first.
 ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js storage-status.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
-	$(MAKE) $(AM_MAKEFLAGS) install-data
-	em++  \
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -s install-data >/dev/null
+	$(AM_V_CCLD)em++  \
 	-o ucblogo.html \
 	$(ucblogo_OBJECTS) \
 	--pre-js web-config.js \
