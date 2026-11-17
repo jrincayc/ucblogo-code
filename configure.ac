@@ -5,6 +5,7 @@ AC_CONFIG_SRCDIR([logodata.c])
 AC_CONFIG_HEADERS(config.h)
 
 AM_INIT_AUTOMAKE([subdir-objects foreign -Wall])
+AM_SILENT_RULES([yes])
 
 AC_LANG([C])
 
