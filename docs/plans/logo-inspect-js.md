@@ -35,8 +35,12 @@ interpreter cannot execute; a read is a consistent snapshot of whatever state
 the runtime was suspended in. This is the same pattern already used for C
 globals (`getValue(Module._Unbound, '*')` in [liblogo.js](../../liblogo.js)).
 
-Reads bypass ASAN poison, which removes the need for the
-`__attribute__((no_sanitize_address))` accessors.
+Under ASAN, these raw reads do not detect poisoned nodes. They also must not
+go through Emscripten's instrumented accessors (`getValue`, `_asan_js_load_*`),
+which call C and would trap on a poisoned read. Core scope reads raw memory and
+does not report poison; reporting it is the ASAN stretch goal below, so the
+data model leaves room for it (an optional `asan` field on nodes, never a
+thrown error).
 
 ### C-side changes (data and deletions only, no new code)
 
@@ -54,7 +58,8 @@ Reads bypass ASAN poison, which removes the need for the
   `struct registers` offsets the JS layout table depends on. A layout change
   then fails the build instead of silently misreading memory.
 - `eval.c` ASAN hook: call the new pure-JS `Module.logoInspect.node($0)`
-  instead of `Module.logoGC.inspect`.
+  instead of `Module.logoGC.inspect`. The hook already reports poison itself
+  through `__asan_address_is_poisoned` in C.
 
 ### New file: `logo-inspect.js`
 
@@ -213,8 +218,9 @@ contract; implementation phases only turn named groups of them green.
    Wasm export is invoked by wrapping the exports object in the test page and
    counting calls during the inspector call (expected: zero).
 7. **Build checks:** both targets link with the new export lists and
-   `HEAPU8`; the `_Static_assert` block compiles; the ASAN build's `eval.c`
-   hook returns JSON for a poisoned node.
+   `HEAPU8`; the `_Static_assert` block compiles; the ASAN build links and its
+   `eval.c` hook returns JSON for a poisoned node (raw contents; poison
+   reporting is the stretch goal).
 
 ### Test ownership by phase
 
@@ -223,8 +229,9 @@ contract; implementation phases only turn named groups of them green.
 | 1 Layout and memory | layer 2 agreement test, layer 1 layout, address-safety, read-only, heap-refresh, `status`/`node` cases, build checks |
 | 2 Value model | layer 1 value-model and limit cases, layer 3 value fixtures, layer 5 value, `workspace`, `procedure`, `variable`, `plist`, GC and memory-growth cases |
 | 3 Registers and frames | `registers`/`frames` fixtures and layer 5/6 mid-evaluation cases, written after the study step defines the schema (see below) |
-| 4 Removal | layer 4 source guards, ASAN build check |
+| 4 Removal | layer 4 source guards, ASAN build link and hook check |
 | 5 Logo access | cases added only if the phase is approved |
+| 6 ASAN poison (stretch) | ASAN-only cases listed in the stretch goal |
 
 Phase 3 schema is unknown until `eval.c` is studied, so its tests are written
 and committed red at the start of phase 3, before its implementation.
@@ -254,10 +261,62 @@ and committed red at the start of phase 3, before its implementation.
    is read-only, so reentrancy is not an issue. Decide after phase 2; tests
    first if approved.
 
+6. **Stretch: ASAN poison reporting.** See below. Only after phases 0 to 4
+   are green; not required for the core API.
+
 Commit after each phase per the commit policy. Run the full affected suite
 (`test:source`, Node/Wasm, focused TestCafe) after each phase, and the
 stale-artifact check (rebuild both targets, restart the runtime, bypass the
 service worker) before trusting any real-runtime result.
+
+## Stretch Goal: ASAN Poison Reporting
+
+Under ASAN the inspector should report poisoned nodes instead of hiding
+corruption: a poisoned node is still returned with its raw contents, flagged,
+and never causes a throw or an ASAN abort.
+
+Why it is a stretch: it depends on ASAN internals of the pinned Emscripten
+rather than on Logo's own layout.
+
+- Emscripten's wasm mapping is `shadow = address >> 3` with no offset
+  (`asan_mapping_emscripten.h`), so the shadow bytes live in the same linear
+  memory and JS can read them with the same raw view. Confirm on the pinned
+  version and on `ALLOW_MEMORY_GROWTH`; a toolchain upgrade can change it.
+- Shadow decoding: `0` means all 8 bytes addressable, `1..7` means only the
+  first k bytes are, and negative values are poison kinds (heap freed,
+  redzone, user-poisoned, and so on). Map the codes the Logo build produces.
+- Logo poisons only `nunion` of free nodes (`POISON_NODE` in
+  [globals.h](../../globals.h)), so the check covers that region and the
+  header separately.
+- ASAN fake stack frames and quarantine are out of scope.
+- The inspector must detect an ASAN build (a data export such as
+  `__asan_shadow_memory_dynamic_address` or a build-time flag exposed as data)
+  and stay inert otherwise, without calling any export.
+
+Output when active: each node adds
+`"asan": {"poisoned": true, "kind": "heap-freed", "shadow": "0xfd", "region": "nunion"}`;
+`status()` reports `"asan": {"active": true}`; every traversal result lists
+`"poisonedNodes": [addr, ...]` so corruption is visible from the top-level
+result. A value read from a poisoned node is returned as raw data inside a
+`{"t":"poisoned", ...}` wrapper, not interpreted further.
+
+Tests, written red before the stretch implementation:
+
+- Node: synthetic heap with an injected shadow region; each shadow code maps
+  to the expected `kind`, partial granules are handled, and no method throws on
+  poisoned or partially poisoned nodes.
+- Source guard: the inspector does not use `getValue`, `HEAP*` macros that the
+  ASAN build rewrites, or any `_asan_*`/`__asan_*` call.
+- ASAN build (Node/Wasm): free a list, collect, then inspect its old address and
+  assert `poisoned: true` and a `poisonedNodes` entry; inspect a live node and
+  assert no flag; deliberately corrupt via a test-only Logo path and confirm
+  the report, with the process still alive afterward.
+- A non-ASAN build reports `asan.active: false` and never reads the shadow
+  region.
+
+If the shadow check proves unreliable on the pinned Emscripten, drop it and
+document that the C-side hook (`__asan_address_is_poisoned` in `eval.c`) is the
+supported ASAN diagnostic.
 
 ## Risks and Open Decisions
 
