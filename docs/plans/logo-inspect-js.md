@@ -267,8 +267,8 @@ no `/dev/runjs`, so there is no point at which JS can inspect a live program.
 | 12 | `pprop "p "k 7` | `plist("p")` | `[{prop:"k", value:{t:"int", v:7}}]` |
 | 13 | `bury "sq` | `workspace()` | lists `sq` (buried), `n`, `p` |
 | 14 | (none) | `variable("nosuch")`, `node(0)`, `node(1)`, `node(2**32)` | `ok:false` with an error code; nothing throws |
-| 15 | `make "r readword` (left waiting) | `variable("n")`, `status()` | works while Logo is suspended in Asyncify; `status` shows not idle |
-| 16 | `runjs "\|window.__i = JSON.stringify(Module.logoInspect.variable('n'))\|` | read `window.__i` | inspector called from inside a C call returns `{t:"int", v:42}` and Logo continues |
+| 15 | `make "r readword` (submitted without `runLogo`; see below) | `variable("n")`, `status()` | works while Logo is suspended in Asyncify; `status` shows not idle; after a line is typed, `:r` has that text and Logo returns to idle |
+| 16 | `ignore runjs "\|window.__i = JSON.stringify(Module.logoInspect.variable('n'))\|` (normal `runLogo`) | read `window.__i` | inspector called from inside a C call returns `{t:"int", v:42}` and Logo continues |
 | 17 | `gc` after cases 2 to 6 | repeat cases 2 to 6 | values unchanged after collection |
 | 18 | grow the heap with a large list until `HEAPU8.length` increases | `variable("n")` | still correct after memory growth |
 | 19 | (case 2) | `node(addr of :n's value)` | `node_type` `{value:768, octal:"01400", name:"INTT"}`, `union.nint` 42, `words.length` = `sizeof(NODE)/4`, `bytes` length matches |
@@ -283,6 +283,16 @@ Cases 9 and 10 cover the arity decoding that is easy to get wrong. Cases 15
 and 16 are the reason the inspector exists: they show it is safe at the two
 points where calling C was not. Cases 19 to 25 check the raw layer that the
 other cases are built on.
+
+Case 15 cannot use `runLogo`, whose final step waits for idle, and idle
+requires `!Module.blockedOnGetc`; it would time out. Follow the existing
+pattern in
+[autocomplete.testcafe.js](../../tests/acceptance/autocomplete.testcafe.js)
+(`print [`): wait for idle, type the command and press enter directly, wait
+for `Module.blockedOnGetc`, inspect, then type a line and wait for idle. Case
+16 uses plain `runLogo`: the `runjs` call finishes inside the command, so Logo
+is idle afterward. The runjs result is an operation, so the call needs
+`ignore`, as in `logo-suite.testcafe.js`.
 
 Phase 3 adds two cases once the schema is defined. One calls `registers()` and
 `frames()` while `to w local "x make "x 5 make "r readword end` is waiting, and
