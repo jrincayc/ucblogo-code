@@ -64,8 +64,8 @@ thrown error).
 ### New file: `logo-inspect.js`
 
 Same shape as [storage-status.js](../../storage-status.js): a factory
-`createLogoInspector({ memory, symbols, layout })` that takes injected memory
-and root addresses, so Node tests can drive it with a synthetic heap. At the
+`createLogoInspector({ memory, symbols, layout })` that takes the heap view
+and root addresses as inputs. At the
 bottom it exports via `module.exports` and `globalThis`. In the Web/Node builds
 it is linked with `--pre-js logo-inspect.js` after `pre.js`, and attaches
 `Module.logoInspect` once the runtime is initialized. It adds no deployed
@@ -146,128 +146,96 @@ includes the `status` flags it was read under.
 
 ## Test-Driven Development
 
-No implementation work begins until the full suite below is written, run, and
-committed in a failing state, and you have reviewed it. Tests define the API
-contract; implementation phases only turn named groups of them green.
+The inspector is a debugging aid, so the suite stays small: run Logo code in
+the live Web Edition, call the inspector, and check that it found what the
+code created. Tests are written and run red (no `Module.logoInspect` yet)
+before any implementation, committed on their own, and reviewed.
 
-### Rules
+### Harness
 
-- Red first: before implementation, run every new test and record that each
-  fails for the intended reason (missing `logo-inspect.js`, no
-  `Module.logoInspect`, `logo_gc_debug` still present), not from a typo or
-  harness error. Save the red run output path in the commit message.
-- Tests are not weakened to pass. A change to an expected value needs a stated
-  reason in the commit message. A bug found later gets a failing regression
-  test before its fix.
-- No silent skips. Real-runtime tests fail when the build artifact is missing;
-  they are only excluded from `test:source`, not skipped inside a run.
-- Commit the red suite as its own commit (intermediate commits need not pass).
+One TestCafe fixture, `tests/acceptance/logo-inspect.testcafe.js`, which the
+shared runner discovers automatically. It uses the existing `ready`,
+`runLogo`, and idle helpers in
+[testcafe-helpers.js](../../tests/acceptance/testcafe-helpers.js). One local
+helper:
 
-### Test layers
+```js
+const inspect = ClientFunction((method, args) =>
+    JSON.stringify(Module.logoInspect[method].apply(Module.logoInspect, args)));
+```
 
-1. **Contract tests** (Node, no Wasm; `tests/acceptance/logo-inspect.test.js`,
-   added to `npm run test:source`). Written against `createLogoInspector` with
-   injected memory and symbols:
-   - every method exists, is synchronous, and returns the `{ok, schema}` or
-     `{ok:false, error}` shape;
-   - every result round-trips through `JSON.parse(JSON.stringify(x))` with
-     deep equality and contains no `BigInt`, `undefined`, `NaN`, `Infinity`,
-     `Map`, or function;
-   - bad input (unknown name, `null`, non-number address, negative, huge) never
-     throws and returns a coded error;
-   - the value-model table above, limits (`depth`, `count`, `bytes`) with the
-     `truncated` forms, cycle and sharing as `ref`, and `text` rendering;
-   - address safety: out-of-segment, misaligned, and `NTFREE` addresses;
-   - layout self-check failure returns `layout-mismatch` from every method;
-   - the heap view is re-read on every call (swap the backing buffer between
-     calls to simulate memory growth);
-   - read-only: the synthetic memory is frozen or hashed before and after
-     every call.
-2. **Synthetic heap builder** (`tests/acceptance/helpers/logo-heap.js`, test
-   code only): builds segments, nodes, words, lists, arrays, `CASEOBJ` object
-   cells, and `hash_table` buckets in a `Uint8Array`. To avoid testing the
-   layout against itself, it takes offsets from an independently written
-   `tests/fixtures/logo-layout.json`; a source test asserts that fixture, the
-   `LAYOUT` table in `logo-inspect.js`, and the `_Static_assert` values in
-   `mem.c` all agree.
-3. **Golden fixtures** (`tests/fixtures/logo-inspect/*.json`): expected JSON
-   for each value kind, a procedure, a variable, a property list, and a
-   registers sample, reviewed by hand once and then frozen.
-4. **Source guard tests** (same file): `logo-inspect.js` contains no
-   `Module._` calls, `ccall`, `cwrap`, `run_evaluator`, or heap writes; allowed
-   `Module._*` references are an explicit data-symbol whitelist; no
-   `logo_gc_debug` remains in `mem.c`, `Makefile.am`, `pre.js`, or `eval.c`;
-   `Module.logoGC`, if kept, is only an alias; `pre.js` does not define the
-   inspector.
-5. **Real-runtime oracle tests** (Node/Wasm; new
-   `tests/acceptance/logo-inspect-node.test.js` in `npm run test:built`,
-   which fails if `ucblogo-node.js` is missing or older than its sources). A
-   fixed Logo program defines procedures, variables, lists, arrays, words with
-   special characters and non-ASCII text, a property list, buried and traced
-   items, then calls the inspector through `runjs` and prints the JSON between
-   marker lines. The test parses it and compares against Logo's own answers:
-   `contents`/`buried`, `arity`, `text`, `thing`, `plist`, `procedurep`,
-   `primitivep`. The Logo output is the oracle, so a mistake in the synthetic
-   builder cannot hide a real layout error. Includes a forced-GC case that
-   checks results stay valid and `NTFREE` addresses are reported, and a case
-   where the Wasm memory has grown.
-6. **Browser tests** (TestCafe, existing web suite): define a procedure,
-   variable, list, and array; call `Module.logoInspect` while idle and while
-   blocked in `readword`; assert JSON content, `status().safe`, and no
-   console or page errors; one case from `runjs` mid-evaluation. Verify that no
-   Wasm export is invoked by wrapping the exports object in the test page and
-   counting calls during the inspector call (expected: zero).
-7. **Build checks:** both targets link with the new export lists and
-   `HEAPU8`; the `_Static_assert` block compiles; the ASAN build links and its
-   `eval.c` hook returns JSON for a poisoned node (raw contents; poison
-   reporting is the stretch goal).
+(`apply`, not spread: TestCafe client functions lack the Babel helpers for it.)
 
-### Test ownership by phase
+The test parses the string in Node. That alone checks the JSON requirement.
+Every case also asserts `JSON.parse(JSON.stringify(r))` deep-equals `r`. Each
+case runs Logo through `runLogo`, waits for idle, inspects, and compares
+against values written in the test. Anything after `bye` is out of scope.
 
-| Phase | Turns green |
-| --- | --- |
-| 1 Layout and memory | layer 2 agreement test, layer 1 layout, address-safety, read-only, heap-refresh, `status`/`node` cases, build checks |
-| 2 Value model | layer 1 value-model and limit cases, layer 3 value fixtures, layer 5 value, `workspace`, `procedure`, `variable`, `plist`, GC and memory-growth cases |
-| 3 Registers and frames | `registers`/`frames` fixtures and layer 5/6 mid-evaluation cases, written after the study step defines the schema (see below) |
-| 4 Removal | layer 4 source guards, ASAN build link and hook check |
-| 5 Logo access | cases added only if the phase is approved |
-| 6 ASAN poison (stretch) | ASAN-only cases listed in the stretch goal |
+The Node/Wasm build is not used: its `main` reads stdin synchronously and has
+no `/dev/runjs`, so there is no point at which JS can inspect a live program.
 
-Phase 3 schema is unknown until `eval.c` is studied, so its tests are written
-and committed red at the start of phase 3, before its implementation.
+### Test cases
+
+| # | Logo | Inspect | Expect |
+| --- | --- | --- | --- |
+| 1 | (none) | `status()` | `ok`, `schema: 1`, layout check passed, idle flags |
+| 2 | `make "n 42` | `variable("n")` | `{t:"int", v:42}` |
+| 3 | `make "f 1.5` | `variable("f")` | `{t:"float", v:1.5}` |
+| 4 | `make "w "hello  make "v "\|a b\|` | `variable("w")`, `variable("v")` | words `hello`, `a b` |
+| 5 | `make "l [a [b c] 3]  make "e []` | `variable("l")`, `variable("e")` | nested list items and `text` `[a [b c] 3]`; empty list |
+| 6 | `make "a {1 2 3}@0` | `variable("a")` | `{t:"array", origin:0}`, 3 items |
+| 7 | `make "c [x y]  .setbf :c :c` | `variable("c")` | completes; a `{t:"ref"}` closes the cycle |
+| 8 | `make "d [[[[[[[[[[1]]]]]]]]]]` | `value("d", {depth:3})` | `{t:"truncated", reason:"depth"}` at level 3 |
+| 9 | `to sq :x output :x * :x end` | `procedure("sq")` | formals `[x]`, arity 1/1/1, body line `output :x * :x` |
+| 10 | `to opt :a [:b 2] [:c] 1 end` | `procedure("opt")` | arity min 1, default 1, max -1 |
+| 11 | (none) | `procedure("sum")` | primitive, arity 0/2/-1 |
+| 12 | `pprop "p "k 7` | `plist("p")` | `[{prop:"k", value:{t:"int", v:7}}]` |
+| 13 | `bury "sq` | `workspace()` | lists `sq` (buried), `n`, `p` |
+| 14 | (none) | `variable("nosuch")`, `node(0)`, `node(1)`, `node(2**32)` | `ok:false` with an error code; nothing throws |
+| 15 | `make "r readword` (left waiting) | `variable("n")`, `status()` | works while Logo is suspended in Asyncify; `status` shows not idle |
+| 16 | `runjs "\|window.__i = JSON.stringify(Module.logoInspect.variable('n'))\|` | read `window.__i` | inspector called from inside a C call returns `{t:"int", v:42}` and Logo continues |
+| 17 | `gc` after cases 2 to 6 | repeat cases 2 to 6 | values unchanged after collection |
+| 18 | grow the heap with a large list until `HEAPU8.length` increases | `variable("n")` | still correct after memory growth |
+
+Cases 9 and 10 cover the arity decoding that is easy to get wrong. Cases 15
+and 16 are the reason the inspector exists: they show it is safe at the two
+points where calling C was not.
+
+Phase 3 adds two cases once the schema is defined. One calls `registers()` and
+`frames()` while `to w local "x make "x 5 make "r readword end` is waiting, and
+expects `x = 5` in a frame. The other checks the same frame from `runjs`.
+
+One source check is added to
+[source.test.js](../../tests/acceptance/source.test.js): `logo-inspect.js`
+contains no `Module._` function calls, `ccall`, `cwrap`, or `getValue`, and no
+`logo_gc_debug` remains anywhere. This enforces the pure-JS rule without a
+runtime spy.
+
+### Running
+
+`node tests/acceptance/run-testcafe.js --test-grep 'Logo inspector'` against
+a fresh build. Desktop Chrome only; other browsers are not needed for a
+debugging aid.
 
 ## Phases
 
-0. **Test suite (red).** Write layers 1 to 6 for phases 1, 2, and 4 plus the
-   build checks; commit red with the failure evidence. Review with the
-   maintainer before continuing.
-1. **Layout and memory access.** Add the `LAYOUT` table and static asserts,
-   heap-view helper, data-symbol exports, and `status()`/`node()`. Confirm
-   offsets on a real wasm32 build, including `sizeof(NODE)`. Make the phase 1
-   tests green.
-2. **Logo value model.** Read words (confirm parity-bit/`clearparity` and
-   UTF-8 decoding against `intern.c`, `parse.c`, and `print.c`), numbers,
-   lists, arrays, `text`, `graph`, `nodes`. Walk `hash_table` for
-   `workspace()`, `procedure()`, `variable()`, `plist()`. Make the phase 2
-   tests green.
-3. **Registers and frames.** Study the `eval.c` save/restore stack discipline
-   and `var_stack` layout, document what is exact and what is transient, write
-   the red tests for the resulting schema, then implement.
-4. **Removal.** Delete the C debug exports and `Module.logoGC` body, switch the
-   `eval.c` ASAN hook, update docs. Build both targets with all export lists.
-   Make the layer 4 guards green.
-5. **Optional Logo access.** A `runjs` wrapper can call the inspector and
-   queue the JSON string with `Module.FS_runjs_getChar_buffer_append_str`. It
-   is read-only, so reentrancy is not an issue. Decide after phase 2; tests
-   first if approved.
+0. **Tests (red).** Write cases 1 to 18 and the source check. Confirm each
+   fails because `Module.logoInspect` is missing, not from a harness error.
+   Commit and review.
+1. **Layout and memory access.** `LAYOUT` table, static asserts, heap view,
+   data-symbol exports, `status()`, `node()`. Green: 1, 14.
+2. **Logo value model.** Words, numbers, lists, arrays, limits, `text`,
+   `graph`, `nodes`, `workspace`, `procedure`, `variable`, `plist`. Green: 2 to
+   13 and 15 to 18.
+3. **Registers and frames.** Study `eval.c` and `var_stack`, add the two
+   phase 3 cases red, then implement.
+4. **Removal.** Delete the C debug exports and `Module.logoGC`, switch the
+   `eval.c` ASAN hook, update docs. Green: the source check.
+5. **Optional Logo access.** Decide after phase 2; tests first if approved.
+6. **Stretch: ASAN poison reporting.** See below.
 
-6. **Stretch: ASAN poison reporting.** See below. Only after phases 0 to 4
-   are green; not required for the core API.
-
-Commit after each phase per the commit policy. Run the full affected suite
-(`test:source`, Node/Wasm, focused TestCafe) after each phase, and the
-stale-artifact check (rebuild both targets, restart the runtime, bypass the
-service worker) before trusting any real-runtime result.
+Commit after each phase. Rebuild and bypass the service worker before
+trusting a browser result.
 
 ## Stretch Goal: ASAN Poison Reporting
 
@@ -300,19 +268,10 @@ Output when active: each node adds
 result. A value read from a poisoned node is returned as raw data inside a
 `{"t":"poisoned", ...}` wrapper, not interpreted further.
 
-Tests, written red before the stretch implementation:
-
-- Node: synthetic heap with an injected shadow region; each shadow code maps
-  to the expected `kind`, partial granules are handled, and no method throws on
-  poisoned or partially poisoned nodes.
-- Source guard: the inspector does not use `getValue`, `HEAP*` macros that the
-  ASAN build rewrites, or any `_asan_*`/`__asan_*` call.
-- ASAN build (Node/Wasm): free a list, collect, then inspect its old address and
-  assert `poisoned: true` and a `poisonedNodes` entry; inspect a live node and
-  assert no flag; deliberately corrupt via a test-only Logo path and confirm
-  the report, with the process still alive afterward.
-- A non-ASAN build reports `asan.active: false` and never reads the shadow
-  region.
+Tests, written red first, in an ASAN web build with the same fixture: case
+17's collection frees an erased list (`ern "l gc`), and inspecting its old
+address reports `poisoned: true` without throwing. A live node reports no
+flag. A non-ASAN build reports `asan.active: false`.
 
 If the shadow check proves unreliable on the pinned Emscripten, drop it and
 document that the C-side hook (`__asan_address_is_poisoned` in `eval.c`) is the
