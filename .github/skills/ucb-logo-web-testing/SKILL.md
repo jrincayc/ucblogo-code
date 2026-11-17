@@ -14,6 +14,7 @@ Global rules live in [project instructions](../../copilot-instructions.md): brow
 
 1. **Establish freshness.** Identify the artifact, URL, and runtime under test. Rebuild after changes to `shell.html`, `pre.js`, `liblogo.js`, or C sources; built-only commands do not rebuild. If behavior contradicts source, load the [stale-artifacts checklist](./references/stale-artifacts.md) before changing code again.
 2. **Write the failing test first.** Assert observable results (value, focus, `aria-*`, computed style), not only internal state. Choose the test layer with [test strategy](./references/test-strategy.md).
+   If a test is difficult to write or flaky, first ask whether a less brittle test (lower layer, deterministic seam, state or attribute assertion) satisfies the same requirement; see [test strategy](./references/test-strategy.md).
 3. **Run the narrowest case.** Use the shared runner with `--test 'exact name'` or `--test-grep`, readiness waits, and its Node watchdog; see [commands](./references/commands.md). Keep the reproducer stable while diagnosing.
 4. **Read individual results.** Review each `Ok`, `Failed`, and `Error`; a completion message or exit status alone is not evidence. Skipped tests (including OOP) are not passes.
 5. **Broaden deliberately.** Expand to other browsers and devices in the [platform matrix](./references/platform-matrix.md) order only before pushing, opening a PR, or reporting final results, when asked, or when the failure is browser-specific. Do not run the full matrix after every edit.
