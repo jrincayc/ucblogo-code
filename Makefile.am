@@ -54,8 +54,8 @@ MOSTLYCLEANFILES = git.c
 .PHONY: FORCE
 FORCE:
 git.c: FORCE
-	echo 'char* GIT = "('`git describe --tags --always --dirty||echo -n NA`')";' > git-c-temp
-	if cmp --quiet git-c-temp $@; then echo "$@ already up to date"; else echo "Refreshing $@"; mv git-c-temp $@; fi
+	@echo 'char* GIT = "('`git describe --tags --always --dirty||echo -n NA`')";' > git-c-temp
+	@if cmp --quiet git-c-temp $@; then rm -f git-c-temp; else mv git-c-temp $@; fi
 
 if WX
 # need C++ linker
@@ -133,10 +133,9 @@ helpfiles/HELPCONTENTS helpfiles/ALL_NAMES: regenerate-help-index
 .PHONY: regenerate-help-index
 
 regenerate-help-index: makehelp usermanual
-	@echo "Regenerates entire contents of helpfiles/, including index, from usermanual."
 	./makehelp
-	@echo "Grave accent as filename is impossible with automake so work around it."
-	mv -v helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
+	@# Grave accent as filename is impossible with automake so work around it.
+	mv helpfiles/'`' helpfiles/RENAME-GRAVE-ACCENT
 	LC_ALL=C sort helptemp | pr -5 -t -l999 -w80 >> helpfiles/HELPCONTENTS
 	-rm helptemp
 
@@ -258,8 +257,8 @@ mac: ucblogo helpfiles/HELPCONTENTS helpfiles/ALL_NAMES
 	cp csls/[a-z]* UCBLogo.app/Contents/Resources/csls
 	cp -r helpfiles UCBLogo.app/Contents/Resources/
 	cp -r logolib UCBLogo.app/Contents/Resources/
-	mv -v UCBLogo.app/Contents/Resources/logolib/RENAME-GRAVE-ACCENT 'UCBLogo.app/Contents/Resources/logolib/`'
-	mv -v UCBLogo.app/Contents/Resources/logolib/RENAME-NUMBER-SIGN 'UCBLogo.app/Contents/Resources/logolib/#'
+	mv UCBLogo.app/Contents/Resources/logolib/RENAME-GRAVE-ACCENT 'UCBLogo.app/Contents/Resources/logolib/`'
+	mv UCBLogo.app/Contents/Resources/logolib/RENAME-NUMBER-SIGN 'UCBLogo.app/Contents/Resources/logolib/#'
 	cp logo.icns UCBLogo.app/Contents/Resources/
 	mkdir -p UCBLogo.app/Contents/MacOS/
 	cp ucblogo UCBLogo.app/Contents/MacOS/UCBLogo
