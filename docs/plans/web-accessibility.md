@@ -282,3 +282,5 @@ it's unclear how turtle graphics can be spoken
 # terminal help command
 terminal help command shoudl work well
 with screen reader
+
+question: How to handle setcursor generated output markup?
