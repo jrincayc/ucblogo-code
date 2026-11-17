@@ -42,12 +42,12 @@ Verify against the current workflow files before relying on these details.
 
 `origin` is the fork (`n1ywb-1/ucblogo-code`) and `upstream` is `jrincayc/ucblogo-code`, so plain `gh run list` fails with "No default remote repository"; always pass `-R`. Push runs live on the fork, `pull_request` runs on upstream; both build the same SHA.
 
-Shortcut: `scripts/ci-run.sh {list|watch|failed|errors} [branch] [repo]` wraps the steps below for the latest run on the current branch (default repo is `origin`). After a push, use `watch` and report the result; to push rewritten history, `git push --force-with-lease origin <branch>` only with explicit permission.
+Shortcut: `scripts/ci-run.sh {list|watch|failed|errors|log} [branch] [repo]` wraps the steps below for the latest run on the current branch (default repo is `origin`). Output is terse to save tokens: `watch` is silent on success and prints only failing "job: step" lines plus the first `N` (default 15) distinct errors on failure; `log` saves the full failed log to a temp file and prints its path. After a push, use `watch` and report the result; to push rewritten history, `git push --force-with-lease origin <branch>` only with explicit permission.
 
 1. `date; gh run list --branch wasm --limit 5 -R n1ywb-1/ucblogo-code --json databaseId,conclusion,event,headSha,displayTitle | cat` (use `-R jrincayc/ucblogo-code` for PR runs). Compare `headSha` with `git log -1`.
 2. `gh run view <id> -R <repo>` lists jobs and failed steps; `gh run view <id> -R <repo> --log-failed` prints their logs.
 3. Logs are huge and wrapped at terminal width: `--log-failed | grep -n "error\|Error"` first, then read around the hits. The full `--log | grep -m3 "Image: "` shows the runner image (for example `ubuntu-26.04`), which matters because `ubuntu-latest` moves.
-4. Compare against `upstream/master` (`git diff upstream/master HEAD -- <file>`) to tell a branch regression from an environment change. If the file is unchanged, suspect the runner image or toolchain.
+4. Compare against `upstream/master` (`scripts/upstream-diff.sh {fetch|files|legacy|log|find|diff}`; silent when nothing differs, `legacy` lists only upstream files the branch modified, deleted, or renamed, `find STR` finds the commit that added or removed STR) to tell a branch regression from an environment change. If the file is unchanged, suspect the runner image or toolchain.
 5. Reproduce locally only after noting that the local glibc/toolchain may differ from the runner's.
 
 `errors` matches compiler `error:`, `##[error]`, and TestCafe `✖`/`failed (` lines; `failed` prints the job table, whose failing step name says which suite broke. The log is prefixed with job, step, and timestamp, so `cut -c70-260` makes the body readable.
