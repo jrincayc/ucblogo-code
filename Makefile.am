@@ -96,11 +96,16 @@ dist_pixmaps_DATA = ucblogo.xpm
 
 # Include otherwise-skipped files in distribution tarball
 
+# Co-authored by GitHub Copilot. Scope: Phase 1 inspector ABI/build wiring.
+# Model: GPT-6 Luna; reasoning setting unavailable (maximum effort requested).
+# Task wall time: 4m 33s (as of 2026-11-17 18:16:27 UTC).
+# Energy (kWh) and CO2: unavailable.
+
 # #include files used in build
 EXTRA_DIST = eval.h globals.h gpl_text.h LogoFrame.h logo.h		\
  nographics.h obj.h TextEditor.h turtleshape.h wxGlobals.h		\
  wxGraphics.h wxMain.h wxTerminal.h wxCommandHistory.h			\
- wxTurtleGraphics.h xgraphics.h webgraphics.h storage-status.js
+ wxTurtleGraphics.h xgraphics.h webgraphics.h storage-status.js logo-inspect.js
  
 # # Source for utility program for regenerating ./helpfiles/ from ./usermanual
 # # See below; needs to run in build environment.
@@ -173,11 +178,12 @@ check-local: ucblogo-node.js
 	node ./ucblogo-node.js $(srcdir)/tests/test.lg
 endif
 
-ucblogo-node.js: $(ucblogo_OBJECTS) pre.js liblogo.js
+ucblogo-node.js: $(ucblogo_OBJECTS) pre.js logo-inspect.js liblogo.js
 	$(AM_V_CCLD)em++  \
 	-o ucblogo-node.js \
 	$(ucblogo_OBJECTS) \
 	--pre-js pre.js \
+	--pre-js logo-inspect.js \
 	-s ALLOW_MEMORY_GROWTH \
 	--emrun \
 	-s ENVIRONMENT=node \
@@ -192,6 +198,7 @@ _int_during_gc,\
 _inside_evaluator,\
 _Buttonact,\
 _Unbound,\
+_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars,\
 _logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
 _logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
 _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
@@ -208,7 +215,7 @@ help/docs.json: help/index.json
 	@test -f $@ || node scripts/build-help.js help >/dev/null
 
 # Embeds the installed data tree, so stage it with install-data first.
-ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js storage-status.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
+ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js logo-inspect.js storage-status.js liblogo.js webstartup.lg web-config.js help/index.json help/docs.json
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -s install-data >/dev/null
 	$(AM_V_CCLD)em++  \
 	-o ucblogo.html \
@@ -216,6 +223,7 @@ ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js storage-status.js liblogo.js 
 	--pre-js web-config.js \
 	--pre-js storage-status.js \
 	--pre-js pre.js \
+	--pre-js logo-inspect.js \
 	--embed-file $(DESTDIR)$(pkgdatadir)@/share/ucblogo \
 	--embed-file tests \
 	--embed-file web.lgo \
@@ -237,6 +245,7 @@ _int_during_gc,\
 _inside_evaluator,\
 _Buttonact,\
 _Unbound,\
+_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars,\
 _logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
 _logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
 _logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\

@@ -98,10 +98,10 @@ asset, since `--pre-js` code is inlined into `ucblogo.js`.
 Layout table: a single `LAYOUT` object (wasm32: 4-byte pointers and `FIXNUM`,
 `NODE` fields, `NT_*` flag values, `struct segment`, `struct registers`, object
 cell offsets). At attach time the inspector self-checks the layout (`Unbound`
-node type, first segment `size`, node stride, first non-empty `hash_table`
-bucket is a `CASEOBJ` with a readable name). On mismatch every call returns a
-`layout-mismatch` error rather than guessing. This covers `SERIALIZE_OBJECTS`
-and `OBJECTS` variants not matched by the table.
+node type, first segment `size`, node stride, and an object cell in the
+`hash_table` CONS chains with a readable nonempty canonical string). On mismatch
+every call returns a `layout-mismatch` error rather than guessing. This covers
+`SERIALIZE_OBJECTS` and `OBJECTS` variants not matched by the table.
 
 ### JSON contract
 

@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <setjmp.h>
 #ifdef __EMSCRIPTEN__
+#include <stddef.h>
 #include <stdint.h>
 #include <emscripten.h>
 #endif
@@ -31,6 +32,56 @@
 #define WANT_EVAL_REGS 1
 #include "logo.h"
 #include "globals.h"
+
+#ifdef __EMSCRIPTEN__
+/* Co-authored by GitHub Copilot. Scope: WebAssembly inspector ABI assertions. */
+/* Model: GPT-6 Luna; reasoning setting unavailable (maximum effort requested). */
+/* Task wall-clock through 2026-11-17T18:45:23Z: 38m 34s. */
+/* Energy (kWh) and CO2: unavailable; no measured data or defensible estimate. */
+#ifdef SERIALIZE_OBJECTS
+#error "The JavaScript inspector does not support SERIALIZE_OBJECTS"
+#endif
+
+_Static_assert(sizeof(void *) == 4, "The JavaScript inspector requires wasm32 pointers");
+_Static_assert(sizeof(FIXNUM) == 4, "The JavaScript inspector requires 32-bit FIXNUM");
+_Static_assert(HASH_LEN == 1021, "Unexpected hash-table length for the JavaScript inspector");
+_Static_assert(sizeof(NODE) == 40, "Unexpected wasm32 NODE size");
+_Static_assert(offsetof(NODE, node_type) == 0, "Unexpected NODE.node_type offset");
+_Static_assert(offsetof(NODE, my_gen) == 4, "Unexpected NODE.my_gen offset");
+_Static_assert(offsetof(NODE, gen_age) == 8, "Unexpected NODE.gen_age offset");
+_Static_assert(offsetof(NODE, mark_gc) == 12, "Unexpected NODE.mark_gc offset");
+_Static_assert(offsetof(NODE, next) == 16, "Unexpected NODE.next offset");
+_Static_assert(offsetof(NODE, oldyoung_next) == 20, "Unexpected NODE.oldyoung_next offset");
+_Static_assert(offsetof(NODE, nunion) == 24, "Unexpected NODE.nunion offset");
+
+_Static_assert(offsetof(struct segment, next) == 0, "Unexpected segment.next offset");
+_Static_assert(offsetof(struct segment, size) == 4, "Unexpected segment.size offset");
+_Static_assert(offsetof(struct segment, nodes) == 8, "Unexpected segment.nodes offset");
+
+_Static_assert(offsetof(struct registers, r_proc) == 0, "Unexpected registers.r_proc offset");
+_Static_assert(offsetof(struct registers, r_argl) == 4, "Unexpected registers.r_argl offset");
+_Static_assert(offsetof(struct registers, r_unev) == 8, "Unexpected registers.r_unev offset");
+_Static_assert(offsetof(struct registers, r_fun) == 12, "Unexpected registers.r_fun offset");
+_Static_assert(offsetof(struct registers, r_ufun) == 16, "Unexpected registers.r_ufun offset");
+_Static_assert(offsetof(struct registers, r_var) == 20, "Unexpected registers.r_var offset");
+_Static_assert(offsetof(struct registers, r_vsp) == 24, "Unexpected registers.r_vsp offset");
+_Static_assert(offsetof(struct registers, r_qm_list) == 28, "Unexpected registers.r_qm_list offset");
+_Static_assert(offsetof(struct registers, r_formals) == 32, "Unexpected registers.r_formals offset");
+_Static_assert(offsetof(struct registers, r_last_ufun) == 36, "Unexpected registers.r_last_ufun offset");
+_Static_assert(offsetof(struct registers, r_this_line) == 40, "Unexpected registers.r_this_line offset");
+_Static_assert(offsetof(struct registers, r_last_line) == 44, "Unexpected registers.r_last_line offset");
+_Static_assert(offsetof(struct registers, r_current_unode) == 48, "Unexpected registers.r_current_unode offset");
+_Static_assert(offsetof(struct registers, r_didnt_output_name) == 52, "Unexpected registers.r_didnt_output_name offset");
+_Static_assert(offsetof(struct registers, r_didnt_get_output) == 56, "Unexpected registers.r_didnt_get_output offset");
+#ifdef OBJECTS
+_Static_assert(offsetof(struct registers, r_usual_parent) == 60, "Unexpected registers.r_usual_parent offset");
+_Static_assert(offsetof(struct registers, r_usual_caller) == 64, "Unexpected registers.r_usual_caller offset");
+_Static_assert(offsetof(struct registers, r_val_status) == 68, "Unexpected OBJECTS registers.r_val_status offset");
+#else
+_Static_assert(offsetof(struct registers, r_val_status) == 60, "Unexpected registers.r_val_status offset");
+#endif
+#endif
+
 extern NODE *stack, *numstack, *expresn, *val, *parm, *catch_tag, *arg;
 
 #ifdef PUNY
