@@ -93,6 +93,21 @@ const useLiveNames = ClientFunction(() => {
     const element = document.querySelector('logo-autocomplete');
     element.provider = element.liveProvider ?? element.provider;
 });
+const useStubEditorNames = ClientFunction((names) => {
+    const element = document.querySelector('logo-autocomplete[for="editorTextArea"]');
+    element.liveProvider ??= element.provider;
+    element.provider = (text) => {
+        const entries = [];
+        for (const name of names) {
+            if (name.startsWith(text.toLowerCase())) entries.push({ name, kind: 'primitive' });
+        }
+        return entries;
+    };
+});
+const useLiveEditorNames = ClientFunction(() => {
+    const element = document.querySelector('logo-autocomplete[for="editorTextArea"]');
+    element.provider = element.liveProvider ?? element.provider;
+});
 const openSettingsDialog = ClientFunction(() => document.getElementById('settings').showModal());
 const settingsDialogOpen = ClientFunction(() => document.getElementById('settings').open);
 const editorDialogOpen = ClientFunction(() => document.getElementById('editorDialog').open);
@@ -217,6 +232,7 @@ fixture('Logo word autocompletion')
     .afterEach(async (t) => {
         try {
             await useLiveNames();
+            await useLiveEditorNames();
         } finally {
             if (t.ctx.legacyFontSizeCaptured) await storeLegacyFontSize(t.ctx.originalLegacyFontSize);
             await restoreSettings(t);
@@ -250,6 +266,173 @@ test('editor: completes words while Logo is suspended', async (t) => {
         await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
     }
 });
+
+test('editor: horizontal suggestions keep the textarea full width when empty', async (t) => {
+    await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+    await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+    const measureEditor = ClientFunction(() => {
+        const container = document.querySelector('#editorDialog .editorTextContainer');
+        const input = document.getElementById('editorTextArea');
+        const suggestions = container.querySelector('logo-autocomplete');
+        return {
+            container: container.getBoundingClientRect().toJSON(),
+            input: input.getBoundingClientRect().toJSON(),
+            suggestions: suggestions.getBoundingClientRect().toJSON(),
+            expanded: input.getAttribute('aria-expanded'),
+        };
+    });
+    try {
+        for (const size of [{ width: 690, height: 900 }, { width: 740, height: 450 }]) {
+            await t.resizeWindow(size.width, size.height);
+            await prepareEmptyEditor();
+            await t.typeText(Selector('#editorTextArea'), 'printwidthlimit ');
+            const empty = await measureEditor();
+            await t.expect(empty.expanded).eql('false')
+                .expect(Math.abs(empty.input.width - empty.container.width)).lte(1)
+                .expect(Math.abs(empty.suggestions.width - empty.container.width)).lte(1)
+                .expect(empty.suggestions.top).gte(empty.input.bottom);
+            await t.typeText(Selector('#editorTextArea'), 'forw');
+            const populated = await measureEditor();
+            await t.expect(populated.expanded).eql('true')
+                .expect(Math.abs(populated.input.width - empty.input.width)).lte(1)
+                .expect(Math.abs(populated.input.height - empty.input.height)).lte(1)
+                .expect(populated.suggestions.top).gte(populated.input.bottom);
+            await t.pressKey('esc');
+            const dismissed = await measureEditor();
+            await t.expect(dismissed.expanded).eql('false')
+                .expect(Math.abs(dismissed.input.width - empty.input.width)).lte(1)
+                .expect(Math.abs(dismissed.input.height - empty.input.height)).lte(1);
+        }
+    } finally {
+        await discardEditor();
+        await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+    }
+}).meta({ requires: 'resize' });
+
+test('editor: suggestions use reserved space and responsive pill content', async (t) => {
+    await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+    await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+    try {
+        await prepareEditorCompletion();
+        const layout = await ClientFunction(() => {
+            const input = document.getElementById('editorTextArea');
+            const host = document.querySelector('logo-autocomplete[for="editorTextArea"]');
+            const box = host.shadowRoot.querySelector('[role="listbox"]');
+            const option = box.querySelector('[role="option"]');
+            const usage = option.querySelector('.usage');
+            const summary = option.querySelector('.summary');
+            const signatures = usage.querySelectorAll('.signature');
+            let visibleSignatures = 0;
+            for (const signature of signatures) {
+                if (signature.getBoundingClientRect().height > 0) visibleSignatures++;
+            }
+            return {
+                input: input.getBoundingClientRect().toJSON(),
+                host: host.getBoundingClientRect().toJSON(),
+                option: option.getBoundingClientRect().toJSON(),
+                compact: matchMedia('(max-width: 47.99rem), (pointer: coarse)').matches,
+                vertical: matchMedia('(orientation: landscape) and (min-width: 48rem)').matches,
+                usageVisible: usage.getBoundingClientRect().height > 0,
+                summaryVisible: summary.getBoundingClientRect().height > 0,
+                visibleSignatures,
+                viewportWidth: document.documentElement.clientWidth,
+                viewportHeight: window.innerHeight,
+                focused: document.activeElement === input,
+            };
+        })();
+        await t.expect(layout.focused).ok()
+            .expect(layout.option.height).gte(44)
+            .expect(layout.host.left).gte(0)
+            .expect(layout.host.right).lte(layout.viewportWidth + 1)
+            .expect(layout.host.bottom).lte(layout.viewportHeight + 1)
+            .expect(layout.usageVisible).eql(!layout.compact)
+            .expect(layout.summaryVisible).eql(!layout.compact)
+            .expect(layout.visibleSignatures).eql(layout.compact ? 0 : 1);
+        if (layout.vertical) {
+            await t.expect(layout.host.left).gte(layout.input.right)
+                .expect(Math.abs(layout.host.height - layout.input.height)).lte(1);
+        } else {
+            await t.expect(layout.host.top).gte(layout.input.bottom)
+                .expect(Math.abs(layout.host.width - layout.input.width)).lte(1);
+        }
+    } finally {
+        await discardEditor();
+        await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+    }
+});
+
+for (const size of [
+    { name: 'portrait row', width: 1000, height: 1200, vertical: false },
+    { name: 'landscape rail', width: 1280, height: 800, vertical: true },
+]) {
+    test(`editor: ${size.name} scrolls suggestions without resizing or scrolling the textarea`, async (t) => {
+        await t.resizeWindow(size.width, size.height);
+        await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
+        await t.expect(editorDialogOpen()).ok('Logo editor should open', { timeout: 10000 });
+        const measure = ClientFunction(() => {
+            const input = document.getElementById('editorTextArea');
+            const host = document.querySelector('logo-autocomplete[for="editorTextArea"]');
+            const box = host.shadowRoot.querySelector('[role="listbox"]');
+            return {
+                input: input.getBoundingClientRect().toJSON(),
+                host: host.getBoundingClientRect().toJSON(),
+                inputScrollTop: input.scrollTop,
+                scrollLeft: box.scrollLeft,
+                scrollTop: box.scrollTop,
+                expanded: input.getAttribute('aria-expanded'),
+            };
+        });
+        try {
+            const names = Array.from({ length: 30 }, (_, index) => `fcompletion${index}`);
+            await useStubEditorNames(names);
+            await prepareEmptyEditor();
+            const empty = await measure();
+            await t.typeText(Selector('#editorTextArea'), 'f');
+            const populated = await measure();
+            await t.expect(populated.expanded).eql('true')
+                .expect(Math.abs(populated.input.width - empty.input.width)).lte(1)
+                .expect(Math.abs(populated.input.height - empty.input.height)).lte(1);
+            if (size.vertical) {
+                await t.expect(populated.host.left).gte(populated.input.right);
+            } else {
+                await t.expect(populated.host.top).gte(populated.input.bottom);
+            }
+            await ClientFunction((vertical) => {
+                const box = document.querySelector('logo-autocomplete[for="editorTextArea"]')
+                    .shadowRoot.querySelector('[role="listbox"]');
+                if (vertical) box.scrollTop = box.scrollHeight;
+                else box.scrollLeft = box.scrollWidth;
+            })(size.vertical);
+            const scrolled = await measure();
+            await t.expect(size.vertical ? scrolled.scrollTop : scrolled.scrollLeft).gt(0)
+                .expect(scrolled.inputScrollTop).eql(populated.inputScrollTop)
+                .expect(scrolled.input).eql(populated.input);
+            await t.pressKey('esc');
+            const dismissed = await measure();
+            await t.expect(dismissed.expanded).eql('false')
+                .expect(dismissed.input).eql(empty.input)
+                .expect(dismissed.host).eql(empty.host);
+            await t.selectText(Selector('#editorTextArea')).typeText(Selector('#editorTextArea'), 'f');
+            await ClientFunction((vertical) => {
+                const box = document.querySelector('logo-autocomplete[for="editorTextArea"]')
+                    .shadowRoot.querySelector('[role="listbox"]');
+                if (vertical) box.scrollTop = box.scrollHeight;
+                else box.scrollLeft = box.scrollWidth;
+            })(size.vertical);
+            await clickEditorSuggestionInPage(names[names.length - 1]);
+            const completed = `${names[names.length - 1]} `;
+            await t.expect(await editorState()).eql({
+                dialogOpen: true,
+                value: completed,
+                caret: completed.length,
+                focused: true,
+            });
+        } finally {
+            await discardEditor();
+            await t.expect(logoIdle()).ok('Logo should return to idle after discarding the editor');
+        }
+    }).meta({ requires: 'resize' });
+}
 
 test('editor: Tab completion preserves newline and Escape behavior', async (t) => {
     await t.typeText(commandInput, 'edall', { paste: true }).pressKey('enter');
