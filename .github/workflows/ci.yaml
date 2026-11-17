@@ -61,6 +61,7 @@ jobs:
         path: |
           reports/testcafe.json
           reports/lighthouse/
+          screenshots/failures/
 
   build_and_test:
     strategy:

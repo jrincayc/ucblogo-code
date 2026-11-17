@@ -16,6 +16,10 @@ const diagnostics = ClientFunction(() => ({
     output: document.getElementById('output')?.textContent.slice(-12000),
     blockedOnGetc: window.Module?.blockedOnGetc,
     stdinLength: window.Module?.FS_runjs_getChar_buffer?.length,
+    helpOpen: document.getElementById('helpDialog')?.open,
+    helpCategories: document.querySelectorAll('#helpCatList h3 button').length,
+    activeElement: document.activeElement?.id || document.activeElement?.tagName,
+    fontSize: window.Module?.fontSize,
 }));
 const reload = ClientFunction(() => location.reload());
 const storedSettings = ClientFunction(() => localStorage.getItem('ucblogo.settings'));
@@ -65,6 +69,8 @@ async function isolateSettings(t) {
 }
 
 async function restoreSettings(t) {
+    // The reload below discards the failed page, so describe it first.
+    const failedState = t.testRun.errs.length ? await diagnostics().catch((error) => ({ error: String(error) })) : null;
     try {
         if (t.ctx.settingsCaptured) {
             await storeSettings(t.ctx.originalSettings);
@@ -75,9 +81,7 @@ async function restoreSettings(t) {
             await storeLegacyFont(t.ctx.originalLegacyFont);
         }
     } finally {
-        if (t.testRun.errs.length) {
-            console.error('Logo state:', JSON.stringify(await diagnostics()));
-        }
+        if (failedState) console.error('Logo state:', JSON.stringify(failedState));
     }
 }
 

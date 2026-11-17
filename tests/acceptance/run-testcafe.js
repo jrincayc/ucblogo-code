@@ -105,6 +105,8 @@ function configure(env = process.env, argv = process.argv.slice(2), warn = conso
     addDefault('--hostname', env.TESTCAFE_HOSTNAME);
     addDefault('--ports', ports);
     addDefault('--reporter', 'spec,json:reports/testcafe.json', '-r');
+    if (capabilities.includes('screenshots'))
+        addDefault('--screenshots', 'takeOnFails=true,pathPattern=failures/${FIXTURE}/${TEST}/${USERAGENT}-${FILE_INDEX}.png');
     const forwarded = [...defaults, ...args];
     const initIndex = forwarded.findLastIndex((argument) =>
         argument === '--browser-init-timeout' || argument.startsWith('--browser-init-timeout='));

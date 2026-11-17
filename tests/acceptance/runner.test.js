@@ -119,6 +119,9 @@ test('defaults use headless Chrome, proxy automation, reports, and desktop capab
     assert.ok(!config.args.includes('--headed'));
     assert.ok(config.args.includes('spec,json:reports/testcafe.json'));
     assert.deepEqual(config.capabilities, ['resize', 'screenshots']);
+    assert.match(config.args[config.args.indexOf('--screenshots') + 1], /^takeOnFails=true,/);
+    assert.ok(!configure({ TESTCAFE_CAPABILITIES: 'resize' }, []).args.includes('--screenshots'));
+    assert.ok(!configure({}, ['--screenshots', 'takeOnFails=false']).args.includes('takeOnFails=true,pathPattern=failures/${FIXTURE}/${TEST}/${USERAGENT}-${FILE_INDEX}.png'));
     assert.equal(config.watchdogMs, 300000);
     assert.equal(configure({ TESTCAFE_HEADLESS: '0' }, []).browser, 'chrome');
     assert.ok(!configure({}, ['--native-automation']).args.includes('--disable-native-automation'));
