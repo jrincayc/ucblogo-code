@@ -27,20 +27,45 @@ Edition support.
 
 ### Reentrancy rule
 
-The inspector reads Wasm linear memory only (a `Uint8Array`/`DataView` over the
-heap, re-acquired on every API call so `ALLOW_MEMORY_GROWTH` cannot leave a
-stale view). It never calls `Module._*` functions, `ccall`, `cwrap`, or
+The inspector reads Wasm linear memory only (see Memory access). It never calls `Module._*` functions, `ccall`, `cwrap`, or
 `Module.run_evaluator`. JS is single-threaded, so while the inspector runs the
 interpreter cannot execute; a read is a consistent snapshot of whatever state
 the runtime was suspended in. This is the same pattern already used for C
 globals (`getValue(Module._Unbound, '*')` in [liblogo.js](../../liblogo.js)).
 
-Under ASAN, these raw reads do not detect poisoned nodes. They also must not
-go through Emscripten's instrumented accessors (`getValue`, `_asan_js_load_*`),
-which call C and would trap on a poisoned read. Core scope reads raw memory and
-does not report poison; reporting it is the ASAN stretch goal below, so the
-data model leaves room for it (an optional `asan` field on nodes, never a
-thrown error).
+ASAN is out of scope for now (see the deferred section at the end).
+
+### Memory access
+
+Checked against the pinned Emscripten 4.0.5 and the current `ucblogo.js` and
+`ucblogo-node.js`. All of these options are pure JS; none calls into Wasm.
+
+| Option | Verdict |
+| --- | --- |
+| Typed views `HEAPU8`, `HEAP16`, `HEAP32`, `HEAPU32`, `HEAPF64` | **Use.** One indexed load per field, no per-call type dispatch, and the view type documents the C type. Bulk heap walks read thousands of nodes. |
+| `getValue(ptr, type)` | Acceptable for one-off console use, not for the inspector. In this build it is a `switch` over the same views (`'*'` uses `HEAPU32`, `'i32'` is signed, `'i64'` returns a `BigInt`, which is not JSON). It adds nothing over the views and has no unsigned 8/16/32-bit integer types. |
+| `setValue` | Never: the inspector is read-only. |
+| `UTF8ToString(ptr)` | **Do not use for Logo words.** Words are `n_str`/`n_len` slices into shared `string_block`s, not NUL-terminated, and `ecma` (always on in `logo.h`) stores backslashed special characters as bytes `3..` (`ecma_set`, `special_chars` in `logodata.c`). Decode `HEAPU8.subarray(n_str, n_str + n_len)` with `TextDecoder`, then map those bytes back through `special_chars`, read from memory rather than copied into JS. |
+| `DataView` | Not needed. Wasm is little-endian and NODE fields are naturally aligned. |
+
+Rules for the views:
+
+- Use the module-scope `HEAP*` variables. `logo-inspect.js` is a `--pre-js`, so
+  it shares the module scope, as `pre.js` already does with `getValue` and
+  `UTF8ToString`. Never cache a view in a variable or closure: on memory growth
+  `updateMemoryViews()` replaces every view, and a cached one goes stale.
+  `Module.HEAP*` is not exported and is not needed.
+- `ptr >> 2` (or `>> 3`) silently floors a misaligned pointer onto the wrong
+  field. Check alignment first: NODE addresses must be 8-byte aligned (the
+  union holds a `double`), and 32-bit fields 4-byte aligned. A misaligned
+  address returns a `misaligned` error, not a read.
+- Pointers, `FIXNUM`/`long`, and `int` are 32-bit on wasm32. Read pointers with
+  `HEAPU32` and signed fields (`nint`, `my_gen`, `n_len`) with `HEAP32`. Read the
+  `nprim` shorts with `HEAP16`, `nfloat` with `HEAPF64`, and the
+  `SERIALIZE_OBJECTS` `id` as two `HEAPU32` words, combined into a number only
+  when it is below 2^53, otherwise as a hex string.
+- `nprim_fun` is a function-table index, not a memory address. Report it as
+  a number and never follow it.
 
 ### C-side changes (data and deletions only, no new code)
 
@@ -50,9 +75,8 @@ thrown error).
   `_regs`, `_var_stack`, `_the_generation`; `_Unbound`, `_inside_gc`, and
   `_LOGO_GIL` are already exported. JS reads these as addresses, like
   `Module._Unbound` today.
-- Add `HEAPU8` to `-sEXPORTED_RUNTIME_METHODS` for both targets (or use
-  `wasmMemory.buffer` if that is already reachable); verify against the pinned
-  Emscripten version.
+- Export `_special_chars` (data) for word decoding. No
+  `EXPORTED_RUNTIME_METHODS` change is needed, since the views are in scope.
 - Add a `__EMSCRIPTEN__`-guarded `_Static_assert` block in `mem.c` for
   `sizeof(NODE)`, the `NODE` and `struct segment` field offsets, and the
   `struct registers` offsets the JS layout table depends on. A layout change
@@ -102,9 +126,60 @@ Logo values:
 | shared or cyclic node | first visit carries `"addr"`; later visits are `{"t":"ref","addr":N}` |
 | limit hit | `{"t":"truncated","reason":"depth"}` or `"count"` |
 
-Each value also optionally carries `"text"`, a Logo-printable rendering, such as
+Each value also carries `"addr"` so a caller can drill down to `node()`
+or `tree()`. Each value also optionally carries `"text"`, a Logo-printable rendering, such as
 `[a b [c]]`, for quick reading. Addresses are numbers. Limits default to
 `depth: 8`, `count: 1000`, `bytes: 65536` and can be overridden per call.
+
+### Raw NODE
+
+`node(addr)` returns the struct exactly as stored, plus decoding. This is the
+lowest level, and the other methods are built on it:
+
+```json
+{
+  "addr": 1052744, "segment": {"addr": 1048576, "index": 104},
+  "node_type": {"value": 768, "octal": "01400", "name": "INTT",
+                "flags": ["NT_WORD", "NT_NUMBER"]},
+  "id": null, "my_gen": 0, "gen_age": 3, "mark_gc": 12,
+  "next": 1052784, "oldyoung_next": 0,
+  "union": {"view": "nint", "nint": 42},
+  "words": ["0x00000300", "0x00000000", "..."],
+  "bytes": "0003000000000000..."
+}
+```
+
+- `node_type.name` is the matching `NODETYPES` composite (`CONS`, `STRING`,
+  `CASEOBJ`, `ARRAY`, `LINE`, ...), or `null` if none matches. `flags` always
+  lists the individual `NT_*` bits. `NTFREE` (`-1`) gives `name: "NTFREE"`.
+- `union.view` is chosen from the type: `ncons` (`ncar`, `ncdr`, `nobj`),
+  `nstring` (`nstring_ptr`, `nstring_head`, `nstring_len`, plus `refcnt` from
+  the string block and the decoded `text` and raw hex `strbytes`), `nprim`
+  (`fun`, `priority`, `min`, `dflt`, `max`), `nint`, `nfloat`, or `narray`
+  (`dim`, `origin`, `data`, the element pointer list). For an unknown type,
+  `union.view` is `"unknown"`.
+- `words` (32-bit hex) and `bytes` (hex) dump the whole `sizeof(NODE)` struct,
+  so nothing depends on the decoding being right.
+- Pointer fields are numbers. `0` is `NIL`. Known globals are annotated:
+  `{"addr": N, "sym": "Unbound"}`.
+
+### NODE tree
+
+`tree(root, opts)` walks from `root` and returns the full NODE tree as nested
+raw nodes. `root` can be an address or a name. Each pointer field is replaced
+by the child's raw node. A node already emitted becomes `{"ref": addr}` (this
+handles shared structure and cycles). Limits give `{"truncated": "depth"}` or
+`"count"`. Children: `ncar`, `ncdr`, `nobj` for cons-like nodes, every `narray`
+element, and `nstring_head` as a raw string block, `{refcnt, bytes}`.
+
+Given a name, the root is the Logo object found by scanning `hash_table`:
+the cons list `[canonical procnode valnode plist obflags caselist...]` from
+the `__object` accessors in `logo.h`. With `opts.roles` (default on), each
+child also gets a `role` from those accessors. Object cells get `canonical`,
+`procnode`, `valnode`, `plist`, `obflags`, and `caselist`. Procnode cells get
+`text`, `formals`, `bodywords`, `minargs`, `dfltargs`, and `maxargs`. Case
+objects get `strnode` and `object`. Roles are labels only; the raw fields are
+unchanged. `tree` replaces `pcons`/`graph`.
 
 ### API surface
 
@@ -117,15 +192,15 @@ All methods return the contract above.
 | `procedure(name)` | formals, body lines, text, min/default/max arity, flags |
 | `variable(name)`, `plist(name)` | global value; `[{prop, value}]` |
 | `value(addrOrName, opts)` | any node as the Logo value model |
-| `node(addr)` | raw node: decoded type flags, `car`/`cdr`/`obj`, generation, mark, id |
-| `graph(addr, opts)` | replaces `pcons`: `{root, nodes:{addr:node}}` adjacency map |
-| `nodes({offset, limit})` | replaces `dumpNodes`: paged heap walk by segment |
+| `node(addr)` | one raw NODE (see Raw NODE) |
+| `tree(addrOrName, opts)` | full raw NODE tree from an address or a Logo object (see NODE tree) |
+| `nodes({offset, limit})` | replaces `dumpNodes`: paged heap walk by segment, raw nodes |
 | `registers()` | evaluator `regs` as values (`proc`, `ufun`, `this_line`, ...) |
 | `frames()` | `var_stack` dynamic variable frames (phase 3) |
 | `json(method, ...args)` | `JSON.stringify` helper with indentation option |
 
 `Module.logoGC` and `globalThis.logoGC` become a deprecated alias over
-`node`/`nodes`/`graph` for one release, then are removed. `gdb.rc` is
+`node`/`nodes`/`tree` for one release, then are removed. `gdb.rc` is
 unchanged.
 
 ### Address safety
@@ -196,10 +271,18 @@ no `/dev/runjs`, so there is no point at which JS can inspect a live program.
 | 16 | `runjs "\|window.__i = JSON.stringify(Module.logoInspect.variable('n'))\|` | read `window.__i` | inspector called from inside a C call returns `{t:"int", v:42}` and Logo continues |
 | 17 | `gc` after cases 2 to 6 | repeat cases 2 to 6 | values unchanged after collection |
 | 18 | grow the heap with a large list until `HEAPU8.length` increases | `variable("n")` | still correct after memory growth |
+| 19 | (case 2) | `node(addr of :n's value)` | `node_type` `{value:768, octal:"01400", name:"INTT"}`, `union.nint` 42, `words.length` = `sizeof(NODE)/4`, `bytes` length matches |
+| 20 | (case 2) | `node(addr + 4)` | `ok:false`, code `misaligned` |
+| 21 | (case 5) | `tree("l")` | root is `l`'s object cell; the `valnode` child is `CONS`; three `ncdr` cells end in `0`; the second `ncar` is `CONS`; leaf `nstring.text` values are `a`, `b`, `c`, `3` |
+| 22 | (case 7) | `tree("c")` | terminates; contains `{ref: <first cell addr>}` |
+| 23 | (case 9) | `tree("sq")` | has a `procnode` child with `formals` and `minargs` roles; `minargs` is `nint` 1 |
+| 24 | (case 21) | `node(a)` for each `a` in the tree | equals that node in the tree, ignoring nested children |
+| 25 | `make "s "a\ b` | `tree("s")` value word | `nstring.text` `a b`; `strbytes` `610362` (`ecma` code 3 for the space) |
 
 Cases 9 and 10 cover the arity decoding that is easy to get wrong. Cases 15
 and 16 are the reason the inspector exists: they show it is safe at the two
-points where calling C was not.
+points where calling C was not. Cases 19 to 25 check the raw layer that the
+other cases are built on.
 
 Phase 3 adds two cases once the schema is defined. One calls `registers()` and
 `frames()` while `to w local "x make "x 5 make "r readword end` is waiting, and
@@ -219,25 +302,27 @@ debugging aid.
 
 ## Phases
 
-0. **Tests (red).** Write cases 1 to 18 and the source check. Confirm each
+0. **Tests (red).** Write cases 1 to 25 and the source check. Confirm each
    fails because `Module.logoInspect` is missing, not from a harness error.
    Commit and review.
 1. **Layout and memory access.** `LAYOUT` table, static asserts, heap view,
-   data-symbol exports, `status()`, `node()`. Green: 1, 14.
+   data-symbol exports, `status()`, `node()`. Green: 1, 14, 19, 20.
 2. **Logo value model.** Words, numbers, lists, arrays, limits, `text`,
-   `graph`, `nodes`, `workspace`, `procedure`, `variable`, `plist`. Green: 2 to
-   13 and 15 to 18.
+   `tree`, `nodes`, `workspace`, `procedure`, `variable`, `plist`. Green: 2 to
+   13, 15 to 18, and 21 to 25.
 3. **Registers and frames.** Study `eval.c` and `var_stack`, add the two
    phase 3 cases red, then implement.
 4. **Removal.** Delete the C debug exports and `Module.logoGC`, switch the
    `eval.c` ASAN hook, update docs. Green: the source check.
 5. **Optional Logo access.** Decide after phase 2; tests first if approved.
-6. **Stretch: ASAN poison reporting.** See below.
+6. **Deferred: ASAN poison reporting.** See below.
 
 Commit after each phase. Rebuild and bypass the service worker before
 trusting a browser result.
 
-## Stretch Goal: ASAN Poison Reporting
+## Deferred: ASAN Poison Reporting
+
+Out of scope for now; kept for reference.
 
 Under ASAN the inspector should report poisoned nodes instead of hiding
 corruption: a poisoned node is still returned with its raw contents, flagged,
@@ -283,8 +368,8 @@ supported ASAN diagnostic.
   asserts plus the runtime self-check; the alternative is a C-emitted constant
   layout table (data only), which removes duplication at the cost of a larger C
   change. Recommend the JS table with static asserts first.
-- **Heap view export** may need `HEAPU8` in `EXPORTED_RUNTIME_METHODS`;
-  confirm it does not change the size/behavior of the Asyncify build.
+- **Heap views in scope** depend on `--pre-js` sharing the module scope and on
+  `updateMemoryViews` naming; recheck after any toolchain upgrade.
 - **`Module._` data exports** must resolve to numeric addresses with
   `STRICT_JS` on the pinned Emscripten (as `_Unbound` does today); check after
   any toolchain upgrade (see [emscripten-upgrade.md](emscripten-upgrade.md)).
