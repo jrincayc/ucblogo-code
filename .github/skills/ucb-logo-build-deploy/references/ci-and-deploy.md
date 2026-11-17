@@ -52,7 +52,7 @@ Shortcut: `scripts/ci-run.sh {list|watch|failed|errors|log} [branch] [repo]` wra
 
 `errors` matches compiler `error:`, `##[error]`, and TestCafe `✖`/`failed (` lines; `failed` prints the job table, whose failing step name says which suite broke. The log is prefixed with job, step, and timestamp, so `cut -c70-260` makes the body readable.
 
-Known flake: `HELP-FONT-24` in `tests/acceptance/help-font-size.testcafe.js` once failed (selector `#helpCatList h3 button` with text "Constructors" not found) with 89/90 passing and the identical test passing on the previous run; rerun with `gh run rerun <id> -R <repo> --failed` before changing code.
+Intermittent: `HELP-FONT-24` in `tests/acceptance/help-font-size.testcafe.js` failed twice on one SHA (selector `#helpCatList h3 button` with text "Constructors" not found, 89/90 passing) after passing on the previous SHA, so a rerun does not prove a flake; the other help-font sizes passed.
 
 Known failure: native terminal builds on `ubuntu-26.04` (glibc without `struct termio`) fail in `term.c` with "`tty_cooked` has an incomplete type `struct termio`" (uses `TCGETA`/`TCSETA`). Not caused by the branch; the fix is to use `struct termios` with `tcgetattr`/`tcsetattr`.
 
