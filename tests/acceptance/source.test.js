@@ -7,6 +7,50 @@ const { createStorageStatusController } = require('../../storage-status.js');
 
 const repositoryRoot = path.resolve(__dirname, '../..');
 
+// Co-authored by GitHub Copilot.
+describe('Logo inspection source constraints', () => {
+    it('uses no Wasm function calls and removes the legacy GC debug API', () => {
+        const inspectorPath = path.join(repositoryRoot, 'logo-inspect.js');
+        assert.ok(fs.existsSync(inspectorPath), 'logo-inspect.js must exist');
+
+        const inspector = fs.readFileSync(inspectorPath, 'utf8');
+        assert.doesNotMatch(inspector, /\bModule\s*\.\s*_[\w$]+\s*\(/);
+        assert.doesNotMatch(inspector, /\b(?:ccall|cwrap|getValue)\s*\(/);
+
+        const ignoredDirectories = new Set([
+            '.git', 'node_modules', '.deps', 'autom4te.cache', 'build', 'dist', 'coverage',
+            'reports', 'screenshots',
+        ]);
+        const generatedFiles = new Set([
+            'ucblogo', 'ucblogo.html', 'ucblogo.js', 'ucblogo-node.js', 'ucblogo.wasm',
+            'sw.js', 'Makefile', 'Makefile.in', 'config.h', 'config.h.in', 'config.status',
+            'configure', 'aclocal.m4',
+        ]);
+        const binaryFile = /\.(?:a|bin|dll|exe|gif|ico|jpe?g|o|obj|pdf|png|so|wasm|webp|woff2?|ttf|zip|gz|xz)$/i;
+        const legacyName = 'logo_gc' + '_debug';
+        const references = [];
+
+        const scan = (directory) => {
+            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                const file = path.join(directory, entry.name);
+                const relative = path.relative(repositoryRoot, file).split(path.sep).join('/');
+                if (entry.isDirectory()) {
+                    if (!ignoredDirectories.has(entry.name) && relative !== 'docs/plans') scan(file);
+                } else if (entry.isFile() && !entry.name.endsWith('~') &&
+                           !generatedFiles.has(entry.name) && !/^workbox-.*\.js$/.test(entry.name) &&
+                           !binaryFile.test(entry.name)) {
+                    const text = fs.readFileSync(file, 'utf8');
+                    if (!text.includes('\0') && text.includes(legacyName)) references.push(relative);
+                }
+            }
+        };
+
+        scan(repositoryRoot);
+        assert.deepEqual(references.sort(), [],
+            `legacy GC debug references: ${references.join(', ')}`);
+    });
+});
+
 describe('startup error reporting', () => {
     it('skips local service workers and handles registration failures', async () => {
         const shell = fs.readFileSync(path.join(repositoryRoot, 'shell.html'), 'utf8');
