@@ -38,6 +38,18 @@ Verify against the current workflow files before relying on these details.
    - Remove the temporary directory.
 6. A browser that already loaded the site may keep serving the old build from its service worker; use a fresh profile or the [stale-artifacts checklist](../../ucb-logo-web-testing/references/stale-artifacts.md) before concluding the deploy failed.
 
+## Diagnosing A CI Failure
+
+`origin` is the fork (`n1ywb-1/ucblogo-code`) and `upstream` is `jrincayc/ucblogo-code`, so plain `gh run list` fails with "No default remote repository"; always pass `-R`. Push runs live on the fork, `pull_request` runs on upstream; both build the same SHA.
+
+1. `date; gh run list --branch wasm --limit 5 -R n1ywb-1/ucblogo-code --json databaseId,conclusion,event,headSha,displayTitle | cat` (use `-R jrincayc/ucblogo-code` for PR runs). Compare `headSha` with `git log -1`.
+2. `gh run view <id> -R <repo>` lists jobs and failed steps; `gh run view <id> -R <repo> --log-failed` prints their logs.
+3. Logs are huge and wrapped at terminal width: `--log-failed | grep -n "error\|Error"` first, then read around the hits. The full `--log | grep -m3 "Image: "` shows the runner image (for example `ubuntu-26.04`), which matters because `ubuntu-latest` moves.
+4. Compare against `upstream/master` (`git diff upstream/master HEAD -- <file>`) to tell a branch regression from an environment change. If the file is unchanged, suspect the runner image or toolchain.
+5. Reproduce locally only after noting that the local glibc/toolchain may differ from the runner's.
+
+Known failure: native terminal builds on `ubuntu-26.04` (glibc without `struct termio`) fail in `term.c` with "`tty_cooked` has an incomplete type `struct termio`" (uses `TCGETA`/`TCSETA`). Not caused by the branch; the fix is to use `struct termios` with `tcgetattr`/`tcsetattr`.
+
 ## Related Plans
 
 - [PWA installability and offline hardening](../../../../docs/plans/pwa-installability.md)
