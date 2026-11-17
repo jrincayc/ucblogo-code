@@ -25,7 +25,7 @@ case "$cmd" in
     gh run view "$(latest_id)" -R "$repo" --log-failed
     ;;
   errors)
-    gh run view "$(latest_id)" -R "$repo" --log-failed | grep -n 'error\|Error' | cut -c1-300
+    gh run view "$(latest_id)" -R "$repo" --log-failed | grep -n 'error:\|##\[error\]\|✖\|ERR!\|failed (' | cut -c1-300
     ;;
   *)
     echo "unknown command: $cmd" >&2
