@@ -48,13 +48,13 @@ The pre-existing untracked dry-run artifact was not opened, modified, staged, or
 None needed. This is a policy-documentation edit and no concrete implementation risk requires a proof of concept.
 ## Commits
 
-- Implementation commit: pending; record the exact hash in a follow-up evidence commit.
+- Implementation commit: `8912c9f2345f36527d9611a4812ebbc69b51c910` (`Allow early task commits and bounded POCs`); local commit created 2026-11-18, not pushed.
 - Evidence follow-up commit: pending.
 
 ## QA, review, and approvals
 
-- Post-commit QA: pending; the parent/orchestrator will assign independent QA against the exact implementation commit hash.
-- Independent code/configuration review: pending against the exact implementation commit hash.
+- Post-commit QA: pending; the parent/orchestrator will assign independent QA against `8912c9f2345f36527d9611a4812ebbc69b51c910`.
+- Independent code/configuration review: pending against `8912c9f2345f36527d9611a4812ebbc69b51c910`.
 - Stage approval: no stage advancement is requested by this out-of-gate policy task. Any later stage advancement still requires post-commit QA/review and explicit human approval.
 - Push: not authorized and not performed. No push approval was requested.
 
