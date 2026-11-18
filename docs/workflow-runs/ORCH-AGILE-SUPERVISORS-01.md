@@ -40,6 +40,25 @@ Each formal stage below is "not run under approved deviation"; none is a PASS. T
 
 Co-authored by GitHub Copilot. Scope: approved process deviations, host supervisory modes, and recurrence-driven workflow improvement. Model identity and selected reasoning-effort setting are unavailable; maximum effort was requested. Elapsed wall-clock time: pending completion. Energy (kWh) and CO2: unavailable; no measured telemetry or defensible estimation inputs.
 
+## Independent QA
+
+- Verdict: PASS for the static policy deliverable at `aef9330dfc95caee6d1d57e24c465034f7b8e486`. This does not claim workflow-wide readiness.
+- Revisions: The implementation is `aef9330dfc95caee6d1d57e24c465034f7b8e486` (parent `c3957837d8bc8dd6a819f84e4118143cc6e0157d`). Evidence-record commits checked are `e3393c974f78defd63f6913c02074f481d586bc5` and `6af7e18f00a7e17e2b5cf68dc433a4ce9802e226`; the independent-review record is `834ec044cc358b6a3c67be2398d336c74edfda1c`. That review names the same implementation hash and reports no actionable findings.
+- Scope: Inspected the exact policy diff and all three record-only diffs. The implementation changes the four allowed policy surfaces and adds this run record; each subsequent evidence/review commit changes only this run record.
+Acceptance coverage:
+- PASS: The six-stage sequence is the default risk-proportionate path; departures need explicit user approval scoped to the rule or step, rationale, and limits, and must be recorded.
+- PASS: Skipped gates are labeled "not run under approved deviation," never PASS; recurring deviations prompt a user-owned workflow-update proposal.
+- PASS: VS Code Ask, Plan, and Agent remain host supervisory modes, separate from repository roles; repository text does not claim to enforce host behavior.
+- PASS: Owners may commit after focused checks; independent post-commit QA/review records exact hashes; FAIL/BLOCKED stops dependent work and advancement; stage approval follows review/QA and precedes advancement; each push separately requires fresh approval naming the exact remote, destination branch, and commits or range.
+- PASS: The contract allows bounded POCs for every role and preserves reviewer independence: QA/review cannot modify the artifact under review or approve a POC they authored.
+- PASS: The plan preserves disjoint ownership, early shared-worktree integration, serialized Git-index operations, the root-instruction/plan policy alignment, and the remaining-agent-role TODO.
+- PASS: P4 is expressly pending; neither the plan nor this task record claims a dry-run pass.
+- Commands and results: Initial `git status --short --branch` showed HEAD at `834ec044cc358b6a3c67be2398d336c74edfda1c` on `wasm`, ahead 14, with only the excluded untracked dry-run artifact. `git show --name-status` and exact `git show --no-ext-diff --unified=3` diffs were checked for all four requested commits; the first changed only the four allowed policy surfaces plus this record, and each later commit changed only this record. The `834ec04` review record targets the same `aef9330` hash and reports no actionable findings. `git show --check --oneline` passed for all four commits; `git diff --check -- docs/workflow-runs/ORCH-AGILE-SUPERVISORS-01.md` passed; `git diff --exit-code aef9330dfc95caee6d1d57e24c465034f7b8e486 HEAD --` on the four policy files passed; `rg -n '^(# ORCH-AGILE-SUPERVISORS-01|Status:|## Independent QA|## Independent Review)'` confirmed the author's title/status remain at the top and the QA section is below the task record.
+- Residual blockers and limits: The separate P4 dry-run still requires a human-selected small task and remains a prerequisite before relying on the complete orchestration workflow. Static review cannot verify runtime host enforcement. The remaining-role TODO also limits reliance for tasks requiring those unspecified roles. No builds or application tests were run or needed for this documentation-only QA; other role prompts and the excluded untracked artifact were not opened.
+- Handoff: This QA PASS is not P4 completion, human stage approval, or push authorization. Leave the report author's opening status unchanged; the parent Orchestrator should reconcile it after this verdict and keep P4 pending.
+
+<!-- Co-authored by GitHub Copilot. Scope: independent post-commit QA of aef9330dfc95caee6d1d57e24c465034f7b8e486. Model identity and selected reasoning effort are unavailable; maximum effort was requested. Measured QA interval: 12m54s (2026-11-18 11:28:01-11:40:55 EST; excludes commit and final post-commit verification); no subagents used. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs. -->
+
 ## Independent Review
 
 - Review target: `aef9330dfc95caee6d1d57e24c465034f7b8e486`, parent `c3957837d8bc8dd6a819f84e4118143cc6e0157d`.
