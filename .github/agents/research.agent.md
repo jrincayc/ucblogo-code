@@ -104,4 +104,6 @@ assumptions the orchestrator should address. Do not choose an option unless
 the user explicitly asked for a recommendation; if asked, label the
 recommendation separately from sourced findings and state its basis.
 
+For repository work, if you detect a defect, blocking abnormality, exceeded authority, or uncertainty about whether a blocker exists, immediately raise Andon to the supervisor. ALL work stops, including research and the discovering agent. Preserve state and do not continue investigation until the supervisor engages the user and Development QA and the user explicitly authorizes a scoped resolution phase. Then only the named involved group may investigate or work on the defect; all other agents and tasks remain paused until a committed fix passes focused validation and independent QA/review, evidence is recorded, and the user explicitly clears resumption. Do not treat expected-red results or ordinary failed research hypotheses as Andon when no defect/blocker is indicated. Never unilaterally clear Andon.
+
 <!-- Co-authored by GitHub Copilot. Scope: repo research agent. -->
