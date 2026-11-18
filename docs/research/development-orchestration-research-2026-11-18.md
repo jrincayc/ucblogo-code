@@ -13,6 +13,7 @@
 - The orchestration plan's dry-run checklist does not explicitly exercise the hard eight-instance cap or a reduced soft limit, although the contract requires both checks (E4).
 - The plan is labeled “Ready for implementation handoff” (E8). That label does not itself document the separate QA and human checkpoint required for each stage (E5); this review does not determine whether approval exists elsewhere.
 - Actual host enforcement, availability of required model/effort settings, and direct-assignment capability are unverified. The contract explicitly describes itself as operating policy, not a security boundary (E6).
+- The work is nonvisual: the scoped artifacts are workflow documentation and agent prompts, with no planned change to layout, typography, color, imagery, animation, responsive behavior, or visible interaction states. This is a classification for QA verification, not a QA verdict (E9).
 - At initial inspection, before creating this report, the worktree was clean at merge commit `d8f36a4` with parents `4b102b3` and `7b7c25e`. This is a time-bound Git observation (E7).
 
 ## Evidence Ledger
@@ -27,6 +28,7 @@
 | E6 | Repository policy text cannot demonstrate host-enforced model choice, tool limits, or human gates. | documented fact | High; stated directly by the contract. | `/home/runner/work/ucblogo-code/ucblogo-code/.github/workflows/development-orchestration.md:1-3,11-12` | Requires runtime capability claims to remain explicitly unverified until tested. |
 | E7 | Before this report was created, the worktree was clean and HEAD was `d8f36a4`, a two-parent merge commit. | direct observation | High for the recorded inspection; this describes the worktree at that time only. | `git status --short --branch` and `git log -1 --format='%H %P %s'`, 2026-11-18 02:23 UTC; repository `/home/runner/work/ucblogo-code/ucblogo-code` | Identifies the baseline reviewed; it does not describe the later untracked report or establish current remote state. |
 | E8 | The plan has a “Ready for implementation handoff” status label; the contract separately requires QA and explicit human approval at every stage. | direct observation | High; both statements are explicit in the cited documents. | `/home/runner/work/ucblogo-code/ucblogo-code/docs/plans/development-orchestration-workflow.md:3`; `/home/runner/work/ucblogo-code/ucblogo-code/.github/workflows/development-orchestration.md:30` | Do not treat the plan's label as evidence of a passed gate. |
+| E9 | The planned changes are limited to agent/workflow documentation and static/policy validation; no visual interface work is identified, so visual impact is classified not applicable pending QA verification. | inference | High; scope lists only workflow contracts, prompts, static checks, and policy dry-run. | `/home/runner/work/ucblogo-code/ucblogo-code/docs/plans/development-orchestration-workflow.md:76-77`; visual-impact criteria in `/home/runner/work/ucblogo-code/ucblogo-code/.github/workflows/development-orchestration.md:48-51` | QA should verify this nonvisual classification; any later UI or visible-state scope change reopens the affected gate. |
 
 ## Options and Trade-offs
 
@@ -39,12 +41,14 @@
 - The Orchestrator and Lead prompts are counterevidence to the plan's direct-assignment requirement (E1, E3).
 - The shared contract states the direct-assignment model and eight-instance hard cap. The plan's dry-run list does not explicitly test the hard cap or reduced soft limit (E2, E4).
 - The plan's handoff label does not itself document a QA verdict or approval for a particular revision (E5, E8). This review does not determine whether approval exists elsewhere.
+- The in-scope work is classified as nonvisual, subject to QA verification (E9).
 
 ## Constraints and Dependencies
 
 - The required stage order and separate QA/human checkpoint are stated in the contract (E5).
 - The plan requires a human-selected small task for its dry-run; selection remains an open item for the human checkpoint (E4).
 - The plan identifies two related planning documents for read-only review when they remain changed (E1). Their substantive content was not assessed here.
+- No interface or visible-state changes are planned; this Research classification still requires explicit QA verification (E9).
 
 ## Unknowns and Unverified Items
 
@@ -55,7 +59,7 @@
 
 ## Search Coverage and Limitations
 
-Reviewed the plan and contract, and inspected the Orchestrator and Lead prompts for the delegation conflict (E1-E3). Other role prompts and the Research Agent prompt were consulted as context; this report makes no findings about their full contents. The research handoff format was checked against `/home/runner/work/ucblogo-code/ucblogo-code/docs/research/README.md:40-54`. Git status and history were checked (E7). No existing source, role prompt, plan, or contract files were modified; this report was created as the Research deliverable.
+During the initial Research pass, the plan and contract were reviewed and the Orchestrator and Lead prompts inspected for the delegation conflict (E1-E3). Other role prompts and the Research Agent prompt were consulted as context; this report makes no findings about their full contents. The research handoff format was checked against `/home/runner/work/ucblogo-code/ucblogo-code/docs/research/README.md:40-54`. Git status and history were checked (E7). The initial pass created this report and did not modify other files. The report was reopened to add the required nonvisual classification; QA and fresh human approval of this revision are pending (E5, E9).
 
 This review did not execute an orchestration dry-run, validate YAML frontmatter, test host-enforced permissions, run builds or tests, or establish out-of-band approval history. The `docs/plans/logo-inspect-js.md` and `docs/plans/copilot-energy-accounting.prompt.md` documents were only read for scope context; their substantive topics were not independently reviewed.
 
@@ -66,6 +70,7 @@ This review did not execute an orchestration dry-run, validate YAML frontmatter,
 - Prior approval provenance and whether the role conflict escaped a passed gate remain unknown (E5, E8).
 - The policy dry-run depends on the human selecting a small task (E4).
 - Host/model/tool enforcement cannot be established from repository text alone (E6).
+- The work is classified as nonvisual; QA verification of that Research classification is still required (E9).
 
 ## Sources
 
@@ -73,4 +78,4 @@ This review did not execute an orchestration dry-run, validate YAML frontmatter,
 - Repository role prompts cited in Evidence Ledger; inspected 2026-11-18.
 - Time-bound Git state from `/home/runner/work/ucblogo-code/ucblogo-code`, inspected 2026-11-18 02:23 UTC (E7).
 
-<!-- Co-authored by GitHub Copilot. Scope: orchestration Research-stage evidence. Model and reasoning-effort metadata unavailable. Partial measured wall-clock through Research-stage QA PASS: 19m00s (2026-11-18 02:22:21-02:41:21 UTC); excludes later staged/commit verification and earlier merge work. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs. -->
+<!-- Co-authored by GitHub Copilot. Scope: orchestration Research-stage evidence. Model and reasoning-effort metadata unavailable. Partial measured wall-clock for the initial Research pass through its first QA PASS: 19m00s (2026-11-18 02:22:21-02:41:21 UTC); excludes this supplemental revision and QA, later staged/commit verification, and earlier merge work. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs. -->
