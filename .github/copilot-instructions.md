@@ -21,13 +21,6 @@
 - "Last release" means the highest `pNN` tag (the deploy trigger in `.github/workflows/deploy-web.yaml`), not `preview-*` or `version_*` tags. List tags and confirm the tag or PR number before summarizing; say when a tag is not an ancestor of HEAD.
 - Run `gh` in a terminal for CI logs, runs, PRs, and issues instead of scraping web pages or APIs.
 
-# Output Economy
-
-- Keep tool output small: input tokens cost credits. Silence means success.
-- Filtered output is for initial triage only. Do not base a diagnosis, root-cause claim, or fix on truncated or filtered output: when triage does not explain a failure, read the full saved log (`scripts/ci-run.sh log`, the path `quiet.sh` prints, or the unfiltered command) and say which data the conclusion rests on.
-- Wrap builds, installs, and test runs in `scripts/quiet.sh [-n LINES] cmd...` (silent on success; on failure prints the log tail and the log path), then `grep` the saved log instead of rerunning.
-- For CI use `scripts/ci-run.sh` (`watch`, `failed`, `log`); for branch-vs-upstream questions use `scripts/upstream-diff.sh`. Otherwise filter with `grep`, `head`, `tail`, `cut`, or `wc` and read only the lines needed.
-
 # Lessons Learned
 
 - After non-trivial debugging or test work, add concise lessons to the relevant skill reference, not to this file, and commit locally per the Commit Policy.

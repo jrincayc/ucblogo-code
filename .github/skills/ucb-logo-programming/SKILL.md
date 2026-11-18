@@ -33,6 +33,21 @@ Support both traditional live-system development and source-file development. Lo
 11. **Validate in the target runtime.** Run the narrowest relevant Logo test or demo. For shared programs, check both wx and Web Edition where available. For browser interop or rendered HTML, exercise the browser UI, not only Node; check console errors, input/output behavior, and mobile layout when relevant. Avoid unrelated fixes.
 12. **Finish the learning surface.** When relevant, add or update a runnable example and explain its inputs, outputs, and assumptions at the intended audience's level. Put user-facing primitive documentation in the established help/manual locations when needed; keep Web Edition limitations and exclusive features accurate in `webedition.md`. Prefer a small tutorial that teaches a reusable idea over a feature tour.
 
+## Procedure Definition Syntax
+
+`TO` definitions are line-oriented: the title, body instructions, and closing
+`END` cannot all be on one line. Put `END` on its own line. This is a syntax
+requirement, not a style preference.
+
+For a named procedure submitted as a single command, use
+`define "sq [[x] [output :x * :x]]`. The first sublist specifies inputs; each
+following sublist is a body line. For anonymous instruction-list execution,
+use `RUN [instructions]` or `RUNRESULT [instructions]` when collecting output.
+These do not define a named procedure or replace `DEFINE` in tests of procedure
+metadata and arity.
+
+<!-- Co-authored by GitHub Copilot. Scope: procedure definition syntax guidance. -->
+
 ## Desktop Iteration
 
 - Create or edit the Logo source in VS Code. Put new demos and examples in `contrib/`, tests in `tests/`, and shared Web Edition platform helpers in `webstartup.lg` when appropriate; follow existing project conventions and avoid unrelated changes.

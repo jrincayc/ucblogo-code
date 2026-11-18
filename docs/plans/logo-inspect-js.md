@@ -261,8 +261,8 @@ no `/dev/runjs`, so there is no point at which JS can inspect a live program.
 | 6 | `make "a {1 2 3}@0` | `variable("a")` | `{t:"array", origin:0}`, 3 items |
 | 7 | `make "c [x y]  .setbf :c :c` | `variable("c")` | completes; a `{t:"ref"}` closes the cycle |
 | 8 | `make "d [[[[[[[[[[1]]]]]]]]]]` | `value("d", {depth:3})` | `{t:"truncated", reason:"depth"}` at level 3 |
-| 9 | `to sq :x output :x * :x end` | `procedure("sq")` | formals `[x]`, arity 1/1/1, body line `output :x * :x` |
-| 10 | `to opt :a [:b 2] [:c] 1 end` | `procedure("opt")` | arity min 1, default 1, max -1 |
+| 9 | `define "sq [[x] [output :x * :x]]` | `procedure("sq")` | formals `[x]`, arity 1/1/1, body line `output :x * :x` |
+| 10 | `define "opt [[a [b 2] [c] 1]]` | `procedure("opt")` | arity min 1, default 1, max -1 |
 | 11 | (none) | `procedure("sum")` | primitive, arity 0/2/-1 |
 | 12 | `pprop "p "k 7` | `plist("p")` | `[{prop:"k", value:{t:"int", v:7}}]` |
 | 13 | `bury "sq` | `workspace()` | lists `sq` (buried), `n`, `p` |
@@ -295,7 +295,7 @@ is idle afterward. The runjs result is an operation, so the call needs
 `ignore`, as in `logo-suite.testcafe.js`.
 
 Phase 3 adds two cases once the schema is defined. One calls `registers()` and
-`frames()` while `to w local "x make "x 5 make "r readword end` is waiting, and
+`frames()` while `w` (defined by `define "w [[] [local "x make "x 5 make "r readword]]`) is waiting, and
 expects `x = 5` in a frame. The other checks the same frame from `runjs`.
 
 One source check is added to
