@@ -28,6 +28,7 @@
 # Task Scope
 
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
+- Use the six-stage orchestration flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`. Similar or recurrent deviations should prompt a proposed user-owned workflow update. VS Code Ask, Plan, and Agent are separate host supervisory modes; repository text guides but cannot enforce host behavior.
 - When the user says stop, stop work immediately. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
 
 # Subagent Defaults
@@ -75,3 +76,5 @@
 - Treat wx unit and smoke tests, both Unix terminal configurations and PTY/literal-output checks, Web build and browser/source/audit checks, and a separately built Node/Wasm suite as distinct coverage. Avoid duplicating target work unless a build dependency requires it.
 
 <!-- Co-authored by GitHub Copilot. Scope: multi-target test workflow guidance. -->
+
+<!-- Co-authored by GitHub Copilot. Scope: risk-proportionate process and approved deviations. Model identity and selected reasoning effort are unavailable; maximum effort was requested. See docs/workflow-runs/ORCH-AGILE-SUPERVISORS-01.md for task accounting. -->

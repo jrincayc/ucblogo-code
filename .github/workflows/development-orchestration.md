@@ -2,9 +2,23 @@
 
 This contract is loaded explicitly by the workspace's Development agents. It is an agent operating policy, not an executable GitHub Actions workflow or a security boundary. Instructions and tool allowlists guide execution; they do not prove that a model setting or human gate was enforced by the host.
 
+## Process Fit and Approved Deviations
+
+The six-stage flow is the default risk-proportionate path, not a mandatory process for every task. For tasks following the standard path, keep the stages and gates below. A deviation from a documented rule or gate requires explicit user approval. Custom roles may propose a deviation but cannot authorize one.
+
+A deviation is approved only when the user explicitly approves the particular rule or step to vary, its scope, rationale, and limits. A direct user instruction counts only when it clearly identifies the deviation and those details; a generic task request does not waive current or future gates. A task-specific approval applies only to its stated scope. Only the user may change the workflow defaults. Higher-priority platform requirements and explicit user limits remain in force.
+
+VS Code Ask, Plan, and Agent are host-provided supervisory modes, separate from this repository's seven custom `.agent.md` roles. They remain available to direct or supervise work outside the normal custom-agent assignment and stage flow when the user explicitly authorizes that departure. These are host modes, not repository-defined role files; repository text guides but cannot enforce host behavior. Custom-role assignments remain bounded and cannot self-waive.
+
+Record an approved deviation in `docs/workflow-runs/<task-id>.md` before acting when practical, or immediately afterward before dependent work or any push. Include the default rule, approved change, user approval or reference, scope, rationale, risk, validation and rollback, outcome, and gates skipped or substituted. Label each skipped gate "not run under approved deviation," never PASS.
+
+A deviation does not waive the separate, fresh push approval. After post-commit QA/review and before every push, obtain explicit user approval naming the exact remote, destination branch, and commit(s) or range. Never infer this approval from stage approval or a general deviation.
+
+Similar or recurrent deviations trigger a proposal to update the workflow for the user to consider, not repeated casual waivers. Do not change the default without user approval.
+
 ## Roles and Preflight
 
-- Development Orchestrator owns the workflow, human communication, integration, and ledger.
+- Development Orchestrator owns coordination of the standard workflow, task/dependency graph, integration, and ledger. It presents stage-approval requests before standard-path advancement. The custom Orchestrator is not the sole way the user may communicate or direct work; the user may supervise an explicitly approved deviation through host Ask, Plan, or Agent modes. Only the user approves a deviation.
 - Development Orchestrator owns the task/dependency graph and directly assigns each bounded task to a fresh agent instance. It maintains an active-instance ledger and enforces a hard maximum of eight active agent instances total across all roles and workstreams, including local and cloud instances. Eight is a cap, not a target.
 - Development Lead may own an assigned major task, but it is a task role, not a delegation layer. Each agent instance receives exactly one task and retires when it completes; it is never reused. No agent may launch, invoke, or delegate to another agent. Requests for distinct or follow-on work return to the orchestrator for separate task IDs and direct assignments to fresh instances.
 - Development QA independently checks every stage, reviewable substep, and task commit after the commit exists. Development Reviewer independently reviews code at each implementation substep after its commit. Development Design Reviewer independently evaluates committed proposed and rendered visual work when the visual gate applies. A separate QA invocation verifies reviewer coverage and the exact commit/artifact. No reviewer may approve work they authored. No local task commit requires prior QA, reviewer, or human approval.
@@ -14,7 +28,7 @@ This contract is loaded explicitly by the workspace's Development agents. It is 
 
 ## Stage Gates
 
-The required stage order is Research -> Plan -> Test Plan -> Implement Tests -> Implement Changes -> Code Review. Do not skip or merge stages. Parallelize independent tasks only within the current stage, never speculative implementation across an unapproved gate.
+For tasks following the standard path, use the stage order Research -> Plan -> Test Plan -> Implement Tests -> Implement Changes -> Code Review. Keep the stages sequential and do not skip or merge them. Parallelize independent tasks only within the current approved stage, never speculative implementation across an unapproved gate. Approved departures are governed by Process Fit and Approved Deviations above.
 
 Research and Plan are interactive human sessions by default unless the human explicitly requests otherwise. The orchestrator asks focused clarifying questions early whenever answers could alter framing, scope, constraints, alternatives, evidence, design, or acceptance criteria; pause dependent decisions until the human answers. Separate facts, observations, inferences, assumptions, and unknowns, and state the basis for confidence. Surface open questions before stage approval. Research-specialist evidence may inform but never replace this dialogue.
 
@@ -27,7 +41,7 @@ Research and Plan are interactive human sessions by default unless the human exp
 | Implement changes | Small scoped changes, focused validation after edits, passing agreed checks, and commit evidence. For visual work, include design review and human acceptance of rendered output before advancing to code review. QA checks correctness, artifact freshness, and regressions. |
 | Code review | Independent severity-ordered findings, repairs and re-review where needed, regression evidence, and residual risks. Separate QA checks coverage and resolution before final human sign-off. |
 
-At EVERY stage: produce the deliverable -> run the owner's focused self-check -> commit the task-scoped work -> obtain independent review and QA on the exact committed revision -> present the stage summary, evidence, verdicts, risks, and a specific approval question to the human. Request stage approval only after the relevant commits and post-commit QA/review, and wait for explicit approval of that stage and revision before advancing. A commit is not acceptance or stage approval. Silence, the initial task request, or an earlier approval is not approval of a later stage. FAIL or BLOCKED stops dependent work and advancement; the assigned owner may make in-scope repair commits, which require fresh post-commit review and QA. Do not waive QA because it is unavailable. Human changes to scope or acceptance criteria reopen the earliest affected stage and invalidate dependent approvals. Material repairs invalidate affected QA/review verdicts and require new approval of the revised deliverable.
+At EVERY stage on the standard path: produce the deliverable -> run the owner's focused self-check -> commit the task-scoped work -> obtain independent review and QA on the exact committed revision -> present the stage summary, evidence, verdicts, risks, and a specific approval question to the human. Request stage approval only after the relevant commits and post-commit QA/review, and wait for explicit approval of that stage and revision before advancing. A commit is not acceptance or stage approval. Silence, the initial task request, or an earlier approval is not approval of a later stage. FAIL or BLOCKED stops dependent work and advancement; the assigned owner may make in-scope repair commits, which require fresh post-commit review and QA. Do not waive QA because it is unavailable. Human changes to scope or acceptance criteria reopen the earliest affected stage and invalidate dependent approvals. Material repairs invalidate affected QA/review verdicts and require new approval of the revised deliverable.
 
 ## Normal Iteration and Stop-The-Line Protocol
 
@@ -51,7 +65,7 @@ At EVERY stage: produce the deliverable -> run the owner's focused self-check ->
 
 ## Direct Assignment Contract
 
-Each bounded task is assigned directly by the orchestrator to a fresh agent instance. Each instance receives exactly one task and is retired when it completes; never reuse it for follow-on work. No agent may launch, invoke, or delegate to another agent. Follow-on work requests return to the orchestrator for a separate task ID and direct assignment to a fresh instance.
+In the standard custom-agent workflow, each bounded task is assigned directly by the orchestrator to a fresh agent instance. Each instance receives exactly one task and is retired when it completes; never reuse it for follow-on work. No agent may launch, invoke, or delegate to another agent. Follow-on work requests return to the orchestrator for a separate task ID and direct assignment to a fresh instance.
 
 Use a soft concurrent-agent maximum of 8 assigned instances; this is a ceiling, not a target, and may be lowered for resource limits or I/O scheduling. The orchestrator checks its ledger before each assignment; the soft scheduling limit never overrides the hard total-instance cap.
 
@@ -97,7 +111,7 @@ Every direct assignment prompt must explicitly include:
 
 Maintain a durable task record at `docs/workflow-runs/<task-id>.md` for every assigned task. Record the goal and policy decisions, owned paths, validation commands/results, exact implementation commit hashes, POC evidence, post-commit QA/review verdicts and findings keyed to hashes, repair commits, human approval references, blockers, risks, and next action. The task owner, assigned QA, or assigned reviewer may commit updates only to their own record section, with one writer at a time. `/tmp/copilot/<task-id>/` may hold scratch state or a supplemental ledger, but not the sole task record. Reconstruct approval evidence after interruption; never invent it. Share stage summaries in chat.
 
-Finish only after code review, final QA, and human sign-off. Report changes, commits, validation and coverage gaps, unresolved risks explicitly accepted by the human, and remaining task-owned artifacts/processes. No automatic release or deployment is implied.
+On the standard path, finish only after code review, final QA, and human sign-off. For an approved deviation, complete the explicitly approved substitute checks and handoff, and report skipped gates as "not run under approved deviation," never PASS. Report changes, commits, validation and coverage gaps, unresolved risks explicitly accepted by the human, and remaining task-owned artifacts/processes. No automatic release or deployment is implied.
 
 ## Configuration Checks
 
