@@ -1,6 +1,6 @@
 # ORCH-AGILE-SUPERVISORS-01
 
-Status: Static validation passed; implementation commit pending. No independent post-commit QA or review has run.
+Status: Implementation committed; independent post-commit QA and review pending.
 Date: 2026-11-18
 
 ## Task and Approved Deviation
@@ -30,10 +30,10 @@ Each formal stage below is "not run under approved deviation"; none is a PASS. T
 
 - Model selection: Platform automatic selection. Model identity is not observable in this task. Maximum available reasoning effort was requested; the selected setting is not observable.
 - Validation: Static only; no builds or application tests were run. PASS: local Ruby Psych 5.0.1 `YAML.safe_load` parsed all seven `.github/agents/*.agent.md` frontmatters; names are unique and unchanged, GPT-6 Luna/max is explicit, contract links resolve, Orchestrator targets exactly the other six roles, and no nested agent-launch authority was found. PASS: 12 policy assertions covered deviation approval/documentation, host-mode separation and non-enforcement, recurrence, standard-path QA/stage approval, exact-scope push approval, scope, and pending P4. PASS: focused `rg` searches across all agent prompts, the contract, plan, and repository instructions found no remaining targeted authority, commit-ownership, pre-commit QA, or mandatory-stage contradiction. PASS: `git diff --check -- .github/workflows/development-orchestration.md .github/agents/development-orchestrator.agent.md .github/copilot-instructions.md docs/plans/development-orchestration-workflow.md docs/workflow-runs/ORCH-AGILE-SUPERVISORS-01.md`.
-- Implementation commit: Pending; record its exact SHA after commit.
-- Post-commit QA/review: Pending against the exact implementation SHA. No verdict is implied.
+- Implementation commit: `aef9330dfc95caee6d1d57e24c465034f7b8e486` (`Document approved workflow deviations`).
+- Post-commit QA/review: Pending against `aef9330dfc95caee6d1d57e24c465034f7b8e486`. No verdict is implied.
 - Push: None; no push is authorized or planned.
-- Next action: Stage and commit only the five allowed paths, record the exact implementation SHA, then hand the commit to the parent Orchestrator for independent post-commit QA/review.
+- Next action: Commit this task-record update, then hand the policy commit and evidence commit to the parent Orchestrator for independent post-commit QA/review.
 
 ## Attribution and Accounting
 
