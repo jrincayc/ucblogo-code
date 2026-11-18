@@ -29,25 +29,23 @@
 #undef WIN32
 #endif
 
-#ifdef WIN32
-#include <windows.h>
+#include <stdio.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
 #endif
 
 #include "logo.h"
 #include "globals.h"
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#ifndef NEW_WIN32
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#endif
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #include <ctype.h>
@@ -56,7 +54,7 @@
 #ifdef getc
 #undef getc
 #endif
-#define getc getFromWX_2
+#define sysGetC getFromWX_2
 #define getch getFromWX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 extern void wx_enable_scrolling();
@@ -78,50 +76,9 @@ int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
     int c;
-#ifdef WIN32
-    MSG msg;
-#endif
-
-#ifndef WIN32 /* skip this section ... */
-    c = getc(strm);
+    c = sysGetC(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
-#else /* WIN32 */
-    if (strm == stdin) {
-	if (winPasteText && !line_avail) winDoPaste();
-	if (!line_avail) {
-	    win32_text_cursor();
-	    while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-		if (line_avail)
-		    break;
-		}
-	    }
-      c = read_line[read_index++];
-      if (c == 17 && interactive && strm==stdin) { /* control-q */
-	to_pending = 0;
-	err_logo(STOP_ERROR,NIL);
-	line_avail = 0;
-	free(read_line);
-	if (input_blocking) logo_stop(0);
-	return('\n');
-    }
-    if (c == 23 && interactive && strm==stdin) { /* control-w */
-	line_avail = 0;
-	free(read_line);
-	logo_pause(0);
-	return(rd_getc(strm));
-    }
-      if (c == '\n') {
-	line_avail = 0;
-	free(read_line);
-      }
-    }
-    else /* reading from a file */
-      c = getc(strm);
-#endif /* WIN32 */
-
 #ifdef ecma
     return((c == EOF) ? c : ecma_clear(c));
 #else
@@ -135,7 +92,19 @@ void rd_print_prompt(char *str) {
 		lsplitscreen(NIL);
 #endif
 
+// #ifdef __EMSCRIPTEN__
+// 	EM_ASM({
+// 		if (typeof outputElement === 'undefined') {
+// 			console.log(UTF8ToString($0))
+// 		}
+// 		else {
+// 			Module.print(UTF8ToString($0));
+// 		}
+// 	}, str);
+// #else
     ndprintf(stdout,"%t",str);
+	fflush(stdout);
+// #endif
 }
 
 #define zrd_print_prompt rd_print_prompt
@@ -191,11 +160,7 @@ NODE *reader(FILE *strm, char *prompt) {
 	    raw = 1;
     }
 charmode_off();
-#ifdef WIN32
-    dribbling = 0;
-#else
     dribbling = (dribblestream != NULL && strm == stdin);
-#endif
     if (p_line == 0) {
     	p_line = malloc(MAX_PHYS_LINE);
 	if (p_line == NULL) {
@@ -205,12 +170,9 @@ charmode_off();
     	p_end = &p_line[MAX_PHYS_LINE-1];
     }
     phys_line = p_line;
-    if (strm == stdin && *prompt) {
+    if (strm == stdin && prompt && *prompt) {
 	if (interactive) {
 	  rd_print_prompt(prompt);
-#ifdef WIN32
-	  win32_update_text();
-#endif
 	}
     }
     if (strm == stdin) {
@@ -218,9 +180,6 @@ charmode_off();
 	erract_errtype = FATAL;
     }
 
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf)) {
-#endif
     c = rd_getc(strm);
 /*    if ((c=='\b' || c=='\127') && strm==stdin && interactive) {
 	silent_load(LogoLogo, logolib);
@@ -296,9 +255,6 @@ charmode_off();
 	}
 	if (c != EOF) c = rd_getc(strm);
     }
-#ifndef TIOCSTI
-    }
-#endif
     *phys_line = '\0';
     input_blocking = 0;
     if (dribbling)
@@ -367,13 +323,8 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 
 	/* skip through comments and line continuations */
 	while (!vbar && ((semi && ch == ';') ||
-#ifdef WIN32
-		(ch == '~' && (**inln == 012 || **inln == 015)))) {
-	    while (ch == '~' && (**inln == 012 || **inln == 015)) {
-#else
 		(ch == '~' && **inln == '\n'))) {
 	    while (ch == '~' && **inln == '\n') {
-#endif
 		if (++(*inln) >= inlimit) *inln = &terminate;
 		ch = **inln;
 		if (windex == 0) wptr = *inln;
@@ -390,22 +341,14 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 	    }
 
 	    if (semi && ch == ';') {
-#ifdef WIN32
-		if (**inln != 012 && **inln != 015)
-#else
 		if (**inln != '\n')
-#endif
 		do {
 		    ch = **inln;
 		    if (windex == 0) wptr = *inln;
 		    else broken = TRUE;
 		    if (++(*inln) >= inlimit) *inln = &terminate;
 		} 
-#ifdef WIN32
-		while (ch != '\0' && ch != '~' && **inln != 012 && **inln != 015);
-#else /* !Win32 */
 		while (ch != '\0' && ch != '~' && **inln != '\n');
-#endif
 		if (ch != '\0' && ch != '~') ch = '\n';
 	    }
 	}
@@ -483,6 +426,7 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 	    lastnode = tnode;
 	    tnode = NIL;
 	}
+	// YIELD;
     } while (ch);
     return(outline);
 }
@@ -624,6 +568,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 	if (outline == NIL) outline = tnode;
 	else setcdr(lastnode, tnode);
 	lastnode = tnode;
+	// YIELD;
     }
     return(outline);
 }
@@ -662,7 +607,8 @@ NODE *runparse(NODE *ndlist) {
 	    }
 	}
 	if (check_throwing) break;
-    }
+	// YIELD;
+	}
     return(outline);
 }
 

@@ -30,6 +30,9 @@ extern int main(int, char *[]);
 extern void unblock_input(void);
 extern void delayed_int(void);
 extern NODE *command_line;
+#ifdef SERIALIZE_OBJECTS
+extern unsigned long long int next_node_id;
+#endif
 
 #if defined(SIG_TAKES_ARG)
 void logo_stop(int);
@@ -41,11 +44,6 @@ void logo_stop(void);
 void logo_pause(void);
 void mouse_down(void);
 #define mouse_click mouse_down()
-#endif
-
-#ifndef TIOCSTI
-#include <setjmp.h>
-extern jmp_buf iblk_buf;
 #endif
 
 /* logodata.c */
@@ -117,6 +115,7 @@ extern NODE *lsetsegsz(NODE *);
 extern void fill_reserve_tank(void);
 extern void use_reserve_tank(void);
 extern void check_reserve_tank(void);
+void set_bottom_stack( NODE** );
 
 /* parse.c */
 extern FILE *loadstream, *writestream, *readstream, *dribblestream;
@@ -209,6 +208,11 @@ extern NODE *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion;
 extern NODE *Minus_Sign, *Minus_Tight, *Startup, *Startuplg, *Query;
 extern NODE *UseAlternateNames, *LogoLogo, *LogoPlatform, *Keyact;
 extern NODE *CommandLine, *Null_Word;
+#ifdef __EMSCRIPTEN__
+extern NODE *Animationact;
+extern NODE *Animationtime;
+extern NODE *Animationdelta;
+#endif
 extern void init(void);
 extern struct wdtrans translations[];
 extern char *LogoPlatformName;
@@ -345,7 +349,7 @@ extern NODE *l_setfirst(NODE *);
 extern NODE *l_setbf(NODE *);
 
 /* files.c */
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern int wxKeyp();
 #endif
 extern NODE *file_list;
@@ -434,6 +438,9 @@ extern NODE *lcursor(NODE *);
 extern NODE *lsetcursor(NODE *);
 extern NODE *lsetmargins(NODE *);
 extern NODE *lstandout(NODE *);
+extern NODE *lunderline(NODE *);
+extern NODE *litalic(NODE *);
+extern NODE *lhtmlstring(NODE *);
 
 /* libloc.c */
 extern char *libloc, *helploc, *cslsloc, *temploc, *separator;
@@ -495,7 +502,7 @@ extern NODE *lwrap(NODE *);
 extern NODE *lfence(NODE *);
 extern NODE *lwindow(NODE *);
 extern NODE *lfill(NODE *);
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern NODE *lfilled(NODE *);
 #endif
 extern NODE *llabel(NODE *);
@@ -540,7 +547,7 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 extern NODE *lprintpict(NODE *), *lprinttext(NODE *);
 #endif
 
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 extern NODE *lfont(NODE *);
 extern NODE *lsetlabelheight(NODE *);
 extern NODE *llabelsize(NODE *);
@@ -548,8 +555,10 @@ extern NODE *lsetfont(NODE *);
 extern NODE *lsettextsize(NODE *);
 extern NODE *ltextsize(NODE *);
 extern NODE *set_text_color(NODE *);
+extern NODE *IncreaseFont(NODE *);
+extern NODE *DecreaseFont(NODE *);
+extern int wxBuffContainsLine();
 #endif
-
 
 #ifdef HAVE_WX
 extern void init_wx(int, char**);
@@ -560,13 +569,10 @@ extern int getFromWX_2(FILE * f);
 extern void wxLogoExit(int code);
 extern void wxLogoSleep(unsigned int milli);
 extern int wxUnget_c(int c, FILE * f);
-extern int wxBuffContainsLine();
 extern void wxlPrintPict(void);
 extern void wxlPrintPreviewPict(void);
 extern void wxlPrintText(void);
 extern void wxlPrintPreviewText(void);
-extern NODE*IncreaseFont(NODE *);
-extern NODE*DecreaseFont(NODE *);
 extern int turtlePosition_x;
 extern int turtlePosition_y;
 #define SCREEN_WIDTH		1
@@ -596,8 +602,6 @@ extern int clearing_screen;
 #endif
 
 #ifdef WIN32
-/* Win32trm.c */
-
 #undef WIN32_DEBUG
 
 #undef CONSOLE
@@ -610,26 +614,13 @@ extern void WinDebug(char *);
 extern char *read_line, buffered_char;
 extern int char_mode;
 extern int line_avail, char_avail;
-extern void win32_advance_line(void);
-extern char *eight_dot_three(char *);
-extern BOOLEAN check_ibm_stop(void);
-extern NODE* win32_lsetcursor(NODE *);
-extern int win32_putc(int, FILE*);
 extern void win32_charmode_off(void), win32_charmode_on(void);
-extern void win32_repaint_screen(void);
-extern void win32_clear_text(void);
-extern void ibm_plain_mode(void);
-extern void ibm_bold_mode(void);
 extern void win32_update_text(void);
-extern void moveto(int, int);
-extern void lineto(int, int);
 extern void draw_string(char *);
-extern int win32_screen_bottom(void);
 extern void win32_text_cursor(void);
 extern NODE *set_text_color(NODE *);
 extern void winDoPaste(void);
 extern char *winPasteText;
-extern NODE *maximize(NODE *);
 
 #define SIGQUIT SIGABRT
 
@@ -638,11 +629,7 @@ extern NODE *maximize(NODE *);
 #ifdef HAVE_WX
 #define rd_putc printToScreen
 #else
-#ifdef WIN32
-#define rd_putc win32_putc
-#else /* !WIN32 */
 #define rd_putc putc
-#endif
 #endif
 
 #ifdef OBJECTS
@@ -676,3 +663,74 @@ extern NODE *parent_list(NODE *);
 extern void dbUsual(const char*);
 
 #endif
+
+#ifdef __EMSCRIPTEN__
+extern NODE *lrunjs(NODE *args);
+
+// webgraphics.c
+extern NODE *lanimationstart(NODE * word);
+extern NODE *lanimationstop(NODE * word);
+
+extern void yield();
+#define YIELD (yield())
+
+int sysGetC(FILE* stream);
+#define sysUnGetC(c, file) em_ungetc(c)
+int em_getc();
+
+#else
+
+#define YIELD ((void)0)
+#define sysGetC getc
+
+#endif
+
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#define POISON_NODE(nd) (ASAN_POISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#define UNPOISON_NODE(nd) (ASAN_UNPOISON_MEMORY_REGION(&((nd)->nunion), sizeof((nd)->nunion)))
+#else
+#define POISON_NODE(nd) ((void)0)
+#define UNPOISON_NODE(nd) ((void)0)
+#endif
+
+typedef enum {
+    mousedown = 0,
+    mouseup = 1,
+    click = 2, 
+    mousemove = 3,
+    keydown = 4,
+    keyup = 5,
+    keypress = 6,
+    pauselogo = 7,
+    stoplogo = 8,
+    animate = 9,
+} uievent_type_t;
+
+typedef struct {
+   uievent_type_t type;
+   union {
+      struct {
+         int buttonnum;
+         int x;
+         int y;
+      } mouseevent;
+      struct {
+         int key;
+      } keyboardevent;
+      struct {
+         double time;
+      } animationevent;
+   };
+} uievent;
+
+typedef enum {
+   ArrowDown = 0xFF54,
+   ArrowLeft = 0xFF51,
+   ArrowRight = 0xFF53,
+   ArrowUp = 0xFF52,
+} gdk_keycodes;
+
+extern int peek_uievent(uievent*);
+extern int get_uievent(uievent*);
+NODE* dispatch_uievent(uievent*);

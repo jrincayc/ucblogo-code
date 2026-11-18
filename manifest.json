@@ -1,0 +1,21 @@
+{
+    "name": "UC Berkeley Logo",
+    "short_name": "UCB Logo",
+    "description": "University of California Berkeley Logo Programming Language",
+    "start_url": "/ucblogo-code/ucblogo.html",
+    "icons": [
+        {
+            "src": "ucblogo-192.png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "ucblogo.png",
+            "sizes": "256x256"
+        },
+        {
+            "src": "ucblogo-512.png",
+            "sizes": "512x512"
+        }
+    ],
+    "display": "standalone"
+}

@@ -321,7 +321,6 @@ jobs:
       run: |
         git clean -x -d -f .
         mingw32-make -f makefile.msys git.c
-        rm libloc.c
     - name: Download PDF manual
       uses: actions/download-artifact@v4.1.7
       with:

@@ -34,25 +34,84 @@
 #define sysUnGetC wxUnget_c
 int reading_char_now = 0;
 #else
+#ifndef __EMSCRIPTEN__
 #define sysGetC getc
 #define sysUnGetC ungetc
 #endif
+#endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
+#if defined(HAVE_TERMIOS_H)
 #include <termios.h>
-#else
+#elif defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+// Emscripten FS API is synchronous and blocking. That's fine for printing but
+// completely useless for blocking input. So we have to implement our own async
+// getc for reading stdin.
+EM_ASYNC_JS(int, em_getc, (), {
+    // TODO support streams other than stdin
+    let char;   
+	if (typeof document != 'undefined') {
+        if (!Module.FS_runjs_getChar_buffer.length) {
+            Module.blockedOnGetc = true;
+            console.log("em_getc: awaiting stdin");
+            await new Promise((res, rej) => {
+                document.addEventListener('getcharready', res, { once: true });
+                document.dispatchEvent(new CustomEvent('awaitgetcharready'));
+            });
+            Module.blockedOnGetc = false;
+        }
+        if (!Module.FS_runjs_getChar_buffer.length) {
+            console.log("em_getc: stdin returned eof");
+            return -1;
+        }
+        char = Module.FS_runjs_getChar_buffer.shift();
+        if (typeof char === 'string') {
+            char = char.charCodeAt(0);
+        }
+        char &= 0xFF;
+        console.log("em_getc: stdin returned", char);
+	} else {
+		char = process.stdin.read(1);
+		while (char == null) {
+			if (process.stdin.readableEnded) return -1;
+			await new Promise((res,rej)=>{setTimeout(res,20)});
+			char = process.stdin.read(1);
+		}
+		char = typeof char === 'string' ? char.charCodeAt(0) : char[0];
+	}
+	return char;
+});
+
+EM_JS(int, em_ungetc, (int c), {
+	if (typeof document != 'undefined') {
+        Module.FS_runjs_getChar_buffer.unshift(String.fromCharCode(c));
+    }
+    else {
+        process.stdin.unshift(Buffer.from([c]));
+    }
+    return c;
+});
+
+extern int LOGO_GIL;
+
+int sysGetC(FILE* stream) {
+	return stream == stdin ? em_getc() : getc(stream);
+}
+#endif
+
 
 NODE *file_list = NULL;
 NODE *reader_name = NIL, *writer_name = NIL, *file_prefix = NIL;
@@ -466,7 +525,6 @@ void silent_load(NODE *arg, const char *prefix) {
 	    for (cp = load_path; *cp != '\0'; cp++)
 		if (*cp == '?') *cp = 'Q';
 	}
-	/*  strcpy(load_path, eight_dot_three(load_path));  */
 /* #endif */
     }
     tmp_stream = loadstream;
@@ -577,9 +635,6 @@ NODE *lreadchar(NODE *args) {
     }
     charmode_on();
     input_blocking++;
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
     {
 #ifdef HAVE_WX
 	if (interactive && readstream==stdin) {
@@ -616,9 +671,6 @@ NODE *lreadchars(NODE *args) {
     if (stopping_flag == THROWING) return UNBOUND;
     charmode_on();
     input_blocking++;
-#ifndef TIOCSTI
-    if (!setjmp(iblk_buf))
-#endif
     {
 	strhead = malloc((size_t)(c + sizeof(FIXNUM) + 1));
 	if (strhead == NULL) {
@@ -642,9 +694,6 @@ NODE *lreadchars(NODE *args) {
 	setstrrefcnt(strhead, 0);
     }
     input_blocking = 0;
-#ifndef TIOCSTI
-    if (stopping_flag == THROWING) return(UNBOUND);
-#endif
     if (c <= 0) {
 	free(strhead);
 	return(NIL);
@@ -682,7 +731,8 @@ NODE *lkeyp(NODE *args) {
 	charmode_on();
 	fflush(stdout);
 	fix_turtle_shownness();
-#ifdef HAVE_WX
+
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 	return(wxKeyp() ? TrueName() : FalseName());
 #else
 
@@ -700,7 +750,6 @@ NODE *lkeyp(NODE *args) {
 	    return(TrueName());
 	else
 	    return(FalseName());
-#endif /* wx */
     }
     c = sysGetC(readstream);
     if (feof(readstream))
@@ -708,6 +757,7 @@ NODE *lkeyp(NODE *args) {
     else {
 	sysUnGetC(c, readstream);
 	return(TrueName());
+#endif /* wx */
     }
 }
 
@@ -715,7 +765,7 @@ NODE *llinep(NODE *args) {
     int c;
 
     if (readstream == stdin && interactive) {
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
         linemode_on();
         fflush(stdout);
         fix_turtle_shownness();

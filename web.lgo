@@ -1,0 +1,75 @@
+make "runjsdev "/dev/runjs
+make "permittedEvents []
+
+to runjs :js
+    setwrite :runjsdev
+    pr :js
+    setwrite []
+end
+
+to console.log :msg
+    runjs (se "|console.log('| :msg "|')| )
+    ignore readword
+end
+
+to window.alert :msg
+    runjs (se "|window.alert('| :msg "|')| )
+    ignore readword
+end
+
+to to_handleevent :name :body
+    define :name (list [event] :body)
+    make "permittedEvents lput :name :permittedEvents
+end
+
+to_handleevent "logoElConstructed [
+    make "id first :event
+    (pr "|logo-element| :id "constructed)
+]
+
+to_handleevent "logoElConnected [
+    make "id first :event
+    (pr "|logo-element| :id "connected)
+]
+
+to_handleevent "logoElDisconnected [
+    make "id first :event
+    (pr "|logo-element| :id "disconnected)
+]
+
+to_handleevent "logoElAttributeChanged [
+    apply [[id attrib oldval newval]
+        pr `[element ,id attr ,attrib changed 
+        from ,oldval to ,newval]
+    ] :event
+]
+
+; warning dangerous
+to_handleevent "logoStop [
+    throw "logoStop
+]
+
+; warning dangerous
+to_handleevent "logorun [
+    (pr "logorun :event)
+    run :event
+]
+
+to eventloop
+forever [
+    make "evt readlist
+    ; pr :evt
+    if member? first :evt :permittedEvents [
+        catch "logostop [
+            run (list first :evt butfirst :evt)
+        ]
+    ]
+]
+end
+
+openwrite :runjsdev
+console.log [hello web]
+runjs [Module.upgradeLogoElements()]
+ignore readword
+pr [Welcome to Logo Web]
+pr [Run eventloop to start server]

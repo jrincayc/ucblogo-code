@@ -68,7 +68,7 @@ int ecma_get(int ch) {
 #endif
 
 char *strnzcpy(char *s1, char *s2, int n) {
-    strncpy(s1, s2, n);
+    strncpy(s1, s2, n + 1);
     s1[n] = '\0';
     return(s1);
 }
@@ -396,6 +396,7 @@ NODE *cnv_node_to_strnode(NODE *nd) {
 	case STRING:
 	case BACKSLASH_STRING:
 	case VBAR_STRING:
+	case HTML_STRING:
 	    return(nd);
 	case CASEOBJ:
 	    return strnode__caseobj(nd);
@@ -419,6 +420,13 @@ NODE *cnv_node_to_strnode(NODE *nd) {
 				(int)strlen(s), STRING, strnzcpy));
     }
     return(UNBOUND);	/* Can't get here, but makes compiler happy */
+}
+
+NODE *lhtmlstring(NODE *args) {
+	NODE *arg = cnv_node_to_strnode(car(args));
+	char *str = getstrptr(arg);
+	return make_strnode(str, NULL, (int)strlen(str), HTML_STRING,
+						noparity_strnzcpy);
 }
 
 NODE *make_static_strnode(char *strptr) {

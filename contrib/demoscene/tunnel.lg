@@ -1,0 +1,43 @@
+; Animated six-sided tunnel, redrawn from turtle graphics every frame.
+
+to tunnel.demo
+animationstop
+cs window ht pu
+setbg 0
+setpensize 2
+make "tunnel.elapsed 0
+make "tunnel.phase 0
+make "animationact [tunnel.tick]
+animationstart
+end
+
+to tunnel.tick
+make "tunnel.dt :animationdelta
+if :tunnel.dt > 100 [make "tunnel.dt 16.7]
+make "tunnel.elapsed :tunnel.elapsed + :tunnel.dt
+localmake "r :tunnel.elapsed / 12000
+if :r > 1 [make "r 1]
+make "tunnel.phase modulo (:tunnel.phase + :tunnel.dt * (1 + 0.6 * :r)) 36000
+localmake "s :tunnel.phase / 1000
+localmake "f (:s * 2) - int (:s * 2)
+localmake "prev []
+clean
+for [i 0 11] [
+  localmake "d 12.3 - :i - :f
+  localmake "pts tunnel.ringpoints (:d * 14 * sin :s * 70 + :d * 18) (:d * 9 * cos :s * 50 + :d * 12) 300 / :d (:s * 40 + :d * 12) 6
+  setpc 16 + int :i - :f
+  tunnel.polyline :pts
+  if not empty? :prev [(foreach butlast :prev butlast :pts [pu setpos ?1 pd setpos ?2])]
+  make "prev :pts
+]
+end
+
+to tunnel.ringpoints :cx :cy :r :a :sides
+output map [list :cx + :r * sin :a + ? * 360 / :sides :cy + :r * cos :a + ? * 360 / :sides] iseq 0 :sides
+end
+
+to tunnel.polyline :pts
+pu setpos first :pts pd
+foreach butfirst :pts [setpos ?]
+pu
+end

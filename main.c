@@ -27,26 +27,27 @@
 #include <process.h>  /* needed? */
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#include <termios.h>
-#else
-#include <termio.h>
-#endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
 #endif
 
-#ifndef TIOCSTI
-#include <setjmp.h>
-jmp_buf iblk_buf;
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#elif defined(HAVE_TERMIO_H)
+#include <termio.h>
 #endif
- 
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -60,10 +61,8 @@ int stop_quietly_flag=0;
 void unblock_input(void) {
     if (input_blocking) {
 	input_blocking = 0;
-#ifdef TIOCSTI
+#ifdef HAVE_IOCTRL_H
 	ioctl(0,TIOCSTI,"\n");
-#else
-	longjmp(iblk_buf,1);
 #endif
     }
 }
@@ -131,8 +130,14 @@ void mouse_down()
 	    if (inside_evaluator) {
 		eval_buttonact = line;
 	    } else {
+	#ifdef __EMSCRIPTEN__
+		yield_enabled = 0;
+	#endif
 		eval_driver(line);
 		fix_turtle_shownness();
+	#ifdef __EMSCRIPTEN__
+		yield_enabled = 1;
+	#endif
 	    }
 	}
     }
@@ -204,11 +209,13 @@ int  start (int argc,char ** argv) {
 int main(int argc, char *argv[]) {
 #endif
     NODE *exec_list = NIL;
+	
+	set_bottom_stack(&exec_list); /* GC */
+
     NODE *cl_tail = NIL;
     int argc2;
     char **argv2;
 
-    bottom_stack = &exec_list; /*GC*/
 
 #ifndef HAVE_WX
 #ifdef x_window
@@ -222,6 +229,20 @@ int main(int argc, char *argv[]) {
     math_init();
 
     signal(SIGINT, logo_stop);
+
+#ifndef HAVE_WX
+    if (argc == 2 && (!strcmp(argv[1], "-version") ||
+                      !strcmp(argv[1], "--version"))) {
+	char version[64];
+	strcpy(version, VERSION);
+#ifdef GITID
+	extern char *GIT;
+	strcat(version, GIT);
+#endif
+	printf("%s\n", version);
+	return 0;
+    }
+#endif
 
     if (argc < 2) {
 #ifndef WIN32
@@ -278,14 +299,26 @@ int main(int argc, char *argv[]) {
 
     argv2++;
     while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
-        silent_load(NIL, *argv2++);
+	if (!strcmp(*argv2, "-version") || !strcmp(*argv2, "--version")) {
+	    char version[64];
+	    strcpy(version, VERSION);
+#ifdef GITID
+	    extern char *GIT;
+	    strcat(version, GIT);
+#endif
+	    ndprintf(stdout, message_texts[WELCOME_TO], version);
+	    new_line(stdout);
+	} else {
+	    silent_load(NIL, *argv2);
+	}
+	argv2++;
     }
 
 #ifdef HAVE_WX
-    wx_chdir(current_wd);
+	wx_chdir(current_wd);
 
-    free(current_wd);
-    free(original_wd);
+	free(current_wd);
+	free(original_wd);
 #endif
 
     for (;;) {

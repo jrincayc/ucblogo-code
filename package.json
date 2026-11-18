@@ -1,0 +1,42 @@
+{
+  "name": "ucblogo",
+  "version": "6.2.5-WASM-preview-42",
+  "description": "## Berkeley Logo interpreter",
+  "main": "ucblogo.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "build:web": "autoreconf -fi && emconfigure ./configure --enable-wasm && emmake make clean && emmake make regenerate-help-index && emmake make && emmake make check",
+    "test": "npm run build:web && npm run test:built",
+    "test:built": "npm run test:source && npm run test:browser:built",
+    "test:browser": "npm run build:web && npm run test:browser:built",
+    "test:browser:build": "npm run test:browser",
+    "test:browser:built": "node tests/acceptance/run-testcafe.js",
+    "test:browser:smoke": "node tests/acceptance/run-testcafe.js --test 'Logo starts and displays its welcome message'",
+    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/storage-status.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js tests/acceptance/stage-web-deploy.test.js tests/acceptance/build-help.test.js tests/acceptance/build-help-docs.test.js tests/acceptance/help-loading.test.js tests/acceptance/lighthouse-retry.test.js",
+    "stage:web": "node scripts/stage-web-deploy.js",
+    "test:runner:browser": "node -e \"const result = require('node:child_process').spawnSync(process.execPath, ['--test', 'tests/acceptance/runner.test.js'], { stdio: 'inherit', env: Object.assign({}, process.env, { RUNNER_BROWSER_TESTS: '1' }) }); process.exit(result.status ?? 1)\"",
+    "test:logo:node": "node tests/acceptance/run-logo-node.js",
+    "test:settings": "npm run build:web && npm run test:settings:built",
+    "test:settings:built": "node tests/acceptance/run-testcafe.js --fixture 'Settings persistence'",
+    "test:settings:chrome": "npm run build:web && node tests/acceptance/run-testcafe.js --browser chrome --fixture 'Settings persistence'",
+    "test:settings:firefox": "npm run build:web && node tests/acceptance/run-testcafe.js --browser firefox --fixture 'Settings persistence'",
+    "test:lighthouse": "mocha tests/acceptance/lighthouse.test.js",
+    "test:ipad:remote": "node tests/acceptance/run-testcafe.js --browser remote",
+    "test:autocomplete": "npm run -s test:autocomplete:desktop && npm run -s test:autocomplete:phone",
+    "test:autocomplete:desktop": "node tests/acceptance/run-testcafe.js --fixture 'Logo word autocompletion'",
+    "test:autocomplete:phone": "node tests/acceptance/run-testcafe.js --browser 'chrome:headless:emulation:width=390;height=844;mobile=true;touch=true' --fixture 'Logo word autocompletion'"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^6.3.0",
+    "lighthouse": "^13.6.0",
+    "markdown-it": "^15.0.3",
+    "mocha": "^12.0.3",
+    "testcafe": "^3.7.7",
+    "workbox-cli": "^7.3.0"
+  }
+}

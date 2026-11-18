@@ -22,6 +22,10 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -42,6 +46,17 @@
 void getExecutableDir(char * path, int maxlen);
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <webgraphics.h>
+#endif
+
+#ifdef HAVE_SRANDOM
+#include <stdlib.h>
+#ifdef __EMSCRIPTEN__
+extern void srandom(unsigned int);
+#endif
+#endif
+
 typedef struct priminfo {
     char *name;
     short minargs;
@@ -51,13 +66,18 @@ typedef struct priminfo {
     NODE *(*prim) (NODE *);
 } PRIMTYPE;
 
-NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
+EMSCRIPTEN_KEEPALIVE NODE *Right_Paren, *Left_Paren, *Redefp, *Caseignoredp, *Erract, *Printdepthlimit,
      *Printwidthlimit, *Pause, *LoadNoisily, *AllowGetSet,
      *UnburyOnEdit, *Fullprintp, *Make, *Listvalue, *Dotsvalue,
      *Unbound, *Not_Enough_Node, *Buttonact, *LogoVersion, *LogoPlatform,
      *LogoLogo, *CommandLine, *Keyact,
 #ifdef OBJECTS
      *askexist,
+#endif
+#ifdef __EMSCRIPTEN__
+    *Animationact,
+    *Animationtime,
+    *Animationdelta,
 #endif
      *Minus_Sign, *Minus_Tight, *Startup, *Startuplg,
      *Query, *UseAlternateNames;
@@ -85,6 +105,11 @@ PRIMTYPE prims[] = {
     {">=", 2, 2, 2, PREFIX_PRIORITY + 1, lgreaterequalp},
     {"?", 0, 0, 1, PREFIX_PRIORITY, lqm},
     {"allopen", 0, 0, 0, PREFIX_PRIORITY, lallopen},
+#ifdef __EMSCRIPTEN__
+    {"animationstart", 0, 0, 0, PREFIX_PRIORITY, lanimationstart},
+    {"animationstop", 0, 0, 0, PREFIX_PRIORITY, lanimationstop},
+    {"runjs", 1, 1, -1, PREFIX_PRIORITY, lrunjs},
+#endif
     {"and", 0, 2, -1, PREFIX_PRIORITY, land},
     {"apply", 2, 2, 2, MACRO_PRIORITY, lapply},
     {"arc", 2, 2, 2, PREFIX_PRIORITY, larc},
@@ -128,7 +153,7 @@ PRIMTYPE prims[] = {
     {"clean", 0, 0, 0, PREFIX_PRIORITY, lclean},
     {"clearscreen", 0, 0, 0, PREFIX_PRIORITY, lclearscreen},
     {"cleartext", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"clickpos", 0, 0, 0, PREFIX_PRIORITY, lclickpos},
 #endif
     {"close", 1, 1, 1, PREFIX_PRIORITY, lclose},
@@ -142,12 +167,15 @@ PRIMTYPE prims[] = {
     {"cslsload", 1, 1, 1, PREFIX_PRIORITY, lcslsload},
     {"ct", 0, 0, 0, PREFIX_PRIORITY, lcleartext},
     {"cursor", 0, 0, 0, PREFIX_PRIORITY, lcursor},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"decreasefont", 0, 0, 0, PREFIX_PRIORITY, DecreaseFont},
 #endif
     {"define", 2, 2, 2, PREFIX_PRIORITY, ldefine},
     {"definedp", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
     {"defined?", 1, 1, 1, PREFIX_PRIORITY, ldefinedp},
+#ifdef __EMSCRIPTEN__
+    {"deviceorientation", 0, 0, 0, PREFIX_PRIORITY, ldeviceorientation},
+#endif
     {"difference", 2, 2, 2, PREFIX_PRIORITY, lsub},
     {"dribble", 1, 1, 1, PREFIX_PRIORITY, ldribble},
     {"ed", OK_NO_ARG, 1, 1, PREFIX_PRIORITY, ledit},
@@ -176,7 +204,7 @@ PRIMTYPE prims[] = {
     {"fd", 1, 1, 1, PREFIX_PRIORITY, lforward},
     {"fence", 0, 0, 0, PREFIX_PRIORITY, lfence},
     {"fill", 0, 0, 0, PREFIX_PRIORITY, lfill},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"filled", 2, 2, 2, PREFIX_PRIORITY, lfilled},
 #endif
     {"first", 1, 1, 1, PREFIX_PRIORITY, lfirst},
@@ -207,16 +235,20 @@ PRIMTYPE prims[] = {
     {"hideturtle", 0, 0, 0, PREFIX_PRIORITY, lhideturtle},
     {"home", 0, 0, 0, PREFIX_PRIORITY, lhome},
     {"ht", 0, 0, 0, PREFIX_PRIORITY, lhideturtle},
+    {"htmlstring", 1, 1, 1, PREFIX_PRIORITY, lhtmlstring},
     {"if", 2, 2, 3, MACRO_PRIORITY, lif},
     {"ifelse", 3, 3, 3, MACRO_PRIORITY, lifelse},
     {"iff", 1, 1, 1, MACRO_PRIORITY, liffalse},
     {"iffalse", 1, 1, 1, MACRO_PRIORITY, liffalse},
     {"ift", 1, 1, 1, MACRO_PRIORITY, liftrue},
     {"iftrue", 1, 1, 1, MACRO_PRIORITY, liftrue},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"increasefont", 0, 0, 0, PREFIX_PRIORITY, IncreaseFont},
 #endif
     {"int", 1, 1, 1, PREFIX_PRIORITY, linteg},
+#ifdef __EMSCRIPTEN__
+    {"italic", 1, 1, 1, PREFIX_PRIORITY, litalic},
+#endif
     {"item", 2, 2, 2, PREFIX_PRIORITY, litem},
     {"keyp", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
     {"key?", 0, 0, 0, PREFIX_PRIORITY, lkeyp},
@@ -224,8 +256,8 @@ PRIMTYPE prims[] = {
     {"kindof", 1, 1, -1, PREFIX_PRIORITY, lkindof},
 #endif
     {"label", 1, 1, 1, PREFIX_PRIORITY, llabel},
-#ifdef HAVE_WX
-    {"labelsize", 0, 0, 0, PREFIX_PRIORITY, llabelsize},	
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
+    {"labelsize", 0, 0, 0, PREFIX_PRIORITY, llabelsize},
 #endif
     {"last", 1, 1, 1, PREFIX_PRIORITY, llast},
     {"left", 1, 1, 1, PREFIX_PRIORITY, lleft},
@@ -254,11 +286,6 @@ PRIMTYPE prims[] = {
     {"macrop", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"macro?", 1, 1, 1, PREFIX_PRIORITY, lmacrop},
     {"make", 2, 2, 2, PREFIX_PRIORITY, lmake},
-#ifndef HAVE_WX
-#if defined(WIN32)
-    {"maximize.window", 1, 1, 1, PREFIX_PRIORITY, maximize},
-#endif
-#endif
     {"member", 2, 2, 2, PREFIX_PRIORITY, lmember},
     {"memberp", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
     {"member?", 2, 2, 2, PREFIX_PRIORITY, lmemberp},
@@ -297,7 +324,7 @@ PRIMTYPE prims[] = {
     {"parents", 0, 0, 0, PREFIX_PRIORITY, lparents},
 #endif
     {"parse", 1, 1, 1, PREFIX_PRIORITY, lparse},
-    {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},	       
+    {"pause", 0, 0, 0, PREFIX_PRIORITY, lpause},
     {"pc", 0, 0, 0, PREFIX_PRIORITY, lpencolor},
     {"pd", 0, 0, 0, PREFIX_PRIORITY, lpendown},
     {"pe", 0, 0, 0, PREFIX_PRIORITY, lpenerase},
@@ -392,7 +419,7 @@ PRIMTYPE prims[] = {
     {"setheading", 1, 1, 1, PREFIX_PRIORITY, lsetheading},
     {"sethelploc", 1, 1, 1, PREFIX_PRIORITY, lsethelploc},
     {"setitem", 3, 3, 3, PREFIX_PRIORITY, lsetitem},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"setlabelheight", 1, 1, 1, PREFIX_PRIORITY, lsetlabelheight},
 #endif
     {"setlibloc", 1, 1, 1, PREFIX_PRIORITY, lsetlibloc},
@@ -408,11 +435,11 @@ PRIMTYPE prims[] = {
     {"setreadpos", 1, 1, 1, PREFIX_PRIORITY, lsetreadpos},
     {"setscrunch", 2, 2, 2, PREFIX_PRIORITY, lsetscrunch},
     {"setshape", 1, 1, 1, PREFIX_PRIORITY, lsetshape},
-#if defined(WIN32)|defined(HAVE_WX)
+#if defined(WIN32) || defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"settc", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
     {"settextcolor", 2, 2, 2, PREFIX_PRIORITY, set_text_color},
 #endif
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"settextsize", 1, 1, 1, PREFIX_PRIORITY, lsettextsize},
 #endif
     {"settemploc", 1, 1, 1, PREFIX_PRIORITY, lsettemploc},
@@ -451,7 +478,7 @@ PRIMTYPE prims[] = {
     {"test", 1, 1, 1, PREFIX_PRIORITY, ltest},
     {"text", 1, 1, 1, PREFIX_PRIORITY, ltext},
     {"textscreen", 0, 0, 0, PREFIX_PRIORITY, ltextscreen},
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     {"textsize", 0, 0, 0, PREFIX_PRIORITY, ltextsize},
 #endif
     {"thing", 1, 1, 1, PREFIX_PRIORITY, lthing},
@@ -468,6 +495,9 @@ PRIMTYPE prims[] = {
     {"turtlemode", 0, 0, 0, PREFIX_PRIORITY, lturtlemode},
     {"type", 0, 1, -1, PREFIX_PRIORITY, ltype},
     {"unbury", 1, 1, 1, PREFIX_PRIORITY, lunbury},
+#ifdef __EMSCRIPTEN__
+    {"underline", 1, 1, 1, PREFIX_PRIORITY, lunderline},
+#endif
     {"unstep", 1, 1, 1, PREFIX_PRIORITY, lunstep},
     {"untrace", 1, 1, 1, PREFIX_PRIORITY, luntrace},
     {"uppercase", 1, 1, 1, PREFIX_PRIORITY, luppercase},
@@ -482,8 +512,7 @@ PRIMTYPE prims[] = {
     {"writepos", 0, 0, 0, PREFIX_PRIORITY, lwritepos},
     {"writer", 0, 0, 0, PREFIX_PRIORITY, lwriter},
 
-    {0, 0, 0, 0, 0, 0}
-};
+    {0, 0, 0, 0, 0, 0}};
 
 struct wdtrans translations[NUM_WORDS];
 
@@ -779,6 +808,11 @@ nosugar:
     Erract = intern_p(make_static_strnode("erract"));
     Buttonact = intern_p(make_static_strnode("buttonact"));
     Keyact = intern_p(make_static_strnode("Keyact"));
+    #ifdef __EMSCRIPTEN__
+    Animationact = intern_p(make_static_strnode("animationact"));
+    Animationdelta = intern_p(make_static_strnode("animationdelta"));
+    Animationtime = intern_p(make_static_strnode("animationtime"));
+    #endif
     Printdepthlimit = intern_p(make_static_strnode("printdepthlimit"));
     Printwidthlimit = intern_p(make_static_strnode("printwidthlimit"));
     LoadNoisily = intern_p(make_static_strnode("loadnoisily"));
@@ -843,9 +877,15 @@ nosugar:
     setflag__caseobj(UnburyOnEdit, VAL_BURIED);
     setvalnode__caseobj(UseAlternateNames, False);
     setflag__caseobj(UseAlternateNames, VAL_BURIED);
-
     setvalnode__caseobj(LogoPlatform, make_static_strnode(LogoPlatformName));
     setflag__caseobj(LogoPlatform, VAL_BURIED);
+#ifdef __EMSCRIPTEN__
+    setvalnode__caseobj(Animationdelta, make_floatnode(0.0));
+    setflag__caseobj(Animationdelta, VAL_BURIED);
+    setvalnode__caseobj(Animationtime, make_floatnode(0.0));
+    setflag__caseobj(Animationtime, VAL_BURIED);
+#endif
+
 
     user_repcount = -1;
     ift_iff_flag = -1;
@@ -858,6 +898,10 @@ nosugar:
 
 #ifdef OBJECTS
     obj_init();
+#endif
+
+#ifdef __EMSCRIPTEN__
+graphics_init();
 #endif
 
 /*  Uncomment these to print debugging messages right away! */

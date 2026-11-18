@@ -28,6 +28,13 @@
 #include <setjmp.h>
 #include <math.h>
 
+#ifdef HAVE_SRANDOM
+#include <stdlib.h>
+#ifdef __EMSCRIPTEN__
+extern void srandom(unsigned int);
+#endif
+#endif
+
 #define isdigit(dig)    (dig >= '0' && dig <= '9')
 
 int numberp(NODE *snd) {
@@ -131,7 +138,7 @@ NODE *lrerandom(NODE *arg) {
 	}
 	if (NOT_THROWING) {
 #ifdef HAVE_SRANDOM
-		srandom((int)seed);
+		(void)srandom((unsigned int)seed);
 #else
 		srand((int)seed);
 #endif

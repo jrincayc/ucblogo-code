@@ -1,0 +1,4 @@
+[[command]]
+name = "ucblogo"
+module = "Module"
+runner = "https://webc.org/runner/emscripten"

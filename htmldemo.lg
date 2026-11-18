@@ -1,0 +1,19 @@
+pr "Standout:
+pr standout "standout
+pr []
+pr "Underline:
+pr underline "underlined
+pr []
+pr "Italic:
+pr italic "italicized
+pr []
+pr "HTML
+pr []
+pr [Anchor link]
+pr htmlstring "|<a href="https://github.com/jrincayc/ucblogo-code">UCB Logo Home</a>|
+pr []
+pr [Table]
+pr htmlstring "|<table border=1><tr><td>Hello</td></tr><tr><td>world</td></tr></table>|
+pr []
+pr [Image]
+pr htmlstring "|<img src="https://raw.githubusercontent.com/jrincayc/ucblogo-code/refs/heads/master/ucblogo.png"></img>|

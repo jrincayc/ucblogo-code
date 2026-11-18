@@ -22,6 +22,10 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #ifdef HAVE_WX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 #endif
@@ -35,17 +39,6 @@ extern int check_wx_stop(int force_yield, int pause_return_value);
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_TERMIO_H
-#ifdef HAVE_WX
-#include <termios.h>
-#else
-#include <termio.h>
-#endif
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#endif
-#endif
 
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
@@ -363,29 +356,31 @@ NODE *lbye(NODE *args) {
 #endif
 }
 
+extern int LOGO_GIL;
+extern void webLogoSleep(int);
+
 NODE *lwait(NODE *args) {
     NODE *num;
     unsigned int n;
+
 #if defined(unix) && HAVE_USLEEP
 	unsigned int seconds, microseconds;
 #endif
-
     num = pos_int_arg(args);
     if (NOT_THROWING) {
-      /*#ifdef HAVE_WX
-      n = (unsigned int)getint(num) * 10; // milliseconds
-      wxLogoSleep(n);
-      return(UNBOUND);
-      #endif*/
-#ifndef HAVE_WX
-#ifdef WIN32
-      win32_update_text();
-#else
-      fflush(stdout); /* csls v. 1 p. 7 */
+#ifdef __EMSCRIPTEN__
+        n = (unsigned int)getint(num) * 100 / 6; // milliseconds
+        webLogoSleep(n);
+        return (UNBOUND);
 #endif
-#else
-      //doesn't seem to work in WX. now done in wxLogoSleep
-      //fflush(stdout); /* csls v. 1 p. 7 */
+
+        /*#ifdef HAVE_WX
+        n = (unsigned int)getint(num) * 10; // milliseconds
+        wxLogoSleep(n);
+        return(UNBOUND);
+        #endif*/
+#ifndef HAVE_WX
+      fflush(stdout); /* csls v. 1 p. 7 */
 #endif
 
 	fix_turtle_shownness();
@@ -409,13 +404,6 @@ NODE *lwait(NODE *args) {
 	    n = (unsigned int)getint(num) / 60;
 	    sleep(n);
 #endif
-#else	/* unreachable, I think */
-	    if (!setjmp(iblk_buf)) {
-		input_blocking++;
-		n = ((unsigned int)getint(num)+30) / 60;
-		if (n > 0) sleep(n);
-	    }
-	    input_blocking = 0;
 #endif /* unix */
 	}
 #endif /* HAVE_WX */

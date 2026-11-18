@@ -26,6 +26,23 @@
 #include "config.h"
 #endif
 
+#ifndef __EMSCRIPTEN__
+#define EMSCRIPTEN_KEEPALIVE
+#endif
+
+#ifdef __EMSCRIPTEN__
+#define EMSLEEP(ticks) (emscripten_sleep(ticks))
+#else
+#define EMSLEEP(ticks) (0)
+#endif
+
+// Address Sanitizer check
+#if defined(__has_feature)
+#   if __has_feature(address_sanitizer) // for clang
+#       define __SANITIZE_ADDRESS__ // GCC already sets this
+#   endif
+#endif
+
 /* #define OBJECTS */
 
 /* #define MEM_DEBUG */
@@ -84,8 +101,17 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 #define UNDEFINED       Unbound
 #define END_OF_LIST     ((NODE *) 2)
 #define HASH_LEN        1021	/* a prime number */
-#define SEG_SIZE        16000 /* Should be a fairly big number for optimal GC
-                                 Performance */
+
+/* SEG_SIZE should be a fairly big number for optimal GC Performance */
+// set to a very small value to stress-test. 
+#ifdef __EMSCRIPTEN__
+// #define SEG_SIZE        (/* die fast */ 5)
+// #define SEG_SIZE        (/* die slow */ 64)
+// #define SEG_SIZE        (/* smoke-test */ 1024)
+#define SEG_SIZE        (32/*MB*/ * 1024/*KB*/ * 1024/*B*/ / sizeof(NODE)) 
+#else
+#define SEG_SIZE        16000
+#endif
 #define MAX_PHYS_LINE   5000
 #define MAX_NUMBER      200	/* max number of digits in a float */
 #define HIST_MAX	50	/* number of remembered instruction lines */
@@ -100,6 +126,7 @@ typedef enum {wrapmode, fencemode, windowmode} mode_type;
 //Original definition: typedef long int NODETYPES;
 
 typedef enum NodeTypes  {
+  NT_HTML =       0200000000,
 #ifdef OBJECTS
   NT_METHOD =     0100000000,
   NT_OBJ =         040000000,
@@ -143,6 +170,7 @@ typedef enum NodeTypes  {
   COLON	=   NT_WORD|NT_PUNCT|NT_COLON,
   BACKSLASH_STRING = NT_WORD|NT_STRING|NT_BACKSL,
   VBAR_STRING = NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR,
+  HTML_STRING = NT_WORD|NT_STRING|NT_BACKSL|NT_VBAR|NT_HTML,
   ARRAY	=   NT_AGGR|NT_ARRAY,
   LINE =    NT_LINE|NT_LIST|NT_AGGR,
   CONT =    NT_CONT|NT_LIST,
@@ -238,9 +266,16 @@ struct string_block {
 #define incstrrefcnt(sh)        (((sh)->str_refcnt)++)
 #define decstrrefcnt(sh)        (--((sh)->str_refcnt))
 
+// Assign a unique serial number to each object allocated so that it can be
+// tracked through it's complete lifecycle.
+// #define SERIALIZE_OBJECTS
+
 typedef struct logo_node NODE;
 typedef struct logo_node {
     NODETYPES node_type;
+#ifdef SERIALIZE_OBJECTS
+    unsigned long long int id;
+#endif
     int my_gen; /* Nodes's Generation */ /*GC*/
     int gen_age; /* How many times to GC at this generation */
     long int mark_gc;	/* when marked */

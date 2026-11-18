@@ -1,0 +1,59 @@
+to makesprite :spritename
+ignore (runjs "|Module.makeSprite(arg0)| :spritename)
+end
+
+to setturtlesprite :spritename
+ignore (runjs "|Module.setTurtle(arg0)| :spritename)
+end
+
+; warning: might return unicode stripped to 7 bit ascii (ie corrupted)
+; chinese voices are probably impossible to select this way, e.g.
+; until logo supports unicode
+to getvoices
+output parse runjs "|speechSynthesis.getVoices().map(({name, lang})=>[name, lang]);|
+end
+
+to setspeechlang :lang
+ignore (runjs "|Module.utterance.lang = arg0| :lang)
+end
+
+to setspeechpitch :pitch
+ignore (runjs "|Module.utterance.pitch = arg0| :pitch)
+end
+
+to setspeechrate :rate
+ignore (runjs "|Module.utterance.rate = arg0| :rate)
+end
+
+to setspeechvoice :voice
+ignore (runjs "|Module.setSpeechVoice(arg0)| :voice)
+end
+
+to speak :utterance
+ignore (runjs "|Module.speak(arg0)| :utterance)
+end
+
+to setdarkmode :mode
+ignore (runjs "|Module.setDarkMode(arg0)| :mode)
+end
+
+to abs :num
+output ifelse (:num < 0) [-:num] [:num]
+end
+
+buryall
+
+pr [Web Edition Preview]
+pr []
+pr [Home: https://github.com/jrincayc/ucblogo-code/]
+pr [Docs: https://people.eecs.berkeley.edu/~bh/v2ch14/manual.html]
+pr [Web edition home: https://github.com/n1ywb-1/ucblogo-code/tree/wasm]
+pr [Web edition docs: https://github.com/n1ywb-1/ucblogo-code/blob/wasm/webedition.md]
+pr []
+pr [To get help:]
+pr "|  help|
+pr "|  help "cslsload|
+pr []
+pr [To run demos:]
+pr "|  cslsload "mines mines|
+pr "|  cslsload "dotgame dotgame 5|

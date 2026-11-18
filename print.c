@@ -25,6 +25,10 @@
 #include "globals.h"
 #include <stdarg.h>
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 int print_stringlen;
 char *print_stringptr;
 int force_printwidth = -1, force_printdepth = -1;
@@ -106,6 +110,42 @@ void print_char(FILE *strm, char ch) {
 	if (--print_stringlen > 0)
 	    *print_stringptr++ = ch;
     }
+	YIELD;
+}
+
+void html_print_char(FILE *strm, char ch) {
+    const char *escaped = NULL;
+
+#ifdef __EMSCRIPTEN__
+	static int browser_output = -1;
+
+	if (strm == stdout && browser_output < 0)
+	browser_output = EM_ASM_INT({
+	    return typeof document !== 'undefined' &&
+	           document.getElementById('output') !== null;
+	});
+
+	if (strm == stdout && browser_output) {
+	switch (ch) {
+	    case '&': escaped = "&amp;"; break;
+	    case '"': escaped = "&quot;"; break;
+	    case '\'': escaped = "&apos;"; break;
+	    case '<': escaped = "&lt;"; break;
+	    case '>': escaped = "&gt;"; break;
+	    case '\n': escaped = "<br>"; break;
+	}
+    }
+#endif
+
+    if (escaped == NULL) {
+	print_char(strm, ch);
+	return;
+    }
+
+    while (*escaped != '\0') rd_putc(*escaped++, strm);
+    if (dribblestream != NULL) rd_putc(ch, dribblestream);
+    update_coords(ch);
+    YIELD;
 }
 
 void print_space(FILE *strm) {
@@ -176,6 +216,7 @@ void ndprintf(FILE *strm, char *fmt, ...) {
     if (!strm) *print_stringptr = '\0';
     va_end(ap);
     force_printwidth = force_printdepth = -1;
+	YIELD;
 }
 
 void dbprint(NODE *data) {
@@ -284,13 +325,23 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	}
 	if (wid < getstrlen(nd)) dots++;
 
-	if (!backslashed(nd))
+	if (nd->node_type & NT_HTML) {
 	    for (i = 0; i < wid; i++) {
-		print_char(strm,*cp++);
+			if (*cp == '\n' || *cp == '\r') {
+				print_char(strm,' ');
+				cp++;
+			}
+			else
+				print_char(strm,*cp++);
+	    }
+	}
+	else if (!backslashed(nd))
+	    for (i = 0; i < wid; i++) {
+		html_print_char(strm,*cp++);
 	    }
 	else if (print_backslashes == FALSE) {
 	    for (i = 0; i < wid; i++) {
-		print_char(strm,clearparity(*cp++));
+		html_print_char(strm,clearparity(*cp++));
 	    }
 	} else {
 	    for (i = 0; i < wid; i++) {
@@ -298,19 +349,19 @@ void real_print_node(FILE *strm, NODE *nd, int depth, int width) {
 	    }
 	    if (i < wid) {	/* word was in vbars */
 			if (strchr("\":", *cp)) {
-				print_char(strm, *cp++);
+				html_print_char(strm, *cp++);
 				wid--;
 			}
 		print_char(strm,'|');
 		for (i = 0; i < wid; i++) {
-		    print_char(strm,clearparity(*cp++));
+		    html_print_char(strm,clearparity(*cp++));
 		}
 		print_char(strm,'|');
 	    } else for (i = 0; i < wid; i++) {
 		if (strchr(special_chars,(int)*cp)) {
 		    print_char(strm,'\\');
 		}
-		print_char(strm,*cp++);
+		html_print_char(strm,*cp++);
 	    }
 	};
 	if (dots) ndprintf(strm, "...");
