@@ -36,6 +36,8 @@
 #include "wxGraphics.h"
 #elif defined(x_window)
 #include "xgraphics.h"
+#elif defined(__EMSCRIPTEN__)
+#include "webgraphics.h"
 #else
 #include "nographics.h"
 #endif /* end this whole big huge tree */
@@ -152,7 +154,17 @@ void draw_turtle(void) {
     return;
 #endif
 
-    if (!turtle_shown) {
+#ifdef __EMSCRIPTEN__
+extern void web_draw_turtle(double);
+#endif
+
+#ifdef __EMSCRIPTEN__
+	web_draw_turtle(turtle_heading);
+	return;
+#endif
+
+	if (!turtle_shown)
+	{
 		if (!graphics_setup) {
 			graphics_setup++;
                         turtle_shown = TRUE;
@@ -160,7 +172,7 @@ void draw_turtle(void) {
 		return;
 	}
 
-    drawing_turtle = 1;
+	drawing_turtle = 1;
     turtle_shown = 0;
 /*
     get_palette(pen_color, &r, &g, &b);
@@ -328,6 +340,7 @@ void forward_helper(FLONUM d) {
     FIXNUM rx2, ry2;
 
 wraploop:
+	YIELD;
     if (newd != 0.0) d = newd;
     real_heading = -turtle_heading + 90.0;
     x1 = screen_x_coord;
@@ -545,7 +558,14 @@ NODE *lback(NODE *arg) {
     return(UNBOUND);
 }
 
+extern void	web_show_turtle();
+
 NODE *lshowturtle(NODE *args) {
+#ifdef __EMSCRIPTEN__
+	web_show_turtle();
+    user_turtle_shown = TRUE;
+    return(UNBOUND);
+#endif
     if(!graphics_setup) graphics_setup++;
     prepare_to_draw;
     if (!turtle_shown) {
@@ -567,9 +587,18 @@ void internal_hideturtle() {
     done_drawing;
 }
 
+#ifdef __EMSCRIPTEN__
+extern void web_hide_turtle();
+extern void web_show_turtle();
+#endif
+
 NODE *lhideturtle(NODE *args) {
+#ifdef __EMSCRIPTEN__
+	web_hide_turtle();
+#else
     internal_hideturtle();
-    user_turtle_shown = FALSE;
+#endif
+	user_turtle_shown = FALSE;
     return(UNBOUND);
 }
 
@@ -1283,8 +1312,7 @@ NODE *lmousepos(NODE *args) {
 		cons(make_floatnode(mouse_y/y_scale), NIL)));
 }
 
-#ifdef HAVE_WX
-
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 NODE *lclickpos(NODE *args) {
     return(cons(make_floatnode(click_x/x_scale),
 		cons(make_floatnode(click_y/y_scale), NIL)));
@@ -1300,7 +1328,7 @@ NODE *lbuttonp(NODE *args) {
 }
 
 NODE *lbutton(NODE *args) {
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
     return(make_intnode(lastbutton));
 #else
     return(make_intnode(button));
@@ -1470,7 +1498,7 @@ NODE *larc(NODE *arg) {
     return(UNBOUND);
 }
 
-#ifdef HAVE_WX
+#if defined(HAVE_WX) || defined(__EMSCRIPTEN__)
 
 int insidefill = 0;
 
@@ -1720,7 +1748,11 @@ void save_move(void) {
 }
 
 void save_vis(void) {
-    if (safe_to_save()) {
+#ifdef __EMSCRIPTEN__
+	set_pen_vis(pen_vis);
+	return;
+#endif
+	if (safe_to_save()) {
 	last_recorded = record[record_index] = SETPENVIS;
 	record[record_index + 1] = pen_vis;
 	record_index += One;

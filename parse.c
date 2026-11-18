@@ -29,6 +29,12 @@
 #undef WIN32
 #endif
 
+#include <stdio.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "logo.h"
 #include "globals.h"
 
@@ -48,7 +54,7 @@
 #ifdef getc
 #undef getc
 #endif
-#define getc getFromWX_2
+#define sysGetC getFromWX_2
 #define getch getFromWX
 extern int check_wx_stop(int force_yield, int pause_return_value);
 extern void wx_enable_scrolling();
@@ -70,7 +76,7 @@ int readingInstruction = 0;
 
 int rd_getc(FILE *strm) {
     int c;
-    c = getc(strm);
+    c = sysGetC(strm);
     if (strm == stdin && c != EOF) update_coords(c);
     if (c == '\r') return rd_getc(strm);
 #ifdef ecma
@@ -86,7 +92,19 @@ void rd_print_prompt(char *str) {
 		lsplitscreen(NIL);
 #endif
 
+// #ifdef __EMSCRIPTEN__
+// 	EM_ASM({
+// 		if (typeof outputElement === 'undefined') {
+// 			console.log(UTF8ToString($0))
+// 		}
+// 		else {
+// 			Module.print(UTF8ToString($0));
+// 		}
+// 	}, str);
+// #else
     ndprintf(stdout,"%t",str);
+	fflush(stdout);
+// #endif
 }
 
 #define zrd_print_prompt rd_print_prompt
@@ -152,7 +170,7 @@ charmode_off();
     	p_end = &p_line[MAX_PHYS_LINE-1];
     }
     phys_line = p_line;
-    if (strm == stdin && *prompt) {
+    if (strm == stdin && prompt && *prompt) {
 	if (interactive) {
 	  rd_print_prompt(prompt);
 	}
@@ -408,6 +426,7 @@ NODE *parser_iterate(char **inln, char *inlimit, struct string_block *inhead,
 	    lastnode = tnode;
 	    tnode = NIL;
 	}
+	// YIELD;
     } while (ch);
     return(outline);
 }
@@ -549,6 +568,7 @@ NODE *runparse_node(NODE *nd, NODE **ndsptr) {
 	if (outline == NIL) outline = tnode;
 	else setcdr(lastnode, tnode);
 	lastnode = tnode;
+	// YIELD;
     }
     return(outline);
 }
@@ -587,7 +607,8 @@ NODE *runparse(NODE *ndlist) {
 	    }
 	}
 	if (check_throwing) break;
-    }
+	// YIELD;
+	}
     return(outline);
 }
 

@@ -27,11 +27,19 @@
 #include "logo.h"
 #include "globals.h"
 
+#if defined(__EMSCRIPTEN__) 
+#include <emscripten.h>
+#endif
+
+#if defined(__SANITIZE_ADDRESS__)
+#include <sanitizer/asan_interface.h>
+#endif
+
 /* evaluator registers that need saving around evals */
 struct registers regs;
 NODE *Regs_Node;
 int num_saved_nodes;
-int inside_evaluator = 0;
+EMSCRIPTEN_KEEPALIVE int inside_evaluator = 0;
 NODE *eval_buttonact = NIL;
 
 /* node-value registers that don't need saving */
@@ -177,7 +185,9 @@ NODE *evaluator(NODE *list, enum labels where);
 
 /* Evaluate a line of input. */
 void eval_driver(NODE *line) {
-    evaluator(line, begin_line);
+	if (line != UNBOUND && line != NIL) {
+		evaluator(line, begin_line);
+	}
 }
 
 /* Evaluate a sequence of expressions until we get a value to return.
@@ -275,6 +285,7 @@ NODE *deep_copy(NODE *expresn) {
 
     if (expresn == NIL) return NIL;
     else if (is_list(expresn)) {
+	YIELD;
 	val = cons(deep_copy(car(expresn)), deep_copy(cdr(expresn)));
 	val->n_obj = deep_copy(expresn->n_obj);
 	settype(val, nodetype(expresn));
@@ -338,6 +349,7 @@ NODE *evaluator(NODE *list, enum labels where) {
     FIXNUM  cont   = 0;	    /* where to go next */
     int i;
     BOOLEAN tracing = FALSE; /* are we tracing the current procedure? */
+	uievent evt;
 	
     inside_evaluator++;
     eval_save();
@@ -364,8 +376,13 @@ begin_seq:
     debprint("begin_seq");
     make_tree(list);
     if (!is_tree(list)) {
-	val = UNBOUND;
-	goto fetch_cont;
+		val = UNBOUND;
+#ifdef __EMSCRIPTEN__
+		if (peek_uievent(&evt))
+			if (evt.type == pauselogo || evt.type == stoplogo)
+				goto eval_sequence;
+#endif
+		goto fetch_cont;
     }
     unev = tree__tree(list);
     goto eval_sequence;
@@ -385,6 +402,18 @@ end_line:
 tail_eval_dispatch:
     tailcall = 1;
 eval_dispatch:
+	YIELD;
+	#if defined(__EMSCRIPTEN__) && defined(__SANITIZE_ADDRESS__)
+	// FIXME this should not depend on emscripten or JS
+	if (expresn != NIL &&
+	    __asan_address_is_poisoned((void *)&expresn->nunion)) {
+	    EM_ASM({
+	        console.error("Poisoned NODE reached eval_dispatch", $0);
+	        console.error(Module.logoGC.inspect($0));
+	        debugger;
+	    }, (uintptr_t)expresn);
+	}
+	#endif
     debprint("eval_dispatch");
     switch (nodetype(expresn)) {
 	case QUOTE:			/* quoted literal */
@@ -517,6 +546,7 @@ eval_args_done:
     argl = reverse(argl);
 /* --------------------- APPLY ---------------------------- */
 apply_dispatch:
+	YIELD;
     debprint("apply_dispatch");
     /* Load in the procedure's definition and decide whether it's a compound
      * procedure or a primitive procedure.
@@ -650,6 +680,7 @@ apply_dispatch:
 		print_char(stdout, ')');
 	    new_line(stdout);
 	}
+	YIELD;
 	val = (*getprimfun(proc))(argl);
         if (tracing && NOT_THROWING) {
 	    for (i = 0; i < trace_level; i++) {
@@ -674,6 +705,7 @@ apply_dispatch:
 #endif
 
 fetch_cont:
+	YIELD;
     {
 #ifdef USE_GCC_DISPATCH
 #define do_label(x) &&x,
@@ -712,6 +744,7 @@ compound_apply:
     }
 /* Bind the actuals to the formals */
 lambda_apply:
+	YIELD;
     vsp = var_stack;	/* remember where we came in */
     for (formals = formals__procnode(proc);
     	 formals != NIL;
@@ -836,6 +869,7 @@ set_args_continue:
 		setvalnode__caseobj(car(parm), arg);
 	    }
 	    if (argl != NIL) pop(argl);
+		YIELD;
     }
     if (argl != NIL) {
 	err_logo(TOO_MUCH, fun);
@@ -881,10 +915,21 @@ set_args_continue:
 /* Fall through from proc body, call from start or fsubr argument */
 
 eval_sequence:
+	YIELD;
     debprint("eval_sequence");
     /* Evaluate each expression in the sequence.
        Most of the complexity is in recognizing tail calls.
      */
+	// TODO ignore animation events if we're already animating
+	// but how to know when we're done animating?
+	// push a cont to a new animationfinished block or something?
+	// in fact we should never start processing a new event until the current
+	// one is finished.
+#ifdef __EMSCRIPTEN__
+	if (get_uievent(&evt)) {
+		eval_buttonact = dispatch_uievent(&evt);
+	}
+#endif
     if (eval_buttonact != NIL) {
 	make_tree(eval_buttonact);
 	if (NOT_THROWING) {
@@ -958,6 +1003,7 @@ nofix:	this_line = unparsed__line(unev);
 	    newcont(op_want_stop);
 	    goto eval_dispatch;
 op_want_stop:
+	YIELD;
 	    if (NOT_THROWING) err_logo(DK_WHAT_UP, val);
 	    goto fetch_cont;
 	} else if (val_status & VALUE_OK) {
@@ -1033,6 +1079,7 @@ op_want_stop:
 		newcont(after_maybeoutput);
 		goto eval_dispatch;
 after_maybeoutput:
+		YIELD;
 		if (val == UNBOUND)
 		    lstop(NIL);
 		else
@@ -1068,12 +1115,14 @@ after_maybeoutput:
 	} else if (val_status & VALUE_OK) {
 	} else if (val_status & OUTPUT_OK) {
 next_stop_want_output:
+	YIELD;
 	    save(didnt_get_output);
 	    didnt_get_output = UNBOUND;
 	    val_status &= ~OUTPUT_TAIL;
 	    newcont(fall_off_want_output);
 	    goto tail_eval_dispatch;
 fall_off_want_output:
+	YIELD;
 	    restore(didnt_get_output);
 	    if (stopping_flag == OUTPUT) {
 		goto fetch_cont;    /* repeat body did output */
@@ -1101,6 +1150,7 @@ fall_off_want_output:
     }
 
 non_tail_eval:
+	YIELD;
     debprint("non_tail_eval");
     if (nodetype(expresn) != CONS) {    /* Don't bother saving registers */
 	newcont(after_constant);    /* if the expresn isn't a proc call */
@@ -1118,6 +1168,7 @@ non_tail_eval:
     goto eval_dispatch;
 
 eval_sequence_continue:
+	YIELD;
     reset_args(var);
 no_reset_args:	/* allows catch "foo [local ...] to work */
     eval_restore();
@@ -1400,6 +1451,7 @@ goto_continuation:
 		stopping_flag = MACRO_RETURN;
 		goto fetch_cont;
 	    }
+		YIELD;
 	}
 
 	// goto tag could not be found

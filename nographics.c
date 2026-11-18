@@ -12,7 +12,7 @@ int pw, ph, pc, pm, pv, px, py, bg;
 #ifndef HAVE_WX
 char *LogoPlatformName="Unix-Nographics";
 
-void nop()
+void nop(int, int, int, int)
 {
 }
 #endif

@@ -20,6 +20,16 @@ MAKE "Tests.File [
   Tests.File.InterleaveCharBufferWrites
   Tests.File.OpenWriteCharBufferArgError
   Tests.File.SetWriteCharBufferArgError
+  Tests.File.LiteralPrintReadWord
+  Tests.File.LiteralPrintReadList
+  Tests.File.LiteralMultilineReadChars
+  Tests.File.LiteralPrintToBuffer
+  Tests.File.LiteralMultilineToBuffer
+  Tests.File.LiteralDribble
+  Tests.File.LiteralConstructors
+  Tests.File.LiteralSaveLoad
+  Tests.File.LiteralMultilineProcSaveLoad
+  Tests.File.HtmlStringPrintsMarkup
 ]
 
 ;; Test Suite setup procedure, main entry
@@ -35,6 +45,37 @@ end
 ;; HELPERS, MISC                   ;;
 ;;                                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAKE "Tests.File.Temp "ucblogo-literal-test.tmp
+
+; a < & > " ' z  (built with CHAR so no quoting rules are involved)
+TO Tests.File.Special
+  OUTPUT (WORD "a CHAR 60 CHAR 38 CHAR 62 CHAR 34 CHAR 39 "z)
+END
+
+TO Tests.File.Multiline
+  OUTPUT (WORD "line1 CHAR 10 Tests.File.Special CHAR 10 "line3)
+END
+
+TO Tests.File.TypeToTemp :text
+  LOCALMAKE "saved.writer WRITER
+  OPENWRITE :Tests.File.Temp
+  SETWRITE :Tests.File.Temp
+  TYPE :text
+  SETWRITE :saved.writer
+  CLOSE :Tests.File.Temp
+END
+
+TO Tests.File.ReadTempChars :n
+  LOCALMAKE "saved.reader READER
+  OPENREAD :Tests.File.Temp
+  SETREAD :Tests.File.Temp
+  LOCALMAKE "got READCHARS :n
+  SETREAD :saved.reader
+  CLOSE :Tests.File.Temp
+  ERASEFILE :Tests.File.Temp
+  OUTPUT :got
+END
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -129,4 +170,184 @@ TO Tests.File.SetWriteCharBufferArgError
   ; Message 4 is "%p doesn't like %s as input"
   OUTPUT (AND [NOT EMPTY? :err]
               [EQUAL? FIRST :err 4])
+END
+
+;; Native text must stay literal: no HTML entities, no <br>
+
+TO Tests.File.LiteralPrintReadWord
+  LOCALMAKE "text Tests.File.Special
+  LOCALMAKE "saved.writer WRITER
+  LOCALMAKE "saved.reader READER
+
+  OPENWRITE :Tests.File.Temp
+  SETWRITE :Tests.File.Temp
+  PRINT :text
+  SETWRITE :saved.writer
+  CLOSE :Tests.File.Temp
+
+  OPENREAD :Tests.File.Temp
+  SETREAD :Tests.File.Temp
+  LOCALMAKE "got READWORD
+  SETREAD :saved.reader
+  CLOSE :Tests.File.Temp
+  ERASEFILE :Tests.File.Temp
+
+  OUTPUT (AND [EQUAL? :got :text]
+              [EQUAL? COUNT :got 7])
+END
+
+TO Tests.File.LiteralPrintReadList
+  LOCALMAKE "text Tests.File.Special
+  LOCALMAKE "saved.writer WRITER
+  LOCALMAKE "saved.reader READER
+
+  OPENWRITE :Tests.File.Temp
+  SETWRITE :Tests.File.Temp
+  PRINT (LIST :text :text)
+  SETWRITE :saved.writer
+  CLOSE :Tests.File.Temp
+
+  OPENREAD :Tests.File.Temp
+  SETREAD :Tests.File.Temp
+  LOCALMAKE "got READLIST
+  SETREAD :saved.reader
+  CLOSE :Tests.File.Temp
+  ERASEFILE :Tests.File.Temp
+
+  OUTPUT EQUAL? :got (LIST :text :text)
+END
+
+TO Tests.File.LiteralMultilineReadChars
+  LOCALMAKE "text Tests.File.Multiline
+
+  Tests.File.TypeToTemp :text
+  LOCALMAKE "got Tests.File.ReadTempChars COUNT :text
+
+  OUTPUT (AND [EQUAL? :got :text]
+              [EQUAL? COUNT :got 19])
+END
+
+TO Tests.File.LiteralPrintToBuffer
+  LOCALMAKE "text Tests.File.Special
+  LOCALMAKE "char.buffer [buffer 100]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  PRINT :text
+  CLOSE :char.buffer
+  SETWRITE :saved.writer
+
+  OUTPUT EQUAL? :buffer (WORD :text CHAR 10)
+END
+
+TO Tests.File.LiteralMultilineToBuffer
+  LOCALMAKE "text Tests.File.Multiline
+  LOCALMAKE "char.buffer [buffer 100]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  PRINT :text
+  CLOSE :char.buffer
+  SETWRITE :saved.writer
+
+  OUTPUT EQUAL? :buffer (WORD :text CHAR 10)
+END
+
+; DRIBBLE only mirrors stdout, so the writer is switched to stdout briefly.
+TO Tests.File.LiteralDribble
+  LOCALMAKE "text Tests.File.Multiline
+  LOCALMAKE "saved.writer WRITER
+
+  SETWRITE []
+  DRIBBLE :Tests.File.Temp
+  TYPE :text
+  NODRIBBLE
+  SETWRITE :saved.writer
+
+  LOCALMAKE "got Tests.File.ReadTempChars COUNT :text
+  OUTPUT EQUAL? :got :text
+END
+
+TO Tests.File.LiteralConstructors
+  LOCALMAKE "a CHAR 60
+  LOCALMAKE "b CHAR 38
+  LOCALMAKE "c CHAR 62
+  LOCALMAKE "d CHAR 34
+  LOCALMAKE "e CHAR 39
+  LOCALMAKE "text Tests.File.Special
+  LOCALMAKE "sent (SENTENCE :a :b :c :d :e)
+  LOCALMAKE "lst (LPUT :e (LPUT :d (LPUT :c (LPUT :b (LIST :a)))))
+  LOCALMAKE "char.buffer [buffer 100]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  PRINT :sent
+  PRINT :lst
+  TYPE ITEM 3 :text
+  CLOSE :char.buffer
+  SETWRITE :saved.writer
+
+  OUTPUT (AND [EQUAL? :buffer (WORD :a CHAR 32 :b CHAR 32 :c CHAR 32 :d CHAR 32 :e CHAR 10
+                                    :a CHAR 32 :b CHAR 32 :c CHAR 32 :d CHAR 32 :e CHAR 10 :b)]
+              [EQUAL? ASCII ITEM 2 :text 60]
+              [EQUAL? ASCII ITEM 3 :text 38]
+              [EQUAL? ASCII ITEM 4 :text 62]
+              [EQUAL? ASCII ITEM 5 :text 34]
+              [EQUAL? ASCII ITEM 6 :text 39])
+END
+
+TO Tests.File.LiteralSaveLoad
+  LOCALMAKE "text Tests.File.Special
+
+  MAKE "Tests.File.Tmp.Var :text
+  DEFINE "Tests.File.Tmp.Proc (LIST [] (LIST "OUTPUT (LIST :text)))
+  SAVEL (LIST (LIST "Tests.File.Tmp.Proc) (LIST "Tests.File.Tmp.Var)) :Tests.File.Temp
+  ERASE "Tests.File.Tmp.Proc
+  ERN "Tests.File.Tmp.Var
+  LOAD :Tests.File.Temp
+  LOCALMAKE "proc.result Tests.File.Tmp.Proc
+  LOCALMAKE "var.result :Tests.File.Tmp.Var
+  ERASE "Tests.File.Tmp.Proc
+  ERN "Tests.File.Tmp.Var
+  ERASEFILE :Tests.File.Temp
+
+  OUTPUT (AND [EQUAL? :var.result :text]
+              [EQUAL? :proc.result (LIST :text)])
+END
+
+TO Tests.File.LiteralMultilineProcSaveLoad
+  LOCALMAKE "text Tests.File.Special
+
+  DEFINE "Tests.File.Tmp.Proc (LIST [] (LIST "IGNORE (LIST :text)) (LIST "OUTPUT (LIST :text)))
+  LOCALMAKE "before TEXT "Tests.File.Tmp.Proc
+  SAVEL (LIST (LIST "Tests.File.Tmp.Proc)) :Tests.File.Temp
+  ERASE "Tests.File.Tmp.Proc
+  LOAD :Tests.File.Temp
+  LOCALMAKE "after TEXT "Tests.File.Tmp.Proc
+  LOCALMAKE "proc.result Tests.File.Tmp.Proc
+  ERASE "Tests.File.Tmp.Proc
+  ERASEFILE :Tests.File.Temp
+
+  OUTPUT (AND [EQUAL? :after :before]
+              [EQUAL? COUNT BUTFIRST :after 2]
+              [EQUAL? :proc.result (LIST :text)])
+END
+
+; The native build has no HTML renderer: tagged markup passes through verbatim.
+TO Tests.File.HtmlStringPrintsMarkup
+  LOCALMAKE "markup (WORD "<b> CHAR 38 "amp CHAR 59 CHAR 34 "x CHAR 34 "</b>)
+  LOCALMAKE "html HTMLSTRING :markup
+  LOCALMAKE "char.buffer [buffer 100]
+  LOCALMAKE "saved.writer WRITER
+
+  OPENWRITE :char.buffer
+  SETWRITE :char.buffer
+  PRINT :html
+  CLOSE :char.buffer
+  SETWRITE :saved.writer
+
+  OUTPUT EQUAL? :buffer (WORD :markup CHAR 10)
 END
