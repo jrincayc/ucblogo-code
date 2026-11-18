@@ -1,6 +1,6 @@
 # Plan: Development Orchestration Workflow
 
-Status: Ready for implementation handoff. Reconcile the existing workspace agents with the shared contract; preserve valid work and do not replace files wholesale.
+Status: User-directed implementation resumed outside this workflow on 2026-11-18. This is a task-specific process override, not a QA verdict or a change to the stage gates intended for future work.
 Date: 2026-11-17
 
 ## Goal
@@ -40,10 +40,11 @@ Provide a fast, flat software-development workflow that catches defects at the e
 3. Validate contract wording and direct-assignment prompts for the six-stage order, test-spec and fixture handoff, exact design-review checkpoints, normal iteration versus escalation versus escaped-defect stop, per-substep and commit review/QA checks, independent-task parallelism and duplicate-assignment prevention, the soft preference to stagger obvious concurrent compilation starts without strict serialization, cloud preference/minimal transfer, network-interruption pause and recovery signal, workstation limits, temporary-file policy, and exact-scope human approval before every push.
 4. Dry-run the policy on a human-selected small task without pushing, covering:
 	- All six stages, with independent QA and explicit human approval before each advancement.
+	- The active-instance ledger at eight simultaneous agents, confirming a ninth assignment is blocked; then lower the soft concurrency limit below eight and confirm assignments above that limit are deferred while the hard cap remains unchanged.
 	- A normal failed attempt followed by success; a current-gate QA rejection that blocks advancement but permits in-scope repair; and an expected-red test that fails for the intended behavior.
 	- Three consecutive failed attempts escalating; a defect discovered after a passed gate stopping affected downstream work; and a scope change invalidating affected approvals.
 	- An unavailable required model prompting a stop and approval request; no nested-delegation fallback is allowed.
-		- The orchestrator decomposing work into uniquely identified, bounded tasks and directly assigning each to a fresh agent instance. Each instance receives one task and is retired after completion, never reused. Distinct, dependency-ready tasks in the currently approved stage may run concurrently; the same task is never active with multiple agents. When useful, map tasks and multiple independent reduce tasks can run concurrently, each on a distinct fresh worker; later reductions are scheduled after their inputs are ready, while serial execution remains valid when parallelism is not useful. Agents do not delegate, and follow-on work requests return to the orchestrator for fresh assignments. A task without an eligible direct assignee is marked BLOCKED, with dependent work and stage advancement held pending human direction.
+	- The orchestrator decomposes work into uniquely identified, bounded tasks and directly assigns each to a fresh agent instance. Each instance receives one task and is retired after completion, never reused. Distinct, dependency-ready tasks in the currently approved stage may run concurrently; the same task is never active with multiple agents. When useful, map tasks and multiple independent reduce tasks can run concurrently, each on a distinct fresh worker; later reductions are scheduled after their inputs are ready, while serial execution remains valid when parallelism is not useful. Agents do not delegate, and follow-on work requests return to the orchestrator for fresh assignments. A task without an eligible direct assignee is marked BLOCKED, with dependent work and stage advancement held pending human direction.
 	- Both visual checkpoints: proposed-artifact review before Plan approval/advancement to Test Plan, and rendered-output review after implementation before Code Review, with QA and human approval at each applicable gate.
 	- A test-plan handoff with useful compact mock/fixture data, or a documented reason fixtures are unnecessary.
 	- Per-substep review and QA, exact staged-diff checks before commit, and post-commit QA verification of the commit hash and diff before further work.
@@ -52,10 +53,28 @@ Provide a fast, flat software-development workflow that catches defects at the e
 	- A proposed push remaining blocked until fresh approval names the exact remote, branch, and commit range.
 5. Independently review the implementation and changed-plan review results. Obtain QA and human approval at every stage. Report runtime capabilities that remain unverified; static validation alone does not demonstrate host-enforced gates or cloud execution.
 
+## Plan Stage Deliverable
+
+This workflow changes agent instructions and process documentation only. It has no application, layout, styling, or rendered-interface changes; the visual-design gate is not applicable.
+
+| Task | Scope and owned files | Dependency | Acceptance and validation |
+| --- | --- | --- | --- |
+| P1: Reconcile agent roles | `.github/agents/development-orchestrator.agent.md`, `development-lead.agent.md`, `development-worker.agent.md`, `research.agent.md`, `development-qa.agent.md`, `development-reviewer.agent.md`, and `development-design-reviewer.agent.md`; change only concrete contract mismatches. | Human approval of this Plan. | The orchestrator can assign each bounded task directly to a fresh eligible role. The Lead remains a task role with no agent-launch tool or child-agent targets. No role delegates. Each prompt states its boundary, model/effort requirements, and contract link. |
+| P2: Close policy and checklist gaps | `docs/plans/development-orchestration-workflow.md`; inspect the shared contract read-only. | Human approval of this Plan. Independent of P1. | The dry-run checklist explicitly checks the hard total limit of eight, rejects a ninth active instance, and verifies a lowered soft limit without conflating agent concurrency with CPU-heavy concurrency. Keep push approval exact-scope and preserve map/reduce as optional. |
+| P3: Static consistency validation | Read-only validation of all `.github/agents/*.agent.md` and referenced contract links; no new tools or dependencies. | P1 and P2. | Parse frontmatter with an already available local YAML parser; verify unique role names, resolvable assignment targets, explicit model/effort values, no agent-launch tools or child targets on terminal/reviewer roles, direct assignment, hard and soft limits, and contract links. Record checks and results. |
+| P4: Policy dry-run | Use one human-selected small task, no application changes and no push. | P1-P3, and human selection of the sample task before the dry-run. | Exercise the six stage gates, independent QA and human approvals, expected-red and retry/escalation paths, role assignment at the hard/soft limits, and local-only checkpoints. If a required model, reviewer, or direct-assignment capability is unavailable, mark BLOCKED and request direction; do not fall back to nested delegation or a different model. |
+| P5: Independent review and handoff | Review completed role-prompt changes and the read-only review of the related plans identified above. | P1-P4. | Development Reviewer reviews each code/configuration substep; QA verifies exact diffs and evidence. Findings for the two related plans are reported separately and do not expand implementation scope. Human approves each stage before advancement. |
+
+### Integration, commit, and rollback
+
+P1 and P2 may proceed as independent implementation-stage tasks only after the Plan stage is approved; do not edit the same file concurrently. P3 follows both, then P4 follows static validation and the human's sample-task selection. P5 follows all prior tasks. Keep one integration/commit owner per worktree, use isolated state for parallel work, and do not push without fresh approval naming the remote, branch, and exact commit range.
+
+If a focused check or review rejects a substep, keep it at the current gate and repair only within the approved scope. If a change must be backed out, revert only the task-owned commit(s) after preserving unrelated work; do not rewrite history. A defect discovered after a passed gate reopens that gate and blocks affected downstream work under the shared contract.
+
 ## Scope and Safety
 
 - Included: workspace orchestration agent prompts, their shared workflow contract, static and policy dry-run validation, and a read-only review of related changed planning documents.
 - Excluded: application/interpreter changes, builds, production deployment, unrequested changes to related plans, and any push without fresh exact-scope human approval.
 - Commit only task-owned files after the required checkpoints. Do not include existing unrelated worktree changes. Keep task-owned temporary files under `/tmp/copilot` and clean up only those files.
 
-<!-- Co-authored by GitHub Copilot. Scope: flat development-orchestration workflow plan. Model and reasoning-effort metadata unavailable. Partial measured wall-clock interval: 1m35s (2026-11-17 19:18:40-19:20:15 EST); excludes initial review. Three read-only subagents were used; their durations are unavailable. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs. -->
+<!-- Co-authored by GitHub Copilot. Scope: flat development-orchestration workflow plan. Model and reasoning-effort metadata unavailable. Initial plan-drafting interval: 1m35s (2026-11-17 19:18:40-19:20:15 EST); excludes initial review. Three read-only subagents were used; their durations are unavailable. Current user-directed prompt/plan update: partial measured interval from first recorded timestamp through static validation, 8m04s (2026-11-18 03:41:35-03:49:39 UTC); excludes secret scanning, commit, CodeQL, and final verification; no subagents used. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs. -->
