@@ -10,6 +10,14 @@ Support fast, interactive Logo prototyping with Copilot. Optimize for a short lo
 
 Language semantics, arity, `runjs`, and Unicode rules belong to the [programming skill](../ucb-logo-programming/SKILL.md). Build, deploy, and test commands belong to the [build-deploy](../ucb-logo-build-deploy/SKILL.md) and [web-testing](../ucb-logo-web-testing/SKILL.md) skills. This skill covers the workflow between them.
 
+Before relying on a primitive’s syntax or usage in a prototype, look it up in the repository help files. Run the bundled Logo word lookup script from the repository root:
+
+```sh
+python3 .github/skills/ucb-logo-help/scripts/get_help.py -- "print"
+```
+
+Replace `print` with the Logo word being checked. The lookup is case-insensitive and reads `helpfiles/<word>` directly; report that no help file exists if the script does so. Use the full text returned by the script rather than inferring or summarizing the word’s behavior.
+
 ## Modes
 
 - **Rapid prototyping** (default when the user is exploring): the rules in [project instructions](../../copilot-instructions.md) apply, including the prototyping exception. Default to the VS Code embedded/integrated browser for the live Logo Web Edition. Use an external browser only when the user requests it or embedded browser access is unavailable. Skip workflow-run records, stage approvals, and QA passes for prototype edits and browser checks.
