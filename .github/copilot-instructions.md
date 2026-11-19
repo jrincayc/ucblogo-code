@@ -42,7 +42,10 @@
 - Instruct every subagent to prefix every shell command with `date;`, inspect the returned timestamp, and track elapsed time from those timestamps.
 - Instruct every subagent to give the parent agent (superagent) a brief status report approximately every five minutes, or at the earliest opportunity after a blocking operation. Include elapsed time, progress, blockers, and the next step. If the tool cannot deliver interim messages, include timestamped progress notes in the final return and disclose that live reporting was unavailable; do not claim the parent received updates while the call was running.
 - Instruct every subagent to stop trying to fix an issue after three unsuccessful fix-and-check attempts. Return the attempted fixes, validation results, remaining blocker, and any useful next-step recommendation to the parent agent instead of starting a fourth attempt on the same issue.
+- Retry a timeout caused by high model load until it succeeds, using exponential backoff: wait 5 seconds after the first failure, double the wait after each further failed attempt, and cap each wait at 5 minutes. Do not stop after a fixed number of retries. These retries are not fix-and-check attempts and do not count toward the three-attempt limit. Apply this only to timeouts attributed to high model load; other failures follow the normal rules. Include the retry count and next wait in status reports to the parent agent.
 - Repeat these requirements in delegated prompts so they do not depend on subagents inheriting the parent conversation or repository instructions.
+
+<!-- Co-authored by GitHub Copilot. Scope: high-load model timeout retry policy in Subagent Defaults. Model: Claude Haiku 5.5; selected reasoning effort unavailable. Measured interval: 2026-11-19 16:18:05 to 16:18:16 UTC (11 s, partial: the start timestamp was taken after initial research). Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
 
 # Commit Policy
 
