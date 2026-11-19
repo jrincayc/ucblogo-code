@@ -21,6 +21,10 @@
 - "Last release" means the highest `pNN` tag (the deploy trigger in `.github/workflows/deploy-web.yaml`), not `preview-*` or `version_*` tags. List tags and confirm the tag or PR number before summarizing; say when a tag is not an ancestor of HEAD.
 - Run `gh` in a terminal for CI logs, runs, PRs, and issues instead of scraping web pages or APIs.
 
+# Parallel Shell Work
+
+- When shell work contains independent, repeatable items, consider bounded `xargs` map/reduce patterns and use the `parallel-xargs` skill for safe input handling, concurrency, output isolation, and failure handling. Set an explicit positive `-P` limit that accounts for outer-agent parallelism; reduce results only after every map worker succeeds. Do not parallelize shared mutable build outputs or state.
+
 # Lessons Learned
 
 - After non-trivial debugging or test work, add concise lessons to the relevant skill reference, not to this file, and commit locally per the Commit Policy.
@@ -28,7 +32,7 @@
 # Task Scope
 
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
-- Use the six-stage orchestration flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`. Similar or recurrent deviations should prompt a proposed user-owned workflow update. VS Code Ask, Plan, and Agent are separate host supervisory modes; repository text guides but cannot enforce host behavior.
+- The six-stage orchestration flow applies only to custom-agent orchestration. For direct Copilot work, follow the user's latest explicit direction; flag material risks or ask for confirmation when warranted, but do not use that workflow as an approval gate. For custom-agent orchestration, use the flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`. Similar or recurrent deviations should prompt a proposed user-owned workflow update. VS Code Ask, Plan, and Agent are separate host supervisory modes; repository text guides but cannot enforce host behavior.
 - When the user says stop, stop work immediately. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
 
 # Subagent Defaults
@@ -87,3 +91,5 @@
 - When the user's complete prompt, ignoring leading and trailing whitespace only, is exactly `sudo make me a sandwich`, reply with exactly `ok` and no other text.
 
 <!-- Co-authored by GitHub Copilot. Scope: workspace sandwich Easter egg. Model identity and selected reasoning effort unavailable. Measured interval through initial validation: 2026-11-19 03:42:45 to 03:43:32 UTC (47 s). Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
+
+<!-- Co-authored by GitHub Copilot. Scope: custom-agent workflow scope and parallel shell guidance. Model identity and reasoning effort unavailable. Measured task interval: 2026-11-19 04:04:10 to 04:13:54 UTC (9m 44s). Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
