@@ -56,3 +56,10 @@ Then ask whether to move to hardening.
 - Live procedure definitions survive browser/runtime sessions but not necessarily a reboot or reload. Treat prompt-only work as session-local until saved to a Logo source file and re-run from that file.
 - After restarting a machine or runtime, verify the server process and served URL, then reload Logo and re-establish prompt readiness before resuming live definitions.
 - The repository web server is JavaScript: start it with Node, not Python. Reuse a running server and keep the browser/server process owned and identified during iteration.
+
+## Crash and Recovery
+
+- At the start of rapid prototyping, enable `dribble` with a stable session filename (for example, `dribble "rapid-prototype-session.log`) and keep it enabled until the prototype is stopped or saved. `nodribble` closes it; do not close it during normal iteration.
+- Keep the dribble transcript because it preserves keyboard input and terminal interaction for crash recovery. Because Logo's Web Edition starts in `/d`, relative dribble names persist in its virtual/IDBFS session storage.
+- Mirror every live Logo edit into a workspace source file under `contrib/rapid-prototypes/` (or a closer feature-specific location) immediately after the edit. Mirror procedure definitions in valid Logo form and rerun `load` or re-define from the file as a stale-state check.
+- On crash or reboot, preserve the existing browser transcript where possible, restore the server and embedded browser, verify prompt readiness, then recover the workspace mirror and relevant dribble transcript instead of reconstructing edits from memory.
