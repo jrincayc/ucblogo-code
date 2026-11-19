@@ -63,3 +63,10 @@ Then ask whether to move to hardening.
 - Keep the dribble transcript because it preserves keyboard input and terminal interaction for crash recovery. Because Logo's Web Edition starts in `/d`, relative dribble names persist in its virtual/IDBFS session storage.
 - Mirror every live Logo edit into a workspace source file under `contrib/rapid-prototypes/` (or a closer feature-specific location) immediately after the edit. Mirror procedure definitions in valid Logo form and rerun `load` or re-define from the file as a stale-state check.
 - On crash or reboot, preserve the existing browser transcript where possible, restore the server and embedded browser, verify prompt readiness, then recover the workspace mirror and relevant dribble transcript instead of reconstructing edits from memory.
+
+## Stalled or Crashed Runtime Recovery
+
+- If the Logo prompt stops accepting commands or the evaluator appears hung/crashed, do not reload or close the page before capturing the dribble file. Logo's Web Edition can retain an operational JavaScript/DOM context even when the Wasm evaluator is stalled.
+- From the browser page, use the Emscripten filesystem API to persist and download the active transcript. The Web Edition stores its working directory in `/d`; for the default transcript use `/d/rapid-prototype-session.log`.
+- First run `FS.syncfs(false, callback)` to flush the IDBFS-backed `/d` filesystem, then read `FS.readFile(path)` and create a downloaded text `Blob`. If `FS.syncfs` is unavailable or fails, preserve a fresh `FS.readFile` snapshot in memory and attempt direct download.
+- Only after the dribble snapshot is secured should you reload, restart the task-owned runtime, or recover the workspace mirror. Keep the original browser/profile state when possible and do not clear IndexedDB or other site data merely to diagnose a hang.
