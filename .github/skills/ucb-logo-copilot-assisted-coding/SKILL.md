@@ -26,6 +26,14 @@ rg -n -i -C 4 "topic or exact syntax" usermanual docs/ucblogo.texi
 
 Replace the search expression with the relevant word or phrase. Start with `usermanual` for the historical/dialect description and `docs/ucblogo.texi` for the maintained Texinfo source; use both for comparison. Attribute findings to the specific manual section or passage. If the sources disagree or a manual appears to lag current behavior, verify against the current implementation and tests rather than silently choosing one. The repository manual text is documentation, not executable authority over the current interpreter.
 
+For advanced Logo problems, use Brian Harvey’s *Computer Science Logo Style* books as additional conceptual references:
+
+- [Volume 1: Symbolic Computing](https://people.eecs.berkeley.edu/~bh/v1-toc2.html) — exploration, procedures, functional programming, recursion, planning, and debugging.
+- [Volume 2: Advanced Techniques](https://people.eecs.berkeley.edu/~bh/v2-toc2.html) — iteration and control structures, extensibility, and advanced programming techniques.
+- [Volume 3: Beyond Programming](https://people.eecs.berkeley.edu/~bh/v3-toc2.html) — programming-language design tradeoffs and broader uses of Logo.
+
+Treat these books as public educational and historical sources, not as a replacement for the repository manual or current implementation. Cite the relevant volume and chapter or section for a substantial design claim, and distinguish a historical preference or example from a documented requirement of the current dialect.
+
 ## Modes
 
 - **Rapid prototyping** (default when the user is exploring): the rules in [project instructions](../../copilot-instructions.md) apply, including the prototyping exception. Default to the VS Code embedded/integrated browser for the live Logo Web Edition. Use an external browser only when the user requests it or embedded browser access is unavailable. Skip workflow-run records, stage approvals, and QA passes for prototype edits and browser checks.
