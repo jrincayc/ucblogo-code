@@ -34,6 +34,7 @@
 - Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. A skill describes capability, not authorization to expand the task.
 - The six-stage orchestration flow applies only to custom-agent orchestration. For direct Copilot work, follow the user's latest explicit direction; flag material risks or ask for confirmation when warranted, but do not use that workflow as an approval gate. For custom-agent orchestration, use the flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`. Similar or recurrent deviations should prompt a proposed user-owned workflow update. VS Code Ask, Plan, and Agent are separate host supervisory modes; repository text guides but cannot enforce host behavior.
 - When the user says stop, stop work immediately. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
+- Rapid prototyping mode: when the user is prototyping Logo programs interactively, favor fast iteration over formal gates. Do not require a workflow run record, stage approval, or QA pass for prototype edits or browser checks. Keep the running server and browser open between iterations. Stop prototyping work when the user says so.
 
 # Subagent Defaults
 
@@ -62,7 +63,7 @@
 
 # Browser Test Priority
 
-- Never use the VS Code embedded/integrated browser. Use external Chrome or headless runs, and show screenshots when the user asks to see UI.
+- Never use the VS Code embedded/integrated browser outside rapid prototyping mode. In rapid prototyping mode, the embedded browser is allowed for quick Logo program checks. Otherwise use external Chrome or headless runs, and show screenshots when the user asks to see UI.
 - Default iteration uses focused desktop Chrome checks. For mobile-first design features or mobile-specific issues, use mobile Chrome, Chrome device emulation, or the affected mobile browser as the primary iteration target, according to what best exercises the feature or reproduces the issue.
 - For broader validation, the default browser-test order is desktop Chrome, mobile Chrome (or Chrome device emulation), Firefox, then mobile Safari on the maintainer's iPad. Follow explicit user scope and prioritize the affected browser when diagnosing a browser-specific failure; do not run the whole matrix after every edit. Report emulation as emulation, not real-device coverage.
 - Mobile Safari testing requires a human-in-the-loop session on the maintainer's iPad with the current no-Mac setup. Because device connection and interaction require coordination, do it last in broader validation, after the automated checks pass. Coordinate with the maintainer rather than assuming an unattended run; test earlier when specifically diagnosing a mobile Safari issue or explicitly requested.
