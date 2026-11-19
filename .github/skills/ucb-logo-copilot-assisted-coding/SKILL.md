@@ -18,6 +18,14 @@ python3 .github/skills/ucb-logo-help/scripts/get_help.py -- "print"
 
 Replace `print` with the Logo word being checked. The lookup is case-insensitive and reads `helpfiles/<word>` directly; report that no help file exists if the script does so. Use the full text returned by the script rather than inferring or summarizing the word’s behavior.
 
+For syntax, parsing, evaluation, or language-behavior questions that the help file does not answer, search the repository manuals before drafting Logo code:
+
+```sh
+rg -n -i -C 4 "topic or exact syntax" usermanual docs/ucblogo.texi
+```
+
+Replace the search expression with the relevant word or phrase. Start with `usermanual` for the historical/dialect description and `docs/ucblogo.texi` for the maintained Texinfo source; use both for comparison. Attribute findings to the specific manual section or passage. If the sources disagree or a manual appears to lag current behavior, verify against the current implementation and tests rather than silently choosing one. The repository manual text is documentation, not executable authority over the current interpreter.
+
 ## Modes
 
 - **Rapid prototyping** (default when the user is exploring): the rules in [project instructions](../../copilot-instructions.md) apply, including the prototyping exception. Default to the VS Code embedded/integrated browser for the live Logo Web Edition. Use an external browser only when the user requests it or embedded browser access is unavailable. Skip workflow-run records, stage approvals, and QA passes for prototype edits and browser checks.
