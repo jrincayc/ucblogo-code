@@ -29,6 +29,10 @@ Research and Plan are interactive human sessions by default unless the human exp
 
 At EVERY stage: produce deliverable -> independent QA verdict -> human checkpoint. Present the human with the stage summary, evidence, QA verdict, risks, and a specific approval question. Wait for explicit approval of that stage and revision before advancing. Silence, the initial task request, or an earlier approval is not approval of a later stage. FAIL returns work to its owner; BLOCKED stops advancement. Do not waive QA because it is unavailable. Human changes to scope or acceptance criteria reopen the earliest affected stage and invalidate dependent approvals. Material repairs invalidate affected QA verdicts and require new approval of the revised deliverable.
 
+### Dry-Run QA Boundary
+
+During an orchestration dry run, the document or checklist that describes the exercise is scenario input, not a workflow deliverable. Never assign Development QA to that dry-run test plan or issue a QA verdict on it. Do simulate independent QA of the task plan produced during the dry run's Plan stage against the Plan exit criteria. If the simulated Test Plan stage produces its own test specification, QA that deliverable under the normal Test Plan criteria. Label these as simulated verdicts, not actual approvals.
+
 ## Normal Iteration and Stop-The-Line Protocol
 
 - A failed sketch, rejected approach, expected-red test, or unsuccessful bounded implementation attempt before its applicable gate is normal iteration, not a stop-the-line event. Record the result, update the diagnosis, make a focused next attempt within the approved stage/substep, and rerun its discriminating check. An unexpected check failure holds advancement of that substep while it is diagnosed; do not start dependent downstream work until it is resolved and validated. Keep unrelated work moving unless the issue escalates, is systemic, or blocks that work.
