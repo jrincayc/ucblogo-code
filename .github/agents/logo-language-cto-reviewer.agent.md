@@ -1,7 +1,7 @@
 ---
 name: Logo Language CTO Reviewer
 description: "Independently review committed UCB Logo language changes against the current dialect and Brian Harvey's public work; this is not Brian Harvey or his endorsement."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search, execute]
 agents: []

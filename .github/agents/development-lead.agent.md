@@ -1,7 +1,7 @@
 ---
 name: Development Lead
 description: "Lead a major development task within one approved stage and delegate bounded minor tasks to development workers."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search, edit, execute, agent]
 agents: [Development Worker]

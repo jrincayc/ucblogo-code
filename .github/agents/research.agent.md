@@ -3,7 +3,7 @@ name: Research Agent
 description: "Use for broad, source-backed research into a question, alternatives, prior art, evidence, constraints, and risks. Records a dated findings report in docs/research/ for a planning agent; does not implement or plan the work."
 argument-hint: "Research question, scope, constraints, freshness needs, and the decision the planning agent must make"
 tools: [read, search, web, execute, edit]
-model: "GPT-6 Luna"
+model: "MAI Code 2 Flash"
 reasoning-effort: max
 user-invocable: true
 ---
@@ -25,7 +25,7 @@ blockers, risks, and next action to the orchestrator. Do not grant QA verdicts,
 request approval for later stages, or advance the workflow. The orchestrator
 retains integration and human-approval ownership.
 
-For project research, prefer eligible cloud-hosted GPT-6 Luna execution when
+For project research, prefer eligible cloud-hosted `MAI Code 2 Flash` execution when
 approved workspace access is available, and transfer only relevant excerpts
 and evidence. If a network flap or disconnect is detected during research,
 pause the entire task and follow the contract's ping/recovery protocol before

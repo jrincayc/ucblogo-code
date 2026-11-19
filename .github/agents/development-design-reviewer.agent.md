@@ -1,7 +1,7 @@
 ---
 name: Development Design Reviewer
 description: "Independently review proposed and rendered visual designs for accessibility, responsive behavior, and design-system consistency."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search]
 agents: []

@@ -1,7 +1,7 @@
 ---
 name: Development QA
 description: "Independently verify each development stage's deliverables and evidence before human approval; do not implement fixes."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search, execute]
 agents: []

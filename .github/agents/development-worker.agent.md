@@ -1,7 +1,7 @@
 ---
 name: Development Worker
 description: "Execute one bounded research, planning, test, or implementation task for a development lead without further delegation."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search, edit, execute]
 agents: []

@@ -1,7 +1,7 @@
 ---
 name: Development Reviewer
 description: "Independently review development changes for correctness, security, regressions, missing tests, and scope compliance."
-model: GPT-6 Luna
+model: MAI Code 2 Flash
 reasoning-effort: max
 tools: [read, search, execute]
 agents: []

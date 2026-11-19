@@ -69,7 +69,7 @@ authorization to begin implementation now.
 ### Low-Cost Model And Three-Attempt Limit
 
 - Use a low-cost agent/model for implementation and subagent assignments. The
-  maintainer's suggested choice is GPT-6 Luna if available. Verify the actual
+  maintainer's suggested choice is MAI Code 2 Flash. If unavailable, mark agent work BLOCKED rather than using a fallback model. Verify the actual
   selectable model and current usage multiplier/pricing before starting; this
   plan does not assert that the suggested name is available or low-cost. If it
   cannot be selected, check with the maintainer before substituting a model.

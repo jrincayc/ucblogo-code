@@ -38,15 +38,15 @@
 
 # Subagent Defaults
 
-- Unless the user specifies otherwise, select GPT-6 Luna for subagent work. Pass the model explicitly when the tool supports model selection. If GPT-6 Luna is unavailable, first fall back to Claude Haiku 5.5 and disclose the fallback. If both are unavailable, report the limitation and request approval before selecting any other model. Never silently substitute a model.
-- Always include this language in every subagent prompt: "Use the maximum reasoning effort available. Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting." When Claude Haiku 5.5 is the fallback, also explicitly request high reasoning effort. These are prompt-level requests, not a guarantee of an underlying reasoning-effort setting.
+- Unless the user specifies otherwise, select `MAI Code 2 Flash` for subagent work. Pass the model explicitly when the tool supports model selection. If MAI Code 2 Flash is unavailable, mark the task BLOCKED and report the limitation; do not use a fallback model or silently substitute another model.
+- Always include this language in every subagent prompt: "Use the maximum reasoning effort available. Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting." These are prompt-level requests, not a guarantee of an underlying reasoning-effort setting.
 - Instruct every subagent to prefix every shell command with `date;`, inspect the returned timestamp, and track elapsed time from those timestamps.
 - Instruct every subagent to give the parent agent (superagent) a brief status report approximately every five minutes, or at the earliest opportunity after a blocking operation. Include elapsed time, progress, blockers, and the next step. If the tool cannot deliver interim messages, include timestamped progress notes in the final return and disclose that live reporting was unavailable; do not claim the parent received updates while the call was running.
 - Instruct every subagent to stop trying to fix an issue after three unsuccessful fix-and-check attempts. Return the attempted fixes, validation results, remaining blocker, and any useful next-step recommendation to the parent agent instead of starting a fourth attempt on the same issue.
 - Retry a timeout caused by high model load until it succeeds, using exponential backoff: wait 5 seconds after the first failure, double the wait after each further failed attempt, and cap each wait at 5 minutes. Do not stop after a fixed number of retries. These retries are not fix-and-check attempts and do not count toward the three-attempt limit. Apply this only to timeouts attributed to high model load; other failures follow the normal rules. Include the retry count and next wait in status reports to the parent agent.
 - Repeat these requirements in delegated prompts so they do not depend on subagents inheriting the parent conversation or repository instructions.
 
-<!-- Co-authored by GitHub Copilot. Scope: high-load model timeout retry policy in Subagent Defaults. Model: Claude Haiku 5.5; selected reasoning effort unavailable. Measured interval: 2026-11-19 16:18:05 to 16:18:16 UTC (11 s, partial: the start timestamp was taken after initial research). Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
+<!-- Co-authored by GitHub Copilot. Scope: Subagent Defaults model policy. Model: MAI Code 2 Flash; maximum reasoning effort requested. Elapsed time and energy/CO2 telemetry unavailable. -->
 
 # Commit Policy
 
