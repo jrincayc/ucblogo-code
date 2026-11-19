@@ -16,6 +16,8 @@ For overlapping JavaScript work, distinguish user-facing Logo/JS libraries and e
 
 Treat the user as an expert collaborator: discuss implementation constraints, semantics, tradeoffs, and evidence directly without introductory explanations unless requested. Adapt the depth and prerequisites of generated materials to their intended audience, which may range from beginners to experienced Logo developers; do not assume that audience is the user.
 
+For exploratory live-session work, use the [rapid-prototyping skill](../ucb-logo-copilot-assisted-coding/SKILL.md) alongside this programming skill: it covers short browser iteration loops, live dribble transcripts, and mirroring procedures into `contrib/rapid-prototypes/`.
+
 Support both traditional live-system development and source-file development. Logo's interactive workspace is valuable for exploration and pedagogy; the user also often prefers VS Code for syntax highlighting, Git, and editing source. Choose the workflow appropriate to the task and audience, and allow movement between them without treating either as obsolete.
 
 ## Workflow
@@ -56,6 +58,34 @@ metadata and arity.
 - Wait until Logo is initialized and the `logoInputText` terminal input is enabled. Send commands to Logo's stdin via that input or the existing `runLogo` JavaScript entry point, then run the relevant procedures and inspect Logo output, rendered HTML or graphics, and browser errors. For multiline source, the app's upload control copies a selected Logo file into the virtual filesystem and issues `load`; verify the current build's behavior before relying on another loading mechanism.
 - Iterate interactively: debug at the Logo prompt and, when useful, edit definitions in Logo. The web editor saves to the browser's virtual filesystem, which does not automatically mirror workspace files. Assume generated Logo and JavaScript code, including live experiments, is potentially worth keeping; preserve it in suitable Git-ready workspace files by default, creating source files when needed. Reconcile live changes without overwriting unrelated edits, then reload or rerun the synchronized source to verify it. Trivial diagnostic probes or code the user explicitly does not want retained need not become repository files.
 - Add focused tests for the behavior and report what was actually checked. Commit checkpoints per the repo commit policy.
+
+## Logo Documentation and Syntax Lookup
+
+Before relying on a primitive or construct, check the repository sources in this order:
+
+1. **Primitive help:** run the bundled lookup from the repository root:
+
+```sh
+python3 .github/skills/ucb-logo-help/scripts/get_help.py -- "print"
+```
+
+Replace `print` with the Logo word. The lookup is case-insensitive and reads `helpfiles/<word>` directly. Use the script's full output without paraphrasing; if it reports no help file, say that explicitly.
+
+2. **Syntax and language behavior:** search both repository manuals:
+
+```sh
+rg -n -i -C 4 "topic or exact syntax" usermanual docs/ucblogo.texi
+```
+
+Start with `usermanual` for historical/dialect description and `docs/ucblogo.texi` for the maintained Texinfo source. Compare them, attribute findings to a section or passage, and verify against current implementation and tests when they disagree or appear stale. Manual text is documentation, not executable authority over the current interpreter.
+
+3. **Advanced concepts:** use Brian Harvey's public *Computer Science Logo Style* volumes as additional educational and historical references:
+
+- [Volume 1: Symbolic Computing](https://people.eecs.berkeley.edu/~bh/v1-toc2.html) — exploration, procedures, recursion, functional programming, planning, and debugging.
+- [Volume 2: Advanced Techniques](https://people.eecs.berkeley.edu/~bh/v2-toc2.html) — iteration, control structures, extensibility, and advanced techniques.
+- [Volume 3: Beyond Programming](https://people.eecs.berkeley.edu/~bh/v3-toc2.html) — language-design tradeoffs and broader uses of Logo.
+
+Cite the relevant volume and chapter or section for a substantial design claim. Distinguish a historical preference or example from a requirement of the current dialect, and give the repository implementation priority for observable behavior.
 
 ## Repository Pointers
 
