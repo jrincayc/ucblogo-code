@@ -40,6 +40,19 @@ Treat these books as public educational and historical sources, not as a replace
 - **Hardening**: switch when the user asks for tests, a PR, or a release. Then apply the normal browser priority, test matrix, and commit policy.
 - Stop prototyping when the user says so. Do not carry prototype shortcuts into hardened work without re-running the relevant checks.
 
+## Using the VS Code Embedded Browser
+
+For manual rapid iteration, open the target URL in VS Code's built-in **Simple Browser** rather than launching a separate Chrome window:
+
+1. Start or reuse the existing Web Edition server and record its URL.
+2. Open the Command Palette and run **Simple Browser: Show** (`simpleBrowser.show`).
+3. Enter the full `http://localhost:PORT/ucblogo.html` URL.
+4. Reuse that Simple Browser tab while iterating; reload only for stale-runtime recovery or after a rebuild.
+
+VS Code's Simple Browser is the embedded/manual-browser mechanism. Do not substitute Chrome DevTools, CDP, or an external browser merely because they are technically available when embedded-browser access is available. Use external Chrome or headless checks only when the user explicitly requests it or the embedded browser cannot be opened or controlled. Automated browser acceptance work belongs to [the web-testing skill](../ucb-logo-web-testing/SKILL.md), not this live iteration loop.
+
+The shared Browser Pages attachment is the other way the host may expose an already-open page. Reuse its URL and keep that page open between iterations. If browser controls or page automation are unavailable, report that as an embedded-browser limitation and ask for the required host/browser access rather than silently falling back to a new external-browser workflow.
+
 ## Iteration Loop
 
 1. **Reuse the environment.** Check for a running `emrun` server and an open browser page on the target build before starting new ones. Track terminal IDs and ports for anything started.
