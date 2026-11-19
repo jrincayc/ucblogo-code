@@ -5,7 +5,7 @@ model: GPT-6 Luna
 reasoning-effort: max
 tools: [read, search, execute]
 agents: []
-user-invocable: false
+user-invocable: true
 disable-model-invocation: true
 ---
 

@@ -5,7 +5,7 @@ model: GPT-6 Luna
 reasoning-effort: max
 tools: [read, search, edit, execute, agent]
 agents: [Development Worker]
-user-invocable: false
+user-invocable: true
 ---
 
 Read and follow [the shared workflow contract](../workflows/development-orchestration.md) before acting.
