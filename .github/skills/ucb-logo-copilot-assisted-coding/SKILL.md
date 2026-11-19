@@ -12,7 +12,7 @@ Language semantics, arity, `runjs`, and Unicode rules belong to the [programming
 
 ## Modes
 
-- **Rapid prototyping** (default when the user is exploring): the rules in [project instructions](../../copilot-instructions.md) apply, including the prototyping exception. The embedded browser is allowed for quick Logo checks. Skip workflow-run records, stage approvals, and QA passes for prototype edits and browser checks.
+- **Rapid prototyping** (default when the user is exploring): the rules in [project instructions](../../copilot-instructions.md) apply, including the prototyping exception. Default to the VS Code embedded/integrated browser for the live Logo Web Edition. Use an external browser only when the user requests it or embedded browser access is unavailable. Skip workflow-run records, stage approvals, and QA passes for prototype edits and browser checks.
 - **Hardening**: switch when the user asks for tests, a PR, or a release. Then apply the normal browser priority, test matrix, and commit policy.
 - Stop prototyping when the user says so. Do not carry prototype shortcuts into hardened work without re-running the relevant checks.
 
