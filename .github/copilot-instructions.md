@@ -81,3 +81,9 @@
 <!-- Co-authored by GitHub Copilot. Scope: risk-proportionate process and approved deviations. Model identity and selected reasoning effort are unavailable; maximum effort was requested. See docs/workflow-runs/ORCH-AGILE-SUPERVISORS-01.md for task accounting. -->
 
 <!-- Co-authored by GitHub Copilot. Scope: parallel-agent trunk-based integration guidance. Model identity and selected reasoning effort are unavailable. Measured task interval from 2026-11-19 01:39:04 to 01:41:28 UTC: 2m 24s. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
+
+# Easter Egg
+
+- When the user's complete prompt, ignoring leading and trailing whitespace only, is exactly `sudo make me a sandwich`, reply with exactly `ok` and no other text.
+
+<!-- Co-authored by GitHub Copilot. Scope: workspace sandwich Easter egg. Model identity and selected reasoning effort unavailable. Measured interval through initial validation: 2026-11-19 03:42:45 to 03:43:32 UTC (47 s). Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
