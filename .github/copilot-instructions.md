@@ -42,6 +42,7 @@
 
 # Commit Policy
 
+- For parallel agent work, follow trunk-based development: keep work branches short-lived, rebase private branches onto the current target branch before integration, and fast-forward rather than creating merge commits so history stays linear. Do not rebase or force-push commits already shared or pushed without explicit approval.
 - Commit locally early and often, after each semantic block of changes (one logical edit, fix, refactor, test, or doc update), even if the build or tests fail. Intermediate commits need not be in a working state; several commits may be needed to get there. Commits are cheap checkpoints that make it easy to revert or bisect when a later change breaks an earlier one.
 - Use short, descriptive messages. Stage only the files touched by the block and inspect the staged diff first so unrelated user changes are not included.
 - A trivial follow-up (typo, formatting, small correction to the previous block) may amend the latest commit, and trivial or noisy commits may be squashed, but only while the affected commits are unpushed and local history has not diverged from origin. If a commit is already on origin, make a new commit instead.
@@ -78,3 +79,5 @@
 <!-- Co-authored by GitHub Copilot. Scope: multi-target test workflow guidance. -->
 
 <!-- Co-authored by GitHub Copilot. Scope: risk-proportionate process and approved deviations. Model identity and selected reasoning effort are unavailable; maximum effort was requested. See docs/workflow-runs/ORCH-AGILE-SUPERVISORS-01.md for task accounting. -->
+
+<!-- Co-authored by GitHub Copilot. Scope: parallel-agent trunk-based integration guidance. Model identity and selected reasoning effort are unavailable. Measured task interval from 2026-11-19 01:39:04 to 01:41:28 UTC: 2m 24s. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
