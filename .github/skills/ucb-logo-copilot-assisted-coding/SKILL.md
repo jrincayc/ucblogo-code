@@ -46,3 +46,13 @@ When the prototype works and the user wants it kept, summarize:
 - Anything left unverified (for example, mobile Safari or wxWidgets).
 
 Then ask whether to move to hardening.
+
+## Practical Iteration Notes
+
+- Prefer the live browser's accessibility snapshot refs for command input and controls; do not guess selectors for hidden editor elements.
+- Hide the turtle cursor with `ht` during drawing and restore it with `st` only if the final cursor state should be visible.
+- Use polygon exterior angles explicitly: a regular hexagon turns 60 degrees per side.
+- Center geometry by accounting for the turtle's starting state; reset or restore position and heading after helper procedures.
+- Live procedure definitions survive browser/runtime sessions but not necessarily a reboot or reload. Treat prompt-only work as session-local until saved to a Logo source file and re-run from that file.
+- After restarting a machine or runtime, verify the server process and served URL, then reload Logo and re-establish prompt readiness before resuming live definitions.
+- The repository web server is JavaScript: start it with Node, not Python. Reuse a running server and keep the browser/server process owned and identified during iteration.
