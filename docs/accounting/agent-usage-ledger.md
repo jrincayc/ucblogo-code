@@ -34,9 +34,32 @@ Append-only snapshots of read-only GitHub usage/accounting metadata. Do not stor
 - Billing source: `GET /users/n1ywb-1/settings/billing/usage?year=2026&month=11`
 - Branch / current commit: `wasm` / `6048bbeebd482474e5cf15b7b37ab8bb947de08f`
 - Staged paths: `.github/agents/development-orchestrator.agent.md`, `.github/copilot-instructions.md`, `docs/accounting/agent-usage-ledger.md`
+- Resulting local commit: `44dfbd2ae40ccc1ade604259c5c9d82f0b98f648`
+
+## 2026-11-20: Add accounting lifecycle policy — end
+
+- UTC timestamp: `2026-11-20T23:07:59Z`
+- Checkpoint: `end`
+- Account: `n1ywb-1`
+- Billing source: `GET /users/n1ywb-1/settings/billing/usage?year=2026&month=11`
+- Branch / current commit: `wasm` / `44dfbd2ae40ccc1ade604259c5c9d82f0b98f648`
+- Raw usage-item count: `42`
+- Gross / discount / net: `$212.991372361` / `$203.534970181` / `$9.456402180`
+- Remaining balance: `UNAVAILABLE`
+- Delta from preceding snapshot: gross `$0.000000000`, discount `$0.000000000`, net `$0.000000000`
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 / unavailable
+
+## 2026-11-20: Record accounting policy commit and session end — pre-commit
+
+- UTC timestamp: `2026-11-20T23:09:38Z`
+- Checkpoint: `pre-commit`
+- Account: `n1ywb-1`
+- Billing source: `GET /users/n1ywb-1/settings/billing/usage?year=2026&month=11`
+- Branch / current commit: `wasm` / `44dfbd2ae40ccc1ade604259c5c9d82f0b98f648`
+- Staged paths: `docs/accounting/agent-usage-ledger.md`
 - Resulting local commit: `PENDING`
 - Raw usage-item count: `42`
 - Gross / discount / net: `$212.991372361` / `$203.534970181` / `$9.456402180`
 - Remaining balance: `UNAVAILABLE`
-- Delta from preceding snapshot: gross `$0.000000000`, discount `$0.000000000`, net `$0.000000000` (billing values unchanged)
+- Delta from preceding snapshot: gross `$0.000000000`, discount `$0.000000000`, net `$0.000000000`
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 / unavailable
