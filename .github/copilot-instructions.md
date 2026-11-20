@@ -3,16 +3,27 @@
 - At the beginning of each task, identify and load applicable skills automatically.
 - In the initial update, name the skills you are using. If none apply, say so. Only claim to use skills you actually load.
 
-# Quality
-- Quality is everyone's responsibility.
-- A deviations from process may be requested.
-- A requested process deviation must be approved by a human. 
-- Approved process deviations shall be documented.
-- Eagerly summon subagents to perform reviews.
+# Front matter
+- Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting.
+
+# Definitions
+• Should: Means ought to or it is advisable/recommended. It signals a non-binding suggestion or expected outcome, leaving room for judgment or exception. Synonyms: ought to, had better, is recommended to.
+• Shall: means has a duty to or is required to, and can also indicate future action or intention. For example you shall not tell a lie means no exceptions ever.
+• Must: Means is strictly required to or it is necessary/compulsory but it may involve conditions. For example agents MUST wait for approval on gated tasks before continuing the task, but approval may never come so the task may never continue.
+- Shall and must both convey a firm obligation or logical certainty with little or no discretion. Synonyms: have to, is required to, is obligated to.
+- Andon means a defect has been found and all work must stop immediately no exceptions.
+
+# Quality assurance 
+- Quality is everyone's responsibility. Strive to create quality software. Quality is consistency. Consistency is achieved by minimizing waste and maximizing smoothness and value. Minimizing waste includes following the quality process. The quality process includes using a continuous feedback loop to improve the quality process and maximize user value and minimize waste. Waste could be time, credits, tokens, bandwidth, movement of data, etc.
+- Do not let waste-elimination become a perverse incentive that leads to waste-creation; for example, don't rush through research and planning; front-load tasks to identify opportunities and retire risks early. Rushing is a form of waste. Lying creates waste. Hiding things creates waste. Taking too long on a task is also wasteful. Estimate how long something should take and hold yourself to it.
+- To ensure quality and reduce waste use peer-review early and often. When in doubt ask.
+- Fail early and loudly. When a defect, as in a problem, bug, unanswerable question, or source of waste is found stop all work until the defect is resolved so that the defect does not impact later work or cause other quality problems later as that would lead to waste.
+- A deviation from the quality process may be requested but must be approved by a human. Approved process deviations shall be documented. Bad process should be improved. Do what you say and say what you do. If our process isn't written down it doesn't exist.
 - When the user says stop or andon, stop all work immediately in all agents. Follow the newest direction rather than resuming an earlier task or checklist without authorization.
 - When a defect is found stop all work and notify the human and other agents. This is an "andon" event.
 - When an andon event occurs, give a status update, but do not claim anything to be true without evidence.
 - Work shall not resume after an andon event until the human approves a resolution.
+- This is an academic hobby project and working on it is supposed to be fun for the humans, so don't overdo it. Our quality process should be flexible and helpful, not onerous to the point of uselessness. Remember the human.
 
 # Copilot Attribution
 - Except for chat messages, attribute GitHub Copilot as a co-author on all generated artifacts. If the medium does not support attribution ask the user what to do.
@@ -21,6 +32,7 @@
 - Do not change executable behavior just to add attribution.
 - Include the active model name and reasoning-effort setting when available to the agent. report if these data are not available. 
 - Do not include task scope.
+- Attribution should be recorded once-only per artifact. Avoid adding duplicate attribution.
 
 # Releases and GitHub
 
@@ -37,9 +49,8 @@
 
 # Lessons Learned
 
-- After non-trivial debugging or test work, suggest adding concise lessons to the relevant skill reference, not to this file
-- Unless this is really the most appropriate file
-- if approved, commit lessons locally per the Commit Policy.
+- After non-trivial work, suggest adding concise lessons to the relevant skill reference, and process improvements
+- if approved, commit locally per the Commit Policy.
 
 # Task Scope
 
