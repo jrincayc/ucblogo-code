@@ -53,13 +53,24 @@ VS Code's Simple Browser is the embedded/manual-browser mechanism. Do not substi
 
 The shared Browser Pages attachment is the other way the host may expose an already-open page. Reuse its URL and keep that page open between iterations. If browser controls or page automation are unavailable, report that as an embedded-browser limitation and ask for the required host/browser access rather than silently falling back to a new external-browser workflow.
 
+## Live Entry and Mirroring
+
+- Enter prototype code directly into the UCB Logo prompt in the live Web Edition. Do not draft or paste generated procedure definitions by editing a `.lgo`/`.lg` file before they have been entered and run in Logo.
+- The browser is the source of truth for live behavior. Copilot types or sends each Logo command or procedure directly to the prompt.
+- Immediately mirror every live Logo edit into a workspace source file under `contrib/rapid-prototypes/` (or a closer feature-specific location). The mirror must contain the procedure in valid Logo form, in the same final form as the live definition.
+- After mirroring, run or `load` the workspace file in Logo and compare the result with the live session. A workspace edit alone is not sufficient proof that a prototype works.
+- Use the workspace mirror to preserve recoverable source; use the dribble transcript to preserve the exact live session history.
+
 ## Iteration Loop
 
-1. **Reuse the environment.** Check for a running `emrun` server and an open browser page on the target build before starting new ones. Track terminal IDs and ports for anything started.
-2. **Wait for readiness.** Confirm Logo is initialized and the command input is enabled before sending commands.
-3. **Try the smallest change.** Define or redefine one procedure, run it at the prompt, and inspect output, rendered HTML or graphics, and console errors.
-4. **Check for stale state.** If a result contradicts the source, use the [stale-artifacts checklist](../ucb-logo-web-testing/references/stale-artifacts.md) before editing again. Live definitions persist in the session; reload or restart the runtime when they may be stale.
-5. **Keep what matters.** Experiments that the user will want later go into a Git-tracked source file. Throwaway probes do not need to be saved.
+1. **Start dribble first.** Before any Logo command or procedure entry, send `dribble "rapid-prototype-session.log` in the live prompt. Keep dribble enabled throughout the session.
+2. **Reuse the environment.** Check for a running Web Edition server and an open browser page on the target build before starting new ones. Track terminal IDs and ports for anything started.
+3. **Wait for readiness.** Confirm Logo is initialized and the command input is enabled before sending commands.
+4. **Enter and run live.** Enter the smallest change directly in the Logo prompt, run it, and inspect output, rendered HTML or graphics, and console errors.
+5. **Mirror immediately.** Copy the entered and tested procedure to the workspace source file immediately after the live edit. Do not substitute VS Code as the first entry point.
+6. **Reload the mirror when useful.** Rerun or `load` the workspace file when checking that the saved source reproduces the live result.
+7. **Check for stale state.** If a result contradicts the source, use the [stale-artifacts checklist](../ucb-logo-web-testing/references/stale-artifacts.md) before editing again.
+8. **Keep what matters.** Experiments the user will want later remain in the Git-tracked workspace mirror. Throwaway probes do not need to be saved.
 
 ## Keeping Prototypes
 
