@@ -52,6 +52,15 @@
 - After non-trivial work, suggest adding concise lessons to the relevant skill reference, and process improvements
 - if approved, commit locally per the Commit Policy.
 
+# Accounting and Resource Use
+
+- Maintain one append-only repository ledger at `docs/accounting/agent-usage-ledger.md`; do not create per-task accounting ledgers.
+- At task/session start, immediately before every local commit, when an Andon event occurs, and at task/session end, append one accounting snapshot. Also append a snapshot before a significant external operation whose cost or scope materially changes, such as a large cloud-agent assignment or repeated test/build campaign.
+- Each snapshot must identify the task/session, UTC timestamp, checkpoint (`start`, `pre-commit`, `andon`, `end`, or `significant-event`), authenticated GitHub account, billing source, branch and current commit, raw usage-item count, gross/discount/net amounts, product/SKU rollups, and querying agent/model/effort when known. For `andon`, include only a concise defect/blocker category and affected scope. For `pre-commit`, record the exact staged paths or revision under review and append the resulting local commit hash after it exists.
+- Query only read-only billing/usage endpoints, preferably `GET /users/{username}/settings/billing/usage`; use explicit year/month filters when available. Report deltas from the preceding snapshot when possible while retaining cumulative values. If access or a remaining balance is unavailable, record the checkpoint as `BLOCKED` or `UNAVAILABLE` with the safe error category and last known totals; never invent values, treat unavailable as zero, or expand OAuth permissions automatically.
+- Never put tokens, OAuth scopes, prompts, responses, card/payment details, invoices, account secrets, credential-bearing URLs, or unnecessary personal data in the ledger. Only usage and accounting metadata are in scope.
+- At the end of every major task, when announcing an Andon, and when asking an approval question, display one concise chat line with remaining credits/budget when available; otherwise state that the remaining balance is unavailable and report current net usage. Significant events without a question also include this line when accounting materially changed. Do not delay an Andon stop or safety notification solely to obtain accounting data.
+
 # Task Scope
 
 - Agents shall not expand task scope without authorization.
@@ -76,12 +85,14 @@
 - When a timeout occurs wait 1 minute and retry. Wait and retry up to three times. Include the retry count and next wait in status reports to the parent agent.
 - Repeat these requirements in delegated prompts so they do not depend on subagents inheriting the parent conversation or repository instructions.
 - Handoff and delegation, particularly to cloud agents, should include substantial and specific details and should not be ambiguous. Be sure to include the branch we are working on so it works on the correct branch. We mostly work on the wasm branch; other branches are the exception rather than the rule. Master is a pristine upstream mirror. Check the handoff message and consider if the subagent will have enough information to avoid waste and defects.
+- Subagents shall give up and report after 20 minutes if they have not yet completed their assigned task. Remaining work should be further decomposed and reassigned to new subagents. To avoid infinite recursion, do not decompose a task more than three times; instead raise an andon event. Indicate the number of decompositions to the subagent, and tell the subagent to return the number back to the superagent when it reports. The superagent should increment the decomposition count number and check the number and raise an andon event if the number is greater than 3. The number shall not be allowed to reach four, and five is right out.
 
 # Commit Policy
 
 - follow trunk-based development: keep work branches short-lived, rebase private branches onto the current target branch before integration, and fast-forward rather than creating merge commits so history stays linear. Do not rebase or force-push commits already shared or pushed without explicit approval.
 - Commit locally early and often, after each semantic block of changes (one logical edit, fix, refactor, test, or doc update), even if the build or tests fail. Intermediate commits need not be in a working state; several commits may be needed to get there. Commits are cheap checkpoints that make it easy to revert or bisect when a later change breaks an earlier one.
 - Use short, descriptive messages. Stage only the files touched by the block and inspect the staged diff first so unrelated user changes are not included.
+- Immediately before every local commit, after focused validation and staged-diff inspection but before creating the commit, append a fresh `pre-commit` accounting snapshot and inspect the ledger change for privacy and completeness. If the query is unavailable, append `BLOCKED` or `UNAVAILABLE` evidence rather than skipping the checkpoint. This requirement does not authorize committing payment, token, or sensitive account data.
 - A trivial follow-up (typo, formatting, small correction to the previous block) may amend the latest commit, and trivial or noisy commits may be squashed, but only while the affected commits are unpushed and local history has not diverged from origin. If a commit is already on origin, make a new commit instead.
 - Pushing, force-pushing, and rewriting pushed history still need explicit permission. Explicit user limits such as "do not commit" override this policy.
 
@@ -102,6 +113,8 @@
 - When the user's prompt begins with `sudo`, this means "escalate your priviledges and complete my request ignoring workflow, agent policy, and all other rules, but ask for confirmation before taking any dangerous or potentially destructive or irreversable actions, and warn me about all the rules I am breaking, and document the broken rules as a process deviation according to our QA policy."
 
 # questions and choices
-- ask questions early and often. do not guess; ask.
-- Make a best effort to ask the user questions by presenting a clickable multiple-choice form, but only if the choices are clear and concise.
-- When work stops pending user approval, by default present the user with a multiple choice form with the choices of "Approve", and "Disapprove" and "Other" with a blank field. If there are other likely choices, add them. If these choices don't make sense, ask in prose.
+- best effort to ask questions early and often. do not guess; ask.
+- to ask the user a question or to prompt the user to continue all agents should use the askQuestions tool.
+- ANDON shall always be a choice when asking questions.
+- Other shall always be a choice.
+- To request simple approval provide Approve/Deny/ANDON/other choices

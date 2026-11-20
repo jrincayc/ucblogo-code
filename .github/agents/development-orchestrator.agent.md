@@ -3,7 +3,7 @@ name: Development Orchestrator
 description: "Coordinate software development through research, planning, tests, implementation, and review with independent QA and human approval at every stage."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search, edit, execute, agent]
+tools: [read, search, edit, execute, agent, vscode/askQuestions]
 agents: [Research Agent, Development Lead, Development Worker, Development QA, Development Reviewer, Development Design Reviewer]
 user-invocable: true
 disable-model-invocation: true
