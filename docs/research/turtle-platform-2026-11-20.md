@@ -1,0 +1,143 @@
+# Research Findings: UCB Logo Turtle Graphics Across Web and wxWidgets Editions
+
+**Status:** Partial
+**Researched:** 2026-11-20 (UTC)
+**Question:** What user-observable turtle-graphics behavior should a UCB Logo turtle-graphics skill preserve across Web Edition and wxWidgets Edition, and where are edition-specific differences or documentation conflicts established?
+**Scope and assumptions:** Repository-local research only. The review favors the maintained UCB Logo manual, bundled help, Web Edition documentation, demos, and current implementation as a confirmation source. It does not cover non-turtle Logo features unless they directly affect graphics guidance. It does not infer that an implementation detail is visually correct, and it does not claim browser or wx runtime validation.
+
+## Key Findings
+
+1. **[Documented fact — High]** The portable core is deliberately shared: one turtle, `FORWARD/BACK/LEFT/RIGHT/SETPOS/SETXY/SETHEADING/HOME`-style motion, absolute headings measured clockwise from positive Y, positive X to the right, positive Y up, and the initial `WRAP` mode. The manual also defines `CLEAN`, `CLEARSCREEN`, pen modes, standard color slots, labels, and window modes. Evidence: [E1], [E2], [E3].
+
+2. **[Inference — High basis]** Written turtle guidance should lead with the shared primitive semantics and place edition-specific notes after each primitive or in a platform matrix. This follows the manual's portability goal and avoids presenting Web-only sprite/animation words as core Logo. Evidence: [E1], [E14].
+
+3. **[Direct observation — High]** Web Edition uses a fixed logical SVG canvas of `640 x 480` with the origin at SVG `(320, 240)`, and mouse conversion from CSS/SVG coordinates subtracts that origin and flips Y. The SVG preserves aspect ratio. wxWidgets uses the widget/canvas size, tracks it on resize, and converts mouse positions relative to the current canvas center. Evidence: [E4], [E5].
+
+4. **[Documented fact — High]** Turtle coordinates are turtle-unit coordinates, not an edition-wide promise of pixel dimensions. The manuals say the implementation should scale a square window so that `[-100 -100]` through `[100 100]` fits and 1:1 aspect ratio is intended, while actual borders depend on the machine. Current Web and wx implementations derive wrap/fence boundaries from their backend canvas sizes. Evidence: [E1], [E4], [E5].
+
+5. **[Documented fact — High]** Standard color numbers `0` through `7` are intended to be uniform; the standard 8–15 palette is more implementation-dependent. RGB custom colors and pen/pattern behavior remain less portable. A turtle skill should make those boundaries visible rather than promise identical rendered colors or pen patterns. Evidence: [E6].
+
+6. **[Documented fact — High]** `CLEAN` preserves turtle state and `CLEARSCREEN` is `HOME` plus `CLEAN`. In the shared C implementation, `CS` resets position/heading and line state while preserving pen and shape settings; Web `clearscreen` replaces the SVG drawing-elements group, leaves sprite definitions and the background, and does not reset the custom turtle sprite selection. Evidence: [E7], [E15].
+
+7. **[Mixed fact/direct observation — Medium]** The Web and wx editions expose the shared triangle/turtle shape names, but rendering differs. wx has shared geometry and draws the selected triangle or turtle outline. Web's shell has prebuilt SVG turtle/sprite symbols and current Web adapter code rotates the selected `<use>` rather than switching it when `SETSHAPE` changes C shape state. `MAKESPRITE`/`SETTURTLESPRITE` are the current Web mechanism for a custom turtle appearance. Actual visual behavior needs browser validation. Evidence: [E8], [E15].
+
+8. **[Documented fact — High]** `FILLED` is a portable-enough polygon primitive for the current wx and Web implementations, while flood-fill `FILL` is explicitly non-portable and is not implemented in the Web rendering adapter. The Web Edition documentation says it supports `FILLED` but not `FILL`. Evidence: [E9], [E10].
+
+9. **[Conflict/direct observation — High]** The Web Edition document calls `SCRUNCH` and `SETSCRUNCH` missing/unneeded. The current shared interpreter still registers and implements both words, so source currentness conflicts with that document. Scrunch has no Web label-font adjustment, whereas wx adjusts label font sizing in response to scrunch. `SETPENSIZE` also has edition-specific rendering: wx explicitly permits one pen width and documentation says it always returns equal dimensions, while Web maps pen width/height into one SVG stroke width. Evidence: [E11], [E12].
+
+10. **[Conflict/direct observation — High]** `SETPENCOLOR`, `SETBACKGROUND`, palettes, `FILLED`, labels, mouse coordinates, and screen modes are available through shared adapters, but exact rendering/layout remains platform-dependent. In particular, `PENREVERSE` is system-dependent by design, and Web Edition documents and source agree only that erasing is mask-based and may not be pixel-identical to bitmap erasings. Evidence: [E6], [E9], [E13].
+
+11. **[Conflict/direct observation — High]** The historical/manual text marks `FILLED`, `SETLABELHEIGHT`, `LABELSIZE`, and `CLICKPOS` as wx-only, but the current Web C/JS adapter explicitly registers or implements `FILLED`, `SETLABELHEIGHT`, `LABELSIZE`, and `CLICKPOS`. These manual annotations are stale for the Web Edition current source and should not be copied as if they were current limitations. Visual/edge-case behavior remains unverified. Evidence: [E10], [E16], [E17].
+
+12. **[Documented fact/direct observation — High]** Browser-only turtle-adjacent features include `ANIMATIONSTART`, `ANIMATIONSTOP`, the `ANIMATIONACT` action, `ANIMATIONTIME`, `ANIMATIONDELTA`, `MAKESPRITE`, `SETTURTLESPRITE`, `SETSHAPERENDERING`, SVG drawing download, and JS interop. These are not portable Logo primitives. Sprite support is one turtle/sprite instance at a time; extra independent instances require Web JavaScript DOM work. Evidence: [E14], [E15], [E18].
+
+13. **[Conflict — High]** `webedition.md`'s exclusive-word list includes `animationframact` and `animationdelay`, but current source has no implementation of those names; it implements `animationact`, `animationtime`, and `animationdelta`. The skill should use the implemented names and treat the two listed names as stale unless reimplemented. Evidence: [E18].
+
+14. **[Direct observation — Medium]** Web screen-layout primitives are incomplete compared with their desktop descriptions: `TEXTSCREEN` hides the SVG and stops animation; `SPLITSCREEN` shows SVG and input; the Web `FULLSCREEN` adapter is currently a no-op aside from setting Logo's state. wx controls a native frame layout. The shared manual appropriately says layout details differ. Evidence: [E19].
+
+15. **[Documented fact/direct observation — High]** Web Edition lacks flood-fill `FILL`, picture serialization/load/export primitives, and lists refresh controls in `webedition.md`; its built-in replacement for picture sharing is download of a generated SVG. `SAVEPICT`, `LOADPICT`, and `EPSPICT` are platform-specific or missing in the Web Edition and should not be taught as portable graphics workflows. Evidence: [E9], [E20].
+
+16. **[Direct observation — Medium]** Mouse positioning and button events are not fully equivalent to touch or pointer APIs. The Web implementation has mouse event handlers and no touch handlers; its source explicitly says touch support is a TODO. `MOUSEPOS`, `BUTTONP`, and `BUTTON` need viewport-capability caveats, and touch behavior should not be assumed until browser validation. Evidence: [E17], [E21].
+
+## Evidence Ledger
+
+| ID | Finding | Type | Confidence and basis | Source and date | Planning relevance |
+| --- | --- | --- | --- | --- | --- |
+| E1 | Shared turtle coordinates, heading convention, one-turtle limitation, 1:1 scaling intent, and initial wrap mode. | Documented fact | High; repeated in maintained and historical manuals. | [`docs/ucblogo.texi:3443-3460`](../../docs/ucblogo.texi#L3443-L3460), latest commit 2026-08-30; [`usermanual:1594-1620`](../../usermanual#L1594-L1620), latest commit 2026-08-30. | Establish the portable semantics and dimensions section. |
+| E2 | Motion, position, heading, and `ARC` definitions. | Documented fact | High; explicit manual entries. | [`docs/ucblogo.texi:3497-3650`](../../docs/ucblogo.texi#L3497-L3650), latest commit 2026-08-30. | Primitive reference and examples should distinguish motion from queries. |
+| E3 | `CLEAN`, `CLEARSCREEN`, wrap/window/fence, label, and window-control definitions. | Documented fact | High; explicit manual entries. | [`docs/ucblogo.texi:3734-4045`](../../docs/ucblogo.texi#L3734-L4045), latest commit 2026-08-30. | Portable control and cleanup guidance. |
+| E4 | Web uses a `640 x 480` viewBox, SVG origin `(320, 240)`, flipped Y on mouse conversion, and uniform SVG scaling via `preserveAspectRatio`. | Direct observation | High for source; Medium for browser appearance until rendered. | [`shell.html:484-540`](../../shell.html#L484-L540), latest commit 2026-11-16; [`pre.js:510-524`](../../pre.js#L510-L524), [`pre.js:915-922`](../../pre.js#L915-L922), latest commit 2026-11-16; [`webgraphics.h:21-35`](../../webgraphics.h#L21-L35), latest commit 2026-11-16. | Dimension and coordinate guidance; browser rendering check later. |
+| E5 | wx canvas dimensions come from the widget and are updated on resize; mouse/click coordinates are centered and Y-flipped. | Direct observation | High for source; Medium for host appearance. | [`wxTurtleGraphics.cpp:235-241`](../../wxTurtleGraphics.cpp#L235-L241), [`wxTurtleGraphics.cpp:294-308`](../../wxTurtleGraphics.cpp#L294-L308), [`wxTurtleGraphics.cpp:327-345`](../../wxTurtleGraphics.cpp#L327-L345), [`wxTurtleGraphics.cpp:1062-1070`](../../wxTurtleGraphics.cpp#L1062-L1070), latest commit 2026-08-30. | Prevent absolute-pixel assumptions and explain host-dependent bounds. |
+| E6 | Standard palette and pen/background semantics; Web initial palette and live CSS palette variables; wx initial palette. | Documented fact/direct observation | High for palette contract and source initialization; Medium for cross-rendered RGB appearance. | [`docs/ucblogo.texi:4126-4390`](../../docs/ucblogo.texi#L4126-L4390), latest commit 2026-08-30; [`pre.js:297-314`](../../pre.js#L297-L314), [`pre.js:831-852`](../../pre.js#L831-L852), latest commit 2026-11-16; [`wxTurtleGraphics.cpp:211-231`](../../wxTurtleGraphics.cpp#L211-L231), latest commit 2026-08-30. | Use 0–7 for portable examples and isolate palette variants. |
+| E7 | `CLEAN` and `CLEARSCREEN` state behavior in shared C; Web replaces line/drawing nodes and can leave sprite definitions and state intact. | Documented fact/direct observation | High for source state behavior; Medium for browser-rendered cleanup. | [`usermanual:1759-1769`](../../usermanual#L1759-L1769); [`graphics.c:788-817`](../../graphics.c#L788-L817), latest commit 2026-11-16; [`pre.js:592-606`](../../pre.js#L592-L606), latest commit 2026-11-16. | Define cleanup patterns and do not imply a palette/shape reset. |
+| E8 | Two shared built-in shapes; wx uses shared geometry; Web shell/prebuilt symbols and adapter rotate fixed `<use>`, with custom sprites separate. | Documented fact/direct observation | Medium; implementation evidence is clear, visual result untested. | [`docs/ucblogo.texi:3785-3804`](../../docs/ucblogo.texi#L3785-L3804); [`turtleshape.c:30-84`](../../turtleshape.c#L30-L84), [`turtleshape.c:105-138`](../../turtleshape.c#L105-L138); [`wxTurtleGraphics.cpp:323-345`](../../wxTurtleGraphics.cpp#L323-L345); [`shell.html:519-540`](../../shell.html#L519-L540); [`pre.js:859-860`](../../pre.js#L859-L860). Latest relevant commit 2026-08-30 or 2026-11-16. | Decide whether the skill can claim shape parity or require visual validation. |
+| E9 | `FILL` is non-portable; Web Edition omits it and its adapter method is currently only a stub. | Documented fact/direct observation | High for docs and source. | [`docs/ucblogo.texi:3880-3889`](../../docs/ucblogo.texi#L3880-L3889); [`webedition.md:249-257`](../../webedition.md#L249-L257), latest commit 2026-11-16; [`pre.js:828-829`](../../pre.js#L828-L829), latest commit 2026-11-16. | Keep flood-fill out of portable examples. |
+| E10 | `FILLED` is supported in shared wx/Web guard and implemented by SVG polygon output. | Documented fact/direct observation | High for primitive availability; Medium for visual rendering. | [`webedition.md:249-252`](../../webedition.md#L249-L252); [`graphics.c:1505-1561`](../../graphics.c#L1505-L1561), latest commit 2026-11-16; [`webgraphics.c:272-290`](../../webgraphics.c#L272-L290), latest commit 2026-11-16. | Prefer `FILLED` over `FILL` in portable guidance. |
+| E11 | Scrunch and label/scrunch behaviors. Web edition docs call scrunch missing, while shared C registers it; wx alone updates label size for scrunch. | Conflict/direct observation | High for registration/conflict; Medium for visible size result. | [`webedition.md:249-253`](../../webedition.md#L249-L253); [`init.c:404`](../../init.c#L404), [`init.c:436`](../../init.c#L436); [`graphics.c:1286-1304`](../../graphics.c#L1286-L1304); [`wxTurtleGraphics.cpp:590-644`](../../wxTurtleGraphics.cpp#L590-L644). Source commits 2026-11-16 or 2026-08-30. | Do not repeat Web's stale missing-word claim; avoid using scrunch in portable visual examples until checked. |
+| E12 | Pen size accepts a list but wx only applies width and Web uses a one-value SVG stroke. | Documented fact/direct observation | High for source/design; Medium for exact browser/wx rendering. | [`docs/ucblogo.texi:4263-4275`](../../docs/ucblogo.texi#L4263-L4275), latest commit 2026-08-30; [`usermanual:2059-2062`](../../usermanual#L2059-L2062); [`wxGraphics.h:111-113`](../../wxGraphics.h#L111-L113); [`pre.js:664-688`](../../pre.js#L664-L688), latest commit 2026-11-16. | Document one-width/square limitations instead of promising separate x/y stroke controls. |
+| E13 | Pen erase and reverse are platform-dependent; Web emulates erase with masks and reverse with CSS `difference`. | Documented fact/direct observation | High for implementation mechanism; Medium for pixel-perfect result. | [`docs/ucblogo.texi:4129-4137`](../../docs/ucblogo.texi#L4129-L4137); [`webedition.md:296-304`](../../webedition.md#L296-L304), latest commit 2026-11-16; [`pre.js:702-740`](../../pre.js#L702-L740), latest commit 2026-11-16. | Call erase/reverse visual equivalence unsupported. |
+| E14 | Browser animation is an `requestAnimationFrame` loop with action variables and async live prompt. | Documented fact/direct observation | High for the implemented mechanism. | [`webedition.md:372-422`](../../webedition.md#L372-L422), latest commit 2026-11-16; [`init.c:109-110`](../../init.c#L109-L110), [`init.c:812-814`](../../init.c#L812-L814), [`init.c:883-886`](../../init.c#L883-L886), latest commit 2026-11-16; [`liblogo.js:75-112`](../../liblogo.js#L75-L112), latest commit likely 2026-11-16; [`webgraphics.c:377-383`](../../webgraphics.c#L377-L383), latest commit 2026-11-16. | Add a Web-only animation pattern and frame-data guidance. |
+| E15 | Web sprite capture, clearing, and turtle-sprite assignment; custom sprite moves one drawing group into a symbol and persists independently of clearing. | Documented fact/direct observation | High for source behavior; Medium for exact visual appearance. | [`webedition.md:425-445`](../../webedition.md#L425-L445); [`webstartup.lg:1-6`](../../webstartup.lg#L1-L6), latest commit 2026-11-16; [`pre.js:1089-1109`](../../pre.js#L1089-L1109), latest commit 2026-11-16. | Show Web-only sprite lifecycle and single-turtle constraint. |
+| E16 | Current Web implementation exposes label-height and label-size words despite wx-only manual annotations. | Conflict/direct observation | High for C/JS exposure; Medium for label layout. | [`docs/ucblogo.texi:3919-3933`](../../docs/ucblogo.texi#L3919-L3933), [`docs/ucblogo.texi:4110-4122`](../../docs/ucblogo.texi#L4110-L4122); [`init.c:260`](../../init.c#L260), [`init.c:423`](../../init.c#L423); [`webgraphics.c:242-259`](../../webgraphics.c#L242-L259), latest commit 2026-11-16. | Mark stale documentation and include label sizing as shared-in-source but rendering-variant. |
+| E17 | Mouse and click/button event plumbing in Web and wx; current source supports Web `CLICKPOS`, despite wx-only manual annotation. | Conflict/direct observation | High for event plumbing; Medium for pointer/touch equivalence. | [`docs/ucblogo.texi:4496-4541`](../../docs/ucblogo.texi#L4496-L4541); [`init.c:157`](../../init.c#L157), [`init.c:294`](../../init.c#L294); [`graphics.c:1310-1333`](../../graphics.c#L1310-L1333); [`webgraphics.c:331-348`](../../webgraphics.c#L331-L348); [`pre.js:1531-1551`](../../pre.js#L1531-L1551), latest commit 2026-11-16. | Call mouse-coordinate support edition-aware and separate touch validation. |
+| E18 | Implemented Web animation names and stale names in documentation. | Conflict/direct observation | High. | [`webedition.md:350-360`](../../webedition.md#L350-L360), [`webedition.md:389-411`](../../webedition.md#L389-L411); [`init.c:109-110`](../../init.c#L109-L110), [`init.c:812-814`](../../init.c#L812-L814), latest commit 2026-11-16. | Remove or quarantine `animationframact`/`animationdelay` until source support exists. |
+| E19 | Web text/split/fullscreen implementations and wx native layout. | Direct observation | High for source; Medium for responsive/browser layout. | [`graphics.c:1020-1050`](../../graphics.c#L1020-L1050), latest commit 2026-11-16; [`pre.js:770-797`](../../pre.js#L770-L797), latest commit 2026-11-16; [`wxTurtleGraphics.cpp:1003-1039`](../../wxTurtleGraphics.cpp#L1003-L1039), latest commit 2026-08-30. | Avoid promising a single fullscreen behavior. |
+| E20 | Web SVG export; picture primitives missing; file storage is virtual rather than host filesystem. | Documented fact/direct observation | High for UI/export and docs; Medium for SVG visual preservation. | [`webedition.md:210-214`](../../webedition.md#L210-L214), [`webedition.md:249-257`](../../webedition.md#L249-L257), [`webedition.md:266-274`](../../webedition.md#L266-L274); [`shell.html:472`](../../shell.html#L472); [`pre.js:1019-1053`](../../pre.js#L1019-L1053), latest commit 2026-11-16. | Separate SVG sharing/export from Logo picture serialization. |
+| E21 | Web mouse-only event setup and no touch implementation. | Direct observation | Medium; source is clear, but actual browser/pointer support may change. | [`pre.js:526-536`](../../pre.js#L526-L536), latest commit 2026-11-16. | Add touch validation before claiming mobile mouse/touch equivalence. |
+
+## Options and Trade-offs
+
+- **Portable-first reference vs edition-matrix reference.** A single primitive table with an explicit Web/wx column may make differences discoverable but could duplicate the shared semantics. A core primitives section plus short edition notes keeps examples portable and boundaries visible.
+- **Polygon fill vs flood fill.** `FILLED` is available in both wx and Web source and does not depend on bitmap flood-fill behavior. `FILL` offers a different user model but is explicitly non-portable and has no Web implementation; a skill can document that trade-off without changing source.
+- **Full-frame animation vs persistent SVG objects.** Web demos can redraw the whole frame or transform existing SVG objects. Full redraw is easy to reason about but costs more DOM/SVG work; persistent objects can be faster but require explicit cleanup and layering decisions. The report does not establish which is visually preferable.
+- **Custom one-turtle sprite vs JavaScript multiple sprites.** `MAKESPRITE`/`SETTURTLESPRITE` provide a turtle appearance with no extra instances. Extra objects require Web DOM/`RUNJS` work and are outside wx parity, trading simplicity for Web-only capability.
+- **Correct stale docs vs document source as current.** A skill can note that a manual annotation is stale and use source-confirmed Web support, or it can defer to documentation and mark both with a compatibility caveat. The evidence favors a conflict note plus current-source wording until docs are reconciled.
+
+## Conflicts and Counterevidence
+
+- The maintained manual is not uniformly current for Web Edition: it marks `FILLED`, `CLICKPOS`, `SETLABELHEIGHT`, and `LABELSIZE` wx-only, but current Web source registers or implements them. This report treats the source as current behavior and the manual annotation as stale for Web.
+- `webedition.md` says `SCRUNCH`/`SETSCRUNCH` are missing, but current shared C registers and applies them. This report does not claim identical visual scaling and labels; it records the conflict and the wx-only label adjustment.
+- `webedition.md` lists `animationframact` and `animationdelay`, but current code uses `animationact`, `animationtime`, and `animationdelta`. The stale names lack a source implementation.
+- The Web-adapter source exposes both shared shape names but does not visibly swap prebuilt symbols in `SETSHAPE`; this is counterevidence to a strong “same shape appearance” claim, although runtime confirmation is still missing.
+- `webedition.md`'s “100% compatible” and “missing minor features” descriptions are broad marketing/edition status statements. The code-level evidence above is more useful for specific skill guidance.
+
+## Constraints and Dependencies
+
+- The task was read-only and source-backed: no build, browser launch, wx launch, test run, external lookup, or visual comparison was performed.
+- Browser behavior depends on browser, browser zoom/responsive sizing, SVG/CSS support, visual viewport, and assistive-technology behavior; source and static markup cannot establish those outcomes.
+- wx behavior depends on host window size, platform font metrics, printer/page setup, and wx widget layout. The source confirms center conversion and resize handling but not a rendered desktop matrix.
+- Web Edition's SVG export and sprite behavior depend on supported SVG/CSS features in a browser or downstream SVG application.
+- Text-to-speech, audio, and JS interop depend on browser permissions/APIs and are outside the core turtle-primitive portability claim.
+
+## Unknowns and Unverified Items
+
+- Whether `SETSHAPE "turtle` visually changes the Web turtle and whether the fixed SVG triangle is actually the intended `SHAPE 0` rendering.
+- Whether `SETSCRUNCH`, `SETLABELHEIGHT`, and list-valued `SETPENSIZE` produce the intended or stable rendered sizes in Web and wx at representative viewports.
+- The exact Web and wx appearance of `PENREVERSE`, `PENERASE`, `PENPAINT`, custom palettes, labels, and fills, including printer/export differences.
+- Whether `FULLSCREEN`, `SPLITSCREEN`, and `TEXTSCREEN` remain consistent across desktop/mobile Web viewports and whether CSS layout or terminal printing changes the state.
+- Whether mouse coordinates and button behavior are equivalent for touch, stylus, trackpads, or screen-reader-driven interaction.
+- Whether Web frame rates, frame-drop warnings, and `ANIMATIONDELTA` behavior match the prose claims on a target browser and device.
+- Whether `CLICKPOS` in current Web source updates reliably under every mouse event/reentrancy condition; source confirms plumbing, not acceptance behavior.
+- No independent cross-check used external UCB Logo documentation or a second implementation, as external lookup was outside scope.
+
+## Search Coverage and Limitations
+
+Search coverage included local manuals, the bundled help index, `webedition.md`, core graphics and shape source, Web/SVG adapter source, wx adapter source, startup wrappers, and animation/sprite demos. Focused terms included turtle motion/position/headings, clearscreen/clean, scrunch, filled/fill, pen/pensize/palette/background, shape/label, mouse/click, refresh/picture, screen modes, animation, sprite, SVG, and edition-specific words. Principal source commit dates were captured with `git log`.
+
+The search did not claim exhaustiveness for every historical platform or every help file. The 2008 help files and older manual text may lag current 2026 sources. Source implementation was used only to confirm or contradict user-facing claims, not to enumerate renderer internals. No external network source was consulted.
+
+## Options and Trade-offs
+
+1. A short platform matrix can make every primitive's status explicit, but may overwhelm beginners. A turtle skill can instead keep portable examples first and add small “Web only,” “wx/wx-only in docs,” and “not portable” markers.
+2. The skill can defer stale documentation conflicts or call them out. The evidence suggests explicitly flagging stale manual and `webedition.md` entries is less misleading than reproducing them.
+3. Animation examples can use the implemented `animationact`, `animationtime`, and `animationdelta` names, or they can use generic pseudocode and avoid exact words. The exact names are needed for runnable guidance.
+4. Sprite guidance can remain in one-turtle mode or mention extra JS-backed sprites. The first is portable across the current Web UI concept and the second is browser-specific implementation work.
+
+## Planning Handoff
+
+The planning agent should shape the new turtle skill around a portable core, then edition callouts for:
+
+- Fixed Web logical canvas versus host-dependent wx canvas;
+- shared coordinate/heading semantics and turtle-state cleanup;
+- current `FILLED` support and non-Web `FILL` limitation;
+- pen/palette/shape/label differences and stale wx-only annotations;
+- current implemented Web animation and sprite primitives;
+- missing picture/export/refresh behavior and the SVG export alternative;
+- mouse/position caveats and touch uncertainty;
+- wx/native layout and documented label/print limitations.
+
+This research affects **written guidance only** at this stage. It does not establish or authorize a visual design change. Later work would need visual/runtime validation for the Web and wx editions, at minimum shape, canvas bounds, label/scrunch sizing, fill/erase, screen modes, mouse/touch behavior, and animation/sprite rendering. Any source or documentation reconciliation should be carried by separate implementation/documentation tasks after visual evidence is established.
+
+## Sources
+
+- [`docs/ucblogo.texi`](../../docs/ucblogo.texi) — maintained manual source; latest commit 2026-08-30.
+- [`usermanual`](../../usermanual) — historical/manual text; latest commit 2026-08-30.
+- [`webedition.md`](../../webedition.md) — Web Edition features and known differences; latest commit 2026-11-16.
+- [`helpfiles/setscrunch`](../../helpfiles/setscrunch), [`helpfiles/setlabelheight`](../../helpfiles/setlabelheight), [`helpfiles/labelsize`](../../helpfiles/labelsize), [`helpfiles/clickpos`](../../helpfiles/clickpos), [`helpfiles/norefresh`](../../helpfiles/norefresh), [`helpfiles/refresh`](../../helpfiles/refresh), and [`helpfiles/filled`](../../helpfiles/filled) — bundled 2008-era help text used for cross-document comparison.
+- [`graphics.c`](../../graphics.c) — shared graphics semantics; latest commit 2026-11-16.
+- [`init.c`](../../init.c) — primitive registration and initialization; latest commit 2026-11-16.
+- [`webgraphics.c`](../../webgraphics.c), [`webgraphics.h`](../../webgraphics.h), [`pre.js`](../../pre.js), [`shell.html`](../../shell.html), [`liblogo.js`](../../liblogo.js), [`webstartup.lg`](../../webstartup.lg) — Web SVG, event, palette, animation, sprite, and export adapters; latest relevant commits 2026-11-16.
+- [`wxTurtleGraphics.cpp`](../../wxTurtleGraphics.cpp), [`wxGraphics.h`](../../wxGraphics.h), [`turtleshape.c`](../../turtleshape.c) — wx and shared shape geometry; latest commit 2026-08-30 or 2026-11-16 where applicable.
+- [`animationdemo.lg`](../../animationdemo.lg) — runnable Web animation/sprite pattern; latest commit 2026-11-16.
+
+<!-- Co-authored by GitHub Copilot. Scope: turtle platform research. Model: MAI Code 2 Flash. Reasoning effort: max. Runtime metadata beyond the assignment: unverified. -->
