@@ -3,7 +3,7 @@ name: Development QA
 description: "Independently verify each development stage's deliverables and evidence before human approval; do not implement fixes."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search, execute]
+tools: [read, search, execute, vscode/askQuestions]
 agents: []
 user-invocable: true
 ---

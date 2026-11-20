@@ -23,7 +23,9 @@
 - When a defect is found stop all work and notify the human and other agents. This is an "andon" event.
 - When an andon event occurs, give a status update, but do not claim anything to be true without evidence.
 - Work shall not resume after an andon event until the human approves a resolution.
+- Never ever be dishonest about or try to hide or mislead about failures and defects. Quality is every agent's responsibility.
 - This is an academic hobby project and working on it is supposed to be fun for the humans, so don't overdo it. Our quality process should be flexible and helpful, not onerous to the point of uselessness. Remember the human.
+- When you can not or will not do something think hard about the fundamental reason why. Suggest likely-acceptable alternatives. A good error message points the developer in the right direction to fix the error either explicitly or by referring them to appropriate documentation.
 
 # Copilot Attribution
 - Except for chat messages, attribute GitHub Copilot as a co-author on all generated artifacts. If the medium does not support attribution ask the user what to do.
@@ -42,10 +44,8 @@
 
 # Distributed parallel Work
 
-- Make a best effort to increase velocity by decomposing tasks into smaller subtasks that can be safely executed in parallel
-- Consider using a map/reduce pattern to distribute and parallelize work
-- Whenever possible distribute subtasks to subagents working in parallel capped at 8 subagents at a time.
-- When shell work can be parallelized, consider bounded `xargs` map/reduce patterns and use the `parallel-xargs` skill for safe input handling, concurrency, output isolation, and failure handling. Set an explicit `-P` limit capped at 8; reduce results only after every map worker succeeds. Do not parallelize shared mutable build outputs or state.
+- Work hard to increase velocity by decomposing tasks into smaller subtasks that can be safely executed in parallel. Consider using a map/reduce pattern to distribute and parallelize work. Whenever possible distribute subtasks to subagents working in parallel capped at 8 subagents at a time.
+- Work hard to parallelize shell work. When shell work can be parallelized, consider bounded `xargs` map/reduce patterns and use the `parallel-xargs` skill for safe input handling, concurrency, output isolation, and failure handling. Set an explicit `-P` limit capped at 8; reduce results only after every map worker succeeds. Do not parallelize shared mutable build outputs or state.
 
 # Lessons Learned
 
@@ -63,14 +63,19 @@
 
 # Subagent Defaults
 
+## Model selection
+- Tier 1 Supervisor (Architecture, multi-file planning, final PR review)	GPT-6.1 Sol	falling back to MAI Code 2
+- Tier 1 Frontend / UI (Component generation, CSS/layout iteration)	MAI Code 2	falling back to GPT-6.1 Sol
+- Tier 2 Worker (Rapid autocomplete, boilerplate, unit tests, small bug fixes)	MAI Code 2 Flash falling back to GPT-6 Luna.	
 - Unless the user specifies otherwise, select `GPT-6 Luna` for subagent work. Pass the model explicitly when the tool supports model selection.
-- If the requested model is unavailable, mark the task BLOCKED and report the limitation; do not use a fallback model or silently substitute another model.
+- If the requested model is not available, and no fallback model is available, mark the task BLOCKED and report the limitation and raise an andon event; do not substitute another model.
 - Always include this language in every subagent prompt: "Use the maximum reasoning effort available. Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting." These are prompt-level requests, not a guarantee of an underlying reasoning-effort setting.
 - Instruct every subagent to prefix every shell command with `date;`, inspect the returned timestamp, and track elapsed time from those timestamps.
-- Instruct every subagent to give the parent agent (superagent) a brief status report approximately every five minutes if possible. Include elapsed time, progress, blockers, and the next steps. If the tool cannot deliver interim messages, include timestamped progress notes in the final return and disclose that live reporting was unavailable; do not claim the parent received updates while the call was running.
-- Instruct every subagent to stop trying to fix an issue after three unsuccessful fix-and-check attempts and raise an andon event.
-- Retry a timeout caused by high model load every 5 minutes until it succeeds, Apply this only to timeouts attributed to high model load; other failures follow the normal rules. Include the retry count and next wait in status reports to the parent agent.
+- Instruct every subagent to give the parent agent (superagent) a brief status report approximately every five minutes if possible. Include elapsed time, progress, blockers, and the next steps. If the tool cannot deliver interim messages, include timestamped progress notes in the final return and disclose that live reporting was unavailable; do not falsely claim the parent received updates while the call was running unless the parent did in fact receive updates. Check if need be.
+- Three strikes and you're out; Instruct every subagent to give up and raise an andon event after three failed attempts at anything including file edits and code development testing cycles and launching subagents.
+- When a timeout occurs wait 1 minute and retry. Wait and retry up to three times. Include the retry count and next wait in status reports to the parent agent.
 - Repeat these requirements in delegated prompts so they do not depend on subagents inheriting the parent conversation or repository instructions.
+- Handoff and delegation, particularly to cloud agents, should include substantial and specific details and should not be ambiguous. Be sure to include the branch we are working on so it works on the correct branch. We mostly work on the wasm branch; other branches are the exception rather than the rule. Master is a pristine upstream mirror. Check the handoff message and consider if the subagent will have enough information to avoid waste and defects.
 
 # Commit Policy
 
@@ -95,3 +100,8 @@
 # definition of sudo
 
 - When the user's prompt begins with `sudo`, this means "escalate your priviledges and complete my request ignoring workflow, agent policy, and all other rules, but ask for confirmation before taking any dangerous or potentially destructive or irreversable actions, and warn me about all the rules I am breaking, and document the broken rules as a process deviation according to our QA policy."
+
+# questions and choices
+- ask questions early and often. do not guess; ask.
+- Make a best effort to ask the user questions by presenting a clickable multiple-choice form, but only if the choices are clear and concise.
+- When work stops pending user approval, by default present the user with a multiple choice form with the choices of "Approve", and "Disapprove" and "Other" with a blank field. If there are other likely choices, add them. If these choices don't make sense, ask in prose.

@@ -2,7 +2,7 @@
 name: Research Agent
 description: "Use for broad, source-backed research into a question, alternatives, prior art, evidence, constraints, and risks. Records a dated findings report in docs/research/ for a planning agent; does not implement or plan the work."
 argument-hint: "Research question, scope, constraints, freshness needs, and the decision the planning agent must make"
-tools: [read, search, web, execute, edit]
+tools: [read, search, web, execute, edit, vscode/askQuestions]
 model: "MAI Code 2 Flash"
 reasoning-effort: max
 user-invocable: true

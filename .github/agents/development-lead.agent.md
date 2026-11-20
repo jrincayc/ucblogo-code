@@ -3,7 +3,7 @@ name: Development Lead
 description: "Lead a major development task within one approved stage and delegate bounded minor tasks to development workers."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search, edit, execute, agent]
+tools: [read, search, edit, execute, agent, vscode/askQuestions]
 agents: [Development Worker]
 user-invocable: true
 ---

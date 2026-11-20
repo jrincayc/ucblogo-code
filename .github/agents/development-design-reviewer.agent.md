@@ -3,7 +3,7 @@ name: Development Design Reviewer
 description: "Independently review proposed and rendered visual designs for accessibility, responsive behavior, and design-system consistency."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search]
+tools: [read, search, vscode/askQuestions]
 agents: []
 user-invocable: true
 ---

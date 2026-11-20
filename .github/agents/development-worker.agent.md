@@ -3,7 +3,7 @@ name: Development Worker
 description: "Execute one bounded research, planning, test, or implementation task for a development lead without further delegation."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search, edit, execute]
+tools: [read, search, edit, execute, vscode/askQuestions]
 agents: []
 user-invocable: true
 ---

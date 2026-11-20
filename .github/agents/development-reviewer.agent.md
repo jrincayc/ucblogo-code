@@ -3,7 +3,7 @@ name: Development Reviewer
 description: "Independently review development changes for correctness, security, regressions, missing tests, and scope compliance."
 model: MAI Code 2 Flash
 reasoning-effort: max
-tools: [read, search, execute]
+tools: [read, search, execute, vscode/askQuestions]
 agents: []
 user-invocable: true
 ---
