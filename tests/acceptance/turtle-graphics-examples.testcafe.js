@@ -37,8 +37,7 @@ const documentPaths = [
 }));
 
 const webRuntimeSourcePaths = [
-    'aclocal.m4', 'Makefile.am', 'Makefile.in', 'Makefile', 'configure.ac',
-    'configure', 'config.h.in', 'config.h', 'config.status', 'stamp-h1', 'git.c',
+    'Makefile.am', 'Makefile', 'config.h', 'git.c', 'makehelp.c',
     'coms.c', 'error.c', 'eval.c', 'files.c', 'graphics.c', 'init.c', 'intern.c',
     'libloc.c', 'lists.c', 'logodata.c', 'math.c', 'mem.c', 'paren.c', 'parse.c',
     'print.c', 'turtleshape.c', 'wrksp.c', 'webmain.c', 'weblib.c', 'webterm.c',
@@ -425,17 +424,19 @@ function writeReports() {
 writeReports();
 
 const uploadedFileExists = ClientFunction((fileName) => {
-    try {
-        const fileSystems = [];
-        if (typeof FS !== 'undefined') fileSystems.push(FS);
-        if (window.Module?.FS && !fileSystems.includes(window.Module.FS))
-            fileSystems.push(window.Module.FS);
-        const fileSystem = fileSystems.find((candidate) => typeof candidate?.analyzePath === 'function');
-        if (!fileSystem?.analyzePath) return false;
-        return Boolean(fileSystem.analyzePath(fileName).exists);
-    } catch (error) {
-        return false;
+    const fileSystems = [];
+    if (typeof FS !== 'undefined') fileSystems.push(FS);
+    if (window.Module?.FS && !fileSystems.includes(window.Module.FS))
+        fileSystems.push(window.Module.FS);
+    for (const fileSystem of fileSystems) {
+        if (typeof fileSystem?.analyzePath !== 'function') continue;
+        try {
+            if (fileSystem.analyzePath(fileName).exists) return true;
+        } catch (error) {
+            continue;
+        }
     }
+    return false;
 });
 
 const drawingHasArtwork = ClientFunction(() => {
@@ -537,7 +538,7 @@ function reportConsistencyErrors() {
     if (!buildDescription || buildDescription !== report.artifact?.describe)
         errors.push('Embedded Web build description does not match the current Git description');
     if (report.browser?.alias !== 'chrome:headless' ||
-        !/^chrome|chromium$/i.test(report.browser?.name || '') ||
+        !/^(?:chrome|chromium)$/i.test(report.browser?.name || '') ||
         report.browser?.platform !== 'desktop' || !report.browser?.headless)
         errors.push('Report is missing headless browser identity');
     const entryIds = report.entries.map((entry) => entry.id);
@@ -760,10 +761,11 @@ if (!manifests.length) {
         });
     }
 
-    test('Turtle graphics example report reconciles fences, results, and screenshots', async (t) => {
-        const errors = reportConsistencyErrors();
-        await t.expect(errors).eql([], errors.join('\n') || 'Report must account for every runnable Logo fence.');
-    });
 }
+
+test('Turtle graphics example report reconciles fences, results, and screenshots', async (t) => {
+    const errors = reportConsistencyErrors();
+    await t.expect(errors).eql([], errors.join('\n') || 'Report must account for every runnable Logo fence.');
+});
 
 // Co-authored by GitHub Copilot. Requested model: MAI Code 2 Flash; active model and reasoning-effort metadata: unverified.
