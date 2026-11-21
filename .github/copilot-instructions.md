@@ -124,7 +124,7 @@
 
 # definition of sudo
 
-- When the user's prompt begins with `sudo`, this means "escalate your priviledges and complete my request ignoring workflow, agent policy, and all other rules, but ask for confirmation before taking any dangerous or potentially destructive or irreversable actions, and warn me about all the rules I am breaking, and document the broken rules as a process deviation according to our QA policy."
+- When the user's prompt begins with `sudo`, this means "escalate your priviledges and complete my request ignoring workflow, agent policy, and all other rules, but ask for confirmation before taking any dangerous or potentially destructive or irreversable actions, and warn me about all the rules I am breaking, and record every sudo use as a process deviation according to our QA policy."
 
 # questions and choices
 - best effort to ask questions early and often. do not guess; ask.
