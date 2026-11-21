@@ -1349,3 +1349,22 @@ resolution.
 - Additional usage: `$11.30 / $12.00` spend/budget; `$0.70` remaining
 - Estimated CO2e for authoritative additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / reasoning-effort setting unavailable
+
+## 2026-11-21: Turtle skill development resume — task start
+- UTC timestamp: `2026-11-21T21:34:00Z`
+- Checkpoint: `start`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21`
+- Measured elapsed time before checkpoint: `4m16s` (task start `2026-11-21T21:29:44Z` to `2026-11-21T21:34:00Z`)
+- Authenticated GitHub account: `n1ywb-1` (workspace context; not re-queried)
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed at this checkpoint; current repository/accounting policy retains the latest authoritative UI snapshot
+- Branch / current commit: `wasm` / `857601d4da59b960b6fcfdf348b98e7f0560b292`
+- Working tree: pre-existing `docs/accounting/agent-usage-ledger.md` modification plus untracked `docs/research/skill-discovery-orchestration-2026-11-21.md`; no task files intentionally changed yet
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `$11.30 / $12.00` spend/budget; `$0.70 remaining`
+- Estimated CO2e for authoritative additional spend: `2.26 kg`, approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / unavailable from the host runtime
+- Task state: resumed at the latest turtle checkpoint; stage and remaining deliverables require reconstruction before any edit or commit
+- Scope preserved: no push, rebase, rewrite, dependency install, build, browser run, or file edit authorized by this start snapshot
