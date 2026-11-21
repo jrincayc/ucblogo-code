@@ -15,7 +15,7 @@
     "test:browser:build": "npm run test:browser",
     "test:browser:built": "node tests/acceptance/run-testcafe.js",
     "test:browser:smoke": "node tests/acceptance/run-testcafe.js --test 'Logo starts and displays its welcome message'",
-    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/storage-status.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js tests/acceptance/stage-web-deploy.test.js tests/acceptance/build-help.test.js tests/acceptance/build-help-docs.test.js tests/acceptance/help-loading.test.js tests/acceptance/lighthouse-retry.test.js",
+    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/storage-status.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js tests/acceptance/stage-web-deploy.test.js tests/acceptance/build-help.test.js tests/acceptance/build-help-docs.test.js tests/acceptance/help-loading.test.js tests/acceptance/lighthouse-retry.test.js scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js",
     "stage:web": "node scripts/stage-web-deploy.js",
     "test:runner:browser": "node -e \"const result = require('node:child_process').spawnSync(process.execPath, ['--test', 'tests/acceptance/runner.test.js'], { stdio: 'inherit', env: Object.assign({}, process.env, { RUNNER_BROWSER_TESTS: '1' }) }); process.exit(result.status ?? 1)\"",
     "test:logo:node": "node tests/acceptance/run-logo-node.js",
@@ -27,7 +27,10 @@
     "test:ipad:remote": "node tests/acceptance/run-testcafe.js --browser remote",
     "test:autocomplete": "npm run -s test:autocomplete:desktop && npm run -s test:autocomplete:phone",
     "test:autocomplete:desktop": "node tests/acceptance/run-testcafe.js --fixture 'Logo word autocompletion'",
-    "test:autocomplete:phone": "node tests/acceptance/run-testcafe.js --browser 'chrome:headless:emulation:width=390;height=844;mobile=true;touch=true' --fixture 'Logo word autocompletion'"
+    "test:autocomplete:phone": "node tests/acceptance/run-testcafe.js --browser 'chrome:headless:emulation:width=390;height=844;mobile=true;touch=true' --fixture 'Logo word autocompletion'",
+    "format:whitespace": "node scripts/format-whitespace.js --changed",
+    "format:whitespace:check": "node scripts/format-whitespace.js --check --changed",
+    "test:format:whitespace": "node --test scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js"
   },
   "author": "",
   "license": "ISC",
