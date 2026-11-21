@@ -245,4 +245,40 @@ billing usage request succeeded at `2026-11-21T00:36:19Z`. The network pause is
 resolved. Test work resumes in Implement Tests; this does not advance the stage
 or waive independent review and aggregate QA.
 
+## 2026-11-21 Resume Checkpoint
+
+The user resumed this task and approved continuing through the planned skill
+documents after the Implement Tests gate. The authorized checkout was clean
+on branch `wasm` at `09ada053bc92efa7f364fe9386ae48f1324457d2`. The committed
+TestCafe fixture exists; the skill package and its three references do not.
+No application or skill-document changes were made during this resume.
+
+The user approved a task-specific deviation from the Test Plan's no-install
+constraint and directed that the Test Plan itself remain unchanged. A locked
+`npm ci` attempt was denied by the runtime because it executes external code;
+no dependency restore occurred. Do not retry or bypass this denial.
+
+The existing GitHub Actions run for checkpoint commit `09ada053` was
+`44850611682`. Its WebAssembly job failed in `Install Node Dependencies`:
+npm returned `EALLOWGIT` for the pinned
+`testcafe-mcp-server@git+ssh://git@github.com/rkdfx/testcafe-mcp.git`
+dependency. The Web test suite did not run. The native terminal and wx CI jobs
+passed, but do not validate the TestCafe fixture.
+
+The user separately approved Playwright MCP as a run-specific deviation and
+directed that the Test Plan not be changed. Navigation to the repository's
+hosted Web Edition at
+`https://n1ywb-1.github.io/ucblogo-code/ucblogo.html` failed with
+`net::ERR_BLOCKED_BY_CLIENT`; no browser example was executed and no alternate
+host or route was attempted. Required local fixture syntax/whitespace checks
+were denied by the runtime as outside the established workspace; do not retry
+or work around those checks.
+
+Current stage remains Implement Tests. The intended missing-documents/no-
+runnable-examples baseline, focused fixture validation, independent
+Development Reviewer review, and aggregate Implement Tests QA remain
+incomplete. No stage advance or documentation authoring is claimed. The
+user authorized this checkpoint commit and push to `wasm`; no other commit or
+push is authorized.
+
 <!-- Co-authored by GitHub Copilot. Model identity and reasoning-effort setting unavailable. -->
