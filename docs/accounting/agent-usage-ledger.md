@@ -1368,3 +1368,181 @@ resolution.
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / unavailable from the host runtime
 - Task state: resumed at the latest turtle checkpoint; stage and remaining deliverables require reconstruction before any edit or commit
 - Scope preserved: no push, rebase, rewrite, dependency install, build, browser run, or file edit authorized by this start snapshot
+
+## 2026-11-21: Repeated direct-assignment model-label routing defect — andon
+
+- UTC timestamp: `2026-11-21T21:58:00Z`
+- Checkpoint: `andon`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21` / repeated direct-assignment routing defect
+- Andon category and affected scope: a direct-assignment attempt was rejected solely because its model label used the wrong vendor suffix; the repository-equivalent model was available and the retry used the exact available label. The user reports seeing this several times. Affected scope is subagent routing/preflight and later orchestration-policy correction; no turtle implementation action is authorized as this routing defect's repair.
+- Defect record: `docs/workflow-runs/agent-routing-defect-log-2026-11-21.md`
+- Turtle gate: Plan reopened/pending; exact Plan SHA-256 `c90b52dc4c7c58f01dddb7b9e32681e14bc1767df0479664a467ba688410f627`
+- Account: `n1ywb-1`
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed at this Andon checkpoint
+- Branch / current commit: `wasm` / `0651352dd61fffb4a5c1062eec3e55619d430023`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`; the latest cumulative known API snapshot was `$219.330828031` / `$203.974358411` / `$15.356469620`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: authoritative snapshot `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: authoritative snapshot `$11.30 / $12.00` spend/budget; `$0.70 remaining`
+- Estimated CO2e for authoritative additional spend: `0.14 kg` — approved gross rule-of-thumb estimate (`$0.70 * 0.20`), not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / reasoning-effort setting unavailable
+- Resume state: the user directed that this entry be recorded and turtle skill development resume. No routing-policy correction is authorized in this resume; the turtle Plan remains at independent QA/human approval before later stages.
+
+## 2026-11-21: Routing deviation log nomenclature correction — significant event
+
+- UTC timestamp: `2026-11-21T22:01:00Z`
+- Checkpoint: `significant-event`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21` / repeated direct-assignment model-label routing deviation
+- Clarification: the repository term for this record is **deviation**, not `defect log`. The recorded event is a repeated direct-assignment model-label/vendor-suffix routing deviation. The original Andon snapshot remains append-only and unchanged as routing-defect wording; this entry is the nomenclature and reference correction.
+- Deviation record: `docs/workflow-runs/agent-routing-deviation-log-2026-11-21.md`
+- Turtle gate: Plan reopened/pending; exact Plan SHA-256 `c90b52dc4c7c58f01dddb7b9e32681e14bc1767df0479664a467ba688410f627`
+- Account: `n1ywb-1`
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed
+- Branch / current commit: `wasm` / `0651352dd61fffb4a5c1062eec3e55619d430023`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`; latest cumulative known API snapshot `$219.330828031` / `$203.974358411` / `$15.356469620`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: authoritative snapshot `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: authoritative snapshot `$11.30 / $12.00` spend/budget; `$0.70 remaining`
+- Estimated CO2e for authoritative additional spend: `0.14 kg` — approved gross rule-of-thumb estimate (`$0.70 remaining * 0.20`), not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / reasoning-effort setting unavailable
+- Resume state: turtle development resumes only at the reopened Plan/checkpoint work; no routing-policy correction or turtle implementation is authorized until its respective gate.
+
+## 2026-11-21: Routing deviation ledger time correction — significant event
+
+- UTC timestamp: `2026-11-21T22:03:00Z`
+- Checkpoint: `significant-event`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21` / repeated direct-assignment model-label routing deviation
+- Correction: the exact append time was not captured for the earlier nomenclature snapshot; `2026-11-21T22:01:00Z` was an estimated display timestamp. It is retained unchanged; this entry supplies a verified UTC read. The earlier Andon timestamp `2026-11-21T21:58:00Z` remains a historical estimate and is also retained unchanged.
+- Deviation record: `docs/workflow-runs/agent-routing-deviation-log-2026-11-21.md`
+- Account: `n1ywb-1`
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed
+- Branch / current commit: `wasm` / `0651352dd61fffb4a5c1062eec3e55619d430023`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: authoritative snapshot `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: authoritative snapshot `$11.30 / $12.00` spend/budget; `$0.70 remaining`
+- Estimated CO2e for authoritative additional spend: `0.14 kg` — approved gross rule-of-thumb estimate (`$0.70 remaining * 0.20`), not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / reasoning-effort setting unavailable
+
+## 2026-11-21: Turtle reopened Plan — parallel worker pool significant event
+
+- UTC timestamp:
+- Checkpoint:
+- Task/session:  / reopen Plan parallel QA and decomposition
+- Human direction: "andon cleared resume work"; follow-up: "work harder to decompose and distribute work to a parallel worker pool as per our policy"
+- Scope: exactly five read-only direct assignments for Plan map hardening, Plan QA, static checks, independent Plan review, and visual-N/A verification. No repo edit, test-plan edit, implementation, build, browser, commit, push, or later gate advancement is authorized.
+- Account:
+- Billing source: authoritative user-supplied snapshot; no fresh usage endpoint query performed
+- Branch / current commit:  /
+- Plan revision SHA-256:
+- Raw usage-item count:
+- Gross / discount / net:
+- Product/SKU rollup:
+- Included usage / remaining: ; ; reset
+- Additional usage:  spend/budget;
+- Estimated CO2e for authoritative additional budget:  — approved gross rule-of-thumb estimate (), not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / reasoning-effort setting unavailable
+
+## 2026-11-21: P-REVIEW turtle graphics plan review — task start
+- UTC timestamp: `2026-11-21T22:14:35Z`
+- Checkpoint: `start`
+- Task/session: `P-REVIEW-2026-11-21-TURTLE-GRAPHICS-PLAN`
+- Authenticated GitHub account: `n1ywb-1` (workspace context; not re-queried)
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed at this start checkpoint
+- Branch / current commit: `wasm` / `04533ba33d1ef74b6929d3404f9772569b867d21`
+- Scope: review exact Plan at the supplied SHA-256 and live HEAD; no edit, implementation, QA verdict, build, browser run, delegation, commit, push, or stage action authorized
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `1.30 / 2.00` spend/budget; `/usr/bin/bash.70 remaining`
+- Estimated CO2e for authoritative additional spend: `2.26 kg`, approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / max supported effort
+
+## 2026-11-21: P-REVIEW turtle graphics Plan — task end
+- UTC timestamp: `2026-11-21T22:24:41Z`
+- Checkpoint: `end`
+- Task/session: `P-REVIEW-2026-11-21-TURTLE-GRAPHICS-PLAN`
+- Role: Development Reviewer; retire after this one assignment
+- Measured elapsed time: `9m09s` (partial task interval `2026-11-21T22:14:35Z` to `2026-11-21T22:23:44Z`)
+- Authenticated GitHub account: `n1ywb-1` (workspace context; not re-queried)
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed; latest authoritative UI snapshot retained
+- Branch / current commit: `wasm` / `04533ba33d1ef74b6929d3404f9772569b867d21`
+- Reviewed Plan: `docs/plans/turtle-graphics-skill.md`, SHA-256 `c90b52dc4c7c58f01dddb7b9e32681e14bc1767df0479664a467ba688410f627`
+- Reopen record: `docs/workflow-runs/TGS-2026-11-21-screenshot-defects-planning-reopen.md`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `1.30 / 2.00` spend/budget; `/usr/bin/bash.70 remaining`
+- Estimated CO2e for authoritative additional spend: `2.26 kg`, approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / maximum supported effort requested; runtime setting unverified
+- Review result: one high-severity Plan identity mismatch and two Plan/acceptance gaps identified; no implementation or QA verdict issued
+- Validation: live HEAD and Plan SHA-256 verified; scoped whitespace/diff check passed; no staged diff; no Plan/tracked implementation edit by this review
+- State: work remains stopped at Plan review; no advance, build, browser run, stage, commit, push, or delegation
+
+## 2026-11-21: Malformed shell accounting append — Andon clearance and deviation correction
+
+- UTC timestamp: `2026-11-21T22:35:00Z`
+- Checkpoint: `significant-event`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21` / parallel Plan-stage worker pool
+- Human direction: "andon; that comand is fucking garbage. record deviation and continue."
+- Deviation category: malformed unquoted shell heredoc expanded variables while appending a worker/accounting snapshot, producing blank required fields and corrupt currency values such as `1.30 / 2.00` and `/usr/bin/bash.70 remaining`.
+- Correction: the malformed append remains intact and append-only; its blank/corrupt accounting fields are non-authoritative. The authoritative user-supplied billing values remain `20,000 / 20,000 AI credits used`, `0 credits remaining`, reset `2026-11-30`, and additional usage `$11.30 / $12.00`, `$0.70 remaining`.
+- Deviation record: `docs/workflow-runs/agent-routing-deviation-log-2026-11-21.md` / `DEV-SHELL-LEDGER-EXPANSION-2026-11-21-01`
+- Andon clearance: user explicitly authorized recording the deviation and continuing. This clears the command/process Andon only; it does not clear or approve the reopened Turtle Plan.
+- Account: `n1ywb-1`
+- Billing source: `UNAVAILABLE` — no fresh usage endpoint query performed at this checkpoint; authoritative user-supplied UI snapshot retained
+- Branch / current commit: `wasm` / `04533ba33d1ef74b6929d3404f9772569b867d21`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `$11.30 / $12.00` spend/budget; `$0.70 remaining`
+- Estimated CO2e for authoritative additional spend: `2.26 kg` — approved gross rule-of-thumb estimate (`$11.30 * 0.20`), not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / maximum effort requested; runtime setting unverified
+- Resume state: continue at reopened Plan review/repair only. No implementation, build, browser, commit, push, or later stage advance is authorized.
+
+## 2026-11-21: Turtle skill effort rapid wrap — task end
+
+- UTC timestamp: `2026-11-21T23:07:05Z`
+- Checkpoint: `end`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21`
+- Human direction: approve a deviation to wrap up as quickly as possible and defer work on all remaining defects
+- Ending branch / commit: `wasm` / `04533ba33d1ef74b6929d3404f9772569b867d21`
+- Ending gate: Plan reopened/pending
+- Exact candidate Plan SHA-256: `c90b52dc4c7c58f01dddb7b9e32681e14bc1767df0479664a467ba688410f627`
+- Deferred scope: all remaining routing, accounting-command, Plan identity/provenance, disabled-mode, PNG/path/UUID, ownership/map, QA, review, test, implementation, browser, build, and process defects
+- Actions omitted by approved deviation: no further QA, repair, tests, browser run, build, delegation, stage advance, commit, or push
+- Worktree preservation: unrelated and task-owned changes remain uncommitted
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `$11.30 / $12.00`; `$0.70 remaining`
+- Estimated CO2e for additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / runtime setting unavailable
+
+## 2026-11-21: Turtle skill rapid wrap — pre-commit
+
+- UTC timestamp: `2026-11-21T23:11:05Z`
+- Checkpoint: `pre-commit`
+- Task/session: `TURTLE-SKILL-RESUME-2026-11-21`
+- Branch / current commit: `wasm` / `04533ba33d1ef74b6929d3404f9772569b867d21`
+- Human authorization: commit the approved rapid-wrap checkpoint; no push authorization
+- Exact staged paths and blobs before this snapshot append:
+  - `docs/accounting/agent-usage-ledger.md` / `b064d169af0925a0252649af8d80fe7af0bf01d5`
+  - `docs/plans/turtle-graphics-skill.md` / `8650ed2dcf5424cfb492058b782c59625b998731`
+  - `docs/workflow-runs/agent-routing-deviation-log-2026-11-21.md` / `c47a89386231103c7517c1784ab5ffd9900348ae`
+- Validation before append: scoped and staged `git diff --check` passed; no unstaged content in the named files was changed by staging
+- Resulting local commit: `PENDING`
+- Raw usage-item count: `UNAVAILABLE`
+- Gross / discount / net: `UNAVAILABLE`
+- Product/SKU rollup: `UNAVAILABLE`
+- Included usage / remaining: `20,000 / 20,000 AI credits used`; `0 credits remaining`; reset `2026-11-30`
+- Additional usage: `$11.30 / $12.00`; `$0.70 remaining`
+- Estimated CO2e for additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / runtime setting unavailable
