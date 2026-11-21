@@ -2,9 +2,9 @@
 
 ## Establish state before drawing
 
-Use a setup procedure when a drawing depends on mutable state. For portable examples, establish the fields the drawing actually uses:
+Use a setup procedure when a drawing depends on mutable state. The following non-runnable fragment illustrates settings to establish; complete examples repeat the settings they use:
 
-```logo
+```text
 setpencolor 4
 setpensize 2
 penpaint
@@ -24,13 +24,15 @@ The setup above is intentionally finite and relies only on the current shared pr
 
 Save position and heading as local values when a helper must preserve them:
 
-```logo
-make "oldpos pos
-make "oldheading heading
-make "oldcolor pencolor
-make "oldsize pensize
-make "oldpendown pendownp
-make "oldmode penmode
+Non-runnable fragment for statements inside a procedure body; omitted procedure and drawing instructions are intentional:
+
+```text
+localmake "oldpos pos
+localmake "oldheading heading
+localmake "oldcolor pencolor
+localmake "oldsize pensize
+localmake "oldpendown pendownp
+localmake "oldmode penmode
 ```
 
 Restore with `setpos`, `setheading`, `setpencolor`, `setpensize`, and the saved mode/up-down state. `pen`/`setpen` can capture the pen bundle, but it does not include all fields above.
@@ -57,19 +59,24 @@ showturtle
 
 Use `forward`, `back`, `left`, and `right` for relative drawing. Use `setpos`, `setxy`, `setx`, or `sety` for absolute placement, followed by an explicit heading if later relative turning matters.
 
-Before coordinate placement, use `penup` so that travel leaves no line. When drawing resumes, use `pendown` if paint mode is already known or use `penpaint` to establish both paint mode and down state:
+Before coordinate placement, use `penup` so that travel leaves no line. When drawing resumes, use `pendown` if paint mode is already known or use `penpaint` to establish both paint mode and down state. This complete standalone example explicitly establishes drawing state, moves without marking the travel path, then draws a visible segment:
 
 ```logo
+setpencolor 4
+setpensize 2
+setbackground 7
 penpaint
+showturtle
+setshape "turtle
+wrap
 setpos [0 0]
 setheading 0
+clearscreen
 penup
 setpos [50 50]
 pendown
 forward 40
 ```
-
-This fragment is runnable only as part of a state-initialized session. It still establishes pen mode and position in sequence.
 
 ## Cleanup choices
 

@@ -36,6 +36,20 @@ const documentPaths = [
     absolutePath: path.join(repositoryRoot, relativePath),
 }));
 
+const webRuntimeSourcePaths = [
+    'aclocal.m4', 'Makefile.am', 'Makefile.in', 'Makefile', 'configure.ac',
+    'configure', 'config.h.in', 'config.h', 'config.status', 'stamp-h1', 'git.c',
+    'coms.c', 'error.c', 'eval.c', 'files.c', 'graphics.c', 'init.c', 'intern.c',
+    'libloc.c', 'lists.c', 'logodata.c', 'math.c', 'mem.c', 'paren.c', 'parse.c',
+    'print.c', 'turtleshape.c', 'wrksp.c', 'webmain.c', 'weblib.c', 'webterm.c',
+    'webgraphics.c', 'eval.h', 'globals.h', 'logo.h', 'turtleshape.h', 'webgraphics.h',
+    'shell.html', 'pre.js', 'logo-inspect.js', 'storage-status.js', 'liblogo.js',
+    'web-config.js', 'webstartup.lg', 'web.lgo', 'scripts/build-help.js',
+    'scripts/build-help-docs.js', 'docs/ucblogo.texi', 'usermanual', 'webedition.md',
+    'help/index.json', 'help/docs.json', 'helpfiles/HELPCONTENTS', 'logologo.ico',
+];
+const embeddedRuntimeRoots = ['logolib', 'csls', 'helpfiles', 'tests'];
+
 function sha256(value) {
     return crypto.createHash('sha256').update(value).digest('hex');
 }
@@ -72,7 +86,85 @@ function fileIdentity(relativePath) {
     }
 }
 
+function embeddedTreeInputPaths(relativePath, scanErrors) {
+    const absolutePath = path.join(repositoryRoot, relativePath);
+    let entries;
+    try {
+        entries = fs.readdirSync(absolutePath, { withFileTypes: true });
+    } catch (error) {
+        scanErrors.push(`${relativePath}: ${error.message}`);
+        return [relativePath];
+    }
+
+    const paths = [relativePath];
+    for (const entry of entries) {
+        const childPath = path.posix.join(relativePath, entry.name);
+        paths.push(...(entry.isDirectory() ? embeddedTreeInputPaths(childPath, scanErrors) : [childPath]));
+    }
+    return paths;
+}
+
+function artifactFreshness() {
+    const scanErrors = [];
+    const objectSupportEnabled = (() => {
+        try {
+            return /^#\s*define\s+OBJECTS\s+1\b/m.test(fs.readFileSync(path.join(repositoryRoot, 'config.h'), 'utf8'));
+        } catch (error) {
+            return false;
+        }
+    })();
+    const inputPaths = [...new Set([
+        ...webRuntimeSourcePaths,
+        ...(objectSupportEnabled ? ['obj.c', 'obj.h'] : []),
+        ...embeddedRuntimeRoots.flatMap((root) => embeddedTreeInputPaths(root, scanErrors)),
+    ])];
+    const inputs = inputPaths.map((relativePath) => {
+        try {
+            return { path: relativePath, mtime: fs.statSync(path.join(repositoryRoot, relativePath)).mtimeMs };
+        } catch (error) {
+            return { path: relativePath, mtime: null };
+        }
+    });
+    const artifacts = ['ucblogo.html', 'ucblogo.js', 'ucblogo.wasm'].map((relativePath) => {
+        try {
+            return { path: relativePath, mtime: fs.statSync(path.join(repositoryRoot, relativePath)).mtimeMs };
+        } catch (error) {
+            return { path: relativePath, mtime: null };
+        }
+    });
+    const availableInputs = inputs.filter((input) => input.mtime !== null);
+    const latestInputMtime = availableInputs.length
+        ? Math.max(...availableInputs.map((input) => input.mtime))
+        : null;
+    const earliestArtifactMtime = artifacts.every((artifact) => artifact.mtime !== null)
+        ? Math.min(...artifacts.map((artifact) => artifact.mtime))
+        : null;
+    const missingInputs = inputs.filter((input) => input.mtime === null).map((input) => input.path);
+    const missingArtifacts = artifacts.filter((artifact) => artifact.mtime === null).map((artifact) => artifact.path);
+    const newerInputs = latestInputMtime !== null && earliestArtifactMtime !== null
+        ? inputs.filter((input) => input.mtime !== null && input.mtime > earliestArtifactMtime).map((input) => input.path)
+        : [];
+    const fresh = scanErrors.length === 0 && missingInputs.length === 0 && missingArtifacts.length === 0 &&
+        earliestArtifactMtime !== null && latestInputMtime !== null && newerInputs.length === 0;
+
+    return {
+        fresh,
+        freshness: fresh
+            ? 'mtime heuristic passed: generated Web artifacts are newer than the checked build inputs; this is not source-to-artifact provenance proof'
+            : 'mtime heuristic failed: input scans failed, inputs/artifacts are missing, or a checked Web build input is newer than generated artifacts',
+        freshnessBasis: 'mtime heuristic only; not a cryptographic source-to-artifact provenance check',
+        checkedInputCount: inputPaths.length,
+        latestInputMtime: latestInputMtime === null ? null : new Date(latestInputMtime).toISOString(),
+        earliestArtifactMtime: earliestArtifactMtime === null ? null : new Date(earliestArtifactMtime).toISOString(),
+        missingInputs,
+        missingArtifacts,
+        newerInputs,
+        inputScanErrors: scanErrors,
+    };
+}
+
 function artifactMetadata() {
+    const freshness = artifactFreshness();
     return {
         head: gitOutput(['rev-parse', 'HEAD']),
         describe: gitOutput(['describe', '--tags', '--always', '--dirty']),
@@ -89,8 +181,7 @@ function artifactMetadata() {
                 return null;
             }
         })(),
-        fresh: false,
-        freshness: 'not-rebuilt; existing generated Web artifacts are tested as they are, and no application source changed in this task',
+        ...freshness,
     };
 }
 
@@ -335,8 +426,13 @@ writeReports();
 
 const uploadedFileExists = ClientFunction((fileName) => {
     try {
-        if (!window.Module?.FS?.analyzePath) return false;
-        return Boolean(Module.FS.analyzePath(fileName).exists);
+        const fileSystems = [];
+        if (typeof FS !== 'undefined') fileSystems.push(FS);
+        if (window.Module?.FS && !fileSystems.includes(window.Module.FS))
+            fileSystems.push(window.Module.FS);
+        const fileSystem = fileSystems.find((candidate) => typeof candidate?.analyzePath === 'function');
+        if (!fileSystem?.analyzePath) return false;
+        return Boolean(fileSystem.analyzePath(fileName).exists);
     } catch (error) {
         return false;
     }
@@ -426,6 +522,8 @@ function reportConsistencyErrors() {
         errors.push(`Expected ${manifests.length} report entries, found ${report.entries.length}`);
     if (counts.fences !== manifests.length || counts.entries !== manifests.length)
         errors.push('Report fence and entry counts do not match discovered examples');
+    if (counts.parsedFences !== parsedFenceCount)
+        errors.push('Report parsed-fence count does not match the Markdown documents');
     if (counts.screenshots !== manifests.length)
         errors.push('Report screenshot count does not match discovered examples');
     if (counts.passed + counts.failed !== manifests.length || counts.notRun !== 0)
@@ -433,21 +531,45 @@ function reportConsistencyErrors() {
     if (!report.artifact?.head || !report.artifact?.html?.sha256 ||
         !report.artifact?.javascript?.sha256 || !report.artifact?.wasm?.sha256)
         errors.push('Report is missing the Web artifact identity');
-    if (!report.browser?.name || !report.browser?.version || !report.browser?.headless)
+    if (!report.artifact?.fresh || !report.artifact?.freshnessBasis)
+        errors.push('Report does not establish a passing Web artifact freshness check');
+    const buildDescription = report.artifact?.gitDescriptionInBuild?.replace(/^\(|\)$/g, '');
+    if (!buildDescription || buildDescription !== report.artifact?.describe)
+        errors.push('Embedded Web build description does not match the current Git description');
+    if (report.browser?.alias !== 'chrome:headless' ||
+        !/^chrome|chromium$/i.test(report.browser?.name || '') ||
+        report.browser?.platform !== 'desktop' || !report.browser?.headless)
         errors.push('Report is missing headless browser identity');
+    const entryIds = report.entries.map((entry) => entry.id);
+    const expectedEntryIds = manifests.map((manifest) => manifest.id);
+    if (new Set(entryIds).size !== entryIds.length ||
+        JSON.stringify(entryIds) !== JSON.stringify(expectedEntryIds))
+        errors.push('Report entries do not uniquely match the discovered document/fence identities in order');
 
     for (const manifest of manifests) {
         const entry = report.entries.find((candidate) => candidate.id === manifest.id);
         if (!entry) continue;
+        const expectedSourceRelativePath = path.relative(repositoryRoot, manifest.sourcePath).replace(/\\/g, '/');
+        if (entry.documentPath !== manifest.documentPath ||
+            entry.fenceOrdinal !== manifest.logoFenceOrdinal ||
+            entry.allFenceOrdinal !== manifest.allFenceOrdinal)
+            errors.push(`${manifest.id} has mismatched document or fence identity`);
+        if (entry.sourcePath !== manifest.sourcePath ||
+            entry.sourceRelativePath !== expectedSourceRelativePath ||
+            entry.sourceSha256 !== manifest.sourceSha256)
+            errors.push(`${manifest.id} has mismatched extracted source path or hash`);
         if (!['pass', 'fail'].includes(entry.result))
             errors.push(`${manifest.id} has no terminal result`);
         if (!entry.browser?.name || !entry.browser?.version)
             errors.push(`${manifest.id} is missing browser version details`);
         if (!entry.execution || !entry.diagnostics)
             errors.push(`${manifest.id} is missing execution diagnostics`);
+        if (entry.screenshot?.relativePath !== manifest.screenshotRelativePath ||
+            entry.screenshot?.absolutePath !== manifest.screenshotAbsolutePath)
+            errors.push(`${manifest.id} has a mismatched screenshot path`);
         try {
-            const screenshot = fs.statSync(entry.screenshot.absolutePath);
-            if (!entry.screenshot.exists || screenshot.size <= 0)
+            const screenshot = fs.statSync(manifest.screenshotAbsolutePath);
+            if (!entry.screenshot?.exists || screenshot.size <= 0 || entry.screenshot.size !== screenshot.size)
                 errors.push(`${manifest.id} is missing a nonempty screenshot`);
         } catch (error) {
             errors.push(`${manifest.id} screenshot is unavailable`);
@@ -521,11 +643,13 @@ if (!manifests.length) {
             if (/emulation|mobile|touch|remote/i.test(t.browser.alias))
                 problems.push(`Expected desktop Chrome, alias was ${t.browser.alias}`);
 
+            let phase = 'ready';
             try {
-                await t.navigateTo(applicationUrl);
                 await ready(t);
+                phase = 'isolateSettings';
                 await isolateSettings(t);
 
+                phase = 'exactSourceCheck';
                 const actualBytes = fs.readFileSync(manifest.sourcePath);
                 const expectedBytes = Buffer.from(manifest.sourceText, 'utf8');
                 execution.exactSourceCheck = actualBytes.equals(expectedBytes);
@@ -540,13 +664,16 @@ if (!manifests.length) {
                 for (const structuralError of manifest.structuralErrors)
                     problems.push(structuralError);
 
+                phase = 'setFilesToUpload';
                 await t.setFilesToUpload(Selector('#uploadFileInput'), manifest.sourcePath);
+                phase = 'uploadEcho';
                 await t.expect(uploadEchoPresent(baselineLength)).ok(
                     `Upload/load action did not produce observable output for ${manifest.sourceName}`,
                     { timeout: 30000 },
                 );
                 execution.uploadEchoObserved = true;
 
+                phase = 'idleAfterUpload';
                 await t.expect(idle()).ok(
                     `Logo did not return to idle after loading ${manifest.sourceName}`,
                     { timeout: 60000 },
@@ -556,6 +683,7 @@ if (!manifests.length) {
                 if (!execution.drawingObserved)
                     problems.push('Example completed without producing turtle drawing artwork');
 
+                phase = 'postExecutionDiagnostics';
                 diagnosticsState = await diagnostics();
                 try {
                     browserConsole = await t.getBrowserConsoleMessages();
@@ -577,7 +705,14 @@ if (!manifests.length) {
                 if (/RuntimeError|Segmentation fault|memory access out of bounds|Assertion failed/i.test(consoleText))
                     problems.push('Browser console contains a runtime crash diagnostic');
             } catch (error) {
-                problems.push(`Execution failed: ${error.message || String(error)}`);
+                const detail = error && typeof error === 'object'
+                    ? JSON.stringify({
+                        name: error.name,
+                        code: error.code,
+                        message: typeof error.message === 'string' ? error.message : undefined,
+                    })
+                    : String(error);
+                problems.push(`Execution failed during ${phase}: ${detail}`);
                 try {
                     diagnosticsState = await diagnostics();
                 } catch (diagnosticsError) {
