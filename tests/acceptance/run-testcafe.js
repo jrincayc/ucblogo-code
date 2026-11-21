@@ -108,6 +108,17 @@ function configure(env = process.env, argv = process.argv.slice(2), warn = conso
     if (capabilities.includes('screenshots'))
         addDefault('--screenshots', 'takeOnFails=true,pathPattern=failures/${FIXTURE}/${TEST}/${USERAGENT}-${FILE_INDEX}.png');
     const forwarded = [...defaults, ...args];
+    const screenshotOptionIndex = forwarded.findLastIndex((argument) =>
+        argument === '--screenshots' || argument.startsWith('--screenshots='));
+    const screenshotOption = screenshotOptionIndex < 0
+        ? null
+        : forwarded[screenshotOptionIndex].includes('=')
+            ? forwarded[screenshotOptionIndex].slice('--screenshots='.length)
+            : forwarded[screenshotOptionIndex + 1];
+    const screenshotPathMatch = screenshotOption?.match(/(?:^|,)path=([^,]*)/);
+    const screenshotsPath = screenshotOptionIndex < 0
+        ? null
+        : (screenshotPathMatch ? screenshotPathMatch[1] : 'screenshots');
     const initIndex = forwarded.findLastIndex((argument) =>
         argument === '--browser-init-timeout' || argument.startsWith('--browser-init-timeout='));
     const connectionTimeoutMs = positiveInteger(forwarded[initIndex].includes('=')
@@ -116,6 +127,7 @@ function configure(env = process.env, argv = process.argv.slice(2), warn = conso
         browser, remote, mobile, capabilities, suppliedUrl, hostname: env.TESTCAFE_HOSTNAME,
         watchdogMs: positiveInteger(env.TESTCAFE_WATCHDOG_MS, 'TESTCAFE_WATCHDOG_MS', remote ? 900000 : 300000),
         connectionTimeoutMs, args: forwarded,
+        screenshotsPath,
     };
 }
 
@@ -182,7 +194,8 @@ async function run(options = {}) {
             cwd: repositoryRoot, stdio: [...(options.stdio || ['inherit', 'inherit', 'inherit']), 'ipc'],
             env: { ...env, TESTCAFE_APP_URL: applicationUrl,
                 UCBOLOGO_RUNNER_CONNECTION_TIMEOUT: String(config.connectionTimeoutMs),
-                UCBOLOGO_RUNNER_CHILD_CAPABILITIES: JSON.stringify(config.capabilities) },
+                UCBOLOGO_RUNNER_CHILD_CAPABILITIES: JSON.stringify(config.capabilities),
+                UCBOLOGO_RUNNER_SCREENSHOTS_PATH: config.screenshotsPath ?? '' },
         });
         return new Promise((resolve, reject) => {
             child.once('error', reject);

@@ -21,7 +21,11 @@ const repositoryRoot = path.resolve(__dirname, '../..');
 const taskDirectory = '/tmp/copilot/TGS-2026-11-20-T1';
 const extractedDirectory = path.join(taskDirectory, 'examples');
 const reportDirectory = path.join(repositoryRoot, 'reports/turtle-graphics-examples');
-const screenshotsDirectory = path.join(reportDirectory, 'screenshots');
+const screenshotBase = process.env.UCBOLOGO_RUNNER_SCREENSHOTS_PATH;
+if (!screenshotBase)
+    throw new Error('Screenshot base missing: run this fixture through tests/acceptance/run-testcafe.js with screenshots enabled.');
+const screenshotsDirectory = path.resolve(repositoryRoot, screenshotBase);
+const screenshotDirectoryRelative = path.relative(repositoryRoot, screenshotsDirectory).replace(/\\/g, '/');
 const screenshotRunId = crypto.randomUUID();
 const reportJsonPath = path.join(reportDirectory, 'report.json');
 const reportMarkdownPath = path.join(reportDirectory, 'report.md');
@@ -288,7 +292,7 @@ if (packageMissing) {
             const sourcePath = path.join(extractedDirectory, sourceName);
             fs.writeFileSync(sourcePath, token.content, { encoding: 'utf8', flag: 'w' });
             const screenshotCustomPath = `${screenshotRunId}/${slug}/fence-${logoFenceOrdinal}.png`;
-            const screenshotRelativePath = `reports/turtle-graphics-examples/screenshots/${screenshotCustomPath}`;
+            const screenshotRelativePath = path.posix.join(screenshotDirectoryRelative, screenshotCustomPath);
             const screenshotAbsolutePath = path.join(screenshotsDirectory, screenshotCustomPath);
             manifests.push({
                 id: `${document.relativePath}#logo-fence-${logoFenceOrdinal}`,
@@ -345,7 +349,7 @@ const reportState = {
         browserEnvironment: browserPolicy(),
         reportJson: 'reports/turtle-graphics-examples/report.json',
         reportMarkdown: 'reports/turtle-graphics-examples/report.md',
-        screenshotDirectory: 'reports/turtle-graphics-examples/screenshots',
+        screenshotDirectory: screenshotDirectoryRelative,
         screenshotRunId,
         noNodeLogoExecution: true,
         noRawAppFlag: true,
@@ -397,6 +401,7 @@ function writeReports() {
         `- Git HEAD: \`${report.artifact.head || 'unknown'}\``,
         `- Artifact freshness: \`${report.artifact.freshness}\``,
         `- Fixture: \`${report.runner.fixture}\``,
+        `- Screenshot base: \`${report.runner.screenshotDirectory}\``,
         `- Discovery: ${discoveryProblem ? `\`${discoveryProblem}\`` : 'runnable `logo` fences found'}`,
         `- Counts: ${counts.entries} entries, ${counts.fences} fences, ${counts.screenshots} screenshots, ${counts.passed} passed, ${counts.failed} failed, ${counts.notRun} not run`,
         '',
@@ -411,9 +416,7 @@ function writeReports() {
             mdLines.push('', `- Result: **${entry.result}**`);
             mdLines.push(`- Source: \`${entry.sourceRelativePath}\``);
             mdLines.push(`- Source SHA-256: \`${entry.sourceSha256}\``);
-            const screenshotLink = entry.screenshot.relativePath.startsWith('reports/turtle-graphics-examples/screenshots/')
-                ? `screenshots/${entry.screenshot.relativePath.slice('reports/turtle-graphics-examples/screenshots/'.length)}`
-                : entry.screenshot.relativePath;
+            const screenshotLink = path.relative(reportDirectory, entry.screenshot.absolutePath).replace(/\\/g, '/');
             mdLines.push(`- Screenshot: [${entry.screenshot.relativePath}](${screenshotLink})`);
             if (entry.browser) mdLines.push(`- Browser: \`${entry.browser.prettyUserAgent || entry.browser.alias}\``);
             if (entry.execution) mdLines.push(`- Execution: \`${JSON.stringify(entry.execution)}\``);
@@ -522,10 +525,12 @@ function reportConsistencyErrors() {
     const report = JSON.parse(fs.readFileSync(reportJsonPath, 'utf8'));
     const errors = [];
     const counts = report.counts;
-    const expectedScreenshotPrefix = `reports/turtle-graphics-examples/screenshots/${screenshotRunId}/`;
+    const expectedScreenshotPrefix = `${path.posix.join(screenshotDirectoryRelative, screenshotRunId)}/`;
 
     if (report.screenshotRunId !== screenshotRunId || report.runner?.screenshotRunId !== screenshotRunId)
         errors.push('Report screenshot run identity does not match this fixture invocation');
+    if (report.runner?.screenshotDirectory !== screenshotDirectoryRelative)
+        errors.push('Report screenshot base does not match the effective TestCafe screenshot base');
 
     if (report.entries.length !== manifests.length)
         errors.push(`Expected ${manifests.length} report entries, found ${report.entries.length}`);
@@ -778,4 +783,4 @@ test('Turtle graphics example report reconciles fences, results, and screenshots
     await t.expect(errors).eql([], errors.join('\n') || 'Report must account for every runnable Logo fence.');
 });
 
-// Co-authored by GitHub Copilot. Requested model: MAI Code 2 Flash; active model and reasoning-effort metadata: unverified.
+// Co-authored by GitHub Copilot. Requested model: MAI Code 2 Flash; active model and reasoning-effort metadata: unverified

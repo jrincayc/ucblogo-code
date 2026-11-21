@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { once } = require('node:events');
+const { EventEmitter } = require('node:events');
 const { Writable } = require('node:stream');
 const { test } = require('node:test');
 const { configure, discoverFixtures, capabilityFilter, validateRemoteHostname, run, preserveReporterStreams } = require('./run-testcafe');
@@ -126,6 +127,40 @@ test('defaults use headless Chrome, proxy automation, reports, and desktop capab
     assert.equal(configure({ TESTCAFE_HEADLESS: '0' }, []).browser, 'chrome');
     assert.ok(!configure({}, ['--native-automation']).args.includes('--disable-native-automation'));
     assert.ok(!configure({ TESTCAFE_NATIVE_AUTOMATION: '1' }, []).args.includes('--disable-native-automation'));
+});
+
+test('screenshot base resolves from effective TestCafe options and propagates to the child', async () => {
+    const defaultConfig = configure({}, []);
+    assert.equal(defaultConfig.screenshotsPath, 'screenshots');
+
+    const explicit = 'reports/turtle-graphics-examples/screenshots';
+    const explicitConfig = configure({}, ['--screenshots', `path=${explicit},takeOnFails=false`]);
+    assert.equal(explicitConfig.screenshotsPath, explicit);
+    assert.ok(explicitConfig.args.includes(`path=${explicit},takeOnFails=false`));
+
+    const disabledConfig = configure({ TESTCAFE_CAPABILITIES: 'resize' }, []);
+    assert.equal(disabledConfig.screenshotsPath, null);
+
+    for (const [args, envExpected] of [
+        [[], 'screenshots'],
+        [['--screenshots', `path=${explicit},takeOnFails=false`], explicit],
+    ]) {
+        let childEnv;
+        const child = new EventEmitter();
+        const supervisor = {
+            spawn(command, childArgs, options) {
+                void command;
+                void childArgs;
+                childEnv = options.env;
+                queueMicrotask(() => child.emit('message', { type: 'testcafe-exit', code: 0 }));
+                return child;
+            },
+            async stop() {},
+        };
+        const server = { start: async () => 'http://127.0.0.1:1/', stop: async () => {} };
+        assert.equal(await run({ env: {}, args, fixtures: ['fixture.js'], supervisor, server }), 0);
+        assert.equal(childEnv.UCBOLOGO_RUNNER_SCREENSHOTS_PATH, envExpected);
+    }
 });
 
 for (const mode of ['report', 'report-error', 'report-hang']) {

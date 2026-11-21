@@ -295,4 +295,98 @@ with the deviation and the incomplete aggregate gate disclosed. Existing
 focused validation, implementation evidence, and later QA remain governed by
 their applicable gates.
 
+## Screenshot-Base Repair Returned to Test Planning
+
+On 2026-11-21, post-commit validation found that the UUID screenshot-isolation
+repair can pass only when the TestCafe invocation supplies
+`--screenshots path=reports/turtle-graphics-examples/screenshots`. Without that
+option, TestCafe writes successful custom captures under its default
+`screenshots/<run-id>/...` base while the fixture and report validate a different
+hard-coded directory. The PNGs were captured successfully; the failure was a
+fixture/report path contract mismatch. Prior passing evidence depended on the
+explicit screenshot-base option and therefore did not cover the normal shared
+runner invocation.
+
+The owner drafted a repair plan before producing a complete Test Plan for this
+path-contract behavior. The user approved recording this as a retrospective
+deviation and directed that the repair plan be kicked back to Test Planning:
+"record as a deviation for retrospective. kick this plan back to test planning."
+This entry records that direction rather than claiming the earlier sequencing
+was compliant or that any related QA passed.
+
+The deviation is limited to accepting and disclosing the premature repair-plan
+step for this bounded defect. It does not approve implementation, waive the
+required Test Plan deliverable, QA, human approval, later independent review,
+or alter the approved stale-screenshot requirement to preserve prior runs.
+Dependent Implement Changes, Code Review, and human approvals from the prior
+revision are invalidated for this repair until the revised Test Plan is QA
+cleared and approved.
+
+Current gate: **Test Plan — reopened/pending**. The Test Plan must explicitly
+cover both the shared runner's default screenshot base and an explicit custom
+base, plus report-path resolution, distinct UUID directories, preservation of
+old runs, valid PNGs, and invocation-independent 4/4 fixture reconciliation.
+No implementation repair, build rerun, browser rerun, commit, or push is
+authorized by this deviation.
+
+## Test Plan Recovery Andon — 2026-11-21
+
+An Andon was raised because later task commands and workflow records referred to
+`docs/plans/turtle-graphics-test-plan.md`, while the tracked Test Plan had
+actually been created as
+`docs/plans/turtle-graphics-skill-test-plan.md`. This created a false report
+that the Test Plan had disappeared. The user explicitly stated that test-plan
+removal had not been approved and directed recovery as a deviation, followed by
+an updated Test Plan and a human review checkpoint.
+
+Recovery evidence: the tracked
+`docs/plans/turtle-graphics-skill-test-plan.md` still matches the historical
+approved-content hash
+`a4ea61b67af5019993060ad218ae688887cbc26e3efc0b06abdf1944e71e1da2`, and its
+history shows addition at commit `09ada053bc92efa7f364fe9386ae48f1324457d2` with
+no deletion or rename. The incorrect shorter filename never existed in tracked
+history. No Test Plan was removed; the defect was in the task's filename
+contract, not in repository content loss. The original approved bytes remain
+recoverable and are the baseline for the update.
+
+This Andon deviation authorizes only preserving/recovering the Test Plan,
+correcting the mistaken references in new task records, and revising the plan
+for the screenshot-base defect. It does not retroactively authorize plan
+removal, waive Test Plan QA, approve implementation, or authorize build/browser
+execution, commit, or push. Any future task record or command must use the
+tracked filename or explicitly document a user-approved rename.
+
+Current gate remains **Test Plan — recovery/update pending**. Affected
+implementation evidence and prior downstream approvals remain invalidated for
+the screenshot-base repair. Work must stop after independent QA of the updated
+plan and wait for explicit human approval before Implement Tests resumes.
+
+## Revised Test Plan Approval — 2026-11-21
+
+Independent Development QA returned PASS with no findings for recovered Test
+Plan candidate SHA-256
+`b0c9e65e4bd29a28099a93a93716c5f0a8c8e87583867f31560a31e256ea83bf`.
+The user selected `Approve`, explicitly approving that exact revision and
+authorizing the next Implement Tests work. This approval does not authorize
+implementation of the runtime fix; it advances only to Implement Tests.
+
+Current gate: **Implement Tests**. Required first: tests that discriminate the
+shared runner's default screenshot base, an explicit screenshot base, exact
+child-environment propagation, and fixture/report path reconciliation without
+moving files after capture. The affected screenshot-base implementation and
+its prior downstream evidence remain invalidated; focused test evidence,
+independent review, aggregate QA, and a later human checkpoint are still
+required before Implement Changes.
+
+## Implement Tests Approval — 2026-11-21
+
+Aggregate Development QA returned PASS for the Implement Tests stage: the
+focused command had 34 passes, 2 intended discriminating failures, 4 pre-existing
+skips, and no unrelated failures. Independent review found no remaining test
+defect. The user selected `Approve`, advancing that exact expected-red test
+deliverable to **Implement Changes**. This approval authorizes only the
+approved screenshot-base runner/fixture repair and its focused validation; it
+does not authorize commit, push, release, or advancement beyond a later human
+Implement Changes checkpoint.
+
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
