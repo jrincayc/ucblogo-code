@@ -14,6 +14,33 @@ Append-only snapshots of read-only GitHub usage/accounting metadata. Do not stor
 - Remaining balance: `UNAVAILABLE` — the usage endpoint did not expose a budget or remaining-credit balance.
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 / unavailable
 
+## 2026-11-20: Turtle graphics EOF deviation cleared — significant-event
+
+- UTC timestamp: `2026-11-21T00:37:18Z`
+- Checkpoint: `significant-event`
+- Task/session: `TGS-2026-11-20-T1` / Implement Tests
+- Event: user accepted the extra EOF linefeed as a low-impact deviation and cleared the Andon; the user manually removed the extra trailing blank lines. Focused staged whitespace and JavaScript syntax checks passed.
+- Account: `n1ywb-1`
+- Billing source: `GET /users/n1ywb-1/settings/billing/usage?year=2026&month=11`
+- Branch / current commit: `wasm` / `66e11193998061a671bb65dbb52dc2f93bcb91a6`
+- Staged fixture SHA-256: `a78dd96d5d6d9038b9db2ff93d1b20f585a654a972f901c1eaa7556a5ef5577a`
+- Raw usage-item count: `44`
+- Gross / discount / net: `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Delta from preceding available usage snapshot (`2026-11-20T23:58:40Z`): gross `$0.646252800`, discount `$0.000010540`, net `$0.646242260`
+- Current-month Copilot AI Credits consumed / remaining included credits: `20925.431577348` / `-925.431577348` (20,000 baseline exceeded; no user-declared overage balance recorded)
+- Estimated CO2e for net usage: `2.208869490 kg` — approved gross rule-of-thumb estimate (`$11.044347450 * 0.20`), not measured emissions; rule is approved for the Luna 6 / MAI Code 2 / Sol 6.1 spend mix.
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash requested / active runtime and effort unverified
+- Product/SKU rollup:
+
+| Product | SKU | Quantity | Unit | Gross | Discount | Net |
+| --- | --- | ---: | --- | ---: | ---: | ---: |
+| actions | Actions Linux | 537 | Minutes | $3.222000000 | $3.222000000 | $0.000000000 |
+| actions | Actions storage | 11.550400041 | GigabyteHours | $0.003880790 | $0.003880790 | $0.000000000 |
+| copilot | Copilot AI Credits | 20925.431577348 | AICredits | $209.254315670 | $199.078044712 | $10.176270958 |
+| copilot | Copilot Cloud Agent | 178.646978750 | AICredits | $1.786469776 | $0.918393284 | $0.868076492 |
+| sandbox | Sandbox Linux | 8888.610073526 | ComputeSeconds | $0.213326638 | $0.213326638 | $0.000000000 |
+| sandbox | Sandbox Memory | 33115.280693845 | GigabyteSeconds | $0.099345837 | $0.099345837 | $0.000000000 |
+
 ## 2026-11-20: Turtle graphics skill — andon
 
 - UTC timestamp: `2026-11-20T23:16:30Z`
@@ -207,3 +234,38 @@ resolution.
 - Current-month Copilot AICredits consumed / remaining included credits: `21104.078556098` / `-1104.078556098` (no user-declared overage amount recorded)
 - Estimated CO2e for net usage: `2.208869490 kg` — approved gross rule-of-thumb estimate, not measured emissions
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 / unavailable
+
+## 2026-11-20: User-supplied GitHub billing UI snapshot — significant-event
+
+- UTC timestamp: `2026-11-20T00:00:00Z` (date authoritative from session context; exact UI capture time not supplied)
+- Checkpoint: `significant-event`
+- Account: `n1ywb-1`
+- Billing source: authenticated GitHub billing UI values supplied by the user from `https://github.com/settings/billing/ai_usage`
+- Included usage: `20,000 / 20,000 AI credits`
+- Remaining included credits: `0`
+- Included-usage reset date: `2026-11-30`
+- Additional usage: enabled
+- Additional-usage spend / budget / remaining: `$11.30` / `$12.00` / `$0.70`
+- Estimated CO2e for reported additional spend: `2.26 kg` — `$11.30 * 0.20`, approved gross rule-of-thumb estimate, not measured emissions
+- Authority: this newer, explicit user-supplied UI snapshot supersedes stale API-derived remaining-credit calculations; the API does not expose the configured remaining budget.
+- Querying agent / model / reasoning effort: user-supplied values recorded by GitHub Copilot / MAI Code 2 / unavailable
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->
+
+## 2026-11-20: Authoritative billing and ledger locking — pre-commit
+
+- UTC timestamp: `2026-11-20T00:00:00Z` (exact current clock not independently supplied to snapshot artifact)
+- Checkpoint: `pre-commit`
+- Account: `n1ywb-1`
+- Billing source: user-supplied authenticated GitHub billing UI snapshot
+- Branch / current commit: `wasm` / `8a8f858fd5bd4a1197fbda8ad7c18f4e7d62da79`
+- Staged scope: `.github/copilot-instructions.md`, `docs/accounting/agent-usage-ledger.md`, `scripts/append-accounting-ledger.sh`
+- Resulting local commit: `PENDING`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`
+- Included-usage reset date: `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` used; `$0.70` remaining
+- Estimated CO2e for additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: user-supplied UI values recorded by GitHub Copilot / MAI Code 2 / unavailable
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->
+
