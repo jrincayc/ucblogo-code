@@ -1,0 +1,7 @@
+make "redefp "true
+make "printdepthlimit 10
+make "printwidthlimit 80
+gc
+load "tests/UnitTests.lg
+runall
+bye

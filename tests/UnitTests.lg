@@ -13,6 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+MAKE "Failed "False
 MAKE "Tests.All []
 
 to InstallSuite :SetupProc :SuiteName
@@ -34,7 +35,11 @@ to RunTests :Tests
 
     RUN PrepTest FIRST :Tests
     IFELSE [Equal? :Success 1] [PRINT "Ok] [
-          IFELSE [Equal? :Err 1] [PRINT [\ \ \ \ \ \ \ Error]] [
+          IFELSE [Equal? :Err 1] [
+            PRINT [\ \ \ \ \ \ \ Error] 
+            PR ERROR
+            make "failed "true
+          ] [
                       PRINT [\ \ \ \ \ \ \ Failed]]]
     RunTests BF :Tests
   ]
@@ -51,10 +56,17 @@ to RunAll
   PRINT [ Berkeley Logo Unit Tests]
   PRINT [--------------------------]
   PRINT se [Test Suites: ] (count :Tests.All)
-  FOREACH :Tests.All [PRINT " (PrintHeader LAST ? ) (RUN FIRST ?) 
-  PRINT [----------------------------------------------------------]]
+  FOREACH :Tests.All [
+      PRINT " (PrintHeader LAST ? ) 
+      PRINT " (RUN FIRST ?) 
+      PRINT [----------------------------------------------------------]
+  ]
   PRINT []
-  PRINT [All tests completed.]
+  ifelse :FAILED [
+    PRINT [Some tests did not complete.]
+  ] [
+    PRINT [All tests completed.]
+  ]
 end
 
 
@@ -107,16 +119,22 @@ end
 ;LOAD "UnitTests-LogoLib-Loops.lg
 ;LOAD "UnitTests-Mem.lg
 
-LOAD "UnitTests-Arithmetic.lg
-LOAD "UnitTests-Bitwise.lg
-LOAD "UnitTests-Constructors.lg
-LOAD "UnitTests-Files.lg
-LOAD "UnitTests-Macros.lg
-LOAD "UnitTests-Predicates.lg
-LOAD "UnitTests-Random.lg
-LOAD "UnitTests-MemMgr.lg
-LOAD "UnitTests-OOP.lg
-LOAD "UnitTests-Control.lg
+MAKE "testhome "tests/
+
+ifelse procedure? "kindof [
+  LOAD "tests/UnitTests-OOP.lg
+] [
+  print [skipping oop tests]
+]
+LOAD "tests/UnitTests-MemMgr.lg
+LOAD "tests/UnitTests-Arithmetic.lg
+LOAD "tests/UnitTests-Bitwise.lg
+LOAD "tests/UnitTests-Constructors.lg
+LOAD "tests/UnitTests-Files.lg
+LOAD "tests/UnitTests-Macros.lg
+LOAD "tests/UnitTests-Predicates.lg
+LOAD "tests/UnitTests-Random.lg
+LOAD "tests/UnitTests-Control.lg
 
 
 ;; Process any command line options

@@ -72,7 +72,7 @@ char cm_arr[40];
 char so_arr[40];
 char se_arr[40];
 
-struct termio tty_cooked, tty_cbreak;
+struct termios tty_cooked, tty_cbreak;
 
 int interactive, tty_charmode;
 
@@ -105,7 +105,7 @@ void term_init(void) {
     interactive = isatty(0);
 
     if (interactive) {
-	ioctl(0,TCGETA,(char *)(&tty_cooked));
+	tcgetattr(0,&tty_cooked);
 	tty_cbreak = tty_cooked;
 	tty_cbreak.c_cc[VMIN] = '\01';
 	tty_cbreak.c_cc[VTIME] = '\0';
@@ -136,7 +136,7 @@ void term_init(void) {
 	so_arr[0] = se_arr[0] = '\0';
       }
     }
-    
+
     /* emacs detection */
     emacs = getenv("EMACS");
     if (emacs && *emacs == 't') { /* started from emacs */
@@ -157,14 +157,14 @@ void term_init(void) {
 
 void charmode_on() {
     if ((readstream == stdin) && interactive && !tty_charmode) {
-	ioctl(0,TCSETA,(char *)(&tty_cbreak));
+	tcsetattr(0,TCSANOW,&tty_cbreak);
 	tty_charmode++;
     }
 }
 
 void charmode_off() {
     if (tty_charmode) {
-	ioctl(0,TCSETA,(char *)(&tty_cooked));
+	tcsetattr(0,TCSANOW,&tty_cooked);
 	tty_charmode = 0;
     }
 }

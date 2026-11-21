@@ -26,6 +26,7 @@ MAKE "Tests.Constructors [
   Tests.Constructors.Array
   Tests.Constructors.MDArray
   Tests.Constructors.MDArrayMulti
+  Tests.Constructors.HtmlString
  ]
 
 ;; Test Suite setup procedure, main entry 
@@ -124,6 +125,15 @@ end
 to Tests.Constructors.MDArrayMulti
   MAKE "y (MDARRAY [2 2] 0)
   OUTPUT (AND [ARRAY? :y])
+end
+
+to Tests.Constructors.HtmlString
+  LOCAL "html
+  MAKE "html HTMLSTRING "<b>logo</b>
+  REPEAT 10 [GC]
+  OUTPUT (AND [WORD? :html]
+              [EQUAL? :html (HTMLSTRING "<b>logo</b>)]
+              [EQUAL? COUNT :html 11])
 end
 
 

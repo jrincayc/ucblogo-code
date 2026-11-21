@@ -22,6 +22,10 @@
 #include "config.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include <ctype.h>
 #ifdef WIN32
 #include <windows.h>
@@ -1580,6 +1584,18 @@ NODE *leditfile(NODE *args) {
     	return UNBOUND;
 }
 
+#ifdef __EMSCRIPTEN__
+EM_ASYNC_JS(void, web_edit, (char* tmp_filename), {
+	try {
+		await Module.editor.edit(UTF8ToString(tmp_filename));
+	}
+	catch (error) {
+		console.error(error);
+		window.alert(error);
+	}
+});
+#endif
+
 NODE *ledit(NODE *args) {
     FILE *holdstrm;
 #ifdef HAVE_WX
@@ -1644,11 +1660,15 @@ NODE *ledit(NODE *args) {
         }
     }
 #else
+#ifdef __EMSCRIPTEN__
+	web_edit(tmp_filename);
+#else
     if (fork() == 0) {
 	execlp(editor, editorname, tmp_filename, 0);
 	exit(1);
     }
     wait(0);
+#endif 
 #endif /* wx */
     holdstrm = loadstream;
     tmp_line = current_line;
@@ -1849,6 +1869,23 @@ char *fixhelp(char *ptr, int len) {
     return result;
 }
 
+#ifdef __EMSCRIPTEN__
+EM_ASYNC_JS(int, web_get_any_key, (), {
+	await new Promise((res,rej)=>{
+		window.addEventListener(
+			'keydown', 
+			event=>{
+				event.preventDefault();
+				res();
+				return false;
+			}, 
+			{once: true}
+		);
+	});
+});
+#endif
+
+
 char inops[] = "+-*/=<>";
 
 NODE *lhelp(NODE *args) {
@@ -1917,8 +1954,11 @@ NODE *lhelp(NODE *args) {
 #endif
 		ndprintf(writestream, message_texts[MORE_HELP]);
 		input_blocking++;
-#ifdef WIN32
+#if defined(WIN32)
 		    (void)reader(stdin, "");
+#elif defined(__EMSCRIPTEN__)
+			putchar('\n');
+			web_get_any_key();
 #else
 		    fgets(junk, 19, stdin);
 #endif

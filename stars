@@ -1,0 +1,18 @@
+to STAR1
+setheading modulo :animationtime / 10 360 
+pd 
+setpalette 17 (list 0 0 modulo :animationtime / 5 100) 
+setpalette 18 (list modulo :animationtime / 10 100 modulo :animationtime / 10 + 50 100 modulo :animationtime / 10 + 75 100) 
+setpalette 19 (list modulo :animationtime / 10 100 0 0) 
+make "a modulo :animationtime / 10 200 
+filled 19 [repeat 5 [fd :a rt 144 fd :a lt 72 ]]
+pu
+end
+
+Make "animationact [CLEAN REPEAT 10 [SETPOS (LIST -500 + 100 * # -240 + 500 * SIN MODULO :ANIMATIONTIME / 10 100) STAR1]]
+
+setpc 17
+setpensize 10
+setbg 18
+
+animationstart

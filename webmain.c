@@ -1,0 +1,341 @@
+/*
+ *      main.c          logo main procedure module              dvb
+ *
+ *	Copyright (C) 1993 by the Regents of the University of California
+ *
+ *      This program is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#include "logo.h"
+#include "globals.h"
+
+#ifdef __SANITIZE_ADDRESS__
+#include <sanitizer/asan_interface.h>
+#endif
+
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#elif defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef __EMSCRIPTEN__
+extern void rd_print_prompt(char *);
+extern void yield_to_js(long);
+extern int LOGO_GIL;
+extern int yield_enabled;
+extern void push_completion_names(void);
+
+#endif
+
+NODE *current_line = NIL;
+NODE **bottom_stack; /*GC*/
+NODE *command_line = NIL;   /* 6.0 command line args after files */
+
+int stop_quietly_flag=0;
+
+void unblock_input(void) {
+    if (input_blocking) {
+	input_blocking = 0;
+#ifdef HAVE_IOCTRL_H
+	ioctl(0,TIOCSTI,"\n");
+#endif
+    }
+}
+
+extern int in_eval_save;
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void logo_stop(int sig)
+#else
+#define sig_arg 
+void logo_stop()
+#endif
+{
+    if (inside_gc || in_eval_save) {
+	int_during_gc = 1;
+    } else {
+	charmode_off();
+	to_pending = 0;
+        if (!stop_quietly_flag)
+            err_logo(STOP_ERROR,NIL);
+        stop_quietly_flag = 0;
+	  signal(SIGINT, logo_stop);
+	unblock_input();
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void logo_pause(int sig)
+#else
+#define sig_arg 
+void logo_pause()
+#endif
+{
+    if (inside_gc || in_eval_save) {
+	int_during_gc = 2;
+    } else {
+	charmode_off();
+	to_pending = 0;
+#ifdef HAVE_SIGSETMASK
+	sigsetmask(0);
+#else
+	signal(SIGQUIT, logo_pause);
+#endif
+	lpause(NIL);
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void mouse_down(int sig)
+#else
+#define sig_arg 
+void mouse_down()
+#endif
+{
+	LOGO_GIL = 1;
+    NODE *line;
+
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 3;
+    } else {
+	line = valnode__caseobj(Buttonact);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		yield_enabled = 0;
+		eval_driver(line);
+		fix_turtle_shownness();
+		yield_enabled = 1;
+	    }
+	}
+    }
+	LOGO_GIL = 0;
+}
+
+int keyact_set() {
+    NODE *line;
+
+    line = valnode__caseobj(Keyact);
+    return (line != UNBOUND && line != NIL);
+}
+
+void do_keyact(int);
+
+#ifdef SIG_TAKES_ARG
+#define sig_arg 0
+void delayed_keyact(int sig)
+#else
+#define sig_arg 
+void delayed_keyact()
+#endif
+{
+    do_keyact(readchar_lookahead_buf);
+}
+
+void do_keyact(int ch) {
+    NODE *line;
+
+    readchar_lookahead_buf = ch;
+    if (inside_gc || in_eval_save) {
+	if (int_during_gc == 0) int_during_gc = 4;
+    } else {
+	line = valnode__caseobj(Keyact);
+	if (line != UNBOUND && line != NIL) {
+	    if (inside_evaluator) {
+		eval_buttonact = line;
+	    } else {
+		eval_driver(line);
+		fix_turtle_shownness();
+	    }
+	}
+    }
+}
+
+#ifdef SIG_TAKES_ARG
+void (*intfuns[])(int) = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
+#else
+void (*intfuns[])() = {0, logo_stop, logo_pause, mouse_down,
+			     delayed_keyact};
+#endif
+
+void delayed_int() {
+#ifdef SIG_TAKES_ARG
+    (void)(*intfuns[int_during_gc])(0);
+#else
+    (void)(*intfuns[int_during_gc])();
+#endif
+}
+
+int main(int argc, char *argv[]) {
+    NODE *exec_list = NIL;
+	
+	set_bottom_stack(&exec_list); /* GC */
+
+    NODE *cl_tail = NIL;
+    int argc2;
+    char **argv2;
+
+    (void)addseg();
+    term_init();
+    init();
+
+    math_init();
+
+	signal(SIGINT, logo_stop);
+
+    if (argc < 2) {
+      if (1 || isatty(1))   // fix this.  for interactive from menu bar.
+      {
+	char version[64];
+	lcleartext(NIL);
+	strcpy(version, VERSION);
+#ifdef GITID
+	extern char *GIT;
+	strcat(version, GIT);
+#endif
+	ndprintf(stdout, message_texts[WELCOME_TO], version);
+	new_line(stdout);
+      }
+    }
+
+    setvalnode__caseobj(LogoVersion, make_floatnode(6.2));
+    setflag__caseobj(LogoVersion, VAL_BURIED);
+
+    argv2 = argv; argc2 = argc;
+
+    argv++;
+    while (--argc > 0 && strcmp(*argv, "-") && NOT_THROWING) {
+        argv++;
+    }
+
+    argv++;
+    while (--argc > 0) {
+	if (command_line == NIL) 
+	    cl_tail = command_line = cons(make_static_strnode(*argv++), NIL);
+	else {
+	    setcdr(cl_tail, cons(make_static_strnode(*argv++), NIL));
+	    cl_tail = cdr(cl_tail);
+	}
+    }
+
+    setvalnode__caseobj(CommandLine, command_line);
+
+    silent_load(Startuplg, logolib);
+    silent_load(Startuplg, getenv("HOME")); /* load startup.lg */
+
+    argv2++;
+    while (--argc2 > 0 && strcmp(*argv2, "-") && NOT_THROWING) {
+        silent_load(NIL, *argv2++);
+    }
+	rd_print_prompt("? ");
+    push_completion_names();
+    LOGO_GIL = 0;
+	return 0;
+}
+
+int EMSCRIPTEN_KEEPALIVE run_evaluator(bool readcurrline)
+{
+   NODE *exec_list = NIL;
+   LOGO_GIL = 1;
+//    EM_ASM({console.log(`run_evaluator(${$0})`)}, readcurrline);
+   if (NOT_THROWING)
+   {
+      check_reserve_tank();
+      static uievent evt;
+      while (get_uievent(&evt)) {
+        eval_driver(dispatch_uievent(&evt));
+        if (stopping_flag == THROWING) {
+          if (evt.type == animate) lanimationstop(NIL);
+          goto stop;
+        }
+      }
+    }
+    if (NOT_THROWING && readcurrline) {
+      current_line = reader(stdin, NULL);
+    //   if (feof(stdin) && !isatty(0))
+    //     EM_ASM({debugger;});
+    //      lbye(NIL);
+      if (NOT_THROWING)
+      {
+         exec_list = parser(current_line, TRUE);
+         if (exec_list != NIL)
+            eval_driver(exec_list);
+      }
+   }
+stop:
+   if (stopping_flag == THROWING)
+   {
+      if (isName(throw_node, Name_error))
+      {
+         err_print(NULL);
+      }
+      else if (isName(throw_node, Name_system)) {
+        emscripten_log(EM_LOG_CONSOLE | EM_LOG_ERROR, "fatal logo error");
+        EM_ASM({window.alert("fatal logo error")});
+        return 1;
+      }
+      else if (!isName(throw_node, Name_toplevel))
+      {
+         err_logo(NO_CATCH_TAG, throw_node);
+         err_print(NULL);
+      }
+      stopping_flag = RUN;
+      EM_ASM({Module.uievents = new UIEventQueue();});
+      if (!readcurrline) rd_print_prompt("? ");
+   }
+   if (stopping_flag == STOP || stopping_flag == OUTPUT)
+   {
+      /*    ndprintf(stdout, "%t\n", message_texts[CANT_STOP]);   */
+      stopping_flag = RUN;
+   }
+   if (readcurrline) {
+    charmode_off();
+    rd_print_prompt("? ");
+   }
+   push_completion_names();
+   LOGO_GIL = 0;
+   yield_enabled = 1;
+   EM_ASM({
+    if (typeof document !== 'undefined') {
+        // console.info('run_evaluator_end');
+        document.dispatchEvent(
+            new CustomEvent('run_evaluator_end')
+        );
+    }
+   });
+   return 0;
+}

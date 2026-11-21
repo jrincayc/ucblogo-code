@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "node .github/hooks/guard-generated-files.js",
+        "timeout": 5
+      }
+    ]
+  }
+}

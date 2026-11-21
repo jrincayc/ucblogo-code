@@ -1,0 +1,16 @@
+animationstop
+cs
+repeat 100 [fd # rt 25]
+makesprite "sprite1
+setturtle "sprite1
+pu
+home
+
+to animate :td
+    setheading heading + :td / 20
+    setx (first pos) + :td / 10
+end
+
+make "animationact [animate :animationdelta]
+
+animationstart

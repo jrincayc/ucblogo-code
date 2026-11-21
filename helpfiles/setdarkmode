@@ -1,0 +1,10 @@
+SETDARKMODE mode
+
+Sets the web edition color theme.  The mode is one of SYSTEM, LIGHT, or DARK.
+SYSTEM follows the browser or operating system color preference.  The setting
+is saved between sessions.
+
+Examples:
+
+    setdarkmode "dark
+    setdarkmode "system

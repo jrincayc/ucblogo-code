@@ -421,11 +421,10 @@ NODE *larrayp(NODE *arg) {
 }
 
 NODE *memberp_help(NODE *args, BOOLEAN notp, BOOLEAN substr) {
-    NODE *obj1, *obj2, *val;
+    NODE *obj1, *obj2;
     int leng;
     int caseig = varTrue(Caseignoredp);
 
-    val = FalseName();
     obj1 = car(args);
     obj2 = cadr(args);
     if (is_list(obj2)) {

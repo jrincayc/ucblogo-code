@@ -47,6 +47,8 @@ FIXNUM hash(char *s, int len) {
     while (--len >= 0) {
 	h = (h << 4) + (FIXNUM)(*s++);
 	g = h & ((FIXNUM)0xf << (WORDSIZE-4));
+    // intern.c:49:23: runtime error: left shift of 15 by 28 places cannot be represented in type 'long'
+    // SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior intern.c:49:23 
 	if (g != 0) {
 	    h ^= g ^ (g >> (WORDSIZE-8));
 	}
