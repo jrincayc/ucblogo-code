@@ -455,3 +455,23 @@ resolution.
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
 
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill — final end checkpoint
+
+- UTC timestamp: `2026-11-21T03:42:26Z`
+- Checkpoint: `end`
+- Task/session: `TGS-2026-11-20-T1` / turtle graphics skill resume
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `80f2d483cdaedb09b6ed2127253d148d7ece0dd8`
+- Committed revisions: `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5` skill checkpoint; `80f2d483cdaedb09b6ed2127253d148d7ece0dd8` ledger correction
+- Result: both local checkpoint commits created; no push
+- Remaining worktree: unrelated pre-existing agent customization files only; turtle skill package and ledger are committed
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
