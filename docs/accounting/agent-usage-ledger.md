@@ -269,3 +269,77 @@ resolution.
 
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->
 
+
+## 2026-11-21: Turtle graphics skill resume — start
+
+- UTC timestamp: `2026-11-21T02:39:21Z`
+- Checkpoint: `start`
+- Task/session: `TGS-2026-11-20-T1` / Implement Tests
+- Account: `n1ywb-1`
+- Billing source: authoritative authenticated GitHub billing UI snapshot supplied by the user; read-only usage API call attempted and blocked by TLS handshake timeout
+- Branch / current commit: `wasm` / `89ddc1397bfb4fc9446392e10c86f2c36167ee4e`
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — `$11.30 * 0.20`, approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-20: Agent usage reporting artifacts — pre-commit
+
+- UTC timestamp: `2026-11-21T03:04:45Z`
+- Checkpoint: `pre-commit`
+- Task/session: persist granular agent usage reporting
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `89ddc1397bfb4fc9446392e10c86f2c36167ee4e`
+- Staged scope: `.github/skills/agent-usage-reporting/SKILL.md`, `scripts/report-agent-usage.py`
+- Resulting local commit: `PENDING`
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 / unavailable
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill resume — significant event
+
+- UTC timestamp: `2026-11-21T03:09:15Z`
+- Checkpoint: `significant-event`
+- Task/session: `TGS-2026-11-20-T1` / approved aggregate-QA deviation
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `7210665c5751c674647da4cc41f36f5fc9e4cdf7`
+- Event: Human approved skipping aggregate Implement Tests QA; no aggregate pass is claimed
+- Remaining scope: focused validation and applicable independent reviews; no push or history rewrite
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill resume — pre-commit
+
+- UTC timestamp: `2026-11-21T03:12:15Z`
+- Checkpoint: `pre-commit`
+- Task/session: `TGS-2026-11-20-T1` / record aggregate-QA deviation
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `7210665c5751c674647da4cc41f36f5fc9e4cdf7`
+- Staged scope: `docs/workflow-runs/turtle-graphics-skill-checkpoint-2026-11-20.md`, `docs/accounting/agent-usage-ledger.md`
+- Resulting local commit: `PENDING`
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->

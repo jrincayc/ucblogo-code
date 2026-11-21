@@ -281,4 +281,18 @@ incomplete. No stage advance or documentation authoring is claimed. The
 user authorized this checkpoint commit and push to `wasm`; no other commit or
 push is authorized.
 
-<!-- Co-authored by GitHub Copilot. Model identity and reasoning-effort setting unavailable. -->
+## Aggregate Implement Tests QA Deviation
+
+On 2026-11-21 the user directed: "as a deviation I approve skipping this check" in
+response to the planned aggregate Implement Tests QA gate. This explicitly waives
+that aggregate gate for the turtle-graphics task. It does not retrospectively
+claim that aggregate QA passed, does not waive focused validation already
+performed or future independent reviews, and does not authorize push or history
+rewrite.
+
+The task may resume beyond Implement Tests under the previously approved scope,
+with the deviation and the incomplete aggregate gate disclosed. Existing
+focused validation, implementation evidence, and later QA remain governed by
+their applicable gates.
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
