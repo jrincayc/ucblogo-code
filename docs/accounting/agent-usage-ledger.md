@@ -398,3 +398,60 @@ resolution.
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
 
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill — end checkpoint
+
+- UTC timestamp: `2026-11-21T03:35:19Z`
+- Checkpoint: `end`
+- Task/session: `TGS-2026-11-20-T1` / turtle graphics skill checkpoint
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `cb837b062d775ff5ffbb87b56bbee8bdfd0fbb5`
+- Committed revision: `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5`
+- Result: local checkpoint commit created; no push
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill — andon
+
+- UTC timestamp: `2026-11-21T03:36:54Z`
+- Checkpoint: `andon`
+- Task/session: `TGS-2026-11-20-T1` / ledger checkpoint hash defect
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Andon category: incorrect commit-hash transcription in staged end snapshot
+- Affected scope: `docs/accounting/agent-usage-ledger.md`; local commit `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5` is unaffected
+- Defect: the end-snapshot `Branch / current commit` field wrote `cb837b062d775ff5ffbb87b56bbee8bdfd0fbb5`; the exact HEAD and committed revision are `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill — ledger correction
+
+- UTC timestamp: `2026-11-21T03:40:41Z`
+- Checkpoint: `pre-commit`
+- Task/session: `TGS-2026-11-20-T1` / supersede incorrect commit-hash transcription
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5`
+- Correction: the `03:35:19Z` end snapshot's `Branch / current commit` field contains a mistaken extra `bee`; its exact committed revision is `cb837b062d775ff5ffbb87b56bb9ee8bdfd0fbb5`. The original snapshot remains unchanged as an append-only record.
+- Staged scope: `docs/accounting/agent-usage-ledger.md`
+- Resulting local commit: `PENDING`
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
