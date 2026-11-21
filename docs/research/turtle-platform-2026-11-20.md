@@ -72,6 +72,7 @@
 - **Full-frame animation vs persistent SVG objects.** Web demos can redraw the whole frame or transform existing SVG objects. Full redraw is easy to reason about but costs more DOM/SVG work; persistent objects can be faster but require explicit cleanup and layering decisions. The report does not establish which is visually preferable.
 - **Custom one-turtle sprite vs JavaScript multiple sprites.** `MAKESPRITE`/`SETTURTLESPRITE` provide a turtle appearance with no extra instances. Extra objects require Web DOM/`RUNJS` work and are outside wx parity, trading simplicity for Web-only capability.
 - **Correct stale docs vs document source as current.** A skill can note that a manual annotation is stale and use source-confirmed Web support, or it can defer to documentation and mark both with a compatibility caveat. The evidence favors a conflict note plus current-source wording until docs are reconciled.
+- **Current dimensions vs future flexibility.** The current Web logical canvas is `640 x 480`, while wx uses host-dependent dimensions. Treat that as current implementation behavior, not a permanent contract; future work may make drawing dimensions variable.
 
 ## Conflicts and Counterevidence
 
@@ -106,18 +107,11 @@ Search coverage included local manuals, the bundled help index, `webedition.md`,
 
 The search did not claim exhaustiveness for every historical platform or every help file. The 2008 help files and older manual text may lag current 2026 sources. Source implementation was used only to confirm or contradict user-facing claims, not to enumerate renderer internals. No external network source was consulted.
 
-## Options and Trade-offs
-
-1. A short platform matrix can make every primitive's status explicit, but may overwhelm beginners. A turtle skill can instead keep portable examples first and add small “Web only,” “wx/wx-only in docs,” and “not portable” markers.
-2. The skill can defer stale documentation conflicts or call them out. The evidence suggests explicitly flagging stale manual and `webedition.md` entries is less misleading than reproducing them.
-3. Animation examples can use the implemented `animationact`, `animationtime`, and `animationdelta` names, or they can use generic pseudocode and avoid exact words. The exact names are needed for runnable guidance.
-4. Sprite guidance can remain in one-turtle mode or mention extra JS-backed sprites. The first is portable across the current Web UI concept and the second is browser-specific implementation work.
-
 ## Planning Handoff
 
 The planning agent should shape the new turtle skill around a portable core, then edition callouts for:
 
-- Fixed Web logical canvas versus host-dependent wx canvas;
+- Current fixed Web logical canvas versus host-dependent wx canvas, described as present behavior that may become variable in the future;
 - shared coordinate/heading semantics and turtle-state cleanup;
 - current `FILLED` support and non-Web `FILL` limitation;
 - pen/palette/shape/label differences and stale wx-only annotations;
@@ -126,7 +120,7 @@ The planning agent should shape the new turtle skill around a portable core, the
 - mouse/position caveats and touch uncertainty;
 - wx/native layout and documented label/print limitations.
 
-This research affects **written guidance only** at this stage. It does not establish or authorize a visual design change. Later work would need visual/runtime validation for the Web and wx editions, at minimum shape, canvas bounds, label/scrunch sizing, fill/erase, screen modes, mouse/touch behavior, and animation/sprite rendering. Any source or documentation reconciliation should be carried by separate implementation/documentation tasks after visual evidence is established.
+This research affects **written guidance only** at this stage. It does not establish or authorize a visual design change. Shape, canvas bounds, label/scrunch sizing, fill/erase, screen modes, mouse/touch behavior, and animation/sprite rendering remain unverified visual/runtime evidence gaps. Documentation conflicts and source discrepancies likewise remain risks; this research does not assign or sequence their resolution.
 
 ## Sources
 
