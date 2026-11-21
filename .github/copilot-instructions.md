@@ -3,6 +3,11 @@
 - At the beginning of each task, identify and load applicable skills automatically.
 - In the initial update, name the skills you are using. If none apply, say so. Only claim to use skills you actually load.
 
+# Protecting This File
+
+- Before any future edit to `.github/copilot-instructions.md`, present the exact proposed diff to the user and obtain explicit approval for that diff. A general task request or approval of related work is not sufficient.
+- If the proposed diff changes after approval, pause and obtain approval for the revised diff. Make only the approved changes; do not let an agent, script, formatter, or bulk operation bypass this requirement.
+
 # Front matter
 - Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting.
 
@@ -28,13 +33,17 @@
 - When you can not or will not do something think hard about the fundamental reason why. Suggest likely-acceptable alternatives. A good error message points the developer in the right direction to fix the error either explicitly or by referring them to appropriate documentation.
 
 # Copilot Attribution
-- Except for chat messages, attribute GitHub Copilot as a co-author on all generated artifacts. If the medium does not support attribution ask the user what to do.
-- Artifacts include but are not necessarily limited to source code, documentation, pull requests, issues, comments, configuration, and other materials.
-- Use a format appropriate to the medium, such as file metadata or a comment, an attribution footer, or a co-author trailer.
-- Do not change executable behavior just to add attribution.
-- Include the active model name and reasoning-effort setting when available to the agent. report if these data are not available. 
-- Do not include task scope.
-- Attribution should be recorded once-only per artifact. Avoid adding duplicate attribution.
+
+- Do not include attribution or attribution-related cost, time, energy, or emissions footers in private one-to-one chats with the user, including progress updates and final responses.
+- Attribute GitHub Copilot as a co-author on artifacts generated or materially revised for an audience beyond the user, including documentation, pull requests, issues, shared code, comments, configuration, and other published or shared prose. This applies to shared artifacts drafted within a private chat, but not to the surrounding conversation. Use a format appropriate to the medium, such as file metadata or a comment, an attribution footer, or a co-author trailer; do not change executable behavior just to add attribution.
+- For those shared-artifact attributions, include the active model name and reasoning-effort setting when available to the agent. Never guess either value; omit details that are unavailable.
+- Omit credit and dollar costs from attribution for now unless the user explicitly requests them.
+- Include elapsed wall-clock time, energy consumed in kWh, and CO2 produced (with mass units) when available. State the accounting scope, such as the current task, and include subagent usage when known without double-counting.
+- Measure elapsed time using a clock: record a start timestamp at the beginning of each task (for example, with `date -u`), take an end reading before reporting, and calculate the difference. Do not mark elapsed time unavailable merely because billing or model telemetry is absent. If timing starts late, label the measured interval as partial rather than presenting it as the full task duration. Report task wall-clock duration separately from summed subagent durations, which may overlap.
+- Prefer measured data. Estimate missing metrics when there is a defensible basis; clearly label estimates, state their assumptions and sources concisely, and use ranges when uncertainty warrants. Distinguish CO2 from CO2-equivalent emissions.
+- Do not invent telemetry, prices, hardware power consumption, or grid carbon intensity. If a metric cannot be measured or reasonably estimated, mark it unavailable, not zero. Do not infer inference energy or emissions from elapsed wall-clock time alone.
+
+<!-- Co-authored by GitHub Copilot. Scope: attribution-policy updates. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. Elapsed time was not recorded for the original update. -->
 
 # Releases and GitHub
 
@@ -45,6 +54,7 @@
 # Distributed parallel Work
 
 - Work hard to increase velocity by decomposing tasks into smaller subtasks that can be safely executed in parallel. Consider using a map/reduce pattern to distribute and parallelize work. Whenever possible distribute subtasks to subagents working in parallel capped at 8 subagents at a time.
+
 - Work hard to parallelize shell work. When shell work can be parallelized, consider bounded `xargs` map/reduce patterns and use the `parallel-xargs` skill for safe input handling, concurrency, output isolation, and failure handling. Set an explicit `-P` limit capped at 8; reduce results only after every map worker succeeds. Do not parallelize shared mutable build outputs or state.
 
 # Lessons Learned
