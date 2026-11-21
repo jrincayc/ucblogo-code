@@ -8,6 +8,39 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const GENERATED = /^(ucblogo\.(html|js|wasm)|sw\.js|workbox-[0-9a-f]{8}\.js)$/;
 const PATH_KEYS = new Set(['filePath', 'file_path', 'path']);
+const READ_ONLY_TOOLS = new Set([
+    'copilot_getNotebookSummary',
+    'file_search',
+    'get_errors',
+    'grep_search',
+    'list_dir',
+    'read',
+    'read_file',
+    'read_notebook_cell_output',
+    'semantic_search',
+    'vscode_listCodeUsages',
+]);
+const TOOL_BATCHES = new Set(['multi_tool_use.parallel', 'multi_tool_use.sequential']);
+
+function collectToolNames(value, found = []) {
+    if (Array.isArray(value)) {
+        value.forEach((item) => collectToolNames(item, found));
+    } else if (value && typeof value === 'object') {
+        for (const [key, item] of Object.entries(value)) {
+            if ((key === 'tool_name' || key === 'recipient_name') && typeof item === 'string') {
+                found.push(item.replace(/^functions\./, ''));
+            } else {
+                collectToolNames(item, found);
+            }
+        }
+    }
+    return found;
+}
+
+function isReadOnlyRequest(input) {
+    const toolNames = collectToolNames(input).filter((name) => !TOOL_BATCHES.has(name));
+    return toolNames.length > 0 && toolNames.every((name) => READ_ONLY_TOOLS.has(name));
+}
 
 function collectPaths(value, found = []) {
     if (Array.isArray(value)) {
@@ -31,6 +64,8 @@ process.stdin.on('end', () => {
     } catch {
         return;
     }
+    if (isReadOnlyRequest(input)) return;
+
     const hit = collectPaths(input.tool_input)
         .map((file) => path.resolve(ROOT, file))
         .find((file) => path.dirname(file) === ROOT && GENERATED.test(path.basename(file)));
