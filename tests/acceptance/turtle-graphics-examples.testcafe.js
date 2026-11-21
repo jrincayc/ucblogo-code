@@ -22,6 +22,7 @@ const taskDirectory = '/tmp/copilot/TGS-2026-11-20-T1';
 const extractedDirectory = path.join(taskDirectory, 'examples');
 const reportDirectory = path.join(repositoryRoot, 'reports/turtle-graphics-examples');
 const screenshotsDirectory = path.join(reportDirectory, 'screenshots');
+const screenshotRunId = crypto.randomUUID();
 const reportJsonPath = path.join(reportDirectory, 'report.json');
 const reportMarkdownPath = path.join(reportDirectory, 'report.md');
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false });
@@ -286,7 +287,7 @@ if (packageMissing) {
             const sourceName = `${slug}-fence-${logoFenceOrdinal}.lg`;
             const sourcePath = path.join(extractedDirectory, sourceName);
             fs.writeFileSync(sourcePath, token.content, { encoding: 'utf8', flag: 'w' });
-            const screenshotCustomPath = `${slug}/fence-${logoFenceOrdinal}.png`;
+            const screenshotCustomPath = `${screenshotRunId}/${slug}/fence-${logoFenceOrdinal}.png`;
             const screenshotRelativePath = `reports/turtle-graphics-examples/screenshots/${screenshotCustomPath}`;
             const screenshotAbsolutePath = path.join(screenshotsDirectory, screenshotCustomPath);
             manifests.push({
@@ -345,6 +346,7 @@ const reportState = {
         reportJson: 'reports/turtle-graphics-examples/report.json',
         reportMarkdown: 'reports/turtle-graphics-examples/report.md',
         screenshotDirectory: 'reports/turtle-graphics-examples/screenshots',
+        screenshotRunId,
         noNodeLogoExecution: true,
         noRawAppFlag: true,
     },
@@ -374,6 +376,7 @@ function writeReports() {
     const report = {
         schemaVersion: 1,
         taskId: 'TGS-2026-11-20-T1',
+        screenshotRunId,
         generatedAt: new Date().toISOString(),
         discoveryProblem,
         zeroExample: manifests.length === 0,
@@ -389,6 +392,7 @@ function writeReports() {
         '# Turtle Graphics Documentation Example Report',
         '',
         `- Task: \`TGS-2026-11-20-T1\``,
+        `- Screenshot run ID: \`${screenshotRunId}\``,
         `- Generated: \`${report.generatedAt}\``,
         `- Git HEAD: \`${report.artifact.head || 'unknown'}\``,
         `- Artifact freshness: \`${report.artifact.freshness}\``,
@@ -518,6 +522,10 @@ function reportConsistencyErrors() {
     const report = JSON.parse(fs.readFileSync(reportJsonPath, 'utf8'));
     const errors = [];
     const counts = report.counts;
+    const expectedScreenshotPrefix = `reports/turtle-graphics-examples/screenshots/${screenshotRunId}/`;
+
+    if (report.screenshotRunId !== screenshotRunId || report.runner?.screenshotRunId !== screenshotRunId)
+        errors.push('Report screenshot run identity does not match this fixture invocation');
 
     if (report.entries.length !== manifests.length)
         errors.push(`Expected ${manifests.length} report entries, found ${report.entries.length}`);
@@ -568,6 +576,8 @@ function reportConsistencyErrors() {
         if (entry.screenshot?.relativePath !== manifest.screenshotRelativePath ||
             entry.screenshot?.absolutePath !== manifest.screenshotAbsolutePath)
             errors.push(`${manifest.id} has a mismatched screenshot path`);
+        if (!entry.screenshot?.relativePath.startsWith(expectedScreenshotPrefix))
+            errors.push(`${manifest.id} screenshot is outside this fixture run's directory`);
         try {
             const screenshot = fs.statSync(manifest.screenshotAbsolutePath);
             if (!entry.screenshot?.exists || screenshot.size <= 0 || entry.screenshot.size !== screenshot.size)
