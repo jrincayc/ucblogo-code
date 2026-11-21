@@ -343,3 +343,58 @@ resolution.
 - Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
 
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill resume — andon
+
+- UTC timestamp: `2026-11-21T03:19:27Z`
+- Checkpoint: `andon`
+- Task/session: `TGS-2026-11-20-T1` / static validation defect
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Andon category: focused static harness blocked by harness/approved-plan mismatches
+- Affected scope: Implement Changes skill package; no commit or browser run
+- Defect: TP-01 expects unsorted package order while the harness returns sorted order; TP-09 combines the unchanged approved Plan, whose stale-name and permanent-caveat text is intentional evidence excluded from the skill package; TP-06 flags phrase-level reset/reset wording rather than a contradictory state claim
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill resume — andon
+
+- UTC timestamp: `2026-11-21T03:22:15Z`
+- Checkpoint: `andon`
+- Task/session: `TGS-2026-11-20-T1` / temporary harness edit timeout
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Andon category: tool blocker while repairing temporary static harness
+- Affected scope: Implement Changes validation; skill package remains uncommitted; no browser run or push
+- Defect: two targeted insert_edit operations against `/tmp/copilot/TGS-2026-11-20-T1/turtle-graphics-skill.test.js` timed out; no harness edit is claimed
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
+
+## 2026-11-21: Turtle graphics skill — checkpoint commit
+
+- UTC timestamp: `2026-11-21T03:32:35Z`
+- Checkpoint: `pre-commit`
+- Task/session: `TGS-2026-11-20-T1` / turtle graphics skill checkpoint
+- Account: `n1ywb-1`
+- Billing source: authoritative user-supplied GitHub billing UI snapshot; latest API unavailable in this operation
+- Branch / current commit: `wasm` / `f23b3b0f3b2e48435b6316626fb54984ae7866f5`
+- Staged scope: `.github/skills/ucb-logo-turtle-graphics/SKILL.md`, `.github/skills/ucb-logo-turtle-graphics/references/turtle-primitives.md`, `.github/skills/ucb-logo-turtle-graphics/references/turtle-patterns.md`, `.github/skills/ucb-logo-turtle-graphics/references/platform-notes.md`, `docs/accounting/agent-usage-ledger.md`
+- Resulting local commit: `PENDING`
+- Raw usage-item count: `BLOCKED` — last known count `44` from `2026-11-21T00:38:31Z`
+- Gross / discount / net: `UNAVAILABLE` — last known API snapshot `$214.579338711` / `$203.534991261` / `$11.044347450`
+- Included usage / remaining: `20,000 / 20,000 AI credits` / `0 credits`; reset `2026-11-30`
+- Additional usage: enabled; `$11.30 / $12.00` spend/budget; `$0.70` remaining
+- Estimated CO2e for reported additional spend: `2.26 kg` — approved gross rule-of-thumb estimate, not measured emissions
+- Querying agent / model / reasoning effort: GitHub Copilot / MAI Code 2 Flash / active runtime and effort unverified
+
+<!-- Co-authored by GitHub Copilot. Model: MAI Code 2 Flash; reasoning-effort setting unavailable. -->
