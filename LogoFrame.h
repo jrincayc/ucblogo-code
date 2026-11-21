@@ -64,6 +64,7 @@ private:
 	void OnEditLoad(wxCommandEvent& WXUNUSED(event));
 
         void OnCloseWindow(wxCloseEvent& event);
+	void OnSetFocus(wxFocusEvent& event);
 	
 	DECLARE_EVENT_TABLE()
 };

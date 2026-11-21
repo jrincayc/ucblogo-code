@@ -333,6 +333,7 @@ EVT_MENU(Edit_Menu_Edit_Cut,			LogoFrame::OnEditCut)
 EVT_MENU(Edit_Menu_Edit_Paste,			LogoFrame::OnEditPaste)
 EVT_MENU(Edit_Menu_Edit_Find,			LogoFrame::OnEditFind)
 EVT_MENU(Edit_Menu_Edit_Find_Next,		LogoFrame::OnEditFindNext)
+EVT_SET_FOCUS(LogoFrame::OnSetFocus)
 EVT_CLOSE(LogoFrame::OnCloseWindow)
 END_EVENT_TABLE()
 
@@ -401,6 +402,11 @@ LogoFrame::LogoFrame (const wxChar *title,
   
   wxTerminal::terminal->SetFocus();
   SetUpMenu();
+}
+
+// The frame never needs focus.  Focus should stay with the terminal.
+void LogoFrame::OnSetFocus(wxFocusEvent& event) {
+  if (wxTerminal::terminal) wxTerminal::terminal->SetFocus();
 }
 
 extern "C" int wx_leave_mainloop;
@@ -2612,16 +2618,6 @@ extern enum s_md {SCREEN_TEXT, SCREEN_SPLIT, SCREEN_FULL} screen_mode;
 
 extern "C" int check_wx_stop(int force_yield, int pause_return_value) {
   logoEventManager->ProcessEvents(force_yield); 
-
-  //give focus to terminal if text window shown
-  //and Frame has focus
-  wxWindow * focus_win = wxWindow::FindFocus();
-  if(wxTerminal::terminal &&
-     //screen_mode != SCREEN_FULL &&  // screen_text or screen_split mode
-     !(focus_win == (wxWindow *)wxTerminal::terminal) &&
-     (focus_win == (wxWindow *)logoFrame)) {
-    wxTerminal::terminal->SetFocus();
-  }
 
   if (logo_stop_flag) {
     logo_stop_flag = 0;
