@@ -2,6 +2,7 @@
 
 - At the beginning of each task, identify and load applicable skills automatically.
 - In the initial update, name the skills you are using. If none apply, say so. Only claim to use skills you actually load.
+- Before executing any shell command, all agents MUST load and follow the `safe-shell-streams` and `parallel-xargs` skills.
 
 # Protecting This File
 
@@ -23,7 +24,7 @@
 • MAY: Denotes permission or an optional capability. Implementations may include or omit the behavior without affecting conformance.
 • ALWAYS and NEVER: Denotes universal applicability ("in all cases" and "in no case") when paired with a requirement verb. Prefer stating conditions explicitly (e.g., "When [condition], the system SHALL...") and using SHALL NOT / MUST NOT rather than relying on NEVER alone.
 
-# Quality assurance 
+# Quality assurance
 - Quality is everyone's responsibility. Strive to create quality software. Quality is consistency. Consistency is achieved by minimizing waste and maximizing smoothness and value. Minimizing waste includes following the quality process. The quality process includes using a continuous feedback loop to improve the quality process and maximize user value and minimize waste. Waste could be time, credits, tokens, bandwidth, movement of data, etc.
 - Do not let waste-elimination become a perverse incentive that leads to waste-creation; for example, don't rush through research and planning; front-load tasks to identify opportunities and retire risks early. Rushing is a form of waste. Lying creates waste. Hiding things creates waste. Taking too long on a task is also wasteful. Estimate how long something should take and hold yourself to it.
 - To ensure quality and reduce waste use peer-review early and often. When in doubt ask.
@@ -85,16 +86,16 @@
 - Agents shall not expand task scope without authorization.
 - If the agent cannot proceed without expanding scope then raise an andon event.
 - A skill describes a capability. A skill is not authorization to expand the task.
-- Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope. 
-- The six-stage orchestration flow applies only to custom-agent orchestration. For direct Copilot work, follow the user's latest explicit direction; flag material risks or ask for confirmation when warranted, but do not use that workflow as an approval gate. For custom-agent orchestration, use the flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`. 
-- Similar or recurrent deviations should prompt a proposed user-owned workflow update. 
+- Explicit user limits override a skill's broader ownership: "only update skills" means no application changes, builds, or browser tests; "only the failing case" means no broader test runs until that case is repaired or the user changes scope.
+- The six-stage orchestration flow applies only to custom-agent orchestration. For direct Copilot work, follow the user's latest explicit direction; flag material risks or ask for confirmation when warranted, but do not use that workflow as an approval gate. For custom-agent orchestration, use the flow as the default risk-proportionate path, not a mandatory fit for every task. A deviation is task-specific and requires explicit user approval; record it in `docs/workflow-runs/<task-id>.md`.
+- Similar or recurrent deviations should prompt a proposed user-owned workflow update.
 
 # Subagent Defaults
 
 ## Model selection
 - Tier 1 Supervisor (Architecture, multi-file planning, final PR review)	GPT-6.1 Sol	falling back to MAI Code 2
 - Tier 1 Frontend / UI (Component generation, CSS/layout iteration)	MAI Code 2	falling back to GPT-6.1 Sol
-- Tier 2 Worker (Rapid autocomplete, boilerplate, unit tests, small bug fixes)	MAI Code 2 Flash falling back to GPT-6 Luna.	
+- Tier 2 Worker (Rapid autocomplete, boilerplate, unit tests, small bug fixes)	MAI Code 2 Flash falling back to GPT-6 Luna.
 - Unless the user specifies otherwise, select `GPT-6 Luna` for subagent work. Pass the model explicitly when the tool supports model selection.
 - If the requested model is not available, and no fallback model is available, mark the task BLOCKED and report the limitation and raise an andon event; do not substitute another model.
 - Always include this language in every subagent prompt: "Use the maximum reasoning effort available. Think deeply and rigorously, examine assumptions and edge cases, and verify your conclusions before reporting." These are prompt-level requests, not a guarantee of an underlying reasoning-effort setting.
@@ -137,3 +138,15 @@
 - ANDON shall always be a choice when asking questions.
 - Other shall always be a choice.
 - To request simple approval provide Approve/Deny/ANDON/other choices
+
+# security
+- Workers shall not ever use string interpolation ever on pain of death. Write data to temp files and use pipes or redirection to move the data into shell commands or use parameter binding and if you can not figure out how to avoid interpolation then raise an andon. STRING INTERPOLATION IS A DEFECT. ANY TYPE OF INTERPOLATION IS A POTENTIAL DEFECT DUE TO VULNERABILITY TO INJECTION ATTACKS EVEN AT BUILD TIME. DO NOT USE AD-HOC QUOTING AND ESCAPING MECHANIMS. ONLY USE TESTED AND APPROVED QUOTING AND ESCAPING METHODS. USE OF UNAPPROVED ESCAPING OR QUOTING IN COMMAND EXECUTION OR CODE OR ANYWHERE EVER IS A DEFECT AND AN ANDON. EVERY USE OF STRING INTERPOLATION REQUIRES EXPLICIT APPROVAL UNTIL FURTHER NOTICE.
+- All filenames used in shell commands SHALL be quoted and escaped with an approved mechanism. Failure to quote and escape any filename is a defect and an andon. If no approved mechanism exists, raise an andon.
+- Agents shall never use shell here-documents (`<<`) or here-strings (`<<<`) under any circumstances. Any here-document or here-string use is a defect and an andon.
+- All agent-written scripts, including temporary one-off scripts, SHALL be saved in the repository, and approval SHALL be requested from the user. Agents SHALL NOT run new scripts until they have been reviewed and the agent has received approval from the user. Agent scripts SHALL NOT be saved in temporary files. Before committing, check and suggest script for candidates for reusability. Delete scripts that are not reusable. This rule does not automatically apply to simple shell commands or short pipelines, but should apply to long or complex or high risk commands, or commands that are highly likely to be reused.
+
+<!-- - Programs shall treat all incoming 3rd party data as tainted. Tainted data shall be checked and sanitized before any further processing. Checker and sanitizer shall be hardened against injection attacks and shall be rigorously testing with fuzzing cases. Only use approved checkers and sanitizers. Raise an andon if not approved checker is available. -->
+<!-- - PII means "personally identifiable information" and is any information which could be used to identify an individual person such as names, emails, addresses, phone numbers, IP addresses, etc.
+- An exception to the PII rule is approved for project developers.
+- Agents should check tainted incoming 3rd party data for PII.
+- Agents should check outgoing data for PII before it is shared. -->
