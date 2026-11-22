@@ -8,6 +8,8 @@ agent: "agent"
 
 Use these templates only for a task after the human explicitly approves the task-scoped deviation. Replace every `<...>` placeholder. Do not treat the templates as standing approval.
 
+During candidate bootstrap, implementation is test-first and this prompt does not authorize alternative strategies. Workers may not change strategy on the fly. Strategy changes require planning or explicit human direction, not a worker's local choice. After the third unsuccessful focused attempt on the same issue, stop and ask for direction rather than switching strategy.
+
 ## 1. Human Approval Prompt
 
 ```text
@@ -54,7 +56,7 @@ Workspace isolation:
 
 You own this coherent packet end-to-end, including tests, packet-local fixtures/harnesses, production changes, relevant documentation, refactoring, and validation.
 
-1. Select the smallest approved falsifiable behavior.
+1. Use test-first and select the smallest approved falsifiable behavior.
 2. Add the smallest test.
 3. Run it and preserve evidence of the intended red result.
 4. Make the smallest production change.
@@ -64,6 +66,8 @@ You own this coherent packet end-to-end, including tests, packet-local fixtures/
 8. Update relevant documentation or record an explicit N/A.
 9. Run the approved regression checks.
 10. Return the complete diff, commands/results, exact revision, blockers, risks, and evidence.
+
+Do not change implementation strategy on the fly. After three consecutive unsuccessful fix-and-check attempts on the same unexpected issue, stop and ask for planning or explicit human direction. A proposed alternative is not authorization to start another strategy.
 
 Expected red must arise from missing behavior. Setup, syntax, stale-artifact, and infrastructure failures are not valid red results. After three consecutive unsuccessful fix-and-check attempts on the same unexpected failure, stop, preserve evidence, and raise Andon; do not make a fourth attempt.
 

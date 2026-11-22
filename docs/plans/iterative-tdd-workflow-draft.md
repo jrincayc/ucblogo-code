@@ -1,8 +1,8 @@
-# Plan: Add Iterative TDD Candidate Workflow
+# Plan: Add Adaptive Iterative Candidate Workflow
 
 Status: Draft for future refinement; not an approved or active workflow change.
 
-Build a self-contained candidate workflow from the proven legacy workflow as a compatibility and policy baseline. Do not modify or retire the legacy workflow. Combine test and code implementation into one `Implement` stage, while retaining separate Research, Plan, and Test Plan stages and approvals. Workers own coherent feature-like or bug-fix packets through tests, production code, relevant documentation, and in-scope refactoring.
+Build a self-contained candidate workflow from the proven legacy workflow as a compatibility and policy baseline. Do not modify or retire the legacy workflow. Treat Research, Plan, Test Plan, Implement, and Code Review as evidence-producing concerns connected by an explicit iterative transition graph. Combine test and code implementation into `Implement`, but select implementation and exploration strategies according to task risk and ambiguity. Workers own coherent packets through applicable tests, production code, documentation, and in-scope refactoring.
 
 ## Delivery Strategy
 
@@ -21,6 +21,7 @@ Develop and validate the candidate through the legacy workflow's proven control 
 
 - Legacy remains authoritative for Research, Plan, Test Plan, QA/review, human approvals, Andon, evidence, accounting, and push authorization during candidate construction.
 - Candidate packets use TDD: add a failing policy/static/dry-run check, make the smallest candidate change, rerun, refactor while green, and repeat.
+- This test-first mandate applies only to constructing and validating the bootstrap candidate. Workers may not change implementation strategy on the fly; strategy changes require planning or explicit human direction.
 - Candidate exercises begin as simulations/dry runs. Label them pilot/simulated evidence; do not imply candidate approvals or production authority.
 - A minimum validated candidate slice may govern only later work within its explicitly tested scope. All unproven behavior falls back to legacy.
 - A failed or unsafe bootstrap returns to legacy without blocking `wasm` or the legacy default.
@@ -63,21 +64,22 @@ Dry-run candidate behavior, complete independent acceptance through legacy gover
 
 ## Detailed Steps
 
-1. Add `.github/workflows/development-orchestration-candidate.md` as a self-contained contract with `Research -> Plan -> Test Plan -> Implement -> Code Review`. Leave the legacy contract untouched.
-2. Reuse legacy Research, Plan, Test Plan, QA/review, human approval, Andon, evidence, accounting, and push controls while bootstrapping the candidate.
-3. Define combined candidate `Implement` as worker-owned TDD: smallest test -> valid red -> smallest code/docs change -> green -> refactor while green -> focused and regression checks.
-4. Make workers own packet-local tests, harnesses, production changes, relevant documentation, and in-scope refactoring. Research/Plan/Test Plan identify documentation obligations, and review/QA verify them.
-5. Define coherent feature-like or bug-fix packets with exact files/symbols, behavior, acceptance criteria, tests, docs, checks, dependencies, effort-derived timebox, branch/worktree, outputs, and owners.
-6. Plan shared harnesses and fixtures as one-owner prerequisite tasks; track file, symbol, fixture, harness, and documentation ownership.
-7. Use a uniquely named temporary branch/worktree for each worker from the exact assigned base. Workers may make small reviewed commits but shall not push, merge, fast-forward, rebase, or advance the target branch.
-8. Integrate reviewed patches or commit ranges as new integration commits. Mechanical patch conflicts may be resolved; behavioral, scope, or dependency conflicts follow Andon.
-9. Derive packet timeboxes with `min(estimated effort × 1.5, 30 minutes)` and a halfway checkpoint. Oversized packets are decomposed or BLOCKED; the earlier limit triggers Andon without a handoff.
-10. Preserve three-strikes: after an unexpected failure or broken build, no more than three focused fix-and-check attempts. The third failure preserves evidence and raises Andon. Expected red is not a strike.
-11. Cross-worker refactors use ownership detection, affected-line pauses, one bounded proposal/counterproposal round, one writer, and scoped Andon when consensus or scope remains unresolved.
-12. Behavior-preserving production/test refactors stay within Implement; broader API, architecture, ownership, dependency, acceptance, or output changes reopen Plan.
-13. Develop the candidate itself test-first under legacy governance: add a failing policy/static/dry-run check, make the smallest candidate change, rerun, refactor while green, and label unaccepted results pilot/simulated.
-14. Add candidate orchestrator/worker/reviewer/QA roles and any other candidate role needed for unambiguous self-contained operation.
-15. At cutover, change only default/workflow selection and verify every legacy artifact remains byte-for-byte unchanged. Legacy retirement remains a separate future plan.
+1. Add a self-contained candidate contract with an explicit transition graph, adaptive profiles, selectable implementation strategies, issue counters, Andon triage, structured questions, and post-edit formatting.
+2. Add separate workflow-independent pool contracts and tunable defaults rather than fixed model/effort/concurrency in workflow text.
+3. Define worker-local exploration for low-risk packets and centralized Research spikes for high-risk uncertainty.
+4. Keep bootstrap implementation test-first. Do not expose alternative implementation strategies as current bootstrap choices; defer broader strategy selection to a later approved phase.
+5. Make workers own packet-local tests, harnesses, production changes, relevant documentation, and in-scope refactoring. Research/Plan/Test Plan identify documentation obligations, and review/QA verify them.
+6. Define coherent feature-like or bug-fix packets with exact files/symbols, behavior, acceptance criteria, tests, docs, checks, dependencies, effort-derived timebox, branch/worktree, outputs, and owners.
+7. Plan shared harnesses and fixtures as one-owner prerequisite tasks; track file, symbol, fixture, harness, and documentation ownership.
+8. Use a uniquely named temporary branch/worktree for each worker from the exact assigned base. Workers may make small reviewed commits but shall not push, merge, fast-forward, rebase, or advance the target branch.
+9. Integrate reviewed patches or commit ranges as new integration commits. Mechanical patch conflicts may be resolved; behavioral, scope, or dependency conflicts follow Andon.
+10. Derive packet timeboxes with `min(estimated effort × 1.5, 30 minutes)` and a halfway checkpoint. Oversized packets are decomposed or BLOCKED; the earlier limit triggers Andon without a handoff.
+11. Preserve three-strikes: after an unexpected failure or broken build, no more than three focused fix-and-check attempts. The third failure preserves evidence and raises Andon. Expected red is not a strike.
+12. Cross-worker refactors use ownership detection, affected-line pauses, one bounded proposal/counterproposal round, one writer, and scoped Andon when consensus or scope remains unresolved.
+13. Behavior-preserving production/test refactors stay within Implement; broader API, architecture, ownership, dependency, acceptance, or output changes reopen Plan.
+14. Develop the candidate itself test-first under legacy governance: add a failing policy/static/dry-run check, make the smallest candidate change, rerun, refactor while green, and label unaccepted results pilot/simulated.
+15. Add candidate orchestrator/worker/reviewer/QA roles and any other candidate role needed for unambiguous self-contained operation.
+16. At cutover, change only default/workflow selection and verify every legacy artifact remains byte-for-byte unchanged. Legacy retirement remains a separate future plan.
 
 ## Candidate Files To Add Or Evaluate
 
@@ -98,18 +100,18 @@ Dry-run candidate behavior, complete independent acceptance through legacy gover
 
 ## Verification / QA Checklist
 
-1. Candidate contract is self-contained and never imports or mixes the legacy stage contract.
+1. Workflow and pool boundaries are self-contained and distinct.
 2. Legacy workflow files remain unchanged through development and acceptance; cutover changes selection only.
-3. Exactly one workflow is selected per task, with explicit fallback.
-4. Plan and Test Plan remain separate; only implementation is combined.
-5. Workers own tests, packet-local harnesses/fixtures, production code, docs, and local refactors.
-6. Research, Plan, Test Plan, Implement, Review, and QA have explicit documentation duties.
-7. Packets cover features, bug fixes, refactors, performance, compatibility, UI/accessibility, and documentation-only work.
-8. Expected-red failures do not count as strikes; three unsuccessful fix-and-check attempts trigger Andon.
-9. Temporary branches, patch-only integration, and no merge/fast-forward/rebase rules are consistent.
-10. Effort-derived timeboxes, halfway checkpoints, and the 30-minute cap are dry-run-tested.
-11. Cross-worker production/test refactors use one writer, bounded consensus, affected-line pauses, and scoped Andon.
-12. Bootstrap work uses legacy governance and labels unaccepted candidate evidence pilot/simulated.
+3. Lean, balanced, and risk-first behavior is tunable without workflow edits or deviations.
+4. Generic pool model, effort, concurrency, and locality settings are independently configurable.
+5. Legitimate re-entry is recorded as rework, not deviation; actual exceptions remain deviations; defects/systemic blockers remain Andon.
+6. Third failed issue iteration triggers Andon and automatic read-only QA triage, with no fourth attempt before explicit resolution.
+7. `askQuestions` behavior matches repository instructions, including mandatory `ANDON`/`Other` and approval choices.
+8. Formatting happens immediately after edits, before checks, and is never performed by a mutating pre-commit hook.
+9. Expected-red and inconclusive exploration do not count as strikes.
+10. Both centralized and worker-local exploration remain bounded and evidence-producing.
+11. Plan and Test Plan remain separate; Implement combines applicable tests, code, docs, and local refactoring.
+12. Temporary branches, patch-only integration, and conflict/Andon rules remain consistent.
 13. Acceptance/cutover leaves legacy intact; retirement remains future work.
 14. Estimates, candidate paths, ownership, dependencies, and validation are actionable and consistent.
 
@@ -127,12 +129,12 @@ Dry-run candidate behavior, complete independent acceptance through legacy gover
 
 ## Decisions
 
-- Plan and Test Plan remain separate.
-- Implement combines tests, production code, relevant docs, and in-scope refactoring.
-- Workers own coherent packets end-to-end, barring shared dependencies and explicit exceptions.
-- Small checked increments and local commits occur inside packets without replanning.
-- Candidate development itself uses TDD under legacy governance.
-- Temporary worker branches integrate only through reviewed patch/commit-range application.
-- Candidate acceptance switches the default but leaves legacy untouched; retirement is future work.
+- Stages are evidence concerns in an iterative transition graph, not a mandatory straight line.
+- TDD is mandatory for candidate bootstrap; broader execution strategies are deferred to a later approved phase.
+- Workers may not change bootstrap strategy on the fly; only planning or explicit human direction can authorize a change.
+- The worker pool is generic and below the workflow; roles, models, effort, and parallelism are configurable.
+- Candidate-compliant iteration is rework in the transition log, not deviation.
+- Third failed iteration triggers Andon and automatic low-effort read-only QA triage.
+- Structured questions and immediate post-edit formatting are explicit requirements.
 
-<!-- Co-authored by GitHub Copilot. Scope: draft iterative TDD candidate workflow plan. Model: MAI Code 2; reasoning-effort setting unavailable. Energy (kWh) and CO2: unavailable; no measured data or defensible estimation inputs available. -->
+<!-- Co-authored by GitHub Copilot. Scope: adaptive iterative candidate workflow plan. Model: MAI Code 2; reasoning-effort setting unavailable. Energy (kWh) and CO2e: unavailable; no measured data or defensible estimation inputs available. -->
