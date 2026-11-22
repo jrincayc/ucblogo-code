@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { canonicalJson, git, repositoryRoot, unavailableRecord, readRecord } = require('../../scripts/copilot-accounting.js');
+
+try {
+  const root = repositoryRoot();
+  const gitDir = git(['-C', root, 'rev-parse', '--absolute-git-dir']);
+  const dir = path.join(gitDir, 'copilot-accounting');
+  const candidate = path.join(dir, 'candidate.json');
+  const supplied = process.env.COPILOT_ACCOUNTING_CANDIDATE;
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const record = supplied ? readRecord(path.resolve(supplied)) : unavailableRecord({
+    root,
+    taskId: process.env.COPILOT_ACCOUNTING_TASK_ID || 'unknown-task',
+    editorName: process.env.COPILOT_ACCOUNTING_EDITOR || 'GitHub Copilot',
+    model: process.env.COPILOT_ACCOUNTING_MODEL || 'unavailable',
+    reasoningEffort: process.env.COPILOT_ACCOUNTING_REASONING_EFFORT || 'unavailable',
+    githubLogin: process.env.COPILOT_ACCOUNTING_GITHUB_LOGIN || 'unknown',
+    billingSource: process.env.COPILOT_ACCOUNTING_BILLING_SOURCE || 'unavailable',
+  });
+  const temporary = `${candidate}.${process.pid}.tmp`;
+  fs.writeFileSync(temporary, `${canonicalJson(record)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+  fs.renameSync(temporary, candidate);
+} catch (error) {
+  try {
+    const root = repositoryRoot();
+    const gitDir = git(['-C', root, 'rev-parse', '--absolute-git-dir']);
+    const candidate = path.join(gitDir, 'copilot-accounting', 'candidate.json');
+    fs.rmSync(candidate, { force: true });
+  } catch {}
+  process.stderr.write(`Copilot accounting pre-commit failed: ${error.message}\n`);
+  process.exitCode = 1;
+}

@@ -1,40 +1,34 @@
 ---
 name: agent-usage-reporting
-description: "Use when: reading, summarizing, or attributing GitHub Copilot agent usage costs from docs/accounting/agent-usage-ledger.md, including granular product/SKU, checkpoint, date, and Git commit breakdowns."
+description: "Use when: reading, summarizing, or attributing GitHub Copilot agent usage costs from commit-message accounting blocks, including granular product/SKU, checkpoint, date, and Git commit breakdowns."
 ---
 
 # Agent Usage Reporting
 
-Use `scripts/report-agent-usage.py` for repeatable, read-only usage analysis. Do not edit the ledger or make billing estimates from incomplete data.
+Use `scripts/report-agent-usage-v2.js` or the read-only Python compatibility wrapper `scripts/report-agent-usage.py` for commit-native usage analysis. Do not create or append to a ledger and do not make billing estimates from incomplete data.
 
 ## Workflow
 
 1. Run the reporter from the repository root:
-   - Current day: `python3 scripts/report-agent-usage.py`
-   - Explicit UTC/date range: `python3 scripts/report-agent-usage.py --since '2026-11-20T00:00:00Z' --until '2026-11-21T00:00:00Z'`
-   - Alternate ledger: pass `--ledger PATH`.
-2. Report the latest cumulative gross, discount, net, and product/SKU rollup.
-3. List snapshot-to-snapshot net deltas in timestamp order.
-4. Attribute each interval to the commit/HEAD recorded by the preceding snapshot.
-5. Distinguish measured API values from authoritative user-supplied billing UI values and blocked/unavailable measurements.
-6. When a snapshot lacks a detailed rollup, do not invent one.
-7. State that account-level cumulative deltas are temporal commit attribution, not proof of causal cost ownership.
-8. Apply the repository's approved CO2e rule only to monetary cost: `dollars * 0.20`; label it as an estimate rather than measured emissions.
+   - Default commit range: `node scripts/report-agent-usage-v2.js --repo .`
+   - Exact PR range: `node scripts/report-agent-usage-v2.js --repo . --range BASE..HEAD`
+   - Explicit UTC/date range: `node scripts/report-agent-usage-v2.js --repo . --since '2026-11-20T00:00:00Z' --until '2026-11-22T00:00:00Z'`
+   - Concise issue summary: add `--issue`.
+2. Report commit count, gross, discount, net, product/SKU/model rollups, and unavailable caveats.
+3. Deduplicate `accounting_id` values across the exact range.
+4. Distinguish measured API values from authoritative user-supplied billing UI values and unavailable or blocked measurements.
+5. When a commit lacks a valid accounting block, fail closed or use the explicit unavailable fallback; do not invent a value.
+6. State that account-level totals are temporal attribution, not proof that a commit caused the usage.
+7. Apply the repository's approved CO2e rule only to available net monetary usage: `dollars * 0.20`; label it as an estimate rather than measured emissions.
 
-## Output Shape
+## Commit Format
 
-Include these sections when data is available:
+Accounting blocks are appended to commit messages by the managed hooks:
 
-- Reporting period and source
-- Latest cumulative total
-- Product/SKU breakdown
-- Snapshot progression
-- Git commit attribution
-- Measured interval total
-- Estimated CO2e
-- Balance or remaining-budget line
-- Data limitations and ordering caveats
+- `COPILOT-ACCOUNTING-BEGIN v1`
+- exactly one canonical UTF-8 JSON object
+- `COPILOT-ACCOUNTING-END`
 
-Preserve nine decimal places for ledger currency values. Deduplicate identical snapshots for analysis, but never alter or reorder the append-only ledger.
+The JSON object is the machine-readable source. Human-readable totals are redundant and must not be parsed as accounting source.
 
 <!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->

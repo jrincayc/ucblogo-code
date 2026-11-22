@@ -64,17 +64,19 @@ test('PostToolUse ignores read-only tools and unsupported files', (t) => {
     assert.equal(fs.readFileSync(source, 'utf8'), 'const value = 1;   \n');
 });
 
-test('PostToolUse warns and skips a binary Markdown file', (t) => {
+test('PostToolUse prefilters and skips a binary Markdown file without warning', (t) => {
     const root = tempGitRoot(t);
     const file = path.join(root, 'binary.md');
-    fs.writeFileSync(file, Buffer.from([0x41, 0x00, 0x42]), 'binary');
+    const binary = Buffer.from([0x41, 0x00, 0x42]);
+    fs.writeFileSync(file, binary, 'binary');
 
     const output = runHook(root, 'post', {
         tool_name: 'create_file',
         tool_input: { filePath: file },
     });
 
-    assert.match(output.systemMessage, /binary or invalid UTF-8/);
+    assert.equal(output, null);
+    assert.deepEqual(fs.readFileSync(file), binary);
 });
 
 test('Stop hook formats changed and untracked Markdown files', (t) => {

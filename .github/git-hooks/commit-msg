@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { attach, git, parseMessage, readRecord, repositoryRoot, unavailableRecord } = require('../../scripts/copilot-accounting.js');
+
+try {
+  if (process.env.COPILOT_ACCOUNTING_DRY_RUN === '1') process.exit(0);
+  const messageFile = path.resolve(process.argv[2] || '');
+  if (!messageFile) throw new Error('commit message file argument is required');
+  const root = repositoryRoot();
+  const gitDir = git(['-C', root, 'rev-parse', '--absolute-git-dir']);
+  const candidateFile = path.join(gitDir, 'copilot-accounting', 'candidate.json');
+
+  const original = fs.readFileSync(messageFile, 'utf8');
+  const parsed = parseMessage(original);
+  let record;
+  if (fs.existsSync(candidateFile)) {
+    record = readRecord(candidateFile);
+  } else if (fs.existsSync(path.join(gitDir, 'MERGE_HEAD'))) {
+    record = unavailableRecord({ root, taskId: 'merge-commit' });
+  } else {
+    throw new Error('accounting candidate is missing; run the pre-commit hook first');
+  }
+
+  const updated = attach(original, parsed.record || record);
+  parseMessage(updated);
+  const temporary = `${messageFile}.copilot-accounting.${process.pid}.tmp`;
+  fs.writeFileSync(temporary, updated, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+  fs.renameSync(temporary, messageFile);
+  parseMessage(fs.readFileSync(messageFile, 'utf8'));
+  fs.rmSync(candidateFile, { force: true });
+} catch (error) {
+  process.stderr.write(`Copilot accounting commit-msg failed: ${error.message}\n`);
+  process.exitCode = 1;
+}

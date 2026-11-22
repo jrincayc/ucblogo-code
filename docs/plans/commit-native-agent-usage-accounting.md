@@ -104,4 +104,31 @@ Dependencies: B and A converge on a typed record interface; C consumes that reco
 2. Keep the human summary intentionally redundant and validate it against JSON to catch drift, but never infer machine values from prose.
 3. Before deleting the ledger, preserve a checksum and migration report in the implementation commit/commit accounting metadata so auditors can locate the prior history in Git.
 
-<!-- Co-authored by GitHub Copilot. Model: MAI Code 2; reasoning-effort setting unavailable. -->
+## Parallel Implementation Map
+
+### Scheduling controls
+
+- Task-scoped deviation: medium effort and medium-effort language. The map is concise and complete, not rushed or under-decomposed.
+- Host model and reasoning-effort metadata are unavailable and must not be claimed.
+- Base: `0b763a9241a0d8a2a48dd8952ca9896df008ca03`, branch `wasm`. This map does not authorize implementation or bypass the required stage gates.
+- Worktrees: `/tmp/copilot/CNAA-2026-11-22/wt-<packet>/`; integration: `/tmp/copilot/CNAA-2026-11-22/integration/`. The orchestrator owns integration, and no two workers edit the same file.
+- Packet owners run focused validation and return patch evidence. Development Reviewer reviews exact packet or staged content. Development Lead owns integration and commits; Development QA gives one aggregate stage verdict; no worker advances a gate alone.
+
+### Test Plan handoff and test packets
+
+| Packet | Worktree / exact ownership | Inputs, dependencies, readiness | Focused validation and exact output | Reviewer / commit owner |
+|---|---|---|---|---|
+| `CNAA-TP-01` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-TP-01/`; `docs/plans/commit-native-agent-usage-accounting-test-plan.md` | Revised Plan QA and explicit human Plan approval; serial. | Create only the approved Test Plan: cases, fixtures, setup/teardown, commands, and regression scope. No test or implementation code. | Development QA; Development Lead. |
+| `CNAA-T-A1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-A1/`; `scripts/copilot-accounting-contract.test.js`, `tests/fixtures/copilot-accounting-v1/` | Approved TP; ready and parallel with B1/D1/E1/F1. | `node --test scripts/copilot-accounting-contract.test.js`: field order/types, decimal strings, null reasons, exact markers, malformed/duplicate blocks, shell/marker fuzz. | Development Reviewer; Development Lead. |
+| `CNAA-T-B1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-B1/`; `scripts/copilot-accounting-collector.test.js`, `tests/fixtures/copilot-accounting-collector/` | Approved TP and frozen typed-record contract; ready and parallel with A1/D1/E1/F1. | `node --test scripts/copilot-accounting-collector.test.js`: provenance, rollups, unavailable state, privacy filtering, deterministic identity, no secret/prompt persistence. | Development Reviewer; Development Lead. |
+| `CNAA-T-C1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-C1/`; `.github/hooks/copilot-accounting.test.js` | A1/B1 contracts pass; blocked until then, serial after both. | `node --test .github/hooks/copilot-accounting.test.js`: normal/amend/merge, unavailable, duplicate/concurrent invocation, invalid/privacy failures, exactly one block. | Development Reviewer; Development Lead. |
+| `CNAA-T-D1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-D1/`; `scripts/migrate-agent-usage-ledger.test.py`, `tests/fixtures/ledger-migration/` | Approved TP; synthetic fixtures; ready and parallel. | `python3 scripts/migrate-agent-usage-ledger.test.py`: reconciled versus `UNRESOLVED`, checksum/report, malformed history. | Development Reviewer; Development Lead. |
+| `CNAA-T-E1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-E1/`; `scripts/report-agent-usage.test.py`, `tests/fixtures/cnaa-reports/` | Approved TP plus A1 parser contract; ready and parallel. | `python3 scripts/report-agent-usage.test.py`: commit range, deduplication, provenance, unavailable fallback, PR totals, issue summary. | Development Reviewer; Development Lead. |
+| `CNAA-T-F1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-T-F1/`; `.github/hooks/format-whitespace.test.js`, `scripts/format-whitespace.test.js` | Approved TP; ready and parallel. | `node --test scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js`: outside/deleted/generated/protected paths, ledger text, special-character strings, no expected-exclusion warning. | Development Reviewer; Development Lead. |
+
+### Implementation packets
+
+| Packet | Worktree / exact ownership | Inputs, dependencies, readiness | Focused validation and exact output | Reviewer / commit owner |
+|---|---|---|---|---|
+| `CNAA-I-A1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-I-A1/`; `docs/schemas/copilot-accounting-v1.schema.json`, `scripts/copilot-accounting-contract.js` | Red A1 test passes as red baseline; implementation Wave 1. | `node --test scripts/copilot-accounting-contract.test.js`: versioned schema, fixed canonical fields, serializer/parser, exact markers, decimal/null rules, special-character safety. | Development Reviewer; Development Lead. |
+| `CNAA-I-B1` | `/tmp/copilot/CNAA-2026-11-22/wt-CNAA-I-B1/`; `scripts/copilot-accounting-collector.js` | Red B1 test passes as red baseline; frozen I-A1 typed-record interface; implementation Wave 1. | `node --test scripts/copilot-accounting-collector.test.js`: normalized record, API/UI provenance, rollups, privacy filter, deterministic identity, unavailable nulls/reasons. | Development Reviewer; Development Lead. |

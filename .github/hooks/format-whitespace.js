@@ -3,10 +3,12 @@
 
 // Co-authored by GitHub Copilot (MAI Code 2 Flash, reasoning effort: max).
 
+const fs = require('node:fs');
 const path = require('node:path');
 const {
     formatPaths,
     changedPaths,
+    TARGET_EXTENSIONS,
 } = require('../../scripts/format-whitespace.js');
 
 const DEFAULT_ROOT = path.resolve(__dirname, '..', '..');
@@ -60,6 +62,33 @@ function collectPaths(value, found = []) {
     return [...new Set(found)];
 }
 
+function isInside(root, file) {
+    const relative = path.relative(root, file);
+    return relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+}
+
+function eligiblePostToolPath(root, candidate) {
+    const absolute = path.resolve(root, candidate);
+    if (!isInside(root, absolute) || !fs.existsSync(absolute)) return false;
+    let stat;
+    try {
+        stat = fs.statSync(absolute);
+    } catch {
+        return false;
+    }
+    if (!stat.isFile()) return false;
+    let real;
+    try {
+        real = fs.realpathSync.native(absolute);
+    } catch {
+        return false;
+    }
+    if (!isInside(root, real) || !TARGET_EXTENSIONS.has(path.extname(real).toLowerCase())) return false;
+    const relative = path.relative(root, real).replaceAll(path.sep, '/');
+    if (relative === 'docs/accounting/agent-usage-ledger.md' || relative.startsWith('.git/') || relative.startsWith('node_modules/') || relative.startsWith('reports/') || relative.startsWith('screenshots/')) return false;
+    return !fs.readFileSync(real).includes(0);
+}
+
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => { raw += chunk; });
@@ -79,7 +108,9 @@ process.stdin.on('end', () => {
         paths = changedPaths(ROOT);
     } else {
         if (isReadOnlyRequest(input)) return;
-        paths = collectPaths(input).map((file) => path.resolve(ROOT, file));
+        paths = collectPaths(input)
+            .map((file) => path.resolve(ROOT, file))
+            .filter((file) => eligiblePostToolPath(ROOT, file));
     }
 
     if (!paths.length) return;
@@ -103,4 +134,4 @@ process.stdin.on('end', () => {
     }
 });
 
-module.exports = { collectToolNames, isReadOnlyRequest, collectPaths };
+module.exports = { collectToolNames, isReadOnlyRequest, collectPaths, eligiblePostToolPath };

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jrincayc/ucblogo-code/copilot-accounting-v1.schema.json",
+  "title": "Commit-native Copilot accounting v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "accounting_id", "checkpoint", "editor", "account", "generated_at", "parent_revision", "reporting_window", "billing", "totals", "included_credits", "additional_budget", "product_sku_totals", "model_totals", "co2e", "relationship"],
+  "properties": {
+    "schema_version": { "const": "1" },
+    "accounting_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "checkpoint": { "enum": ["start", "pre-commit", "andon", "significant-event", "end", "implementation"] },
+    "generated_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "parent_revision": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "editor": { "$ref": "#/$defs/attribution" },
+    "account": { "$ref": "#/$defs/attributionAccount" },
+    "reporting_window": { "type": "object" },
+    "billing": { "type": "object" },
+    "totals": { "type": "object" },
+    "included_credits": { "type": "object" },
+    "additional_budget": { "type": "object" },
+    "product_sku_totals": { "type": "array" },
+    "model_totals": { "type": "array" },
+    "co2e": { "type": "object" },
+    "relationship": { "type": "object" }
+  },
+  "$defs": {
+    "attribution": { "type": "object", "additionalProperties": false, "required": ["name", "model", "reasoning_effort"] },
+    "attributionAccount": { "type": "object", "additionalProperties": false, "required": ["github_login", "billing_source"] },
+    "money": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.[0-9]{2}$" }
+  }
+}

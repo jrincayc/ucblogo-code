@@ -30,7 +30,11 @@
     "test:autocomplete:phone": "node tests/acceptance/run-testcafe.js --browser 'chrome:headless:emulation:width=390;height=844;mobile=true;touch=true' --fixture 'Logo word autocompletion'",
     "format:whitespace": "node scripts/format-whitespace.js --changed",
     "format:whitespace:check": "node scripts/format-whitespace.js --check --changed",
-    "test:format:whitespace": "node --test scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js"
+    "test:format:whitespace": "node --test scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js",
+    "test:accounting": "node --test scripts/copilot-accounting-contract.test.js scripts/copilot-accounting-collector.test.js .github/hooks/copilot-accounting.test.js scripts/report-agent-usage.test.js scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js && python3 scripts/migrate-agent-usage-ledger.test.py && node scripts/report-agent-usage-v2.js --repo .",
+    "test:accounting:contract": "node --test scripts/copilot-accounting-contract.test.js scripts/copilot-accounting-collector.test.js",
+    "test:accounting:hooks": "node --test .github/hooks/copilot-accounting.test.js",
+    "test:accounting:reports": "node --test scripts/report-agent-usage.test.js && python3 scripts/migrate-agent-usage-ledger.test.py"
   },
   "author": "",
   "license": "ISC",
