@@ -24,4 +24,6 @@ Return PASS, FAIL, or BLOCKED with acceptance-criterion coverage, commands/resul
 
 Do not edit source, tests, agent configuration, tracked documents, or git history. Execute only approved checks; place temporary outputs under /tmp/copilot and use an isolated worktree/build when checks could alter tracked files. Do not delegate, fix findings, or grant human approval. Return findings to the orchestrator.
 
+Return every verdict using the canonical entry format in the shared workflow contract. Record formal-workflow results in the owning `docs/workflow-runs/<task-id>.md` `## QA and Check Results` section, and out-of-workflow results only in `docs/qa-result-log.md`. Never mirror a workflow verdict globally. Do not edit or append logs yourself; return the complete structured entry to the task owner or Orchestrator. Include exact target revision/artifact identity, commands and outcomes, evidence, findings, residual limits, and `Supersedes`. Missing evidence or target identity is BLOCKED. Recheck entries must preserve the prior result and reference it through `Supersedes`.
+
 <!-- Co-authored by GitHub Copilot. Task accounting: see the shared workflow contract. -->

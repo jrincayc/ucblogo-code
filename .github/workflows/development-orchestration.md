@@ -105,4 +105,31 @@ Finish only after code review, final QA, and human sign-off. Report changes, com
 
 Validate frontmatter with a YAML parser, unique role names, resolvable direct-assignment targets and contract links, explicit model/effort settings, terminal roles without agent-launch tools, the hard total cap of 8, and the soft concurrent-agent maximum of 8. Dry-run all six stages on a human-selected small task. Exercise the active-instance ledger at the hard cap and confirm it blocks an assignment that would exceed the cap; verify the soft maximum can be lowered for resource limits and is not treated as a target. Exercise normal single-attempt iteration, current-gate rejection, an escaped defect after gate approval, three-failure escalation, implementation-stage excessive ambiguity and human-directed reopening, expected-red tests, unavailable models, direct-assignment unavailability remaining BLOCKED, and scope changes. Verify test specifications and deterministic mock-data handoffs where appropriate. Exercise proposed-artifact review before Plan approval/advancement to Test Plan and rendered-result review after implementation before Code Review; include QA and human gates. For code/test stages, exercise owner-focused checks and independent Development Reviewer coverage at substeps without routine QA holds, followed by one aggregate stage QA review bound to the final commit range/hash; exercise the existing substep and commit QA cadence for non-code work. Also exercise a QA FAIL/repair loop without per-attempt QA, and an earlier scoped QA check only for an explicit request, pre-agreed risk trigger, or active escalation/Andon. Exercise a full pause on network interruption with recovery only on passive recovery, success of a necessary ordinary operation, or user confirmation; cloud assignment with minimal transfer; resource-limited scheduling, including the soft preference to stagger obvious concurrent compilation starts when practical without requiring strict serialization; and a proposed push that remains blocked until exact-scope human approval. Static checks do not replace runtime dry-run evidence.
 
+## QA and Check Result Logging
+
+- Formal workflow checks belong in `docs/workflow-runs/<task-id>.md`, under `## QA and Check Results`. Out-of-workflow checks belong only in `docs/qa-result-log.md`; do not mirror workflow results into the global log.
+- Use one H3 entry per check. Multiple subcommands may share an entry only when they are one atomic validation target against one exact revision and produce one disposition. Split findings or dispositions that have different targets or independent outcomes into separate entries.
+- The Orchestrator assigns one owner to append each out-of-workflow entry to `docs/qa-result-log.md`; do not have multiple agents edit that file concurrently. The assigned owner serializes the append and verifies its final placement and whitespace. Reviewers and QA return their structured entries to that owner rather than writing the global log themselves.
+
+  `### QA-YYYY-MM-DD-NNN — <check purpose>`
+
+  - `UTC timestamp: ...`
+  - `Task/session: ...`
+  - `Stage/scope: ...`
+  - `Check type: Focused owner check | Independent reviewer check | Independent QA | Proposed visual review | Rendered visual review`
+  - `Owner/checker: ...`
+  - `Result: PASS | FAIL | BLOCKED | N/A`
+  - `Target revision/artifact: ...`
+  - `Commands/method: ...`
+  - `Evidence: ...`
+  - `Findings/corrections: ...`
+  - `Residual risks/limits: ...`
+  - `Supersedes: QA-... | None`
+
+- Assign one unique, sortable result ID per entry. Use `N/A` only for an explicitly reasoned non-applicability decision.
+- Name exact commit hashes/ranges or SHA-256 artifacts, plus runtime/build identity and browser details when applicable. Missing evidence or unknown targets are `BLOCKED`, never inferred `PASS`.
+- Corrections append a new entry and reference the original through `Supersedes`; preserve both entries. The later result does not erase an earlier `FAIL` or `BLOCKED`.
+- The global log is append-only and manually maintained. It has no parser, lock script, hook, migration, or automation in this change. Keep secrets and unnecessary personal data out of entries.
+- Historical workflow-run records remain unchanged; future records use this format. Reviewers and QA return structured findings to the owner and do not edit reviewed artifacts or result logs themselves.
+
 <!-- Co-authored by GitHub Copilot. Scope: development orchestration agents and contract. Partial measured task wall-clock: 5m06s (19:31:49-19:36:55 EST; excludes initial review). Energy (kWh) and CO2: unavailable; no measured telemetry or defensible estimation inputs. -->
