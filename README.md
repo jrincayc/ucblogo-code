@@ -40,7 +40,7 @@ Here is an overview of the repository:
 
 The executable file in this distribution includes libraries from the
 [wxWidgets project](http://wxwidgets.org/).  The Microsoft Windows version
-is distributed with runtime library libgcc_s_dw2-1.dll and libstdc++-6.dll,
+is distributed with runtime library libgcc_s_seh-1.dll and libstdc++-6.dll,
 from the [MinGW project](http://www.mingw.org/).
 Those libraries are also covered by the Gnu GPL.  We
 do not distribute their source code; you can download it from their

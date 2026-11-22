@@ -82,7 +82,7 @@ ship:
 install_win: all
 	for d in $(BINDIR) $(LIBLOC) $(LIBLOC)/logolib $(LIBLOC)/helpfiles $(LIBLOC)/csls $(LIBLOC)/source; do [ -d $$d ] || mkdir -p $$d || exit 1; done
 	cp logo.exe $(BINDIR)/ucblogo.exe
-	cp $(MINGW_BIN_DIR)/libgcc_s_dw2-1.dll $(MINGW_BIN_DIR)/libstdc++-6.dll $(MINGW_BIN_DIR)/libwinpthread-1.dll $(BINDIR)/
+	cp $(MINGW_BIN_DIR)/libgcc_s_seh-1.dll $(MINGW_BIN_DIR)/libstdc++-6.dll $(MINGW_BIN_DIR)/libwinpthread-1.dll $(BINDIR)/
 	cp -f logolib/* $(LIBLOC)/logolib/.
 	mv -v $(LIBLOC)/logolib/RENAME-GRAVE-ACCENT '$(LIBLOC)/logolib/`'
 	mv -v $(LIBLOC)/logolib/RENAME-NUMBER-SIGN '$(LIBLOC)/logolib/#'
@@ -102,7 +102,7 @@ ucblogo.zip : logo.exe
 	mkdir -p UCBLogo
 	cp logo.exe UCBLogo/
 	cp -a logolib UCBLogo/
-	cp /mingw/bin/libgcc_s_dw2-1.dll /mingw/bin/libstdc++-6.dll UCBLogo/
+	cp $(MINGW_BIN_DIR)/libgcc_s_seh-1.dll $(MINGW_BIN_DIR)/libstdc++-6.dll $(MINGW_BIN_DIR)/libwinpthread-1.dll UCBLogo/
 	zip -r ucblogo.zip UCBLogo
 #Note, to figure out which dlls are needed, use:
 #  objdump.exe -x logo.exe | grep -i 'DLL Name'

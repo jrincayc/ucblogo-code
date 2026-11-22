@@ -93,16 +93,17 @@ jobs:
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-x86_64-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Install Dependencies
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW32
+        msystem: MINGW64
         install: >
           git
           base-devel
-          mingw-w64-i686-toolchain
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-make
           unzip
     - name: Download wxWidgets
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
@@ -300,18 +301,19 @@ jobs:
     - name: Install Dependencies
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW32
+        msystem: MINGW64
         install: >
           git
           base-devel
-          mingw-w64-i686-toolchain
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-make
           unzip
     - name: wxWidgets Cache
       uses: actions/cache@v4
       id: wxwidgets-cache
       with:
         path: ${{ runner.temp }}\wxWidgets-${{ env.WX_WIDGETS_VERSION }}
-        key: ${{ runner.os }}-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
+        key: ${{ runner.os }}-x86_64-wxWidgets-${{ env.WX_WIDGETS_VERSION }}
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:

@@ -1,7 +1,7 @@
 #/bin/bash -v
 
-export PATH=/mingw32/bin:$PATH
-export MINGW_BIN_DIR=/mingw32/bin
+export PATH=/mingw64/bin:$PATH
+export MINGW_BIN_DIR=/mingw64/bin
 export WX_DIR=/home/User/wxWidgets-3.2.2.1
 
 # dangerous; stash changes first
