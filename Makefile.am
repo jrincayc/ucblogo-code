@@ -231,7 +231,6 @@ ucblogo.html: $(ucblogo_OBJECTS) shell.html pre.js logo-inspect.js storage-statu
 	--embed-file logologo.ico \
 	--embed-file webstartup.lg@/share/ucblogo/logolib/startup.lg \
 	-s ALLOW_MEMORY_GROWTH \
-	--emrun \
 	-s ENVIRONMENT=web \
 	-s STRICT_JS \
 	-s EMIT_PRODUCERS_SECTION \
