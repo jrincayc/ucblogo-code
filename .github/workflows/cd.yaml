@@ -103,6 +103,7 @@ jobs:
           git
           base-devel
           mingw-w64-i686-toolchain
+          mingw-w64-i686-make
           unzip
     - name: Download wxWidgets
       if: steps.wxwidgets-cache.outputs.cache-hit != 'true'
@@ -305,6 +306,7 @@ jobs:
           git
           base-devel
           mingw-w64-i686-toolchain
+          mingw-w64-i686-make
           unzip
     - name: wxWidgets Cache
       uses: actions/cache@v4
