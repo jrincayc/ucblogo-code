@@ -15,7 +15,7 @@ Paths below are relative to the repository root. Verify symbols, recipes, prereq
 | Evaluator | `eval.c`, `eval.h`, `logo.h`, `coms.c`: labels, registers, stacks/save/restore, continuations, tail calls, dynamic binding and control primitives. |
 | Errors/nonlocal exit | `error.c`, `coms.c`, entry points: error recovery, throw/catch, pause/stop and restored state. |
 | Memory/data | `mem.c`, `logo.h`, `logodata.c`, `lists.c`, `intern.c`: NODE/sentinel/string/array representation, allocation, segments, roots, mark/sweep, generations/oldyoung, write barriers. |
-| GC debug aids | `gdb.rc`, `address-sanitizer.txt`, `mem.c`, `pre.js`: `logo_gc_debug_*` exports and `Module.logoGC`; inspect at safe runtime states. |
+| GC debug aids | `gdb.rc`, `address-sanitizer.txt`, `mem.c`, `pre.js`: use direct source/ASAN evidence and safe runtime states, not removed legacy debug exports or a `logoGC` API. |
 | Workspace/ordinary primitives | `wrksp.c`, `math.c`, `lists.c`, `logodata.c`, `coms.c`: definition/variable/property state, arithmetic/list/control semantics and errors. |
 
 ## Runtime And UI

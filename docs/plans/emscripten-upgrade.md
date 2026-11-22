@@ -187,7 +187,7 @@ LLVM 23.1.3.
 | Minimum browsers rise to Chrome 93, Firefox 92, Safari 15.4 | 6.0.0, 6.0.7, 7.0.0 | user-visible support floor; iPad iPadOS version | Medium |
 | `INCOMING_MODULE_JS_API` trimmed (for example `wasmBinary`, `INITIAL_MEMORY`, `wasmMemory`, `logReadFiles`, `preloadPlugins`) | 5.0.1, 6.0.2 | confirm nothing in `shell.html`, `pre.js`, or `web-config.js` passes these | Low to medium |
 | Runtime internals used from `--pre-js` and `shell.html` (`Asyncify.state`, `UTF8ArrayToString`, `IDBFS`, `FS`, `noExitRuntime`) must still be linked in | 3.1.x to 7.0.0 | [pre.js](../../pre.js), [shell.html](../../shell.html), [testcafe-helpers.js](../../tests/acceptance/testcafe-helpers.js) | Medium |
-| Wasm exports are not callable before instantiation; `Module._*` captured early break | 4.0.10 | [liblogo.js](../../liblogo.js), `pre.js` `Module._logo_gc_debug_*`, tests using `Module._LOGO_GIL` | Medium |
+| Wasm exports are not callable before instantiation; `Module._*` captured early break | 4.0.10 | [liblogo.js](../../liblogo.js), `pre.js`, tests using `Module._LOGO_GIL` | Medium |
 | `FS.write` accepts only typed arrays; `FS.findObject`, `FS.filesystems`, `FS.allocate` removed; `FS.analyzePath` deprecated | 5.0.3, 6.0.11, 6.0.13 | current code uses `FS.writeFile`, `readFile`, `readdir`, `mount`, `syncfs`; commented code references `FS.filesystems` | Low |
 | Pre-run and post-run callbacks run in registration order | 4.0.7 | `Module.preRun` is a single function; review any ordering assumptions | Low |
 | `addRunDependency`/`removeRunDependency` and HEAP views are no longer exported by default | 4.0.7, 4.0.14 | `weblib.c` uses `HEAPU8` inside JS library code; confirm any use from `pre.js` | Low |

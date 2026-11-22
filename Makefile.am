@@ -198,11 +198,7 @@ _int_during_gc,\
 _inside_evaluator,\
 _Buttonact,\
 _Unbound,\
-_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars,\
-_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
-_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
-_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
-_logo_gc_debug_node_id \
+_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars \
 	-s NODERAWFS=1 \
 	--js-library liblogo.js \
 	$(WEB_NODE_DEBUG) $(WEB_LDFLAGS) $(LDFLAGS) $(LIBS)
@@ -244,11 +240,7 @@ _int_during_gc,\
 _inside_evaluator,\
 _Buttonact,\
 _Unbound,\
-_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars,\
-_logo_gc_debug_segment_list,_logo_gc_debug_segment_next,_logo_gc_debug_segment_size,\
-_logo_gc_debug_segment_node,_logo_gc_debug_node_type,_logo_gc_debug_node_car,_logo_gc_debug_node_cdr,\
-_logo_gc_debug_node_obj,_logo_gc_debug_node_next,_logo_gc_debug_node_generation,_logo_gc_debug_node_mark,\
-_logo_gc_debug_node_id \
+_hash_table,_segment_list,_regs,_var_stack,_the_generation,_special_chars \
 	-lidbfs.js \
 	--js-library liblogo.js \
 	$(WEB_HTML_DEBUG) $(WEB_LDFLAGS) $(LDFLAGS) $(LIBS)

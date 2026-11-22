@@ -409,7 +409,6 @@ eval_dispatch:
 	    __asan_address_is_poisoned((void *)&expresn->nunion)) {
 	    EM_ASM({
 	        console.error("Poisoned NODE reached eval_dispatch", $0);
-	        console.error(Module.logoGC.inspect($0));
 	        debugger;
 	    }, (uintptr_t)expresn);
 	}

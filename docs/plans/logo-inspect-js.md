@@ -2,7 +2,7 @@
 
 ## Problem
 
-The current inspection API (`Module.logoGC` in [pre.js](../../pre.js)) calls
+The old inspection API (was `Module.logoGC` in [pre.js](../../pre.js)) called
 twelve `logo_gc_debug_*` C exports ([mem.c](../../mem.c),
 [Makefile.am](../../Makefile.am)). The C runtime is non-reentrant: calling a
 Wasm export while the interpreter is suspended in Asyncify, or from an
