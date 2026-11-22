@@ -17,6 +17,11 @@
 • Must: Means is strictly required to or it is necessary/compulsory but it may involve conditions. For example agents MUST wait for approval on gated tasks before continuing the task, but approval may never come so the task may never continue.
 - Shall and must both convey a firm obligation or logical certainty with little or no discretion. Synonyms: have to, is required to, is obligated to.
 - Andon means a defect has been found and all work must stop immediately no exceptions.
+• SHALL (and SHALL NOT): Denotes a mandatory requirement (or absolute prohibition) necessary for conformance. No deviation is permitted without a documented exception approved under the governing process. Every SHALL statement must be verifiable.
+• MUST (and MUST NOT): Equivalent to SHALL (and SHALL NOT) as an absolute requirement or prohibition. (Note: Select either SHALL or MUST as your primary requirement verb and avoid mixing both in the same specification unless explicitly mapped).
+• SHOULD (and SHOULD NOT): Denotes a recommendation (or non-recommendation). Valid reasons may exist in specific circumstances to deviate, but the technical and operational trade-offs must be evaluated and recorded before doing so.
+• MAY: Denotes permission or an optional capability. Implementations may include or omit the behavior without affecting conformance.
+• ALWAYS and NEVER: Denotes universal applicability ("in all cases" and "in no case") when paired with a requirement verb. Prefer stating conditions explicitly (e.g., "When [condition], the system SHALL...") and using SHALL NOT / MUST NOT rather than relying on NEVER alone.
 
 # Quality assurance 
 - Quality is everyone's responsibility. Strive to create quality software. Quality is consistency. Consistency is achieved by minimizing waste and maximizing smoothness and value. Minimizing waste includes following the quality process. The quality process includes using a continuous feedback loop to improve the quality process and maximize user value and minimize waste. Waste could be time, credits, tokens, bandwidth, movement of data, etc.
