@@ -145,6 +145,9 @@
 - Agents shall never use shell here-documents (`<<`) or here-strings (`<<<`) under any circumstances. Any here-document or here-string use is a defect and an andon.
 - All agent-written scripts, including temporary one-off scripts, SHALL be saved in the repository, and approval SHALL be requested from the user. Agents SHALL NOT run new scripts until they have been reviewed and the agent has received approval from the user. Agent scripts SHALL NOT be saved in temporary files. Before committing, check and suggest script for candidates for reusability. Delete scripts that are not reusable. This rule does not automatically apply to simple shell commands or short pipelines, but should apply to long or complex or high risk commands, or commands that are highly likely to be reused.
 
+# Editing policy
+- Agents frequently fail when attempting to make edits for unknown reasons; network reliability is suspected but not confirmed. Edits should always be broken up into small pieces and applied individually until further notice.
+
 <!-- - Programs shall treat all incoming 3rd party data as tainted. Tainted data shall be checked and sanitized before any further processing. Checker and sanitizer shall be hardened against injection attacks and shall be rigorously testing with fuzzing cases. Only use approved checkers and sanitizers. Raise an andon if not approved checker is available. -->
 <!-- - PII means "personally identifiable information" and is any information which could be used to identify an individual person such as names, emails, addresses, phone numbers, IP addresses, etc.
 - An exception to the PII rule is approved for project developers.
