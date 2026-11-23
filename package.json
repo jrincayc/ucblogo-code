@@ -15,7 +15,7 @@
     "test:browser:build": "npm run test:browser",
     "test:browser:built": "node tests/acceptance/run-testcafe.js",
     "test:browser:smoke": "node tests/acceptance/run-testcafe.js --test 'Logo starts and displays its welcome message'",
-    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/storage-status.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js tests/acceptance/stage-web-deploy.test.js tests/acceptance/build-help.test.js tests/acceptance/build-help-docs.test.js tests/acceptance/help-loading.test.js tests/acceptance/lighthouse-retry.test.js scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js",
+    "test:source": "node --test tests/acceptance/source.test.js tests/acceptance/storage-status.test.js tests/acceptance/logo-results.test.js tests/acceptance/runner.test.js tests/acceptance/stage-web-deploy.test.js tests/acceptance/build-help.test.js tests/acceptance/build-help-docs.test.js tests/acceptance/help-loading.test.js tests/acceptance/lighthouse-retry.test.js scripts/format-whitespace.test.js .github/hooks/format-whitespace.test.js .github/hooks/pre-push.test.js",
     "stage:web": "node scripts/stage-web-deploy.js",
     "test:runner:browser": "node -e \"const result = require('node:child_process').spawnSync(process.execPath, ['--test', 'tests/acceptance/runner.test.js'], { stdio: 'inherit', env: Object.assign({}, process.env, { RUNNER_BROWSER_TESTS: '1' }) }); process.exit(result.status ?? 1)\"",
     "test:logo:node": "node tests/acceptance/run-logo-node.js",

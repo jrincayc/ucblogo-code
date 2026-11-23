@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+# Warn before pushing if the latest CI run for the branch has failed.
+set -u
+
+remote_name=${1:-}
+remote_url=${2:-}
+[ -n "$remote_name" ] || exit 0
+[ -n "$remote_url" ] || exit 0
+
+repo=
+if printf '%s' "$remote_url" | grep -Eq '^git@github\.com:[^/]+/[^/]+\.git$|^ssh://git@github\.com/[^/]+/[^/]+\.git$'; then
+  repo=$(printf '%s' "$remote_url" | sed -E 's#^(git@github\.com:|ssh://git@github\.com/)##; s#\.git$##')
+elif printf '%s' "$remote_url" | grep -Eq '^https://github\.com/[^/]+/[^/]+(\.git)?$'; then
+  repo=$(printf '%s' "$remote_url" | sed -E 's#^https://github\.com/##; s#\.git$##')
+fi
+[ -n "$repo" ] || exit 0
+
+command -v gh >/dev/null 2>&1 || exit 0
+
+branches=
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+  [ -n "${local_ref:-}" ] || continue
+  [ "$local_sha" = "$(printf '%040d' 0)" ] && continue
+
+  case "$remote_ref" in
+    refs/heads/*) branch=${remote_ref#refs/heads/*} ;;
+    *) continue ;;
+  esac
+
+  case " $branches " in
+    *" $branch "*) continue ;;
+  esac
+  branches="$branches $branch"
+
+  run_json=$(gh run list --repo "$repo" --branch "$branch" --limit 1 --json databaseId,status,conclusion,url,headSha 2>/dev/null) || {
+    printf 'pre-push: could not check current CI for %s; pushing anyway.\n' "$branch" >&2
+    continue
+  }
+  [ -n "$run_json" ] || continue
+
+  conclusion=$(printf '%s' "$run_json" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{try{const r=JSON.parse(s)[0];process.stdout.write(r?.conclusion||"")}catch{}})' 2>/dev/null)
+  url=$(printf '%s' "$run_json" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{try{const r=JSON.parse(s)[0];process.stdout.write(r?.url||"")}catch{}})' 2>/dev/null)
+
+  [ "$conclusion" = "failure" ] || continue
+
+  printf 'Warning: latest CI run for %s is failing.%s\n' "$branch" "${url:+ $url}" >&2
+  if [ -r /dev/tty ] && [ "${UCBLOGO_PRE_PUSH_NO_TTY:-}" != 1 ]; then
+    printf 'Push anyway? [y/N] ' >&2
+    IFS= read -r answer < /dev/tty || answer=
+  else
+    answer=
+  fi
+  case "${answer:-}" in
+    y|Y|yes|YES|Yes) ;;
+    *) printf 'Push cancelled.\n' >&2; exit 1 ;;
+  esac
+done
+
+exit 0
