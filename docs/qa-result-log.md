@@ -58,3 +58,18 @@ This log is manually maintained. This change creates no parser, lock script, hoo
 - `Findings/corrections: The QA appender workflow has a defect: the assigned appender must append approved independent QA entries itself rather than returning a proposed entry and stopping. The present defect entries are now appended directly.`
 - `Residual risks/limits: Whether this was a session-role misinterpretation or a reusable workflow defect requires follow-up. Prior opportunities to record the defect may have been lost or delayed.`
 - `Supersedes: None`
+
+## `QA-2026-11-23-004 — Turtle graphics reconciliation defect resolved as deferred rollout unblock`
+
+- `UTC timestamp: 2026-11-23T12:34:34Z`
+- `Task/session: Turtle graphics reconciliation CI disposition`
+- `Stage/scope: Web Edition CI and security rollout`
+- `Check type: Independent QA`
+- `Owner/checker: GitHub Copilot`
+- `Result: PASS`
+- `Target revision/artifact: 1f90e7c4451236d87daa374da50d9c99310343e8`
+- `Commands/method: GitHub Actions run review; source invariant suite; focused Chrome security test`
+- `Evidence: CI run https://github.com/jrincayc/ucblogo-code/actions/runs/45087521079 completed successfully for revision 1f90e7c4451236d87daa374da50d9c99310343e8. The prior reconciliation failure was deferred by temporarily disabling only the experimental reconciliation assertion, while turtle execution and screenshot checks remained active. The source suite passed 12/12 and ACC-URL-001 passed in Chrome.`
+- `Findings/corrections: The reconciliation defect no longer blocks the urgent Web Edition security rollout. Its later diagnosis remains out of scope and is recorded in docs/plans/turtle-graphics-report-reconciliation-research.md.`
+- `Residual risks/limits: The reconciliation report assertion remains disabled and must not be treated as active accounting coverage until later diagnosis restores it under a separately approved scope.`
+- `Supersedes: QA-2026-11-23-001`
