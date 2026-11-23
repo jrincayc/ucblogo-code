@@ -186,7 +186,7 @@ function main(argv) {
 
     let paths = explicit;
     if (changed) paths = [...paths, ...changedPaths(root)];
-    if (!paths.length) {
+    if (!explicit.length && !changed) {
         console.error('Usage: format-whitespace.js [--check] [--changed] <file> [file...]');
         return 2;
     }

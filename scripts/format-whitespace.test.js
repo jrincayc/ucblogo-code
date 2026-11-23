@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const test = require('node:test');
 
 const {
@@ -14,11 +15,80 @@ const {
     formatPaths,
 } = require('./format-whitespace.js');
 
+const scriptPath = path.resolve(__dirname, 'format-whitespace.js');
+
 function tempRoot(t) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ucblogo-format-'));
     t.after(() => fs.rmSync(root, { recursive: true, force: true }));
     return root;
 }
+
+function tempGitRoot(t) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ucblogo-format-cli-'));
+    const git = spawnSync('git', ['-C', root, 'init', '--quiet'], { encoding: 'utf8' });
+    assert.equal(git.status, 0, git.stderr);
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    return root;
+}
+
+function runCli(root, args) {
+    return spawnSync(process.execPath, [scriptPath, ...args], {
+        cwd: root,
+        encoding: 'utf8',
+    });
+}
+
+test('CLI rejects a bare invocation', (t) => {
+    const root = tempGitRoot(t);
+    const result = runCli(root, []);
+
+    assert.equal(result.status, 2);
+    assert.match(result.stderr, /^Usage: format-whitespace\.js/);
+});
+
+test('CLI --changed succeeds when no paths are changed', (t) => {
+    const root = tempGitRoot(t);
+
+    const check = runCli(root, ['--check', '--changed']);
+    assert.equal(check.status, 0, check.stderr);
+    assert.equal(check.stdout.trim(), 'Whitespace check passed.');
+
+    const format = runCli(root, ['--changed']);
+    assert.equal(format.status, 0, format.stderr);
+    assert.equal(format.stdout.trim(), 'No whitespace changes needed.');
+});
+
+test('CLI check and format modes handle changed Markdown files', (t) => {
+    const root = tempGitRoot(t);
+    const file = path.join(root, 'changed.md');
+    fs.writeFileSync(file, 'Needs newline', 'utf8');
+
+    const check = runCli(root, ['--check', '--changed']);
+    assert.equal(check.status, 1, check.stderr);
+    assert.match(check.stdout, /Would change: changed\.md/);
+    assert.equal(fs.readFileSync(file, 'utf8'), 'Needs newline');
+
+    const format = runCli(root, ['--changed']);
+    assert.equal(format.status, 0, format.stderr);
+    assert.match(format.stdout, /Formatted: changed\.md/);
+    assert.equal(fs.readFileSync(file, 'utf8'), 'Needs newline\n');
+});
+
+test('CLI explicit-file paths preserve check and format behavior', (t) => {
+    const root = tempGitRoot(t);
+    const file = path.join(root, 'explicit.md');
+    fs.writeFileSync(file, 'Needs newline', 'utf8');
+
+    const check = runCli(root, ['--check', file]);
+    assert.equal(check.status, 1, check.stderr);
+    assert.match(check.stdout, /Would change:/);
+    assert.equal(fs.readFileSync(file, 'utf8'), 'Needs newline');
+
+    const format = runCli(root, [file]);
+    assert.equal(format.status, 0, format.stderr);
+    assert.match(format.stdout, /Formatted:/);
+    assert.equal(fs.readFileSync(file, 'utf8'), 'Needs newline\n');
+});
 
 test('normalizes CRLF, trailing whitespace, terminal blanks, and final newline', () => {
     const input = 'First\t  \r\nSecond   \r\nThird\r\n\r\n\r\n';
