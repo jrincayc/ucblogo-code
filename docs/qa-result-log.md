@@ -73,3 +73,18 @@ This log is manually maintained. This change creates no parser, lock script, hoo
 - `Findings/corrections: The reconciliation defect no longer blocks the urgent Web Edition security rollout. Its later diagnosis remains out of scope and is recorded in docs/plans/turtle-graphics-report-reconciliation-research.md.`
 - `Residual risks/limits: The reconciliation report assertion remains disabled and must not be treated as active accounting coverage until later diagnosis restores it under a separately approved scope.`
 - `Supersedes: QA-2026-11-23-001`
+
+## `QA-2026-11-23-005 — QUALITY.md workflow consistency reconciliation`
+
+- `UTC timestamp: 2026-11-23T04:53:08Z`
+- `Task/session: Quality process consistency review`
+- `Stage/scope: Workflow and QA documentation`
+- `Check type: Independent QA`
+- `Owner/checker: GitHub Copilot`
+- `Result: PASS`
+- `Target revision/artifact: QUALITY.md, working-tree SHA-256 e48f33d18c038f9f0b5f31ea919155bc02e9047acfd5e38c9aa6c85e27f97594`
+- `Commands/method: Section-by-section comparison against development-orchestration.md, .github/agents/*.agent.md, copilot-instructions.md, and the QA result log; final Markdown whitespace and diff checks`
+- `Evidence: QUALITY.md now states every stage's deliverable and exit checkpoint, specialized Logo language applicability and supplemental CTO review, proposed and rendered visual review gates, exact commit/staged-diff/reviewer requirements, commit-native accounting, explicit push approval, and formal/out-of-workflow QA logging.`
+- `Findings/corrections: The prior QA-2026-11-23-002-style consistency failure is reconciled. Specialized language and design gates supplement rather than replace Development Reviewer and aggregate QA. Every stage now requires explicit human stage acceptance. Commit and push controls reference staged-diff review, accounting, exact revision evidence, and fresh push approval.`
+- `Residual risks/limits: This check validates documentation consistency against repository policy text; it does not prove runtime enforcement or exercise a full workflow on a new task. The final exact committed revision must be rechecked after the reconciliation commit.`
+- `Supersedes: QA-2026-11-23-002`

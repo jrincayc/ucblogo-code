@@ -81,7 +81,28 @@ flowchart TD
     F -.->|affected targets| TG
 ```
 
-Every stage produces a deliverable, independent evidence or review as applicable, and a human checkpoint where the contract requires one. Material scope, acceptance, or target changes reopen the earliest affected stage.
+Every stage produces a deliverable, independent evidence or review as applicable, and a human checkpoint. Material scope, acceptance, or target changes reopen the earliest affected stage.
+
+| Stage | Required deliverable | Stage exit |
+| --- | --- | --- |
+| Research | Reproduction or goal, local evidence, affected targets, constraints, uncertainties, and risks | Independent QA verdict and explicit human approval of that revision |
+| Plan | Bounded tasks, dependencies, file ownership, implementation map, acceptance criteria, rollback, and visual applicability | Independent QA verdict plus the required specialized or not-applicable decisions and explicit human approval |
+| Test Plan | Acceptance criteria, mapped cases, setup/teardown, fixtures, commands, regression scope, and visual scenarios | Independent QA verdict and explicit human approval of that revision |
+| Implement Tests | Reviewable tests and baseline execution, including an intended-failure demonstration for behavior changes | Independent QA verdict and explicit human approval of that revision |
+| Implement Changes | Small scoped changes, focused validation, commit evidence, and aggregate regression evidence | Independent QA verdict and explicit human acceptance of the exact revision before Code Review |
+| Code Review | Independent severity-ordered findings, repairs, re-review, residual risks, and final aggregate QA evidence | Independent QA verdict and explicit human sign-off |
+
+At every stage, present the stage summary, evidence, QA verdict, risks, and a specific approval question. Silence, the initial request, or an earlier stage approval does not approve a later stage or revision.
+
+### Specialized review applicability
+
+During Research and Plan, classify every change for the following gates:
+
+- **Logo language behavior:** Apply the Logo Language CTO Reviewer gate for intentional changes to parsing, syntax, primitive names or arity, defaults, evaluation semantics, language-level errors, core library behavior, or dialect/compatibility guarantees. Implementation changes that preserve observable language behavior do not trigger this gate. If applicability is uncertain, report it for routing; do not silently waive review. A CTO PASS supplements, and never replaces, Development Reviewer, Development QA, language tests, or human approval.
+- **Visual/UI:** Apply the Development Design Reviewer gate for layout, typography, color, imagery, animation, responsive behavior, visible interaction states, or accessibility impact. Before Plan approval, independently review proposed screens/mockups and affected states. After implementation, independently review actual rendered output and interactions at agreed desktop/mobile viewports and states. Source code alone is not rendered evidence.
+- **Accessibility:** Treat keyboard operation, focus, semantic state, screen-reader behavior, contrast, and touch target changes as specialized UI/visual work when applicable. QA shall verify a proposed gate determination or a rendered not-applicable determination.
+
+Specialized review PASS, FAIL, or BLOCKED results do not replace Development Reviewer coverage or aggregate Development QA. Material visual or semantic repairs require fresh specialist review and affected QA.
 
 ### 1. Define the change
 
@@ -260,113 +281,20 @@ Missing evidence is `BLOCKED`, never an assumed pass.
 
 ## Git and Commit Discipline
 
-- Make frequent small commits after cleared semantic blocks.
-- Stage only task-owned files and inspect the staged diff.
-- Run focused validation and record its actual result before committing.
+- Make frequent small commits after cleared semantic blocks. Commit intermediate local checkpoints early even if broader work remains.
+- Stage only task-owned files and inspect the complete staged diff, staged file list, and whitespace before committing.
+- Run focused validation and record its actual result against the staged or exact target revision before committing.
+- For code/test commits, obtain required independent Development Reviewer coverage of the exact staged content. QA is not a routine pre-commit gate, but aggregate QA applies to the final stage revision.
+- For non-code commits, stage only QA-cleared content and have QA verify that the staged diff matches the cleared substep and evidence. Repeat QA if staging changes cleared content.
+- Add a fresh commit-native accounting checkpoint immediately before every local commit, after staged-diff inspection. Record the exact staged paths or revision and the resulting local commit hash. Do not invent unavailable billing or usage data.
 - Keep intermediate commits on a private or unshared branch; do not imply unpushed work is integrated.
-- Do not push or rewrite pushed history without fresh explicit human approval for the exact remote, branch, and commits.
-- Stop and disclose a process failure if required review or QA evidence is missing for a commit.
+- Every push requires fresh explicit human approval for the exact remote, destination branch, and commit range or commits. Do not push, force-push, or rewrite pushed history without that approval.
+- Stop and disclose a process failure if required review, QA evidence, staged-diff review, accounting evidence, or push approval is missing for a commit or publication.
 
-## CI as an Inventory
+## QA Result Logging
 
-GitHub Actions is the inventory and baseline for automated cross-target coverage. At minimum, Web changes should account for:
-
-- source and runner Node tests;
-- fresh Web build and browser acceptance;
-- Node Logo grading;
-- browser runner behavior;
-- Lighthouse audits;
-- native terminal and PTY behavior;
-- wxWidgets unit and smoke checks where affected or available.
-
-CI coverage does not replace focused local diagnosis or independent review. A CI green mark shall not be used to claim browser, device, platform, or visual coverage that the job did not execute.
-
-## Reviews
-
-- The implementation owner owns correctness of the focused change and focused evidence.
-- Independent review prioritizes correctness, security, regressions, scope, and unintended behavior.
-- Development QA independently verifies stage acceptance and exact revision identity.
-- Visual work requires independent proposed-design review and independent rendered-output review when the gate applies.
-- Human signoff is required before stage advancement or publication.
-- No author or reviewer shall approve work they authored.
-
-## Process Changes
-
-Process changes require:
-
-- a concrete defect or improvement;
-- affected scope and owner;
-- risk and rollback analysis;
-- revised acceptance and evidence;
-- explicit human approval;
-- documentation of approved deviations and their limits;
-- a follow-up check that the revised process works.
-
-A deviation is not approval from urgency, silence, role consensus, or an earlier task request. If the process proves harmful or wasteful, improve the document rather than silently bypassing it.
-
-### Supported build targets
-
-Maintain all four supported major targets continuously:
-
-| Target | Configuration | Primary runtime and role | Required quality coverage |
-| --- | --- | --- | --- |
-| Web HTML/Wasm | Emscripten with `emconfigure ./configure --enable-wasm` | Browser UI, SVG, DOM, storage, events, PWA, and Web APIs | Fresh build; source/runner checks; TestCafe browser acceptance; Lighthouse for audited web health |
-| Node/Wasm | Emscripten Node environment from the same Web/Wasm toolchain | Headless Node subprocess and filesystem runtime | Fresh Node/Wasm artifact; Node Logo grading with individual `Ok`, `Failed`, and `Error` results |
-| wxWidgets | Native configure with `--enable-wx` | Desktop GUI, graphics, input, and platform integration | Independent native build under Xvfb when needed; Logo unit suite; wx smoke tests and visual baselines |
-| Unix terminal | Native configure with `--disable-wasm --disable-wx --disable-x11` | Pipe, PTY, curses, redirected-I/O, and literal terminal behavior | Objects and object-free builds as applicable; Logo unit suite; literal-output and PTY checks |
-
-The Web HTML and Node targets share Wasm source and build machinery but are not interchangeable. A passing Node Logo run does not prove browser behavior. Conversely, passing browser tests do not prove the Node subprocess contract or Unix filesystem behavior.
-
-Native and Emscripten builds shall not be reconfigured concurrently in the same checkout or object tree. Use isolated worktrees or build directories for target matrices, and follow `make clean` and target-switching rules before trusting a result.
-
-### Target-specific expectations
-
-#### Web HTML/Wasm
-
-- Rebuild after shell markup, runtime JavaScript, C sources, Logo startup files, packaged Logo tests, help, or Web assets change.
-- Verify the served HTML, `.js`, `.wasm`, startup files, service worker, and origin represent the intended build.
-- Use the shared TestCafe runner rather than a second browser assertion framework.
-- Wait for HTTP, welcome-output, idle-evaluator, and input readiness; do not replace readiness with fixed sleeps.
-- Cover desktop Chrome and affected browser/device targets. Record capability filtering, emulation, real-device status, and excluded cases.
-- Keep Lighthouse as a separate audit. Never count audit thresholds as language or functional browser coverage.
-
-#### Node/Wasm
-
-- Build or relink the Node environment separately and verify it contains the exact source revision.
-- Grade the individual Logo result lines and require final `All tests completed.` plus successful process exit.
-- Omitted or skipped OOP coverage is not passing coverage.
-- Verify process errors, signals, timeout handling, runtime crashes, stdout/stderr, stdin, and raw filesystem behavior as applicable.
-- Add Node regressions for bridge, raw-filesystem, stdin, evaluator, and non-DOM runtime behavior that does not belong in TestCafe.
-
-#### wxWidgets
-
-- Configure explicitly with `--disable-wasm --enable-wx`; verify `HAVE_WX` is selected and the intended object/profile options are active.
-- Maintain wxWidgets coverage on Linux, Unix, macOS, and Windows; it is not a Linux-only desktop edition.
-- Build and run Logo unit tests in each available target environment; report missing GUI dependencies and unavailable visual evidence rather than treating compilation as runtime validation.
-- Run the wx smoke harness for GUI startup, input, events, graphics, and repeated state checks when the change affects those surfaces.
-- Compare GUI screenshots only against approved CI baselines or explicitly approved baselines for the exact operating system and environment.
-- Verify native file round trips and repeated GC where memory, graphics, or object changes are involved.
-- Preserve compatibility with headless Xvfb CI and avoid claiming an interactive desktop pass from a headless-only run.
-
-##### wx platform matrix
-
-| Platform | Required evidence | Platform limit |
-| --- | --- | --- |
-| Linux | Native configure/build, Logo unit suite, and wx GUI startup/input/affected behavior under Xvfb or an approved desktop session | Xvfb proves the automated harness, not an interactive desktop session |
-| Unix | Native configure/build and platform-appropriate Logo, terminal, file, graphics, and smoke coverage | Document the Unix variant, display system, toolchain, wxWidgets version, and unavailable graphical or input checks |
-| macOS | Native configure/build, Logo unit suite, and wx startup/graphics/input smoke through macOS CI or human desktop validation | Do not infer macOS behavior from Linux GTK/Xvfb, Windows, or Unix terminal builds |
-| Windows | Native configure/build, Logo unit suite, and wx startup/graphics/input smoke through Windows CI or human desktop validation | Do not infer Windows behavior from Linux, Unix, or macOS wx builds; record MinGW/MSVC or another toolchain identity |
-
-Cross-platform wx changes shall identify an available CI or human gate for every affected wx platform. If a platform cannot execute, mark that platform `BLOCKED` or explicitly exclude it by approved scope; never relabel Linux GTK evidence as macOS or Windows coverage.
-
-#### Unix terminal
-
-- Configure explicitly with `--disable-wasm --disable-wx --disable-x11`, and test both object-enabled and object-free variants when object support or default behavior can change.
-- Run and grade the full Logo unit suite, including individual result lines and missing-report detection.
-- Verify literal redirected output and the absence of HTML entity substitution.
-- Exercise PTY behavior, character-mode and termios state, Ctrl-C, xterm cursor/control sequences, `TERM=dumb`, unset `TERM`, redirected stdout, EOF, and terminal-state restoration when terminal code changes.
-- Test piped stdin and stdout where I/O behavior changes. Avoid treating an interactive terminal pass as equivalent to pipe or EOF coverage.
-
-### Cross-target review rule
-
-A shared C, header, parser, evaluator, memory, file, graphics, build, or test-harness change requires a target-impact analysis. At minimum, identify whether it affects the Web HTML, Node/Wasm, wxWidgets, and Unix terminal targets. Run or plan the affected target gates; a target shall not be marked applicable/green unless its exact build and focused evidence exist.
+- Record formal workflow checks under `docs/workflow-runs/<task-id>.md` in `## QA and Check Results`.
+- Record checks with no owning formal workflow under `docs/qa-result-log.md` using one canonical H3 entry per independent check or disposition.
+- Include UTC timestamp, task/session, scope, check type, owner/checker, result, exact revision or artifact, commands/method, evidence, findings/corrections, residual risks/limits, and `Supersedes`.
+- Use `PASS`, `FAIL`, `BLOCKED`, or explicitly reasoned `N/A`. Missing evidence or unavailable required review is `BLOCKED`, never inferred `PASS`.
+- Corrections append a new entry and reference prior entries through `Supersedes`; never rewrite or erase earlier evidence.
