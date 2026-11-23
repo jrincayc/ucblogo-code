@@ -18,7 +18,10 @@ status=${run#* }
 cache=${TMPDIR:-/tmp}/ci-cache
 cached() {
   key=$1; shift
-  [ "$status" = completed ] && [ "${CI_CACHE:-1}" != 0 ] || { "$@"; return; }
+  if [ "$status" != completed ] || [ "${CI_CACHE:-1}" = 0 ]; then
+    "$@"
+    return
+  fi
   mkdir -p "$cache"
   f=$cache/$(echo "$repo" | tr / _)-$id-$key
   [ -s "$f" ] || { "$@" > "$f.tmp" && mv "$f.tmp" "$f"; }

@@ -1,8 +1,14 @@
+# Mandatory Shell Rules
+- Every shell command passes through a fail-closed `shellcheck` gate that **rejects** unquoted variables (`$VAR`), unquoted `$(...)`, here-strings (`\x3c\x3c\x3c`), unquoted/double-quoted heredocs (`<<EOF`, `<<"EOF"`), `eval`, and `ruby`.
+- Always quote variables and command substitutions: `"$file"`, `"${arr[@]}"`, `"$(cmd)"`.
+- Only **single-quoted** heredocs (`cat <<'EOF' > "file"`) and `printf '%s\n' "$var" | cmd` pipes are permitted for passing data.
+- Always use `yq` or `jq` for YAML/JSON; never manually `source emsdk_env.sh` (`emcc`/`emmake` are auto-loaded by the gate).
+
 # Skill Use
 
 - At the beginning of each task, identify and load applicable skills automatically.
 - In the initial update, name the skills you are using. If none apply, say so. Only claim to use skills you actually load.
-- Before executing any shell command, all agents MUST load and follow the `safe-shell-streams` and `parallel-xargs` skills.
+- Before executing any shell command, all agents MUST load and follow the `safe-bash-ucblogo` and `parallel-xargs` skills.
 
 # Protecting This File
 
@@ -142,7 +148,6 @@
 # security
 - Workers shall not ever use string interpolation ever on pain of death. Write data to temp files and use pipes or redirection to move the data into shell commands or use parameter binding and if you can not figure out how to avoid interpolation then raise an andon. STRING INTERPOLATION IS A DEFECT. ANY TYPE OF INTERPOLATION IS A POTENTIAL DEFECT DUE TO VULNERABILITY TO INJECTION ATTACKS EVEN AT BUILD TIME. DO NOT USE AD-HOC QUOTING AND ESCAPING MECHANIMS. ONLY USE TESTED AND APPROVED QUOTING AND ESCAPING METHODS. USE OF UNAPPROVED ESCAPING OR QUOTING IN COMMAND EXECUTION OR CODE OR ANYWHERE EVER IS A DEFECT AND AN ANDON. EVERY USE OF STRING INTERPOLATION REQUIRES EXPLICIT APPROVAL UNTIL FURTHER NOTICE.
 - All filenames used in shell commands SHALL be quoted and escaped with an approved mechanism. Failure to quote and escape any filename is a defect and an andon. If no approved mechanism exists, raise an andon.
-- Agents shall never use shell here-documents (`<<`) or here-strings (`<<<`) under any circumstances. Any here-document or here-string use is a defect and an andon.
 - All agent-written scripts, including temporary one-off scripts, SHALL be saved in the repository, and approval SHALL be requested from the user. Agents SHALL NOT run new scripts until they have been reviewed and the agent has received approval from the user. Agent scripts SHALL NOT be saved in temporary files. Before committing, check and suggest script for candidates for reusability. Delete scripts that are not reusable. This rule does not automatically apply to simple shell commands or short pipelines, but should apply to long or complex or high risk commands, or commands that are highly likely to be reused.
 
 # Editing policy
