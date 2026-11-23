@@ -40,3 +40,10 @@ test('ACC-URL-001 URL search and hash data are not Logo command-line file argume
     await t.expect(output.textContent).contains('true',
         'URL search and hash parameters must not populate command.line');
 });
+
+test('ACC-URL-002 early key presses do not abort startup', async (t) => {
+    await t.pressKey('a');
+    await ready(t);
+    await runLogo(t, 'print logoversion');
+    await t.expect(output.textContent).contains('6.2');
+});

@@ -559,7 +559,7 @@
             <logo-autocomplete for="logoInputText"></logo-autocomplete>
             <label class="visually-hidden" for="logoInputText">Logo command</label>
             <input name="logoInputText" id="logoInputText" type="text" style="width: 100%" enterkeyhint="enter"
-              placeholder="Enter Logo commands here" onkeydown="Module.handleKeyDown(event)" spellcheck="false"
+              placeholder="Enter Logo commands here" onkeydown="typeof Module.handleKeyDown === 'function' &amp;&amp; Module.handleKeyDown(event)" spellcheck="false"
               autocomplete="off" autocapitalize="off" autocorrect="off">
             <select id="commandHistorySelect" style="max-width: 18px;"
               aria-label="Command history" title="Command history"
@@ -1644,12 +1644,13 @@
         }
         return false;
       });
-      document.addEventListener('keydown', (evt)=>{
-        if (evt.key.toLowerCase() === 's'
-          && evt.metaKey) {
+      document.addEventListener('keydown', (evt) => {
+        if (evt.key.toLowerCase() === 's' && evt.metaKey) {
+          if (typeof Module.onstoplogo === 'function') {
             Module.onstoplogo();
+          }
         }
-        else {
+        else if (typeof Module.onkeydown === 'function') {
           Module.onkeydown(evt);
         }
       });
