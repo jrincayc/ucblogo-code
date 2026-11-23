@@ -61,6 +61,7 @@ jobs:
         path: |
           reports/testcafe.json
           reports/lighthouse/
+          reports/turtle-graphics-examples/
           screenshots/failures/
 
   build_and_test:
