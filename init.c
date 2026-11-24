@@ -692,7 +692,14 @@ nosugar:
 
 	newlib = wxMacGetLibloc();
 	if (newlib) {
-	  logolib = (char *)newlib;
+	  char message_fn[256];
+	  FILE *message_fp;
+	  snprintf(message_fn, 256, "%s%sMessages", newlib, separator);
+	  message_fp = fopen(message_fn, "r");
+	  if (message_fp != NULL) {
+	    fclose(message_fp);
+	    logolib = (char *)newlib;
+	  }
 	}
 
 	newcsls = wxMacGetCslsloc();
